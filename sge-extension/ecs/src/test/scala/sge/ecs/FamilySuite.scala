@@ -168,4 +168,62 @@ class FamilySuite extends munit.FunSuite {
     entity.add(new ComponentC)
     assert(!family.matches(entity))
   }
+
+  // ── FamilyTests with PooledEngine ──────────────────────────────────────
+
+  private class TestSystemA extends sge.ecs.systems.IteratingSystem(Family.all(classOf[ComponentA]).get()) {
+    override protected def processEntity(e: Entity, d: Float): Unit = {}
+  }
+
+  private class TestSystemB extends sge.ecs.systems.IteratingSystem(Family.all(classOf[ComponentB]).get()) {
+    override protected def processEntity(e: Entity, d: Float): Unit = {}
+  }
+
+  test("matchWithPooledEngine") {
+    val engine = new PooledEngine
+
+    engine.addSystem(new TestSystemA)
+    engine.addSystem(new TestSystemB)
+
+    val e = engine.createEntity()
+    e.add(new ComponentB)
+    e.add(new ComponentA)
+    engine.addEntity(e)
+
+    val f = Family.all(classOf[ComponentB]).exclude(classOf[ComponentA]).get()
+    assert(!f.matches(e))
+
+    engine.clearPools()
+  }
+
+  test("matchWithPooledEngineInverse") {
+    val engine = new PooledEngine
+
+    engine.addSystem(new TestSystemA)
+    engine.addSystem(new TestSystemB)
+
+    val e = engine.createEntity()
+    e.add(new ComponentB)
+    e.add(new ComponentA)
+    engine.addEntity(e)
+
+    val f = Family.all(classOf[ComponentA]).exclude(classOf[ComponentB]).get()
+    assert(!f.matches(e))
+
+    engine.clearPools()
+  }
+
+  test("matchWithoutSystems") {
+    val engine = new PooledEngine
+
+    val e = engine.createEntity()
+    e.add(new ComponentB)
+    e.add(new ComponentA)
+    engine.addEntity(e)
+
+    val f = Family.all(classOf[ComponentB]).exclude(classOf[ComponentA]).get()
+    assert(!f.matches(e))
+
+    engine.clearPools()
+  }
 }

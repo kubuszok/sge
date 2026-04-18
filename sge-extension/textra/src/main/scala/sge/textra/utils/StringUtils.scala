@@ -9,8 +9,12 @@ package sge
 package textra
 package utils
 
+import java.util.Random as JRandom
+
 import scala.util.boundary
 import scala.util.boundary.break
+
+import sge.math.MathUtils
 
 object StringUtils {
 
@@ -27,6 +31,39 @@ object StringUtils {
       }
       sb.toString
     }
+
+  /** Shuffles the words in text using a thread-local random, joins them with a space as the delimiter, and returns that String.
+    *
+    * @param text
+    *   a String containing typically many whitespace-separated words
+    * @return
+    *   text with its words shuffled randomly
+    */
+  def shuffleWords(text: String): String =
+    shuffleWords(text, MathUtils.randomGenerator)
+
+  /** Shuffles the words in text using the given Random generator, joins them with a space as the delimiter, and returns that String. The generator can be seeded to get replicable results.
+    *
+    * @param text
+    *   a String containing typically many whitespace-separated words
+    * @param generator
+    *   a java.util.Random used for shuffling
+    * @return
+    *   text with its words shuffled randomly
+    */
+  def shuffleWords(text: String, generator: JRandom): String = {
+    val items  = text.split("\\s+")
+    val length = items.length
+    var i      = length - 1
+    while (i > 0) {
+      val ii   = generator.nextInt(i + 1)
+      val temp = items(i)
+      items(i) = items(ii)
+      items(ii) = temp
+      i -= 1
+    }
+    join(" ", items*)
+  }
 
   /** An overly-permissive, but fast, way of looking up the numeric value of a hex digit provided as a char. */
   def hexCode(c: Char): Int = {
@@ -58,6 +95,44 @@ object StringUtils {
       i -= 4
     }
     sb
+  }
+
+  /** Allocates a new 8-char array filled with the unsigned hex format of number, and returns it.
+    *
+    * @param number
+    *   any int to write in hex format
+    * @return
+    *   a new char array holding the 8-character unsigned hex representation of number
+    */
+  def unsignedHexArray(number: Int): Array[Char] = {
+    val chars = new Array[Char](8)
+    var i     = 0
+    var s     = 28
+    while (i < 8) {
+      chars(i) = hexChar(number >>> s & 15)
+      i += 1
+      s -= 4
+    }
+    chars
+  }
+
+  /** Allocates a new 16-char array filled with the unsigned hex format of number, and returns it.
+    *
+    * @param number
+    *   any long to write in hex format
+    * @return
+    *   a new char array holding the 16-character unsigned hex representation of number
+    */
+  def unsignedHexArray(number: Long): Array[Char] = {
+    val chars = new Array[Char](16)
+    var i     = 0
+    var s     = 60
+    while (i < 16) {
+      chars(i) = hexChar(number >>> s & 15)
+      i += 1
+      s -= 4
+    }
+    chars
   }
 
   def unsignedHex(number: Int): String = {

@@ -60,6 +60,11 @@ class TextraTooltip(
 
   def getActor: TextraLabel = _label
 
+  /** Returns this tooltip's container-like state holder. In the original TextraTypist, this returns the Container from the Tooltip superclass. Since TextraTooltip is standalone in SGE, this returns a
+    * lightweight wrapper providing the same fluent API for background and width configuration.
+    */
+  def getContainer: TextraTooltip.ContainerProxy = new TextraTooltip.ContainerProxy(this)
+
   def setStyle(style: Styles.TextTooltipStyle): Unit = {
     Nullable.foreach(style.label) { ls =>
       // We don't want to regenerate the layout yet, so the last parameter is false.
@@ -88,4 +93,36 @@ class TextraTooltip(
   /** Does nothing unless the label used here is a TypingLabel; then, this will skip text progression ahead. */
   def skipToTheEnd(): Unit =
     _label.skipToTheEnd()
+}
+
+object TextraTooltip {
+
+  /** A lightweight wrapper that mimics Container's fluent API for setting background and width on the tooltip. */
+  final class ContainerProxy(private val tooltip: TextraTooltip) {
+
+    /** Sets the background drawable for this container (tooltip). Returns this for chaining. */
+    def background(bg: Nullable[AnyRef]): ContainerProxy = {
+      tooltip.background = bg
+      this
+    }
+
+    /** Sets the container width (wrapWidth). Returns this for chaining. */
+    def width(w: Float): ContainerProxy = {
+      tooltip.wrapWidth = w
+      this
+    }
+
+    /** Returns the actor (TextraLabel) in this container. */
+    def getActor: TextraLabel = tooltip.getActor
+
+    /** Sets the background drawable. */
+    def setBackground(bg: Nullable[AnyRef]): Unit =
+      tooltip.background = bg
+
+    /** Sets the maximum width. Returns this for chaining. */
+    def maxWidth(w: Float): ContainerProxy = {
+      tooltip.wrapWidth = w
+      this
+    }
+  }
 }

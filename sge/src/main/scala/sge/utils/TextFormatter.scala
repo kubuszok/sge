@@ -7,14 +7,17 @@
  * Migration notes:
  *   Renames: `useMessageFormat` -> `useAdvanced`
  *   Idiom: split packages
- *   Convention: `MessageFormat` not available cross-platform (JS/Native); both modes use `simpleFormat`
- *     (matches GWT behavior where simpleFormatter is always assumed true)
+ *   Convention: `java.text.MessageFormat` is used via reflection when `useAdvanced=true`
+ *     and the class is available (JVM). On JS/Native, where `MessageFormat` is not present,
+ *     falls back to `simpleFormat` (matches GWT emulation behavior).
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package utils
+
+import sge.utils.Nullable
 
 import java.util.Locale
 
@@ -25,12 +28,35 @@ import java.util.Locale
 final class TextFormatter(locale: Locale, useAdvanced: Boolean) {
   private val buffer = new StringBuilder()
 
+  // On JVM, java.text.MessageFormat is available and we use it for locale-aware formatting.
+  // On Scala.js/Native, the class is absent so we fall back to simpleFormat (matches GWT behavior).
+  // We use reflection to avoid a compile-time dependency on java.text.MessageFormat.
+  private val messageFormat: Nullable[AnyRef] =
+    if (useAdvanced) {
+      try {
+        val clazz       = Class.forName("java.text.MessageFormat")
+        val constructor = clazz.getConstructor(classOf[String], classOf[Locale])
+        Nullable(constructor.newInstance("", locale).asInstanceOf[AnyRef])
+      } catch {
+        case _: Exception => Nullable.empty[AnyRef]
+      }
+    } else {
+      Nullable.empty[AnyRef]
+    }
+
   /** Formats the given pattern replacing its placeholders with the actual arguments specified by args.
     *
-    * Placeholders are in the simplified form {0}, {1}, {2} and so on. They will be replaced with the corresponding object from args converted to a string with toString(), so without taking into
-    * account the locale.
+    * If this TextFormatter has been instantiated with `TextFormatter(locale, true)` java.text.MessageFormat is used to process the pattern, meaning that the actual arguments are properly localized
+    * with the locale of this TextFormatter.
     *
-    * The only escaping rule is: a left curly bracket must be doubled if you want it to be part of your string.
+    * On the contrary, if this TextFormatter has been instantiated with `TextFormatter(locale, false)` pattern's placeholders are expected to be in the simplified form {0}, {1}, {2} and so on and they
+    * will be replaced with the corresponding object from args converted to a string with toString(), so without taking into account the locale.
+    *
+    * In both cases, there's only one simple escaping rule, i.e. a left curly bracket must be doubled if you want it to be part of your string.
+    *
+    * It's worth noting that the rules for using single quotes within java.text.MessageFormat patterns have shown to be somewhat confusing. In particular, it isn't always obvious to localizers whether
+    * single quotes need to be doubled or not. For this very reason we decided to offer the simpler escaping rule above without limiting the expressive power of message format patterns. So, if you're
+    * used to MessageFormat's syntax, remember that with TextFormatter single quotes never need to be escaped!
     *
     * @param pattern
     *   the pattern
@@ -42,7 +68,64 @@ final class TextFormatter(locale: Locale, useAdvanced: Boolean) {
     *   if the pattern is invalid
     */
   def format(pattern: String, args: AnyRef*): String =
-    simpleFormat(pattern, args)
+    messageFormat.fold(simpleFormat(pattern, args)) { mf =>
+      // Use java.text.MessageFormat via reflection for locale-aware formatting.
+      // replaceEscapeChars preprocesses the pattern: doubles single quotes (MessageFormat escape char)
+      // and converts paired {{ to MessageFormat-escaped literal braces.
+      try {
+        val preprocessed = replaceEscapeChars(pattern)
+        val clazz        = mf.getClass
+        val applyPattern = clazz.getMethod("applyPattern", classOf[String])
+        val formatMethod = clazz.getMethod("format", classOf[Object])
+        applyPattern.invoke(mf, preprocessed)
+        formatMethod.invoke(mf, args.toArray.asInstanceOf[AnyRef]).asInstanceOf[String]
+      } catch {
+        // If reflection fails at runtime (shouldn't happen on JVM), fall back to simpleFormat
+        case _: Exception => simpleFormat(pattern, args)
+      }
+    }
+
+  // This code is needed because a simple replacement like
+  // pattern.replace("'", "''").replace("{{", "'{'")
+  // can't properly manage some special cases.
+  // For example, the expected output for {{{{ is {{ but you get {'{ instead.
+  // Also this code is optimized since a new string is returned only if something has been replaced.
+  private def replaceEscapeChars(pattern: String): String = {
+    buffer.setLength(0)
+    var changed = false
+    val len     = pattern.length
+    var i       = 0
+    while (i < len) {
+      val ch = pattern.charAt(i)
+      if (ch == '\'') {
+        changed = true
+        buffer.append("''")
+      } else if (ch == '{') {
+        var j = i + 1
+        while (j < len && pattern.charAt(j) == '{')
+          j += 1
+        val escaped = (j - i) / 2
+        if (escaped > 0) {
+          changed = true
+          buffer.append('\'')
+          var k = escaped
+          while (k > 0) {
+            buffer.append('{')
+            k -= 1
+          }
+          buffer.append('\'')
+        }
+        if ((j - i) % 2 != 0) {
+          buffer.append('{')
+        }
+        i = j - 1
+      } else {
+        buffer.append(ch)
+      }
+      i += 1
+    }
+    if (changed) buffer.toString else pattern
+  }
 
   /** Formats the given pattern replacing any placeholder of the form {0}, {1}, {2} and so on with the corresponding object from args converted to a string with toString().
     *

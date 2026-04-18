@@ -22,7 +22,10 @@ import sge.graphics.Color
 import sge.graphics.g2d.Batch
 import sge.utils.{ Align, Nullable }
 
-/** A button with a child TextraLabel to display text. */
+/** A button with a child {@link TextraLabel} to display text.
+  * @author
+  *   Nathan Sweet
+  */
 class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replacementFont: Font) {
 
   private var label: TextraLabel = newLabel(
@@ -34,12 +37,25 @@ class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replac
 
   private var _style: Styles.TextButtonStyle = style
 
+  // Name field (normally inherited from scene2d Actor)
+  var name: Nullable[String] = Nullable.empty
+
+  def getName: Nullable[String] = name
+
+  // Preferred size (normally inherited from scene2d Widget/Table)
+  private var _width:  Float = 0f
+  private var _height: Float = 0f
+
   // Button state fields (normally inherited from scene2d Button)
   private var _isChecked:        Boolean = false
   private var _isPressed:        Boolean = false
   private var _isOver:           Boolean = false
   private var _isDisabled:       Boolean = false
   private var _hasKeyboardFocus: Boolean = false
+
+  // Initialize size from preferred dimensions (as original does in constructor)
+  _width = getPrefWidth
+  _height = getPrefHeight
 
   def this(text: Nullable[String], style: Styles.TextButtonStyle) =
     this(text, style, Nullable.fold(style.font)(new Font())(f => new Font(f)))
@@ -109,6 +125,24 @@ class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replac
 
   def getTextraLabel: TextraLabel = label
 
+  /** Returns the Cell containing the label (standalone: no Table backing, returns Nullable.empty). */
+  def getTextraLabelCell: Nullable[AnyRef] = Nullable.empty
+
+  /** Returns the preferred width based on the label. */
+  def getPrefWidth: Float = label.getPrefWidth
+
+  /** Returns the preferred height based on the label. */
+  def getPrefHeight: Float = label.getPrefHeight
+
+  def getWidth: Float = _width
+
+  def getHeight: Float = _height
+
+  def setSize(width: Float, height: Float): Unit = {
+    _width = width
+    _height = height
+  }
+
   /** A no-op unless {@code label.getFont()} is a subclass that overrides {@link Font#handleIntegerPosition(float)}.
     * @param integer
     *   usually ignored
@@ -142,10 +176,12 @@ class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replac
   def hasKeyboardFocus:                   Boolean = _hasKeyboardFocus
   def hasKeyboardFocus_=(value: Boolean): Unit    = _hasKeyboardFocus = value
 
-  override def toString: String = {
-    val className = getClass.getName
-    val dotIndex  = className.lastIndexOf('.')
-    val cn        = if (dotIndex != -1) className.substring(dotIndex + 1) else className
-    (if (cn.indexOf('$') != -1) "TextraButton " else "") + cn + ": " + label.toString
-  }
+  override def toString: String =
+    if (name.isDefined) name.get
+    else {
+      val className = getClass.getName
+      val dotIndex  = className.lastIndexOf('.')
+      val cn        = if (dotIndex != -1) className.substring(dotIndex + 1) else className
+      (if (cn.indexOf('$') != -1) "TextraButton " else "") + cn + ": " + label.toString
+    }
 }

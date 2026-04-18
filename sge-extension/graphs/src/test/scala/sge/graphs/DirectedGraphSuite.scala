@@ -174,4 +174,22 @@ class DirectedGraphSuite extends FunSuite {
     assert(graph.algorithms.isConnected("A", "B"))
     assert(!graph.algorithms.isConnected("A", "C"))
   }
+
+  test("vertex can be disconnected from directed graph") {
+    val graph = DirectedGraph[Int]()
+    val n     = 10
+
+    for (i <- 0 until n) graph.addVertex(i)
+    for (i <- 0 until n - 1) graph.addEdge(i, i + 1)
+
+    assertEquals(graph.size, n)
+    assertEquals(graph.edgeCount, n - 1)
+
+    graph.disconnect(n / 2)
+
+    // disconnect removes edges but keeps the vertex
+    assertEquals(graph.size, n)
+    // vertex n/2 had one incoming edge (n/2-1 -> n/2) and one outgoing edge (n/2 -> n/2+1)
+    assertEquals(graph.edgeCount, n - 3)
+  }
 }

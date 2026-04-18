@@ -133,6 +133,43 @@ class InternalArray[T](initialCapacity: Int = 8, resizeToCapacity: Boolean = fal
 
   def contains(o: Any): Boolean = o != null && indexOf(o) >= 0
 
+  /** Removes all elements that are also contained in the given collection. */
+  def removeAll(c: Iterable[?]): Boolean = {
+    var modified = false
+    val iter     = c.iterator
+    while (iter.hasNext)
+      if (removeItem(iter.next())) modified = true
+    modified
+  }
+
+  /** Retains only elements that are also contained in the given collection. */
+  def retainAll(c: Iterable[?]): Boolean = {
+    var modified = false
+    var i        = 0
+    while (i < _size)
+      if (!c.exists(_ == _items(i))) {
+        removeAt(i)
+        modified = true
+      } else {
+        i += 1
+      }
+    modified
+  }
+
+  /** Removes all elements matching the given predicate. */
+  def removeIf(filter: T => Boolean): Boolean = {
+    var modified = false
+    var i        = 0
+    while (i < _size)
+      if (filter(_items(i).asInstanceOf[T])) {
+        removeAt(i)
+        modified = true
+      } else {
+        i += 1
+      }
+    modified
+  }
+
   override def iterator: Iterator[T] = new Iterator[T] {
     private var cursor = 0
     def hasNext: Boolean = cursor < _size

@@ -857,6 +857,164 @@ class EngineSuite extends munit.FunSuite {
 
   // ── FamilyManagerTests: entityListenerThrows ──────────────────────────
 
+  // ── ComponentAddSystem / ComponentRemoveSystem for add/remove while iterating ──
+
+  private class ComponentAddedListener(val numEntities: Int) extends EntityListener {
+    var addedCalls: Int = 0
+
+    override def entityAdded(entity: Entity): Unit =
+      addedCalls += 1
+
+    override def entityRemoved(entity: Entity): Unit = {}
+
+    def checkEntityListenerNonUpdate(): Unit = {
+      assertEquals(addedCalls, numEntities)
+      addedCalls = 0
+    }
+
+    def checkEntityListenerUpdate(): Unit =
+      assertEquals(addedCalls, 0)
+  }
+
+  private class ComponentRemovedListener(val numEntities: Int) extends EntityListener {
+    var removedCalls: Int = 0
+
+    override def entityAdded(entity: Entity): Unit = {}
+
+    override def entityRemoved(entity: Entity): Unit =
+      removedCalls += 1
+
+    def checkEntityListenerNonUpdate(): Unit = {
+      assertEquals(removedCalls, numEntities)
+      removedCalls = 0
+    }
+
+    def checkEntityListenerUpdate(): Unit =
+      assertEquals(removedCalls, 0)
+  }
+
+  test("entityAddRemoveComponentWhileIterating") {
+    val numEntities     = 20
+    val engine          = new Engine
+    val addedListener   = new ComponentAddedListener(numEntities)
+    val removedListener = new ComponentRemovedListener(numEntities)
+
+    // ComponentAddSystem: iterates all entities, adds ComponentA to each
+    val addSystem = new sge.ecs.systems.IteratingSystem(Family.all().get()) {
+      override protected def processEntity(entity: Entity, deltaTime: Float): Unit = {
+        assert(entity.getComponent(classOf[ComponentA]).isEmpty)
+        entity.add(new ComponentA)
+        assert(entity.getComponent(classOf[ComponentA]).isDefined)
+        addedListener.checkEntityListenerUpdate()
+      }
+    }
+
+    // ComponentRemoveSystem: iterates all entities, removes ComponentA from each
+    val removeSystem = new sge.ecs.systems.IteratingSystem(Family.all().get()) {
+      override protected def processEntity(entity: Entity, deltaTime: Float): Unit = {
+        assert(entity.getComponent(classOf[ComponentA]).isDefined)
+        entity.remove(classOf[ComponentA])
+        assert(entity.getComponent(classOf[ComponentA]).isEmpty)
+        removedListener.checkEntityListenerUpdate()
+      }
+    }
+
+    for (_ <- 0 until numEntities) {
+      val entity = new Entity
+      engine.addEntity(entity)
+    }
+
+    engine.addEntityListener(Family.all(classOf[ComponentA]).get(), addedListener)
+    engine.addEntityListener(Family.all(classOf[ComponentA]).get(), removedListener)
+
+    engine.addSystem(addSystem)
+    engine.update(deltaTime)
+    addedListener.checkEntityListenerNonUpdate()
+    engine.removeSystem(addSystem)
+
+    engine.addSystem(removeSystem)
+    engine.update(deltaTime)
+    removedListener.checkEntityListenerNonUpdate()
+    engine.removeSystem(removeSystem)
+  }
+
+  test("cascadeOperationsInListenersWhileUpdating") {
+    // This test case mixes both add/remove component and add/remove entities
+    // in listeners. Listeners trigger each other recursively to test cascade operations:
+    //
+    // CREATION PHASE:
+    // first listener will add a component which triggers the second,
+    // second listener will create an entity which triggers the first one, and so on.
+    //
+    // DESTRUCTION PHASE:
+    // first listener will remove component which triggers the second,
+    // second listener will remove the entity which triggers the first one, and so on.
+
+    val numEntities     = 20
+    val eng             = new Engine
+    val addedListener   = new ComponentAddedListener(numEntities)
+    val removedListener = new ComponentRemovedListener(numEntities)
+
+    val entities = scala.collection.mutable.ArrayBuffer[Entity]()
+
+    eng.addEntityListener(
+      Family.all(classOf[ComponentA]).get(),
+      new EntityListener {
+        override def entityRemoved(entity: Entity): Unit =
+          eng.removeEntity(entity)
+        override def entityAdded(entity: Entity): Unit =
+          if (entities.size < numEntities) {
+            val e = new Entity
+            eng.addEntity(e)
+          }
+      }
+    )
+
+    eng.addEntityListener(
+      new EntityListener {
+        override def entityRemoved(entity: Entity): Unit = {
+          entities -= entity
+          if (entities.nonEmpty) {
+            entities.last.remove(classOf[ComponentA])
+          }
+        }
+        override def entityAdded(entity: Entity): Unit = {
+          entities += entity
+          entity.add(new ComponentA)
+        }
+      }
+    )
+
+    eng.addEntityListener(Family.all(classOf[ComponentA]).get(), addedListener)
+    eng.addEntityListener(Family.all(classOf[ComponentA]).get(), removedListener)
+
+    // This system will just create an entity which will trigger
+    // listeners cascade creations (up to 20)
+    val addSystem = new EntitySystem() {
+      override def update(deltaTime: Float): Unit =
+        engine.get.addEntity(new Entity)
+    }
+
+    eng.addSystem(addSystem)
+    eng.update(deltaTime)
+    eng.removeSystem(addSystem)
+    addedListener.checkEntityListenerNonUpdate()
+    removedListener.checkEntityListenerUpdate()
+
+    // This system will just remove an entity which will trigger
+    // listeners cascade deletion (down to 0)
+    val removeSystem = new EntitySystem() {
+      override def update(deltaTime: Float): Unit =
+        engine.get.removeEntity(entities.last)
+    }
+
+    eng.addSystem(removeSystem)
+    eng.update(deltaTime)
+    eng.removeSystem(removeSystem)
+    addedListener.checkEntityListenerUpdate()
+    removedListener.checkEntityListenerNonUpdate()
+  }
+
   test("entityListenerThrows resets notifying flag") {
     val engine = new Engine
 

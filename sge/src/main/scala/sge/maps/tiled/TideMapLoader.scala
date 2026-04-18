@@ -12,8 +12,8 @@
  *   - Java ObjectMap<String,Texture> → mutable.HashMap[String,Texture]
  *   - Java setOwnedResources(textures.values().toArray()) → DynamicArray construction
  *   - Minor: loadTileSheet skips reading Description child (Java reads it but never uses it)
- *   - Minor: loadTileSheet wraps tile creation inside `texture.foreach` for null safety
- *     (Java does not check null but Nullable ImageResolver.getImage requires it)
+ *   - Minor: loadTileSheet requires non-empty texture via getOrElse(throw ...)
+ *     matching the Java behavior (would NPE on null texture)
  *   - currentTileSet var uses null // scalastyle:ignore (Java interop boundary for Tide format)
  *   - Constructor requires `(using Sge)` (SGE context parameter, replaces Java Gdx.files)
  *   - Split package, braces, no-return conventions satisfied
@@ -178,8 +178,10 @@ class TideMapLoader(resolver: FileHandleResolver)(using Sge) extends Synchronous
       val spacingX     = Integer.parseInt(spacingParts(0))
       val spacingY     = Integer.parseInt(spacingParts(1))
 
-      val image   = getRelativeFileHandle(tideFile, imageSource)
-      val texture = imageResolver.getImage(image.path)
+      val image = getRelativeFileHandle(tideFile, imageSource)
+      // Original Java does not check for null texture — fails with NPE if absent.
+      // Match that behavior: require the texture, throwing if the image cannot be resolved.
+      val texture = imageResolver.getImage(image.path).getOrElse(throw IllegalStateException("Could not resolve texture for tile sheet: " + image.path))
 
       val tilesets = map.tileSets
       var firstgid = 1
@@ -191,23 +193,21 @@ class TideMapLoader(resolver: FileHandleResolver)(using Sge) extends Synchronous
       tileset.properties.put("firstgid", firstgid: java.lang.Integer)
       var gid = firstgid
 
-      texture.foreach { tex =>
-        val stopWidth  = tex.regionWidth - tileSizeX
-        val stopHeight = tex.regionHeight - tileSizeY
+      val stopWidth  = texture.regionWidth - tileSizeX
+      val stopHeight = texture.regionHeight - tileSizeY
 
-        var y = marginY
-        while (y <= stopHeight) {
-          var x = marginX
-          while (x <= stopWidth) {
-            val tile: TiledMapTile =
-              StaticTiledMapTile(TextureRegion(tex, x, y, tileSizeX, tileSizeY))
-            tile.id = gid
-            tileset.putTile(gid, tile)
-            gid += 1
-            x += tileSizeX + spacingX
-          }
-          y += tileSizeY + spacingY
+      var y = marginY
+      while (y <= stopHeight) {
+        var x = marginX
+        while (x <= stopWidth) {
+          val tile: TiledMapTile =
+            StaticTiledMapTile(TextureRegion(texture, x, y, tileSizeX, tileSizeY))
+          tile.id = gid
+          tileset.putTile(gid, tile)
+          gid += 1
+          x += tileSizeX + spacingX
         }
+        y += tileSizeY + spacingY
       }
 
       val properties = element.getChildByName("Properties")

@@ -9,6 +9,8 @@ package sge
 package visui
 package widget
 
+import sge.math.Vector2
+import sge.scenes.scene2d.{ Actor, InputEvent, InputListener }
 import sge.scenes.scene2d.ui.TextButton
 import sge.scenes.scene2d.utils.Drawable
 import sge.utils.Nullable
@@ -25,9 +27,52 @@ class Menu(val title: String, menuStyle: Menu.MenuStyle)(using Sge) extends Popu
   val openButton:    VisTextButton      = new VisTextButton(title, new VisTextButton.VisTextButtonStyle(menuStyle.openButtonStyle))
   val buttonDefault: Nullable[Drawable] = openButton.style.asInstanceOf[VisTextButton.VisTextButtonStyle].up
 
+  openButton.addListener(
+    new InputListener() {
+      override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Boolean = {
+        _menuBar.foreach { bar =>
+          if (bar.getCurrentMenu.exists(_ eq Menu.this)) {
+            bar.closeMenu()
+          } else {
+            switchMenu()
+            event.stop()
+          }
+        }
+        true
+      }
+
+      override def enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Nullable[Actor]): Unit =
+        _menuBar.foreach { bar =>
+          if (bar.getCurrentMenu.isDefined && !bar.getCurrentMenu.exists(_ eq Menu.this)) switchMenu()
+        }
+    }
+  )
+
   def this(title: String)(using Sge) = this(title, VisUI.getSkin.get[Menu.MenuStyle])
 
   def this(title: String, styleName: String)(using Sge) = this(title, VisUI.getSkin.get[Menu.MenuStyle](styleName))
+
+  private def switchMenu(): Unit =
+    _menuBar.foreach { bar =>
+      bar.closeMenu()
+      showMenu()
+    }
+
+  private def showMenu(): Unit =
+    _menuBar.foreach { _ =>
+      val pos = openButton.localToStageCoordinates(new Vector2(0, 0))
+      setPosition(pos.x, pos.y - height)
+      openButton.stage.foreach { s =>
+        s.addActor(this)
+      }
+      _menuBar.foreach(_.setCurrentMenu(Nullable(this)))
+    }
+
+  override def remove(): Boolean = {
+    val result = super.remove()
+    _menuBar.foreach(_.setCurrentMenu(Nullable.empty))
+    result
+  }
 
   def selectButton(): Unit =
     openButton.style.asInstanceOf[VisTextButton.VisTextButtonStyle].up = openButton.style.asInstanceOf[VisTextButton.VisTextButtonStyle].over

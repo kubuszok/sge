@@ -288,3 +288,11 @@ private class LevelPathFinderRequest[N] extends PathFinderRequest[N] {
     true
   }
 }
+
+object HierarchicalPathFinder {
+
+  /** Debug flag — mirrors the original `public static boolean DEBUG`. When true the original Java source would log HPF internals via GdxAI.getLogger(); SGE omits the logger calls but preserves the
+    * flag so user code that sets it still compiles.
+    */
+  var DEBUG: Boolean = false
+}

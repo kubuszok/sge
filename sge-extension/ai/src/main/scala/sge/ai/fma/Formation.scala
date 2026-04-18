@@ -188,9 +188,11 @@ class Formation[T <: Vector[T]](
       val relativeLocPosition = relativeLoc.position
 
       // TODO Consider the possibility of declaring mul(orientationMatrix) in Vector
-      // Transform it by the anchor point's position and orientation
-      // Vector2 lacks mul(Matrix3) in SGE, but the matrix here is a pure rotation,
-      // so rotateRad achieves the same result.
+      // Transform it by the anchor point's position and orientation.
+      // Architecture divergence: Vector2.mul(Matrix3) is not exposed in SGE. The
+      // orientationMatrix is always `identity.rotateRad(orientation)`, i.e. a pure
+      // rotation, so `rotateRad(orientation)` is mathematically equivalent to
+      // `mul(orientationMatrix)` for Vector2.
       relativeLocPosition match {
         case v2: Vector2 => v2.rotateRad(currentAnchor.orientation)
         case v3: Vector3 => v3.mul(orientationMatrix)

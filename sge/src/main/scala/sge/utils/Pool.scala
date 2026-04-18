@@ -80,11 +80,13 @@ trait Pool[A] {
 
   def freeAll(objects: Iterable[A]): Unit = {
     objects.foreach { obj =>
-      if (freeObjects.size < max) {
-        freeObjects.add(obj)
-        reset(obj)
-      } else {
-        discard(obj)
+      if (obj.asInstanceOf[AnyRef] ne null) { // @nowarn — null guard: original skips null items in the iterable
+        if (freeObjects.size < max) {
+          freeObjects.add(obj)
+          reset(obj)
+        } else {
+          discard(obj)
+        }
       }
     }
     peak = peak max freeObjects.size
@@ -92,11 +94,14 @@ trait Pool[A] {
 
   def freeAll(objects: DynamicArray[? <: A]): Unit = {
     objects.foreach { obj =>
-      if (freeObjects.size < max) {
-        freeObjects.add(obj.asInstanceOf[A])
-        reset(obj.asInstanceOf[A])
-      } else {
-        discard(obj.asInstanceOf[A])
+      if (obj.asInstanceOf[AnyRef] ne null) { // @nowarn — null guard: original skips null items in the array
+        val o = obj.asInstanceOf[A]
+        if (freeObjects.size < max) {
+          freeObjects.add(o)
+          reset(o)
+        } else {
+          discard(o)
+        }
       }
     }
     peak = peak max freeObjects.size

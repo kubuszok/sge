@@ -79,8 +79,20 @@ final class OrderedMap[K, V] private (
   /** Returns true if the specified value is in the map. */
   def containsValue(value: V): Boolean = map.containsValue(value)
 
+  /** Returns true if the specified value is in the map.
+    * @param identity
+    *   If true, `eq` (reference identity) comparison will be used. If false, `==` (equals) comparison will be used.
+    */
+  def containsValue(value: V, identity: Boolean): Boolean = map.containsValue(value, identity)
+
   /** Returns the key for the specified value, or `Nullable.empty` if it is not in the map. */
   def findKey(value: V): Nullable[K] = map.findKey(value)
+
+  /** Returns the key for the specified value, or `Nullable.empty` if it is not in the map.
+    * @param identity
+    *   If true, `eq` (reference identity) comparison will be used. If false, `==` (equals) comparison will be used.
+    */
+  def findKey(value: V, identity: Boolean): Nullable[K] = map.findKey(value, identity)
 
   /** Changes the key `before` to `after` without changing its position in the order or its value. Returns true if `before` was removed and `after` was added, false otherwise (i.e. `after` is already
     * present or `before` is not present).
@@ -154,6 +166,9 @@ final class OrderedMap[K, V] private (
   def orderedKeys: DynamicArray[K] = _keys
 
   // --- Iteration (ordered) ---
+  // Architecture divergence: The original LibGDX OrderedMap uses mutable Java-style inner-class iterators
+  // (OrderedMapEntries, OrderedMapKeys, OrderedMapValues). This port replaces them with functional foreach* methods,
+  // which are idiomatic Scala and avoid iterator-pool allocation complexity. All iteration functionality is preserved.
 
   /** Calls the given function for each key-value pair in insertion order. */
   def foreachEntry(f: (K, V) => Unit): Unit = {
@@ -191,6 +206,29 @@ final class OrderedMap[K, V] private (
     case other: OrderedMap[?, ?] => map.equals(other.map)
     case _ => false
   }
+
+  /** Uses `eq` (reference identity) for comparison of each value. */
+  def equalsIdentity(obj: Any): Boolean = obj match {
+    case other: OrderedMap[?, ?] => map.equalsIdentity(other.map)
+    case _ => false
+  }
+
+  /** Returns a string representation using the specified separator between entries. */
+  def toString(separator: String): String =
+    if (size == 0) ""
+    else {
+      val sb = new StringBuilder()
+      var i  = 0
+      while (i < _keys.size) {
+        if (i > 0) sb.append(separator)
+        val key = _keys(i)
+        sb.append(key)
+        sb.append('=')
+        sb.append(map.getUnsafe(key))
+        i += 1
+      }
+      sb.toString()
+    }
 
   override def toString(): String =
     if (size == 0) "{}"

@@ -46,7 +46,19 @@ final class ImmutableArray[A](private val array: ArrayBuffer[A]) extends Iterabl
 
   def first: A = array.head
 
+  /** Returns a shallow copy of the backing data as a Scala Array[Any]. */
+  def toArray: Array[Any] = array.toArray[Any]
+
+  override def hashCode(): Int = array.hashCode()
+
+  override def equals(obj: Any): Boolean = obj match {
+    case other: ImmutableArray[?] => array == other.array
+    case _ => false
+  }
+
   override def iterator: Iterator[A] = array.iterator
 
   override def toString(): String = array.mkString("[", ", ", "]")
+
+  def toString(separator: String): String = array.mkString(separator)
 }

@@ -7,37 +7,46 @@
  *
  * Migration notes:
  *   Renames: Table → standalone class (scene2d base not inherited),
- *     Skin → removed, InputListener → local inner class,
+ *     Skin → sge.scenes.scene2d.ui.Skin, InputListener → inner class with handle methods,
  *     Vector2 → local x/y pairs, Batch → sge.graphics.g2d.Batch,
  *     Camera/OrthographicCamera → deferred (keepWithinStage simplified)
  *   Convention: Window dragging/resizing/modal behavior fully ported.
- *   Idiom: Nullable[A] for nullable fields; no return statements.
+ *   Idiom: Nullable[A] for nullable fields; no return statements; boundary/break for early returns.
  */
 package sge
 package textra
 
 import sge.graphics.Color
 import sge.graphics.g2d.Batch
+import sge.scenes.scene2d.ui.Skin
 import sge.scenes.scene2d.utils.Drawable
 import sge.utils.{ Align, Nullable }
 
-/** A table that can be dragged and act as a modal window. The top padding is used as the window's title height. */
+/** A table that can be dragged and act as a modal window. The top padding is used as the window's title height. <p> The preferred size of a window is the preferred size of the title text and the
+  * children as laid out by the table. After adding children to the window, it can be convenient to call {@link #pack()} to size the window to the size of the children.
+  *
+  * @author
+  *   Nathan Sweet
+  */
 class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Font, scaleTitleFont: Boolean) {
 
   require(title != null, "title cannot be null.")
   require(replacementFont != null, "replacementFont cannot be null.")
 
-  private var _style:      Styles.WindowStyle = style
-  var isMovable:           Boolean            = true
-  private var _isModal:    Boolean            = false
-  var isResizable:         Boolean            = false
-  var resizeBorder:        Int                = 8
-  var keepWithinStageFlag: Boolean            = true
-  var titleLabel:          TextraLabel        = newLabel(title, replacementFont, Nullable.fold(style.titleFontColor)(null: Color)(identity))
-  var drawTitleTable:      Boolean            = false
-  protected var edge:      Int                = 0
-  protected var dragging:  Boolean            = false
-  protected var font:      Font               = replacementFont
+  private var _style:           Styles.WindowStyle      = style
+  private var _isMovable:       Boolean                 = true
+  private var _isModal:         Boolean                 = false
+  private var _isResizable:     Boolean                 = false
+  private var _resizeBorder:    Int                     = 8
+  private var _keepWithinStage: Boolean                 = true
+  var titleLabel:               TextraLabel             = newLabel(title, replacementFont, Nullable.fold(style.titleFontColor)(null: Color)(identity))
+  var titleTable:               TextraWindow.TitleTable = scala.compiletime.uninitialized
+  var drawTitleTable:           Boolean                 = false
+
+  protected var edge:     Int     = 0
+  protected var dragging: Boolean = false
+
+  protected var font: Font = replacementFont
 
   // Widget-like fields (normally inherited from scene2d Table)
   private var _x:      Float = 0f
@@ -52,41 +61,76 @@ class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
   private var _padBottom: Float = 0f
   private var _padRight:  Float = 0f
 
-  // Title table positioning (managed manually)
-  private var _titleTableX:      Float = 0f
-  private var _titleTableY:      Float = 0f
-  private var _titleTableWidth:  Float = 0f
-  private var _titleTableHeight: Float = 0f
-
   // Min/max sizes
   private var _minWidth:  Float = 0f
   private var _minHeight: Float = 0f
   private var _maxWidth:  Float = Float.MaxValue
   private var _maxHeight: Float = Float.MaxValue
 
-  // Internal dragging listener state
-  private var _startX: Float = 0f
-  private var _startY: Float = 0f
-  private var _lastX:  Float = 0f
-  private var _lastY:  Float = 0f
-
   // --- Constructors ---
-
-  def this(title: String, style: Styles.WindowStyle) =
-    this(title, style, Nullable.fold(style.titleFont)(new Font())(identity), false)
-
-  def this(title: String, style: Styles.WindowStyle, scaleTitleFont: Boolean) =
-    this(title, style, Nullable.fold(style.titleFont)(new Font())(identity), scaleTitleFont)
+  // Ordered so each secondary constructor calls either the primary or a previously-defined secondary.
 
   def this(title: String, style: Styles.WindowStyle, replacementFont: Font) =
     this(title, style, replacementFont, false)
 
+  def this(title: String, style: Styles.WindowStyle, scaleTitleFont: Boolean) =
+    this(title, style, Nullable.fold(style.titleFont)(new Font())(identity), scaleTitleFont)
+
+  def this(title: String, style: Styles.WindowStyle) =
+    this(title, style, Nullable.fold(style.titleFont)(new Font())(identity), false)
+
+  def this(title: String, skin: Skin) =
+    this(
+      title,
+      skin.get(classOf[Styles.WindowStyle]),
+      Nullable.fold(skin.get(classOf[Styles.WindowStyle]).titleFont)(new Font())(identity),
+      false
+    )
+
+  def this(title: String, skin: Skin, scaleTitleFont: Boolean) =
+    this(
+      title,
+      skin.get(classOf[Styles.WindowStyle]),
+      Nullable.fold(skin.get(classOf[Styles.WindowStyle]).titleFont)(new Font())(identity),
+      scaleTitleFont
+    )
+
+  def this(title: String, skin: Skin, styleName: String) =
+    this(
+      title,
+      skin.get(styleName, classOf[Styles.WindowStyle]),
+      Nullable.fold(skin.get(styleName, classOf[Styles.WindowStyle]).titleFont)(new Font())(identity),
+      false
+    )
+
+  def this(title: String, skin: Skin, styleName: String, scaleTitleFont: Boolean) =
+    this(
+      title,
+      skin.get(styleName, classOf[Styles.WindowStyle]),
+      Nullable.fold(skin.get(styleName, classOf[Styles.WindowStyle]).titleFont)(new Font())(identity),
+      scaleTitleFont
+    )
+
+  def this(title: String, skin: Skin, replacementFont: Font) =
+    this(title, skin.get(classOf[Styles.WindowStyle]), replacementFont, false)
+
+  def this(title: String, skin: Skin, replacementFont: Font, scaleTitleFont: Boolean) =
+    this(title, skin.get(classOf[Styles.WindowStyle]), replacementFont, scaleTitleFont)
+
+  def this(title: String, skin: Skin, styleName: String, replacementFont: Font) =
+    this(title, skin.get(styleName, classOf[Styles.WindowStyle]), replacementFont, false)
+
+  def this(title: String, skin: Skin, styleName: String, replacementFont: Font, scaleTitleFont: Boolean) =
+    this(title, skin.get(styleName, classOf[Styles.WindowStyle]), replacementFont, scaleTitleFont)
+
   // --- Init ---
   {
+    setStyle(style, replacementFont)
+
     if (scaleTitleFont) {
       val labelFont = new Font(replacementFont)
       // Scale to fit top height from background
-      Nullable.foreach(style.background) {
+      Nullable.foreach(_style.background) {
         case bg: Drawable =>
           labelFont.scaleHeightTo(bg.topHeight)
         case _ => ()
@@ -95,9 +139,119 @@ class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
     } else {
       titleLabel.setFont(font)
     }
+
+    val self = this
+    titleTable = new TextraWindow.TitleTable(self)
+    titleTable.label = titleLabel
     titleLabel.setEllipsis(Nullable("..."))
-    setStyle(style, replacementFont)
   }
+
+  // --- InternalListener ---
+
+  /** Inner listener class that handles drag/resize/move/keyboard events for the window. */
+  class InternalListener {
+    var startX: Float = 0f
+    var startY: Float = 0f
+    var lastX:  Float = 0f
+    var lastY:  Float = 0f
+
+    private def updateEdge(x: Float, y: Float): Unit = {
+      var border = _resizeBorder / 2f
+      val width  = _width
+      val height = _height
+      val padTop = _padTop
+      val padLt  = _padLeft
+      val padBot = _padBottom
+      val padRt  = _padRight
+      val left   = padLt
+      val right  = width - padRt
+      val bottom = padBot
+      edge = 0
+      if (_isResizable && x >= left - border && x <= right + border && y >= bottom - border) {
+        if (x < left + border) edge |= Align.left.toInt
+        if (x > right - border) edge |= Align.right.toInt
+        if (y < bottom + border) edge |= Align.bottom.toInt
+        if (edge != 0) border += 25
+        if (x < left + border) edge |= Align.left.toInt
+        if (x > right - border) edge |= Align.right.toInt
+        if (y < bottom + border) edge |= Align.bottom.toInt
+      }
+      if (_isMovable && edge == 0 && y <= height && y >= height - padTop && x >= left && x <= right)
+        edge = TextraWindow.MOVE
+    }
+
+    def touchDown(x: Float, y: Float, pointer: Int, button: Int): Boolean = {
+      if (button == 0) {
+        updateEdge(x, y)
+        dragging = edge != 0
+        startX = x
+        startY = y
+        lastX = x - _width
+        lastY = y - _height
+      }
+      edge != 0 || _isModal
+    }
+
+    def touchUp(x: Float, y: Float, pointer: Int, button: Int): Unit =
+      dragging = false
+
+    def touchDragged(x: Float, y: Float, pointer: Int): Unit =
+      if (dragging) {
+        var width   = _width
+        var height  = _height
+        var windowX = _x
+        var windowY = _y
+
+        val minW = _minWidth
+        val minH = _minHeight
+
+        if ((edge & TextraWindow.MOVE) != 0) {
+          val amountX = x - startX
+          val amountY = y - startY
+          windowX += amountX
+          windowY += amountY
+        }
+        if ((edge & Align.left.toInt) != 0) {
+          var amountX = x - startX
+          if (width - amountX < minW) amountX = -(minW - width)
+          width -= amountX
+          windowX += amountX
+        }
+        if ((edge & Align.bottom.toInt) != 0) {
+          var amountY = y - startY
+          if (height - amountY < minH) amountY = -(minH - height)
+          height -= amountY
+          windowY += amountY
+        }
+        if ((edge & Align.right.toInt) != 0) {
+          var amountX = x - lastX - width
+          if (width + amountX < minW) amountX = minW - width
+          width += amountX
+        }
+        if ((edge & Align.top.toInt) != 0) {
+          var amountY = y - lastY - height
+          if (height + amountY < minH) amountY = minH - height
+          height += amountY
+        }
+        setBounds(Math.round(windowX).toFloat, Math.round(windowY).toFloat, Math.round(width).toFloat, Math.round(height).toFloat)
+      }
+
+    def mouseMoved(x: Float, y: Float): Boolean = {
+      updateEdge(x, y)
+      _isModal
+    }
+
+    def scrolled(x: Float, y: Float, amount: Int): Boolean = _isModal
+
+    def keyDown(keycode: Int): Boolean = _isModal
+
+    def keyUp(keycode: Int): Boolean = _isModal
+
+    def keyTyped(character: Char): Boolean = _isModal
+  }
+
+  /** The internal listener handling drag/resize/move/keyboard events. */
+  val internalListener: InternalListener = new InternalListener()
 
   // --- Label factories ---
 
@@ -111,8 +265,10 @@ class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
 
   def setStyle(style: Styles.WindowStyle): Unit = {
     this._style = style
-    titleLabel.setFont(this.font)
+    setBackground(style.background)
+    titleLabel.setFont(font)
     Nullable.foreach(style.titleFontColor)(c => titleLabel.setColor(c))
+    invalidateHierarchy()
   }
 
   def setStyle(style: Styles.WindowStyle, ignored: Boolean): Unit =
@@ -120,11 +276,15 @@ class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
 
   def setStyle(style: Styles.WindowStyle, font: Font): Unit = {
     this._style = style
+    setBackground(style.background)
     this.font = font
     titleLabel.setFont(font)
     Nullable.foreach(style.titleFontColor)(c => titleLabel.setColor(c))
+    invalidateHierarchy()
   }
 
+  /** Returns the window's style. Modifying the returned style may not have an effect until {@link #setStyle(WindowStyle)} is called.
+    */
   def getStyle: Styles.WindowStyle = _style
 
   // --- Widget-like accessors ---
@@ -197,28 +357,57 @@ class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
   def setMaxWidth(w:  Float): Unit  = _maxWidth = w
   def setMaxHeight(h: Float): Unit  = _maxHeight = h
 
+  // --- Movable ---
+
+  def isMovable: Boolean = _isMovable
+
+  def setMovable(isMovable: Boolean): Unit =
+    _isMovable = isMovable
+
   // --- Modal ---
 
-  def setModal(modal: Boolean): Unit    = _isModal = modal
-  def isModal:                  Boolean = _isModal
-  @deprecated("use isModal", "always")
-  def getModal: Boolean = _isModal
+  def isModal: Boolean = _isModal
 
-  // --- Accessors ---
+  def setModal(isModal: Boolean): Unit =
+    _isModal = isModal
+
+  // --- Keep within stage ---
+
+  def setKeepWithinStage(keepWithinStage: Boolean): Unit =
+    _keepWithinStage = keepWithinStage
+
+  // --- Resizable ---
+
+  def isResizable: Boolean = _isResizable
+
+  def setResizable(isResizable: Boolean): Unit =
+    _isResizable = isResizable
+
+  // --- Resize border ---
+
+  def getResizeBorder: Int = _resizeBorder
+
+  def setResizeBorder(resizeBorder: Int): Unit =
+    _resizeBorder = resizeBorder
+
+  // --- Dragging ---
+
+  def isDragging: Boolean = dragging
+
+  // --- Pref width ---
+
+  def getPrefWidth: Float =
+    Math.max(titleTable.getPrefWidth + _padLeft + _padRight, _width)
+
+  // --- Title accessors ---
+
+  def getTitleTable: TextraWindow.TitleTable = titleTable
 
   def getTitleLabel: TextraLabel = titleLabel
 
   /** Does nothing unless the titleLabel used here is a TypingLabel; then, this will skip text progression ahead. */
   def skipToTheEnd(): Unit =
     titleLabel.skipToTheEnd()
-
-  def isDragging: Boolean = dragging
-
-  def setKeepWithinStage(keepWithinStage: Boolean): Unit =
-    keepWithinStageFlag = keepWithinStage
-
-  def getPrefWidth: Float =
-    Math.max(titleLabel.getPrefWidth + _padLeft + _padRight, _width)
 
   // --- Background ---
 
@@ -234,113 +423,13 @@ class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
 
   def getBackground: Nullable[AnyRef] = _style.background
 
-  // --- Edge update (for drag/resize) ---
+  // --- Hierarchy invalidation (no-op in standalone mode) ---
 
-  private def updateEdge(x: Float, y: Float): Unit = {
-    var border = resizeBorder / 2f
-    val width  = _width
-    val height = _height
-    val padTop = _padTop
-    val padLt  = _padLeft
-    val padBot = _padBottom
-    val padRt  = _padRight
-    val left   = padLt
-    val right  = width - padRt
-    val bottom = padBot
-    edge = 0
-    if (isResizable && x >= left - border && x <= right + border && y >= bottom - border) {
-      if (x < left + border) edge |= Align.left.toInt
-      if (x > right - border) edge |= Align.right.toInt
-      if (y < bottom + border) edge |= Align.bottom.toInt
-      if (edge != 0) border += 25
-      if (x < left + border) edge |= Align.left.toInt
-      if (x > right - border) edge |= Align.right.toInt
-      if (y < bottom + border) edge |= Align.bottom.toInt
-    }
-    if (isMovable && edge == 0 && y <= height && y >= height - padTop && x >= left && x <= right)
-      edge = TextraWindow.MOVE
-  }
-
-  /** Handles a touch-down event for dragging/resizing. Returns true if the window should consume the event. */
-  def handleTouchDown(x: Float, y: Float, pointer: Int, button: Int): Boolean = {
-    if (button == 0) {
-      updateEdge(x, y)
-      dragging = edge != 0
-      _startX = x
-      _startY = y
-      _lastX = x - _width
-      _lastY = y - _height
-    }
-    edge != 0 || _isModal
-  }
-
-  /** Handles a touch-up event for dragging. */
-  def handleTouchUp(x: Float, y: Float, pointer: Int, button: Int): Unit =
-    dragging = false
-
-  /** Handles a touch-dragged event for window dragging/resizing. */
-  def handleTouchDragged(x: Float, y: Float, pointer: Int): Unit =
-    if (!dragging) ()
-    else {
-      var width   = _width
-      var height  = _height
-      var windowX = _x
-      var windowY = _y
-      val minW    = _minWidth
-      val minH    = _minHeight
-
-      if ((edge & TextraWindow.MOVE) != 0) {
-        val amountX = x - _startX
-        val amountY = y - _startY
-        windowX += amountX
-        windowY += amountY
-      }
-      if ((edge & Align.left.toInt) != 0) {
-        var amountX = x - _startX
-        if (width - amountX < minW) amountX = -(minW - width)
-        width -= amountX
-        windowX += amountX
-      }
-      if ((edge & Align.bottom.toInt) != 0) {
-        var amountY = y - _startY
-        if (height - amountY < minH) amountY = -(minH - height)
-        height -= amountY
-        windowY += amountY
-      }
-      if ((edge & Align.right.toInt) != 0) {
-        var amountX = x - _lastX - width
-        if (width + amountX < minW) amountX = minW - width
-        width += amountX
-      }
-      if ((edge & Align.top.toInt) != 0) {
-        var amountY = y - _lastY - height
-        if (height + amountY < minH) amountY = minH - height
-        height += amountY
-      }
-      setBounds(Math.round(windowX).toFloat, Math.round(windowY).toFloat, Math.round(width).toFloat, Math.round(height).toFloat)
-    }
-
-  /** Handles a mouse-moved event. Returns true if modal. */
-  def handleMouseMoved(x: Float, y: Float): Boolean = {
-    updateEdge(x, y)
-    _isModal
-  }
-
-  /** Handles a scrolled event. Returns true if modal. */
-  def handleScrolled(x: Float, y: Float, amount: Int): Boolean = _isModal
-
-  /** Handles a key-down event. Returns true if modal. */
-  def handleKeyDown(keycode: Int): Boolean = _isModal
-
-  /** Handles a key-up event. Returns true if modal. */
-  def handleKeyUp(keycode: Int): Boolean = _isModal
-
-  /** Handles a key-typed event. Returns true if modal. */
-  def handleKeyTyped(character: Char): Boolean = _isModal
+  protected def invalidateHierarchy(): Unit = ()
 
   // --- keepWithinStage ---
 
-  /** Keeps the window within the stage boundaries (no-op without Stage reference; use keepWithinStage(stageWidth, stageHeight) overload for explicit bounds).
+  /** Keeps the window within the stage boundaries. No-op without Stage reference in standalone mode; use keepWithinStage(stageWidth, stageHeight) overload for explicit bounds.
     */
   def keepWithinStage(): Unit = {
     // No-op without Stage reference. Callers with a Stage can invoke
@@ -349,7 +438,7 @@ class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
 
   /** Keeps the window within the given stage dimensions. */
   def keepWithinStage(stageWidth: Float, stageHeight: Float): Unit =
-    if (keepWithinStageFlag) {
+    if (_keepWithinStage) {
       if (_x < 0) _x = 0
       if (getRight > stageWidth) _x = stageWidth - _width
       if (_y < 0) _y = 0
@@ -390,34 +479,27 @@ class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
       case _ => ()
     }
 
-    // Draw the title table
+    // Manually draw the title table before clipping is done.
     val padTop2  = _padTop
     val padLeft2 = _padLeft
-    _titleTableWidth = _width - padLeft2 - _padRight
-    _titleTableHeight = padTop2
-    _titleTableX = padLeft2
-    _titleTableY = _height - padTop2
-
+    titleTable.setColor(_color.a)
+    titleTable.setSize(_width - padLeft2 - _padRight, padTop2)
+    titleTable.setPosition(padLeft2, _height - padTop2)
     drawTitleTable = true
-    drawTitleLabel(batch, parentAlpha, x + _titleTableX, y + _titleTableY, _titleTableWidth, _titleTableHeight)
-    drawTitleTable = false
-  }
-
-  /** Draws the title label within the title table area. */
-  protected def drawTitleLabel(batch: Batch, parentAlpha: Float, x: Float, y: Float, width: Float, height: Float): Unit = {
-    titleLabel.setSize(width, height)
-    titleLabel.setPosition(x, y)
-    titleLabel.draw(batch, parentAlpha)
+    titleTable.draw(batch, parentAlpha, x, y)
+    drawTitleTable = false // Avoid drawing the title table again in drawChildren.
   }
 
   /** Hit detection for the window. */
-  def hit(x: Float, y: Float, touchable: Boolean): Nullable[AnyRef] =
-    if (x < 0 || x >= _width || y < 0 || y >= _height) Nullable.empty
-    else if (_isModal) Nullable(this)
-    else if (y <= _height && y >= _height - _padTop && x >= 0 && x <= _width) {
+  def hit(x: Float, y: Float, touchable: Boolean): Nullable[AnyRef] = scala.util.boundary {
+    if (x < 0 || x >= _width || y < 0 || y >= _height) scala.util.boundary.break(Nullable.empty[AnyRef])
+    if (_isModal) scala.util.boundary.break(Nullable[AnyRef](this))
+    if (y <= _height && y >= _height - _padTop && x >= 0 && x <= _width) {
       // Hit the title bar
-      Nullable(this)
-    } else Nullable(this)
+      scala.util.boundary.break(Nullable[AnyRef](this))
+    }
+    Nullable[AnyRef](this)
+  }
 
   def toFront(): Unit = {
     // In full scene2d integration, this would move the actor to the front of the parent's children.
@@ -433,4 +515,38 @@ class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
 
 object TextraWindow {
   val MOVE: Int = 1 << 5
+
+  /** Lightweight title-table abstraction for standalone mode. Holds the title label and supports drawing it at a given position and size within the window's title bar area.
+    */
+  class TitleTable(window: TextraWindow) {
+    var label:           TextraLabel = scala.compiletime.uninitialized
+    private var _x:      Float       = 0f
+    private var _y:      Float       = 0f
+    private var _width:  Float       = 0f
+    private var _height: Float       = 0f
+    private var _alpha:  Float       = 1f
+
+    def setPosition(x: Float, y: Float): Unit = {
+      _x = x
+      _y = y
+    }
+
+    def setSize(width: Float, height: Float): Unit = {
+      _width = width
+      _height = height
+    }
+
+    def setColor(alpha: Float): Unit =
+      _alpha = alpha
+
+    def getPrefWidth: Float =
+      if (label != null) label.getPrefWidth else 0f
+
+    def draw(batch: Batch, parentAlpha: Float, windowX: Float, windowY: Float): Unit =
+      if (window.drawTitleTable && label != null) {
+        label.setSize(_width, _height)
+        label.setPosition(windowX + _x, windowY + _y)
+        label.draw(batch, parentAlpha * _alpha)
+      }
+  }
 }

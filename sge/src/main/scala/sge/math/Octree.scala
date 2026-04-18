@@ -46,7 +46,7 @@ class Octree[T <: AnyRef: scala.reflect.ClassTag](minimum: Vector3, maximum: Vec
     override protected def newObject():     OctreeNode = OctreeNode()
   }
 
-  protected val root: OctreeNode = createNode(
+  private[math] val root: OctreeNode = createNode(
     Vector3(scala.math.min(minimum.x, maximum.x), scala.math.min(minimum.y, maximum.y), scala.math.min(minimum.z, maximum.z)),
     Vector3(scala.math.max(minimum.x, maximum.x), scala.math.max(minimum.y, maximum.y), scala.math.max(minimum.z, maximum.z)),
     maxDepth
@@ -118,7 +118,7 @@ class Octree[T <: AnyRef: scala.reflect.ClassTag](minimum: Vector3, maximum: Vec
     boxes
   }
 
-  protected class OctreeNode {
+  private[math] class OctreeNode {
 
     var level: Int = scala.compiletime.uninitialized
     val bounds = BoundingBox()
@@ -223,7 +223,7 @@ class Octree[T <: AnyRef: scala.reflect.ClassTag](minimum: Vector3, maximum: Vec
         }
       }
 
-    protected def isLeaf: Boolean = leaf
+    private[math] def isLeaf: Boolean = leaf
 
     def query(aabb: BoundingBox, result: Set[T]): Unit =
       if (aabb.intersects(bounds)) {

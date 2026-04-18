@@ -9,6 +9,15 @@
  * call sites compile directly to LogPlatform.xxx invocations.  The message
  * parameter is by-name so string construction is deferred until the backend
  * decides to actually log.
+ *
+ * Architecture divergence from LibGDX:
+ *   LibGDX's Logger is a per-instance class with a tag and per-tag log level
+ *   that filters messages before forwarding to Gdx.app.log/debug/error.
+ *   SGE replaces this with a global singleton backed by a proper logging
+ *   framework (scribe), which provides its own per-category level filtering,
+ *   structured logging, and pluggable output targets. Per-tag filtering is
+ *   configured through scribe's standard mechanisms rather than per-instance
+ *   Logger objects.
  */
 package sge
 package utils

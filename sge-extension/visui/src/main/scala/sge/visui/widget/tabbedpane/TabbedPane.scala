@@ -19,9 +19,9 @@ import scala.language.implicitConversions
 
 import sge.graphics.Color
 import sge.math.{ Rectangle, Vector2 }
-import sge.scenes.scene2d.{ Actor, Touchable }
+import sge.scenes.scene2d.{ Actor, InputEvent, InputListener, Touchable }
 import sge.scenes.scene2d.ui.{ Button, ButtonGroup, Cell, Image }
-import sge.scenes.scene2d.utils.{ ChangeListener, Drawable }
+import sge.scenes.scene2d.utils.{ ChangeListener, Drawable, UIUtils }
 import sge.utils.{ Nullable, Scaling }
 import sge.visui.{ Locales, Sizes, VisUI }
 import sge.visui.i18n.BundleText
@@ -444,6 +444,21 @@ object TabbedPane {
       this.separatorBar = separatorBar
       this.buttonStyle = buttonStyle
     }
+
+    def this(
+      separatorBar: Nullable[Drawable],
+      background:   Drawable,
+      buttonStyle:  VisTextButton.VisTextButtonStyle,
+      vertical:     Boolean,
+      draggable:    Boolean
+    ) = {
+      this()
+      this.separatorBar = separatorBar
+      this.background = background
+      this.buttonStyle = buttonStyle
+      this.vertical = vertical
+      this.draggable = draggable
+    }
   }
 
   class TabbedPaneTable(val tabbedPane: TabbedPane)(using Sge) extends VisTable() {
@@ -465,10 +480,16 @@ object TabbedPane {
     style:                        TabbedPaneStyle,
     sizes:                        Sizes,
     sharedCloseActiveButtonStyle: VisImageButton.VisImageButtonStyle
-  )(using Sge)
+  )(using sge: Sge)
       extends VisTable() {
 
-    val button: VisTextButton = new VisTextButton(pane.getTabTitle(tab), style.buttonStyle)
+    val button: VisTextButton = new VisTextButton(pane.getTabTitle(tab), style.buttonStyle) {
+      override def disabled_=(isDisabled: Boolean): Unit = {
+        super.disabled_=(isDisabled)
+        closeButton.disabled = isDisabled
+        deselect()
+      }
+    }
     button.focusBorderEnabled = false
     button.programmaticChangeEvents = false
 
@@ -483,19 +504,10 @@ object TabbedPane {
     private val buttonStyle: VisTextButton.VisTextButtonStyle =
       new VisTextButton.VisTextButtonStyle(button.style.asInstanceOf[VisTextButton.VisTextButtonStyle])
     button.setStyle(buttonStyle)
+    private val up: Nullable[Drawable] = buttonStyle.up
 
     {
-      // add close button listener
-      closeButton.addListener(new ChangeListener() {
-        override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit =
-          closeTabAsUser()
-      })
-
-      // add button change listener
-      button.addListener(new ChangeListener() {
-        override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit =
-          switchToNewTab()
-      })
+      addListeners()
 
       add(Nullable[Actor](button))
       if (tab.closeableByUser) {
@@ -503,9 +515,85 @@ object TabbedPane {
       }
     }
 
+    private def addListeners(): Unit = {
+      // add close button listener
+      closeButton.addListener(new ChangeListener() {
+        override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit =
+          closeTabAsUser()
+      })
+
+      button.addListener(
+        new InputListener() {
+          private var isDown: Boolean = false
+
+          override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, mouseButton: Input.Button): Boolean =
+            if (button.disabled) {
+              false
+            } else {
+              isDown = true
+              if (UIUtils.left()) {
+                setDraggedUpImage()
+              }
+
+              if (mouseButton == Input.Buttons.MIDDLE) {
+                closeTabAsUser()
+              }
+
+              true
+            }
+
+          override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Input.Button): Unit = {
+            setDefaultUpImage()
+            isDown = false
+          }
+
+          override def mouseMoved(event: InputEvent, x: Float, y: Float): Boolean = {
+            if (!button.disabled && pane.activeTab.forall(_ != tab)) {
+              setCloseButtonOnMouseMove()
+            }
+            false
+          }
+
+          override def exit(event: InputEvent, x: Float, y: Float, pointer: Int, toActor: Nullable[Actor]): Unit =
+            if (!button.disabled && !isDown && pane.activeTab.forall(_ != tab) && pointer == -1) {
+              setDefaultUpImage()
+            }
+
+          override def enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Nullable[Actor]): Unit =
+            if (!button.disabled && pane.activeTab.forall(_ != tab) && !sge.input.justTouched() && pointer == -1) {
+              setCloseButtonOnMouseMove()
+            }
+
+          private def setCloseButtonOnMouseMove(): Unit =
+            if (isDown) {
+              closeButtonStyle.up = buttonStyle.down
+            } else {
+              closeButtonStyle.up = buttonStyle.over
+            }
+
+          private def setDraggedUpImage(): Unit = {
+            closeButtonStyle.up = buttonStyle.down
+            buttonStyle.up = buttonStyle.down
+          }
+
+          private def setDefaultUpImage(): Unit = {
+            closeButtonStyle.up = up
+            buttonStyle.up = up
+          }
+        }
+      )
+
+      // add button change listener
+      button.addListener(new ChangeListener() {
+        override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit =
+          switchToNewTab()
+      })
+    }
+
     private def switchToNewTab(): Unit =
       pane.handleTabSwitch(tab, this)
 
+    /** Closes tab, does nothing if Tab is not closeable by user */
     private def closeTabAsUser(): Unit =
       if (tab.closeableByUser) {
         pane.remove(tab, ignoreTabDirty = false)

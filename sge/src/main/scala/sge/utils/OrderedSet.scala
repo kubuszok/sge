@@ -53,6 +53,19 @@ final class OrderedSet[A] private (
       true
     }
 
+  /** Sets the key at the specified index. Returns true if the key was added to the set or false if it was already in the set. If this set already contains the key, the existing key's index is changed
+    * if needed and false is returned.
+    */
+  def add(key: A, index: Int): Boolean =
+    if (!set.add(key)) {
+      val oldIndex = _items.indexOf(key)
+      if (oldIndex != index) _items.insert(index, _items.removeIndex(oldIndex))
+      false
+    } else {
+      _items.insert(index, key)
+      true
+    }
+
   /** Adds all elements from another OrderedSet. */
   def addAll(other: OrderedSet[A]): Unit = {
     ensureCapacity(other.size)
@@ -151,6 +164,9 @@ final class OrderedSet[A] private (
   def orderedItems: DynamicArray[A] = _items
 
   // --- Iteration (ordered) ---
+  // Architecture divergence: The original LibGDX OrderedSet uses a mutable Java-style inner-class iterator
+  // (OrderedSetIterator). This port replaces it with a functional foreach method, which is idiomatic Scala and avoids
+  // iterator-pool allocation complexity. All iteration functionality is preserved.
 
   /** Calls the given function for each element in insertion order. */
   def foreach(f: A => Unit): Unit = {
@@ -204,6 +220,9 @@ final class OrderedSet[A] private (
       }
     case _ => false
   }
+
+  /** Returns a string representation using the specified separator between elements. */
+  def toString(separator: String): String = _items.toString(separator)
 
   override def toString(): String =
     if (size == 0) "{}"

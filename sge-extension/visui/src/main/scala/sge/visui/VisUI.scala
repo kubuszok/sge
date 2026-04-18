@@ -10,13 +10,16 @@ package visui
 
 import sge.files.FileHandle
 import sge.scenes.scene2d.ui.Skin
-import sge.utils.{ Align, Nullable }
+import sge.utils.{ Align, Log, Nullable }
 
 /** Allows to easily load VisUI skin and change default title alignment and I18N bundles. Contains static field with VisUI version.
   * @author
   *   Kotcrab
   */
 object VisUI {
+
+  private val TARGET_SGE_VERSION:   String  = "1.14.1"
+  private var _skipSgeVersionCheck: Boolean = false
 
   private var _defaultTitleAlign: Align               = Align.left
   private var _scale:             Nullable[SkinScale] = Nullable.empty
@@ -34,6 +37,8 @@ object VisUI {
     case X2 extends SkinScale("com/kotcrab/vis/ui/skin/x2/uiskin.json", "x2")
 
     def getSkinFile(using Sge): FileHandle = Sge().files.classpath(classpath)
+
+    def getSizesName: String = sizesName
   }
 
   /** Loads default VisUI skin with [[SkinScale.X1]]. */
@@ -64,8 +69,16 @@ object VisUI {
     _skin = Nullable(skin)
   }
 
-  private def checkBeforeLoad()(using Sge): Unit =
+  private def checkBeforeLoad()(using Sge): Unit = {
     if (_skin.isDefined) throw new IllegalStateException("VisUI cannot be loaded twice")
+    if (!_skipSgeVersionCheck && Version.VERSION != TARGET_SGE_VERSION) {
+      Log.warn(
+        "VisUI: Warning, using invalid SGE version.\n" +
+          "You are using SGE " + Version.VERSION + " but you need " + TARGET_SGE_VERSION + ". This may cause " +
+          "unexpected problems and runtime exceptions."
+      )
+    }
+  }
 
   /** Unloads VisUI. */
   def dispose(): Unit = dispose(true)
@@ -105,6 +118,12 @@ object VisUI {
   // Alias for Java-style access
   def getDefaultTitleAlign:               Align = _defaultTitleAlign
   def setDefaultTitleAlign(align: Align): Unit  = _defaultTitleAlign = align
+
+  /** @param skip
+    *   if true VisUI won't check if provided SGE version is compatible for current version of VisUI. If false, before loading VisUI, an SGE version check will be performed, in case of version
+    *   mismatch warning will be printed to console
+    */
+  def setSkipSgeVersionCheck(skip: Boolean): Unit = _skipSgeVersionCheck = skip
 
   /** Returns the cached Sge instance from when VisUI was loaded. */
   private[visui] def sgeInstance: Sge = {

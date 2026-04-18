@@ -63,6 +63,23 @@ final class ArrayMap[K, V] private (
     }
   }
 
+  /** Puts a key-value pair at the specified index. If the key already exists, it is first removed, then inserted at the given index.
+    */
+  def put(key: K, value: V, index: Int): Int = {
+    val existingIdx = indexOfKey(key)
+    if (existingIdx != -1) {
+      removeIndex(existingIdx)
+    } else if (_size == keyArray.length) {
+      grow()
+    }
+    System.arraycopy(keyArray, index, keyArray, index + 1, _size - index)
+    System.arraycopy(valArray, index, valArray, index + 1, _size - index)
+    keyArray(index) = key
+    valArray(index) = value
+    _size += 1
+    index
+  }
+
   /** Returns the value for the specified key, or `Nullable.empty` if not found. */
   def get(key: K): Nullable[V] = {
     val i = indexOfKey(key)
@@ -87,10 +104,65 @@ final class ArrayMap[K, V] private (
     valArray(index)
   }
 
+  /** Returns the first key. Throws if the map is empty. */
+  def firstKey: K = {
+    if (_size == 0) throw new IllegalStateException("Map is empty.")
+    keyArray(0)
+  }
+
+  /** Returns the first value. Throws if the map is empty. */
+  def firstValue: V = {
+    if (_size == 0) throw new IllegalStateException("Map is empty.")
+    valArray(0)
+  }
+
+  /** Returns the key for the specified value. Note this does a comparison of each value in reverse order until the specified value is found.
+    * @param identity
+    *   If true, `eq` (reference identity) comparison will be used. If false, `==` (equals) comparison will be used.
+    */
+  def getKey(value: V, identity: Boolean): Nullable[K] = boundary {
+    var i = _size - 1
+    if (identity) {
+      while (i >= 0) {
+        if (valArray(i).asInstanceOf[AnyRef] eq value.asInstanceOf[AnyRef]) boundary.break(Nullable(keyArray(i)))
+        i -= 1
+      }
+    } else {
+      while (i >= 0) {
+        if (value == valArray(i)) boundary.break(Nullable(keyArray(i)))
+        i -= 1
+      }
+    }
+    Nullable.empty[K]
+  }
+
   /** Replaces the key at the given index, keeping the same value. */
   def setKeyAt(index: Int, key: K): Unit = {
     if (index >= _size) throw new IndexOutOfBoundsException("index can't be >= size: " + index + " >= " + _size)
     keyArray(index) = key
+  }
+
+  /** Replaces the value at the given index, keeping the same key. */
+  def setValueAt(index: Int, value: V): Unit = {
+    if (index >= _size) throw new IndexOutOfBoundsException("index can't be >= size: " + index + " >= " + _size)
+    valArray(index) = value
+  }
+
+  /** Inserts a key-value pair at the given index. If `preserveOrder` is true, existing elements are shifted; otherwise the element at the given index is moved to the end.
+    */
+  def insert(index: Int, key: K, value: V): Unit = {
+    if (index > _size) throw new IndexOutOfBoundsException("index can't be > size: " + index + " > " + _size)
+    if (_size == keyArray.length) grow()
+    if (preserveOrder) {
+      System.arraycopy(keyArray, index, keyArray, index + 1, _size - index)
+      System.arraycopy(valArray, index, valArray, index + 1, _size - index)
+    } else {
+      keyArray(_size) = keyArray(index)
+      valArray(_size) = valArray(index)
+    }
+    _size += 1
+    keyArray(index) = key
+    valArray(index) = value
   }
 
   /** Removes the key-value pair for the specified key, returning the value or `Nullable.empty`. */
@@ -120,9 +192,12 @@ final class ArrayMap[K, V] private (
     if (valArray.isInstanceOf[Array[AnyRef]]) valArray.asInstanceOf[Array[AnyRef]](_size) = null
   }
 
-  /** Removes the first key-value pair with the specified value. Returns true if found. */
-  def removeValue(value: V): Boolean = {
-    val i = indexOfValue(value)
+  /** Removes the first key-value pair with the specified value. Returns true if found.
+    * @param identity
+    *   If true, `eq` (reference identity) comparison will be used. If false, `==` (equals) comparison will be used.
+    */
+  def removeValue(value: V, identity: Boolean): Boolean = {
+    val i = indexOfValue(value, identity)
     if (i < 0) false
     else {
       removeIndex(i)
@@ -140,12 +215,25 @@ final class ArrayMap[K, V] private (
     -1
   }
 
-  /** Returns the index of the specified value, or -1 if not found. */
-  def indexOfValue(value: V): Int = boundary {
+  /** Returns the index of the specified value, or -1 if not found. Uses `==` (equals) comparison. */
+  def indexOfValue(value: V): Int = indexOfValue(value, identity = false)
+
+  /** Returns the index of the specified value, or -1 if not found.
+    * @param identity
+    *   If true, `eq` (reference identity) comparison will be used. If false, `==` (equals) comparison will be used.
+    */
+  def indexOfValue(value: V, identity: Boolean): Int = boundary {
     var i = 0
-    while (i < _size) {
-      if (valArray(i) == value) boundary.break(i)
-      i += 1
+    if (identity) {
+      while (i < _size) {
+        if (valArray(i).asInstanceOf[AnyRef] eq value.asInstanceOf[AnyRef]) boundary.break(i)
+        i += 1
+      }
+    } else {
+      while (i < _size) {
+        if (value == valArray(i)) boundary.break(i)
+        i += 1
+      }
     }
     -1
   }
@@ -153,20 +241,46 @@ final class ArrayMap[K, V] private (
   /** Returns true if the specified key is in the map. */
   def containsKey(key: K): Boolean = indexOfKey(key) >= 0
 
-  /** Returns true if the specified value is in the map. */
+  /** Returns true if the specified value is in the map. Uses `==` (equals) comparison.
+    * @param identity
+    *   If true, `eq` (reference identity) comparison will be used. If false, `==` (equals) comparison will be used.
+    */
+  def containsValue(value: V, identity: Boolean): Boolean = indexOfValue(value, identity) >= 0
+
+  /** Returns true if the specified value is in the map. Uses `==` (equals) comparison. */
   def containsValue(value: V): Boolean = indexOfValue(value) >= 0
 
   // --- Bulk ---
 
   /** Copies all key-value pairs from the other map into this map. */
-  def putAll(other: ArrayMap[K, V]): Unit = {
-    ensureCapacity(other._size)
-    var i = 0
-    while (i < other._size) {
-      put(other.keyArray(i), other.valArray(i))
-      i += 1
+  def putAll(other: ArrayMap[K, V]): Unit = putAll(other, 0, other._size)
+
+  /** Copies key-value pairs from the other map into this map, starting at `offset` for `length` elements. */
+  def putAll(other: ArrayMap[K, V], offset: Int, length: Int): Unit = {
+    if (offset + length > other._size)
+      throw new IllegalArgumentException(
+        "offset + length must be <= size: " + offset + " + " + length + " <= " + other._size
+      )
+    val sizeNeeded = _size + length - offset
+    if (sizeNeeded >= keyArray.length) {
+      val newCap = Math.max(8, (sizeNeeded * 1.75).toInt)
+      keyArray = mkK.copyOf(keyArray, newCap)
+      valArray = mkV.copyOf(valArray, newCap)
     }
+    System.arraycopy(other.keyArray, offset, keyArray, _size, length)
+    System.arraycopy(other.valArray, offset, valArray, _size, length)
+    _size += length
   }
+
+  /** Clears the map and reduces the size of the backing arrays to be the specified capacity if they are larger. */
+  def clear(maximumCapacity: Int): Unit =
+    if (keyArray.length <= maximumCapacity) {
+      clear()
+    } else {
+      _size = 0
+      keyArray = mkK.create(maximumCapacity)
+      valArray = mkV.create(maximumCapacity)
+    }
 
   /** Removes all key-value pairs. */
   def clear(): Unit = {
@@ -253,6 +367,10 @@ final class ArrayMap[K, V] private (
     }
 
   // --- Iteration ---
+  // Architecture divergence: The original LibGDX ArrayMap uses mutable Java-style inner-class iterators (Entries, Keys, Values)
+  // with pooling via Collections.allocateIterators. This port replaces them with functional foreach* methods, which are idiomatic
+  // Scala, avoid iterator-pool allocation complexity, and eliminate the nested-iterator misuse bugs that the original guards against.
+  // All iteration functionality (entries, keys, values) is preserved; only the mechanism differs.
 
   /** Calls the given function for each key-value pair. */
   def foreachEntry(f: (K, V) => Unit): Unit = {
@@ -304,6 +422,26 @@ final class ArrayMap[K, V] private (
         var i        = 0
         while (i < _size && equal) {
           if (keyArray(i) != otherMap.keyArray(i) || valArray(i) != otherMap.valArray(i)) equal = false
+          i += 1
+        }
+        equal
+      }
+    case _ => false
+  }
+
+  /** Uses `eq` (reference identity) for comparison of each value. */
+  def equalsIdentity(obj: Any): Boolean = obj match {
+    case other: ArrayMap[?, ?] =>
+      if (other eq this) true
+      else if (other._size != _size) false
+      else {
+        val otherMap = other.asInstanceOf[ArrayMap[K, V]]
+        var equal    = true
+        var i        = 0
+        while (i < _size && equal) {
+          val otherVal = otherMap.get(keyArray(i))
+          if (otherVal.isEmpty || !(valArray(i).asInstanceOf[AnyRef] eq otherVal.get.asInstanceOf[AnyRef]))
+            equal = false
           i += 1
         }
         equal

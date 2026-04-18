@@ -157,6 +157,15 @@ class PNG8(initialBufferSize: Int) extends AnimationWriter with Dithered with Au
       StreamUtils.closeQuietly(output)
   }
 
+  /** Writes the pixmap to the given file, optionally computing an 8-bit palette, optionally dithering, using the given threshold. */
+  def write(file: FileHandle, pixmap: Pixmap, computePalette: Boolean, dither: Boolean, threshold: Int): Unit = {
+    val output = file.write(false)
+    try
+      write(output, pixmap, computePalette, dither, threshold)
+    finally
+      StreamUtils.closeQuietly(output)
+  }
+
   def write(output: OutputStream, pixmap: Pixmap): Unit =
     writePrecisely(output, pixmap, ditherFallback = true)
 
@@ -222,6 +231,15 @@ class PNG8(initialBufferSize: Int) extends AnimationWriter with Dithered with Au
     val output = file.write(false)
     try
       writePrecisely(output, pixmap, ditherFallback, threshold)
+    finally
+      StreamUtils.closeQuietly(output)
+  }
+
+  /** Attempts to write the given Pixmap exactly as a PNG-8 image to file, using the given exact palette if non-null. */
+  def writePrecisely(file: FileHandle, pixmap: Pixmap, exactPalette: Array[Int] | Null, ditherFallback: Boolean, threshold: Int): Unit = {
+    val output = file.write(false)
+    try
+      writePrecisely(output, pixmap, exactPalette, ditherFallback, threshold)
     finally
       StreamUtils.closeQuietly(output)
   }
@@ -1453,6 +1471,15 @@ class PNG8(initialBufferSize: Int) extends AnimationWriter with Dithered with Au
     val output = file.write(false)
     try
       write(output, frames, fps)
+    finally
+      StreamUtils.closeQuietly(output)
+  }
+
+  /** Writes the given frames as an animated PNG-8 to a file, optionally dithering the result. */
+  def write(file: FileHandle, frames: Array[Pixmap], fps: Int, dither: Boolean): Unit = {
+    val output = file.write(false)
+    try
+      write(output, frames, fps, dither)
     finally
       StreamUtils.closeQuietly(output)
   }
