@@ -34,8 +34,14 @@ trait Timepiece {
   def update(delta: Float): Unit
 }
 
-/** Default [[Timepiece]] implementation that tracks cumulative time and per-frame delta. */
-class DefaultTimepiece extends Timepiece {
+/** Default [[Timepiece]] implementation that tracks cumulative time and per-frame delta.
+  *
+  * Delta time is clamped to [[maxDeltaTime]] to prevent AI systems from seeing huge deltas after pauses (tab switches, debugging).
+  *
+  * @param maxDeltaTime
+  *   the maximum delta time; defaults to `Float.PositiveInfinity` (no clamping)
+  */
+class DefaultTimepiece(val maxDeltaTime: Float = Float.PositiveInfinity) extends Timepiece {
 
   private var _time:      Float = 0f
   private var _deltaTime: Float = 0f
@@ -45,7 +51,7 @@ class DefaultTimepiece extends Timepiece {
   override def deltaTime: Float = _deltaTime
 
   override def update(delta: Float): Unit = {
-    _deltaTime = delta
-    _time += delta
+    _deltaTime = scala.math.min(delta, maxDeltaTime)
+    _time += _deltaTime
   }
 }

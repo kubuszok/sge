@@ -47,9 +47,8 @@ class HighlightTextArea(text: String, visStyle: VisTextField.VisTextFieldStyle)(
 
   def this(text: String, styleName: String)(using Sge) = this(text, VisUI.getSkin.get[VisTextField.VisTextFieldStyle](styleName))
 
-  private def init(): Unit = {
-    // softwrap disabled — lines only break on newlines, horizontal scrolling handles overflow
-  }
+  private def init(): Unit =
+    softwrap = false
 
   override protected def updateDisplayText(): Unit = {
     super.updateDisplayText()

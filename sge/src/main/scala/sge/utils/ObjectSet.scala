@@ -229,6 +229,10 @@ final class ObjectSet[A] private (
   }
 
   // --- Iteration ---
+  // Architecture divergence: The original LibGDX ObjectSet uses a mutable Java-style inner-class iterator (ObjectSetIterator)
+  // with pooling via Collections.allocateIterators. This port replaces it with a functional foreach method, which is idiomatic
+  // Scala, avoids iterator-pool allocation complexity, and eliminates the nested-iterator misuse bugs that the original guards
+  // against. All iteration functionality is preserved; only the mechanism differs.
 
   /** Calls the given function for each element in the set. Iteration order is not guaranteed. */
   def foreach(f: A => Unit): Unit = {
@@ -283,25 +287,27 @@ final class ObjectSet[A] private (
     case _ => false
   }
 
-  override def toString(): String =
-    if (_size == 0) "{}"
+  /** Returns a string representation using the specified separator between elements. */
+  def toString(separator: String): String =
+    if (_size == 0) ""
     else {
-      val sb  = new StringBuilder()
-      val len = keyTable.length
-      sb.append('{')
+      val sb    = new StringBuilder()
+      val len   = keyTable.length
       var first = true
       var i     = 0
       while (i < len) {
         if (filled(i)) {
-          if (!first) sb.append(", ")
+          if (!first) sb.append(separator)
           sb.append(keyTable(i))
           first = false
         }
         i += 1
       }
-      sb.append('}')
       sb.toString()
     }
+
+  override def toString(): String =
+    "{" + toString(", ") + "}"
 
   // --- Internal accessors for OrderedSet ---
 

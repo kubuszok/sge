@@ -92,4 +92,33 @@ class ImmutableArraySuite extends munit.FunSuite {
     val immutable = new ImmutableArray[String]()
     assertEquals(immutable.size, 0)
   }
+
+  test("forbiddenRemoval: iterator is read-only and does not mutate backing") {
+    val backing   = ArrayBuffer[Int]()
+    val immutable = new ImmutableArray[Int](backing)
+
+    for (i <- 0 until 10)
+      backing += i
+
+    // In the original Java test, iterator.remove() throws GdxRuntimeException.
+    // In Scala, Iterator does not expose remove(), so the read-only invariant
+    // is enforced by the type system. Verify the iterator works correctly
+    // and the backing data is unaffected after full iteration.
+    val iter  = immutable.iterator
+    val first = iter.next()
+    assertEquals(first, 0)
+
+    // Drain the iterator
+    var count = 1
+    while (iter.hasNext) {
+      iter.next()
+      count += 1
+    }
+    assertEquals(count, 10)
+
+    // Backing is still intact -- iteration did not mutate
+    assertEquals(immutable.size, 10)
+    for (i <- 0 until 10)
+      assertEquals(immutable(i), i)
+  }
 }

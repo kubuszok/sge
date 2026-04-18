@@ -13,7 +13,7 @@ package scene
 import sge.{ Application, Sge }
 import sge.gltf.scene3d.attributes.PBRMatrixAttribute
 import sge.gltf.scene3d.shaders.PBRShaderConfig
-import sge.graphics.{ Camera, Color, Cubemap, GL20, Texture, TextureTarget }
+import sge.graphics.{ Camera, Color, Cubemap, GL20, Texture, TextureTarget, UniformLocation }
 import sge.graphics.g3d.{ Attributes, Environment, Material, Model as G3dModel, Renderable, RenderableProvider, Shader }
 import sge.graphics.g3d.attributes.{ ColorAttribute, CubemapAttribute, DepthTestAttribute }
 import sge.graphics.g3d.shaders.DefaultShader
@@ -96,7 +96,7 @@ class SceneSkybox(using sge: Sge) extends RenderableProvider with Updatable with
     shaderConfig.vertexShader = Nullable(Sge().files.classpath(basePathName + ".vs.glsl").readString())
     shaderConfig.fragmentShader = Nullable(Sge().files.classpath(basePathName + ".fs.glsl").readString())
     ownShaderProvider = true
-    this.shaderProvider = DefaultShaderProvider(shaderConfig)
+    this.shaderProvider = SkyboxShaderProvider(shaderConfig, sb.toString())
   }
 
   private def createQuad(cubemap: Cubemap): Unit = {
@@ -163,6 +163,32 @@ class SceneSkybox(using sge: Sge) extends RenderableProvider with Updatable with
         env.remove(PBRMatrixAttribute.EnvRotation)
       }
     }
+
+  private class SkyboxShader(renderable: Renderable, config: DefaultShader.Config)(using Sge) extends DefaultShader(renderable, config) {
+
+    private var u_lod: UniformLocation = UniformLocation.notFound
+
+    override def init(): Unit = {
+      super.init()
+      u_lod = UniformLocation(Sge().graphics.gl.glGetUniformLocation(program.get.handle, "u_lod"))
+    }
+
+    override protected def bindMaterial(attributes: Attributes): Unit = {
+      super.bindMaterial(attributes)
+      if (u_lod >= 0) program.foreach(_.setUniformf(u_lod, lodBias))
+    }
+  }
+
+  private class SkyboxShaderProvider(config: DefaultShader.Config, fsPrefix: String)(using Sge) extends DefaultShaderProvider(config) {
+
+    override protected def createShader(renderable: Renderable): Shader = {
+      val oldFS = ShaderProgram.prependFragmentCode
+      ShaderProgram.prependFragmentCode = fsPrefix
+      val shader = SkyboxShader(renderable, config)
+      ShaderProgram.prependFragmentCode = oldFS
+      shader
+    }
+  }
 }
 
 object SceneSkybox {

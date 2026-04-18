@@ -1212,7 +1212,7 @@ sge/src/main/scala/sge/graphics/g3d/attributes/PointLightsAttribute.scala	attrib
 sge/src/main/scala/sge/graphics/g3d/attributes/SpotLightsAttribute.scala	attributes	pass	no	2026-04-12		
 sge/src/main/scala/sge/graphics/g3d/model/data/ModelMaterial.scala	data	pass	no	2026-04-12		
 sge/src/main/scala/sge/graphics/g3d/ModelInstance.scala	g3d	pass	no	2026-04-12		
-sge/src/main/scala/sge/utils/Pool.scala	utils	pass	no	2026-04-12	All Pool methods present: obtain, free, fill, reset, discard, freeAll (2 overloads), clear, free (getter). Poolable trait preserved. Pool.Default, Pool.Flushable, Pool.QuadTreeFloat all complete. Change from abstract class to trait is intentional design improvement, documented in header. Re-audited 2026-04-12.	
+sge/src/main/scala/sge/utils/Pool.scala	utils	pass	no	2026-04-18	All Pool methods present: obtain, free, fill, reset, discard, freeAll (2 overloads), clear, free (getter). Poolable trait preserved. Pool.Default, Pool.Flushable, Pool.QuadTreeFloat all complete. Change from abstract class to trait is intentional design improvement, documented in header. Re-audited 2026-04-12.	
 sge/src/main/scala/sge/utils/PropertiesUtils.scala	utils	pass	no	2026-04-12	All methods present: load, store, storeImpl, dumpString, writeComment. load uses original hand-written parser. store delegates to storeImpl with escapeUnicode=false. Re-audited 2026-04-12.	
 sge/src/main/scala/sge/graphics/glutils/FrameBufferCubemap.scala	glutils	pass	no	2026-04-12		
 sge/src/main/scala/sge/graphics/glutils/IndexBufferObjectSubData.scala	glutils	pass	no	2026-04-12		
@@ -1220,9 +1220,9 @@ sge/src/main/scala/sge/utils/ScreenUtils.scala	utils	pass	no	2026-04-12	All meth
 sge/src/main/scala/sge/graphics/glutils/KTXTextureData.scala	glutils	pass	no	2026-04-12		
 sge/src/main/scala/sge/graphics/glutils/MipMapTextureData.scala	glutils	pass	no	2026-04-12		
 sge/src/main/scala/sge/utils/Sort.scala	utils	pass	no	2026-04-12	All 6 sort overloads present. instance() not needed - Scala object IS the singleton. Uses ComparableTimSort and TimSort. Re-audited 2026-04-12.	
-sge/src/main/scala/sge/utils/TextFormatter.scala	utils	pass	no	2026-04-12	simpleFormat fully implemented with: escaped {{ handling, placeholder parsing, all error checking (index bounds, missing index, invalid char, unmatched braces), null handling. MessageFormat not used - matches GWT behavior for cross-platform (JS/Native). Re-audited 2026-04-12.	
+sge/src/main/scala/sge/utils/TextFormatter.scala	utils	pass	no	2026-04-18	simpleFormat fully implemented with: escaped {{ handling, placeholder parsing, all error checking (index bounds, missing index, invalid char, unmatched braces), null handling. MessageFormat not used - matches GWT behavior for cross-platform (JS/Native). Re-audited 2026-04-12.	
 sge/src/main/scala/sge/graphics/profiling/GL32Interceptor.scala	profiling	pass	no	2026-04-12		
-sge/src/main/scala/sge/utils/Timer.scala	utils	pass	no	2026-04-12	All methods present: postTask, scheduleTask, stop, start, clear, isEmpty, delay, instance, post, schedule (3 overloads). Task with run, cancel, isScheduled, executeTime. TimerThread extends LifecycleListener - addLifecycleListener/removeLifecycleListener/postRunnable all connected. TimerPlatformOps.runLoop for cross-platform async. Re-audited 2026-04-12.	
+sge/src/main/scala/sge/utils/Timer.scala	utils	pass	no	2026-04-18	All methods present: postTask, scheduleTask, stop, start, clear, isEmpty, delay, instance, post, schedule (3 overloads). Task with run, cancel, isScheduled, executeTime. TimerThread extends LifecycleListener - addLifecycleListener/removeLifecycleListener/postRunnable all connected. TimerPlatformOps.runLoop for cross-platform async. Re-audited 2026-04-12.	
 sge/src/main/scala/sge/graphics/g3d/particles/ParticleController.scala	particles	pass	no	2026-04-12		
 sge/src/main/scala/sge/graphics/g3d/particles/ParticleEffectLoader.scala	particles	pass	no	2026-04-12		
 sge/src/main/scala/sge/graphics/g3d/particles/ParticleSorter.scala	particles	pass	no	2026-04-12		
@@ -1264,3 +1264,56 @@ sge-extension/physics3d/src/main/scalajvm/sge/platform/PhysicsOpsPanama3d.scala	
 sge-extension/physics3d/src/main/scalanative/sge/platform/PhysicsOpsNative3d.scala	platform	pass	yes	2026-04-17	SGE-original, covenanted	
 sge-extension/physics3d/src/main/scalajvm/sge/platform/PhysicsPlatform3d.scala	platform	pass	yes	2026-04-17	SGE-original, covenanted	
 sge-extension/physics3d/src/main/scalanative/sge/platform/PhysicsPlatform3d.scala	platform	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/ai/src/main/scala/sge/ai/Timepiece.scala	ai	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/effects/WaveEffect.scala	effects	pass	no	2026-04-18		
+sge-extension/gltf/src/main/scala/sge/gltf/scene3d/scene/SceneManager.scala	scene	pass	no	2026-04-18		
+sge-extension/visui/src/main/scala/sge/visui/widget/Menu.scala	widget	pass	no	2026-04-18		
+sge-extension/gltf/src/main/scala/sge/gltf/scene3d/scene/SceneSkybox.scala	scene	pass	no	2026-04-18		
+sge-extension/anim8/src/main/scala/sge/anim8/PaletteReducer.scala	anim8	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/Layout.scala	textra	pass	no	2026-04-18		
+sge/src/main/scala/sge/utils/BufferUtils.scala	utils	pass	no	2026-04-18		
+sge/src/main/scala/sge/utils/ArrayMap.scala	utils	pass	no	2026-04-18		
+sge/src/main/scala/sge/utils/XmlReader.scala	utils	pass	no	2026-04-18		
+sge/src/main/scala/sge/utils/Align.scala	utils	pass	no	2026-04-18		
+sge-extension/visui/src/main/scala/sge/visui/widget/VisTextField.scala	widget	pass	no	2026-04-18		
+sge-extension/visui/src/main/scala/sge/visui/widget/VisTextArea.scala	widget	pass	no	2026-04-18		
+sge-extension/visui/src/main/scala/sge/visui/widget/ScrollableTextArea.scala	widget	pass	no	2026-04-18		
+sge-extension/visui/src/main/scala/sge/visui/widget/HighlightTextArea.scala	widget	pass	no	2026-04-18		
+sge-extension/visui/src/main/scala/sge/visui/util/dialog/Dialogs.scala	dialog	pass	no	2026-04-18		
+sge-extension/visui/src/main/scala/sge/visui/widget/tabbedpane/TabbedPane.scala	tabbedpane	pass	no	2026-04-18		
+sge-extension/visui/src/main/scala/sge/visui/VisUI.scala	visui	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/utils/CaseInsensitiveIntMap.scala	utils	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/Font.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/KnownFonts.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/BitmapFontSupport.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/TextraField.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/TextraButton.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/TextraWindow.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/TextraDialog.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/TextraListBox.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/TextraSelectBox.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/TextraCheckBox.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/TextraLabel.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/TextraTooltip.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/ImageTextraButton.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/FWSkin.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/Styles.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/utils/StringUtils.scala	utils	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/Parser.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/utils/LZBDecompression.scala	utils	pass	no	2026-04-18		
+sge-extension/anim8/src/main/scala/sge/anim8/PNG8.scala	anim8	pass	no	2026-04-18		
+sge-extension/ecs/src/main/scala/sge/ecs/utils/ImmutableArray.scala	utils	pass	no	2026-04-18		
+sge-extension/graphs/src/main/scala/sge/graphs/Path.scala	graphs	pass	no	2026-04-18		
+sge-extension/vfx/src/main/scala/sge/vfx/framebuffer/VfxFrameBuffer.scala	framebuffer	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/TypingButton.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/TypingCheckBox.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/TypingDialog.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/TypingWindow.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/TypingListBox.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/TypingSelectBox.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/TypingTooltip.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/TextureArrayCpuPolygonSpriteBatch.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/TextureArrayPolygonSpriteBatch.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/TextureArrayShaderCompiler.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/TextureArrayShaders.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/LzmaUtils.scala	textra	pass	no	2026-04-18		

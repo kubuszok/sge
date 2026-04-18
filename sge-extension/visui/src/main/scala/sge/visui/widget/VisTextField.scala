@@ -9,7 +9,7 @@ package sge
 package visui
 package widget
 
-import sge.graphics.Cursor
+import sge.graphics.{ Color, Cursor }
 import sge.graphics.g2d.{ Batch, BitmapFont }
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener }
 import sge.scenes.scene2d.ui.TextField
@@ -151,6 +151,7 @@ class VisTextField(text: Nullable[String], visStyle: VisTextField.VisTextFieldSt
     if (!disabled) {
       FocusManager.switchFocus(stage, VisTextField.this)
       setCursorPosition(0)
+      _selectionStart = 0
       // make sure textOffset was updated, prevent issue when there was long text selected and it was changed to short text
       // and field was focused. Without it textOffset would stay at max value and only one last letter will be visible in field
       calculateOffsets()
@@ -216,6 +217,15 @@ object VisTextField {
     var focusBorder:    Nullable[Drawable] = Nullable.empty
     var errorBorder:    Nullable[Drawable] = Nullable.empty
     var backgroundOver: Nullable[Drawable] = Nullable.empty
+
+    def this(font: BitmapFont, fontColor: Color, cursor: Nullable[Drawable], selection: Nullable[Drawable], background: Nullable[Drawable]) = {
+      this()
+      this.font = font
+      this.fontColor = fontColor
+      this.cursor = cursor
+      this.selection = selection
+      this.background = background
+    }
 
     def this(style: VisTextFieldStyle) = {
       this()

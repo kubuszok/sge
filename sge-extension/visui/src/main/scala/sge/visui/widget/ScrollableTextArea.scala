@@ -4,10 +4,6 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
- *
- * Note: Due to TextArea field visibility constraints (private[ui] in SGE), this port
- * works through available public APIs. Some internal scroll position calculations
- * are simplified compared to the original.
  */
 package sge
 package visui
@@ -85,8 +81,7 @@ class ScrollableTextArea(text: String, visStyle: VisTextField.VisTextFieldStyle)
 
   override protected def sizeChanged(): Unit = {
     super.sizeChanged()
-    // Force text area not to use its internal scrolling by reporting a very large number of lines visible
-    // The actual scrolling is handled by the parent ScrollPane
+    linesShowing = 1000000000 // aka a lot, forces text area not to use its internal scrolling
   }
 
   override def prefHeight: Float =
@@ -94,7 +89,15 @@ class ScrollableTextArea(text: String, visStyle: VisTextField.VisTextFieldStyle)
 
   override def setText(str: Nullable[String]): Unit = {
     super.setText(str)
+    if (!getProgrammaticChangeEvents) { // changeText WILL NOT be called when programmaticChangeEvents are disabled
+      updateScrollLayout()
+    }
+  }
+
+  override private[sge] def changeText(oldText: String, newText: String): Boolean = {
+    val changed = super.changeText(oldText, newText)
     updateScrollLayout()
+    changed
   }
 
   private[widget] def updateScrollLayout(): Unit = {

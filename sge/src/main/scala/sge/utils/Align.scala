@@ -6,7 +6,9 @@
  *
  * Migration notes:
  *   Renames: `int` constants -> opaque type `Align`; static methods -> extension methods
- *   Convention: Java class with static int fields -> opaque type with extension methods; `toString(int)` -> `Show[Align]` type class; added bitwise operators and `isCenter`
+ *   Convention: Java class with static int fields -> opaque type with extension methods;
+ *     `toString(int)` -> `align.show` extension + `Show[Align]` type class;
+ *     added bitwise operators and `isCenter`
  *   Idiom: split packages
  *   TODO: replace given Show[Align] with derived FastShowPretty[Align]
  *   Audited: 2026-03-03
@@ -37,6 +39,21 @@ object Align {
   val bottomLeft:  Align = bottom | left
   val bottomRight: Align = bottom | right
 
+  /** Formats alignment flags as a human-readable string (e.g. "top,left").
+    *
+    * This is a private helper; use `align.show` (extension) or the `Show[Align]` type class. Replaces the original `Align.toString(int)` static method.
+    */
+  private def showImpl(a: Int): String = {
+    val buffer = new StringBuilder(13)
+    if ((a & top) != 0) buffer.append("top,")
+    else if ((a & bottom) != 0) buffer.append("bottom,")
+    else buffer.append("center,")
+    if ((a & left) != 0) buffer.append("left")
+    else if ((a & right) != 0) buffer.append("right")
+    else buffer.append("center")
+    buffer.toString()
+  }
+
   extension (a: Align) {
     inline def toInt: Int   = a
     def unary_~     : Align = ~a
@@ -51,20 +68,17 @@ object Align {
     inline def isCenterVertical:   Boolean = (a & top) == 0 && (a & bottom) == 0
     inline def isCenterHorizontal: Boolean = (a & left) == 0 && (a & right) == 0
     inline def isCenter:           Boolean = isCenterVertical && isCenterHorizontal
+
+    /** Returns a human-readable string for this alignment, e.g. "top,left" or "center,center".
+      *
+      * Compatibility note: replaces the original `Align.toString(int)` static method.
+      */
+    def show: String = showImpl(a)
   }
 
   given Show[Align] with {
     extension (align: Align) {
-      def show: String = {
-        val buffer = new StringBuilder
-        if (isTop(align)) buffer.append("top,")
-        else if (isBottom(align)) buffer.append("bottom,")
-        else buffer.append("center,")
-        if (isLeft(align)) buffer.append("left")
-        else if (isRight(align)) buffer.append("right")
-        else buffer.append("center")
-        buffer.toString()
-      }
+      def show: String = showImpl(align)
     }
   }
 }

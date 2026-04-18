@@ -148,6 +148,10 @@ class ImageTextraButton(
   /** Returns the current image drawable. */
   def getImageDrawableCurrent: Nullable[AnyRef] = _imageDrawable
 
+  /** Returns the image drawable in use (from style state). Equivalent to getImageDrawable but named to match the original API which returns an Image widget.
+    */
+  def getImage: Nullable[AnyRef] = _imageDrawable
+
   def setLabel(newLabel: TextraLabel): Unit =
     this.label = newLabel
 

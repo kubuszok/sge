@@ -53,6 +53,7 @@ class Timer(using sge.Sge) {
           tasks.add(task)
         }
       }
+      threadLock.notifyAll()
     }
     task
   }
@@ -74,6 +75,7 @@ class Timer(using sge.Sge) {
           delay(System.nanoTime() / 1000000 - stopTimeMillis)
           stopTimeMillis = 0
         }
+        threadLock.notifyAll()
       }
     }
 
@@ -276,9 +278,8 @@ object Timer {
             try
               waitMillis = instances(i).update(this, timeMillis, waitMillis)
             catch {
-              case e:  Error     => throw e // Never swallow OOM, SOE, etc.
-              case ex: Exception =>
-                Log.error(s"Task failed: ${instances(i).getClass.getName}", ex)
+              case ex: Throwable =>
+                throw new RuntimeException("Task failed: " + instances(i).getClass.getName, ex)
             }
             i += 1
           }
@@ -293,14 +294,7 @@ object Timer {
         runTasks.addAll(postedTasks)
         postedTasks.clear()
       }
-      runTasks.foreach { task =>
-        try task.run()
-        catch {
-          case e:  Error     => throw e // Never swallow OOM, SOE, etc.
-          case ex: Exception =>
-            Log.error(s"Timer task failed: ${task.getClass.getName}", ex)
-        }
-      }
+      runTasks.foreach(_.run())
       runTasks.clear()
     }
 

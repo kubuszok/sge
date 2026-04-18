@@ -54,7 +54,12 @@ class XmlReader {
 
   /** Parses XML from a FileHandle. */
   def parse(file: files.FileHandle): XmlReader.Element =
-    parse(file.reader())
+    try
+      parse(file.reader("UTF-8"))
+    catch {
+      case NonFatal(ex) =>
+        throw SgeError.SerializationError("Error parsing file: " + file, Some(ex))
+    }
 }
 
 object XmlReader {

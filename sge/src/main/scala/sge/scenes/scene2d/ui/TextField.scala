@@ -44,13 +44,13 @@ class TextField(initialText: Nullable[String], initialStyle: TextField.TextField
 
   import TextField._
 
-  protected var _text:             String              = ""
-  protected var cursor:            Int                 = 0
-  private[ui] var _selectionStart: Int                 = 0
-  protected var hasSelection:      Boolean             = false
-  protected var writeEnters:       Boolean             = false
-  protected val glyphLayout:       GlyphLayout         = GlyphLayout()
-  protected val glyphPositions:    DynamicArray[Float] = DynamicArray[Float]()
+  protected var _text:           String              = ""
+  protected var cursor:          Int                 = 0
+  protected var _selectionStart: Int                 = 0
+  protected var hasSelection:    Boolean             = false
+  protected var writeEnters:     Boolean             = false
+  protected val glyphLayout:     GlyphLayout         = GlyphLayout()
+  protected val glyphPositions:  DynamicArray[Float] = DynamicArray[Float]()
 
   protected var _style:            TextField.TextFieldStyle    = scala.compiletime.uninitialized
   private var _messageText:        Nullable[String]            = Nullable.empty

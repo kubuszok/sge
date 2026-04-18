@@ -2,6 +2,12 @@
  * Ported from gdx-vfx - https://github.com/crashinvaders/gdx-vfx
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: `com.crashinvaders.vfx.utils` -> `sge.vfx.utils`
+ *   Idiom: Wrapper Pool eliminated — Entry instances are allocated directly (no GC-pressure
+ *     concern in Scala); dual-iterator nesting validation (valid flag, alternating iterator1/
+ *     iterator2) replaced by standard Scala iterator() which creates fresh iterators each call.
+ *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge

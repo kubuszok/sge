@@ -7,28 +7,34 @@
  *
  * Migration notes:
  *   Renames: LifecycleListener → dispose only, OrderedSet → LinkedHashSet,
- *     ObjectMap → HashMap, ShaderProgram → deferred,
+ *     ObjectMap → HashMap,
  *     Gdx.files.internal → Sge().files.internal,
- *     TextureAtlas(packFile, imagesDir, flip) → SGE TextureAtlas(packFile, imagesDir, flip),
- *     BitmapFont/getBitmapFont → skipped (no BitmapFont in SGE)
- *   Merged with: loadUnicodeAtlas inlined as loadEmojiAtlas (UTF-8 is default in SGE)
+ *     Gdx.app.error → sge.utils.Log.error,
+ *     ShaderProgram.isCompiled → compiled,
+ *     TextureAtlas(packFile, imagesDir, flip) → SGE TextureAtlas(packFile, imagesDir, flip)
  *   Convention: All font name constants preserved; getFont() and specific
  *     font getter methods preserved. Actual font file loading fully ported.
+ *     Shader caching (getStandardShader, getSdfShader, getSdfOutlineShader,
+ *     getMsdfShader) ported. getBitmapFont ported via BitmapFontSupport.
+ *     loadUnicodeAtlas ported with canUseTextures headless-mode support.
+ *     Custom initialize overload for alternative shader code preserved.
  *   Idiom: Singleton via object; font caching with HashMap; (using Sge) propagation.
- *   TODOs: ShaderProgram initialization deferred — SGE manages shaders at a higher level.
- *     getBitmapFont skipped — SGE does not expose BitmapFont directly.
- *     loadUnicodeAtlas → uses standard TextureAtlas (SGE reads UTF-8 by default).
+ *     Emoji atlases use loadUnicodeAtlas (UTF-8 default in SGE).
  *
  * Covenant: partial-port
  * Covenant-source-reference: textratypist/src/main/java/com/github/tommyettinger/textra/KnownFonts.java
- * Covenant-verified: 2026-04-11
+ * Covenant-verified: 2026-04-18
  */
 package sge
 package textra
 
 import scala.collection.mutable.{ HashMap, LinkedHashSet }
 
-import sge.graphics.g2d.TextureAtlas
+import sge.Application
+import sge.files.FileHandle
+import sge.graphics.Texture
+import sge.graphics.g2d.{ BitmapFont, TextureAtlas }
+import sge.graphics.glutils.ShaderProgram
 import sge.utils.Nullable
 
 /** Preconfigured static Font instances, with any important metric adjustments already applied. This uses a singleton to ensure each font exists at most once.
@@ -42,6 +48,12 @@ object KnownFonts {
   private var prefix:      String                = ""
   private val loaded:      HashMap[String, Font] = HashMap.empty
 
+  // Cached shader instances
+  private var standardShader:   Nullable[ShaderProgram] = Nullable.empty
+  private var sdfShader:        Nullable[ShaderProgram] = Nullable.empty
+  private var sdfOutlineShader: Nullable[ShaderProgram] = Nullable.empty
+  private var msdfShader:       Nullable[ShaderProgram] = Nullable.empty
+
   // Cached atlas references for emoji/icon sets
   private var twemoji:        Nullable[TextureAtlas] = Nullable.empty
   private var openMojiColor:  Nullable[TextureAtlas] = Nullable.empty
@@ -51,20 +63,139 @@ object KnownFonts {
   private var materialDesign: Nullable[TextureAtlas] = Nullable.empty
   private var gameIconsFont:  Nullable[Font]         = Nullable.empty
 
-  /** Initializes the singleton. This is called automatically by every method that uses the internal singleton. */
-  def initialize(): Unit =
+  /** Initializes the singleton. This is called automatically by every method that uses the internal singleton.
+    *
+    * This won't load any ShaderProgram instances if the app is a headless Application, since shaders can only be compiled if OpenGL is available.
+    */
+  def initialize()(using Sge): Unit =
     if (!initialized) {
       initialized = true
+      if (summon[Sge].application.applicationType == Application.ApplicationType.HeadlessDesktop) ()
+      else {
+        standardShader = Nullable.empty
+        val useDeriv = summon[Sge].application.applicationType == Application.ApplicationType.Desktop ||
+          summon[Sge].graphics.supportsExtension("GL_OES_standard_derivatives")
+        sdfShader = Nullable(
+          new ShaderProgram(
+            Font.vertexShader,
+            if (useDeriv) Font.sdfFragmentShaderUsingDerivatives
+            else Font.sdfFragmentShader
+          )
+        )
+        sdfShader.foreach { s =>
+          if (!s.compiled) sge.utils.Log.error("textratypist: SDF shader failed to compile: " + s.log)
+        }
+        sdfOutlineShader = Nullable(
+          new ShaderProgram(
+            Font.vertexShader,
+            if (useDeriv) Font.sdfBlackOutlineFragmentShaderUsingDerivatives
+            else Font.sdfBlackOutlineFragmentShader
+          )
+        )
+        sdfOutlineShader.foreach { s =>
+          if (!s.compiled) sge.utils.Log.error("textratypist: SDF Outline shader failed to compile: " + s.log)
+        }
+        msdfShader = Nullable(new ShaderProgram(Font.vertexShader, Font.msdfFragmentShader))
+        msdfShader.foreach { s =>
+          if (!s.compiled) sge.utils.Log.error("textratypist: MSDF shader failed to compile: " + s.log)
+        }
+      }
     }
 
+  /** Allows initializing KnownFonts with different distance field shader code, or removing the option to use some distance field types. This can be useful if you use GL ES 3.0 compatibility, which
+    * isn't the default and needs some changes to shaders. It can also be useful if you're using a "Texture Array Batch", or any sort of Batch that needs alternative shaders with different attributes.
+    * This must be called before any other methods in KnownFonts, including before setAssetPrefix (if it is called at all).
+    *
+    * This won't load any ShaderProgram instances if the app is a headless Application, since shaders can only be compiled if OpenGL is available.
+    */
+  def initialize(
+    standardVertex:     Nullable[String],
+    standardFragment:   Nullable[String],
+    sdfVertex:          Nullable[String],
+    sdfFragment:        Nullable[String],
+    sdfOutlineVertex:   Nullable[String],
+    sdfOutlineFragment: Nullable[String],
+    msdfVertex:         Nullable[String],
+    msdfFragment:       Nullable[String]
+  )(using Sge): Unit =
+    if (!initialized) {
+      initialized = true
+      if (summon[Sge].application.applicationType == Application.ApplicationType.HeadlessDesktop) ()
+      else {
+        standardShader =
+          if (standardVertex.isDefined && standardFragment.isDefined) Nullable(new ShaderProgram(standardVertex.get, standardFragment.get))
+          else Nullable.empty
+        standardShader.foreach { s =>
+          if (!s.compiled) sge.utils.Log.error("textratypist: Standard shader failed to compile: " + s.log)
+        }
+        sdfShader =
+          if (sdfVertex.isDefined && sdfFragment.isDefined) Nullable(new ShaderProgram(sdfVertex.get, sdfFragment.get))
+          else Nullable.empty
+        sdfShader.foreach { s =>
+          if (!s.compiled) sge.utils.Log.error("textratypist: SDF shader failed to compile: " + s.log)
+        }
+        sdfOutlineShader =
+          if (sdfOutlineVertex.isDefined && sdfOutlineFragment.isDefined) Nullable(new ShaderProgram(sdfOutlineVertex.get, sdfOutlineFragment.get))
+          else Nullable.empty
+        sdfOutlineShader.foreach { s =>
+          if (!s.compiled) sge.utils.Log.error("textratypist: SDF Outline shader failed to compile: " + s.log)
+        }
+        msdfShader =
+          if (msdfVertex.isDefined && msdfFragment.isDefined) Nullable(new ShaderProgram(msdfVertex.get, msdfFragment.get))
+          else Nullable.empty
+        msdfShader.foreach { s =>
+          if (!s.compiled) sge.utils.Log.error("textratypist: MSDF shader failed to compile: " + s.log)
+        }
+      }
+    }
+
+  /** Gets the single ShaderProgram used to draw DistanceFieldType.STANDARD Fonts. This defaults to empty (null in the original), which makes SpriteBatch use its default shader.
+    * @return
+    *   a potentially-empty ShaderProgram used to draw standard Fonts.
+    */
+  def getStandardShader(using Sge): Nullable[ShaderProgram] = {
+    initialize()
+    standardShader
+  }
+
+  /** Gets the single ShaderProgram used to draw DistanceFieldType.SDF Fonts. This must have a uniform u_smoothing, which is used to control the sharpness of font edges, and to enable or disable the
+    * effect for images. If this returns empty, SDF Fonts will not be usable.
+    * @return
+    *   a potentially-empty ShaderProgram used to draw SDF Fonts.
+    */
+  def getSdfShader(using Sge): Nullable[ShaderProgram] = {
+    initialize()
+    sdfShader
+  }
+
+  /** Gets the single ShaderProgram used to draw DistanceFieldType.SDF_OUTLINE Fonts. This must have a uniform u_smoothing, which is used to control the sharpness of font edges, and to enable or
+    * disable the effect for images. If this returns empty, SDF_OUTLINE Fonts will not be usable.
+    * @return
+    *   a potentially-empty ShaderProgram used to draw SDF_OUTLINE Fonts.
+    */
+  def getSdfOutlineShader(using Sge): Nullable[ShaderProgram] = {
+    initialize()
+    sdfOutlineShader
+  }
+
+  /** Gets the single ShaderProgram used to draw DistanceFieldType.MSDF Fonts. This must have a uniform u_smoothing, which is used to control the sharpness of font edges, and to enable or disable the
+    * effect for images. If this returns empty, MSDF Fonts will not be usable.
+    * @return
+    *   a potentially-empty ShaderProgram used to draw MSDF Fonts.
+    */
+  def getMsdfShader(using Sge): Nullable[ShaderProgram] = {
+    initialize()
+    msdfShader
+  }
+
   /** Changes the String prepended to each filename this looks up. */
-  def setAssetPrefix(prefix: String): Unit = {
+  def setAssetPrefix(prefix: String)(using Sge): Unit = {
     initialize()
     if (prefix != null) this.prefix = prefix
   }
 
   /** Gets the asset prefix. */
-  def getAssetPrefix: String = {
+  def getAssetPrefix(using Sge): String = {
     initialize()
     prefix
   }
@@ -392,6 +523,80 @@ object KnownFonts {
     else if (files.internal(jsonName + ".dat").exists()) jsonName + ".dat"
     else if (files.internal(jsonName + ".json").exists()) jsonName + ".json"
     else throw new RuntimeException("No file was found with an appropriate extension appended to " + jsonName)
+  }
+
+  /** Gets a new BitmapFont based on a known font with the given name. This uses STANDARD distance field type. For Structured JSON fonts, it also sets the (first) Texture the BitmapFont uses to use
+    * linear min-filtering, and sets integerPositions to false, since these are generally expected for the JSON fonts here.
+    *
+    * @param baseName
+    *   typically a constant such as OPEN_SANS or LIBERTINUS_SERIF
+    * @return
+    *   a copy of the Font with the given name
+    */
+  def getBitmapFont(baseName: String)(using Sge): BitmapFont = {
+    if (baseName == null) throw new RuntimeException("BitmapFont name cannot be null.")
+    initialize()
+    val rootName = baseName + Font.DistanceFieldType.STANDARD.filePart
+    if (JSON_NAMES.contains(baseName) || LIMITED_JSON_NAMES.contains(baseName)) {
+      val known = BitmapFontSupport.loadStructuredJson(summon[Sge].files.internal(Font.getJsonExtension(prefix + rootName)), rootName + ".png")
+      known.region.texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Nearest)
+      known.integerPositions = false
+      known.data.scaleX = 32f / known.data.lineHeight
+      known.data.scaleY = 32f / known.data.lineHeight
+      known.data.name = Nullable(baseName + Font.DistanceFieldType.STANDARD.namePart)
+      known
+    } else if (FNT_NAMES.contains(baseName)) {
+      val fh = summon[Sge].files.internal(prefix + rootName + ".fnt")
+      if (fh.exists()) {
+        val known = new BitmapFont(fh, summon[Sge].files.internal(prefix + rootName + ".png"), false, false)
+        known.data.name = Nullable(baseName + Font.DistanceFieldType.STANDARD.namePart)
+        known
+      } else
+        throw new RuntimeException("Unknown BitmapFont name: " + baseName)
+    } else
+      throw new RuntimeException("Unknown BitmapFont name: " + baseName)
+  }
+
+  /** Loads a TextureAtlas that uses Unicode characters for region names. This is functionally identical to a standard TextureAtlas in SGE, since SGE reads UTF-8 by default, but is preserved for API
+    * compatibility with TextraTypist's loadUnicodeAtlas method. The atlas loading handles the canUseTextures flag so it can work in headless mode as well.
+    *
+    * @param packFile
+    *   the FileHandle for the atlas description file
+    * @param imagesDir
+    *   the FileHandle for the folder that holds the images used by the atlas file
+    * @param flip
+    *   If true, all regions loaded will be flipped for use with a perspective where 0,0 is the upper left corner.
+    * @return
+    *   a new TextureAtlas loaded from the given files.
+    */
+  def loadUnicodeAtlas(packFile: FileHandle, imagesDir: FileHandle, flip: Boolean)(using Sge): TextureAtlas = {
+    val data  = new TextureAtlas.TextureAtlasData(packFile, imagesDir, flip)
+    val atlas = new TextureAtlas()
+    if (!Font.canUseTextures) {
+      for (region <- data.regions) {
+        val atlasRegion = Font.TexturelessAtlasRegion.make(
+          region.left,
+          region.top,
+          if (region.rotate) region.height else region.width,
+          if (region.rotate) region.width else region.height
+        )
+        atlasRegion.index = region.index
+        atlasRegion.name = region.name
+        atlasRegion.offsetX = region.offsetX
+        atlasRegion.offsetY = region.offsetY
+        atlasRegion.originalHeight = region.originalHeight
+        atlasRegion.originalWidth = region.originalWidth
+        atlasRegion.rotate = region.rotate
+        atlasRegion.degrees = region.degrees
+        atlasRegion.names = region.names
+        atlasRegion.values = region.values
+        if (region.flip) atlasRegion.flip(false, true)
+        atlas.addRegion(atlasRegion)
+      }
+    } else {
+      atlas.load(data)
+    }
+    atlas
   }
 
   // ---- Generic font retrieval ----
@@ -725,7 +930,7 @@ object KnownFonts {
       try {
         val atlas = summon[Sge].files.internal(prefix + "Twemoji.atlas")
         if (summon[Sge].files.internal(prefix + "Twemoji.png").exists())
-          twemoji = Nullable(new TextureAtlas(atlas, atlas.parent(), false))
+          twemoji = Nullable(loadUnicodeAtlas(atlas, atlas.parent(), false))
       } catch {
         case e: Exception => e.printStackTrace()
       }
@@ -750,7 +955,7 @@ object KnownFonts {
       try {
         val atlas = summon[Sge].files.internal(prefix + "Noto-Emoji.atlas")
         if (summon[Sge].files.internal(prefix + "Noto-Emoji.png").exists())
-          notoEmoji = Nullable(new TextureAtlas(atlas, atlas.parent(), false))
+          notoEmoji = Nullable(loadUnicodeAtlas(atlas, atlas.parent(), false))
       } catch {
         case e: Exception => e.printStackTrace()
       }
@@ -780,7 +985,7 @@ object KnownFonts {
         try {
           val atlas = summon[Sge].files.internal(prefix + baseName + ".atlas")
           if (summon[Sge].files.internal(prefix + baseName + ".png").exists())
-            openMojiColor = Nullable(new TextureAtlas(atlas, atlas.parent(), false))
+            openMojiColor = Nullable(loadUnicodeAtlas(atlas, atlas.parent(), false))
         } catch {
           case e: Exception => e.printStackTrace()
         }
@@ -794,7 +999,7 @@ object KnownFonts {
         try {
           val atlas = summon[Sge].files.internal(prefix + baseName + ".atlas")
           if (summon[Sge].files.internal(prefix + baseName + ".png").exists())
-            openMojiWhite = Nullable(new TextureAtlas(atlas, atlas.parent(), false))
+            openMojiWhite = Nullable(loadUnicodeAtlas(atlas, atlas.parent(), false))
         } catch {
           case e: Exception => e.printStackTrace()
         }
@@ -994,7 +1199,7 @@ object KnownFonts {
   /** Called when the application is resumed (LifecycleListener). No-op for KnownFonts. */
   def resume(): Unit = {}
 
-  /** Disposes all cached Font instances and atlas resources. */
+  /** Disposes all cached Font instances, atlas resources, and shaders. */
   def dispose(): Unit = {
     for ((_, font) <- loaded)
       font.close()
@@ -1014,6 +1219,15 @@ object KnownFonts {
     materialDesign = Nullable.empty
     Nullable.foreach(gameIconsFont)(_.close())
     gameIconsFont = Nullable.empty
+
+    Nullable.foreach(standardShader)(_.close())
+    standardShader = Nullable.empty
+    Nullable.foreach(sdfShader)(_.close())
+    sdfShader = Nullable.empty
+    Nullable.foreach(sdfOutlineShader)(_.close())
+    sdfOutlineShader = Nullable.empty
+    Nullable.foreach(msdfShader)(_.close())
+    msdfShader = Nullable.empty
 
     initialized = false
   }

@@ -263,7 +263,127 @@ class PaletteReducer {
 
   /** Analyzes the given Pixmaps to build a palette. */
   def analyze(pixmaps: Array[Pixmap]): Unit =
-    if (pixmaps != null && pixmaps.nonEmpty) analyze(pixmaps(0))
+    if (pixmaps != null && pixmaps.nonEmpty) analyze(pixmaps, pixmaps.length, 100, 256)
+
+  /** Analyzes the given Pixmaps to build a palette with a specified threshold. */
+  def analyze(pixmaps: Array[Pixmap], threshold: Double): Unit =
+    if (pixmaps != null && pixmaps.nonEmpty) analyze(pixmaps, pixmaps.length, threshold, 256)
+
+  /** Analyzes the given Pixmaps to build a palette with a specified threshold and limit. */
+  def analyze(pixmaps: Array[Pixmap], threshold: Double, limit: Int): Unit =
+    if (pixmaps != null && pixmaps.nonEmpty) analyze(pixmaps, pixmaps.length, threshold, limit)
+
+  /** Analyzes all pixmaps for color count and frequency (as if they are one image), building a palette with at most `limit` colors. Iterates ALL pixmaps and aggregates color frequencies across
+    * frames.
+    */
+  def analyze(pixmaps: Array[Pixmap], pixmapCount: Int, threshold0: Double, limit0: Int): Unit = {
+    Arrays.fill(paletteArray, 0)
+    Arrays.fill(paletteMapping, 0.toByte)
+    var color     = 0
+    val limit     = Math.min(Math.max(limit0, 2), 256)
+    val threshold = threshold0 / Math.min(0.5625, Math.pow(limit + 16, 1.45) * 0.00025)
+    val counts    = mutable.HashMap[Int, Int]()
+    val reds      = new Array[Int](limit)
+    val greens    = new Array[Int](limit)
+    val blues     = new Array[Int](limit)
+    var pi        = 0
+    while (pi < pixmapCount && pi < pixmaps.length) {
+      val pixmap = pixmaps(pi)
+      val width  = pixmap.width.toInt
+      val height = pixmap.height.toInt
+      var y      = 0
+      while (y < height) {
+        var x = 0
+        while (x < width) {
+          color = pixmap.getPixel(Pixels(x), Pixels(y)) & 0xf8f8f880
+          if ((color & 0x80) != 0) {
+            color |= (color >>> 5 & 0x07070700) | 0xff
+            counts(color) = counts.getOrElse(color, 0) + 1
+          }
+          x += 1
+        }
+        y += 1
+      }
+      pi += 1
+    }
+    val cs     = counts.size
+    val sorted = counts.toArray.sortBy(-_._2)
+    if (cs < limit) {
+      var i = 1
+      for ((c, _) <- sorted) {
+        color = c
+        paletteArray(i) = color
+        paletteMapping((color >>> 17 & 0x7c00) | (color >>> 14 & 0x3e0) | (color >>> 11 & 0x1f)) = i.toByte
+        reds(i) = color >>> 24
+        greens(i) = color >>> 16 & 255
+        blues(i) = color >>> 8 & 255
+        i += 1
+      }
+      colorCount = i
+      populationBias = Math.exp(-1.375 / colorCount).toFloat
+    } else {
+      var i = 1
+      var c = 0
+      boundary {
+        while (i < limit && c < cs) {
+          color = sorted(c)._1
+          c += 1
+          var tooClose = false
+          boundary {
+            var j = 1
+            while (j < i) {
+              val diff = differenceAnalyzing(color, paletteArray(j))
+              if (diff < threshold) {
+                tooClose = true
+                break(())
+              }
+              j += 1
+            }
+          }
+          if (!tooClose) {
+            paletteArray(i) = color
+            paletteMapping((color >>> 17 & 0x7c00) | (color >>> 14 & 0x3e0) | (color >>> 11 & 0x1f)) = i.toByte
+            reds(i) = color >>> 24
+            greens(i) = color >>> 16 & 255
+            blues(i) = color >>> 8 & 255
+            i += 1
+          }
+        }
+      }
+      colorCount = i
+      populationBias = Math.exp(-1.375 / colorCount).toFloat
+    }
+
+    var r = 0
+    while (r < 32) {
+      val rr = r << 3 | r >>> 2
+      var g  = 0
+      while (g < 32) {
+        val gg = g << 3 | g >>> 2
+        var b  = 0
+        while (b < 32) {
+          val c2 = r << 10 | g << 5 | b
+          if (paletteMapping(c2) == 0) {
+            val bb   = b << 3 | b >>> 2
+            var dist = Double.MaxValue
+            var i    = 1
+            while (i < colorCount) {
+              val newDist = Math.min(dist, differenceAnalyzing(reds(i), greens(i), blues(i), rr, gg, bb))
+              if (dist > newDist) {
+                dist = newDist
+                paletteMapping(c2) = i.toByte
+              }
+              dist = newDist
+              i += 1
+            }
+          }
+          b += 1
+        }
+        g += 1
+      }
+      r += 1
+    }
+  }
 
   /** Fast analysis of a Pixmap for palette generation. Uses neighbor-propagation instead of full RGB555 scan. */
   def analyzeFast(pixmap: Pixmap, threshold0: Double, limit0: Int): Unit = {
@@ -443,9 +563,324 @@ class PaletteReducer {
     }
   }
 
-  /** Analyzes the given Pixmap with hue-wise segmentation. Delegates to standard analysis; hue-wise segmentation is an optional enhancement. */
-  def analyzeHueWise(pixmap: Pixmap, threshold0: Double, limit0: Int): Unit =
-    analyze(pixmap, threshold0, limit0)
+  /** Analyzes the given Pixmap with hue-wise segmentation. Builds separate frequency maps per hue segment, using a distinct algorithm that segments colors by hue and lightness to build a
+    * representative palette.
+    */
+  def analyzeHueWise(pixmap: Pixmap, threshold0: Double, limit0: Int): Unit = {
+    Arrays.fill(paletteArray, 0)
+    Arrays.fill(paletteMapping, 0.toByte)
+    var color     = 0
+    val limit     = Math.min(Math.max(limit0, 3), 256)
+    var threshold = threshold0 / (Math.pow(limit, 1.35) * 0.00005375)
+    val width     = pixmap.width.toInt
+    val height    = pixmap.height.toInt
+    val counts    = mutable.HashMap[Int, Int]()
+    val enc       = new mutable.ArrayBuffer[Int](width * height)
+    var y         = 0
+    while (y < height) {
+      var x = 0
+      while (x < width) {
+        color = pixmap.getPixel(Pixels(x), Pixels(y)) & 0xf8f8f880
+        if ((color & 0x80) != 0) {
+          color |= (color >>> 5 & 0x07070700) | 0xff
+          counts(color) = counts.getOrElse(color, 0) + 1
+          if (((x & y) * 5 & 31) < 3) {
+            enc += PaletteReducer.shrink(color)
+          }
+        }
+        x += 1
+      }
+      y += 1
+    }
+    val cs = counts.size
+    if (cs < limit) {
+      val sorted = counts.toArray.sortBy(-_._2)
+      var i      = 1
+      for ((c, _) <- sorted) {
+        color = c
+        paletteArray(i) = color
+        paletteMapping((color >>> 17 & 0x7c00) | (color >>> 14 & 0x3e0) | (color >>> 11 & 0x1f)) = i.toByte
+        i += 1
+      }
+      colorCount = i
+      populationBias = Math.exp(-1.375 / colorCount).toFloat
+    } else {
+      // generate colors using hue-segmented algorithm
+      val ei   = enc.toArray
+      val encs = ei.length
+      PaletteReducer.sortInts(ei, 0, encs, PaletteReducer.hueComparator)
+      paletteArray(1) = -1 // white
+      paletteArray(2) = 255 // black
+      var i           = 3
+      var segments    = (Math.min(encs, limit - 3) + 1) >> 1
+      var e           = 0
+      var lightPieces = Math.ceil(Math.log(limit.toDouble))
+      boundary {
+        while (i < limit) {
+          val ePrev = e
+          e %= encs
+          if (e < ePrev) {
+            // wrapped around
+            segments += 1
+            lightPieces += 1
+            threshold *= 0.9
+          }
+          val segStart = e
+          val segEnd   = Math.min(segStart + Math.ceil(encs / segments.toDouble).toInt, encs)
+          val segLen   = segEnd - segStart
+          PaletteReducer.sortInts(ei, segStart, segLen, PaletteReducer.lightnessComparator)
+          var li = 0
+          while (li < lightPieces && li < segLen && i < limit) {
+            val end = Math.min(encs, e + Math.ceil(segLen / lightPieces).toInt)
+            val len = end - e
+
+            var totalL = 0.0f
+            var totalA = 0.0f
+            var totalB = 0.0f
+            while (e < end) {
+              val index = ei(e)
+              totalL += PaletteReducer.OKLAB(0)(index)
+              totalA += PaletteReducer.OKLAB(1)(index)
+              totalB += PaletteReducer.OKLAB(2)(index)
+              e += 1
+            }
+            totalA /= len
+            totalB /= len
+            color = PaletteReducer.oklabToRGB(
+              OtherMath.barronSpline(totalL / len, 3f, 0.5f),
+              totalA,
+              totalB,
+              1f
+            )
+
+            var tooClose = false
+            boundary {
+              var j = 3
+              while (j < i) {
+                if (differenceHW(color, paletteArray(j)) < threshold) {
+                  tooClose = true
+                  break(())
+                }
+                j += 1
+              }
+            }
+            if (!tooClose) {
+              paletteArray(i) = color
+              paletteMapping((color >>> 17 & 0x7c00) | (color >>> 14 & 0x3e0) | (color >>> 11 & 0x1f)) = i.toByte
+              i += 1
+            }
+            li += 1
+          }
+        }
+      }
+      colorCount = i
+      populationBias = Math.exp(-1.375 / colorCount).toFloat
+    }
+
+    var r = 0
+    while (r < 32) {
+      val rr = r << 3 | r >>> 2
+      var g  = 0
+      while (g < 32) {
+        val gg = g << 3 | g >>> 2
+        var b  = 0
+        while (b < 32) {
+          val c2 = r << 10 | g << 5 | b
+          if (paletteMapping(c2) == 0) {
+            val bb   = b << 3 | b >>> 2
+            var dist = Double.MaxValue
+            var i    = 1
+            while (i < colorCount) {
+              val newDist = Math.min(dist, differenceHW(paletteArray(i), rr, gg, bb))
+              if (dist > newDist) {
+                dist = newDist
+                paletteMapping(c2) = i.toByte
+              }
+              dist = newDist
+              i += 1
+            }
+          }
+          b += 1
+        }
+        g += 1
+      }
+      r += 1
+    }
+  }
+
+  /** Analyzes the given Pixmaps with hue-wise segmentation. */
+  def analyzeHueWise(pixmaps: Array[Pixmap]): Unit =
+    if (pixmaps != null && pixmaps.nonEmpty) analyzeHueWise(pixmaps, pixmaps.length, 100, 256)
+
+  /** Analyzes the given Pixmaps with hue-wise segmentation and a specified threshold. */
+  def analyzeHueWise(pixmaps: Array[Pixmap], threshold: Double): Unit =
+    if (pixmaps != null && pixmaps.nonEmpty) analyzeHueWise(pixmaps, pixmaps.length, threshold, 256)
+
+  /** Analyzes the given Pixmaps with hue-wise segmentation, threshold, and limit. */
+  def analyzeHueWise(pixmaps: Array[Pixmap], threshold: Double, limit: Int): Unit =
+    if (pixmaps != null && pixmaps.nonEmpty) analyzeHueWise(pixmaps, pixmaps.length, threshold, limit)
+
+  /** Analyzes all pixmaps for color count and frequency with hue-wise segmentation, aggregating color frequencies across ALL frames. Uses separate hue and lightness segments to build a representative
+    * palette.
+    */
+  def analyzeHueWise(pixmaps: Array[Pixmap], pixmapCount: Int, threshold0: Double, limit0: Int): Unit = {
+    Arrays.fill(paletteArray, 0)
+    Arrays.fill(paletteMapping, 0.toByte)
+    var color     = 0
+    val limit     = Math.min(Math.max(limit0, 3), 256)
+    var threshold = threshold0 / (Math.pow(limit, 1.35) * 0.00005375)
+    val w0        = pixmaps(0).width.toInt
+    val h0        = pixmaps(0).height.toInt
+    val counts    = mutable.HashMap[Int, Int]()
+    val enc       = new mutable.ArrayBuffer[Int](w0 * h0 * pixmapCount / 10)
+    val reds      = new Array[Int](limit)
+    val greens    = new Array[Int](limit)
+    val blues     = new Array[Int](limit)
+    var pi        = 0
+    while (pi < pixmapCount && pi < pixmaps.length) {
+      val pixmap = pixmaps(pi)
+      val width  = pixmap.width.toInt
+      val height = pixmap.height.toInt
+      var y0     = 0
+      while (y0 < height) {
+        var x = 0
+        while (x < width) {
+          color = pixmap.getPixel(Pixels(x), Pixels(y0)) & 0xf8f8f880
+          if ((color & 0x80) != 0) {
+            color |= (color >>> 5 & 0x07070700) | 0xff
+            counts(color) = counts.getOrElse(color, 0) + 1
+            if (((x & y0) * 5 - pi & 31) < 3) {
+              enc += PaletteReducer.shrink(color)
+            }
+          }
+          x += 1
+        }
+        y0 += 1
+      }
+      pi += 1
+    }
+    val cs = counts.size
+    if (cs < limit) {
+      val sorted = counts.toArray.sortBy(-_._2)
+      var i      = 1
+      for ((c, _) <- sorted) {
+        color = c
+        paletteArray(i) = color
+        paletteMapping((color >>> 17 & 0x7c00) | (color >>> 14 & 0x3e0) | (color >>> 11 & 0x1f)) = i.toByte
+        reds(i) = color >>> 24
+        greens(i) = color >>> 16 & 255
+        blues(i) = color >>> 8 & 255
+        i += 1
+      }
+      colorCount = i
+    } else {
+      // generate colors using hue-segmented algorithm
+      val ei   = enc.toArray
+      val encs = ei.length
+      PaletteReducer.sortInts(ei, 0, encs, PaletteReducer.hueComparator)
+      paletteArray(1) = -1 // white
+      reds(1) = 255; greens(1) = 255; blues(1) = 255
+      paletteArray(2) = 255 // black
+      reds(2) = 0; greens(2) = 0; blues(2) = 0
+      var i           = 3
+      var segments    = (Math.min(encs, limit - 3) + 1) >> 1
+      var e           = 0
+      var lightPieces = Math.ceil(Math.log(limit.toDouble))
+      boundary {
+        while (i < limit) {
+          val ePrev = e
+          e %= encs
+          if (e < ePrev) {
+            // wrapped around
+            segments += 1
+            lightPieces += 1
+            threshold *= 0.9
+          }
+          val segStart = e
+          val segEnd   = Math.min(segStart + Math.ceil(encs / segments.toDouble).toInt, encs)
+          val segLen   = segEnd - segStart
+          PaletteReducer.sortInts(ei, segStart, segLen, PaletteReducer.lightnessComparator)
+          var li = 0
+          while (li < lightPieces && li < segLen && i < limit) {
+            val end = Math.min(encs, e + Math.ceil(segLen / lightPieces).toInt)
+            val len = end - e
+
+            var totalL = 0.0f
+            var totalA = 0.0f
+            var totalB = 0.0f
+            while (e < end) {
+              val index = ei(e)
+              totalL += PaletteReducer.OKLAB(0)(index)
+              totalA += PaletteReducer.OKLAB(1)(index)
+              totalB += PaletteReducer.OKLAB(2)(index)
+              e += 1
+            }
+            totalA /= len
+            totalB /= len
+            color = PaletteReducer.oklabToRGB(
+              OtherMath.barronSpline(totalL / len, 3f, 0.5f),
+              totalA,
+              totalB,
+              1f
+            )
+
+            var tooClose = false
+            boundary {
+              var j = 3
+              while (j < i) {
+                if (differenceHW(color, paletteArray(j)) < threshold) {
+                  tooClose = true
+                  break(())
+                }
+                j += 1
+              }
+            }
+            if (!tooClose) {
+              paletteArray(i) = color
+              paletteMapping((color >>> 17 & 0x7c00) | (color >>> 14 & 0x3e0) | (color >>> 11 & 0x1f)) = i.toByte
+              reds(i) = color >>> 24
+              greens(i) = color >>> 16 & 255
+              blues(i) = color >>> 8 & 255
+              i += 1
+            }
+            li += 1
+          }
+        }
+      }
+      colorCount = i
+    }
+    populationBias = Math.exp(-1.375 / colorCount).toFloat
+
+    var r = 0
+    while (r < 32) {
+      val rr = r << 3 | r >>> 2
+      var g  = 0
+      while (g < 32) {
+        val gg = g << 3 | g >>> 2
+        var b  = 0
+        while (b < 32) {
+          val c2 = r << 10 | g << 5 | b
+          if (paletteMapping(c2) == 0) {
+            val bb   = b << 3 | b >>> 2
+            var dist = Double.MaxValue
+            var i    = 1
+            while (i < colorCount) {
+              val newDist = Math.min(dist, differenceHW(reds(i), greens(i), blues(i), rr, gg, bb))
+              if (dist > newDist) {
+                dist = newDist
+                paletteMapping(c2) = i.toByte
+              }
+              dist = newDist
+              i += 1
+            }
+          }
+          b += 1
+        }
+        g += 1
+      }
+      r += 1
+    }
+  }
 
   /** Writes preload data for this palette reducer to a file. */
   def writePreloadFile(file: FileHandle): Unit = {
@@ -2121,11 +2556,139 @@ class PaletteReducer {
   }
 
   /** Analyzes multiple pixmaps using the Reductive algorithm. */
-  def analyzeReductive(pixmaps: Array[Pixmap], pixmapCount: Int, threshold: Double, limit: Int): Unit =
-    // Delegates to single-pixmap version using the first pixmap
-    if (pixmaps != null && pixmapCount > 0) {
-      analyzeReductive(pixmaps(0), threshold, limit)
+  def analyzeReductive(pixmaps: Array[Pixmap]): Unit =
+    if (pixmaps != null && pixmaps.nonEmpty) analyzeReductive(pixmaps, pixmaps.length, 100, 256)
+
+  /** Analyzes multiple pixmaps using the Reductive algorithm with the given threshold. */
+  def analyzeReductive(pixmaps: Array[Pixmap], threshold: Double): Unit =
+    if (pixmaps != null && pixmaps.nonEmpty) analyzeReductive(pixmaps, pixmaps.length, threshold, 256)
+
+  /** Analyzes multiple pixmaps using the Reductive algorithm with the given threshold and limit. */
+  def analyzeReductive(pixmaps: Array[Pixmap], threshold: Double, limit: Int): Unit =
+    if (pixmaps != null && pixmaps.nonEmpty) analyzeReductive(pixmaps, pixmaps.length, threshold, limit)
+
+  /** Analyzes all pixmaps for color count and frequency using the Reductive algorithm, aggregating color frequencies across ALL frames. Uses BIG_PALETTE (1024 colors) to map image colors before
+    * selecting a final palette.
+    */
+  def analyzeReductive(pixmaps: Array[Pixmap], pixmapCount: Int, threshold0: Double, limit0: Int): Unit = {
+    buildBigPalette()
+    Arrays.fill(paletteArray, 0)
+    Arrays.fill(paletteMapping, 0.toByte)
+    var color     = 0
+    val limit     = Math.min(Math.max(limit0, 2), 256)
+    val threshold = threshold0 / Math.min(0.3, Math.pow(limit + 16, 1.45) * 0.00013333)
+    val counts    = new mutable.HashMap[Int, Int]()
+    val reds      = new Array[Int](limit)
+    val greens    = new Array[Int](limit)
+    val blues     = new Array[Int](limit)
+    var pi        = 0
+    while (pi < pixmapCount && pi < pixmaps.length) {
+      val pixmap = pixmaps(pi)
+      val width  = pixmap.width.toInt
+      val height = pixmap.height.toInt
+      var y      = 0
+      while (y < height) {
+        var x = 0
+        while (x < width) {
+          color = pixmap.getPixel(Pixels(x), Pixels(y)) & 0xf8f8f880
+          if ((color & 0x80) != 0) {
+            color = PaletteReducer.BIG_PALETTE(PaletteReducer.bigPaletteMapping(PaletteReducer.shrink(color)))
+            counts(color) = counts.getOrElse(color, 0) + 1
+          }
+          x += 1
+        }
+        y += 1
+      }
+      pi += 1
     }
+    val cs     = counts.size
+    val sorted = new scala.collection.mutable.ArrayBuffer[(Int, Int)](cs)
+    for ((k, v) <- counts) sorted += ((k, v))
+    sorted.sortInPlaceBy(-_._2)
+    var thresholdVar = threshold
+    if (cs < limit) {
+      var i = 1
+      for ((c, _) <- sorted) {
+        color = c
+        paletteArray(i) = color
+        paletteMapping((color >>> 17 & 0x7c00) | (color >>> 14 & 0x3e0) | (color >>> 11 & 0x1f)) = i.toByte
+        reds(i) = color >>> 24
+        greens(i) = color >>> 16 & 255
+        blues(i) = color >>> 8 & 255
+        i += 1
+      }
+      colorCount = i
+      populationBias = Math.exp(-1.375 / colorCount).toFloat
+    } else {
+      var i = 1
+      boundary {
+        var iterations = 0
+        while (iterations < 4) {
+          var c = 0
+          while (c < sorted.size) {
+            color = sorted(c)._1
+            c += 1
+            var tooClose = false
+            boundary {
+              var j = 1
+              while (j < i) {
+                if (differenceAnalyzing(color, paletteArray(j)) < thresholdVar) {
+                  tooClose = true
+                  break(())
+                }
+                j += 1
+              }
+            }
+            if (!tooClose) {
+              sorted.remove(c - 1)
+              c -= 1
+              paletteArray(i) = color
+              paletteMapping((color >>> 17 & 0x7c00) | (color >>> 14 & 0x3e0) | (color >>> 11 & 0x1f)) = i.toByte
+              reds(i) = color >>> 24
+              greens(i) = color >>> 16 & 255
+              blues(i) = color >>> 8 & 255
+              i += 1
+              if (i >= limit) break(())
+            }
+          }
+          thresholdVar *= 0.65
+          iterations += 1
+        }
+      }
+      colorCount = i
+      populationBias = Math.exp(-1.375 / colorCount).toFloat
+    }
+
+    var r = 0
+    while (r < 32) {
+      val rr = r << 3 | r >>> 2
+      var g  = 0
+      while (g < 32) {
+        val gg = g << 3 | g >>> 2
+        var b  = 0
+        while (b < 32) {
+          val c2 = r << 10 | g << 5 | b
+          if (paletteMapping(c2) == 0) {
+            val bb   = b << 3 | b >>> 2
+            var dist = Double.MaxValue
+            var i2   = 1
+            while (i2 < colorCount) {
+              val newDist = Math.min(dist, differenceAnalyzing(reds(i2), greens(i2), blues(i2), rr, gg, bb))
+              if (dist > newDist) {
+                dist = newDist
+                paletteMapping(c2) = i2.toByte
+              }
+              dist = newDist
+              i2 += 1
+            }
+          }
+          b += 1
+        }
+        g += 1
+      }
+      r += 1
+    }
+  }
 
   // === Random Color Selection ===
 
@@ -2312,6 +2875,124 @@ object PaletteReducer {
   /** Shrinks an RGBA8888 color to a 15-bit RGB555 value. */
   def shrink(color: Int): Int =
     (color >>> 17 & 0x7c00) | (color >>> 14 & 0x3e0) | (color >>> 11 & 0x1f)
+
+  // === IntComparator-based sorting (from FastUtil, used by hue-wise analysis) ===
+
+  /** Compares shrunken indices (RGB555) by lightness as Oklab knows it. */
+  val lightnessComparator: (Int, Int) => Int = (k1, k2) => java.lang.Float.floatToIntBits(OKLAB(0)(k2) - OKLAB(0)(k1))
+
+  /** Compares shrunken indices (RGB555) by hue as Oklab knows it. */
+  val hueComparator: (Int, Int) => Int = (k1, k2) => java.lang.Float.floatToIntBits(OKLAB(3)(k2) - OKLAB(3)(k1))
+
+  private def swapInts(items: Array[Int], first: Int, second: Int): Unit = {
+    val firstValue = items(first)
+    items(first) = items(second)
+    items(second) = firstValue
+  }
+
+  /** Transforms two consecutive sorted ranges into a single sorted range. Based on FastUtil (Apache License 2.0).
+    */
+  private def inPlaceMerge(items: Array[Int], from: Int, mid0: Int, to: Int, comp: (Int, Int) => Int): Unit = boundary {
+    if (from >= mid0 || mid0 >= to) { break(()) }
+    if (to - from == 2) {
+      if (comp(items(mid0), items(from)) < 0) { swapInts(items, from, mid0) }
+      break(())
+    }
+
+    var firstCut  = 0
+    var secondCut = 0
+
+    if (mid0 - from > to - mid0) {
+      firstCut = from + (mid0 - from) / 2
+      secondCut = lowerBound(items, mid0, to, firstCut, comp)
+    } else {
+      secondCut = mid0 + (to - mid0) / 2
+      firstCut = upperBound(items, from, mid0, secondCut, comp)
+    }
+
+    val first2  = firstCut
+    val middle2 = mid0
+    val last2   = secondCut
+    if (middle2 != first2 && middle2 != last2) {
+      var first1 = first2; var last1 = middle2
+      while (first1 < { last1 -= 1; last1 }) swapInts(items, { val r = first1; first1 += 1; r }, last1)
+      first1 = middle2; last1 = last2
+      while (first1 < { last1 -= 1; last1 }) swapInts(items, { val r = first1; first1 += 1; r }, last1)
+      first1 = first2; last1 = last2
+      while (first1 < { last1 -= 1; last1 }) swapInts(items, { val r = first1; first1 += 1; r }, last1)
+    }
+
+    val mid = firstCut + secondCut - mid0
+    inPlaceMerge(items, from, firstCut, mid, comp)
+    inPlaceMerge(items, mid, secondCut, to, comp)
+  }
+
+  private def lowerBound(items: Array[Int], from0: Int, to: Int, pos: Int, comp: (Int, Int) => Int): Int = {
+    var from = from0
+    var len  = to - from
+    while (len > 0) {
+      val half   = len / 2
+      val middle = from + half
+      if (comp(items(middle), items(pos)) < 0) {
+        from = middle + 1
+        len -= half + 1
+      } else {
+        len = half
+      }
+    }
+    from
+  }
+
+  private def upperBound(items: Array[Int], from0: Int, to: Int, pos: Int, comp: (Int, Int) => Int): Int = {
+    var from = from0
+    var len  = to - from
+    while (len > 0) {
+      val half   = len / 2
+      val middle = from + half
+      if (comp(items(pos), items(middle)) < 0) {
+        len = half
+      } else {
+        from = middle + 1
+        len -= half + 1
+      }
+    }
+    from
+  }
+
+  /** Sorts the specified range [from, to) of elements using an in-place mergesort with a custom comparator. Based on FastUtil (Apache License 2.0). `to` is the exclusive end index.
+    */
+  def sortInts(items: Array[Int], from: Int, to: Int, c: (Int, Int) => Int): Unit = boundary {
+    if (to <= 0) { break(()) }
+    if (from < 0 || from >= items.length || to > items.length) {
+      throw new UnsupportedOperationException("The given from/to range in sortInts() is invalid.")
+    }
+    val length = to - from
+
+    // Insertion sort on smallest arrays, less than 16 items
+    if (length < 16) {
+      var i = from
+      while (i < to) {
+        var j = i
+        while (j > from && c(items(j - 1), items(j)) > 0) {
+          swapInts(items, j, j - 1)
+          j -= 1
+        }
+        i += 1
+      }
+      break(())
+    }
+
+    // Recursively sort halves
+    val mid = (from + to) >>> 1
+    sortInts(items, from, mid, c)
+    sortInts(items, mid, to, c)
+
+    // If list is already sorted, nothing left to do.
+    if (c(items(mid - 1), items(mid)) <= 0) { break(()) }
+
+    // Merge sorted halves
+    inPlaceMerge(items, from, mid, to, c)
+  }
 
   /** Compares items by lightness using OKLAB and swaps if out of order. */
   def compareSwap(ints: Array[Int], a: Int, b: Int): Unit =

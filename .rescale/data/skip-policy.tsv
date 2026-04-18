@@ -63,3 +63,4 @@ sge-extension/textra/src/main/scala/sge/textra/TextraLabel.scala	shortcuts	Catch
 sge-extension/physics/src/main/scala/sge/platform/PhysicsOps.scala	shortcuts	stub refers to JS platform stubs (UnsupportedOperationException), not incomplete implementation	2026-04-17	dev
 sge-extension/physics/src/main/scalajs/sge/platform/PhysicsOpsJs.scala	shortcuts	JS platform boundary: physics requires native Rapier2D library, JS throws on use	2026-04-17	dev
 sge-extension/physics3d/src/main/scalajs/sge/platform/PhysicsOpsJs3d.scala	shortcuts	JS platform boundary: physics3d requires native Rapier3D library, JS throws on use	2026-04-17	dev
+sge-extension/anim8/src/main/scala/sge/anim8/PaletteReducer.scala	shortcuts	Faithful port of Java validation: sortInts throws UnsupportedOperationException for invalid range, matching FastUtil original; null-cast for lazily-initialized bigPaletteMapping	2026-04-18	dev

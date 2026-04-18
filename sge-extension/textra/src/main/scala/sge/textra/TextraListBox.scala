@@ -8,7 +8,8 @@
  * Migration notes:
  *   Renames: Widget → standalone class, Cullable → setCullingArea method,
  *     Array<T> → ArrayBuffer[TextraLabel], ArraySelection → internal selection logic,
- *     Rectangle → (x, y, w, h) tuple, InputListener → handler methods,
+ *     Rectangle → Nullable[Rectangle] for culling area,
+ *     InputListener → InputListener fields (keyListener + touch listener),
  *     ChangeEvent → direct callback, ObjectSet → mutable.HashSet
  *   Convention: List box selection, item management, draw, layout, input fully ported.
  *   Idiom: Nullable[A] for nullable fields; boundary/break for early returns.
@@ -20,8 +21,13 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary
 import scala.util.boundary.break
 
+import sge.Input
+import sge.Input.Keys
 import sge.graphics.Color
 import sge.graphics.g2d.Batch
+import sge.math.Rectangle
+import sge.scenes.scene2d.{ Actor, InputEvent, InputListener, Stage }
+import sge.scenes.scene2d.ui.Skin
 import sge.scenes.scene2d.utils.Drawable
 import sge.utils.{ Align, Nullable }
 
@@ -31,6 +37,10 @@ import sge.utils.{ Align, Nullable }
   */
 class TextraListBox(style: Styles.ListStyle) {
 
+  def this(skin: Skin) = this(skin.get(classOf[Styles.ListStyle]))
+
+  def this(skin: Skin, styleName: String) = this(skin.get(styleName, classOf[Styles.ListStyle]))
+
   protected var _style:       Styles.ListStyle         = style
   protected val items:        ArrayBuffer[TextraLabel] = ArrayBuffer.empty
   private var _selectedIndex: Int                      = -1
@@ -38,10 +48,8 @@ class TextraListBox(style: Styles.ListStyle) {
   var pressedIndex:           Int                      = -1
   var overIndex:              Int                      = -1
 
-  // Culling area (only y and height used in draw)
-  private var _hasCullingArea: Boolean = false
-  private var _cullingY:       Float   = 0f
-  private var _cullingH:       Float   = 0f
+  // Culling area
+  private var _cullingArea: Nullable[Rectangle] = Nullable.empty
 
   // Preferred size cache
   private var _prefWidth:   Float   = 0f
@@ -56,14 +64,120 @@ class TextraListBox(style: Styles.ListStyle) {
   private val _color:  Color = new Color(Color.WHITE)
 
   // Selection state
-  private val _selectionRequired: Boolean = true
+  private var _selectionRequired: Boolean = true
+  private var _selectionDisabled: Boolean = false
 
-  /** When true, typing a character while focused will jump to the first item starting with that character. */
+  // Stage reference (standalone, not an Actor — must be set externally)
+  private var _stage: Nullable[Stage] = Nullable.empty
+
+  /** When this is true, typing a character while this list box is focused will jump focus to the first item in the list that starts with that character, ignoring case.
+    *
+    * When this is true, this does allocate some Strings every time the user types into a focused list box.
+    */
   var typeToSelect: Boolean = false
 
   // Type-to-select state
   private var _typeTimeout: Long   = 0L
   private var _typePrefix:  String = ""
+
+  // --- Key listener (for keyboard navigation) ---
+
+  private val _keyListener: InputListener = new InputListener() {
+    private var typeTimeout: Long   = 0L
+    private var prefix:      String = ""
+
+    override def keyDown(event: InputEvent, keycode: Input.Key): Boolean =
+      if (items.isEmpty) false
+      else {
+        keycode match {
+          case Keys.A =>
+            // Ctrl+A not applicable for single-selection; no-op
+            false
+          case Keys.HOME =>
+            setSelectedIndex(0)
+            true
+          case Keys.END =>
+            setSelectedIndex(items.size - 1)
+            true
+          case Keys.DOWN =>
+            val selIdx = getSelected.fold(-1)(sel => items.indexOf(sel))
+            val index  = selIdx + 1
+            setSelectedIndex(if (index >= items.size) 0 else index)
+            true
+          case Keys.UP =>
+            val selIdx = getSelected.fold(-1)(sel => items.indexOf(sel))
+            val index  = selIdx - 1
+            setSelectedIndex(if (index < 0) items.size - 1 else index)
+            true
+          case Keys.ESCAPE =>
+            _stage.foreach(_.setKeyboardFocus(Nullable.empty))
+            true
+          case _ =>
+            false
+        }
+      }
+
+    override def keyTyped(event: InputEvent, character: Char): Boolean = boundary {
+      if (!typeToSelect) {
+        break(false)
+      }
+      val time = System.currentTimeMillis()
+      if (time > typeTimeout) prefix = ""
+      typeTimeout = time + 300
+      prefix += character.toLower
+      var i = 0
+      while (i < items.size) {
+        if (items(i).toString.toLowerCase.startsWith(prefix)) {
+          setSelectedIndex(i)
+          break(false)
+        }
+        i += 1
+      }
+      false
+    }
+  }
+
+  // --- Touch/mouse listener ---
+
+  private val _touchListener: InputListener = new InputListener() {
+    override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Input.Button): Boolean =
+      if (pointer != 0 || button != Input.Buttons.LEFT) true
+      else if (_selectionDisabled) true
+      else {
+        _stage.foreach(_.setKeyboardFocus(event.listenerActor))
+        if (items.isEmpty) true
+        else {
+          val index = getItemIndexAt(y)
+          if (index == -1) true
+          else {
+            _selectedIndex = index
+            pressedIndex = index
+            true
+          }
+        }
+      }
+
+    override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Input.Button): Unit =
+      if (pointer == 0 && button == Input.Buttons.LEFT) {
+        pressedIndex = -1
+      }
+
+    override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int): Unit =
+      overIndex = getItemIndexAt(y)
+
+    override def mouseMoved(event: InputEvent, x: Float, y: Float): Boolean = {
+      overIndex = getItemIndexAt(y)
+      false
+    }
+
+    override def exit(event: InputEvent, x: Float, y: Float, pointer: Int, toActor: Nullable[Actor]): Unit = {
+      if (pointer == 0) pressedIndex = -1
+      if (pointer == -1) overIndex = -1
+    }
+  }
+
+  // --- Init ---
+  setSize(getPrefWidth, getPrefHeight)
 
   // --- Widget-like accessors ---
 
@@ -100,6 +214,15 @@ class TextraListBox(style: Styles.ListStyle) {
       _needsLayout = false
     }
 
+  // --- Stage ---
+
+  /** Returns the stage reference, or empty if not set. Since this is a standalone class (not extending Actor), the stage must be set externally. */
+  def getStage: Nullable[Stage] = _stage
+
+  /** Sets the stage reference. Used by SelectBoxScrollPane and similar containers. */
+  def setStage(stage: Nullable[Stage]): Unit =
+    _stage = stage
+
   // --- Style ---
 
   def setStyle(style: Styles.ListStyle): Unit = {
@@ -108,6 +231,7 @@ class TextraListBox(style: Styles.ListStyle) {
     invalidateHierarchy()
   }
 
+  /** Returns the list's style. Modifying the returned style may not have an effect until {@link #setStyle} is called. */
   def getStyle: Styles.ListStyle = _style
 
   // --- Layout ---
@@ -194,8 +318,9 @@ class TextraListBox(style: Styles.ListStyle) {
     while (i < items.size) {
       val item       = items(i)
       val itemHeight = item.getPrefHeight
-      val inCulling  = !_hasCullingArea ||
-        (itemY - itemHeight <= _cullingY + _cullingH && itemY >= _cullingY)
+      val inCulling  = _cullingArea.fold(true) { ca =>
+        itemY - itemHeight <= ca.y + ca.height && itemY >= ca.y
+      }
 
       if (inCulling) {
         item.setColor(fontColorUnselected.r, fontColorUnselected.g, fontColorUnselected.b, fontColorUnselected.a * parentAlpha)
@@ -223,7 +348,7 @@ class TextraListBox(style: Styles.ListStyle) {
         if (selected) {
           item.setColor(fontColorUnselected.r, fontColorUnselected.g, fontColorUnselected.b, fontColorUnselected.a * parentAlpha)
         }
-      } else if (itemY < _cullingY) {
+      } else if (_cullingArea.fold(false)(ca => itemY < ca.y)) {
         i = items.size // break out of loop
       }
 
@@ -251,6 +376,7 @@ class TextraListBox(style: Styles.ListStyle) {
     if (_selectedIndex >= 0 && _selectedIndex < items.size) Nullable(items(_selectedIndex))
     else Nullable.empty
 
+  /** Sets the selection to only the passed item, if it is a possible choice. */
   def setSelected(item: Nullable[TextraLabel]): Unit =
     Nullable.fold(item) {
       if (_selectionRequired && items.nonEmpty) {
@@ -269,17 +395,53 @@ class TextraListBox(style: Styles.ListStyle) {
       }
     }
 
+  /** Returns the index of the first selected item. The top item has an index of 0. Nothing selected has an index of -1. */
   def getSelectedIndex: Int = _selectedIndex
 
+  /** Sets the selection to only the selected index.
+    * @param index
+    *   -1 to clear the selection.
+    */
   def setSelectedIndex(index: Int): Unit = {
     if (index < -1 || index >= items.size) {
       throw new IllegalArgumentException("index must be >= -1 and < " + items.size + ": " + index)
     }
-    _selectedIndex = index
+    if (index == -1) {
+      _selectedIndex = -1
+    } else {
+      _selectedIndex = index
+    }
   }
+
+  // --- Selection configuration ---
+
+  /** Returns the internal selection state object (this list box itself, for API compatibility). */
+  def getSelection: TextraListBox = this
+
+  /** Replaces the selection state. This is a compatibility method; in the standalone port, it copies the selection index from the source list box. */
+  def setSelection(source: TextraListBox): Unit = {
+    _selectedIndex = source._selectedIndex
+    _selectionRequired = source._selectionRequired
+    _selectionDisabled = source._selectionDisabled
+  }
+
+  /** Sets the selection to the given item (Selection API compatibility). */
+  def set(item: Nullable[TextraLabel]): Unit =
+    setSelected(item)
+
+  def isSelectionRequired: Boolean = _selectionRequired
+
+  def setSelectionRequired(required: Boolean): Unit =
+    _selectionRequired = required
+
+  def isSelectionDisabled: Boolean = _selectionDisabled
+
+  def setSelectionDisabled(disabled: Boolean): Unit =
+    _selectionDisabled = disabled
 
   // --- Items ---
 
+  /** Returns the internal items array. If modified, {@link #setItems} must be called to reflect the changes. */
   def getItems: ArrayBuffer[TextraLabel] = items
 
   def setItems(newItems: TextraLabel*): Unit = {
@@ -296,6 +458,9 @@ class TextraListBox(style: Styles.ListStyle) {
     if (oldPrefWidth != getPrefWidth || oldPrefHeight != getPrefHeight) invalidateHierarchy()
   }
 
+  /** Sets the items visible in the list, clearing the selection if it is no longer valid. If a selection is required, the first item is selected. This can safely be called with a (modified) array
+    * returned from {@link #getItems}.
+    */
   def setItems(newItems: ArrayBuffer[TextraLabel]): Unit = {
     val oldPrefWidth  = getPrefWidth
     val oldPrefHeight = getPrefHeight
@@ -344,18 +509,22 @@ class TextraListBox(style: Styles.ListStyle) {
 
   // --- Culling ---
 
-  def setCullingArea(x: Float, y: Float, width: Float, height: Float): Unit = {
-    _hasCullingArea = true
-    // x and width are accepted for API compatibility but only y and height are used in draw
-    _cullingY = y
-    _cullingH = height
-  }
+  def setCullingArea(cullingArea: Nullable[Rectangle]): Unit =
+    _cullingArea = cullingArea
 
-  def clearCullingArea(): Unit =
-    _hasCullingArea = false
+  /** @return
+    *   May be null.
+    * @see
+    *   #setCullingArea
+    */
+  def getCullingArea: Nullable[Rectangle] = _cullingArea
 
   // --- Alignment ---
 
+  /** Sets the horizontal alignment of the list items.
+    * @param alignment
+    *   See Align.
+    */
   def setAlignment(alignment: Int): Unit =
     this._alignment = alignment
 
@@ -368,9 +537,17 @@ class TextraListBox(style: Styles.ListStyle) {
   def setTypeToSelect(typeToSelect: Boolean): Unit =
     this.typeToSelect = typeToSelect
 
+  // --- Key listener ---
+
+  def getKeyListener: InputListener = _keyListener
+
+  // --- Touch listener ---
+
+  def getTouchListener: InputListener = _touchListener
+
   // --- Item index at position ---
 
-  /** Returns -1 if not over an item. */
+  /** @return -1 if not over an item. */
   def getItemIndexAt(y: Float): Int = boundary {
     var height = _height
     Nullable.foreach(_style.background) {
@@ -401,21 +578,26 @@ class TextraListBox(style: Styles.ListStyle) {
     }
   }
 
-  /** Returns the item at the given y coordinate, or null if not over an item. */
+  /** @return null if not over an item. */
   def getItemAt(y: Float): Nullable[TextraLabel] = {
     val index = getItemIndexAt(y)
     if (index == -1) Nullable.empty else Nullable(items(index))
   }
 
-  /** Returns the item with the given overIndex, or null. */
+  /** @return May be null. */
   def getOverItem: Nullable[TextraLabel] =
     if (overIndex == -1) Nullable.empty else Nullable(items(overIndex))
 
-  /** Returns the item with the given pressedIndex, or null. */
+  /** @return May be null. */
   def getPressedItem: Nullable[TextraLabel] =
     if (pressedIndex == -1) Nullable.empty else Nullable(items(pressedIndex))
 
-  /** Gets the total height of the item with the given index and all items before it. */
+  /** Gets the total height of the item with the given index and all items before it. This starts at 0 and increases as the index increases.
+    * @param index
+    *   the index of an item in this list box
+    * @return
+    *   -Float.MaxValue if index is negative or greater than or equal to items.size
+    */
   def getCumulativeHeight(index: Int): Float = boundary {
     if (index < 0 || index >= items.size) {
       break(-Float.MaxValue)
@@ -439,31 +621,30 @@ class TextraListBox(style: Styles.ListStyle) {
     -Float.MaxValue
   }
 
-  // --- Input handling ---
+  // --- Input handling (standalone delegation methods) ---
 
   /** Handles a key-down event for list navigation. Returns true if handled. */
-  def handleKeyDown(keycode: Int): Boolean =
+  def handleKeyDown(keycode: Input.Key): Boolean =
     if (items.isEmpty) {
       false
     } else {
-      // Key constants (from sge.Input.Key, opaque Int)
-      val KeyHOME = 3; val KeyEND = 123; val KeyDOWN = 20; val KeyUP = 19; val KeyESCAPE = 111
       keycode match {
-        case `KeyHOME` =>
+        case Keys.HOME =>
           setSelectedIndex(0)
           true
-        case `KeyEND` =>
+        case Keys.END =>
           setSelectedIndex(items.size - 1)
           true
-        case `KeyDOWN` =>
+        case Keys.DOWN =>
           val idx = _selectedIndex + 1
           setSelectedIndex(if (idx >= items.size) 0 else idx)
           true
-        case `KeyUP` =>
+        case Keys.UP =>
           val idx = _selectedIndex - 1
           setSelectedIndex(if (idx < 0) items.size - 1 else idx)
           true
-        case `KeyESCAPE` =>
+        case Keys.ESCAPE =>
+          _stage.foreach(_.setKeyboardFocus(Nullable.empty))
           true
         case _ =>
           false
@@ -493,6 +674,8 @@ class TextraListBox(style: Styles.ListStyle) {
   /** Handles a touch-down event. Returns true (always consumes). */
   def handleTouchDown(x: Float, y: Float, pointer: Int, button: Int): Boolean =
     if (pointer != 0 || button != 0) {
+      true
+    } else if (_selectionDisabled) {
       true
     } else if (items.isEmpty) {
       true
@@ -534,12 +717,4 @@ class TextraListBox(style: Styles.ListStyle) {
 
   def setTouchable(touchable: Boolean): Unit =
     _touchable = touchable
-
-  // --- Selection accessors (for compatibility with ArraySelection-based code) ---
-
-  def getSelection: TextraListBox = this
-
-  /** Sets the selection to the given item. */
-  def set(item: Nullable[TextraLabel]): Unit =
-    setSelected(item)
 }

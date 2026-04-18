@@ -116,15 +116,15 @@ class TypingLabel extends TextraLabel {
   def isTouchable: Boolean = true
 
   /** Sets width without triggering layout recalculations on the base layout. */
-  def setSuperWidth(width: Float): Unit =
+  override def setSuperWidth(width: Float): Unit =
     // Directly set the TextraLabel width backing field via its setter,
     // but we override setWidth below so we need a way to bypass it.
     // We call the parent's direct field access.
-    super.setWidth(width)
+    super.setSuperWidth(width)
 
   /** Sets height without triggering layout recalculations on the base layout. */
-  def setSuperHeight(height: Float): Unit =
-    super.setHeight(height)
+  override def setSuperHeight(height: Float): Unit =
+    super.setSuperHeight(height)
 
   // --- Constructors ---
 

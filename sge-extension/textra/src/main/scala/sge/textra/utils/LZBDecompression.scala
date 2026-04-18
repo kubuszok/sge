@@ -66,7 +66,7 @@ object LZBDecompression {
           power += 1
         }
         c = String.valueOf(bits)
-      case _ => return ""
+      case _ => break("")
     }
     dictionary += c
     w = c

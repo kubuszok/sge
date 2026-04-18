@@ -18,6 +18,8 @@ class OctreeTest extends munit.FunSuite {
       maxDepth,
       maxItemsPerNode,
       new Octree.Collider[BoundingBox] {
+        private val tmp = new Vector3()
+
         override def intersects(nodeBounds: BoundingBox, geometry: BoundingBox): Boolean =
           nodeBounds.intersects(geometry)
 
@@ -25,19 +27,25 @@ class OctreeTest extends munit.FunSuite {
           false
 
         override def intersects(ray: Ray, geometry: BoundingBox): Float =
-          // TODO: Use Intersector.intersectRayBounds once it's ported
-          // Original: val tmp = new Vector3(); if (!Intersector.intersectRayBounds(ray, geometry, tmp)) tmp.dst2(ray.origin) else Float.PositiveInfinity
-          Float.PositiveInfinity
+          // Original inverts the condition (!intersect returns distance), but the
+          // semantics are: return distance on hit, Float.POSITIVE_INFINITY on miss.
+          // The original test's rayCast path is not exercised so the inversion
+          // was harmless there. We use the correct (non-inverted) logic.
+          if (Intersector.intersectRayBounds(ray, geometry, sge.utils.Nullable(tmp)))
+            tmp.distanceSq(ray.origin)
+          else
+            Float.PositiveInfinity
       }
     )
 
-    // Note: octree.root is protected, so isLeaf() cannot be tested directly
+    assert(octree.root.isLeaf, "root should be a leaf before any insertions")
 
     val box1 = new BoundingBox(new Vector3(0, 0, 0), new Vector3(1, 1, 1))
     octree.add(box1)
 
     val box2 = new BoundingBox(new Vector3(2, 2, 2), new Vector3(3, 3, 3))
     octree.add(box2)
+    assert(!octree.root.isLeaf, "root should not be a leaf after adding two items (split)")
 
     val result = scala.collection.mutable.Set[BoundingBox]()
     octree.getAll(result)

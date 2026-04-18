@@ -113,6 +113,10 @@ class TextureAtlas()(using Sge) extends AutoCloseable {
     }
   }
 
+  /** Adds a pre-built AtlasRegion to the atlas. This is useful for textureless regions in headless mode. */
+  def addRegion(region: TextureAtlas.AtlasRegion): Unit =
+    _regions.add(region)
+
   /** Adds a region to the atlas. The specified texture will be disposed when the atlas is disposed. */
   def addRegion(name: String, texture: Texture, x: Int, y: Int, width: Int, height: Int): TextureAtlas.AtlasRegion = {
     _textures.addOne(texture)

@@ -6,7 +6,7 @@ import sge.ai.btree.branch.{ Selector, Sequence }
 import sge.ai.btree.branch.Parallel
 import sge.ai.btree.decorator.{ Invert, Repeat }
 import sge.ai.utils.random.ConstantIntegerDistribution
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, Nullable }
 
 // ── Test leaf tasks ──────────────────────────────────────────────────────
 
@@ -40,6 +40,18 @@ class CountingTask[E](var succeedOn: Int) extends LeafTask[E] {
     task.asInstanceOf[CountingTask[E]].succeedOn = succeedOn
     task
   }
+}
+
+/** A leaf task with mutable status and execution counter, for multi-step tests. */
+class MutableStatusTask[E] extends LeafTask[E] {
+  var nextStatus:         Task.Status = Task.Status.RUNNING
+  var executions:         Int         = 0
+  override def execute(): Task.Status = {
+    executions += 1
+    nextStatus
+  }
+  override def newInstance():                   Task[E] = new MutableStatusTask[E]()
+  override protected def copyTo(task: Task[E]): Task[E] = task
 }
 
 class BehaviorTreeSuite extends munit.FunSuite {
@@ -366,5 +378,122 @@ class BehaviorTreeSuite extends munit.FunSuite {
     val bt = makeTree(parallel, "bb")
     bt.step()
     assertEquals(bt.getStatus, Task.Status.RUNNING)
+  }
+
+  // ── Parallel multi-step tests ──────────────────────────────────────────
+
+  test("Parallel Resume + Sequence: multi-step execution tracking") {
+    val task1 = new MutableStatusTask[String]()
+    val task2 = new MutableStatusTask[String]()
+    val tasks = DynamicArray[Task[String]]()
+    tasks.add(task1)
+    tasks.add(task2)
+    val parallel = new Parallel[String](Parallel.Policy.Sequence, Parallel.Orchestrator.Resume, tasks)
+    val bt       = makeTree(parallel, "bb")
+
+    // Step 1: both tasks running
+    bt.step()
+    assertEquals(task1.executions, 1)
+    assertEquals(task2.executions, 1)
+    assertEquals(parallel.getStatus, Task.Status.RUNNING)
+
+    // Step 2: task2 succeeds, but task1 still running -> RUNNING
+    task2.nextStatus = Task.Status.SUCCEEDED
+    bt.step()
+    assertEquals(task1.executions, 2)
+    assertEquals(task2.executions, 2)
+    assertEquals(parallel.getStatus, Task.Status.RUNNING)
+
+    // Step 3: task2 reverts to running (Resume re-runs all), task1 still running
+    bt.step()
+    assertEquals(task1.executions, 3)
+    assertEquals(task2.executions, 3)
+    assertEquals(parallel.getStatus, Task.Status.RUNNING)
+
+    // Step 4: task1 now succeeds too -> all succeeded -> SUCCEEDED
+    task1.nextStatus = Task.Status.SUCCEEDED
+    bt.step()
+    assertEquals(task1.executions, 4)
+    assertEquals(task2.executions, 4)
+    assertEquals(parallel.getStatus, Task.Status.SUCCEEDED)
+  }
+
+  test("Parallel Resume + Selector: multi-step execution tracking") {
+    val task1 = new MutableStatusTask[String]()
+    val task2 = new MutableStatusTask[String]()
+    val tasks = DynamicArray[Task[String]]()
+    tasks.add(task1)
+    tasks.add(task2)
+    val parallel = new Parallel[String](Parallel.Policy.Selector, Parallel.Orchestrator.Resume, tasks)
+    val bt       = makeTree(parallel, "bb")
+
+    // Step 1: both tasks running
+    bt.step()
+    assertEquals(task1.executions, 1)
+    assertEquals(task2.executions, 1)
+    assertEquals(parallel.getStatus, Task.Status.RUNNING)
+
+    // Step 2: still running
+    bt.step()
+    assertEquals(task1.executions, 2)
+    assertEquals(task2.executions, 2)
+    assertEquals(parallel.getStatus, Task.Status.RUNNING)
+
+    // Step 3: task1 succeeds -> Selector succeeds immediately, task2 not run
+    task1.nextStatus = Task.Status.SUCCEEDED
+    bt.step()
+    assertEquals(task1.executions, 3)
+    assertEquals(task2.executions, 2)
+    assertEquals(parallel.getStatus, Task.Status.SUCCEEDED)
+
+    // Step 4: Resume restarts all; task1 still set to succeed
+    bt.step()
+    assertEquals(task1.executions, 4)
+    assertEquals(task2.executions, 2)
+    assertEquals(parallel.getStatus, Task.Status.SUCCEEDED)
+  }
+
+  test("Parallel Join + Sequence: completed tasks do not re-execute") {
+    val task1 = new MutableStatusTask[String]()
+    val task2 = new MutableStatusTask[String]()
+    val tasks = DynamicArray[Task[String]]()
+    tasks.add(task1)
+    tasks.add(task2)
+    val parallel = new Parallel[String](Parallel.Policy.Sequence, Parallel.Orchestrator.Join, tasks)
+    val bt       = makeTree(parallel, "bb")
+
+    // Step 1: both tasks running
+    bt.step()
+    assertEquals(task1.executions, 1)
+    assertEquals(task2.executions, 1)
+    assertEquals(parallel.getStatus, Task.Status.RUNNING)
+
+    // Step 2: task1 succeeds
+    task1.nextStatus = Task.Status.SUCCEEDED
+    bt.step()
+    assertEquals(task1.executions, 2)
+    assertEquals(task2.executions, 2)
+    assertEquals(parallel.getStatus, Task.Status.RUNNING)
+
+    // Step 3: Join strategy - task1 already succeeded, will not execute again
+    bt.step()
+    assertEquals(task1.executions, 2)
+    assertEquals(task2.executions, 3)
+    assertEquals(parallel.getStatus, Task.Status.RUNNING)
+
+    // Step 4: task2 also succeeds -> both done -> SUCCEEDED
+    task2.nextStatus = Task.Status.SUCCEEDED
+    bt.step()
+    assertEquals(task1.executions, 2)
+    assertEquals(task2.executions, 4)
+    assertEquals(parallel.getStatus, Task.Status.SUCCEEDED)
+
+    // Step 5: after parallel completes, reset and re-run
+    task1.nextStatus = Task.Status.RUNNING
+    task2.nextStatus = Task.Status.RUNNING
+    bt.step()
+    assertEquals(task1.executions, 3)
+    assertEquals(task2.executions, 5)
+    assertEquals(parallel.getStatus, Task.Status.RUNNING)
   }
 }

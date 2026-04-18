@@ -355,8 +355,11 @@ object Styles {
     }
   }
 
-  /** The style for a text field, see TextraField. */
-  class TextFieldStyle {
+  /** The style for a text field, see TextraField. This is AutoCloseable because it always copies any Font it is given (unless font is directly assigned, which should be avoided). To avoid the copy
+    * becoming inaccessible while still holding native resources, you should close this style when you are completely finished using it (and don't intend to use it again). You can also just close the
+    * font, which does the same thing as calling close() on the style.
+    */
+  class TextFieldStyle extends AutoCloseable {
     var font:               Nullable[Font]   = Nullable.empty
     var fontColor:          Nullable[Color]  = Nullable.empty
     var focusedFontColor:   Nullable[Color]  = Nullable.empty
@@ -391,7 +394,10 @@ object Styles {
       Nullable.foreach(style.messageFontColor)(c => messageFontColor = Nullable(new Color(c)))
     }
 
-    def close(): Unit =
+    /** Releases all resources of this object. Calls Font.close() on font, but does nothing else. This style is AutoCloseable because it creates a copy of any Font it is given. If you are using the
+      * same TextFieldStyle for multiple TextraFields, then you should only close the TextFieldStyle when you are no longer using the style for any current or future TextraFields.
+      */
+    override def close(): Unit =
       Nullable.foreach(font)(_.close())
   }
 }

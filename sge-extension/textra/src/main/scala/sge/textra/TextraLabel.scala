@@ -174,6 +174,34 @@ class TextraLabel {
     font.calculateSize(layout)
   }
 
+  /** This only exists so code that needs to set the raw Actor width (bypassing layout recalculation) still can, even with setWidth() implemented here.
+    * @param width
+    *   the new width, in world units as a float
+    */
+  def setSuperWidth(width: Float): Unit =
+    _width = width
+
+  /** This only exists so code that needs to set the raw Actor height (bypassing layout recalculation) still can, even with setHeight() implemented here.
+    * @param height
+    *   the new height, in world units as a float
+    */
+  def setSuperHeight(height: Float): Unit =
+    _height = height
+
+  /** Called by the framework when this actor or any ascendant is added to a group that is in the stage. This is overridden as public instead of protected because most of its usage in scene2d.ui code
+    * is not actually in inheriting classes, but in other classes in the same package.
+    * @param stage
+    *   May be null if the actor or any ascendant is no longer in a stage.
+    */
+  def setStage(stage: AnyRef): Unit = ()
+
+  /** Called by the framework when an actor is added to or removed from a group. This is overridden as public instead of protected because most of its usage in scene2d.ui code is not actually in
+    * inheriting classes, but in other classes in the same package.
+    * @param parent
+    *   May be null if the actor has been removed from the parent.
+    */
+  def setParent(parent: AnyRef): Unit = ()
+
   def getPrefWidth: Float =
     if (wrap) 0f
     else {
@@ -299,7 +327,7 @@ class TextraLabel {
       // If the call to calculateSize() changed layout's height, update height.
       val newHeight = layout.getHeight
       if (!sge.math.MathUtils.isEqual(originalHeight, newHeight)) {
-        _height = newHeight
+        setSuperHeight(newHeight)
       }
     }
   }

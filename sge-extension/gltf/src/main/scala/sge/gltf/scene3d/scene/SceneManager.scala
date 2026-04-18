@@ -317,8 +317,7 @@ class SceneManager(using sge: Sge) {
   def removeScene(scene: Scene): Unit = {
     renderableProviders.removeValue(scene)
     scene.lights.foreachValue { light =>
-      // environment.remove expects a Long type key, not a light object
-      // TODO: proper light removal from environment
+      environment.removeLight(light)
     }
   }
 

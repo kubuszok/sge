@@ -8,7 +8,8 @@ package sge
 package vfx
 package framebuffer
 
-import sge.graphics.glutils.FrameBuffer
+import sge.graphics.g2d.Batch
+import sge.graphics.glutils.{ FrameBuffer, ShapeRenderer }
 import sge.graphics.{ GL20, OrthographicCamera, Pixmap, Texture }
 import sge.math.Matrix4
 import sge.vfx.gl.{ VfxGLUtils, VfxGlViewport }
@@ -172,6 +173,65 @@ object VfxFrameBuffer {
     protected def getTransform:                       Matrix4
     protected def setProjection(projection: Matrix4): Unit
     protected def setTransform(transform:   Matrix4): Unit
+  }
+
+  /** A [[RendererAdapter]] for [[Batch]] instances. */
+  class BatchRendererAdapter extends RendererAdapter {
+    private var _batch: Nullable[Batch] = Nullable.empty
+
+    def this(batch: Batch) = {
+      this()
+      _batch = Nullable(batch)
+    }
+
+    def initialize(batch: Batch): BatchRendererAdapter = {
+      _batch = Nullable(batch)
+      this
+    }
+
+    def reset(): Unit =
+      _batch = Nullable.empty
+
+    def batch: Nullable[Batch] = _batch
+
+    override def flush(): Unit =
+      // Note: original Java always flushes (batch.isDrawing() result is discarded)
+      _batch.foreach(_.flush())
+
+    override protected def getProjection:                      Matrix4 = _batch.get.projectionMatrix
+    override protected def getTransform:                       Matrix4 = _batch.get.transformMatrix
+    override protected def setProjection(projection: Matrix4): Unit    = _batch.get.projectionMatrix = projection
+    override protected def setTransform(transform:   Matrix4): Unit    = _batch.get.transformMatrix = transform
+  }
+
+  /** A [[RendererAdapter]] for [[ShapeRenderer]] instances. */
+  class ShapeRendererAdapter extends RendererAdapter {
+    private var _shapeRenderer: Nullable[ShapeRenderer] = Nullable.empty
+
+    def this(shapeRenderer: ShapeRenderer) = {
+      this()
+      _shapeRenderer = Nullable(shapeRenderer)
+    }
+
+    def initialize(shapeRenderer: ShapeRenderer): ShapeRendererAdapter = {
+      _shapeRenderer = Nullable(shapeRenderer)
+      this
+    }
+
+    def reset(): Unit =
+      _shapeRenderer = Nullable.empty
+
+    def shapeRenderer: Nullable[ShapeRenderer] = _shapeRenderer
+
+    override def flush(): Unit =
+      _shapeRenderer.foreach { sr =>
+        if (sr.isDrawing) sr.flush()
+      }
+
+    override protected def getProjection:                      Matrix4 = _shapeRenderer.get.projectionMatrix
+    override protected def getTransform:                       Matrix4 = _shapeRenderer.get.transformMatrix
+    override protected def setProjection(projection: Matrix4): Unit    = _shapeRenderer.get.setProjectionMatrix(projection)
+    override protected def setTransform(transform:   Matrix4): Unit    = _shapeRenderer.get.setTransformMatrix(transform)
   }
 
   private class RendererManager extends Renderer {

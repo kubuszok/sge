@@ -70,9 +70,11 @@ class Layout() {
 
   /** One of the ways to set the font on a Layout; this one returns this Layout for chaining. */
   def setFont(font: Font): Layout = {
-    this.font = Nullable(font)
-    lines.clear()
-    lines += new Line()
+    if (this.font.isEmpty || this.font.get != font) {
+      this.font = Nullable(font)
+      lines.clear()
+      lines += new Line()
+    }
     this
   }
 
@@ -158,6 +160,17 @@ class Layout() {
       Nullable(line)
     }
 
+  def insertLine(index: Int): Nullable[Line] = boundary {
+    if (lines.size >= maxLines) { atLimit = true; break(Nullable.empty) }
+    if (index < 0 || index >= maxLines) break(Nullable.empty)
+    val line = new Line()
+    val prev = lines(index)
+    prev.glyphs += '\n'.toLong
+    line.height = 0
+    lines.insert(index + 1, line)
+    Nullable(line)
+  }
+
   def getTargetWidth:            Float  = targetWidth
   def setTargetWidth(tw: Float): Layout = { targetWidth = tw; this }
   def getBaseColor:              Float  = baseColor
@@ -231,7 +244,22 @@ class Layout() {
         val fin = index - s - glyphCount + e
         while (index < fin && index < glyphs.size) {
           val c = glyphs(index).toChar
-          if (c == 2) sb.append('[') else sb.append(c)
+          if (c >= '\ue000' && c <= '\uf800') {
+            Nullable.fold(font) {
+              sb.append(c)
+            } { f =>
+              Nullable.fold(f.namesByCharCode) {
+                sb.append(c)
+              } { nbc =>
+                nbc.get(c.toInt) match {
+                  case Some(name) => sb.append(name)
+                  case None       => sb.append(c)
+                }
+              }
+            }
+          } else {
+            if (c == 2) sb.append('[') else sb.append(c)
+          }
           glyphCount += 1
           index += 1
         }

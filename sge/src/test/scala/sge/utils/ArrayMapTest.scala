@@ -61,7 +61,7 @@ class ArrayMapTest extends munit.FunSuite {
     val map = ArrayMap[String, java.lang.Integer]()
     map.put("a", java.lang.Integer.valueOf(1))
     map.put("b", java.lang.Integer.valueOf(2))
-    assert(map.removeValue(java.lang.Integer.valueOf(1)))
+    assert(map.removeValue(java.lang.Integer.valueOf(1), false))
     assert(!map.containsValue(java.lang.Integer.valueOf(1)))
     assertEquals(map.size, 1)
   }

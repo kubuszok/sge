@@ -98,6 +98,8 @@ class FWSkin()(using Sge) extends Skin() {
         case Json.Obj(rootObj) =>
           rootObj.fields.foreach { case (typeName, typeValue) =>
             typeName match {
+              case "Font" | "com.github.tommyettinger.textra.Font" =>
+                loadFontsFromFontSection(typeValue, skinFile)
               case "BitmapFont" | "com.badlogic.gdx.graphics.g2d.BitmapFont" =>
                 loadFontsFromBitmapFontSection(typeValue, skinFile)
               case "LabelStyle" | "com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle" =>
@@ -133,6 +135,24 @@ class FWSkin()(using Sge) extends Skin() {
   // ---------------------------------------------------------------------------
   // Font loading from BitmapFont JSON entries
   // ---------------------------------------------------------------------------
+
+  /** Reads standalone Font entries from the skin JSON and creates corresponding Font objects directly. Unlike BitmapFont entries which create both a BitmapFont and a Font, these entries only create
+    * Font objects.
+    */
+  private def loadFontsFromFontSection(typeValue: Json, skinFile: FileHandle): Unit =
+    typeValue match {
+      case Json.Obj(entries) =>
+        entries.fields.foreach { case (entryName, jsonData) =>
+          try {
+            val font = readFont(jsonData, skinFile)
+            add(entryName, font, classOf[Font])
+          } catch {
+            case ex: RuntimeException =>
+              throw SgeError.InvalidInput("Error loading Font entry: " + entryName + ": " + ex.getMessage)
+          }
+        }
+      case _ => ()
+    }
 
   /** Reads BitmapFont entries from the skin JSON and creates corresponding Font objects. Each BitmapFont entry that references a Structured JSON font file (.json, .dat, .ubj, .json.lzma, .ubj.lzma)
     * gets a Font created alongside the BitmapFont that super.load() already stored. For .fnt files, a Font is also created using the FNT data.
@@ -550,7 +570,7 @@ class FWSkin()(using Sge) extends Skin() {
     val allFonts = getAll(classOf[Font])
     allFonts.foreach { fonts =>
       fonts.values.foreach { font =>
-        font.resizeDistanceField(width, height)
+        font.resizeDistanceField(width, height, viewport)
       }
     }
   }

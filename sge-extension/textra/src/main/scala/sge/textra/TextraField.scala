@@ -7,13 +7,15 @@
  *
  * Migration notes:
  *   Renames: Widget → standalone class, Disableable → disabled field,
- *     FloatArray → ArrayBuffer[Float], Clipboard → Sge clipboard (deferred),
- *     InputListener/ClickListener → handler methods, Timer.Task → timer state,
+ *     FloatArray → ArrayBuffer[Float], Clipboard → Sge clipboard,
  *     Replacer (RegExodus) → deferred (emoji replacement),
- *     UIUtils → helper methods, ChangeEvent → direct callback
+ *     UIUtils → helper methods, ChangeEvent → direct callback,
+ *     Timer.Task → KeyRepeatTask/blinkTask inner classes
  *   Convention: Full text-editing behavior preserved: cursor movement,
  *     selection, copy/cut/paste, password mode, undo, key repeat, draw.
  *   Idiom: Nullable[A] for nullable fields; boundary/break for early returns.
+ *   Merged with: TextFieldClickListener inner class for input handling,
+ *     KeyRepeatTask for key repeat, lifecycle hooks, focus traversal.
  */
 package sge
 package textra
@@ -24,10 +26,28 @@ import scala.util.boundary.break
 
 import sge.graphics.Color
 import sge.graphics.g2d.Batch
-import sge.scenes.scene2d.utils.Drawable
-import sge.utils.{ Align, Nullable }
+import sge.math.Vector2
+import sge.scenes.scene2d.{ Actor, Group, Stage }
+import sge.scenes.scene2d.utils.{ Drawable, UIUtils }
+import sge.utils.{ Align, Clipboard, DynamicArray, Nullable }
 
-/** A single-line text input field using a Font. */
+/** A single-line text input field using a Font.
+  *
+  * If you just want a span of read-only text that can be selected and copied, then use a TypingLabel with setSelectable set to true. This can use a TypingListener that checks for the event
+  * "*SELECTED", and calls copySelectedText() when that event is received. Or, call copySelectedText() when the user requests, such as by pressing Ctrl-c; this doesn't need a TypingListener.
+  *
+  * The preferred height of a text field is the height of the font and background. The preferred width of a text field is 150, a relatively arbitrary size.
+  *
+  * The text field will copy the currently selected text when Ctrl+c is pressed, and paste any text in the clipboard when Ctrl+v is pressed. Clipboard functionality is provided via the Clipboard
+  * interface.
+  *
+  * @author
+  *   mzechner
+  * @author
+  *   Nathan Sweet
+  * @author
+  *   Tommy Ettinger
+  */
 class TextraField {
 
   /** Used as the default char to replace content when passwordMode is on. */
@@ -69,19 +89,21 @@ class TextraField {
   protected var programmaticChangeEvents: Boolean = false
 
   // Listener/filter fields
-  protected var listener: Nullable[TextFieldListener] = Nullable.empty
-  protected var filter:   Nullable[TextFieldFilter]   = Nullable.empty
+  protected var inputListener: Nullable[TextFieldClickListener] = Nullable.empty
+  protected var listener:      Nullable[TextFieldListener]      = Nullable.empty
+  protected var filter:        Nullable[TextFieldFilter]        = Nullable.empty
 
-  // Clipboard contents held locally; will connect to Sge clipboard when available
-  private var _clipboardContents: String = ""
+  // Clipboard -- connected via initialize() or manually
+  protected var clipboard: Nullable[Clipboard] = Nullable.empty
+
+  // On-screen keyboard
+  protected var keyboard: Nullable[OnscreenKeyboard] = Nullable.empty
 
   // Blink state
   private var _blinkTimer: Float = 0f
 
   // Key repeat state
-  private var _keyRepeatKeycode: Int     = -1
-  private var _keyRepeatTimer:   Float   = 0f
-  private var _keyRepeatActive:  Boolean = false
+  protected val keyRepeatTask: KeyRepeatTask = new KeyRepeatTask()
 
   // Widget-like fields
   private var _x:      Float = 0f
@@ -89,6 +111,10 @@ class TextraField {
   private var _width:  Float = 0f
   private var _height: Float = 0f
   private val _color:  Color = new Color(Color.WHITE)
+
+  // Stage/parent references for lifecycle integration
+  private var _stage:  Nullable[Stage] = Nullable.empty
+  private var _parent: Nullable[Group] = Nullable.empty
 
   // Keyboard focus state
   private var _hasKeyboardFocus: Boolean = false
@@ -152,39 +178,76 @@ class TextraField {
     updateDisplayText()
   }
 
-  protected def initialize(): Unit = {
-    // Clipboard will be connected when scene2d/Sge integration lands.
-    // Emoji replacer requires EmojiProcessor integration.
-  }
+  protected def initialize(): Unit =
+    // Emoji replacer requires EmojiProcessor integration (deferred).
+    inputListener = Nullable(createInputListener())
+
+  /** Creates the input listener for this text field. Override to provide a custom listener. */
+  protected def createInputListener(): TextFieldClickListener =
+    new TextFieldClickListener()
+
+  /** Returns the default input listener. */
+  def getDefaultInputListener: Nullable[TextFieldClickListener] = inputListener
 
   // --- Widget-like accessors ---
 
   def getX:                Float = _x
   def getY:                Float = _y
-  def setX(x:      Float): Unit  = _x = x
-  def setY(y:      Float): Unit  = _y = y
+  def setX(x:      Float): Unit  = { _x = x; positionChanged() }
+  def setY(y:      Float): Unit  = { _y = y; positionChanged() }
   def getWidth:            Float = _width
   def getHeight:           Float = _height
-  def setWidth(w:  Float): Unit  = _width = w
-  def setHeight(h: Float): Unit  = _height = h
+  def setWidth(w:  Float): Unit  = { _width = w; sizeChanged() }
+  def setHeight(h: Float): Unit  = { _height = h; sizeChanged() }
   def getColor:            Color = _color
   def setColor(c:  Color): Unit  = if (c != null) _color.set(c)
 
   def setPosition(x: Float, y: Float): Unit = {
     _x = x
     _y = y
-    label.setPosition(x, y)
+    positionChanged()
   }
 
   def setSize(width: Float, height: Float): Unit = {
     _width = width
     _height = height
-    label.setSize(width, height)
-    updateDisplayText()
+    sizeChanged()
   }
 
   def hasKeyboardFocus:                 Boolean = _hasKeyboardFocus
   def setKeyboardFocus(focus: Boolean): Unit    = _hasKeyboardFocus = focus
+
+  // --- Lifecycle methods ---
+
+  /** Called when this TextraField is added to or removed from a stage. Subclasses can override to react to stage changes.
+    */
+  protected def setStage(stage: Nullable[Stage]): Unit =
+    _stage = stage
+
+  /** Returns the stage this field is on, or Nullable.empty. */
+  def getStage: Nullable[Stage] = _stage
+
+  /** Called when this TextraField's parent group changes. Subclasses can override to react to parent changes.
+    */
+  protected def setParent(parent: Nullable[Group]): Unit =
+    _parent = parent
+
+  /** Returns the parent group, or Nullable.empty. */
+  def getParent: Nullable[Group] = _parent
+
+  /** Called when the position of this TextraField changes. */
+  protected def positionChanged(): Unit =
+    label.setPosition(_x, _y)
+
+  /** Called when the size of this TextraField changes. */
+  protected def sizeChanged(): Unit = {
+    label.setSize(_width, _height)
+    updateDisplayText()
+  }
+
+  /** Returns true if this field and all ascendants are visible. In standalone mode, always returns true. When integrated with scene2d, this would check the visibility of all ascendant actors.
+    */
+  def ascendantsVisible(): Boolean = true
 
   // --- Style ---
 
@@ -573,13 +636,13 @@ class TextraField {
 
   // --- Copy/Cut/Paste ---
 
-  /** Copies the selected contents to the clipboard. */
+  /** Copies the contents of this TextraField to the Clipboard implementation set on this TextraField. */
   def copy(): Unit =
     if (label.hasSelection && !passwordMode) {
       val start  = Math.min(label.selectionStart, label.selectionEnd)
       val end    = Math.max(label.selectionStart, label.selectionEnd)
       val toCopy = label.substring(Math.max(0, start), Math.min(label.length(), end + 1))
-      _clipboardContents = toCopy
+      setClipboardContents(toCopy)
     }
 
   /** Copies the selected contents to the clipboard, then removes it. */
@@ -802,11 +865,11 @@ class TextraField {
     }
 
     // Key repeat
-    if (_keyRepeatActive) {
-      _keyRepeatTimer -= delta
-      if (_keyRepeatTimer <= 0f) {
-        _keyRepeatTimer = TextraField.keyRepeatTime
-        handleKeyDown(_keyRepeatKeycode)
+    if (keyRepeatTask.active) {
+      keyRepeatTask.timer -= delta
+      if (keyRepeatTask.timer <= 0f) {
+        keyRepeatTask.timer = TextraField.keyRepeatTime
+        Nullable.foreach(inputListener)(_.keyDown(keyRepeatTask.keycode))
       }
     }
   }
@@ -885,6 +948,58 @@ class TextraField {
   def setFocusTraversal(focusTraversal: Boolean): Unit =
     this.focusTraversal = focusTraversal
 
+  /** Sets the keyboard focus to the next TextraField. If no next text field is found, the onscreen keyboard is hidden. Does nothing if the text field is not in a stage.
+    * @param up
+    *   If true, the text field with the same or next smallest y coordinate is found, else the next highest.
+    */
+  def next(up: Boolean): Unit =
+    Nullable.foreach(_stage) { stage =>
+      val currentCoords = Vector2(getX, getY)
+      val bestCoords    = Vector2()
+      var textraField   = findNextTextField(stage.actors, Nullable.empty, bestCoords, currentCoords, up)
+      if (!textraField.isDefined) {
+        // Try to wrap around.
+        if (up) {
+          currentCoords.set(-Float.MaxValue, -Float.MaxValue)
+        } else {
+          currentCoords.set(Float.MaxValue, Float.MaxValue)
+        }
+        textraField = findNextTextField(stage.actors, Nullable.empty, bestCoords, currentCoords, up)
+      }
+      Nullable.fold(textraField) {
+        Nullable.foreach(keyboard)(_.show(false))
+      } { tf =>
+        tf.setKeyboardFocus(true)
+        tf.selectAll()
+      }
+    }
+
+  /** Searches for the next TextraField in the actor tree. In standalone mode, TextraField does not extend Actor, so this only recurses into Groups. When TextraField is integrated with scene2d
+    * (extending Actor), this will find TextraField instances in the tree.
+    * @return
+    *   May be Nullable.empty.
+    */
+  private def findNextTextField(
+    actors:        DynamicArray[Actor],
+    best:          Nullable[TextraField],
+    bestCoords:    Vector2,
+    currentCoords: Vector2,
+    up:            Boolean
+  ): Nullable[TextraField] = {
+    var currentBest = best
+    var i           = 0
+    while (i < actors.size) {
+      val actor = actors(i)
+      actor match {
+        case group: Group =>
+          currentBest = findNextTextField(group.children, currentBest, bestCoords, currentCoords, up)
+        case _ => ()
+      }
+      i += 1
+    }
+    currentBest
+  }
+
   // --- Message text ---
 
   def setMessageText(messageText: Nullable[String]): Unit =
@@ -911,297 +1026,36 @@ class TextraField {
 
   // --- Clipboard ---
 
-  def setClipboard(contents: String): Unit =
-    _clipboardContents = contents
+  def setClipboard(clipboard: Clipboard): Unit =
+    this.clipboard = Nullable(clipboard)
 
-  def getClipboardContents: String = _clipboardContents
+  def getClipboard: Nullable[Clipboard] = clipboard
 
-  // --- Key handling ---
+  /** Gets clipboard contents, falling back to local storage if no clipboard is set. */
+  protected def getClipboardContents: Nullable[String] =
+    Nullable.fold(clipboard)(Nullable.empty: Nullable[String])(_.contents)
 
-  /** Handles a key-down event. Returns true if handled. */
-  def handleKeyDown(keycode: Int): Boolean = boundary {
-    if (disabled) {
-      break(false)
-    }
+  /** Sets clipboard contents. */
+  protected def setClipboardContents(contents: String): Unit =
+    Nullable.foreach(clipboard)(_.contents = Nullable(contents))
 
-    cursorOn = focused
-    if (focused && blinkEnabled) {
-      _blinkTimer = 0f
-    }
+  // --- On-screen keyboard ---
 
-    if (!_hasKeyboardFocus) {
-      break(false)
-    }
+  /** Default is an instance of DefaultOnscreenKeyboard. */
+  def getOnscreenKeyboard: Nullable[OnscreenKeyboard] = keyboard
 
-    // Key constants (from sge.Input.Key, opaque Int)
-    val KeyV      = 50; val KeyC            = 31; val KeyX  = 52; val KeyA    = 29; val KeyZ = 54
-    val KeyINSERT = 124; val KeyFORWARD_DEL = 112
-    val KeyLEFT   = 21; val KeyRIGHT        = 22; val KeyUP = 19; val KeyDOWN = 20
-    val KeyHOME   = 3; val KeyEND           = 123
+  def setOnscreenKeyboard(keyboard: OnscreenKeyboard): Unit =
+    this.keyboard = Nullable(keyboard)
 
-    var repeat  = false
-    val ctrl    = isCtrlPressed
-    val shift   = isShiftPressed
-    val jump    = ctrl && !passwordMode
-    var handled = true
+  // --- Cursor navigation helpers ---
 
-    if (ctrl) {
-      keycode match {
-        case `KeyV` =>
-          paste(Nullable(_clipboardContents), fireChangeEvent = true)
-          repeat = true
-        case `KeyC` | `KeyINSERT` =>
-          copy()
-          break(true)
-        case `KeyX` =>
-          cut(fireChangeEvent = true)
-          break(true)
-        case `KeyA` =>
-          selectAll()
-          break(true)
-        case `KeyZ` =>
-          val oldText = text
-          setText(Nullable(undoText))
-          undoText = oldText
-          updateDisplayText()
-          break(true)
-        case _ =>
-          handled = false
-      }
-    }
+  /** Moves the cursor to the beginning of the text. Can be overridden for multi-line behavior. */
+  protected def goHome(jump: Boolean): Unit =
+    cursor = 0
 
-    if (shift) {
-      keycode match {
-        case `KeyINSERT` =>
-          paste(Nullable(_clipboardContents), fireChangeEvent = true)
-        case `KeyFORWARD_DEL` =>
-          cut(fireChangeEvent = true)
-        case _ => ()
-      }
-
-      // Selection with shift
-      val temp = cursor
-      keycode match {
-        case `KeyLEFT` =>
-          moveCursor(false, jump)
-          repeat = true
-          handled = true
-          updateSelectionAfterMove(temp)
-        case `KeyRIGHT` =>
-          moveCursor(true, jump)
-          repeat = true
-          handled = true
-          updateSelectionAfterMove(temp)
-        case `KeyUP` =>
-          moveCursorVertically(false, jump)
-          repeat = true
-          handled = true
-          updateSelectionAfterMove(temp)
-        case `KeyDOWN` =>
-          moveCursorVertically(true, jump)
-          repeat = true
-          handled = true
-          updateSelectionAfterMove(temp)
-        case `KeyHOME` =>
-          goHome(jump)
-          handled = true
-          updateSelectionAfterMove(temp)
-        case `KeyEND` =>
-          goEnd(jump)
-          handled = true
-          updateSelectionAfterMove(temp)
-        case _ => ()
-      }
-    } else {
-      // Cursor movement without shift (kills selection)
-      keycode match {
-        case `KeyLEFT` =>
-          moveCursor(false, jump)
-          clearSelection()
-          repeat = true
-          handled = true
-        case `KeyRIGHT` =>
-          moveCursor(true, jump)
-          clearSelection()
-          repeat = true
-          handled = true
-        case `KeyUP` =>
-          moveCursorVertically(false, jump)
-          clearSelection()
-          repeat = true
-          handled = true
-        case `KeyDOWN` =>
-          moveCursorVertically(true, jump)
-          clearSelection()
-          repeat = true
-          handled = true
-        case `KeyHOME` =>
-          goHome(jump)
-          clearSelection()
-          handled = true
-        case `KeyEND` =>
-          goEnd(jump)
-          clearSelection()
-          handled = true
-        case _ => ()
-      }
-    }
-
-    cursor = Math.max(0, Math.min(cursor, text.length))
-
-    if (repeat) scheduleKeyRepeat(keycode)
-    handled
-  }
-
-  private def updateSelectionAfterMove(temp: Int): Unit =
-    if (!label.hasSelection) {
-      label.selectionStart = temp
-      label.selectionEnd = cursor
-      if (temp < cursor) label.selectionEnd -= 1
-      else label.selectionStart -= 1
-    } else {
-      val start = label.selectionStart
-      val end   = label.selectionEnd
-      if (cursor < start) {
-        label.selectionStart = cursor
-      } else if (cursor > end) {
-        label.selectionEnd = cursor - 1
-      } else if (temp < cursor) {
-        label.selectionStart = cursor
-      } else {
-        label.selectionEnd = cursor - 1
-      }
-    }
-
-  /** Handles a key-up event. Returns true if handled. */
-  def handleKeyUp(keycode: Int): Boolean =
-    if (disabled) {
-      false
-    } else {
-      _keyRepeatActive = false
-      true
-    }
-
-  protected def checkFocusTraversal(character: Char): Boolean =
-    focusTraversal && character == TAB
-
-  /** Handles a key-typed event. Returns true if handled. */
-  def handleKeyTyped(character: Char): Boolean = boundary {
-    if (disabled) {
-      break(false)
-    }
-
-    // Disallow most ASCII control characters
-    character match {
-      case BACKSPACE | TAB | NEWLINE | CARRIAGE_RETURN => ()
-      case c if c < 32                                 => break(false)
-      case _                                           => ()
-    }
-
-    if (!_hasKeyboardFocus) {
-      break(false)
-    }
-
-    if (checkFocusTraversal(character)) {
-      // Focus traversal would happen in full scene2d integration
-    } else {
-      val enter     = character == CARRIAGE_RETURN || character == NEWLINE
-      val deleteKey = character == DELETE
-      val backspace = character == BACKSPACE
-      var ch        = character
-      if (ch == '[') ch = if (isShiftPressed) '{' else '\u0002'
-      val add    = if (enter) writeEnters else !onlyFontChars || label.getFont.mapping.contains(ch.toInt)
-      val remove = backspace || deleteKey
-
-      if (add || remove) {
-        val oldText   = text
-        val oldCursor = cursor
-        if (remove) {
-          if (label.hasSelection) {
-            cursor = delete(fireChangeEvent = false)
-          } else {
-            if (backspace && cursor > 0) {
-              text = text.substring(0, cursor - 1) + text.substring(cursor)
-              cursor -= 1
-              renderOffset = 0
-            }
-            if (deleteKey && cursor < text.length) {
-              text = text.substring(0, cursor) + text.substring(cursor + 1)
-            }
-          }
-        }
-        if (add && !remove) {
-          var filtered = false
-          Nullable.foreach(filter) { f =>
-            if (!enter && !f.acceptChar(this, ch)) {
-              filtered = true
-            }
-          }
-          if (filtered) {
-            break(true)
-          }
-          if (!withinMaxLength(text.length - (if (label.hasSelection) Math.abs(cursor - label.selectionStart) else 0))) {
-            break(true)
-          }
-          if (label.hasSelection) {
-            cursor = delete(fireChangeEvent = false)
-          }
-          val insertion = if (enter) "\n" else String.valueOf(ch)
-          insert(cursor, insertion)
-          cursor += 1
-          text = label.layout.appendIntoDirect(new StringBuilder()).toString
-        }
-        if (changeText(oldText, text)) {
-          val time = System.currentTimeMillis()
-          if (time - 750 > lastChangeTime) undoText = oldText
-          lastChangeTime = time
-          updateDisplayText()
-        } else if (text != oldText) {
-          cursor = oldCursor
-        }
-      }
-    }
-    Nullable.foreach(listener)(_.keyTyped(this, character))
-    true
-  }
-
-  // --- Key repeat ---
-
-  private def scheduleKeyRepeat(keycode: Int): Unit = {
-    _keyRepeatKeycode = keycode
-    _keyRepeatTimer = TextraField.keyRepeatInitialTime
-    _keyRepeatActive = true
-  }
-
-  // --- Click handling ---
-
-  /** Handles a click (for cursor positioning). */
-  def handleClick(tapCount: Int): Unit = {
-    if (showingMessage) clearMessage()
-    val count = tapCount & 3
-    if (count == 0) clearSelection()
-    else if (count == 2) {
-      val pair = wordUnderCursor()
-      setSelection((pair >>> 32).toInt, pair.toInt)
-    } else if (count == 3) selectAll()
-  }
-
-  /** Handles a touch-down for cursor positioning. */
-  def handleTouchDown(x: Float, y: Float, pointer: Int, button: Int): Boolean =
-    if (pointer == 0 && button != 0) {
-      false
-    } else if (disabled) {
-      true
-    } else {
-      setCursorFromPosition(x, y)
-      _hasKeyboardFocus = true
-      if (showingMessage) clearMessage()
-      true
-    }
-
-  /** Handles a touch-dragged for cursor positioning. */
-  def handleTouchDragged(x: Float, y: Float, pointer: Int): Unit =
-    setCursorFromPosition(x, y)
+  /** Moves the cursor to the end of the text. Can be overridden for multi-line behavior. */
+  protected def goEnd(jump: Boolean): Unit =
+    cursor = text.length
 
   protected def setCursorFromPosition(x: Float, y: Float): Unit = {
     if (label.overIndex < 0) {
@@ -1216,15 +1070,377 @@ class TextraField {
     }
   }
 
-  // --- Cursor navigation helpers ---
+  // --- KeyRepeatTask inner class ---
 
-  /** Moves the cursor to the beginning of the text. Can be overridden for multi-line behavior. */
-  protected def goHome(jump: Boolean): Unit =
-    cursor = 0
+  /** Handles key repeat delay/interval for held keys. */
+  class KeyRepeatTask {
+    var keycode: Int     = -1
+    var timer:   Float   = 0f
+    var active:  Boolean = false
 
-  /** Moves the cursor to the end of the text. Can be overridden for multi-line behavior. */
-  protected def goEnd(jump: Boolean): Unit =
-    cursor = text.length
+    def schedule(kc: Int): Unit = {
+      keycode = kc
+      timer = TextraField.keyRepeatInitialTime
+      active = true
+    }
+
+    def cancel(): Unit =
+      active = false
+  }
+
+  // --- TextFieldClickListener inner class ---
+
+  /** Basic input listener for the TextraField. Handles touchDown, touchDragged, touchUp, keyDown, keyTyped, keyUp, and click events with cursor positioning, selection, copy/paste, and key repeat.
+    */
+  class TextFieldClickListener {
+
+    private var _tapCount: Int = 0
+
+    def tapCount: Int = _tapCount
+
+    def clicked(tapCount: Int): Unit = {
+      _tapCount = tapCount
+      if (showingMessage) clearMessage()
+      val count = tapCount & 3
+      if (count == 0) clearSelection()
+      else if (count == 2) {
+        val pair = wordUnderCursor()
+        setSelection((pair >>> 32).toInt, pair.toInt)
+      } else if (count == 3) selectAll()
+    }
+
+    def touchDown(x: Float, y: Float, pointer: Int, button: Int): Boolean =
+      if (pointer == 0 && button != 0) {
+        false
+      } else if (disabled) {
+        true
+      } else {
+        setCursorPosition(x, y)
+        _hasKeyboardFocus = true
+        Nullable.foreach(keyboard)(_.show(true))
+        if (showingMessage) clearMessage()
+        true
+      }
+
+    def touchDragged(x: Float, y: Float, pointer: Int): Unit =
+      setCursorPosition(x, y)
+
+    def touchUp(x: Float, y: Float, pointer: Int, button: Int): Unit = ()
+
+    protected def setCursorPosition(x: Float, y: Float): Unit = {
+      if (label.overIndex < 0) {
+        if (x < label.workingLayout.getWidth * 0.5f) cursor = 0
+        else cursor = label.length()
+      } else {
+        cursor = label.overIndex
+      }
+      cursorOn = focused
+      if (blinkEnabled) {
+        _blinkTimer = 0f
+      }
+    }
+
+    protected def goHome(jump: Boolean): Unit =
+      cursor = 0
+
+    protected def goEnd(jump: Boolean): Unit =
+      cursor = text.length
+
+    def keyDown(keycode: Int): Boolean = boundary {
+      if (disabled) { break(false) }
+
+      cursorOn = focused
+      if (blinkEnabled && focused) {
+        _blinkTimer = 0f
+      }
+
+      if (!_hasKeyboardFocus) { break(false) }
+
+      // Key constants (raw Int values from sge.Input.Keys opaque Key type)
+      val KeyV:           Int = 50
+      val KeyC:           Int = 31
+      val KeyX:           Int = 52
+      val KeyA:           Int = 29
+      val KeyZ:           Int = 54
+      val KeyINSERT:      Int = 124
+      val KeyFORWARD_DEL: Int = 112
+      val KeyLEFT:        Int = 21
+      val KeyRIGHT:       Int = 22
+      val KeyUP:          Int = 19
+      val KeyDOWN:        Int = 20
+      val KeyHOME:        Int = 3
+      val KeyEND:         Int = 123
+
+      var repeat  = false
+      val ctrl    = isCtrlPressed
+      val jump    = ctrl && !passwordMode
+      var handled = true
+
+      if (ctrl) {
+        keycode match {
+          case `KeyV` =>
+            Nullable.foreach(getClipboardContents) { contents =>
+              paste(Nullable(contents), fireChangeEvent = true)
+            }
+            repeat = true
+          case `KeyC` | `KeyINSERT` =>
+            copy()
+            break(true)
+          case `KeyX` =>
+            cut(fireChangeEvent = true)
+            break(true)
+          case `KeyA` =>
+            selectAll()
+            break(true)
+          case `KeyZ` =>
+            val oldText = text
+            setText(Nullable(undoText))
+            undoText = oldText
+            updateDisplayText()
+            break(true)
+          case _ =>
+            handled = false
+        }
+      }
+
+      if (isShiftPressed) {
+        keycode match {
+          case `KeyINSERT` =>
+            Nullable.foreach(getClipboardContents) { contents =>
+              paste(Nullable(contents), fireChangeEvent = true)
+            }
+          case `KeyFORWARD_DEL` =>
+            cut(fireChangeEvent = true)
+          case _ => ()
+        }
+
+        // Selection with shift
+        val temp = cursor
+        keycode match {
+          case `KeyLEFT` =>
+            moveCursor(false, jump)
+            repeat = true
+            handled = true
+            updateSelectionAfterMove(temp)
+          case `KeyRIGHT` =>
+            moveCursor(true, jump)
+            repeat = true
+            handled = true
+            updateSelectionAfterMove(temp)
+          case `KeyUP` =>
+            moveCursorVertically(false, jump)
+            repeat = true
+            handled = true
+            updateSelectionAfterMove(temp)
+          case `KeyDOWN` =>
+            moveCursorVertically(true, jump)
+            repeat = true
+            handled = true
+            updateSelectionAfterMove(temp)
+          case `KeyHOME` =>
+            goHome(jump)
+            handled = true
+            updateSelectionAfterMove(temp)
+          case `KeyEND` =>
+            goEnd(jump)
+            handled = true
+            updateSelectionAfterMove(temp)
+          case _ => ()
+        }
+      } else {
+        // Cursor movement without shift (kills selection)
+        keycode match {
+          case `KeyLEFT` =>
+            moveCursor(false, jump)
+            clearSelection()
+            repeat = true
+            handled = true
+          case `KeyRIGHT` =>
+            moveCursor(true, jump)
+            clearSelection()
+            repeat = true
+            handled = true
+          case `KeyUP` =>
+            moveCursorVertically(false, jump)
+            clearSelection()
+            repeat = true
+            handled = true
+          case `KeyDOWN` =>
+            moveCursorVertically(true, jump)
+            clearSelection()
+            repeat = true
+            handled = true
+          case `KeyHOME` =>
+            goHome(jump)
+            clearSelection()
+            handled = true
+          case `KeyEND` =>
+            goEnd(jump)
+            clearSelection()
+            handled = true
+          case _ => ()
+        }
+      }
+
+      cursor = Math.max(0, Math.min(cursor, text.length))
+
+      if (repeat) scheduleKeyRepeatTask(keycode)
+      handled
+    }
+
+    protected def scheduleKeyRepeatTask(keycode: Int): Unit =
+      if (!keyRepeatTask.active || keyRepeatTask.keycode != keycode) {
+        keyRepeatTask.schedule(keycode)
+      }
+
+    def keyUp(keycode: Int): Boolean =
+      if (disabled) {
+        false
+      } else {
+        keyRepeatTask.cancel()
+        true
+      }
+
+    /** Checks if focus traversal should be triggered. The default implementation uses focusTraversal and the typed character, depending on the OS.
+      * @param character
+      *   The character that triggered a possible focus traversal.
+      * @return
+      *   true if the focus should change to the next input field.
+      */
+    protected def checkFocusTraversal(character: Char): Boolean =
+      focusTraversal && (character == TAB
+        || ((character == CARRIAGE_RETURN || character == NEWLINE) && (UIUtils.isAndroid || UIUtils.isIos)))
+
+    def keyTyped(character: Char): Boolean = boundary {
+      if (disabled) { break(false) }
+
+      // Now we're hitting a problem in libGDX, where keyTyped is a character-based API
+      // and doesn't understand codepoints greater than 65535. Entering an emoji will
+      // actually type multiple codepoints, where some need to be ints but are truncated
+      // to chars by libGDX.
+
+      // Disallow "typing" most ASCII control characters, which would show up as a space when onlyFontChars is true.
+      character match {
+        case BACKSPACE | TAB | NEWLINE | CARRIAGE_RETURN => ()
+        case c if c < 32                                 => break(false)
+        case _                                           => ()
+      }
+
+      if (!_hasKeyboardFocus) { break(false) }
+
+      if (UIUtils.isMac) {
+        // On Mac, ignore keyTyped when Command (SYM) is pressed
+        // (This check is a no-op in standalone mode; with Sge integration, it would
+        //  check Sge().input.isKeyPressed(Input.Keys.SYM))
+      }
+
+      if (checkFocusTraversal(character)) {
+        next(isShiftPressed)
+      } else {
+        val enter     = character == CARRIAGE_RETURN || character == NEWLINE
+        val deleteKey = character == DELETE
+        val backspace = character == BACKSPACE
+        var ch        = character
+        if (ch == '[') ch = if (isShiftPressed) '{' else '\u0002'
+        val add    = if (enter) writeEnters else !onlyFontChars || label.getFont.mapping.contains(ch.toInt)
+        val remove = backspace || deleteKey
+
+        if (add || remove) {
+          val oldText   = text
+          val oldCursor = cursor
+          if (remove) {
+            if (label.hasSelection) {
+              cursor = delete(fireChangeEvent = false)
+            } else {
+              if (backspace && cursor > 0) {
+                text = text.substring(0, cursor - 1) + text.substring(cursor)
+                cursor -= 1
+                renderOffset = 0
+              }
+              if (deleteKey && cursor < text.length) {
+                text = text.substring(0, cursor) + text.substring(cursor + 1)
+              }
+            }
+          }
+          if (add && !remove) {
+            var filtered = false
+            Nullable.foreach(filter) { f =>
+              if (!enter && !f.acceptChar(TextraField.this, ch)) {
+                filtered = true
+              }
+            }
+            if (filtered) { break(true) }
+            if (!withinMaxLength(text.length - (if (label.hasSelection) Math.abs(cursor - label.selectionStart) else 0))) {
+              break(true)
+            }
+            if (label.hasSelection) {
+              cursor = delete(fireChangeEvent = false)
+            }
+            val insertion = if (enter) "\n" else String.valueOf(ch)
+            insert(cursor, insertion)
+            cursor += 1
+            text = label.layout.appendIntoDirect(new StringBuilder()).toString
+          }
+          if (changeText(oldText, text)) {
+            val time = System.currentTimeMillis()
+            if (time - 750 > lastChangeTime) undoText = oldText
+            lastChangeTime = time
+            updateDisplayText()
+          } else if (text != oldText) {
+            cursor = oldCursor
+          }
+        }
+      }
+      Nullable.foreach(listener)(_.keyTyped(TextraField.this, character))
+      true
+    }
+
+    private def updateSelectionAfterMove(temp: Int): Unit =
+      if (!label.hasSelection) {
+        label.selectionStart = temp
+        label.selectionEnd = cursor
+        if (temp < cursor) label.selectionEnd -= 1
+        else label.selectionStart -= 1
+      } else {
+        val start = label.selectionStart
+        val end   = label.selectionEnd
+        if (cursor < start) {
+          label.selectionStart = cursor
+        } else if (cursor > end) {
+          label.selectionEnd = cursor - 1
+        } else if (temp < cursor) {
+          label.selectionStart = cursor
+        } else {
+          label.selectionEnd = cursor - 1
+        }
+      }
+  }
+
+  // --- Backward-compatible handle methods (delegate to inputListener) ---
+
+  /** Handles a click (for cursor positioning). Delegates to the TextFieldClickListener. */
+  def handleClick(tapCount: Int): Unit =
+    Nullable.foreach(inputListener)(_.clicked(tapCount))
+
+  /** Handles a touch-down for cursor positioning. Delegates to the TextFieldClickListener. */
+  def handleTouchDown(x: Float, y: Float, pointer: Int, button: Int): Boolean =
+    Nullable.fold(inputListener)(false)(_.touchDown(x, y, pointer, button))
+
+  /** Handles a touch-dragged for cursor positioning. Delegates to the TextFieldClickListener. */
+  def handleTouchDragged(x: Float, y: Float, pointer: Int): Unit =
+    Nullable.foreach(inputListener)(_.touchDragged(x, y, pointer))
+
+  /** Handles a key-down event. Returns true if handled. Delegates to the TextFieldClickListener. */
+  def handleKeyDown(keycode: Int): Boolean =
+    Nullable.fold(inputListener)(false)(_.keyDown(keycode))
+
+  /** Handles a key-up event. Returns true if handled. Delegates to the TextFieldClickListener. */
+  def handleKeyUp(keycode: Int): Boolean =
+    Nullable.fold(inputListener)(false)(_.keyUp(keycode))
+
+  /** Handles a key-typed event. Returns true if handled. Delegates to the TextFieldClickListener. */
+  def handleKeyTyped(character: Char): Boolean =
+    Nullable.fold(inputListener)(false)(_.keyTyped(character))
 
   // --- Keyboard state helpers ---
 

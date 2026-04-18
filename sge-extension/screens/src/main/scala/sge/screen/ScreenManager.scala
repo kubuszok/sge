@@ -12,6 +12,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.Queue
 
 import sge.graphics.Pixmap
+import sge.graphics.g2d.TextureRegion
 import sge.graphics.glutils.{ FrameBuffer, HdpiUtils }
 import sge.screen.transition.ScreenTransition
 import sge.screen.utils.ScreenFboUtils
@@ -45,7 +46,7 @@ class ScreenManager[S <: ManagedScreen, T <: ScreenTransition](using Sge) extend
   protected var currScreen: Nullable[ManagedScreen] = Nullable.empty
 
   /** The input processors of the current screen. */
-  private var currentProcessors: ArrayBuffer[InputProcessor] = ArrayBuffer.empty
+  private[screen] var currentProcessors: ArrayBuffer[InputProcessor] = ArrayBuffer.empty
 
   /** The blank screen used internally when no screen has been pushed yet. */
   private var blankScreen: BlankScreen = scala.compiletime.uninitialized
@@ -55,7 +56,7 @@ class ScreenManager[S <: ManagedScreen, T <: ScreenTransition](using Sge) extend
 
   protected val transitionQueue: Queue[(() => Nullable[T], () => S)] = Queue.empty
 
-  private var gameInputMultiplexer: InputMultiplexer = scala.compiletime.uninitialized
+  private[screen] var gameInputMultiplexer: InputMultiplexer = scala.compiletime.uninitialized
 
   protected var currentWidth:  Pixels = Pixels.zero
   protected var currentHeight: Pixels = Pixels.zero
@@ -191,22 +192,18 @@ class ScreenManager[S <: ManagedScreen, T <: ScreenTransition](using Sge) extend
       } else {
         /* Render the current screen; no transition is going on */
         val cs = currScreen.get
-        cs.clearColor.foreach { color =>
-          ScreenUtils.clear(color, true)
-        }
+        clearScreen(cs)
         cs.render(delta)
       }
     } else {
       val trans = this.transition.get
       if (!trans.isDone) {
         /* Render the current transition */
-        trans.clearColor.foreach { color =>
-          ScreenUtils.clear(color, true)
-        }
+        clearTransition(trans)
         trans.render(
           delta,
-          ScreenFboUtils.screenToTexture(this.lastScreen.get, this.lastFBO.get, delta),
-          ScreenFboUtils.screenToTexture(this.currScreen.get, this.currFBO.get, delta)
+          renderLastScreenToTexture(delta),
+          renderCurrScreenToTexture(delta)
         )
       } else {
         /* The current transition is finished; remove it */
@@ -245,12 +242,32 @@ class ScreenManager[S <: ManagedScreen, T <: ScreenTransition](using Sge) extend
     if (autoCloseTransitions) oldTransition.close()
   }
 
-  private def removeCurrentProcessors(): Unit =
+  /** Clears the screen with the given color. Separated for testability. */
+  protected def clearScreen(screen: ManagedScreen): Unit =
+    screen.clearColor.foreach { color =>
+      ScreenUtils.clear(color, true)
+    }
+
+  /** Clears the screen for a transition. Separated for testability. */
+  protected def clearTransition(trans: T): Unit =
+    trans.clearColor.foreach { color =>
+      ScreenUtils.clear(color, true)
+    }
+
+  /** Renders the last screen into a texture region for use during transition. Separated for testability. */
+  protected def renderLastScreenToTexture(delta: Seconds): TextureRegion =
+    ScreenFboUtils.screenToTexture(this.lastScreen.get, this.lastFBO.get, delta)
+
+  /** Renders the current screen into a texture region for use during transition. Separated for testability. */
+  protected def renderCurrScreenToTexture(delta: Seconds): TextureRegion =
+    ScreenFboUtils.screenToTexture(this.currScreen.get, this.currFBO.get, delta)
+
+  private[screen] def removeCurrentProcessors(): Unit =
     currentProcessors.foreach { p =>
       gameInputMultiplexer.removeProcessor(p)
     }
 
-  private def addCurrentProcessors(): Unit =
+  private[screen] def addCurrentProcessors(): Unit =
     currentProcessors.foreach { p =>
       gameInputMultiplexer.addProcessor(p)
     }

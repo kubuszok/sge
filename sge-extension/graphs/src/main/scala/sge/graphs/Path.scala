@@ -57,6 +57,21 @@ class Path[V](initialSize: Int, resize: Boolean = false) extends InternalArray[V
     super.clear()
   }
 
+  override def removeAll(c: Iterable[?]): Boolean = {
+    checkFixed()
+    super.removeAll(c)
+  }
+
+  override def retainAll(c: Iterable[?]): Boolean = {
+    checkFixed()
+    super.retainAll(c)
+  }
+
+  override def removeIf(filter: V => Boolean): Boolean = {
+    checkFixed()
+    super.removeIf(filter)
+  }
+
   def first: V = {
     if (isEmpty) throw IllegalStateException("Path has no vertices.")
     get(0)

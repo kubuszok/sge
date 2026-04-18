@@ -9,6 +9,8 @@
  * Covenant-verified: 2026-04-08
  *
  * Partial-port debt:
+ *   - Architecture divergence: original DesktopControllerManager uses GLFW event callbacks;
+ *     this implementation is polling-based (call poll() each frame) for cross-platform uniformity.
  *   - Vibration not supported in the polling-based stub (rumble/haptics blocked on Panama wiring).
  */
 package sge

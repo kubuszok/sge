@@ -10,7 +10,9 @@
  *   Convention: split packages, Nullable instead of null
  *   Idiom: ClassReflection replaced by TaskRegistry with factory functions and TaskMeta;
  *     @TaskConstraint/@TaskAttribute annotations replaced by programmatic metadata registration;
- *     field.set replaced by setter functions in AttrInfo
+ *     field.set replaced by setter functions in AttrInfo;
+ *     castValue (reflection-based type coercion for field.set) eliminated —
+ *       AttrInfo.setter closures handle typed conversion at registration time
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

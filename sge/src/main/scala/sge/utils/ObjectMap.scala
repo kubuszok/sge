@@ -147,24 +147,51 @@ final class ObjectMap[K, V] private (
 
   /** Returns true if the specified value is in the map. Note this traverses the entire map and compares every value, which may be an expensive operation.
     */
-  def containsValue(value: V): Boolean = boundary {
+  def containsValue(value: V): Boolean = containsValue(value, identity = false)
+
+  /** Returns true if the specified value is in the map. Note this traverses the entire map and compares every value, which may be an expensive operation.
+    * @param identity
+    *   If true, `eq` (reference identity) comparison will be used. If false, `==` (equals) comparison will be used.
+    */
+  def containsValue(value: V, identity: Boolean): Boolean = boundary {
     val len = keyTable.length
     var i   = 0
-    while (i < len) {
-      if (filled(i) && valueTable(i) == value) boundary.break(true)
-      i += 1
+    if (identity) {
+      while (i < len) {
+        if (filled(i) && (valueTable(i).asInstanceOf[AnyRef] eq value.asInstanceOf[AnyRef])) boundary.break(true)
+        i += 1
+      }
+    } else {
+      while (i < len) {
+        if (filled(i) && valueTable(i) == value) boundary.break(true)
+        i += 1
+      }
     }
     false
   }
 
   /** Returns the key for the specified value, or `Nullable.empty` if it is not in the map. Note this traverses the entire map and compares every value, which may be an expensive operation.
     */
-  def findKey(value: V): Nullable[K] = boundary {
+  def findKey(value: V): Nullable[K] = findKey(value, identity = false)
+
+  /** Returns the key for the specified value, or `Nullable.empty` if it is not in the map. Note this traverses the entire map and compares every value, which may be an expensive operation.
+    * @param identity
+    *   If true, `eq` (reference identity) comparison will be used. If false, `==` (equals) comparison will be used.
+    */
+  def findKey(value: V, identity: Boolean): Nullable[K] = boundary {
     val len = keyTable.length
     var i   = 0
-    while (i < len) {
-      if (filled(i) && valueTable(i) == value) boundary.break(Nullable(keyTable(i)))
-      i += 1
+    if (identity) {
+      while (i < len) {
+        if (filled(i) && (valueTable(i).asInstanceOf[AnyRef] eq value.asInstanceOf[AnyRef]))
+          boundary.break(Nullable(keyTable(i)))
+        i += 1
+      }
+    } else {
+      while (i < len) {
+        if (filled(i) && valueTable(i) == value) boundary.break(Nullable(keyTable(i)))
+        i += 1
+      }
     }
     Nullable.empty[K]
   }
@@ -264,6 +291,10 @@ final class ObjectMap[K, V] private (
   }
 
   // --- Iteration ---
+  // Architecture divergence: The original LibGDX ObjectMap uses mutable Java-style inner-class iterators (Entries, Keys, Values)
+  // with pooling via Collections.allocateIterators. This port replaces them with functional foreach* methods, which are idiomatic
+  // Scala, avoid iterator-pool allocation complexity, and eliminate the nested-iterator misuse bugs that the original guards against.
+  // All iteration functionality (entries, keys, values) is preserved; only the mechanism differs.
 
   /** Calls the given function for each key-value pair in the map. Iteration order is not guaranteed. */
   def foreachEntry(f: (K, V) => Unit): Unit = {
@@ -333,17 +364,47 @@ final class ObjectMap[K, V] private (
     case _ => false
   }
 
-  override def toString(): String =
-    if (_size == 0) "{}"
-    else {
+  /** Uses `eq` (reference identity) for comparison of each value. */
+  def equalsIdentity(obj: Any): Boolean = obj match {
+    case other: ObjectMap[?, ?] =>
+      if (other eq this) true
+      else if (other._size != _size) false
+      else {
+        val otherMap = other.asInstanceOf[ObjectMap[K, V]]
+        var equal    = true
+        val len      = keyTable.length
+        var i        = 0
+        while (i < len && equal) {
+          if (filled(i)) {
+            val otherVal = otherMap.get(keyTable(i))
+            if (otherVal.isEmpty || !(valueTable(i).asInstanceOf[AnyRef] eq otherVal.get.asInstanceOf[AnyRef]))
+              equal = false
+          }
+          i += 1
+        }
+        equal
+      }
+    case _ => false
+  }
+
+  /** Returns a string representation using the specified separator between entries. */
+  def toString(separator: String): String = toStringImpl(separator, braces = false)
+
+  override def toString(): String = toStringImpl(", ", braces = true)
+
+  /** Internal toString with configurable separator and braces. */
+  protected def toStringImpl(separator: String, braces: Boolean): String =
+    if (_size == 0) {
+      if (braces) "{}" else ""
+    } else {
       val sb  = new StringBuilder()
       val len = keyTable.length
-      sb.append('{')
+      if (braces) sb.append('{')
       var first = true
       var i     = 0
       while (i < len) {
         if (filled(i)) {
-          if (!first) sb.append(", ")
+          if (!first) sb.append(separator)
           sb.append(keyTable(i))
           sb.append('=')
           sb.append(valueTable(i))
@@ -351,7 +412,7 @@ final class ObjectMap[K, V] private (
         }
         i += 1
       }
-      sb.append('}')
+      if (braces) sb.append('}')
       sb.toString()
     }
 

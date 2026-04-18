@@ -611,15 +611,60 @@ object BufferUtils {
     fb.put(arr)
   }
 
-  /** Get the underlying ByteBuffer from any Buffer type. */
+  /** Writes the specified number of zeros to the buffer. This is generally faster than reallocating a new buffer. */
+  def clear(buffer: ByteBuffer, numBytes: Int): Unit = {
+    val pos = buffer.position()
+    var i   = 0
+    while (i < numBytes) {
+      buffer.put(pos + i, 0.toByte)
+      i += 1
+    }
+  }
+
+  /** Get the underlying ByteBuffer from any Buffer type. For view buffers (FloatBuffer, ShortBuffer, etc.) created from a ByteBuffer via asXxxBuffer(), this extracts the backing ByteBuffer. For
+    * non-view buffers, it creates a new direct ByteBuffer with a copy of the data.
+    */
   private def asByteBuffer(buf: Buffer): ByteBuffer =
     buf match {
-      case bb: ByteBuffer => bb
+      case bb: ByteBuffer  => bb
+      case fb: FloatBuffer =>
+        val bb  = ByteBuffer.allocateDirect(fb.capacity() << 2).order(ByteOrder.nativeOrder())
+        val dup = fb.duplicate()
+        dup.position(0)
+        bb.asFloatBuffer().put(dup)
+        bb
+      case sb: ShortBuffer =>
+        val bb  = ByteBuffer.allocateDirect(sb.capacity() << 1).order(ByteOrder.nativeOrder())
+        val dup = sb.duplicate()
+        dup.position(0)
+        bb.asShortBuffer().put(dup)
+        bb
+      case cb: CharBuffer =>
+        val bb  = ByteBuffer.allocateDirect(cb.capacity() << 1).order(ByteOrder.nativeOrder())
+        val dup = cb.duplicate()
+        dup.position(0)
+        bb.asCharBuffer().put(dup)
+        bb
+      case ib: IntBuffer =>
+        val bb  = ByteBuffer.allocateDirect(ib.capacity() << 2).order(ByteOrder.nativeOrder())
+        val dup = ib.duplicate()
+        dup.position(0)
+        bb.asIntBuffer().put(dup)
+        bb
+      case lb: LongBuffer =>
+        val bb  = ByteBuffer.allocateDirect(lb.capacity() << 3).order(ByteOrder.nativeOrder())
+        val dup = lb.duplicate()
+        dup.position(0)
+        bb.asLongBuffer().put(dup)
+        bb
+      case db: DoubleBuffer =>
+        val bb  = ByteBuffer.allocateDirect(db.capacity() << 3).order(ByteOrder.nativeOrder())
+        val dup = db.duplicate()
+        dup.position(0)
+        bb.asDoubleBuffer().put(dup)
+        bb
       case _ =>
-        // For view buffers (FloatBuffer, ShortBuffer, etc.), we need the backing ByteBuffer.
-        // Direct view buffers are created from a ByteBuffer, so we use reflection-free casting
-        // through the buffer's bulk operations. This relies on the Buffer being direct.
-        throw new UnsupportedOperationException("Expected a ByteBuffer, got " + buf.getClass.getName)
+        throw new RuntimeException("Can't get ByteBuffer from a " + buf.getClass.getName + " instance")
     }
 
   private def positionInBytes(dst: Buffer): Int =
