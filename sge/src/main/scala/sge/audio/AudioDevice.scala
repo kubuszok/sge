@@ -13,6 +13,13 @@
  *   Idiom: split packages
  *   Fixes: volume_= without getter → setVolume (lone setter is non-idiomatic)
  *   Audited: 2026-03-04
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 65
+ * Covenant-baseline-methods: AudioDevice,isMono,latency,pause,resume,setVolume,writeSamples
+ * Covenant-source-reference: com/badlogic/gdx/audio/AudioDevice.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package audio

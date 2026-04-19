@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port for SGE
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 171
+ * Covenant-baseline-methods: Scene,_animations,animationController,animations,cameras,copy,count,createCamera,createLight,getCamera,getDirectionalLightCount,getLight,getRenderables,initFromSceneModel,lights,modelInstance,result,syncCameras,syncLights,this,transform,update
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

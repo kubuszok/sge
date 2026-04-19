@@ -10,6 +10,13 @@
  *   Convention: no return; split packages; braces on class
  *   Idiom: target.getWidth -> target.foreach; tuple destructure for (w,h)
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 45
+ * Covenant-baseline-methods: SizeToAction,begin,endHeight,endWidth,setSize,startHeight,startWidth,update
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/SizeToAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

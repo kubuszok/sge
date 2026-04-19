@@ -12,6 +12,13 @@
  *   Idiom: Java for-loop -> while; continue -> if-guard; parent null-loop -> Nullable iteration;
  *     indexOf(actor, true) -> indexOf(actor); children.swap -> manual swap; static tmp -> companion object
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 532
+ * Covenant-baseline-methods: Group,_cullingArea,act,actor,addActor,addActorAfter,addActorAt,addActorBefore,alpha,applyTransform,buffer,children,childrenChanged,clear,clearChildren,computeTransform,computedTransform,cullingArea,debugAll,draw,drawChildren,drawDebug,drawDebugChildren,findActor,firstIndex,getChild,hasChildren,hit,i,index,localToDescendantCoordinates,maxIndex,n,oldTransform,originX,originY,p,parentGroup,removeActor,removeActorAt,resetTransform,secondIndex,setCullingArea,setDebug,setStage,snapshot,swapActor,toString,transform,worldTransform
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/Group.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

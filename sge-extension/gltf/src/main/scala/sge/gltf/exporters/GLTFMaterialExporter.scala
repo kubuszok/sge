@@ -3,6 +3,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 274
+ * Covenant-baseline-methods: GLTFMaterialExporter,defaultNullAttr,defaultNullBool,defaultNullColor,existing,exportMaterial,exportMaterials,ext,extEmissive,extIOR,extIridescence,extSpecular,extTransmission,extVolume,getTexture,i,imageIndex,mapMag,mapMin,mapWrap,normalTexture,occlusionTexture,pbr,rgb,s,sampler,source,t,texture,ti
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

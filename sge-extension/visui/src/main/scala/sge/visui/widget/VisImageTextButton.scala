@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 238
+ * Covenant-baseline-methods: Orientation,VisImageTextButton,VisImageTextButtonStyle,_focusBorderEnabled,_image,_label,_orientation,_style,addActorsBasedOnOrientation,disabled_,draw,drawBorder,drawable,focusBorderEnabled,focusBorderEnabled_,focusGained,focusLost,generateDisabledImage,getText,image,imageCell,imageChecked,imageCheckedOver,imageDisabled,imageDown,imageOver,imageUp,isGenerateDisabledImage,label,labelCell,orientation,orientation_,setGenerateDisabledImage,setStyle,setText,this,toString,touchDown,updateImage
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/VisImageTextButton.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 160
+ * Covenant-baseline-methods: Image,_drawable,ax,ay,c,draw,drawable,drawable_,imageAlign,imageAlign_,imageHeight,imageWidth,imageX,imageY,layout,minHeight,minWidth,prefHeight,prefWidth,scaling,scaling_,setDrawable,sx,sy,this,toString
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Image.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

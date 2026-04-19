@@ -13,6 +13,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 1081
+ * Covenant-baseline-methods: ScrollPane,ScrollPaneStyle,_actor,_clamp,_fadeScrollBars,_overscrollDistance,_scrollX,_scrollY,_style,_variableSizeKnobs,act,actor,actorArea,actorCullingArea,addActor,addActorAfter,addActorAt,addActorBefore,addCaptureListener,addScrollListener,amountX,amountY,amtX,amtY,animating,background,bg,bgBottomHeight,bgLeftWidth,bgRightWidth,bgTopHeight,cancel,cancelTouchFocus,cancelTouchFocusMethod,clamp,corner,createFlickScrollListener,disableX,disableY,draggingPointer,draw,drawDebug,drawScrollBars,dt,fadeAlpha,fadeAlphaSeconds,fadeDelay,fadeDelaySeconds,fadeScrollBars,flickScroll,flickScrollListener,fling,flingTime,flingTimer,forceScrollX,forceScrollY,getActor,hKnobBounds,hScroll,hScrollBounds,hScrollKnob,hScrollOnBottom,handle,height,hit,isBottomEdge,isDragging,isFlinging,isForceScrollX,isForceScrollY,isLeftEdge,isPanning,isRightEdge,isScrollX,isScrollY,isScrollingDisabledX,isScrollingDisabledY,isTopEdge,lastPoint,layout,maxX,maxY,minHeight,minWidth,mouseMoved,mouseWheelX,mouseWheelY,ny,overscrollDistance,overscrollSpeedMax,overscrollSpeedMin,overscrollX,overscrollY,pan,panning,prefHeight,prefWidth,removeActor,removeActorAt,scrollAmountX,scrollAmountY,scrollBarHeight,scrollBarTouch,scrollBarWidth,scrollHeight,scrollPercentX,scrollPercentY,scrollTo,scrollWidth,scrollX,scrollY,scrollbarsOnTop,scrolled,self,setActor,setCancelTouchFocus,setClamp,setFadeScrollBars,setFlickScroll,setFlickScrollTapSquareSize,setForceScroll,setOverscroll,setScrollBarPositions,setScrollBarTouch,setScrollPercentX,setScrollPercentY,setScrollX,setScrollY,setScrollbarsOnTop,setScrollbarsVisible,setScrollingDisabled,setSmoothScrolling,setStyle,setVariableSizeKnobs,setupFadeScrollBars,setupOverscroll,smoothScrolling,style,this,touchDown,touchDragged,touchScrollH,touchScrollV,touchUp,updateActorPosition,updateVisualScroll,vKnobBounds,vScroll,vScrollBounds,vScrollKnob,vScrollOnRight,variableSizeKnobs,velocityX,velocityY,visualAmountX,visualAmountY,visualScrollAmountX,visualScrollAmountY,visualScrollPercentX,visualScrollPercentY,visualScrollX,visualScrollY,width
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/ScrollPane.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

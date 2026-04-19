@@ -10,6 +10,13 @@
  *   Origin: SGE-original (UBJSON variant of G3dModelLoader for .g3db binary format)
  *   Convention: extends G3dModelLoader, overrides parseModel to read UBJSON via kindlings
  *   Idiom: split packages, (using Sge) context
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 46
+ * Covenant-baseline-methods: G3dBinaryModelLoader,json,model,parseModel
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/loader/G3dModelLoader.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

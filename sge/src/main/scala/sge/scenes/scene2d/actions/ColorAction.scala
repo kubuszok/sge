@@ -11,6 +11,13 @@
  *   Renames: 4 separate startR/startG/startB/startA floats -> startColor: Color object
  *   Idiom: null color fallback -> Nullable.getOrElse(target.fold(...)(_.color))
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 58
+ * Covenant-baseline-methods: ColorAction,begin,c,color,endColor,reset,setEndColor,startColor,update
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/ColorAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

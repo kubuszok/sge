@@ -16,6 +16,13 @@
  * - ParticleEffectSaveParameter: jsonOutputType field omitted (no JsonWriter.OutputType)
  * - ParticleEffectLoadParameter.batches: Nullable[DynamicArray] instead of Array|null
  * - ParticleEffectSaveParameter.batches: Nullable[DynamicArray] instead of Array|null
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 172
+ * Covenant-baseline-methods: ParticleEffectLoadParameter,ParticleEffectLoader,ParticleEffectSaveParameter,assets,batches,config,data,descriptors,effectData,file,getDependencies,items,jsonAst,loadAsync,loadSync,manager,prettyPrint,save,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/ParticleEffectLoader.java
+ * Covenant-verified: 2026-04-19
  */
 package sge.graphics.g3d.particles
 

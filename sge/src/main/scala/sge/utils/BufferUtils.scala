@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 804
+ * Covenant-baseline-methods: BufferUtils,allocatedBytesUnsafe,allocatedUnsafe,arr,asByteBuffer,bb,buffer,bytesToElements,clear,copy,disposeUnsafeByteBuffer,dstBb,dup,elementsToBytes,extractFloats,fb,findArrayInBuffer,findArrayInBufferEpsilon,findBufferInArray,findBufferInArrayEpsilon,findFloats,findFromBuffers,findFromBuffersEpsilon,getUnsafeBufferAddress,i,isUnsafeByteBuffer,newByteBuffer,newCharBuffer,newDoubleBuffer,newFloatBuffer,newIntBuffer,newLongBuffer,newShortBuffer,newUnsafeByteBuffer,numBytes,pos,positionInBytes,size,srcBb,srcDup,srcPos,transform,unsafeBuffers,vArr,vsArr,withFloatArray
+ * Covenant-source-reference: com/badlogic/gdx/utils/BufferUtils.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package utils

@@ -10,6 +10,13 @@
  *   Convention: split packages; braces on class
  *   Idiom: target.setTouchable -> target.foreach(_.touchable = ...); uninitialized Touchable field
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 32
+ * Covenant-baseline-methods: TouchableAction,act,touchable
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/TouchableAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

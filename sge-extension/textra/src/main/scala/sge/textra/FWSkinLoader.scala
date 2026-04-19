@@ -12,6 +12,13 @@
  *   Convention: Asset loader for FWSkin; extends SkinLoader and overrides
  *     newSkin() to return FWSkin instead of Skin.
  *   Idiom: split packages; (using Sge) propagation.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 37
+ * Covenant-baseline-methods: FWSkinLoader,newSkin
+ * Covenant-source-reference: com/github/tommyettinger/textra/FWSkinLoader.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

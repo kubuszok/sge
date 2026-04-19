@@ -10,6 +10,13 @@
  * - Abstract class with 2 public fields faithfully ported
  * - Fields use scala.compiletime.uninitialized (Java null default)
  * - Audited 2026-03-03: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 30
+ * Covenant-baseline-methods: ParticleControllerRenderData,controller,positionChannel
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerRenderData.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

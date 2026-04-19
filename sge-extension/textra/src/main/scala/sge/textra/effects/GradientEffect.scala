@@ -1,6 +1,13 @@
 /*
  * Ported from TextraTypist - https://github.com/tommyettinger/textratypist
  * Licensed under the Apache License, Version 2.0
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 31
+ * Covenant-baseline-methods: DEFAULT_DISTANCE,DEFAULT_FREQUENCY,GradientEffect,color1,color2,distance,distanceMod,frequency,frequencyMod,onApply,progress
+ * Covenant-source-reference: com/github/tommyettinger/textra/effects/GradientEffect.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

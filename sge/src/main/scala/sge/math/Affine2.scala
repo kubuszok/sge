@@ -16,6 +16,13 @@
  * scale(2), preScale(2), rotate(2), preRotate(2), rotateRad(1), preRotateRad(1),
  * shear(2), preShear(2), det, getTranslation, isTranslation, isIdt, isEqual,
  * mul(Affine2), preMul(Affine2), toString, hashCode, equals. Static: idt, shear, tmp.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 793
+ * Covenant-baseline-methods: Affine2,applyTo,cos,det,idt,inv,invDet,isIdt,isTranslation,m00,m01,m02,m10,m11,m12,mul,other,preMul,preRotate,preRotateRad,preScale,preShear,preTranslate,rotate,rotateRad,scale,set,setToProduct,setToRotation,setToRotationRad,setToScaling,setToShearing,setToTranslation,setToTrnRotRadScl,setToTrnRotScl,setToTrnScl,shear,sin,this,tmp0,tmp00,tmp01,tmp02,tmp0_2,tmp1,tmp10,tmp11,tmp12,tmp1_2,toString,translate,translation,x,y
+ * Covenant-source-reference: com/badlogic/gdx/math/Affine2.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

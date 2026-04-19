@@ -15,6 +15,13 @@
  *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 710
+ * Covenant-baseline-methods: BitmapFont,BitmapFontData,Glyph,LOG2_PAGE_SIZE,PAGES,PAGE_SIZE,ascent,blankLineScale,breakChars,cache,capChars,capHeight,ch,close,color,color_,currentLastGlyph,cursorX,descent,down,draw,firstGlyph,fixedWidth,flipped,fontData,getGlyph,getGlyphs,getImagePath,getKerning,getWrapIndex,glyphs,glyphsArray,hasGlyph,height,i,id,imagePaths,indexOf,integerPositions,integerPositions_,invTexHeight,invTexWidth,isBreakChar,isWhitespace,kerning,layout,lineHeight,load,loadRegions,markupEnabled,markupEnabledLocal,max,maxAdvance,missingGlyph,n,name,newFontCache,offsetX,offsetY,ownsTexture,padBottom,padLeft,padRight,padTop,page,reader,region,regionHeight,regionWidth,regions,scale,scaleX,scaleXLocal,scaleY,setFixedWidthGlyphs,setGlyph,setGlyphRegion,setKerning,setLineHeight,setScale,spaceXadvance,srcX,srcY,texture,this,toString,u,u2,v,v2,width,x,x2,xAdvances,xChars,xHeight,xadvance,xoffset,y,y2,yoffset
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/BitmapFont.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

@@ -9,6 +9,13 @@
  *   Convention: split packages
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 49
+ * Covenant-baseline-methods: DefaultGraphPath,add,apply,clear,get,getCount,iterator,reverse
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

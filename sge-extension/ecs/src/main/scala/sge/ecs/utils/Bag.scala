@@ -10,6 +10,13 @@
  *   Idiom: raw null OK in internal sparse array
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 138
+ * Covenant-baseline-methods: Bag,_size,add,clear,contains,data,e,get,getCapacity,grow,i,isEmpty,isIndexWithinBounds,newCapacity,oldData,remove,removeLast,set,size
+ * Covenant-source-reference: com/badlogic/ashley/utils/Bag.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ecs

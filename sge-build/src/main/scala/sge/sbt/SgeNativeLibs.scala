@@ -11,6 +11,13 @@ import sbt.Keys._
   * `NativeProviderPlugin` from `sbt-multiarch-scala`. This object provides:
   *   - JVM JAR validation (ensuring native shared libs are present before packaging)
   *   - The `sgeNativeLibDir` key for local development overrides
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 91
+ * Covenant-baseline-methods: SgeNativeLibs,sgeValidateNativeLibs,validationSettings
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
   */
 object SgeNativeLibs {
 

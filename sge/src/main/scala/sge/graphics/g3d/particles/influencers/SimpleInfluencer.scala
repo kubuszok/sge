@@ -11,6 +11,13 @@
  * - write/read(Json) omitted (Json serialization not ported).
  * - channel.data[] renamed to channel.floatData() per SGE ParallelArray API.
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 98
+ * Covenant-baseline-methods: SimpleInfluencer,a,activateParticles,allocateChannels,c,i,interpolationChannel,l,lifeChannel,set,this,update,value,valueChannel,valueChannelDescriptor
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/influencers/SimpleInfluencer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

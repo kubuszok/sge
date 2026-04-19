@@ -1,6 +1,13 @@
 /*
  * Ported from TextraTypist - https://github.com/tommyettinger/textratypist
  * Licensed under the Apache License, Version 2.0
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 32
+ * Covenant-baseline-methods: DEFAULT_DISTANCE,DEFAULT_FREQUENCY,RainbowEffect,distance,distanceMod,frequency,frequencyMod,lightness,onApply,progress,saturation
+ * Covenant-source-reference: com/github/tommyettinger/textra/effects/RainbowEffect.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

@@ -12,6 +12,13 @@
  *
  * AUDIT: PASS — All methods ported: computeTriangles(3). Private helpers:
  * classifyVertices, isEarTip, areVerticesClockwise. Uses DynamicArray instead of ShortArray.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 233
+ * Covenant-baseline-methods: CONCAVE,CONVEX,EarClippingTriangulator,area,classifyVertex,computeSpannedAreaSign,computeTriangles,current,cutEarTip,findEarTip,i,indices,indicesArray,isEarTip,n,next,nextIdx,nextIndex,p1,p1x,p1y,p2,p2x,p2y,p3,p3x,p3y,prevIndex,previous,previousIndex,triangles,triangulate,vertexCount,vertexOffset,vertexTypes,vertices
+ * Covenant-source-reference: com/badlogic/gdx/math/EarClippingTriangulator.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

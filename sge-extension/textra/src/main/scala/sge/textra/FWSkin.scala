@@ -15,6 +15,13 @@
  *     libGDX's Json serializer framework).
  *   Idiom: boundary/break for early returns; Nullable[A] for nullable fields;
  *     split packages; no return keyword.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 607
+ * Covenant-baseline-methods: FWSkin,allFonts,atlasFile,fontFile,fontPath,fw,getBoolField,getField,getFloatField,getStringField,hAdj,js,jslzma,load,loadFontsFromBitmapFontSection,loadFontsFromFontSection,loadTextraCheckBoxStyles,loadTextraImageTextButtonStyles,loadTextraLabelStyles,loadTextraListStyles,loadTextraSelectBoxStyles,loadTextraTextButtonStyles,loadTextraTextFieldStyles,loadTextraTextTooltipStyles,loadTextraWindowStyles,lzb,makeGridGlyphs,nameStart,path,readFont,regionName,resizeDistanceFields,scaledSize,this,ubj,ublzma,useIntegerPositions,wAdj,xAdj,yAdj
+ * Covenant-source-reference: com/github/tommyettinger/textra/FWSkin.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

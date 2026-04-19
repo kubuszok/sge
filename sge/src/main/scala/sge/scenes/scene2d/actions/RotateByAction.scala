@@ -10,6 +10,13 @@
  *   Convention: no return; split packages; braces on class
  *   Idiom: target.rotateBy -> target.foreach(_.rotateBy(...))
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 28
+ * Covenant-baseline-methods: RotateByAction,amount,updateRelative
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/RotateByAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

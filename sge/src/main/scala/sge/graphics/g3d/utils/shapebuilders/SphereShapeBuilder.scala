@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 127
+ * Covenant-baseline-methods: SphereShapeBuilder,angleU,angleV,auo,avo,build,closedVFrom,closedVTo,curr1,hd,hh,hw,normalTransform,s,stepU,stepV,tempOffset,tmpIndices,u,us,v,vs
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/shapebuilders/SphereShapeBuilder.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

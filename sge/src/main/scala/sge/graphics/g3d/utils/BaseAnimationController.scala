@@ -21,6 +21,13 @@
  *   - Convention: Transform extends Pool.Poolable — given Poolable[Transform] auto-derived via Poolable.fromTrait
  *   - Convention: opaque Seconds for apply(animation, time, weight) time param
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 295
+ * Covenant-baseline-methods: BaseAnimationController,Transform,apply,applyAnimation,applyAnimations,applyNodeAnimationBlending,applyNodeAnimationDirectly,applying,begin,end,getFirstKeyframeIndexAtTime,getNodeAnimationTransform,getRotationAtTime,getScalingAtTime,getTranslationAtTime,idt,lastIndex,lerp,node,removeAnimation,reset,rotation,scale,set,target,tmpT,toMatrix4,toString,transform,transformPool,transforms,translation
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/BaseAnimationController.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

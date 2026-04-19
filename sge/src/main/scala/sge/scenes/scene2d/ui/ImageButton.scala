@@ -10,6 +10,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 192
+ * Covenant-baseline-methods: ImageButton,ImageButtonStyle,_image,_style,draw,image,imageCell,imageChecked,imageCheckedDown,imageCheckedOver,imageDisabled,imageDown,imageDrawable,imageOver,imageUp,newImage,setStyle,style,this,toString,updateImage
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/ImageButton.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

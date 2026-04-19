@@ -15,6 +15,13 @@
  * - update() calls super.update() at end (matches Java)
  * - Private boolean flags (hasColor/hasScale/hasRotation) faithfully preserved
  * - Audited 2026-03-03: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 126
+ * Covenant-baseline-methods: ModelInstanceRenderer,allocateChannels,copy,hasColor,hasRotation,hasScale,init,isCompatible,this,update
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/renderers/ModelInstanceRenderer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

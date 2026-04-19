@@ -14,6 +14,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 336
+ * Covenant-baseline-methods: Task,Timer,TimerThread,addPostedTask,cancel,clear,currentThread,currentWaitMillis,delay,dispose,disposeThread,executeTime,executeTimeMillis,files,i,instance,instances,intervalMillis,isEmpty,isScheduled,loopStep,pause,pauseTimeMillis,post,postTask,postedTasks,removePostedTask,repeatCount,reset,resume,run,runPostedTasks,runPostedTasksRunnable,runTasks,schedule,scheduleTask,start,stop,stopTimeMillis,tasks,thread,threadLock,update
+ * Covenant-source-reference: com/badlogic/gdx/utils/Timer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package utils

@@ -3,6 +3,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 208
+ * Covenant-baseline-methods: DataResolver,accessor,accessorBuffer,buffer,bytes,bytesPerValue,data,floatBuffer,getAccessor,getAccessorBuffer,getBufferByte,getBufferFloat,getBufferInt,getBufferShort,getBufferView,i,indicesBuffer,indicesBufferView,intBuffer,nbBytesPerVertex,nbBytesToSkip,nbFloatsPerVertex,nbShortsPerVertex,patchSparseValues,readBufferFloat,readBufferUByte,readBufferUByteAsFloat,readBufferUShort,readBufferUShortAsFloat,replacementValueBufferView,replacementValueBytes,replacementValuesBuffer,sparse
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

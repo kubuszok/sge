@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 2055
+ * Covenant-baseline-methods: C,Ce,ColorTools,Cs,H,He,Hs,L,L0,Le,Ls,S,S0,U,Ue,Us,V,Ve,Vs,W,X,Y,Z,a,abgr,ae,al,alpha,alphaInt,as,b,bb,bits,blot,blue,blueInt,cH,cL,cbrtPositive,ch,channelH,channelL,channelS,chroma,chromaLimit,clamp,contrast,contrastBits,cos,d,darken,decoded,differentiateLightness,dullen,e,eAlpha,eH,eL,eS,editHSLuv,end,enrich,epsilon,fade,floatGetHSL,forwardGamma,forwardLight,fromColor,fromRGBA,fromRGBA8888,g,gg,green,greenInt,h,he,hs,hsluv,hsluvByHCL,hsluvHue,hsluvLightness,hsluvSaturation,hue,i,inGamut,intersectLength,inverseLightness,ix,kappa,l,le,lerpFloatColors,lerpFloatColorsBlended,lessenChange,li,lighten,lightness,limit,limitToGamut,ls,m,main,maximizeSaturation,min,mix,offsetLightness,op,opacity,other,p,r,randomColor,randomEdit,red,redInt,refU,refV,result,reverseGamma,reverseLight,rotateH,rr,s,sL,sS,saturation,sd,se,shape,sin,ss,sub1,sub2,sz,t,toColor,toEditedFloat,toHsluvColor,toRGBA,toRGBA8888,turning,unevenMix,x,x0,y,z
+ * Covenant-source-reference: com/github/tommyettinger/colorful/hsluv/ColorTools.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package colorful

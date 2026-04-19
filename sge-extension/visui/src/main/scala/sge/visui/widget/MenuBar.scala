@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 125
+ * Covenant-baseline-methods: MenuBar,MenuBarListener,MenuBarStyle,addMenu,background,closeMenu,currentMenu,getCurrentMenu,getTable,i,insertMenu,mainTable,menuClosed,menuItems,menuListener,menuOpened,menus,rebuild,removeMenu,removed,setCurrentMenu,setMenuListener,sizeChanged,this
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/MenuBar.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

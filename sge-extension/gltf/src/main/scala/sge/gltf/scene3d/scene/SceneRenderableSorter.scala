@@ -7,6 +7,13 @@
  *
  * Advanced RenderableSorter providing hints and limit shader, material and mesh switches.
  * Useful for Skybox: should be rendered before transparent renderables but after all opaque renderables.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 136
+ * Covenant-baseline-methods: Hints,SceneRenderableSorter,b1,b2,camera,compare,compareIdentity,compareIdentityNullable,d1,d2,dst,getTranslation,h1,h2,result,sort,tmpV1,tmpV2
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

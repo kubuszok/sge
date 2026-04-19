@@ -11,6 +11,13 @@
  *   - Java interface → Scala trait
  *   - Raw TextureDescriptor → TextureDescriptor[?] (existential wildcard)
  *   - Fixes (2026-03-04): getProjViewTrans()/getDepthMap() → property accessors
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 27
+ * Covenant-baseline-methods: ShadowMap,depthMap,projViewTrans
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/environment/ShadowMap.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

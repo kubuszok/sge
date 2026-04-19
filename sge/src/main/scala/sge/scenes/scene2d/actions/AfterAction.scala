@@ -13,6 +13,13 @@
  *          for loop -> while; waitForActions.size > 0 -> waitForActions.nonEmpty;
  *          indexOf(action, true) == -1 -> !contains(action)
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 56
+ * Covenant-baseline-methods: AfterAction,delegate,restart,setTarget,waitForActions
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/AfterAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

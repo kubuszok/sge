@@ -14,6 +14,13 @@
  *   Audited: 2026-03-10
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 293
+ * Covenant-baseline-methods: GDX2D_BLEND_NONE,GDX2D_BLEND_SRC_OVER,GDX2D_FORMAT_ALPHA,GDX2D_FORMAT_LUMINANCE_ALPHA,GDX2D_FORMAT_RGB565,GDX2D_FORMAT_RGB888,GDX2D_FORMAT_RGBA4444,GDX2D_FORMAT_RGBA8888,GDX2D_SCALE_LINEAR,GDX2D_SCALE_NEAREST,Gdx2DPixmap,_blend,_format,_height,_pixelPtr,_scale,_width,buffer,bytes,clear,close,convert,drawCircle,drawLine,drawPixmap,drawRect,fillCircle,fillRect,fillTriangle,finalBuffer,format,formatString,getFormatString,getPixel,glFormat,glInternalFormat,glType,height,pixels,pixmap,readBytes,result,savedPos,setBlend,setPixel,setScale,this,toGlFormat,toGlType,width
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/Gdx2DPixmap.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

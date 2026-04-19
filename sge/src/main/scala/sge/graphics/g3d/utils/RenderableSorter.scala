@@ -11,6 +11,13 @@
  *   - Array<Renderable> -> DynamicArray[Renderable]
  *   - sort(Camera, Array) signature preserved
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 35
+ * Covenant-baseline-methods: RenderableSorter,sort
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/RenderableSorter.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

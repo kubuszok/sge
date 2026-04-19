@@ -11,6 +11,13 @@
  *     Container → deferred, TooltipManager → deferred, Skin → removed
  *   Convention: Tooltip label and style management preserved in API.
  *   Idiom: Nullable[A] for nullable fields.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 128
+ * Covenant-baseline-methods: ContainerProxy,TextraTooltip,_label,background,getActor,getContainer,l,ls,maxWidth,newLabel,setBackground,setStyle,skipToTheEnd,this,width,wrapWidth
+ * Covenant-source-reference: com/github/tommyettinger/textra/TextraTooltip.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

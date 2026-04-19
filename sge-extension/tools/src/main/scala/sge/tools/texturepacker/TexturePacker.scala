@@ -11,6 +11,13 @@
  *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 1097
+ * Covenant-baseline-methods: Alias,InputImage,Packer,Page,ProgressListener,Rect,Resampling,Settings,TexturePacker,_message,addImage,alias,aliases,alphaThreshold,appending,apply,atlasExtension,bleed,bleedIterations,canRotate,cancel,colon,combineSubdirectories,comma,compare,copy,copyPositionFrom,count,debug,duplicatePadding,edgePadding,end,equals,fast,file,fileIndex,filterMag,filterMin,flattenPaths,format,getAtlasName,getBufferedImageType,getImage,getRepeatValue,getScaledPackFileName,grid,hashCode,height,i,ignore,ignoreBlankImages,image,imageHeight,imageName,imageProcessor,imageWidth,index,input,inputImage,inputImages,isCancelled,isModified,isModifiedRecursive,isPatch,jpegQuality,lastUpdate,legacyOutput,limitMemory,main,maxHeight,maxWidth,message,message_,minHeight,minWidth,multipleOfFour,n,name,newImageProcessor,occupancy,offsetX,offsetY,originalHeight,originalWidth,output,outputFile,outputFormat,outputRects,p,pack,packDir,packFile,packFileName,packFileNoExt,packFullFileName,packer,paddingX,paddingY,pads,plot,pn,portions,pot,premultiplyAlpha,prettyPrint,process,processIfModified,prog,progress,regionHeight,regionWidth,remainingRects,repeatValue,reset,rootPath,rotated,rotation,s,scale,scaleResampling,scaleSuffix,score1,score2,set,setPacker,setProgressListener,setRootDir,settings,silent,splits,square,start,stripWhitespaceX,stripWhitespaceY,tab,this,toString,total,unloadImage,update,useIndexes,width,wrapX,wrapY,writeImages,writePackFile,writePage,writePageLegacy,writeRect,writeRectLegacy,writer,x,y
+ * Covenant-source-reference: com/badlogic/gdx/tools/texturepacker/TexturePacker.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package tools

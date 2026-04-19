@@ -13,6 +13,13 @@
  *          interpolation null-check -> interpolation.foreach; ternary -> if/else
  *   Convention: opaque Seconds for duration, time, act(delta) params
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 89
+ * Covenant-baseline-methods: TemporalAction,act,began,begin,complete,end,finish,reset,restart,reverse,time,update
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/TemporalAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

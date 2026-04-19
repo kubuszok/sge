@@ -17,6 +17,13 @@
  * elastic/elasticIn/elasticOut, swing/swingIn/swingOut, bounce/bounceIn/bounceOut,
  * Pow, PowIn, PowOut, Exp, ExpIn, ExpOut, Elastic, ElasticIn, ElasticOut,
  * Bounce, BounceIn, BounceOut, Swing, SwingIn, SwingOut inner classes.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 339
+ * Covenant-baseline-methods: Bounce,BounceIn,BounceOut,Elastic,ElasticIn,ElasticOut,Exp,ExpIn,ExpOut,Interpolation,Pow,PowIn,PowOut,Swing,SwingIn,SwingOut,a2,apply,bounce,bounceIn,bounceOut,bouncesFinal,circle,circleIn,circleOut,computeHeights,computeWidths,elastic,elasticIn,elasticOut,exp10,exp10In,exp10Out,exp5,exp5In,exp5Out,fade,fastSlow,linear,min,out,pow2,pow2In,pow2InInverse,pow2Out,pow2OutInverse,pow3,pow3In,pow3InInverse,pow3Out,pow3OutInverse,pow4,pow4In,pow4Out,pow5,pow5In,pow5Out,scale,scaleValue,sine,sineIn,sineOut,slowFast,smooth,smooth2,smoothed,smoother,swing,swingIn,swingOut,this
+ * Covenant-source-reference: com/badlogic/gdx/math/Interpolation.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

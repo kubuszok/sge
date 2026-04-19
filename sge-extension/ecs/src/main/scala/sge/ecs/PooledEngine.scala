@@ -14,6 +14,13 @@
  *   Idiom: PooledEntity is a private inner class extending Entity and Pool.Poolable
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 146
+ * Covenant-baseline-methods: ComponentPools,EntityPool,PooledEngine,PooledEntity,clear,clearPools,componentFactories,componentPools,createComponent,createEntity,createPool,discard,entityPool,free,initialCapacity,max,newObject,obtain,pools,registerComponentFactory,removeEntityInternal,removeInternal,reset
+ * Covenant-source-reference: com/badlogic/ashley/core/PooledEngine.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ecs

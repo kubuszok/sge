@@ -12,6 +12,13 @@
  *     (Volume, Pitch, Pan, SoundId); dispose() inherited via Closeable.close()
  *   Idiom: split packages
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 149
+ * Covenant-baseline-methods: Sound,loop,pause,play,resume,setLooping,setPan,setPitch,setVolume,stop
+ * Covenant-source-reference: com/badlogic/gdx/audio/Sound.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package audio

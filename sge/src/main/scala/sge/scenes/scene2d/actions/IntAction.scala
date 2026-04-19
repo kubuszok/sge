@@ -11,6 +11,13 @@
  *   Idiom: Java (int) cast -> .toInt; constructor chaining like FloatAction
  *   Convention: opaque Seconds for duration constructor param
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 49
+ * Covenant-baseline-methods: IntAction,begin,getEnd,setEnd,this,update,value
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/IntAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

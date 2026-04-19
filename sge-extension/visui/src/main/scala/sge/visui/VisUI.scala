@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 133
+ * Covenant-baseline-methods: SkinScale,TARGET_SGE_VERSION,VisUI,_defaultTitleAlign,_scale,_sgeInstance,_skin,_skipSgeVersionCheck,checkBeforeLoad,defaultTitleAlign,defaultTitleAlign_,dispose,getDefaultTitleAlign,getSizes,getSizesName,getSkin,getSkinFile,isLoaded,load,setDefaultTitleAlign,setSkipSgeVersionCheck,sgeInstance
+ * Covenant-source-reference: com/kotcrab/vis/ui/VisUI.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

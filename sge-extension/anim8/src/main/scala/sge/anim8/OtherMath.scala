@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 255
+ * Covenant-baseline-methods: BiasGain,OtherMath,a0,a0f,a1,a1f,a2,a2f,apply,asin,atan2,atanUnchecked,b0,b0f,b1,b1f,barronSpline,c,c0,c0f,c1,c1f,c2,c2f,c3,c3f,c5,c7,cbrt,cbrtPositive,cbrtShape,centralize,d,d0,d0f,d1,d1f,f,ix,logRough,mx,n,probit,probitF,triangleWave,triangularRemap,vx,x
+ * Covenant-source-reference: com/github/tommyettinger/anim8/OtherMath.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package anim8

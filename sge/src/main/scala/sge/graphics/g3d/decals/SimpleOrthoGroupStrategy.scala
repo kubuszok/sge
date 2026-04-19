@@ -15,6 +15,13 @@
  * - getGroupShader returns Nullable.empty (was null): correct
  * - All methods faithfully ported
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 74
+ * Covenant-baseline-methods: GROUP_BLEND,GROUP_OPAQUE,SimpleOrthoGroupStrategy,afterGroup,afterGroups,beforeGroup,beforeGroups,comparator,decideGroup,getGroupShader
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/decals/SimpleOrthoGroupStrategy.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

@@ -10,6 +10,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 680
+ * Covenant-baseline-methods: CpuSpriteBatch,adjustAffine,adjustNeeded,checkEqual,checkIdt,copyCount,currentOffset,draw,drawAdjusted,drawAdjustedUV,flushAndSyncTransformMatrix,fx,fx2,fy,fy2,haveIdentityRealMatrix,invTexHeight,invTexWidth,p1x,p1y,p2x,p2y,p3x,p3y,p4x,p4y,realMatrix,remainingCount,t,tAdjust,this,tmpAffine,transformMatrix,transformMatrix_,u,u2,u2Adjusted,uAdjusted,v,v2,v2Adjusted,vAdjusted,values,virtualMatrix,worldOriginX,worldOriginY,x1,x2,x3,x4,y1,y2,y3,y4
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/CpuSpriteBatch.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

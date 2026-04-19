@@ -13,6 +13,13 @@
  *     ChangeEvent → direct callback, ObjectSet → mutable.HashSet
  *   Convention: List box selection, item management, draw, layout, input fully ported.
  *   Idiom: Nullable[A] for nullable fields; boundary/break for early returns.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 720
+ * Covenant-baseline-methods: TextraListBox,_alignment,_color,_cullingArea,_height,_keyListener,_needsLayout,_prefHeight,_prefWidth,_selectedIndex,_selectionDisabled,_selectionRequired,_stage,_style,_touchListener,_touchable,_typePrefix,_typeTimeout,_width,_x,_y,act,adjustedY,clearItems,color,draw,drawBackground,drawSelection,exit,fontColorSelected,fontColorUnselected,getAlignment,getColor,getCullingArea,getCumulativeHeight,getHeight,getItemAt,getItemIndexAt,getItems,getKeyListener,getOverItem,getPrefHeight,getPrefWidth,getPressedItem,getSelected,getSelectedIndex,getSelection,getStage,getStyle,getTouchListener,getTypeToSelect,getWidth,getX,getY,h,h0,handleExit,handleKeyDown,handleKeyTyped,handleMouseMoved,handleTouchDown,handleTouchDragged,handleTouchUp,height,i,index,invalidate,invalidateHierarchy,isSelectionDisabled,isSelectionRequired,isTouchable,itemY,items,keyDown,keyTyped,layout,mouseMoved,oldPrefHeight,oldPrefWidth,overIndex,prefix,pressedIndex,selectedDrawable,selectionDrawable,set,setAlignment,setColor,setCullingArea,setHeight,setItems,setPosition,setSelected,setSelectedIndex,setSelection,setSelectionDisabled,setSelectionRequired,setSize,setStage,setStyle,setTouchable,setTypeToSelect,setWidth,setX,setY,textOffsetX,textOffsetY,this,time,touchDown,touchDragged,touchUp,typeTimeout,typeToSelect,validate,validateSelection,width,x,y2
+ * Covenant-source-reference: com/github/tommyettinger/textra/TextraListBox.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

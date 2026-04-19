@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 172
+ * Covenant-baseline-methods: TextButton,TextButtonStyle,_label,_style,checkedDownFontColor,checkedFocusedFontColor,checkedFontColor,checkedOverFontColor,disabledFontColor,downFontColor,draw,focused,focusedFontColor,font,fontColor,label,labelCell,newLabel,overFontColor,setLabel,setStyle,setText,style,text,this,toString
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/TextButton.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

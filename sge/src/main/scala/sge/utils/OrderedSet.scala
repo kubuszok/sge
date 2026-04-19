@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 275
+ * Covenant-baseline-methods: OrderedSet,_items,add,addAll,alter,alterIndex,apply,clear,contains,create,ensureCapacity,equals,first,foreach,from,get,h,hashCode,i,isEmpty,items,key,loadFactor,mk,n,nonEmpty,orderedItems,remove,removeIndex,set,shrink,size,summonMkArray,toArray,toString
+ * Covenant-source-reference: com/badlogic/gdx/utils/OrderedSet.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package utils

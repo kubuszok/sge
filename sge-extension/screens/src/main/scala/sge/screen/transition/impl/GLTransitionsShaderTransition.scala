@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 104
+ * Covenant-baseline-methods: FRAG_SHADER_POSTPEND,FRAG_SHADER_PREPEND,GLTransitionsShaderTransition,VERT_SHADER,this
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package screen

@@ -17,6 +17,13 @@
  *   - All 6 setAnimation, 7 animate, 3 queue, 4 action overloads ported
  *   - Convention: opaque Seconds for update(delta), AnimationDesc time/offset/duration
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 405
+ * Covenant-baseline-methods: AnimationController,AnimationDesc,AnimationListener,action,allowSameAnimation,animate,animation,animationPool,current,duration,inAction,justChangedAnimation,listener,loopCount,obtain,obtainByName,obtainFrom,offset,onEnd,onLoop,paused,previous,queue,queued,queuedTransitionTime,setAnimation,speed,time,transitionCurrentTime,transitionTargetTime,update
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/AnimationController.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

@@ -12,6 +12,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 125
+ * Covenant-baseline-methods: ETC1TextureData,_height,_width,consumeCustomData,consumePixmap,data,dataType,disposePixmap,file,getFormat,gl,height,isManaged,isPrepared,prepare,preparedFlag,this,useMipMaps,useMipMapsValue,width
+ * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/ETC1TextureData.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

@@ -19,6 +19,13 @@
  *   getParent → def parent (renamed field to _parent); getChildCount → childCount
  * - DynamicArray initial capacity not specified (Java Array<NodePart>(2), Array<Node>(2))
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 357
+ * Covenant-baseline-methods: Node,_parent,actualIndex,addChild,addChildren,attachTo,calculateBoneTransforms,calculateBoundingBox,calculateLocalTransform,calculateTransforms,calculateWorldTransform,childCount,children,copy,detach,extendBoundingBox,getChild,getNode,globalTransform,hasChildren,hasParent,i,id,idx,inheritTransform,insertChild,insertChildren,isAnimated,localTransform,n,p,parent,parts,removeChild,rotation,scale,set,startIdx,translation
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/model/Node.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

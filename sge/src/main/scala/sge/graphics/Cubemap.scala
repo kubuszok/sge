@@ -12,6 +12,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 252
+ * Covenant-baseline-methods: Cubemap,CubemapSide,addManagedCubemap,assetManager,builder,clearAllCubemaps,close,cubemapData,depth,direction,finishedLoading,getDirection,getUp,height,invalidateAllCubemaps,load,managed,managedCubemaps,managedStatus,numManagedCubemaps,reload,setAssetManager,this,up,width
+ * Covenant-source-reference: com/badlogic/gdx/graphics/Cubemap.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

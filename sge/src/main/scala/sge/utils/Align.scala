@@ -14,6 +14,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 84
+ * Covenant-baseline-methods: Align,bottom,bottomLeft,bottomRight,buffer,center,isBottom,isCenter,isCenterHorizontal,isCenterVertical,isLeft,isRight,isTop,left,right,show,showImpl,toInt,top,topLeft,topRight,unary_
+ * Covenant-source-reference: com/badlogic/gdx/utils/Align.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package utils

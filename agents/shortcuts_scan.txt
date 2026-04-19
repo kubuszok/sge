@@ -1,0 +1,257 @@
+sge/src/main/scala/sge/graphics/g3d/particles/ParticleEffectCodecs.scala  (21 hits)
+    143  flag-break-var          var continue = true
+    184  flag-break-var          var continue = true
+    205  flag-break-var          var continue = true
+    269  flag-break-var          var continue = true
+    890  unsupported-op          throw new UnsupportedOperationException(
+    903  unsupported-op          case _ => throw new UnsupportedOperationException(s"Unknown DynamicsModifier type: ${x.getClass}")
+    932  unsupported-op          throw new UnsupportedOperationException("DynamicsModifier object missing 'class' field")
+    937  unsupported-op          throw new UnsupportedOperationException(s"Unknown DynamicsModifier type: $className")
+    954  flag-break-var          var continue = true
+   1344  unsupported-op          throw new UnsupportedOperationException("Influencer object missing 'class' field")
+   1349  unsupported-op          throw new UnsupportedOperationException(s"Unknown Influencer type: $className")
+   1548  flag-break-var          var continue = true
+   1685  unsupported-op          throw new UnsupportedOperationException("Renderer object missing 'class' field")
+   1690  unsupported-op          throw new UnsupportedOperationException(s"Unknown renderer type: $className")
+   1792  unsupported-op          throw new UnsupportedOperationException(
+   1811  flag-break-var          var continue = true
+   1901  flag-break-var          var continue = true
+   1907  for-now-comment         // For now, we can re-parse simple values
+   1978  flag-break-var          var continue = true
+   1994  flag-break-var          var continue = true
+   2009  flag-break-var          var continue = true
+sge/src/main/scala/sge/math/MathUtils.scala  (14 hits)
+    107  approximation-comment   *   a float approximation of tan()
+    120  return-comment          // return x * ((1.0/945.0) * x4 - (1.0/9.0) * x2 + 1.0) / ((1.0/63.0) * x4 - (4.0/9.0) * x2 + 1.0);
+    130  approximation-comment   *   a float approximation of tan()
+    147  approximation-comment   * like that method. It uses the same approximation, from sheet 11 of "Approximations for Digital Computers." This is mos
+    159  approximation-comment   // The approximation needs 6 odd powers of c.
+    170  approximation-comment   /** Close approximation of the frequently-used trigonometric method atan2. Average error is 1.057E-6 radians; maximum er
+    200  approximation-comment   * float like that method. It uses the same approximation, from sheet 11 of "Approximations for Digital Computers." This 
+    212  approximation-comment   // The approximation needs 6 odd powers of c.
+    223  approximation-comment   /** Close approximation of the frequently-used trigonometric method atan2, using positive or negative degrees. Average a
+    251  approximation-comment   /** Close approximation of the frequently-used trigonometric method atan2, using non-negative degrees only. Average abso
+    318  approximation-comment   /** Arc tangent approximation with very low error, using an algorithm from the 1955 research study "Approximations for D
+    335  approximation-comment   // The approximation needs 6 odd powers of c.
+    382  approximation-comment   /** Arc tangent approximation returning a value measured in positive or negative degrees, using an algorithm from the 19
+    399  approximation-comment   // The approximation needs 6 odd powers of c.
+sge/src/main/scala/sge/files/FileHandles.scala  (13 hits)
+    656  unsupported-op          * UnsupportedOperationException.
+    669  unsupported-op          throw new UnsupportedOperationException()
+    672  unsupported-op          throw new UnsupportedOperationException()
+    675  unsupported-op          throw new UnsupportedOperationException()
+    678  unsupported-op          throw new UnsupportedOperationException()
+    681  unsupported-op          throw new UnsupportedOperationException()
+    684  unsupported-op          throw new UnsupportedOperationException()
+    687  unsupported-op          throw new UnsupportedOperationException()
+    690  unsupported-op          throw new UnsupportedOperationException()
+    693  unsupported-op          throw new UnsupportedOperationException()
+    696  unsupported-op          throw new UnsupportedOperationException()
+    699  unsupported-op          throw new UnsupportedOperationException()
+    702  unsupported-op          throw new UnsupportedOperationException()
+sge/src/main/scala/sge/assets/AssetManager.scala  (9 hits)
+    111  null-cast               else if (assetTypes.containsKey(fileName)) Nullable(assetTypes.get(fileName, null.asInstanceOf[Class[?]]))
+    260  null-cast               val loadedType: Class[?] = assetTypes.get(fileName, null.asInstanceOf[Class[?]]) // @nowarn — Java interop boundary, avo
+    420  null-cast               val otherType: Class[?] = assetTypes.get(fileName, null.asInstanceOf[Class[?]])
+    555  null-cast               val tpe: Class[?] = assetTypes.get(dependendAssetDesc.fileName, null.asInstanceOf[Class[?]])
+    582  null-cast               val tpe: Class[?] = assetTypes.get(assetDesc.fileName, null.asInstanceOf[Class[?]])
+    689  null-cast               val tpe: Class[?] = assetTypes.get(dependency, null.asInstanceOf[Class[?]])
+    799  pending-comment         // A pending async task can cause a deadlock if we do not release
+    838  null-cast               val tpe: Class[?] = assetTypes.get(fileName, null.asInstanceOf[Class[?]]) // @nowarn — avoids Nullable[Class[?]] (Scala 
+    845  null-cast               val tpe: Class[?] = assetTypes.get(fileName, null.asInstanceOf[Class[?]]) // @nowarn — avoids Nullable[Class[?]] (Scala 
+sge/src/main/scala/sge/graphics/Mesh.scala  (8 hits)
+    398  todo                    // TODO: Perhaps this method should be vertexSize aware??
+   1096  null-cast               var checks: Array[Short]           = null.asInstanceOf[Array[Short]] // @nowarn — local temp only
+   1097  null-cast               var attrs:  Array[VertexAttribute] = null.asInstanceOf[Array[VertexAttribute]] // @nowarn — local temp only
+   1124  null-cast               if (checks == null.asInstanceOf[Array[Short]]) { // @nowarn — null check for local temp
+   1132  null-cast               var indices: Array[Short] = null.asInstanceOf[Array[Short]] // @nowarn — local temp only
+   1171  null-cast               val numInd = if (indices == null.asInstanceOf[Array[Short]]) 0 else indices.length // @nowarn — null check for local tem
+   1173  null-cast               if (attrs == null.asInstanceOf[Array[VertexAttribute]]) { // @nowarn — null check for local temp
+   1179  null-cast               if (indices != null.asInstanceOf[Array[Short]]) result.setIndices(indices)
+sge/src/main/scala/sge/utils/TimSort.scala  (8 hits)
+     58  pending-comment         /** A stack of pending runs yet to be merged. Run i starts at address base[i] and extends for len[i] elements. It's alwa
+    102  pending-comment         // Push run onto pending-run stack, and maybe merge
+    116  null-cast               this.a = null.asInstanceOf[Array[T]]
+    117  null-cast               this.c = null.asInstanceOf[Ordering[T]]
+    122  null-cast               tmp(i) = null.asInstanceOf[T]
+    127  pending-comment         /** Pushes the specified run onto the pending-run stack. */
+    269  flag-break-var          var done           = false
+    406  flag-break-var          var done           = false
+sge/src/main/scala/sge/graphics/g3d/shaders/DefaultShader.scala  (8 hits)
+    243  fixme                   // FIXME Cache vertex attribute locations...
+   1798  todo                    // TODO: Perhaps move responsibility for combining attributes to RenderableProvider?
+   1864  fixme                   sb.append("#define ").append(TextureAttribute.DiffuseAlias).append("Coord texCoord0\n") // FIXME implement UV mapping
+   1868  fixme                   sb.append("#define ").append(TextureAttribute.SpecularAlias).append("Coord texCoord0\n") // FIXME implement UV mapping
+   1872  fixme                   sb.append("#define ").append(TextureAttribute.NormalAlias).append("Coord texCoord0\n") // FIXME implement UV mapping
+   1876  fixme                   sb.append("#define ").append(TextureAttribute.EmissiveAlias).append("Coord texCoord0\n") // FIXME implement UV mapping
+   1880  fixme                   sb.append("#define ").append(TextureAttribute.ReflectionAlias).append("Coord texCoord0\n") // FIXME implement UV mapping
+   1884  fixme                   sb.append("#define ").append(TextureAttribute.AmbientAlias).append("Coord texCoord0\n") // FIXME implement UV mapping
+sge/src/main/scala/sge/utils/I18nBundle.scala  (6 hits)
+     95  scala-unimpl            *   the string for the given key or the key surrounded by {@code ???} if it cannot be found and {@link #getExceptionOnMi
+    103  scala-unimpl            "???" + key + "???"
+    133  placeholder-comment     /** Sets the value of all localized strings to String placeholder so hardcoded, unlocalized values can be easily spotted
+    136  placeholder-comment     * @param placeholder
+    145  simplified-comment      /** The flag indicating whether to use the simplified message pattern syntax (default is false). This flag is always ass
+    151  scala-unimpl            * the missing key surrounded by {@code ???} is returned.
+sge/src/main/scala/sge/utils/ComparableTimSort.scala  (5 hits)
+     39  pending-comment         /** A stack of pending runs yet to be merged. Run i starts at address base[i] and extends for len[i] elements. It's alwa
+     82  pending-comment         // Push run onto pending-run stack, and maybe merge
+    211  flag-break-var          var done           = false
+    347  flag-break-var          var done           = false
+    533  pending-comment         // Push run onto pending-run stack, and maybe merge
+sge/src/main/scala/sge/utils/TextFormatter.scala  (4 hits)
+     23  placeholder-comment     * Supports placeholder syntax `{0}`, `{1}`, etc. Doubled left curly brackets `{{` are escaped to a literal `{`. Single q
+     30  simplified-comment      * Placeholders are in the simplified form {0}, {1}, {2} and so on. They will be replaced with the corresponding object f
+     47  placeholder-comment     /** Formats the given pattern replacing any placeholder of the form {0}, {1}, {2} and so on with the corresponding objec
+     85  placeholder-comment     // processing placeholder part
+sge/src/main/scala/sge/scenes/scene2d/ui/ScrollPane.scala  (4 hits)
+    708  unsupported-op          throw new UnsupportedOperationException("Use ScrollPane#setActor.")
+    717  unsupported-op          throw new UnsupportedOperationException("Use ScrollPane#setActor.")
+    726  unsupported-op          throw new UnsupportedOperationException("Use ScrollPane#setActor.")
+    735  unsupported-op          throw new UnsupportedOperationException("Use ScrollPane#setActor.")
+sge/src/main/scala/sge/graphics/g3d/Model.scala  (4 hits)
+     55  fixme                   /** the materials of the model, used by nodes that have a graphical representation FIXME not sure if superfluous, allows
+     68  fixme                   /** parts of meshes, used by nodes that have a graphical representation FIXME not sure if superfluous, stored in Nodes a
+    193  fixme                   // FIXME create temporary maps for faster lookup?
+    286  fixme                   // FIXME uvScaling/uvTranslation totally ignored
+sge/src/main/scala/sge/scenes/scene2d/ui/Container.scala  (4 hits)
+    228  unsupported-op          throw new UnsupportedOperationException("Use Container#setActor.")
+    237  unsupported-op          throw new UnsupportedOperationException("Use Container#setActor.")
+    246  unsupported-op          throw new UnsupportedOperationException("Use Container#setActor.")
+    255  unsupported-op          throw new UnsupportedOperationException("Use Container#setActor.")
+sge/src/main/scala/sge/net/SgeHttpClient.scala  (4 hits)
+     78  pending-comment         /** Cancels a pending request. Invokes `listener.cancelled()` and returns the request to the pool.
+     91  pending-comment         /** Returns true if the given request is still pending. */
+     97  pending-comment         /** Cancels all pending requests, clears the pool, and closes the backend. */
+    170  unsupported-op          Future.failed(new UnsupportedOperationException("noop HTTP backend"))
+sge/src/main/scala/sge/graphics/PixmapIO.scala  (3 hits)
+     60  minimal-comment         /** Writes the pixmap as a PNG. See {@link PNG} to write out multiple PNGs with minimal allocation.
+     78  minimal-comment         /** Writes the pixmap as a PNG with compression. See {@link PNG} to configure the compression level, more efficiently fl
+    159  minimal-comment         /** PNG encoder with compression. An instance can be reused to encode multiple PNGs with minimal allocation.
+sge/src/main/scala/sge/scenes/scene2d/ui/SplitPane.scala  (3 hits)
+    359  unsupported-op          throw new UnsupportedOperationException("Use SplitPane#setWidget.")
+    362  unsupported-op          throw new UnsupportedOperationException("Use SplitPane#setWidget.")
+    365  unsupported-op          throw new UnsupportedOperationException("Use SplitPane#setWidget.")
+sge/src/main/scala/sge/platform/WindowingOps.scala  (2 hits)
+     20  minimal-comment         * Methods are added incrementally as backend files are ported. This starts minimal and grows.
+     79  pending-comment         /** Processes all pending events (input, resize, etc.). */
+sge/src/main/scala/sge/platform/Gdx2dOps.scala  (2 hits)
+      5  stub-comment            //   JS:     Gdx2dOpsJs     (stub — browser image decode is async)
+      6  stub-comment            //   Native: Gdx2dOpsNative (stub — needs stb_image via Rust FFI)
+sge/src/main/scala/sge/graphics/glutils/ShaderProgram.scala  (2 hits)
+    210  not-yet-comment         // -2 == not yet cached
+    225  not-yet-comment         // -2 == not yet cached
+sge/src/main/scala/sge/graphics/g2d/ParticleEmitter.scala  (2 hits)
+    220  flag-break-var          var done = false
+    546  flag-break-var          var done    = false
+sge/src/main/scala/sge/math/Ellipse.scala  (2 hits)
+    213  approximation-comment   *   The Ramanujan approximation to the circumference of an ellipse if one dimension is at least three times longer than 
+    222  approximation-comment   // We can use the simpler approximation, then
+sge/src/main/scala/sge/math/Bezier.scala  (2 hits)
+    240  todo                    // TODO: make a real approximate method
+    253  todo                    // TODO implement a precise method
+sge/src/main/scala/sge/graphics/g3d/particles/ParticleShader.scala  (2 hits)
+    113  fixme                   else 0 // FIXME compare shaders on their impact on performance
+    444  approximation-comment   // Use camera viewport width as approximation for screen width
+sge/src/main/scala/sge/graphics/g3d/utils/shapebuilders/CylinderShapeBuilder.scala  (2 hits)
+     41  fixme                   // FIXME create better cylinder method (- axis on which to create the cylinder (matrix?))
+     78  fixme                   if (i != 0) builder.rect(i3, i1, i2, i4) // FIXME don't duplicate lines and points
+sge/src/main/scala/sge/scenes/scene2d/ui/TextField.scala  (2 hits)
+     34  stub-comment            * functionality is provided via the {@link Clipboard} interface. Currently there are two standard implementations, one f
+     36  stub-comment            * the text field. There are two standard implementations, one for the desktop and one for Android. The desktop keyboard 
+sge/src/main/scala/sge/graphics/g3d/ModelCache.scala  (2 hits)
+     96  null-cast               result.meshPart.mesh = null.asInstanceOf[Mesh] // @nowarn — pool reset: mesh is always set before use in end()
+    274  fixme                   // FIXME Make a better (preferable JNI) MeshPool implementation
+sge/src/main/scala/sge/graphics/g3d/utils/shapebuilders/ConeShapeBuilder.scala  (2 hits)
+     38  fixme                   // FIXME create better cylinder method (- axis on which to create the cone (matrix?))
+     66  fixme                   if (i != 0) builder.triangle(base, i1, i2) // FIXME don't duplicate lines and points
+sge/src/main/scala/sge/graphics/g3d/Attributes.scala  (2 hits)
+    101  fixme                   sort() // FIXME: See #4186
+    153  fixme                   sort() // FIXME: See #4186
+sge/src/main/scala/sge/graphics/g3d/utils/MeshBuilder.scala  (2 hits)
+    506  fixme                   vertex(cpOffset) = c.toFloatBits() // FIXME cache packed color?
+    710  fixme                   // FIXME don't triple copy, instead move the copy to jni
+sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala  (1 hits)
+    304  todo                    // TODO: Check if a HashMap.get calls are faster than iterating
+sge/src/main/scala/sge/graphics/g3d/shaders/DepthShader.scala  (1 hits)
+    348  todo                    // TODO: Move responsibility for combining attributes to RenderableProvider
+sge/src/main/scala/sge/utils/Select.scala  (1 hits)
+     20  minimal-comment         * 1 = first, 2 = second, 3 = third, etc. calling with a value of zero will result in a {@link SgeError} </p> <p> This cl
+sge/src/main/scala/sge/graphics/g3d/decals/SimpleOrthoGroupStrategy.scala  (1 hits)
+     53  fixme                   // FIXME sort by material
+sge/src/main/scala/sge/graphics/g3d/ModelInstance.scala  (1 hits)
+     53  fixme                   /** the materials of the model, used by nodes that have a graphical representation FIXME not sure if superfluous, allows
+sge/src/main/scala/sge/scenes/scene2d/actions/RepeatAction.scala  (1 hits)
+     29  flag-break-var          private var finished:      Boolean = false
+sge/src/main/scala/sge/scenes/scene2d/Actor.scala  (1 hits)
+     50  deferred-comment        // Deferred removal support for listeners
+sge/src/main/scala/sge/math/BSpline.scala  (1 hits)
+    336  todo                    // TODO Add a precise method
+sge/src/main/scala/sge/maps/tiled/TideMapLoader.scala  (1 hits)
+    290  todo                    x += 1 // TODO: Reuse existing animated tiles
+sge/src/main/scala/sge/scenes/scene2d/utils/Selection.scala  (1 hits)
+    244  best-effort-comment     /** Makes a best effort to return the last item selected, else returns an arbitrary item or null if the selection is emp
+sge/src/main/scala/sge/graphics/g3d/utils/MeshPartBuilder.scala  (1 hits)
+    250  todo                    // TODO: The following methods are deprecated and will be removed in a future release
+sge/src/main/scala/sge/graphics/g3d/utils/DefaultRenderableSorter.scala  (1 hits)
+     62  fixme                   // FIXME implement better sorting algorithm
+sge/src/main/scala/sge/graphics/g3d/shaders/BaseShader.scala  (1 hits)
+    169  null-cast               setters(u).foreach(_.set(this, u, null.asInstanceOf[Renderable], null.asInstanceOf[Attributes]))
+sge/src/main/scala/sge/input/NativeInputConfiguration.scala  (1 hits)
+     74  placeholder-comment     /** @param placeholder String to show, if nothing is inputted yet. */
+sge/src/main/scala/sge/graphics/g3d/utils/shapebuilders/SphereShapeBuilder.scala  (1 hits)
+    114  fixme                   if ((iv > 0) && (iu > 0)) { // FIXME don't duplicate lines and points
+sge/src/main/scala/sge/utils/Nullable.scala  (1 hits)
+     78  null-cast               case `None` => null.asInstanceOf[A]
+sge/src/main/scala/sge/graphics/g3d/Shader.scala  (1 hits)
+     52  todo                    def compareTo(other: Shader): Int // TODO: probably better to add some weight value to sort on
+sge/src/main/scala/sge/graphics/g2d/TextureAtlas.scala  (1 hits)
+    499  not-yet-comment         /** May be null if the texture is not yet loaded. */
+sge/src/main/scala/sge/graphics/g2d/Batch.scala  (1 hits)
+    235  pending-comment         /** Causes any pending sprites to be rendered, without ending the Batch. */
+sge/src/main/scala/sge/Graphics.scala  (1 hits)
+    244  best-effort-comment     /** Enable/Disable vsynching. This is a best-effort attempt which might not work on all platforms.
+sge/src/main/scala/sge/utils/PropertiesUtils.scala  (1 hits)
+    115  flag-break-var          var done = false
+sge/src/main/scala/sge/graphics/g3d/utils/CameraInputController.scala  (1 hits)
+     47  fixme                   var translateUnits: Float = 10f // FIXME auto calculate this based on the target
+sge/src/main/scala/sge/graphics/g2d/ParticleEffect.scala  (1 hits)
+    182  flag-break-var          var shouldContinue = true
+sge/src/main/scala/sge/graphics/g2d/GlyphLayout.scala  (1 hits)
+     95  flag-break-var          var continue = true
+sge/src/main/scala/sge/graphics/g3d/utils/TextureDescriptor.scala  (1 hits)
+     28  todo                    // TODO add other values, see http://www.opengl.org/sdk/docs/man/xhtml/glTexParameter.xml
+sge/src/main/scala/sge/scenes/scene2d/utils/ScissorStack.scala  (1 hits)
+     36  minimal-comment         /** Pushes a new scissor {@link Rectangle} onto the stack, merging it with the current top of the stack. The minimal are
+sge/src/main/scala/sge/utils/BufferUtils.scala  (1 hits)
+    622  unsupported-op          throw new UnsupportedOperationException("Expected a ByteBuffer, got " + buf.getClass.getName)
+sge/src/main/scala/sge/noop/NoopGraphics.scala  (1 hits)
+     66  unsupported-op          throw new UnsupportedOperationException("NoopGraphics has no GL context")
+sge/src/main/scala/sge/math/RandomXS128.scala  (1 hits)
+    110  flag-break-var          var continue = true
+sge/src/main/scala/sge/maps/tiled/BaseTiledMapLoader.scala  (1 hits)
+     91  return-comment          // return color after converting from #AARRGGBB to #RRGGBBAA
+sge/src/main/scala/sge/graphics/g3d/model/data/ModelNodeAnimation.scala  (1 hits)
+     29  fixme                   /** the id of the node animated by this animation FIXME should be nodeId * */
+sge/src/main/scala/sge/graphics/g3d/model/Node.scala  (1 hits)
+     43  fixme                   /** the id, may be null, FIXME is this unique? * */
+sge/src/main/scala/sge/graphics/g3d/particles/ParallelArray.scala  (1 hits)
+    106  fixme                   /* FIXME make it grow... */
+sge/src/main/scala/sge/graphics/g3d/model/NodePart.scala  (1 hits)
+     64  fixme                   // FIXME add copy constructor and override #equals.
+sge/src/main/scala/sge/math/Quaternion.scala  (1 hits)
+    243  todo                    // TODO : this would better fit into the vector3 class
+sge/src/main/scala/sge/scenes/scene2d/utils/TiledDrawable.scala  (1 hits)
+     69  unsupported-op          throw new UnsupportedOperationException()
+sge/src/main/scala/sge/Net.scala  (1 hits)
+     96  best-effort-comment     * application is determined from the protocol and path of the URI. A best effort is made to open the given URI; however,
+sge/src/main/scala/sge/scenes/scene2d/ui/Value.scala  (1 hits)
+     22  placeholder-comment     /** Value placeholder, allowing the value to be computed on request. Values can be provided an actor for context to redu
+sge/src/main/scala/sge/graphics/g2d/PolygonSpriteBatch.scala  (1 hits)
+    772  flag-break-var          var continue       = true
+sge/src/main/scala/sge/graphics/g3d/model/NodeAnimation.scala  (1 hits)
+     27  for-now-comment         * linearly for now. Keytimes are given in seconds.
+sge/src/main/scala/sge/graphics/g3d/decals/Decal.scala  (1 hits)
+    707  todo                    // TODO : it would be convenient if {@link com.badlogic.gdx.graphics.Texture} had a getFormat() method to assume transpa
+
+Total: 185 hits in 70 files

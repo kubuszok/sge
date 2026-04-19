@@ -14,6 +14,13 @@
  * API-complete: YES — both constructors, update, getUnitsPerPixel, setUnitsPerPixel
  * Behavioural parity: YES — update logic identical
  * Conventions: OK — no return, no null, split packages, braces on multiline defs
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 48
+ * Covenant-baseline-methods: ScreenViewport,this,unitsPerPixel,update
+ * Covenant-source-reference: com/badlogic/gdx/utils/viewport/ScreenViewport.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package utils

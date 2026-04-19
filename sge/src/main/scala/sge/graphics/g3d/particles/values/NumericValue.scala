@@ -11,6 +11,13 @@
  * - All public methods ported: value (public var), load
  * - Fixes (2026-03-04): getValue()/setValue() → public var value
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 33
+ * Covenant-baseline-methods: NumericValue,load,value
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/values/NumericValue.java
+ * Covenant-verified: 2026-04-19
  */
 
 package sge

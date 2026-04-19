@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 253
+ * Covenant-baseline-methods: VisDialog,button,buttonTable,cancel,cancelHide,changed,contentTable,focusChanged,focusListener,getButtonsTable,getContentTable,hide,ignoreTouchDown,initialize,key,keyDown,keyboardFocusChanged,previousKeyboardFocus,previousScrollFocus,result,scrollFocusChanged,setObject,setStage,show,skin,text,this,touchDown,values
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/VisDialog.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

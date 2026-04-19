@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 78
+ * Covenant-baseline-methods: AbstractSpinnerModel,_wrap,allowRebind,allowRebind_,bind,decrement,decrementModel,increment,incrementModel,spinner,valueChanged,wrap,wrap_
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/spinner/AbstractSpinnerModel.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

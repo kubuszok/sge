@@ -10,6 +10,13 @@
  * - Java interface -> Scala trait
  * - @Null Rectangle -> Nullable[Rectangle]
  * - Faithful port, no API changes
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 30
+ * Covenant-baseline-methods: Cullable,setCullingArea
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/Cullable.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

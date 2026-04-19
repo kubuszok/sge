@@ -3,6 +3,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 78
+ * Covenant-baseline-methods: CombineEffect,rebind,render,s1i,s1s,s2i,s2s,source1Intensity,source1Intensity_,source1Saturation,source1Saturation_,source2Intensity,source2Intensity_,source2Saturation,source2Saturation_
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package vfx

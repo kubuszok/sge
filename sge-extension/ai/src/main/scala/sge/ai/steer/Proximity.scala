@@ -9,6 +9,13 @@
  *   Convention: split packages, def+setter pairs instead of getX/setX
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 65
+ * Covenant-baseline-methods: Proximity,ProximityCallback,findNeighbors,owner,owner_,reportNeighbor
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

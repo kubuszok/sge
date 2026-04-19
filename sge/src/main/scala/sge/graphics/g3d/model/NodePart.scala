@@ -15,6 +15,13 @@
  *   `ArrayMap[Node, Matrix4](true, size)` — relies on SGE ArrayMap handling
  * - FIXME comment preserved from Java source
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 107
+ * Covenant-baseline-methods: NodePart,bones,copy,enabled,invBoneBindTransforms,material,meshPart,set,setRenderable,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/model/NodePart.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

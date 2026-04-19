@@ -14,6 +14,13 @@
  * - for loops -> while loops (Scala convention for imperative code)
  * - All methods faithfully ported
  * - Renames: getLeftWidth→leftWidth etc. via Drawable trait; getScale→scale, getAlign→align (public vars)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 309
+ * Covenant-baseline-methods: TiledDrawable,_color,align,bottomPartialHeight,color,draw,drawX,drawY,drawable,fullX,fullY,leftPartialWidth,oldColor,regionHeight,regionWidth,rightPartialWidth,scale,texture,textureHeight,textureWidth,this,tint,topPartialHeight,u,u2,v,v2
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/TiledDrawable.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

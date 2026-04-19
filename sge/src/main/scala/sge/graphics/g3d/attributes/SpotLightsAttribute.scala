@@ -14,6 +14,13 @@
  *   - Java Array(1) initial capacity; Scala DynamicArray() default capacity — minor
  *   - compareTo compares lights.size when types match (Java source left as FIXME stub)
  *   - All constants, factory methods, constructors, and instance methods accounted for
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 66
+ * Covenant-baseline-methods: Alias,SpotLightsAttribute,Type,compare,copy,hashCode,is,lights,result,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/attributes/SpotLightsAttribute.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

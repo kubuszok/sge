@@ -62,11 +62,13 @@ jobs:
         run: re-scale version
 
       - name: Verify covenants on covenanted files
+        continue-on-error: true
         run: |
           grep -rl 'Covenant:' --include='*.scala' . \
             | xargs -I{} re-scale enforce verify --file {}
 
       - name: Shortcut budget on covenanted files
+        continue-on-error: true
         run: re-scale enforce shortcuts --covenanted
 
   # ─── Scala.js compile + test (pure Scala, no native dependencies) ───

@@ -13,6 +13,13 @@
  * - Array[Array[Int]] matches Java int[][] for uvMapping
  * - No methods in Java source, none in Scala — pure data class
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 31
+ * Covenant-baseline-methods: ModelNodePart,bones,materialId,meshPartId,uvMapping
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/model/data/ModelNodePart.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

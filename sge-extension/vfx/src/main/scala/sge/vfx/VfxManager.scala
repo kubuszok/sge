@@ -3,6 +3,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 329
+ * Covenant-baseline-methods: MAX_FRAME_BUFFER_SIDE,VfxManager,_applyingEffects,_blendingEnabled,_capturing,_disabled,_height,_width,addEffect,anyEnabledEffects,applyEffects,applyingEffects,beginInputCapture,blendingEnabled,blendingEnabled_,capturing,cleanUpBuffers,close,constrainFrameBufferSize,constrainedSize,context,disabled,disabled_,effects,endInputCapture,filterEnabledEffects,getPingPongWrapper,gl,h,height,i,pingPongWrapper,pixelFormat,rebind,removeAllEffects,removeEffect,renderContext,renderToFbo,renderToScreen,resize,resultBuffer,setEffectPriority,setEffectTextureParams,this,tmpEffectArray,update,useAsInput,w,width
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package vfx

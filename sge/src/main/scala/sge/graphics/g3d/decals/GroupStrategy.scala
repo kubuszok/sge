@@ -12,6 +12,13 @@
  * - Array<Decal> -> DynamicArray[Decal]: correct
  * - All 6 methods faithfully ported with matching signatures
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 73
+ * Covenant-baseline-methods: GroupStrategy,afterGroup,afterGroups,beforeGroup,beforeGroups,decideGroup,getGroupShader
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/decals/GroupStrategy.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

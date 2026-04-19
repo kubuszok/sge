@@ -14,6 +14,13 @@
  *   - removeLight uses .removeValue without identity flag (DynamicArray API differs from Array).
  *   - All light types (Directional, Point, Spot) handled via pattern match.
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 149
+ * Covenant-baseline-methods: Environment,add,dirLights,pointLights,removeLight,removeLights,shadowMap,spotLights
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/Environment.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

@@ -11,6 +11,13 @@
  *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 175
+ * Covenant-baseline-methods: ColorBleedEffect,Mask,MaskIterator,alpha,argb,blank,blue,changing,changingSize,executeIteration,getPixelIndex,green,hasNext,height,isBlank,iterations,iterator,lastPending,markAsInProgress,mask,n,next,offsets,pending,pendingSize,processImage,processedImage,red,removeIndex,reset,rgb,width
+ * Covenant-source-reference: com/badlogic/gdx/tools/texturepacker/ColorBleedEffect.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package tools

@@ -17,6 +17,13 @@
  *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 380
+ * Covenant-baseline-methods: DEFAULT_PORT,EventTrigger,KEY_DOWN,KEY_TYPED,KEY_UP,KeyEvent,MAX_TOUCHES,RemoteInput,RemoteInputListener,TOUCH_DOWN,TOUCH_DRAGGED,TOUCH_UP,TouchEvent,accel,accelerometerX,accelerometerY,accelerometerZ,azimuth,closeTextInputField,compass,connected,currentEventTime,cursorCatched,deltaX,deltaXArr,deltaY,deltaYArr,getRotationMatrix,getTextInput,gyrate,gyroscopeX,gyroscopeY,gyroscopeZ,iPs,ips,isButtonJustPressed,isButtonPressed,isCatchKey,isConnected,isKeyJustPressed,isKeyPressed,isPeripheralAvailable,isTouched,justPressedKeys,justTouched,justTouchedFlag,keyChar,keyCode,keyCount,keyJustPressed,keys,maxPointers,multiTouch,nativeOrientation,onConnected,onDisconnected,openTextInputField,pitch,pointer,pressure,processor,remoteHeight,remoteWidth,roll,rotation,run,serverSocket,setCatchKey,setCursorCatched,setCursorPosition,setInputProcessor,setKeyboardHeightObserver,setOnscreenKeyboardVisible,this,timeStamp,touchX,touchY,touched,touchedPointers,vibrate,x,y
+ * Covenant-source-reference: com/badlogic/gdx/input/RemoteInput.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package input

@@ -8,6 +8,13 @@
  *   Idiom: singleton via lazy val instead of mutable static + null check
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 69
+ * Covenant-baseline-methods: AndroidControllerMapping,KEYCODE_BACK,KEYCODE_BUTTON_A,KEYCODE_BUTTON_B,KEYCODE_BUTTON_L1,KEYCODE_BUTTON_L2,KEYCODE_BUTTON_R1,KEYCODE_BUTTON_R2,KEYCODE_BUTTON_START,KEYCODE_BUTTON_THUMBL,KEYCODE_BUTTON_THUMBR,KEYCODE_BUTTON_X,KEYCODE_BUTTON_Y,KEYCODE_DPAD_DOWN,KEYCODE_DPAD_LEFT,KEYCODE_DPAD_RIGHT,KEYCODE_DPAD_UP,instance
+ * Covenant-source-reference: gdx-controllers-android/src/com/badlogic/gdx/controllers/android/AndroidControllerMapping.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package controllers

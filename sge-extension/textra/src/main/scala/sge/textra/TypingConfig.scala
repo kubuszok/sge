@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 146
+ * Covenant-baseline-methods: CHAR_LIMIT_PER_FRAME,DEFAULT_CLEAR_COLOR,DEFAULT_SPEED_PER_CHAR,DEFAULT_WAIT_VALUE,EFFECT_END_TOKENS,EFFECT_START_TOKENS,GLOBAL_VARS,INTERVAL_MULTIPLIERS_BY_CHAR,MAX_SPEED_MODIFIER,MIN_SPEED_MODIFIER,TypingConfig,b,defaultInitialText,dirtyEffectMaps,getDefaultInitialText,initializeGlobalVars,name,registerEffect,setDefaultInitialText,unregisterEffect
+ * Covenant-source-reference: com/github/tommyettinger/textra/TypingConfig.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

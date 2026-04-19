@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 1195
+ * Covenant-baseline-methods: Shaders,fragmentShader,fragmentShaderCielab,fragmentShaderColorize,fragmentShaderColorizeOklab,fragmentShaderConfigurableContrast,fragmentShaderContrastUniform,fragmentShaderDayNight,fragmentShaderDoubleSaturation,fragmentShaderFlatLightness,fragmentShaderHSI,fragmentShaderHSL,fragmentShaderHSL4,fragmentShaderHSLA,fragmentShaderHSLA2,fragmentShaderHSLARoundTrip,fragmentShaderHSLC,fragmentShaderHSLC2,fragmentShaderHSLC3,fragmentShaderHSLP,fragmentShaderHigherContrast,fragmentShaderHigherContrastRGBA,fragmentShaderIPT,fragmentShaderIPT_HQ,fragmentShaderInvertedChroma,fragmentShaderInvertedLightness,fragmentShaderInvertedRGB,fragmentShaderLowerContrast,fragmentShaderLowerContrastRGBA,fragmentShaderMultiplyRGBA,fragmentShaderOklab,fragmentShaderPixelArt,fragmentShaderRGBA,fragmentShaderReplacement,fragmentShaderRotateHSL,fragmentShaderSwapWhite,fragmentShaderYCwCm,partialCodeHSL,partialHueRodrigues,vertexShader,vertexShaderDayNight,vertexShaderHSI,vertexShaderHSLC
+ * Covenant-source-reference: com/github/tommyettinger/colorful/Shaders.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package colorful

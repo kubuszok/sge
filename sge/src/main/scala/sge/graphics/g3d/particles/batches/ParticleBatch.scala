@@ -11,6 +11,13 @@
  * - save/load not declared directly; inherited via ResourceData.Configurable mixin (equivalent API)
  * - All public methods (begin, draw, end) faithfully ported
  * - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 38
+ * Covenant-baseline-methods: ParticleBatch,begin,draw,end
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/batches/ParticleBatch.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

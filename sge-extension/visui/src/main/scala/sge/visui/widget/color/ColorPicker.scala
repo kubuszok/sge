@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 168
+ * Covenant-baseline-methods: ColorPicker,_closeAfterPickingFinished,_listener,allowAlphaEdit,allowAlphaEdit_,buttonBar,cancelButton,changed,close,closeAfterPickingFinished,closeAfterPickingFinished_,cpStyle,createButtons,createListeners,dispose,fadeOutDueToCanceled,getListener,getPicker,isDisposed,okButton,picker,restoreButton,restoreLastColor,setListener,setPickerColor,setStage,showHexFields,showHexFields_,this
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/color/ColorPicker.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

@@ -9,6 +9,13 @@
  *   Convention: split packages, def+setter pairs instead of getX/setX/isX
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 50
+ * Covenant-baseline-methods: Steerable,angularVelocity,boundingRadius,linearVelocity,tagged,tagged_
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

@@ -3,6 +3,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 313
+ * Covenant-baseline-methods: GLTFLoaderBase,TAG,animationLoader,cameraMap,cameras,close,collectData,copySetToArray,createMaterialLoader,dataFileResolver,dataResolver,getNode,glModel,i,imageResolver,lightMap,lights,load,loadCameras,loadLights,loadScene,loadScenes,loadedMeshes,materialLoader,materialSet,meshLoader,meshPartSet,meshSet,model,nodeResolver,sceneModel,scenes,skinLoader,supportedExtensions
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

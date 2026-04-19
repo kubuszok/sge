@@ -11,6 +11,13 @@
  *   - Disposable -> AutoCloseable (dispose -> close).
  *   - All 6 methods (init, compareTo, canRender, begin, render, end) match.
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 82
+ * Covenant-baseline-methods: Shader,begin,canRender,compareTo,end,init,render
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/Shader.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

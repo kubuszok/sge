@@ -10,6 +10,13 @@
  *   Convention: (using Sge) on class; Nullable screen field
  *   Idiom: getScreen/setScreen → def screen/def screen_= (Scala property)
  *   Audited: 2026-03-04
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 54
+ * Covenant-baseline-methods: Game,_screen,dispose,pause,render,resize,resume,screen,screen_
+ * Covenant-source-reference: com/badlogic/gdx/Game.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 

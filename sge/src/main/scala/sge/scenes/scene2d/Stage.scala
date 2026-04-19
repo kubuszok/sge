@@ -14,6 +14,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 945
+ * Covenant-baseline-methods: Stage,TouchFocus,_actionsRequestRendering,_debugAll,_debugColor,_keyboardFocus,_root,_scrollFocus,act,actionsRequestRendering,actionsRequestRendering_,actorRemoved,actors,addAction,addActor,addCaptureListener,addListener,addTouchFocus,appType,button,calculateScissors,camera,cancelTouchFocus,cancelTouchFocusExcept,clear,close,debug,debugAll,debugColor,debugInvisible,debugParentUnderMouse,debugShapes,debugTableUnderMouse,debugUnderMouse,disableDebug,draw,drawDebug,event,fireEnterAndExit,fireExit,flippedY,focus,handled,height,hit,i,isInsideViewport,keyDown,keyTyped,keyUp,keyboardFocus,listener,listenerActor,mouseMoved,mouseOverActor,mouseScreenX,mouseScreenY,over,pointer,pointerOverActors,pointerScreenX,pointerScreenY,pointerTouched,pools,removeCaptureListener,removeListener,removeTouchFocus,reset,root,screenToStageCoordinates,scrollFocus,scrolled,setDebugAll,setDebugInvisible,setDebugParentUnderMouse,setDebugTableUnderMouse,setDebugUnderMouse,setKeyboardFocus,setRoot,setScrollFocus,shouldDraw,snapshot,stageToScreenCoordinates,target,tempCoords,this,toScreenCoordinates,touchCancelled,touchDown,touchDragged,touchFocuses,touchUp,transformMatrix,unfocus,unfocusAll,viewport,viewport_,width,x0,x1,y0,y1
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/Stage.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

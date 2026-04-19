@@ -12,6 +12,13 @@
  *          super(duration, interpolation) -> this() + setDuration() + setInterpolation()
  *   Convention: opaque Seconds for duration constructor param
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 50
+ * Covenant-baseline-methods: FloatAction,begin,getEnd,setEnd,this,update,value
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/FloatAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

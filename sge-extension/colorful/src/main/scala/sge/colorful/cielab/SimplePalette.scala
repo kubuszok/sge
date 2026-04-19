@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 490
+ * Covenant-baseline-methods: ALIASES,APRICOT,BLACK,BLUE,BRICK,BRONZE,BROWN,BUTTER,CACTUS,CELERY,CHARTREUSE,CHOCOLATE,CINNAMON,COBALT,COLORS_BY_HUE,CYAN,DENIM,EMBER,FERN,GRAY,GREEN,INDIGO,JADE,LAVENDER,LIME,LIST,MAGENTA,MAUVE,MINT,MOSS,NAMED,NAMES,NAMES_BY_HUE,NAMES_BY_LIGHTNESS,NAVY,OLIVE,ORANGE,PEACH,PEAR,PINK,PLUM,PURPLE,RASPBERRY,RED,ROSE,SAFFRON,SAGE,SALMON,SILVER,SKY,SimplePalette,TAN,TEAL,TRANSPARENT,TURQUOISE,VIOLET,WHITE,YELLOW,appendToKnownColors,bestCode,bestDistance,bestMatch,c,colorTries,colors,colorsByHue,combinedAdjectives,description,e,editKnownColors,end,i,idx,lightAdjectives,lightness,mc,mixing,mixingArr,namesByHue,paletteSize,parseDescription,satAdjectives,saturation,targetA,targetB,targetL,terms,totalTries,trn
+ * Covenant-source-reference: com/github/tommyettinger/colorful/cielab/SimplePalette.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package colorful

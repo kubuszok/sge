@@ -10,6 +10,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 62
+ * Covenant-baseline-methods: Files,absolute,classpath,external,externalStoragePath,getFileHandle,internal,isExternalStorageAvailable,isLocalStorageAvailable,local,localStoragePath
+ * Covenant-source-reference: com/badlogic/gdx/Files.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 

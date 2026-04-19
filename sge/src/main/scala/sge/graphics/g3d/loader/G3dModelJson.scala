@@ -7,6 +7,13 @@
  *   Origin: SGE-original (JSON DTO case classes for .g3dj format)
  *   Convention: mirrors .g3dj JSON structure for jsoniter-scala codec derivation
  *   Idiom: split packages, final case class, Option for optional fields
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 120
+ * Covenant-baseline-methods: G3dAnimBoneJson,G3dAnimationJson,G3dBoneJson,G3dKeyframeV1Json,G3dKeyframeV2Json,G3dMaterialJson,G3dMeshJson,G3dMeshPartJson,G3dModelJson,G3dNodeJson,G3dNodePartJson,G3dTextureJson
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

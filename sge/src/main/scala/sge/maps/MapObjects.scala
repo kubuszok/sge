@@ -13,6 +13,13 @@
  *   Idiom: getIndex(name) uses Nullable.fold(-1)(getIndex) instead of passing null to getIndex
  *   - getCount/getByType are delegation methods with parameters, not simple getters — kept as-is
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 106
+ * Covenant-baseline-methods: MapObjects,add,byType,count,get,getByType,getIndex,i,iterator,n,objects,remove
+ * Covenant-source-reference: com/badlogic/gdx/maps/MapObjects.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

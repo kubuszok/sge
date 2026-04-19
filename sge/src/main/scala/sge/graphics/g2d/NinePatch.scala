@@ -12,6 +12,13 @@
  *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 543
+ * Covenant-baseline-methods: BOTTOM_CENTER,BOTTOM_LEFT,BOTTOM_RIGHT,MIDDLE_CENTER,MIDDLE_LEFT,MIDDLE_RIGHT,NinePatch,TOP_CENTER,TOP_LEFT,TOP_RIGHT,_color,_padBottom,_padLeft,_padRight,_padTop,_texture,add,bottomCenter,bottomHeight,bottomLeft,bottomRight,c,centerHeight,centerWidth,centerX,centerY,color,color_,copyFrom,draw,fx2,fy2,i,idx,initializeFromRegion,initializeFromTexture,leftWidth,load,middleCenter,middleHeight,middleLeft,middleRight,middleWidth,n,padBottom,padBottom_,padLeft,padLeft_,padRight,padRight_,padTop,padTop_,patchArray,patches,prepareVertices,region,rightWidth,rightX,scale,set,setPadding,sign,texture,this,tmpDrawColor,topCenter,topHeight,topLeft,topRight,topY,totalHeight,totalWidth,u,u2,v,v2,validatePatches,vertices,worldOriginX,worldOriginY
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/NinePatch.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

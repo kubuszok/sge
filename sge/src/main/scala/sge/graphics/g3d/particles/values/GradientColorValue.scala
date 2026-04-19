@@ -14,6 +14,13 @@
  * - Fixes (2026-03-04): removed redundant getTimeline/setTimeline/getColors/setColors;
  *   made colors public var
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 88
+ * Covenant-baseline-methods: GradientColorValue,b1,colors,endIndex,factor,g1,getColor,load,n,r1,startIndex,startTime,temp,timeline
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/values/GradientColorValue.java
+ * Covenant-verified: 2026-04-19
  */
 
 package sge

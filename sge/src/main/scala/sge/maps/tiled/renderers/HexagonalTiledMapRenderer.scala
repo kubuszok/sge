@@ -19,6 +19,13 @@
  *           getHexSideLength/setHexSideLength -> var hexSideLength
  * - Constructors: 4 Java ctors mapped to primary + 3 auxiliary
  * - Audited: 2026-03-04
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 307
+ * Covenant-baseline-methods: HexagonalTiledMapRenderer,batchColor,color,hexSideLength,initHex,layerHeight,layerHexLength,layerOffsetX,layerOffsetY,layerTileHeight,layerTileWidth,layerWidth,region,renderCell,renderImageLayer,renderTileLayer,staggerAxisX,staggerIndexEven,this,vertices
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/renderers/HexagonalTiledMapRenderer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

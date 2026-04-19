@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port for SGE
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 67
+ * Covenant-baseline-methods: PBREmissiveShaderProvider,cfg,config,createConfig,createShader,hasAlpha,mat,maxUVIndex,sb,shader
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

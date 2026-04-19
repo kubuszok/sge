@@ -3,6 +3,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 264
+ * Covenant-baseline-methods: BlurType,Convolve1DEffect,Convolve2DEffect,GaussianBlurEffect,Tap,_amount,_passes,_type,amount,amount_,blurType,close,computeBlurWeightings,computeKernel,computeOffsets,convolve,hor,i,invHeight,invWidth,j,length,offsetsHor,offsetsVert,passes,passes_,rebind,render,resize,setType,sigma,sigmaRoot,size,this,total,twoSigmaSquare,update,vert,weights
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package vfx

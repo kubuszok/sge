@@ -13,6 +13,13 @@
  *   - coeff array commented out (unused in upstream LibGDX)
  *   - clamp method omitted (unused in upstream LibGDX)
  *   - GdxRuntimeException → SgeError.InvalidInput
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 72
+ * Covenant-baseline-methods: NUM_VALUES,SphericalHarmonics,apply,i,idx,set,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/environment/SphericalHarmonics.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

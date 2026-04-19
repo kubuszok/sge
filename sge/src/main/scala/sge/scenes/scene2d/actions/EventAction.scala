@@ -11,6 +11,13 @@
  *   Renames: ClassReflection.isInstance -> eventClass.isInstance; (T)event -> eventClass.cast(event)
  *   Idiom: target null-check -> target.foreach/newTarget.foreach; anonymous class preserved
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 60
+ * Covenant-baseline-methods: EventAction,act,active,handle,listener,restart,result,setTarget
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/EventAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

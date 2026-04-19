@@ -13,6 +13,13 @@
  *   Idiom: `Pool` created via anonymous trait implementation; `ClassReflection.isInstance` -> `isInstanceOf`
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 388
+ * Covenant-baseline-methods: MessageDispatcher,PendingMessageCallback,addListener,addListeners,addProvider,addProviders,clear,clearAllListeners,clearAllProviders,clearListeners,clearProviders,clearQueue,continue,currentTime,debugEnabled,defaultPool,discharge,dispatchMessage,handleMessage,i,initialCapacity,listeners,max,msgListeners,msgProviders,newObject,providers,queue,queueSize,removeListener,removeListeners,report,scanQueue,telegram,this,update
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

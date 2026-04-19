@@ -11,6 +11,13 @@
  *   Renames: int alignment -> Align (opaque type); Align.bottomLeft constant
  *   Idiom: target.getX -> target.foreach(t => startX = t.getX(alignment))
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 60
+ * Covenant-baseline-methods: MoveToAction,alignment,begin,endX,endY,reset,setPosition,setStartPosition,startX,startY,update
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/MoveToAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

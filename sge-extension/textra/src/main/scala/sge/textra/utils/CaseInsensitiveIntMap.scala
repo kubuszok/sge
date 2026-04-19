@@ -12,6 +12,13 @@
  *   Idiom: split packages
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 725
+ * Covenant-baseline-methods: CaseInsensitiveIntMap,Entries,Entry,Keys,MapIterator,Values,_hasNext,_keyTable,_size,_valueTable,buffer,clear,containsKey,containsValue,currentIndex,ensureCapacity,entries,entry,equals,findKey,findNextIndex,found,get,getAndIncrement,h,hasNext,hashCode,hashCodeIgnoreCase,i,i0,isEmpty,iterator,key,keys,kt,len,loadFactor,locateKey,mask,n,next,nextIndex,notEmpty,oldCapacity,oldKeyTable,oldValueTable,place,put,putAll,putResize,remove,reset,resize,shrink,size,tableSize,this,threshold,toArray,toString,ts,valid,value,values,vt
+ * Covenant-source-reference: com/github/tommyettinger/textra/utils/CaseInsensitiveIntMap.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

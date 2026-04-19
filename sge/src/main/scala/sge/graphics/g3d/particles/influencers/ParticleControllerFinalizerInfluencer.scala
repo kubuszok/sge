@@ -15,6 +15,13 @@
  * - channel.data[] renamed to channel.floatData()/objectData() per SGE ParallelArray API.
  * - Fields promoted from package-private to public vars.
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 91
+ * Covenant-baseline-methods: ParticleControllerFinalizerInfluencer,allocateChannels,c,ch,controllerChannel,copy,hasRotation,hasScale,i,init,positionChannel,positionOffset,rc,rotationChannel,sc,scaleChannel,update
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/influencers/ParticleControllerFinalizerInfluencer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

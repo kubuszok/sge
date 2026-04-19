@@ -11,6 +11,13 @@
  *   - No-arg constructor: Java passes null -> Scala creates new Config() directly
  *   - All 4 constructors and createShader fully ported
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 36
+ * Covenant-baseline-methods: DefaultShaderProvider,createShader,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/DefaultShaderProvider.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

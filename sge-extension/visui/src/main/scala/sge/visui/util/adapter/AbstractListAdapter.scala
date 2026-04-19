@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 249
+ * Covenant-baseline-methods: AbstractListAdapter,DEFAULT_KEY,ListClickListener,ListSelection,ListSelectionListener,SelectionMode,_itemsComparator,_listener,_programmaticChangeEvents,_selection,_selectionMode,clickListener,clickListenerOpt,clicked,deselect,deselectAll,deselectView,deselected,doSelect,fillTable,getGroupMultiSelectKey,getItemsSorter,getListener,getMultiSelectKey,getSelection,getSelectionManager,getSelectionMode,groupMultiSelectKey,i,isGroupMultiSelectKeyPressed,isMultiSelectKeyPressed,isProgrammaticChangeEvents,itemAdded,itemRemoved,itemsChanged,itemsDataChanged,listenerMissing,ls,multiSelectKey,prepareViewBeforeAddingToTable,select,selectGroup,selectView,selected,selection,setGroupMultiSelectKey,setItemClickListener,setItemsSorter,setListView,setListener,setMultiSelectKey,setProgrammaticChangeEvents,setSelectionMode,sort,touchDown,updateView,view,viewListener,viewsCache
+ * Covenant-source-reference: com/kotcrab/vis/ui/util/adapter/AbstractListAdapter.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

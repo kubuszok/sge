@@ -12,6 +12,13 @@
  *   - Java null returns from getCell/getTile → Nullable[A]
  *   - Split package, braces, no-return conventions satisfied
  *   - Cell: private vars tile/flipHorizontally/flipVertically/rotation → public vars, removed 8 getter/setter methods
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 72
+ * Covenant-baseline-methods: Cell,ROTATE_0,ROTATE_180,ROTATE_270,ROTATE_90,TiledMapTileLayer,cells,flipHorizontally,flipVertically,getCell,rotation,setCell,tile
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/TiledMapTileLayer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

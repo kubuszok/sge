@@ -7,6 +7,13 @@
  *   Origin: SGE-original (JSON DTO case classes for .tiled-project format)
  *   Convention: mirrors .tiled-project JSON structure for jsoniter-scala codec derivation
  *   Idiom: split packages, final case class, Option for optional fields
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 42
+ * Covenant-baseline-methods: TiledProjectJson,TiledProjectMemberJson,TiledProjectPropertyTypeJson
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

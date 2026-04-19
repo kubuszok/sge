@@ -23,6 +23,13 @@
  *   - Sge() accessor used in place of Gdx.graphics (correct)
  *   Idiom: Java-style getters/setters converted to public vars (camera, worldWidth/Height, screenX/Y/Width/Height)
  * Idiom: opaque Pixels for update(screenWidth, screenHeight), screenX/Y/Width/Height
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 200
+ * Covenant-baseline-methods: Viewport,apply,bottomGutterHeight,calculateScissors,camera,getPickRay,leftGutterWidth,project,rightGutterWidth,rightGutterX,screenHeight,screenWidth,screenX,screenY,setScreenBounds,setScreenPosition,setScreenSize,setWorldSize,tmp,toScreenCoordinates,topGutterHeight,topGutterY,unproject,update,worldHeight,worldWidth
+ * Covenant-source-reference: com/badlogic/gdx/utils/viewport/Viewport.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package utils

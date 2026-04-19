@@ -16,6 +16,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 485
+ * Covenant-baseline-methods: Blending,DownloadPixmapResponseListener,Filter,Format,Pixmap,_blending,_filter,blending,close,color,createFromFrameBuffer,disposed,downloadComplete,downloadFailed,drawCircle,drawLine,drawPixel,drawPixmap,drawRectangle,dst,fill,fillCircle,fillRectangle,fillTriangle,filter,format,fromGdx2DPixmapFormat,gLFormat,gLInternalFormat,getPixel,glType,height,isDisposed,pixels,pixels_,pixmap,setBlending,setColor,setFilter,this,toGdx2DPixmapFormat,toGlFormat,toGlType,width
+ * Covenant-source-reference: com/badlogic/gdx/graphics/Pixmap.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

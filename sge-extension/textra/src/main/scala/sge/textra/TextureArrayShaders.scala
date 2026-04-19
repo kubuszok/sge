@@ -16,6 +16,13 @@
  *
  * Originally from Hyperlap2D's GitHub repo.
  * Originally licensed under Apache 2.0, like TextraTypist and libGDX.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 380
+ * Covenant-baseline-methods: TextureArrayShaders,defaultArrayFragmentShader,defaultArrayVertexShader,initializeAdaptiveTextureArrayShaders,initializeTextureArrayShaders,msdfArrayFragmentShader,msdfArrayVertexShader,sdfAdaptiveArrayFragmentShader,sdfArrayFragmentShader,sdfArrayVertexShader,sdfDerivativeArrayFragmentShader,sdfDerivativeArrayVertexShader,sdfOutlineAdaptiveArrayFragmentShader,sdfOutlineArrayFragmentShader,sdfOutlineArrayVertexShader,sdfOutlineDerivativeArrayFragmentShader,sdfOutlineDerivativeArrayVertexShader,vertexShader
+ * Covenant-source-reference: com/github/tommyettinger/textra/TextureArrayShaders.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

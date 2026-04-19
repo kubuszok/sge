@@ -13,6 +13,13 @@
  * - Static temp fields (TMP_V1..TMP_V6, TMP_Q, TMP_Q2, TMP_M3, TMP_M4) → companion object
  *   with private[particles] visibility (Java used protected static)
  * - controller field uses scala.compiletime.uninitialized (Java null)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 78
+ * Covenant-baseline-methods: ParticleControllerComponent,TMP_M3,TMP_M4,TMP_Q,TMP_Q2,TMP_V1,TMP_V2,TMP_V3,TMP_V4,TMP_V5,TMP_V6,activateParticles,allocateChannels,close,controller,copy,end,init,killParticles,load,save,set,start,update
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/ParticleControllerComponent.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

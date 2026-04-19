@@ -17,6 +17,13 @@
  * getScaledLength, x/y/originX/Y/rotation/scaleX/Y (read accessors), setOrigin, setPosition,
  * setVertices, setRotation, rotate, setScale, scale, calculateLength, calculateScaledLength,
  * dirty, translate, getBoundingRectangle, contains(2). Implements Shape2D (always false).
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 249
+ * Covenant-baseline-methods: Polyline,_length,_originX,_originY,_rotation,_scaleX,_scaleY,_scaledLength,_x,_y,boundingRectangle,bounds,calculateLength,calculateScaledLength,contains,dirty,i,isDirty,length,localVertices,maxX,maxY,minX,minY,numFloats,originX,originY,rotate,rotation,scale,scaleX,scaleY,scaledLength,setOrigin,setPosition,setRotation,setScale,setVertices,shouldCalculateLength,shouldCalculateScaledLength,this,transformedVertices,translate,vertices,worldVertices,x,y
+ * Covenant-source-reference: com/badlogic/gdx/math/Polyline.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

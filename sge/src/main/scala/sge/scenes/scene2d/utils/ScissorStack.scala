@@ -12,6 +12,13 @@
  * - Array<Rectangle> -> DynamicArray[Rectangle]
  * - @Null Rectangle peekScissors -> Nullable[Rectangle]
  * - All methods faithfully ported
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 160
+ * Covenant-baseline-methods: ScissorStack,calculateScissors,fix,old,peekScissors,popScissors,pushScissors,scissors,tmp,viewport
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/ScissorStack.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes
@@ -33,7 +40,7 @@ object ScissorStack {
   private val tmp:      Vector3                 = Vector3()
   private val viewport: Rectangle               = Rectangle()
 
-  /** Pushes a new scissor {@link Rectangle} onto the stack, merging it with the current top of the stack. The minimal area of overlap between the top of stack rectangle and the provided rectangle is
+  /** Pushes a new scissor {@link Rectangle} onto the stack, merging it with the current top of the stack. The smallest area of overlap between the top of stack rectangle and the provided rectangle is
     * pushed onto the stack. This will invoke {@link GL20#glScissor(int, int, int, int)} with the final top of stack rectangle. In case no scissor is yet on the stack this will also enable
     * {@link GL20#GL_SCISSOR_TEST} automatically. <p> Any drawing should be flushed before pushing scissors.
     * @return

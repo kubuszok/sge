@@ -18,6 +18,10 @@ package platform
   *
   * All FreeType objects (Library, Face, GlyphSlot, Glyph, Stroker) are represented as opaque `Long` handles. Bitmap and metrics data is copied into Scala arrays to avoid cross-platform pointer
   * issues.
+  *
+  * Covenant: full-port Covenant-baseline-spec-pass: 0 Covenant-baseline-loc: 153 Covenant-baseline-methods:
+  * FreetypeOps,doneFace,doneFreeType,doneGlyph,getAscender,getBitmapGlyphBitmap,getBitmapGlyphBuffer,getCharIndex,getDescender,getFaceFlags,getGlyphAdvanceX,getGlyphAdvanceY,getGlyphAsStroke,getGlyphBitmapBuffer,getGlyphBitmapLeft,getGlyphBitmapNumGray,getGlyphBitmapPitch,getGlyphBitmapPixelMode,getGlyphBitmapRows,getGlyphBitmapTop,getGlyphBitmapWidth,getGlyphFormat,getGlyphLinearHoriAdvance,getGlyphMetrics,getGlyphSlot,getHeight,getKerning,getLastErrorCode,getMaxAdvanceHeight,getMaxAdvanceWidth,getNumGlyphs,getSizeMetrics,getStyleFlags,getUnderlinePosition,getUnderlineThickness,glyphToBitmap,hasKerning,initFreeType,loadChar,loadGlyph,newMemoryFace,renderGlyph,selectSize,setCharSize,setPixelSizes,strokeBorder,strokerDone,strokerNew,strokerSet
+  * Covenant-source-reference: SGE-original Covenant-verified: 2026-04-19
   */
 private[sge] trait FreetypeOps {
 

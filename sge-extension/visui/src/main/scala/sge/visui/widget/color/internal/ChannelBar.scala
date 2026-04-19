@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 99
+ * Covenant-baseline-methods: ChannelBar,ChannelBarListener,MODE_ALPHA,MODE_B,MODE_G,MODE_H,MODE_R,MODE_S,MODE_V,_channelBarListener,_value,changeEvent,channelBarListener,channelBarListener_,draw,getValue,newValue,selectorX,setShaderUniforms,setValue,sizes,style,touchDown,touchDragged,updateFields,updateValueFromTouch
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/color/internal/ChannelBar.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

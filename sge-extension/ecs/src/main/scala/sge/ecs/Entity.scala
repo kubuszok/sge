@@ -13,6 +13,13 @@
  *   Idiom: Nullable[A] in public getComponent return type
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 204
+ * Covenant-baseline-methods: Entity,add,addAndReturn,addInternal,componentAdded,componentBits,componentClass,componentOperationHandler,componentRemoved,componentType,componentTypeIndex,components,componentsArray,familyBits,flags,getComponent,getComponentBits,getComponentRaw,getComponents,getFamilyBits,hasComponent,immutableComponentsArray,isRemoving,isScheduledForRemoval,notifyComponentAdded,notifyComponentRemoved,oldComponent,remove,removeAll,removeComponent,removeInternal,removing,scheduledForRemoval
+ * Covenant-source-reference: com/badlogic/ashley/core/Entity.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ecs

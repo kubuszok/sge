@@ -13,6 +13,13 @@
  *     available for TypingLabel, instead of having to cast a TextraLabel to TypingLabel
  *     from TextraListBox.
  *   Idiom: No additional logic beyond constructors.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 37
+ * Covenant-baseline-methods: TypingListBox,this
+ * Covenant-source-reference: com/github/tommyettinger/textra/TypingListBox.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

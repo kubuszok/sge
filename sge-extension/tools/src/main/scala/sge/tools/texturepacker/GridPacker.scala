@@ -11,6 +11,13 @@
  *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 132
+ * Covenant-baseline-methods: GridPacker,adjustX,adjustY,cellHeight,cellWidth,i,j,maxHeight,maxWidth,n,pack,packPage,paddingX,paddingY,page,pages,reversed,x,y
+ * Covenant-source-reference: com/badlogic/gdx/tools/texturepacker/GridPacker.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package tools

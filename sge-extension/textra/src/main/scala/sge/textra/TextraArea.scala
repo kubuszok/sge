@@ -10,6 +10,13 @@
  *   Convention: Multi-line text input; drawCursor/getTextY/getPrefHeight/
  *     moveCursorVertically all overridden for multi-line behavior.
  *   Note: This widget is noted as "not ready for production yet" in the original.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 172
+ * Covenant-baseline-methods: TextraArea,drawCursor,getPrefHeight,getTextY,layoutHeight,lineHeight,linesHeight,moveCursorVertically,rf,s,textY,this
+ * Covenant-source-reference: com/github/tommyettinger/textra/TextraArea.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

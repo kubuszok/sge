@@ -11,6 +11,13 @@
  *   Audited: 2026-03-04 — pass
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 96
+ * Covenant-baseline-methods: ArrowShapeBuilder,begin,build,coneDiameter,coneHeight,direction,end,forward,left,length,stemDiameter,stemLength,temp,transform,up,userTransform,values
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/shapebuilders/ArrowShapeBuilder.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

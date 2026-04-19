@@ -3,6 +3,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 91
+ * Covenant-baseline-methods: EXT,GLTFLight,GLTFLightNode,GLTFLights,GLTFSpotLight,KHRLightsPunctual,TYPE_DIRECTIONAL,TYPE_POINT,TYPE_SPOT,color,innerConeAngle,intensity,light,lightType,lights,map,name,outerConeAngle,range,spot
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

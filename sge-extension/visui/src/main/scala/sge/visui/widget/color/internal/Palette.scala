@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 104
+ * Covenant-baseline-methods: Palette,_pickerHue,changeEvent,draw,getS,getV,newS,newV,selectorX,selectorY,setPickerHue,setShaderUniforms,setValue,sizes,style,touchDown,touchDragged,updateValueFromTouch,xV,yS
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/color/internal/Palette.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

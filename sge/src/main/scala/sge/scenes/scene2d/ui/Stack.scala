@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 132
+ * Covenant-baseline-methods: Stack,_maxHeight,_maxWidth,_minHeight,_minWidth,_prefHeight,_prefWidth,add,children,computeSize,height,i,invalidate,layout,maxHeight,maxWidth,minHeight,minWidth,n,prefHeight,prefWidth,sizeInvalid,this,width
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Stack.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

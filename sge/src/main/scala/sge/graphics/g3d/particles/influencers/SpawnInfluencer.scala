@@ -12,6 +12,13 @@
  * - channel.data[] renamed to channel.floatData() per SGE ParallelArray API.
  * - positionChannel/rotationChannel made public vars (were package-private in Java).
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 91
+ * Covenant-baseline-methods: SpawnInfluencer,activateParticles,allocateChannels,c,c2,copy,i,init,load,positionChannel,rotationChannel,save,spawnShapeValue,start,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/influencers/SpawnInfluencer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

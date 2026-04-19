@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 66
+ * Covenant-baseline-methods: FileChooserStyle,contextMenuSelectedItem,expandDropdown,highlight,iconArrowLeft,iconArrowRight,iconDrive,iconFileAudio,iconFileImage,iconFilePdf,iconFileText,iconFolder,iconFolderNew,iconFolderParent,iconFolderStar,iconListSettings,iconRefresh,iconStar,iconStarOutline,iconTrash,popupMenuStyle,this
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/file/FileChooserStyle.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

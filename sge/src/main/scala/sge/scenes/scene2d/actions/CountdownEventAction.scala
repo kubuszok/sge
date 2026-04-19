@@ -10,6 +10,13 @@
  *   Convention: split packages; braces on class
  *   Renames: package-private count field -> val count (constructor param)
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 30
+ * Covenant-baseline-methods: CountdownEventAction,current,handle
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/CountdownEventAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

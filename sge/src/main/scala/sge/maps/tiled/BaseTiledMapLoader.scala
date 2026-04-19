@@ -21,6 +21,13 @@
  *   - JsonValue tree walking replaced with jsoniter-scala codec derivation (TiledProjectJson)
  *   Convention: jsoniter-scala codec derivation replaces JsonValue tree walking
  *   Audited: 2026-03-04
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 403
+ * Covenant-baseline-methods: BaseTiledMapLoader,FLAG_FLIP_DIAGONALLY,FLAG_FLIP_HORIZONTALLY,FLAG_FLIP_VERTICALLY,MASK_CLEAR,Parameters,ProjectClassMember,addStaticTiledMapTile,alpha,castProperty,castValue,cell,classInfo,classMembers,color,convertObjectToTileSpace,createTileLayerCell,defaultValue,flipY,forceTextureFilters,generateMipMaps,getDependencyAssetDescriptors,getIdToObject,getRelativeFileHandle,idToObject,jsonAsString,jsonGetField,loadBasicProperty,loadJsonClassProperties,loadMapPropertiesClassDefaults,loadObjectProperty,loadProjectFile,loadTiledMap,map,mapHeightInPixels,mapTileHeight,mapTileWidth,mapWidthInPixels,members,name,pci,project,projectClassInfo,projectFile,projectFilePath,propertyType,result,runOnEndOfLoadTiled,t,textureMagFilter,textureMinFilter,tile,tiledColorToLibGDXColor,toString,tokens,unsignedByteToInt
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/BaseTiledMapLoader.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps
@@ -88,7 +95,7 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
     else if (t == "float") java.lang.Float.valueOf(value)
     else if (t == "bool") java.lang.Boolean.valueOf(value)
     else if (t == "color")
-      // return color after converting from #AARRGGBB to #RRGGBBAA
+      // produce color after converting from #AARRGGBB to #RRGGBBAA
       Color.valueOf(BaseTiledMapLoader.tiledColorToLibGDXColor(value))
     else
       throw new IllegalArgumentException(

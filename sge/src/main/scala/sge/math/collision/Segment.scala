@@ -13,6 +13,13 @@
  *     Java 2-arg (Vector3,Vector3) ctor copies via set(); Scala stores refs directly
  *   Idiom: split packages
  *   Audited: 2026-03-04
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 63
+ * Covenant-baseline-methods: Segment,equals,hashCode,len,len2,prime,result,this
+ * Covenant-source-reference: com/badlogic/gdx/math/collision/Segment.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 356
+ * Covenant-baseline-methods: ScreenManager,addCurrentProcessors,autoCloseScreens,autoCloseTransitions,blankScreen,clearScreen,clearTransition,close,createFrameBuffer,currFBO,currScreen,currentHeight,currentProcessors,currentScreen,currentWidth,finalizeScreen,finalizeTransition,gameInputMultiplexer,hasDepth,initBuffers,initialize,initializeScreen,initializeTransition,initialized,isTransitioning,lastFBO,lastScreen,lastScreenOption,pause,pushScreen,removeCurrentProcessors,render,renderCurrScreenToTexture,renderLastScreenToTexture,resize,resume,setAutoClose,setHasDepth,transition,transitionQueue
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package screen

@@ -11,6 +11,13 @@
  *   Convention: for loop -> while loop (matches Java iteration pattern)
  *   Idiom: layers.size() -> layers.size (Scala property access)
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 33
+ * Covenant-baseline-methods: MapGroupLayer,i,invalidateRenderOffset,layers
+ * Covenant-source-reference: com/badlogic/gdx/maps/MapGroupLayer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

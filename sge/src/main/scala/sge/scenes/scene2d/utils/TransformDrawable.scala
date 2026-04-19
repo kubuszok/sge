@@ -9,6 +9,13 @@
  * Migration notes:
  * - Java interface -> Scala trait
  * - Faithful port, no API changes
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 23
+ * Covenant-baseline-methods: TransformDrawable,draw
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/TransformDrawable.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

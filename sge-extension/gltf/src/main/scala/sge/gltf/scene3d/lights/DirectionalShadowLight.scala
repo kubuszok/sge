@@ -6,6 +6,13 @@
  * Scala port for SGE
  *
  * Copied from original deprecated DirectionalShadowLight with new features.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 151
+ * Covenant-baseline-methods: DirectionalShadowLight,SQRT2,begin,c,cam,center,close,createFrameBuffer,d,depthMap,end,equals,fbo,getCamera,getCenter,getFrameBuffer,h,halfDepth,projViewTrans,s,setBounds,setCenter,setShadowMapSize,setViewport,td,textureDesc,this,tmpV,validate,w,wd
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

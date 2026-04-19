@@ -15,6 +15,13 @@
  *   - fbo: FrameBuffer → Nullable[FrameBuffer] for null safety
  *   - begin() wraps in fbo.foreach for null safety
  *   - Fixes (2026-03-04): getFrameBuffer/getCamera/getProjViewTrans/getDepthMap → property accessors
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 134
+ * Covenant-baseline-methods: DirectionalShadowLight,c,cam,camera,close,depthMap,fbo,frameBuffer,halfDepth,halfHeight,projViewTrans,rendering,td,textureDesc,tmpV,update
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/environment/DirectionalShadowLight.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

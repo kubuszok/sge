@@ -19,6 +19,13 @@
  * - All public methods faithfully ported.
  * - Fixes (2026-03-04): removed redundant setAtlasName (field already public var)
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 334
+ * Covenant-baseline-methods: ASSET_DATA,Animated,AspectTextureRegion,Random,RegionInfluencer,Single,activateParticles,add,allocateChannels,aspectRegion,atlasName,clear,copy,data,halfInvAspectRatio,i,imageName,init,initDefault,lifeChannel,load,regionChannel,regions,save,set,this,u,u2,update,updateUV,v,v2
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/influencers/RegionInfluencer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

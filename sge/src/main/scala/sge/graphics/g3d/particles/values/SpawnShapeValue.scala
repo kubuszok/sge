@@ -11,6 +11,13 @@
  * - All public/abstract methods ported: spawnAux, spawn, init, start, load, copy, save, load(AssetManager)
  * - ResourceData.Configurable trait used instead of separate Json.Serializable interface
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 65
+ * Covenant-baseline-methods: SpawnShapeValue,copy,init,load,save,shape,spawn,spawnAux,start,this,xOffsetValue,yOffsetValue,zOffsetValue
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/values/SpawnShapeValue.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

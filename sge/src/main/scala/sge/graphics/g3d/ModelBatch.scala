@@ -17,6 +17,13 @@
  *   - All public methods present: begin, setCamera, getCamera, ownsRenderContext, getRenderContext,
  *     getShaderProvider, getRenderableSorter, flush, end, render (8 overloads), close.
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 386
+ * Covenant-baseline-methods: ModelBatch,RenderablePool,camera,close,context,flush,getCamera,getShaderProvider,i,obtain,offset,ownContext,ownsRenderContext,render,renderContext,renderableSorter,renderables,renderablesPool,rendering,setCamera,shaderProvider,sorter,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/ModelBatch.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

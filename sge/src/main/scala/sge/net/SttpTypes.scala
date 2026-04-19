@@ -7,6 +7,13 @@
  *   Origin: SGE-original (type aliases decoupling sge.net from sttp namespaces)
  *   Convention: private[sge] so tests in sge.net can also use them
  *   Idiom: split packages
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 29
+ * Covenant-baseline-methods: SttpHeader,SttpMethod,SttpResponse,SttpStatusCode,SttpUri,sttpBasicRequest
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package net

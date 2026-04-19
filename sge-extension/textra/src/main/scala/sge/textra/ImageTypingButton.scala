@@ -8,6 +8,13 @@
  * Migration notes:
  *   Renames: ImageTextraButton → extends ImageTextraButton
  *   Convention: Overrides newLabel to create TypingLabel instead of TextraLabel.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 33
+ * Covenant-baseline-methods: ImageTypingButton,newLabel,this
+ * Covenant-source-reference: com/github/tommyettinger/textra/ImageTypingButton.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

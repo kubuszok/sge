@@ -20,6 +20,13 @@
  *   getDragSource → def currentSource, getDragTime/setDragTime → var dragTime,
  *   isDragging → def dragging; Source/Target: getActor removed (actor is public val);
  *   Payload: getDragActor/setDragActor/getObject/setObject/etc removed (fields are public vars)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 358
+ * Covenant-baseline-methods: DragAndDrop,Payload,Source,Target,_target,activePointer,addSource,addTarget,button,cancelTouchFocus,cancelTouchFocusExcept,clear,currentDragActor,currentPayload,currentSource,drag,dragActor,dragActorX,dragActorY,dragSource,dragStart,dragStop,dragTime,dragValidTime,dragging,drop,invalidDragActor,isDragValid,isValidTarget,keepWithinStage,listener,obj,payload,removeDragActor,removeSource,removeTarget,reset,self,setDragActorPosition,setTouchOffset,sourceListeners,tapSquareSize,targets,tmpVector,touchOffsetX,touchOffsetY,validDragActor
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/DragAndDrop.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

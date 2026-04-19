@@ -9,6 +9,13 @@
  *   Convention: tracks looping/volume/position state (Java ignores all); uses opaque Volume/Pan/Position types
  *   Idiom: split packages
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 58
+ * Covenant-baseline-methods: NoopMusic,_listener,_looping,_position,_volume,close,looping,looping_,onComplete,pause,play,playing,position,position_,setPan,stop,volume,volume_
+ * Covenant-source-reference: backends/gdx-backend-headless/mock/audio/MockMusic.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package noop

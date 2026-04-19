@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 151
+ * Covenant-baseline-methods: GridGroup,_itemHeight,_itemWidth,_prefHeight,_prefWidth,_spacing,childArr,computeSize,i,invalidate,itemHeight,itemHeight_,itemWidth,itemWidth_,lastPrefHeight,layout,maxHeight,notEnoughSpace,prefHeight,prefWidth,setItemSize,sizeInvalid,spacing,spacing_,tempX,this,w,x,y
+ * Covenant-source-reference: com/kotcrab/vis/ui/layout/GridGroup.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

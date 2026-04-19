@@ -9,6 +9,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 50
+ * Covenant-baseline-methods: ServerSocketHints,acceptTimeout,backlog,performancePrefBandwidth,performancePrefConnectionTime,performancePrefLatency,receiveBufferSize,reuseAddress
+ * Covenant-source-reference: com/badlogic/gdx/net/ServerSocketHints.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package net

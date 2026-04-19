@@ -11,6 +11,13 @@
  * - setPatch null-check -> Nullable(patch).foreach
  * - All methods faithfully ported
  * - Renames: setPatch kept (has logic); getLeftWidth→leftWidth etc. via Drawable trait rename
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 82
+ * Covenant-baseline-methods: NinePatchDrawable,_patch,draw,drawable,patch,setPatch,this,tint
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/NinePatchDrawable.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

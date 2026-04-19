@@ -9,6 +9,13 @@
  *   Convention: split packages, Nullable instead of null
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 97
+ * Covenant-baseline-methods: Include,cloneTask,copyTo,createSubtreeRootTask,include,isLazy,newInstance,reset,rootTask,start,subtree
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

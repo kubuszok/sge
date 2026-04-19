@@ -9,6 +9,13 @@
  *   Convention: split packages, `object` instead of `final class` with private constructor
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 170
+ * Covenant-baseline-methods: ArithmeticUtils,gcdPositive,i,lcmPositive,m,mulAndCheck,result,wrapAngleAroundZero
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

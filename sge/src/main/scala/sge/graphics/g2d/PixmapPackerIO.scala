@@ -12,6 +12,13 @@
  *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 141
+ * Covenant-baseline-methods: ImageFormat,PixmapPackerIO,SaveParameters,format,index,magFilter,minFilter,save,useIndexes,writer
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/PixmapPackerIO.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

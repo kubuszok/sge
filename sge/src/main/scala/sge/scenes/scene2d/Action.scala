@@ -12,6 +12,13 @@
  *   Idiom: setActor null-check -> Nullable.fold; Pool raw type -> Pool[?]
  *   Convention: extends Pool.Poolable — given Poolable[Action] auto-derived via Poolable.fromTrait
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 91
+ * Covenant-baseline-methods: Action,act,actor,dotIndex,name,pool,reset,restart,setActor,setTarget,target,toString
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/Action.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

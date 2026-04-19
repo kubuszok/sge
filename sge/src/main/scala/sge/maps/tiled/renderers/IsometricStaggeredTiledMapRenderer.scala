@@ -13,6 +13,13 @@
  * - Java switch/break on rotations replaced with match/case
  * - renderImageLayer override: halfTileWidth X-offset logic faithfully ported
  * - Constructors: 4 Java ctors mapped to primary + 3 auxiliary
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 182
+ * Covenant-baseline-methods: IsometricStaggeredTiledMapRenderer,batchColor,color,layerHeight,layerOffsetX,layerOffsetY,layerTileHeight,layerTileHeight50,layerTileWidth,layerTileWidth50,layerWidth,maxX,maxY,minX,minY,region,renderImageLayer,renderTileLayer,this,vertices,y
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/renderers/IsometricStaggeredTiledMapRenderer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

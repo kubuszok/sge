@@ -28,6 +28,13 @@
  * THE SOFTWARE.
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 173
+ * Covenant-baseline-methods: COLOR_ARGB,COMPRESSION_DEFLATE,FILTER_NONE,FastPNG,IDAT,IEND,IHDR,INTERLACE_NONE,SIGNATURE,buffer,close,curLineBytes,dataOutput,deflater,deflaterOutput,flipY,output,setCompression,setFlipY,this,write
+ * Covenant-source-reference: com/github/tommyettinger/anim8/FastPNG.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package anim8

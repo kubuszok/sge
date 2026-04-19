@@ -17,6 +17,13 @@
  *     is not an Actor. Listener infrastructure added directly for ChangeListener,
  *     FocusListener, and InputListener patterns.
  *   Idiom: Nullable[A] for nullable fields; boundary/break for early returns.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 430
+ * Covenant-baseline-methods: TypingDialog,_skin,_visible,actions,addAction,addCaptureListener,addListener,binding,btn,button,buttonTable,cancel,cancelHide,captureListeners,clearActions,contentTable,contentY,draw,focusListener,getButtonTable,getContentTable,handleButtonClick,handleKeyDown,hide,ignoreTouchDown,initialize,isVisible,key,keyBindings,listeners,newLabel,newTypingLabel,previousKeyboardFocus,previousScrollFocus,remove,removeCaptureListener,removeListener,result,s,setObject,setStage,show,text,this,typing,values
+ * Covenant-source-reference: com/github/tommyettinger/textra/TypingDialog.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

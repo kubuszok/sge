@@ -7,6 +7,13 @@
  *   Origin: SGE-original (platform abstraction for sttp HTTP backends)
  *   Convention: private[net] trait — same pattern as PlatformOps/BufferOps
  *   Idiom: split packages
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 27
+ * Covenant-baseline-methods: HttpBackendFactory,close,send
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package net

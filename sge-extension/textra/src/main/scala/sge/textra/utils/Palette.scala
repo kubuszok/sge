@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 228
+ * Covenant-baseline-methods: ALIASES,BLACK,BLUE,BROWN,CHARTREUSE,CLEAR,CORAL,CYAN,DARK_GRAY,FIREBRICK,FOREST,GOLD,GOLDENROD,GRAY,GREEN,LIGHT_GRAY,LIME,LIST,MAGENTA,MAROON,NAMED,NAMES,NAVY,OLIVE,ORANGE,PINK,PURPLE,Palette,RED,ROYAL,SALMON,SCARLET,SKY,SLATE,TAN,TEAL,VIOLET,WHITE,YELLOW,addColor,apricot,black,blue,brown,butter,cactus,celeste,charcoal,chartreuse,chocolate,cobalt,coral,crimson,cyan,denim,ember,entries,fern,gray,green,indigo,jade,lavender,lime,magenta,mauve,moss,navy,orange,peach,pine,plum,puce,purple,raspberry,red,rose,saffron,sage,salmon,sand,sepia,silver,sky,tan,teal,transparent,violet,wheat,white,yellow
+ * Covenant-source-reference: com/github/tommyettinger/textra/utils/Palette.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

@@ -15,6 +15,13 @@
  *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 436
+ * Covenant-baseline-methods: GestureAdapter,GestureDetector,GestureListener,VelocityTracker,cancel,deltaX,deltaY,fling,getAverage,handled,inTapRectangle,initialPointer1,initialPointer2,invalidateTapSquare,isLongPressed,isPanning,isWithinTapRectangle,keyDown,keyTyped,keyUp,lastTapButton,lastTapPointer,lastTapTime,lastTapX,lastTapY,lastTime,lastX,lastY,listener,longPress,longPressFired,longPressSeconds,longPressTask,maxFlingDelayNanos,meanTime,meanX,meanY,mouseMoved,numSamples,pan,panStop,panning,pinch,pinchStop,pinching,pointer1,pointer2,reset,run,sampleSize,scrolled,setLongPressSeconds,setMaxFlingDelay,setTapCountInterval,setTapRectangleSize,setTapSquareSize,start,tap,tapCount,tapCountIntervalNanos,tapRectangleCenterX,tapRectangleCenterY,tapRectangleHeight,tapRectangleWidth,this,time,touchCancelled,touchDown,touchDownTime,touchDragged,touchUp,tracker,update,velocityX,velocityY,wasPanning,zoom
+ * Covenant-source-reference: com/badlogic/gdx/input/GestureDetector.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package input

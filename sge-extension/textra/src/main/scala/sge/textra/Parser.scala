@@ -10,6 +10,13 @@
  *     Array<T> → Array[T], MathUtils.clamp → Math.min/max
  *   Convention: parseTokens() fully ported with java.util.regex replacements.
  *   Idiom: while loops for Matcher iteration; boundary/break not needed here.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 457
+ * Covenant-baseline-methods: BOOLEAN_TRUE,INDEX_PARAM,INDEX_TOKEN,PATTERN_COLOR_HEX_NO_HASH,PATTERN_MARKUP_STRIP,Parser,colorMatcher,colorPattern,colorSb,compileTokenPattern,defaultValue,found,getResetReplacement,handleBracketMinusMarkup,i,markupStripped,n,params,parseRegularTokens,parseReplacements,parseTokens,preprocess,processIfToken,result,sb,sorted,stringToBoolean,stringToColor,stringToColorMarkup,stringToFloat,stringToStyleMarkup,styleMatcher,stylePattern,styleSb,text,text2,tokens,variable,variableValue
+ * Covenant-source-reference: com/github/tommyettinger/textra/Parser.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

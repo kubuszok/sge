@@ -8,6 +8,13 @@
  *   Convention: trait defines FFI contract; JVM uses Panama, Native uses @extern
  *   Convention: will be code-generated for GL20/30/31/32 (~2,274 LOC per platform)
  *   Idiom: split packages
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 80
+ * Covenant-baseline-methods: GlOps,createContext,destroyContext,getProcAddress,makeCurrent,setSwapInterval,swapEglBuffers
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package platform

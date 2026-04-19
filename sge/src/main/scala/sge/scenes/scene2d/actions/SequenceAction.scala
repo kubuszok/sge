@@ -11,6 +11,13 @@
  *   Idiom: setPool(null) -> setPool(Nullable.empty); actor == null -> actor.isEmpty;
  *          early returns -> if/else chain
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 85
+ * Covenant-baseline-methods: SequenceAction,act,index,restart,this
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/SequenceAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

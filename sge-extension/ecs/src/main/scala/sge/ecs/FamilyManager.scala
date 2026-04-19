@@ -12,6 +12,13 @@
  *   Idiom: snapshot copy during listener notification (replaces SnapshotArray.begin/end)
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 207
+ * Covenant-baseline-methods: BitSetPool,EntityListenerData,FamilyManager,_notifying,addEntityListener,addListenerBits,bitsPool,data,doAddEntityListenerAtIndex,entityListenerMasks,entityListeners,families,getEntitiesFor,i,immutableFamilies,initialCapacity,insertionIndex,listener,max,newObject,notifying,priority,registerFamily,removeEntityListener,removeListenerBits,searching,snapshot,updateFamilyMembership
+ * Covenant-source-reference: com/badlogic/ashley/core/FamilyManager.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ecs
@@ -25,7 +32,7 @@ import sge.utils.Pool
 
 /** Manages [[Family]]-to-entity mappings and notifies [[EntityListener]]s when entity family membership changes due to component additions or removals.
   *
-  * This is the most complex manager in the ECS -- it handles deferred listener registration via bitmask tracking and snapshot-based notification to allow safe concurrent modification.
+  * This is the most complex manager in the ECS -- it handles delayed listener registration via bitmask tracking and snapshot-based notification to allow safe concurrent modification.
   */
 private[ecs] class FamilyManager(val entities: ImmutableArray[Entity]) {
 

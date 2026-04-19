@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 163
+ * Covenant-baseline-methods: Binormal,BoneWeight,ColorPacked,ColorUnpacked,Normal,Position,Tangent,TexCoords,VertexAttribute,alias,copy,equals,hashCode,key,normalized,numComponents,offset,result,sizeInBytes,t,this,unit,usage,usageIndex
+ * Covenant-source-reference: com/badlogic/gdx/graphics/VertexAttribute.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

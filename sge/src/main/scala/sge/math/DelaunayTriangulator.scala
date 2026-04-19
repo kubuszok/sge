@@ -12,6 +12,13 @@
  *
  * AUDIT: PASS — All methods ported: computeTriangles(4), trim. Uses DynamicArray
  * instead of ShortArray/IntArray. Private helpers: quicksortPairs, end, circumCircle.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 367
+ * Covenant-baseline-methods: COMPLETE,DelaunayTriangulator,EPSILON,INCOMPLETE,INSIDE,centroid,circumCircle,complete,computeTriangles,down,edges,i,lower,originalIndices,pointCount,quicksortPartition,quicksortStack,rsqr,sort,sortedPoints,stack,superTriangle,triangles,trim,up,upper,x,y
+ * Covenant-source-reference: com/badlogic/gdx/math/DelaunayTriangulator.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

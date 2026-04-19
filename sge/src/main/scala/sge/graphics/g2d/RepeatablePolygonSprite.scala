@@ -12,6 +12,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 243
+ * Covenant-baseline-methods: RepeatablePolygonSprite,boundRect,buildVertices,color,cols,dirty,draw,finalDensity,gridHeight,gridWidth,i,idx,indices,intersectionPoly,offset,offsetVertices,parts,polygon,region,regionAspectRatio,rows,setColor,setPolygon,setPosition,snapToGrid,tmpPoly,triangulator,vertices,x,y
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/RepeatablePolygonSprite.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

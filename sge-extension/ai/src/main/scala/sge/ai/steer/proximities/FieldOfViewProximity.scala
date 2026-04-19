@@ -9,6 +9,13 @@
  *   Convention: split packages
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 118
+ * Covenant-baseline-methods: FieldOfViewProximity,_angle,angle,angle_,coneThreshold,currentTime,findNeighbors,lastTime,neighborCount,ownerOrientation,radius,toAgent
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

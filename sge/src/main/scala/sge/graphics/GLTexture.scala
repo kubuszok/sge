@@ -12,6 +12,13 @@
  *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 285
+ * Covenant-baseline-methods: GLTexture,_magFilter,_minFilter,_uWrap,_vWrap,adjustedLevel,anisotropicFilter,anisotropicFilterLevel,bind,close,dataType,delete,depth,disposePixmap,height,magFilter,managed,max,maxAnisotropicFilterLevel,minFilter,pixmap,reload,setAnisotropicFilter,setFilter,setWrap,textureObjectHandle,this,uWrap,unsafeSetAnisotropicFilter,unsafeSetFilter,unsafeSetWrap,uploadImageData,vWrap,width
+ * Covenant-source-reference: com/badlogic/gdx/graphics/GLTexture.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

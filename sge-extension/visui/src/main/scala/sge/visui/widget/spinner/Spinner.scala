@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 300
+ * Covenant-baseline-methods: ButtonInputListener,ButtonRepeatTask,Spinner,SpinnerStyle,TextFieldEventPolicy,_disabled,_labelCell,_programmaticChangeEvents,_textFieldCell,_textFieldEventPolicy,addButtonsListeners,addTextFieldListeners,advance,buttonRepeatInitialTime,buttonRepeatTask,buttonRepeatTime,buttonsTable,changed,createTextField,cursor,decrement,decrementInternal,disabled,disabled_,down,downButton,increment,incrementInternal,keyDown,keyboardFocusChanged,maxLength,maxLength_,model,model_,notifyValueChanged,prefWidth,programmaticChangeEvents,programmaticChangeEvents_,run,scrolled,selectorName,selectorName_,textField,textFieldEventPolicy,textFieldEventPolicy_,textFieldLocal,tf,this,touchDown,touchUp,up,upButton
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/spinner/Spinner.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

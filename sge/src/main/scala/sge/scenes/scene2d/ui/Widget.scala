@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 104
+ * Covenant-baseline-methods: Widget,_fillParent,_layoutEnabled,_needsLayout,draw,fillParent,fillParent_,invalidate,invalidateHierarchy,layout,layoutEnabled,layoutEnabled_,maxHeight,maxWidth,minHeight,minWidth,needsLayout,pack,prefHeight,prefWidth,sizeChanged,validate
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Widget.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

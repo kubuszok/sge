@@ -12,6 +12,13 @@
  *   Idiom: action null-check + early return -> action.fold(true)(_.act(delta))
  *   Convention: opaque Seconds for duration/time params
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 49
+ * Covenant-baseline-methods: DelayAction,delegate,finish,restart,time
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/DelayAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

@@ -10,6 +10,13 @@
  *   Convention: no return; split packages; braces on class
  *   Idiom: action null-check -> action.fold(true)(_.act(delta * scale))
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 30
+ * Covenant-baseline-methods: TimeScaleAction,delegate,scale
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/TimeScaleAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

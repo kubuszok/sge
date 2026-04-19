@@ -11,6 +11,13 @@
  *   Convention: extracted from Files interface into standalone enum; Files trait is in sge/Files.scala
  *   Idiom: split packages (sge / files)
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 46
+ * Covenant-baseline-methods: FileType
+ * Covenant-source-reference: com/badlogic/gdx/Files.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package files

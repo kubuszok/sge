@@ -12,6 +12,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 332
+ * Covenant-baseline-methods: MOVE,Window,WindowStyle,_style,background,c,dragging,draw,drawBackground,drawStageBackground,drawTitleTable,edge,h,hit,hitResult,isDragging,isModal,isMovable,isResizable,keepWithinStage,keepWithinStageMethod,keyDown,keyTyped,keyUp,mouseMoved,newLabel,padLeft,padTop,prefWidth,resizeBorder,scrolled,self,setStyle,stageBackground,style,this,titleFont,titleFontColor,titleLabel,titleTable,tmpPosition,tmpSize,touchDown,touchDragged,touchUp,updateEdge
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Window.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

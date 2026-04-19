@@ -11,6 +11,13 @@
  *   - All 9 methods ported: setPosition x2, setIntensity, set x4, equals x2
  *   - Null checks → Nullable.foreach
  *   - equals(PointLight) uses Nullable.fold for null safety
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 80
+ * Covenant-baseline-methods: PointLight,equals,intensity,position,set,setIntensity,setPosition
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/environment/PointLight.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

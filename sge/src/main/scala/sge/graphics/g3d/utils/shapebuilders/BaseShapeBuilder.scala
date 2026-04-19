@@ -10,6 +10,13 @@
  *   Audited: 2026-03-04 — pass
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 90
+ * Covenant-baseline-methods: BaseShapeBuilder,FlushableMatrixPool,FlushableVectorPool,freeAll,initialCapacity,matTmp1,matrices4Pool,max,newObject,obtainM4,obtainV3,result,tmpColor0,tmpColor1,tmpColor2,tmpColor3,tmpColor4,tmpV0,tmpV1,tmpV2,tmpV3,tmpV4,tmpV5,tmpV6,tmpV7,vectorPool,vertTmp0,vertTmp1,vertTmp2,vertTmp3,vertTmp4,vertTmp5,vertTmp6,vertTmp7,vertTmp8
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/shapebuilders/BaseShapeBuilder.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

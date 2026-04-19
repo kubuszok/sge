@@ -13,6 +13,13 @@
  * - resetIds visibility: protected → protected[particles] (Java protected accessible to subpackage)
  * - Initializer channel.data → channel.floatData (Scala FloatChannel rename)
  * - Constructor calls resetIds() in Java; Scala initializes currentId = currentGlobalId directly
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 174
+ * Covenant-baseline-methods: Acceleration,AlphaOffset,AngularVelocity2D,AngularVelocity3D,BlueOffset,Color,ColorInitializer,CosineOffset,CurrentLifeOffset,GreenOffset,HalfHeightOffset,HalfWidthOffset,Interpolation,Interpolation4,Interpolation6,InterpolationDiffOffset,InterpolationStartOffset,Life,LifePercentOffset,ModelInstance,ParticleChannels,ParticleController,Position,PreviousPosition,RedOffset,Rotation2D,Rotation2dInitializer,Rotation3D,Rotation3dInitializer,Scale,ScaleInitializer,SineOffset,TextureRegion,TextureRegionInitializer,TotalLifeOffset,U2Offset,UOffset,V2Offset,VOffset,VelocityPhiDiffOffset,VelocityPhiStartOffset,VelocityStrengthDiffOffset,VelocityStrengthStartOffset,VelocityThetaDiffOffset,VelocityThetaStartOffset,WOffset,XOffset,YOffset,ZOffset,currentGlobalId,currentId,id,init,newGlobalId,newId,resetIds
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/ParticleChannels.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

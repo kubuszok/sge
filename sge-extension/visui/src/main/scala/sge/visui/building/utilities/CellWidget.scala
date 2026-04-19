@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 128
+ * Covenant-baseline-methods: CellWidget,CellWidgetBuilder,EMPTY,_height,_minHeight,_minWidth,_width,align,alignment,appliedPadding,applyFillingData,applyPadding,applySizeData,buildCell,builder,cell,empty,expandX,expandY,fillX,fillY,getWidget,height,minHeight,minWidth,of,padding,this,useSpacing,using,widget,width,withExpandX,withExpandY,withFillX,withFillY,withSpacing,wrap
+ * Covenant-source-reference: com/kotcrab/vis/ui/building/utilities/CellWidget.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

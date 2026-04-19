@@ -11,8 +11,11 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Covenant: full-port
- * Covenant-source-reference: gdx-ai/gdx-ai/src/com/badlogic/gdx/ai/steer/utils/paths/LinePath.java
- * Covenant-verified: 2026-04-12
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 288
+ * Covenant-baseline-methods: LinePath,LinePathParam,Segment,_distance,ab,abLen2,begin,calculateDistance,calculatePointSegmentSquareDistance,calculateTargetPosition,createParam,createPath,cumulativeLength,curr,desiredSegment,distance,distance_,end,endPoint,found,getSegments,highExhausted,i,length,lengthOnPath,lowExhausted,nearestIndex,nearestPointOnCurrentSegment,nearestPointOnPath,nearestSegment,offset,pathLength,segmentIndex,segments,smallestDistance2,startIndex,startPoint,targetDistance,tmpB,tmpC
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  *
  * Improvements:
  *   - Implements coherence optimization that was TODO in original gdx-ai. The search

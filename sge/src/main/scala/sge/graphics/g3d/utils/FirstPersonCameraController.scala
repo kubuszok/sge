@@ -15,6 +15,13 @@
  *   - All methods (keyDown, keyUp, touchDragged, update, setVelocity, setDegreesPerPixel) ported
  *   - Convention: Int key params → opaque Key type
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 115
+ * Covenant-baseline-methods: FirstPersonCameraController,autoUpdate,backwardKey,camera,degreesPerPixel,deltaX,deltaY,downKey,dt,forwardKey,keyDown,keyUp,keys,setDegreesPerPixel,setVelocity,strafeLeftKey,strafeRightKey,tmp,touchDragged,upKey,update,velocity
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/FirstPersonCameraController.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

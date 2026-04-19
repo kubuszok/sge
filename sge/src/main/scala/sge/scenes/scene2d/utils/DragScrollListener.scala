@@ -11,6 +11,13 @@
  * - Timer.Task and Timer.schedule require (using Sge)
  * - Convention: setPadding kept as method (distributes to padTop/padBottom)
  * - Audited: 2026-03-04
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 106
+ * Covenant-baseline-methods: DragScrollListener,drag,dragStop,interpolation,isAbove,isBelow,maxSpeed,minSpeed,padBottom,padTop,rampTime,run,scroll,scrollDown,scrollPixels,scrollUp,setPadding,setup,startTime,tickSecs,tmpCoords
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/DragScrollListener.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

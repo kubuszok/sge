@@ -14,6 +14,13 @@
  * - remove uses removeValue without identity flag (DynamicArray uses == equality)
  * - Class is final (matches Java)
  * - Convention: opaque Seconds for update(deltaTime), updateAndDraw(deltaTime) params
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 100
+ * Covenant-baseline-methods: ParticleSystem,add,batches,draw,effects,getRenderables,remove,removeAll,rendering,update,updateAndDraw
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/ParticleSystem.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

@@ -14,6 +14,13 @@
  * - Color fields use scala.compiletime.uninitialized (Java null defaults)
  * - opacity initialized to 1.0f (matches Java)
  * - Status: minor_issues (field rename: type -> materialType)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 47
+ * Covenant-baseline-methods: MaterialType,ModelMaterial,ambient,diffuse,emissive,id,materialType,opacity,reflection,shininess,specular,textures
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/model/data/ModelMaterial.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

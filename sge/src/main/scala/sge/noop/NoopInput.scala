@@ -8,6 +8,13 @@
  *     setCursorCatched/cursorCatched track state (Java ignores); maxPointers returns 1 (Java returns 0)
  *   Idiom: split packages
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 151
+ * Covenant-baseline-methods: NoopInput,_cursorCatched,_inputProcessor,accelerometerX,accelerometerY,accelerometerZ,azimuth,closeTextInputField,currentEventTime,cursorCatched,deltaX,deltaY,getRotationMatrix,getTextInput,gyroscopeX,gyroscopeY,gyroscopeZ,inputProcessor,isButtonJustPressed,isButtonPressed,isCatchKey,isKeyJustPressed,isKeyPressed,isPeripheralAvailable,isTouched,justTouched,maxPointers,nativeOrientation,openTextInputField,pitch,pressure,roll,rotation,setCatchKey,setCursorCatched,setCursorPosition,setInputProcessor,setKeyboardHeightObserver,setOnscreenKeyboardVisible,touched,vibrate,x,y
+ * Covenant-source-reference: backends/gdx-backend-headless/mock/input/MockInput.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package noop

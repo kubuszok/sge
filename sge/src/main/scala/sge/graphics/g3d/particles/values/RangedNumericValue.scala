@@ -11,6 +11,13 @@
  * - All public methods ported: newLowValue, setLow (x2), lowMin/lowMax (public vars), load
  * - Fixes (2026-03-04): getLowMin/setLowMin/getLowMax/setLowMax → public vars
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 50
+ * Covenant-baseline-methods: RangedNumericValue,load,lowMax,lowMin,newLowValue,setLow
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/values/RangedNumericValue.java
+ * Covenant-verified: 2026-04-19
  */
 
 package sge

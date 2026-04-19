@@ -12,6 +12,13 @@
  *   - setDepthTest, setBlending, setCullFace: logic matches Java source
  *   - begin()/end(): state initialization matches Java
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 150
+ * Covenant-baseline-methods: RenderContext,blendDestAlphaFactor,blendDestRgbFactor,blendSourceAlphaFactor,blendSourceRgbFactor,blending,cullFace,depthFunc,depthMask,depthRangeFar,depthRangeNear,enabled,gl,rendering,setBlending,setCullFace,setDepthMask,setDepthTest,textureBinder,wasEnabled
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/RenderContext.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

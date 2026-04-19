@@ -8,6 +8,13 @@
  * ShaderParser allows to recursively load shader code split into several files.
  * It brings support for file inclusion like: #include<part.glsl>
  * Given paths are relative to the file declaring the include statement.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 47
+ * Covenant-baseline-methods: ShaderParser,content,i,includeAfter,includeBefore,lines,parse,sb
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

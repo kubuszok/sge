@@ -12,6 +12,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 752
+ * Covenant-baseline-methods: FloatFrameBufferBuilder,FrameBufferBuilder,FrameBufferCubemapBuilder,FrameBufferRenderBufferAttachmentSpec,FrameBufferTextureAttachmentSpec,GLFrameBuffer,GLFrameBufferBuilder,_textureAttachments,addBasicColorTextureAttachment,addBasicDepthRenderBuffer,addBasicStencilDepthPackedRenderBuffer,addBasicStencilRenderBuffer,addColorRenderBuffer,addColorTextureAttachment,addDepthRenderBuffer,addDepthTextureAttachment,addFloatAttachment,addManagedFrameBuffer,addStencilDepthPackedRenderBuffer,addStencilRenderBuffer,addStencilTextureAttachment,attachFrameBufferColorTexture,bind,bits,bufferArray,bufferBuilder,buffers,build,checkValidBuilder,clearAllFrameBuffers,close,colorAttachmentCounter,colorBufferHandles,colorBufferTexture,colorRenderBufferSpecs,copyBits,createTexture,defaultDrawBuffers,defaultFramebufferHandle,defaultFramebufferHandleInitialized,depthBufferHandle,depthRenderBufferSpec,depthStencilPackedBuffer,depthStencilPackedBufferHandle,depthbufferHandle,disposeColorTexture,drawBuffersForTransfer,framebufferHandle,getColorBufferHandle,getFramebufferHandle,getManagedStatus,gl,gl30,hasDepthRenderBuffer,hasDepthStencilPackedBuffer,hasPackedStencilDepthRenderBuffer,hasStencilRenderBuffer,height,invalidateAllFrameBuffers,isColorTexture,isDepth,isFloat,isGpuOnly,isMRT,isStencil,managedResources,managedStatus,packedStencilDepthRenderBufferSpec,result,runningGL30,setFrameBufferViewport,stencilBufferHandle,stencilRenderBufferSpec,stencilbufferHandle,textureAttachmentSpecs,textureAttachments,this,transfer,unbind,use,width
+ * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/GLFrameBuffer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

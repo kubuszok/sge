@@ -9,6 +9,13 @@
  *   Convention: split packages
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 100
+ * Covenant-baseline-methods: FollowPath,arriveEnabled,calculateRealSteering,distance,getInternalTargetPosition,internalTargetPosition,location,path,pathOffset,pathParam,predictionTime,targetDistance
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

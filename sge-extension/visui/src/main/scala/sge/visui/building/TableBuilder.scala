@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 96
+ * Covenant-baseline-methods: TableBuilder,_rowSizes,append,build,currentRowSize,fillTable,getDefaultWidgetPadding,getGreatestCommonDenominator,getLowestCommonMultiple,getRowSizes,getWidget,getWidgets,i,lcm,prepareBuiltTable,prepareNewTable,row,setTablePadding,tablePadding,this,validateRowSize,widgets
+ * Covenant-source-reference: com/kotcrab/vis/ui/building/TableBuilder.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

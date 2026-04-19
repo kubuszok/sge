@@ -6,6 +6,13 @@
  * Scala port for SGE
  *
  * Mirror source renders reflected scene into a framebuffer.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 131
+ * Covenant-baseline-methods: MirrorSource,begin,camera,clipScene,clippingPlane,close,createFrameBuffer,end,ensureFrameBufferSize,environment,fbo,h,height,mirrorAttribute,originalCameraDirection,originalCameraPosition,originalCameraUp,planeOrigin,planeToCamera,reflect,restoreCamera,set,setPlane,setSize,setupCamera,skyBox,texture,w,width
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

@@ -10,6 +10,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 111
+ * Covenant-baseline-methods: Scaling,apply,contain,fill,fillX,fillY,fit,none,scale,sourceRatio,stretch,stretchX,stretchY,targetRatio,temp
+ * Covenant-source-reference: com/badlogic/gdx/utils/Scaling.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package utils

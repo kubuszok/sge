@@ -17,6 +17,13 @@
  * - Json.Serializable (write/read): not implemented (JSON serialization deferred)
  * - getChannel returns Nullable[T] instead of T|null
  * - GdxRuntimeException → SgeError.InvalidInput
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 294
+ * Covenant-baseline-methods: Channel,ChannelDescriptor,ChannelInitializer,FloatChannel,IntChannel,ObjectChannel,ParallelArray,add,addChannel,addElement,allocateChannel,arraySupplier,arrays,capacity,channel,clear,clearSlot,count,data,findIndex,floatData,getChannel,id,init,intData,k,last,objectData,owner,removeArray,removeElement,setCapacity,size,strideSize,swap
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/ParallelArray.java
+ * Covenant-verified: 2026-04-19
  */
 
 package sge

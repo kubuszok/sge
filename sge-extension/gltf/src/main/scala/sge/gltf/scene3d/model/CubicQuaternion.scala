@@ -7,6 +7,13 @@
  *
  * In Java, CubicQuaternion extends Quaternion. In SGE, Quaternion is sealed,
  * so we use a wrapper case class.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 24
+ * Covenant-baseline-methods: CubicQuaternion
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

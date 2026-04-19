@@ -12,6 +12,13 @@
  * - keytime initialized to 0f (matches Java default)
  * - No methods in Java source, none in Scala — pure data class
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 31
+ * Covenant-baseline-methods: ModelNodeKeyframe,keytime,value
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/model/data/ModelNodeKeyframe.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

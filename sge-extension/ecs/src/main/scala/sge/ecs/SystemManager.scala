@@ -12,6 +12,13 @@
  *   Idiom: Nullable[A] for getSystem return
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 80
+ * Covenant-baseline-methods: SystemListener,SystemManager,addSystem,getSystem,getSystems,idx,immutableSystems,oldSystem,removeAllSystems,removeSystem,sortSystems,sorted,systemAdded,systemComparator,systemRemoved,systemType,systems,systemsByClass
+ * Covenant-source-reference: com/badlogic/ashley/core/SystemManager.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ecs

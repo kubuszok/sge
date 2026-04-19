@@ -13,6 +13,13 @@
  * AUDIT: PASS — All methods ported: line(GridPoint2,GridPoint2), line(ints),
  * line(ints,Pool,DynamicArray). Uses DynamicArray instead of gdx Array.
  * Two-arg line returns Array[GridPoint2] via .toArray (Java returns Array<GridPoint2>).
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 138
+ * Covenant-baseline-methods: Bresenham2,currentX,currentY,dx1,dx2,dy1,dy2,h,line,longest,longest2,numerator,points,pool,shortest,shortest2,w
+ * Covenant-source-reference: com/badlogic/gdx/math/Bresenham2.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

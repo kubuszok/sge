@@ -7,6 +7,13 @@
  *   Origin: SGE-original (wraps sttp Response into Net.HttpResponse interface)
  *   Convention: immutable, not pooled — consumed once by HttpResponseListener
  *   Idiom: split packages
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 46
+ * Covenant-baseline-methods: SgeHttpResponse,bodyBytes,bodyString,getHeader,headers,result,resultAsStream,resultAsString,status
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package net

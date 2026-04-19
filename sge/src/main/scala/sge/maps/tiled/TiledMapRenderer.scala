@@ -9,6 +9,13 @@
  * Migration notes (audited 2026-03-03):
  *   - All 4 interface methods match Java 1:1
  *   - Split package, braces, no-return conventions satisfied
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 27
+ * Covenant-baseline-methods: TiledMapRenderer,renderImageLayer,renderObject,renderObjects,renderTileLayer
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/TiledMapRenderer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

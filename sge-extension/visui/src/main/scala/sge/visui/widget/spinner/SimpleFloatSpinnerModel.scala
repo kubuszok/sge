@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 201
+ * Covenant-baseline-methods: SimpleFloatSpinnerModel,_max,_min,_precision,_step,bind,boundsValidator,checkInputBounds,current,decrementModel,incrementModel,max,max_,min,min_,precision,precision_,setPrecisionInternal,setValue,step,step_,text,textChanged,textFieldFilter,this,value,valueText
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/spinner/SimpleFloatSpinnerModel.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

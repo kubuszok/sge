@@ -10,6 +10,13 @@
  *   SGE-original platform abstraction trait, no LibGDX counterpart
  *   Idiom: split packages
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 161
+ * Covenant-baseline-methods: DECODED_BLOCK_SIZE,ENCODED_BLOCK_SIZE,ETC1Ops,PKM_HEADER_SIZE,decodeImage,encodeImage,encodeImagePKM,formatHeader,getCompressedDataSize,getHeightPKM,getWidthPKM,isValidPKM
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package platform

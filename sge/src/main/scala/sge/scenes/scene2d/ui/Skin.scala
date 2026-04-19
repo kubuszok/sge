@@ -11,6 +11,13 @@
  *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 747
+ * Covenant-baseline-methods: Skin,TintedDrawable,_atlas,_scale,add,addRegions,addType,atlas,atlasFile,classTagMap,close,color,colorJson,drawable,drawableName,existing,find,flip,fontFile,get,getAll,getBoolField,getColor,getDrawable,getField,getFloatField,getFont,getJsonClassTags,getPatch,getRegion,getRegions,getSprite,getStringField,getTiledDrawable,has,i,load,markupEnabled,n,name,newDrawable,newRegion,obj,optional,path,readBitmapFont,readColor,readNamedObjects,readStyleObject,readTintedDrawable,readValue,reader,region,regionName,regions,remove,resolveClass,resource,resources,result,scale,scaledSize,setEnabled,setScale,style,styleParentTypes,tex,texture,this,tiled,typeResources,useIntPositions
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Skin.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

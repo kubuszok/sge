@@ -10,6 +10,13 @@
  *   Idiom: Nullable for entities field (cleared on removedFromEngine)
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 66
+ * Covenant-baseline-methods: IteratingSystem,addedToEngine,endProcessing,entities,getEntities,processEntity,removedFromEngine,startProcessing,update
+ * Covenant-source-reference: com/badlogic/ashley/systems/IteratingSystem.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ecs

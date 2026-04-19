@@ -13,6 +13,13 @@
  * - Fixes (2026-03-04): removed redundant getMinParticleCount/setMinParticleCount,
  *   getMaxParticleCount/setMaxParticleCount (fields already public var);
  *   isComplete() → isComplete (dropped parens); setParticleCount updated to direct assignment
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 61
+ * Covenant-baseline-methods: Emitter,end,init,isComplete,maxParticleCount,minParticleCount,percent,set,setParticleCount,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/emitters/Emitter.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

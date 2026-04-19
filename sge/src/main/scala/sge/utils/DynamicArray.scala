@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 862
+ * Covenant-baseline-methods: DynamicArray,_items,_size,add,addAll,apply,begin,c,changed,check,clear,contains,containsAll,containsAllByRef,containsAny,containsAnyByRef,containsByRef,copyFrom,count,create,createWithMk,end,ensureCapacity,equals,equalsIdentity,exists,find,findNext,first,forall,foreach,from,grow,hasNext,hashCode,i,indexOf,indexOfByRef,indexWhere,insert,insertRange,isEmpty,items,iterator,j,last,lastIndexOf,lastIndexOfByRef,len,mk,modified,n,needed,newCapacity,next,nonEmpty,peek,pop,preserveOrder,random,recycled,removeAll,removeAllByRef,removeIndex,removeRange,removeValue,removeValueByRef,replaceAll,replaceAllByRef,replaceFirst,replaceFirstByRef,reverse,select,selectRanked,selectRankedIndex,setSize,shrink,shuffle,size,snapshot,snapshots,sort,summonMkArray,swap,tmp,toArray,toString,truncate,update,value,wrap,wrapRefUnchecked,wrapWith
+ * Covenant-source-reference: com/badlogic/gdx/utils/Array.java
+ * Covenant-verified: 2026-04-19
  */
 /*
  * SGE - Scala Game Engine

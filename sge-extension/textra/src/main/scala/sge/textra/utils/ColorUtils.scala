@@ -10,9 +10,12 @@
  *   Convention: IntArray -> DynamicArray[Int]
  *   Idiom: Java switch fall-through -> cumulative if/else length checks
  *
- * Covenant: partial-port
- * Covenant-source-reference: textratypist/src/main/java/com/github/tommyettinger/textra/utils/ColorUtils.java
- * Covenant-verified: 2026-04-08
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 803
+ * Covenant-baseline-methods: ColorUtils,_lightness,_saturation,a,adjMultiplier4,adjMultiplier5,adjMultiplier6,adjMultiplierPale,bi,bits,c,ch,channel,channelInt,current,d,darken,describe,dullen,eA,eB,ei,end,enrich,h,hsb2rgb,hsl2rgb,hue,i,l,lerpColors,lerpColorsMultiplyAlpha,light,lighten,lookupInColors,mix,mixing,multiplyAllAlpha,multiplyAlpha,n,nonTermPattern,off,offset,offsetLightness,process,r,rc,result,rgb2hsb,rgb2hsl,s,sA,sz,total,u,unevenMix,v,x,y,y0,z,z0
+ * Covenant-source-reference: com/github/tommyettinger/textra/utils/ColorUtils.java
+ * Covenant-verified: 2026-04-19
  *
  * Partial-port debt:
  *   - parseDescription: only handles single color name lookup, not multi-word descriptions

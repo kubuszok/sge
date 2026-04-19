@@ -11,6 +11,13 @@
  *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 391
+ * Covenant-baseline-methods: TexturePackerFileProcessor,atlasExtension,atlasExtensionQ,countOnly,defaultSettings,deleteOutput,dirToSettings,i,ignoreDirs,merge,n,newSettings,newTexturePacker,pack,packCount,packFileName,packer,process,processDir,processFile,processFiles,progress,result,root,rootSettings,settingsFile,settingsFiles,settingsProcessor,this
+ * Covenant-source-reference: com/badlogic/gdx/tools/texturepacker/TexturePackerFileProcessor.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package tools

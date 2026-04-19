@@ -10,6 +10,13 @@
  *   Convention: null -> Nullable[A]; no return; split packages; braces on class
  *   Idiom: target null-access -> target.foreach + listener.foreach
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 43
+ * Covenant-baseline-methods: AddListenerAction,act,capture,listener,reset
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/AddListenerAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

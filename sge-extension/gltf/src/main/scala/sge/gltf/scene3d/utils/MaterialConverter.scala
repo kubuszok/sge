@@ -7,6 +7,13 @@
  *
  * Utility to convert PBR materials to default materials in order to be used with DefaultShader.
  * Some conversion are approximation because PBR and Gouraud lighting models are very different.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 52
+ * Covenant-baseline-methods: MaterialConverter,baseColor,baseColorAttribute,i,makeCompatible,mats,roughness,roughnessAttribute,shininess
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

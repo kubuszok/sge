@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 98
+ * Covenant-baseline-methods: PoolManager,addPool,clazz,clear,free,hasPool,obtain,obtainOrNull,oldPool,pool,poolOrNull,typePools
+ * Covenant-source-reference: com/badlogic/gdx/utils/PoolManager.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package utils

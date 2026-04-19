@@ -7,6 +7,13 @@
  *
  * HDR Color attribute only contains RGB values with High Dynamic Range.
  * RGB values are not clamped to 0-1 range.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 53
+ * Covenant-baseline-methods: PBRHDRColorAttribute,Specular,SpecularAlias,b,compare,copy,g,r,set
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

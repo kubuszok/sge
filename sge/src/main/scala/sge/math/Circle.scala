@@ -14,6 +14,13 @@
  * AUDIT: PASS — All methods ported: constructors, set(4 overloads), setPosition(2),
  * x/y/radius (public vars), contains(x,y), contains(V2), contains(Circle), overlaps,
  * circumference, area, equals, hashCode, toString.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 247
+ * Covenant-baseline-methods: Circle,area,circumference,contains,distance,dx,dy,equals,hashCode,overlaps,prime,radius,radiusDiff,radiusSum,result,set,setPosition,this,toString,x,y
+ * Covenant-source-reference: com/badlogic/gdx/math/Circle.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

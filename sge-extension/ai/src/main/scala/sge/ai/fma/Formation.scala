@@ -12,9 +12,12 @@
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
- * Covenant: partial-port
- * Covenant-source-reference: gdx-ai/gdx-ai/src/com/badlogic/gdx/ai/fma/Formation.java
- * Covenant-verified: 2026-04-08
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 211
+ * Covenant-baseline-methods: Formation,addMember,anchor,changePattern,currentAnchor,driftOffset,findMemberSlot,i,motionModerator,occupiedSlots,orientationMatrix,orientationOffset,pattern,positionOffset,removeMember,slot,slotAssignmentAt,slotAssignmentCount,slotAssignmentStrategy,slotAssignments,updateSlotAssignments,updateSlots
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  *
  * Partial-port debt:
  *   - Inherited gdx-ai TODO: "Consider the possibility of declaring mul(orientationMatrix)

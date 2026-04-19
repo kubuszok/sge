@@ -17,6 +17,13 @@
  * - Random.init: uses pool.obtain() instead of pool.newObject() (Pool.Default behavior).
  * - Fixes (2026-03-06): save stub completed — AssetManager.getAll now available
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 287
+ * Covenant-baseline-methods: ParticleControllerInfluencer,Random,Single,_effectReferences,activateParticles,allocateChannels,clear,close,controllers,copy,createPool,data,effects,effectsIndices,end,i,init,killParticles,load,particleControllerChannel,pool,save,templates,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/influencers/ParticleControllerInfluencer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

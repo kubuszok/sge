@@ -11,6 +11,13 @@
  *   Renames: end -> rotation (public var)
  *   Idiom: target.getRotation -> target.foreach; target.setRotation -> target.foreach
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 46
+ * Covenant-baseline-methods: RotateToAction,begin,rotation,start,update
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/RotateToAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

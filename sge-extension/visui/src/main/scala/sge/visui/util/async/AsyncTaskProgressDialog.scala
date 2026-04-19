@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 65
+ * Covenant-baseline-methods: AsyncTaskProgressDialog,addListener,failed,finished,getStatus,messageChanged,progressBar,progressChanged,statusLabel
+ * Covenant-source-reference: com/kotcrab/vis/ui/util/async/AsyncTaskProgressDialog.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

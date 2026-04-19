@@ -10,6 +10,13 @@
  *   Audited: 2026-03-10
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 88
+ * Covenant-baseline-methods: ExtendViewport,currentScaling,maxWorldHeight,maxWorldWidth,minWorldHeight,minWorldWidth,scaled,sh,sw,this,update,viewportHeight,viewportWidth,wh,ww
+ * Covenant-source-reference: com/badlogic/gdx/utils/viewport/ExtendViewport.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package utils

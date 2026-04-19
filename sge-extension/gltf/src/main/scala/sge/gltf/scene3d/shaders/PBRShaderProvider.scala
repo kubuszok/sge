@@ -6,6 +6,13 @@
  * Scala port for SGE
  *
  * PBR shader provider that creates PBRShader instances with appropriate prefix defines.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 364
+ * Covenant-baseline-methods: PBRShaderProvider,TAG,cfg,checkShaderCompilation,config,createDefault,createDefaultConfig,createDefaultDepth,createDefaultDepthConfig,createPrefixBase,createPrefixSRGB,createShader,defaultPrefix,env,getDefaultFragmentShader,getDefaultVertexShader,getShaderCount,isGL3,isLineOrPoint,j,mat,maxUVIndex,morphTargetsPrefix,n,numBoneInfluence,numColor,numMorphTarget,prefix,primitiveType,sb,shader,shaderLog,unlit,uvTextureTypes,vIdx,version,vertexAttributes
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

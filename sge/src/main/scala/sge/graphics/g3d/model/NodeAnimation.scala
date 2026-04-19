@@ -13,6 +13,13 @@
  * - Array -> DynamicArray is standard SGE collection mapping
  * - No API differences from Java source
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 44
+ * Covenant-baseline-methods: NodeAnimation,node,rotation,scaling,translation
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/model/NodeAnimation.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

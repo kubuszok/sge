@@ -12,6 +12,13 @@
  *   Audited: 2026-03-10
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 887
+ * Covenant-baseline-methods: Gdx2dDraw,a,b,blend,blitBilinear,blitNearest,blitSameSize,boundY1a,boundY2a,bpp,bytesPerPixel,circlePoints,clear,col,colFormat,dbpp,ddFx,ddFy,drawCircle,drawLine,drawPixmap,drawRect,dstA,dstB,dstG,dstR,dx,dy,edgeAssign,edgeSwap,edges,f,fillCircle,fillRect,fillTriangle,g,getPixel,getRawPixel,getRawPixelAt,hline,i,lens,lu4,lu5,lu6,newPixelBuffer,offset,p,pixels,px,py,r,sbpp,setPixel,setRawPixel,setRawPixelAt,size,slope0,slope1,srcA,srcB,srcG,srcR,stepx,stepy,stride,sy,tmpEdge,tmpLen,toFormat,toRGBA8888,vline,x,x0,x1,x2,xRatio,y,y0,y1,y2,yRatio
+ * Covenant-source-reference: gdx/jni/gdx2d/gdx2d.c
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

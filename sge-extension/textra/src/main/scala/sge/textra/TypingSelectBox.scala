@@ -10,6 +10,13 @@
  *   Convention: TypingSelectBox extends TextraSelectBox, overrides newLabel to produce
  *     TypingLabel with bottom alignment enforced.
  *   Idiom: Nullable[A] for nullable fields.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 41
+ * Covenant-baseline-methods: TypingSelectBox,label,newLabel,this
+ * Covenant-source-reference: com/github/tommyettinger/textra/TypingSelectBox.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

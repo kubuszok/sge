@@ -11,6 +11,13 @@
  * - `value` is val (matching Java `final`), `keytime` is var (matching Java mutable)
  * - No API differences from Java source
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 29
+ * Covenant-baseline-methods: NodeKeyframe,keytime,value
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/model/NodeKeyframe.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

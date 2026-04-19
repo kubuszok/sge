@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 117
+ * Covenant-baseline-methods: IconStack,_maxHeight,_maxWidth,_minHeight,_minWidth,_prefHeight,_prefWidth,add,ch,checkHeight,checkStyle,computeSize,h,i,invalidate,layout,maxHeight,maxWidth,minHeight,minWidth,n,prefHeight,prefWidth,sizeInvalid,w
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/file/internal/IconStack.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

@@ -9,6 +9,13 @@
  *   Convention: split packages, Nullable instead of null
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 122
+ * Covenant-baseline-methods: SingleRunningChildBranch,branch,cancelRunningChildren,childFail,childRunning,childSuccess,copyTo,createRandomChildren,currentChildIndex,i,randomChildren,reset,resetTask,rndChildren,run,runningChild,start
+ * Covenant-source-reference: com/badlogic/gdx/ai/btree/SingleRunningChildBranch.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

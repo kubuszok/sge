@@ -11,6 +11,13 @@
  *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 502
+ * Covenant-baseline-methods: ImageProcessor,addImage,alphaRaster,bottom,breakA,clear,crcs,currentImage,dotIndex,emptyImage,end,endX,endY,getPads,getSplitPoint,getSplits,hash,hashInt,height,image,images,index,indexPattern,isPatch,name,next,pads,processImage,raster,rect,rects,resampling,rgba,right,scale,splitError,splits,startX,startY,stripWhitespace,width,x,y
+ * Covenant-source-reference: com/badlogic/gdx/tools/texturepacker/ImageProcessor.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package tools

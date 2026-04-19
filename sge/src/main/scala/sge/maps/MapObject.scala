@@ -12,6 +12,13 @@
  *     getOpacity/setOpacity → var opacity, isVisible/setVisible → var visible,
  *     getProperties → val properties
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 28
+ * Covenant-baseline-methods: MapObject,color,name,opacity,properties,visible
+ * Covenant-source-reference: com/badlogic/gdx/maps/MapObject.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

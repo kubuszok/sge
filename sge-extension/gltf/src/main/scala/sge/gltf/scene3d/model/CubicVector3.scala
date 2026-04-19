@@ -11,6 +11,13 @@
  *
  * NOTE: This class wraps a Vector3 value. Callers must cast the Vector3 keyframe value
  * to access tangent data through this type.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 28
+ * Covenant-baseline-methods: CubicVector3
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

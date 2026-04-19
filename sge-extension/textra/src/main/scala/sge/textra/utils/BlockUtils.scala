@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 215
+ * Covenant-baseline-methods: ALL_BLOCK_CHARS,BOX_DRAWING,BlockUtils,THIN_ACROSS,THIN_END,THIN_OVER,THIN_START,TWIN_ACROSS,TWIN_END1,TWIN_END2,TWIN_OVER1,TWIN_OVER2,TWIN_START1,TWIN_START2,WIDE_ACROSS,WIDE_END,WIDE_OVER,WIDE_START,isBlockGlyph
+ * Covenant-source-reference: com/github/tommyettinger/textra/utils/BlockUtils.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

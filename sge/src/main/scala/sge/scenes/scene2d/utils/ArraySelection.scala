@@ -13,6 +13,13 @@
  * - validate: iter.remove() -> collect-then-remove pattern (no ConcurrentModification)
  * - validate uses DynamicArray.createWithMk for generic T collection
  * - All methods faithfully ported
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 101
+ * Covenant-baseline-methods: ArraySelection,_rangeSelect,changed,choose,rangeSelect,rangeStart,setRangeSelect,validate
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/ArraySelection.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

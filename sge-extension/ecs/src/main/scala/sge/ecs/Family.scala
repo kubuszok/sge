@@ -11,6 +11,13 @@
  *   Idiom: mutable.HashMap instead of ObjectMap for cache
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 159
+ * Covenant-baseline-methods: Builder,Family,_all,_exclude,_one,all,entityComponentBits,equals,exclude,families,familyIndex,get,getBitsString,getFamilyHash,hashCode,i,index,matches,numBits,one,sb,zeroBits
+ * Covenant-source-reference: com/badlogic/ashley/core/Family.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ecs

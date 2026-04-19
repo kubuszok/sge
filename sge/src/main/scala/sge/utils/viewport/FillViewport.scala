@@ -15,6 +15,13 @@
  * Behavioural parity: YES — delegates to ScalingViewport(Scaling.fill, ...)
  * Conventions: OK — no return, no null, split packages
  * Fix applied: removed trailing semicolons from imports
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 37
+ * Covenant-baseline-methods: FillViewport,this
+ * Covenant-source-reference: com/badlogic/gdx/utils/viewport/FillViewport.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package utils

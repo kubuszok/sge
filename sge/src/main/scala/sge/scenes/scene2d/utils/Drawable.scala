@@ -10,6 +10,13 @@
  * - Java interface with default methods -> Scala trait with def implementations
  * - All methods faithfully ported
  * - Renames: getLeftWidth→leftWidth, setLeftWidth→leftWidth_=, getRightWidth→rightWidth, etc.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 72
+ * Covenant-baseline-methods: Drawable,bottomHeight,bottomHeight_,draw,leftWidth,leftWidth_,minHeight,minHeight_,minWidth,minWidth_,rightWidth,rightWidth_,setMinSize,setPadding,topHeight,topHeight_
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/Drawable.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

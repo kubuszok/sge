@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 216
+ * Covenant-baseline-methods: FLOAT_BYTES,RenderablePoolImpl,RenderableShapeBuilder,attributesSize,biNorAttr,binormalOffset,buildNormals,ensureIndicesCapacity,ensureVerticesCapacity,indices,initialCapacity,max,maxVerticeInIndices,mesh,min,minVerticeInIndices,newObject,norAttr,normalOffset,obtain,posAttr,positionOffset,renderables,renderablesPool,tanAttr,tangentOffset,vertices,verticesOffset,verticesQuantity
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/shapebuilders/RenderableShapeBuilder.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

@@ -12,6 +12,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 108
+ * Covenant-baseline-methods: FloatTextureData,_buffer,buffer,consumeCustomData,consumePixmap,dataType,disposePixmap,format,getFormat,height,internalFormat,isGpuOnly,isManaged,isPrepared,isPreparedState,prepare,useMipMaps,width
+ * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/FloatTextureData.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

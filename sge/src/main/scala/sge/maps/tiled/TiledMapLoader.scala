@@ -12,6 +12,13 @@
  *   - usesAtlas uses boundary/break for early return
  *   - Constructor requires `(using Sge)` (SGE context parameter)
  *   - Split package, braces, no-return conventions satisfied
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 182
+ * Covenant-baseline-methods: TiledMapLoader,atlasTmjMapLoader,atlasTmxMapLoader,extension,file,getDependencies,load,loadAsync,loadSync,param,this,tmjMapLoader,tmxMapLoader,usesAtlas,xmlReader
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/TiledMapLoader.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

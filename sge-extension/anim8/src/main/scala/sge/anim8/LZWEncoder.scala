@@ -8,6 +8,13 @@
  * Created by K Weiner in December 2000
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 318
+ * Covenant-baseline-methods: BITS,ClearCode,EOF,EOFCode,HSIZE,LZWEncoder,MAXCODE,a_count,accum,c,char_out,cl_block,cl_hash,clear_flg,codetab,compress,curPixel,cur_accum,cur_bits,disp,encode,ent,fcode,flush_char,free_ent,g_init_bits,hshift,hsize,hsize_reg,htab,i,initCodeSize,masks,maxbits,maxcode,maxmaxcode,n_bits,nextPixel,output,remaining
+ * Covenant-source-reference: com/github/tommyettinger/anim8/LZWEncoder.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package anim8

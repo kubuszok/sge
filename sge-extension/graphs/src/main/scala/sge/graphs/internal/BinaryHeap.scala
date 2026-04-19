@@ -3,6 +3,13 @@
  * Licensed under the ISC License
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 205
+ * Covenant-baseline-methods: BinaryHeap,add,clear,contains,continue,down,equals,h,hashCode,i,index,isEmpty,node,nodes,notEmpty,oldValue,peek,pop,removed,setValue,size,toString,up,value
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphs

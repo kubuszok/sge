@@ -13,6 +13,13 @@
  * - Java switch/break on rotations replaced with match/case
  * - Does not override renderImageLayer (inherits from BatchTiledMapRenderer, matching Java)
  * - Constructors: 4 Java ctors mapped to primary + 3 auxiliary
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 176
+ * Covenant-baseline-methods: OrthogonalTiledMapRenderer,batchColor,col1,col2,color,layerHeight,layerOffsetX,layerOffsetY,layerTileHeight,layerTileWidth,layerWidth,renderTileLayer,row,row1,row2,this,vertices,xStart,y
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/renderers/OrthogonalTiledMapRenderer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

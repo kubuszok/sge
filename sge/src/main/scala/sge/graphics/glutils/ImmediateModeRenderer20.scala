@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 231
+ * Covenant-baseline-methods: ImmediateModeRenderer20,_numVertices,attribs,begin,buildVertexAttributes,close,color,colorOffset,createDefaultShader,createFragmentShader,createVertexShader,dispose,end,flush,fragmentShader,idx,maxVertices,mesh,normal,normalOffset,numSetTexCoords,numVertices,ownsShader,primitiveType,program,projModelView,shader,shaderUniformNames,shaderVar,shader_,texCoord,texCoordOffset,this,vertex,vertexIdx,vertexShader,vertexSize,vertices
+ * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/ImmediateModeRenderer20.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

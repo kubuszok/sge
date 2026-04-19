@@ -13,6 +13,13 @@
  *   Convention: getX()/setX() → public var where no logic.
  *   Idiom: Nullable[A] for nullable fields; boundary/break for early returns.
  *   Ported: draw(), layout(), getPrefWidth/getPrefHeight with background support.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 660
+ * Covenant-baseline-methods: TextraLabel,_color,_height,_originX,_originY,_rotation,_scaleX,_scaleY,_width,_x,_y,act,actualWidth,adjustedWidth,align,baseX,baseY,cs,defaultToken,doLayout,draw,e,font,getAdvances,getAlignment,getColor,getDefaultToken,getEllipsis,getFont,getGlyph,getHeight,getLineHeight,getMaxLines,getOffsets,getOriginX,getOriginY,getPrefHeight,getPrefWidth,getRotation,getRotations,getScaleX,getScaleY,getSizing,getWidth,getX,getY,glyphCount,height,i,idx,index,invalidate,isWrap,layout,layoutHeight,lines,ln,n,old,originX,originY,originalHeight,prefSizeInvalid,regenerateLayout,resetShader,rot,s,sb,setAlignment,setBounds,setColor,setDefaultToken,setEllipsis,setFont,setHeight,setMaxLines,setParent,setPosition,setRotation,setScaleX,setScaleY,setSize,setStage,setSuperHeight,setSuperWidth,setText,setWidth,setWrap,setX,setY,skipToTheEnd,sn,storedText,style,substring,this,toString,useIntegerPositions,validate,widgetHeight,widgetWidth,width,wrap
+ * Covenant-source-reference: com/github/tommyettinger/textra/TextraLabel.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

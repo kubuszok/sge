@@ -10,6 +10,13 @@
  *   Idiom: wraps ArrayBuffer, implements Iterable[A]
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 64
+ * Covenant-baseline-methods: ImmutableArray,apply,contains,equals,first,hashCode,indexOf,iterator,lastIndexOf,peek,random,size,this,toArray,toString
+ * Covenant-source-reference: com/badlogic/ashley/utils/ImmutableArray.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ecs

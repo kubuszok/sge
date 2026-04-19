@@ -10,6 +10,13 @@
  *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 154
+ * Covenant-baseline-methods: Accept,AcceptCharset,AcceptDatetime,AcceptEncoding,AcceptLanguage,Authorization,CacheControl,Connection,ContentLength,ContentMD5,ContentType,Cookie,Date,Expect,From,Host,HttpRequestHeader,IfMatch,IfModifiedSince,IfNoneMatch,IfRange,IfUnmodifiedSince,MaxForwards,Origin,Pragma,ProxyAuthorization,Range,Referer,TE,Upgrade,UserAgent,Via,Warning
+ * Covenant-source-reference: com/badlogic/gdx/net/HttpRequestHeader.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package net

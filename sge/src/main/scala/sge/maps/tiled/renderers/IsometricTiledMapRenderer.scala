@@ -15,6 +15,13 @@
  * - renderImageLayer override: isometric Y-offset logic faithfully ported
  * - Private renderRepeatedImage helper extracted (same logic as Java inline block)
  * - Constructors: 4 Java ctors mapped to primary + 3 auxiliary
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 283
+ * Covenant-baseline-methods: IsometricTiledMapRenderer,batchColor,bottomLeft,bottomRight,col1,col2,color,halfTileHeight,halfTileWidth,i,init,invIsotransform,isoTransform,layerOffsetX,layerOffsetY,region,renderImageLayer,renderRepeatedImage,renderTileLayer,repeatX,repeatY,row,row1,row2,screenPos,startX,startY,this,tileHeight,tileWidth,topLeft,topRight,translateScreenToIso,vertices
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/renderers/IsometricTiledMapRenderer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

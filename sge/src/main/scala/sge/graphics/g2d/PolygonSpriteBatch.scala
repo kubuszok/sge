@@ -12,6 +12,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 1310
+ * Covenant-baseline-methods: PolygonSpriteBatch,_blendDstFunc,_blendDstFuncAlpha,_blendSrcFunc,_blendSrcFuncAlpha,_color,_drawing,_projectionMatrix,_shader,_transformMatrix,activeShader,batch,blendDstFunc,blendDstFuncAlpha,blendSrcFunc,blendSrcFuncAlpha,blendingDisabled,blendingEnabled,close,color,colorPacked,color_,combinedMatrix,cos,currentOffset,customShader,disableBlending,draw,drawing,enableBlending,flush,fx,fx2,fy,fy2,gl,idx,invTexHeight,invTexWidth,lastTexture,maxTrianglesInBatch,mesh,ownsShader,p1x,p1y,p2x,p2y,p3x,p3y,p4x,p4y,packedColor,packedColor_,projectionMatrix,projectionMatrix_,regionTriangles,regionTrianglesLength,regionVertices,regionVerticesLength,remainingCount,renderCalls,sX,sY,setBlendFunction,setBlendFunctionSeparate,setColor,setupMatrices,shader,shader_,sin,startVertex,switchTexture,texture,textureCoords,textureRegion,this,ti,totalRenderCalls,transformMatrix,transformMatrix_,triangleCount,triangleIdx,triangleIndex,triangles,u,u1,u2,u3,u4,v,v1,v2,v3,v4,vertex,vertexDataType,vertexIdx,vertexIndex,vertices,worldOriginX,worldOriginY,x1,x2,x3,x4,y1,y2,y3,y4
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/PolygonSpriteBatch.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

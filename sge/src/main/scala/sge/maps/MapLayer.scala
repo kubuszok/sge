@@ -21,6 +21,13 @@
  *   Idiom: opacity/combinedTintColor use Nullable.fold instead of null-check branches
  *   Idiom: parent_= validates via Nullable.foreach instead of == null check
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 131
+ * Covenant-baseline-methods: MapLayer,_offsetX,_offsetY,_opacity,_parent,_renderOffsetX,_renderOffsetY,_tintColor,calculateRenderOffsets,combinedTintColor,invalidateRenderOffset,name,objects,offsetX,offsetX_,offsetY,offsetY_,opacity,opacity_,parallaxX,parallaxY,parent,parent_,properties,renderOffsetDirty,renderOffsetX,renderOffsetY,tempColor,tintColor,tintColor_,visible
+ * Covenant-source-reference: com/badlogic/gdx/maps/MapLayer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

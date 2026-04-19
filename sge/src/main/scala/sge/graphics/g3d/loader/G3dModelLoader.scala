@@ -22,6 +22,13 @@
  *   Renames: parseModel(FileHandle) now uses readJson[G3dModelJson]; all parse* methods take DTOs
  *   Convention: jsoniter-scala codec derivation replaces JsonValue tree walking
  *   Audited: 2026-03-04
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 386
+ * Covenant-baseline-methods: G3dModelLoader,VERSION_HI,VERSION_LO,blendWeightCount,json,jsonNode,loadModelData,model,parseAnimations,parseAttributes,parseColor,parseMaterials,parseMeshes,parseModel,parseNodes,parseNodesRecursively,parseTextureUsage,parseType,tempQ,unit,vertexAttributes
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/loader/G3dModelLoader.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

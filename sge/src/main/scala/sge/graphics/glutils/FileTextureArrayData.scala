@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 124
+ * Covenant-baseline-methods: FileTextureArrayData,_depth,consumeTextureArrayData,containsCustomData,depth,formatVar,glType,height,internalFormat,isManaged,isPrepared,prepare,prepared,textureDatas,this,useMipMapsVar,width
+ * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/FileTextureArrayData.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

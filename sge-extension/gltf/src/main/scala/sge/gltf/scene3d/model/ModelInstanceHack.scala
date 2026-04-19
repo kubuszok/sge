@@ -8,6 +8,13 @@
  * ModelInstance hack for morph targets:
  * - copy animations with NodeAnimationHack
  * - pass morph targets to shader via Renderable userData
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 131
+ * Covenant-baseline-methods: ModelInstanceHack,animation,copyAnimation,getRenderable,i,this
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

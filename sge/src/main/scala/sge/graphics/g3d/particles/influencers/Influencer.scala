@@ -10,6 +10,13 @@
  * - Faithful port. No public API differences.
  * - write/read(Json) omitted (Json serialization not ported).
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 24
+ * Covenant-baseline-methods: Influencer
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/influencers/Influencer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

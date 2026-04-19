@@ -14,6 +14,13 @@
  * - All public methods faithfully ported.
  * - TODO: direct Color.r/g/b field mutation — update when Color becomes immutable
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 130
+ * Covenant-baseline-methods: ColorInfluencer,Random,Single,activateParticles,allocateChannels,alphaInterpolationChannel,alphaValue,colorChannel,colorValue,copy,lifeChannel,set,this,update
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/influencers/ColorInfluencer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

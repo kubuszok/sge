@@ -10,6 +10,13 @@
  *   Convention: null -> Nullable[A]; no return; split packages; braces on class
  *   Idiom: target.setVisible(visible) -> target.foreach(_.visible = visible)
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 32
+ * Covenant-baseline-methods: VisibleAction,act,visible
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/VisibleAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

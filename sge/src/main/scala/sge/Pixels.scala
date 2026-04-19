@@ -6,6 +6,13 @@
  *   Audited: 2026-03-07
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 53
+ * Covenant-baseline-methods: Pixels,abs,apply,max,min,toDouble,toFloat,toInt,unary_,zero
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 

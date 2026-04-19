@@ -10,6 +10,13 @@
  * - All 4 public fields faithfully ported as vars
  * - Fields use scala.compiletime.uninitialized (Java null default)
  * - Audited 2026-03-03: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 31
+ * Covenant-baseline-methods: PointSpriteControllerRenderData,colorChannel,regionChannel,rotationChannel,scaleChannel
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/renderers/PointSpriteControllerRenderData.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

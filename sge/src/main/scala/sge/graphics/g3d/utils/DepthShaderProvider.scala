@@ -11,6 +11,13 @@
  *   - Java null-safe config -> Scala no-null with direct Config() instantiation
  *   - All 4 constructors and createShader fully ported
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 36
+ * Covenant-baseline-methods: DepthShaderProvider,createShader,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/DepthShaderProvider.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

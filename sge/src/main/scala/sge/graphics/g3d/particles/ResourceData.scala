@@ -16,6 +16,13 @@
  * - getSaveData(key): returns Nullable[SaveData] instead of SaveData|null
  * - IntArray -> DynamicArray[Int] for SaveData.assets
  * - Configurable interface: Java used Configurable<T> generic; Scala uses ResourceData[?]
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 372
+ * Covenant-baseline-methods: AssetData,Configurable,ResourceData,SaveData,assetDataFromJson,assetDescriptors,assetJsons,assets,classNameMap,createSaveData,currentLoadIndex,data,dataFields,dataJsons,descriptors,fields,filename,fromJson,getAssetData,getSaveData,indices,load,loadAsset,loadIndex,rd,resolveClassName,resource,resources,result,save,saveAsset,saveData,saveDataFromJson,saveDataToJson,sharedAssets,this,toJson,uniqueData,uniqueFields
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/ResourceData.java
+ * Covenant-verified: 2026-04-19
  */
 
 package sge

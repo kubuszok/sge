@@ -17,6 +17,13 @@
  * - set(float) renamed to setFloat, set(int) renamed to setInt (overload disambiguation)
  * - getInstancedAttributeLocations returns Nullable[Array[Int]] instead of nullable array
  * - combinedAttributes field is private val (matches Java private field)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 416
+ * Covenant-baseline-methods: BaseShader,GlobalSetter,LocalSetter,Setter,Uniform,Validator,_attributes,alias,begin,camera,close,combinedAttributes,context,currentMesh,end,environmentMask,existing,getAttributeLocations,getInstancedAttributeLocations,getUniformAlias,getUniformID,globalUniforms,has,i,init,instancedAttributes,isGlobal,loc,localUniforms,locations,locs,materialMask,meshChanged,n,overallMask,program,register,render,set,setFloat,setInt,setters,tempArray,tempArray2,this,uniforms,validate,validators
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/shaders/BaseShader.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

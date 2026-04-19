@@ -16,6 +16,13 @@
  * AUDIT: PASS — GridPoint2: set, dst2, dst, add, sub all ported. cpy() provided by
  * case class copy(). equals/hashCode/toString provided by case class.
  * GridPoint3: same — all methods ported. INTENTIONAL: final case class (not plain class).
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 325
+ * Covenant-baseline-methods: GridPoint2,GridPoint3,add,dst,dst2,set,sub,xd,yd,zd
+ * Covenant-source-reference: com/badlogic/gdx/math/GridPoint2.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

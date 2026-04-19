@@ -16,6 +16,13 @@
  *          @Null Interpolation -> Nullable[Interpolation]
  *   Convention: opaque Seconds for duration params in factory methods
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 532
+ * Covenant-baseline-methods: ACTION_POOLS,Actions,action,addAction,addListener,after,afterAction,alpha,color,delay,fadeIn,fadeOut,forever,hide,i,layout,moveBy,moveTo,moveToAligned,n,parallel,pool,registerAction,removeAction,removeActor,removeListener,repeat,rotateBy,rotateTo,run,scaleBy,scaleTo,sequence,show,sizeBy,sizeTo,targeting,timeScale,touchable,visible
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/Actions.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

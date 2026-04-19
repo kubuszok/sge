@@ -15,6 +15,13 @@
  * - Fixes (2026-03-04): removed 8 redundant getters/setters (highMin/Max, scaling, timeline,
  *   relative); made fields public vars
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 87
+ * Covenant-baseline-methods: ScaledNumericValue,endIndex,getScale,highMax,highMin,load,n,newHighValue,relative,scaling,setHigh,startIndex,startTime,startValue,timeline
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/values/ScaledNumericValue.java
+ * Covenant-verified: 2026-04-19
  */
 
 package sge

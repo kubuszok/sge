@@ -12,6 +12,13 @@
  *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 208
+ * Covenant-baseline-methods: Animation,PlayMode,_animationDuration,_frameDuration,_keyFrames,animationDuration,frame,frameDuration,frameDuration_,frameNumber,frames,getKeyFrame,getKeyFrameIndex,isAnimationFinished,isLooping,isReversed,keyFrames,lastFrameNumber,lastStateTime,oldPlayMode,playMode,setKeyFrames,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/Animation.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

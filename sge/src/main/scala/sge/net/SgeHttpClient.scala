@@ -7,6 +7,13 @@
  *   Origin: SGE-original (replaces NetJavaImpl with sttp-backed HTTP client)
  *   Convention: pooled requests, Future-based dispatch, callback on completion
  *   Idiom: split packages, Nullable, boundary/break
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 173
+ * Covenant-baseline-methods: NoopBackendFactory,PendingEntry,SgeHttpClient,apply,buildSttpRequest,cancel,close,entries,entry,freeRequest,future,isPending,listener,method,noop,obtainRequest,pending,r,requestPool,send,sttpRequest,toSttpMethod,uri
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package net

@@ -16,6 +16,13 @@
  * - Java save uses `model.meshes.indexOf(mesh, true)` (Array identity); Scala uses DynamicArray.indexOf
  * - Java load uses `manager.get(descriptor)` (AssetDescriptor overload); Scala uses fileName+type overload
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 132
+ * Covenant-baseline-methods: MeshSpawnShapeValue,Triangle,descriptor,load,mesh,model,pick,save,saveData,setMesh,spawnShapeValue,this,x1,x2,x3,y1,y2,y3,z1,z2,z3
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/values/MeshSpawnShapeValue.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

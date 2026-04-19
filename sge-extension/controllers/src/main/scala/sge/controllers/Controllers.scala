@@ -3,6 +3,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 69
+ * Covenant-baseline-methods: Controllers,addListener,clearListeners,current,dispose,getControllers,getListeners,getManager,initialize,manager,removeListener
+ * Covenant-source-reference: com/badlogic/gdx/controllers/Controllers.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package controllers

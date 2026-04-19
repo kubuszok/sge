@@ -11,6 +11,13 @@
  *   Idiom: processing as public var (replaces get/set pair)
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 65
+ * Covenant-baseline-methods: EntitySystem,_engine,addedToEngine,addedToEngineInternal,checkProcessing,engine,processing,removedFromEngine,removedFromEngineInternal,update
+ * Covenant-source-reference: com/badlogic/ashley/core/EntitySystem.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ecs

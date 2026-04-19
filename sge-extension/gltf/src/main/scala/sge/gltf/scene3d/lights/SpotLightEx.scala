@@ -8,6 +8,13 @@
  * Implementation of SpotLight with extra features.
  * WARNING: SpotLight fields cutoffAngle and exponent shouldn't be set manually.
  * Use setConeRad or setConeDeg instead.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 87
+ * Covenant-baseline-methods: SpotLightEx,cosInnerAngle,cosOuterAngle,lightAngleOffset,lightAngleScale,range,set,setConeDeg,setConeRad,setDeg,setRad
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

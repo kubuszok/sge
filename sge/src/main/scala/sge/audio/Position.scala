@@ -5,6 +5,13 @@
  *   Convention: SGE-original opaque type wrapping Float; replaces raw float position (seconds)
  *     parameters in Music; validated range [0, +inf)
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 26
+ * Covenant-baseline-methods: Position,parse,toFloatSeconds,unsafeMake
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package audio

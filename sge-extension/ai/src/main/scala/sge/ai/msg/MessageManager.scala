@@ -9,6 +9,13 @@
  *   Convention: split packages; singleton `MessageManager.getInstance()` -> `object MessageManager`
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 22
+ * Covenant-baseline-methods: MessageManager
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

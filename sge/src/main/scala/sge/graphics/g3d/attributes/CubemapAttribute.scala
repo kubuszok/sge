@@ -14,6 +14,13 @@
  *     primary constructor (type, TextureDescriptor[Cubemap]); copy ctor uses .set() for deep copy
  *   - textureDescription.texture assignment uses Nullable() wrapper (no-null convention)
  *   - All constants, factory methods, constructors, and instance methods accounted for
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 70
+ * Covenant-baseline-methods: CubemapAttribute,EnvironmentMap,EnvironmentMapAlias,Mask,compare,copy,hashCode,is,result,textureDescription,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/attributes/CubemapAttribute.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

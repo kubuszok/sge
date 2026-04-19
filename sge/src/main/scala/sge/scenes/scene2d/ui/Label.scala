@@ -10,6 +10,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 391
+ * Covenant-baseline-methods: Label,LabelStyle,_cache,_fontScaleX,_fontScaleY,_labelAlign,_lineAlign,_prefHeight,_prefWidth,_style,_text,_wrap,background,bitmapFontCache,c,chars,computePrefSize,descentScaleCorrection,doWrap,draw,ellipsis,font,fontColor,fontScaleChanged,fontScaleX,fontScaleY,glyphLayout,height,i,intValue,invalidate,labelAlign,lastPrefHeight,layout,length,lineAlign,oldScaleX,oldScaleY,prefHeight,prefSizeInvalid,prefSizeLayout,prefWidth,scaleAndComputePrefSize,setAlignment,setEllipsis,setFontScale,setFontScaleX,setFontScaleY,setStyle,setText,style,tempColor,text,textEquals,textHeight,textStr,textWidth,this,toString,width,wrap,wrap_,x,y
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Label.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

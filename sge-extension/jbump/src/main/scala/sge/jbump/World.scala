@@ -3,6 +3,13 @@
  * Licensed under the MIT License
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 784
+ * Covenant-baseline-methods: World,add,addItemToCell,add_c,cell,cellMap,cellMaxX,cellMaxY,cellMinX,cellMinY,ch,check,check_cols,check_projectedCols,check_result,check_visited,cl,cols,countCells,countItems,ct,currentGoalX,currentGoalY,cw,cx,cy,dictItemsInCellRect,dx,dy,filter,getCells,getCellsTouchedByRay,getCellsTouchedBySegment,getCellsTouchedBySegment_visited,getDictItemsInCellRect,getInfoAboutItemsTouchedByRay,getInfoAboutItemsTouchedBySegment,getItems,getRect,getRects,grid,h,h1,hasItem,i,info_cells,info_normalX,info_normalY,info_ti,info_visited,infos,move,nonEmptyCells,onTraverse,outerFilter,project,project_c,project_dictItemsInCellRect,project_visited,projectedCols,pt,queryPoint,queryRay,queryRayWithCoords,queryRect,querySegment,querySegmentWithCoords,query_c,query_dictItemsInCellRect,query_infos,query_point,rect,rectHelper,rects,remove,removeItemFromCell,remove_c,reset,result,tb,th,tileMode,tl,toCell,toWorld,tr,tt,tw,update,update_c1,update_c2,visited,visitedFilter,w,w1,x,x1,y,y1
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package jbump

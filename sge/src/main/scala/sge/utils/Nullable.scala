@@ -5,6 +5,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 157
+ * Covenant-baseline-methods: NestedNone,None,Nullable,apply,cache,contains,empty,emptyConversion,exists,filter,flatMap,flatten,fold,forall,foreach,fromOption,get,getOrElse,isDefined,isEmpty,map,nonEmptyConversion,orElse,orNull
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package utils

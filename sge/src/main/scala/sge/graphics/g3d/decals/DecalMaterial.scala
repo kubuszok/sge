@@ -18,6 +18,13 @@
  * - Status: pass
  * - Fixes (2026-03-04): removed redundant getSrcBlendFactor/getDstBlendFactor (public vars)
  * Idiom: typed GL enums -- BlendFactor, EnableCap
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 69
+ * Covenant-baseline-methods: DecalMaterial,NO_BLEND,dstBlendFactor,equals,hashCode,isOpaque,result,set,srcBlendFactor,textureRegion
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/decals/DecalMaterial.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

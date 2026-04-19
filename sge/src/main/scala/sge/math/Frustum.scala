@@ -14,6 +14,13 @@
  * sphereInFrustumWithoutNearFar(2), boundsInFrustum(BoundingBox), boundsInFrustum(center,dim),
  * boundsInFrustum(x,y,z,hw,hh,hd), boundsInFrustum(OrientedBoundingBox).
  * Static: clipSpacePlanePoints, clipSpacePlanePointsArray, tmpV.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 262
+ * Covenant-baseline-methods: Frustum,array,boundsInFrustum,clipSpacePlanePoints,clipSpacePlanePointsArray,j,planePoints,planePointsArray,planes,pointInFrustum,sphereInFrustum,sphereInFrustumWithoutNearFar,tmpV,update
+ * Covenant-source-reference: com/badlogic/gdx/math/Frustum.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math
