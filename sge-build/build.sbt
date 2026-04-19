@@ -28,12 +28,12 @@ Compile / resourceGenerators += Def.task {
 
 // Plugin dependencies — these are available to projects that enable SgePlugin
 addSbtPlugin("com.eed3si9n"     % "sbt-projectmatrix"  % "0.11.0")
-addSbtPlugin("org.scala-js"     % "sbt-scalajs"        % "1.20.2")
+addSbtPlugin("org.scala-js"     % "sbt-scalajs"        % "1.21.0")
 addSbtPlugin("org.scala-native" % "sbt-scala-native"   % "0.5.10")
 addSbtPlugin("org.scalameta"    % "sbt-scalafmt"       % "2.5.4")
 
 // multiarch-scala — provides Platform, NativeProviderPlugin, ZigCross, JvmPackaging
-addSbtPlugin("com.kubuszok"     % "sbt-multiarch-scala" % "ce606f7fced8d5fcaa9043d416f872c842a26a8c-SNAPSHOT")
+addSbtPlugin("com.kubuszok"     % "sbt-multiarch-scala" % "0.1.1")
 
 // Sonatype snapshots for sbt-multi-arch-release
 resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots"

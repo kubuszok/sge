@@ -277,13 +277,13 @@ object IBLBuilder {
       Light.localDir.set(side.direction)
       Light.localUp.set(side.up)
 
-      // XXX patch
+      // Patch: flip X direction for left/right cubemap faces
       if (side == Cubemap.CubemapSide.NegativeX || side == Cubemap.CubemapSide.PositiveX) {
         Light.localDir.x = -Light.localDir.x
       }
 
       Light.matrix.setToLookAt(Light.localDir, Light.localUp).tra()
-      Light.localSunDir.set(direction).scl(-1, -1, 1).mul(Light.matrix) // XXX patch again
+      Light.localSunDir.set(direction).scl(-1, -1, 1).mul(Light.matrix) // Patch: negate and transform sun direction
 
       shader.setUniformf("u_direction", Light.localSunDir)
 

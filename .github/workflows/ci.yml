@@ -19,8 +19,6 @@ env:
   JAVA_VERSION: "25"
   JAVA_DISTRIBUTION: "zulu"
   NODE_VERSION: "22"
-  # Native component provider versions (from sge-native-components + sbt-multi-arch-release repos)
-  NATIVE_COMPONENTS_VERSION: "cfa340140de841e1fe29c87edd9277a0766a8eed-SNAPSHOT"
   SONATYPE_SNAPSHOTS: "https://central.sonatype.com/repository/maven-snapshots"
 
 jobs:
@@ -135,41 +133,6 @@ jobs:
           cache: sbt
 
       - uses: sbt/setup-sbt@v1
-
-      - name: Extract JVM native libs from provider JARs
-        shell: bash
-        run: |
-          DEST="sge-deps/native-components/target/release"
-          mkdir -p "$DEST"
-          PLATFORM="${{ matrix.platform }}"
-          BASE_URL="${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok"
-
-          # Download and extract panama-sge-core-provider
-          OPS_JAR="/tmp/panama-sge-core.jar"
-          curl -fSL -o "$OPS_JAR" "${BASE_URL}/panama-sge-core-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-core-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
-          cd /tmp && jar xf "$OPS_JAR" "native/${PLATFORM}/" && cd -
-          cp /tmp/native/${PLATFORM}/* "$DEST/" 2>/dev/null || true
-
-          # Download and extract panama-angle-provider
-          ANGLE_JAR="/tmp/panama-angle.jar"
-          curl -fSL -o "$ANGLE_JAR" "${BASE_URL}/panama-angle-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-angle-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
-          cd /tmp && jar xf "$ANGLE_JAR" "native/${PLATFORM}/" && cd -
-          cp /tmp/native/${PLATFORM}/* "$DEST/" 2>/dev/null || true
-
-          # Download and extract panama-sge-freetype-provider
-          FT_JAR="/tmp/panama-sge-freetype.jar"
-          curl -fSL -o "$FT_JAR" "${BASE_URL}/panama-sge-freetype-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-freetype-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
-          cd /tmp && jar xf "$FT_JAR" "native/${PLATFORM}/" && cd -
-          cp /tmp/native/${PLATFORM}/* "$DEST/" 2>/dev/null || true
-
-          # Download and extract panama-sge-physics-provider
-          PHYS_JAR="/tmp/panama-sge-physics.jar"
-          curl -fSL -o "$PHYS_JAR" "${BASE_URL}/panama-sge-physics-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-physics-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
-          cd /tmp && jar xf "$PHYS_JAR" "native/${PLATFORM}/" && cd -
-          cp /tmp/native/${PLATFORM}/* "$DEST/" 2>/dev/null || true
-
-          echo "=== Extracted JVM native libs ==="
-          ls -la "$DEST/"
 
       - name: Run JVM tests
         run: sbt 'sge/test'
@@ -292,47 +255,6 @@ jobs:
 
       - uses: sbt/setup-sbt@v1
 
-      - name: Extract Android native libs from provider JAR
-        shell: bash
-        run: |
-          ANDROID_JAR="/tmp/android-sge-core.jar"
-          curl -fSL -o "$ANDROID_JAR" "${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok/android-sge-core-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/android-sge-core-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
-          jar xf "$ANDROID_JAR" native/
-          # Move to the expected layout for AndroidBuild
-          for entry in native/android-*; do
-            classifier=$(basename "$entry")
-            case "$classifier" in
-              android-aarch64) abi="arm64-v8a" ; rust="aarch64-linux-android" ;;
-              android-armv7)   abi="armeabi-v7a" ; rust="armv7-linux-androideabi" ;;
-              android-x86_64)  abi="x86_64" ; rust="x86_64-linux-android" ;;
-            esac
-            dest="sge-deps/native-components/target/$rust/release"
-            mkdir -p "$dest"
-            cp "$entry"/* "$dest/"
-          done
-          rm -rf native
-
-      - name: Extract JVM native libs for publishM2
-        shell: bash
-        run: |
-          BASE_URL="${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok"
-          OPS_JAR="/tmp/panama-sge-core.jar"
-          curl -fSL -o "$OPS_JAR" "${BASE_URL}/panama-sge-core-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-core-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
-          ANGLE_JAR="/tmp/panama-angle.jar"
-          curl -fSL -o "$ANGLE_JAR" "${BASE_URL}/panama-angle-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-angle-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
-          FT_JAR="/tmp/panama-sge-freetype.jar"
-          curl -fSL -o "$FT_JAR" "${BASE_URL}/panama-sge-freetype-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-freetype-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
-          PHYS_JAR="/tmp/panama-sge-physics.jar"
-          curl -fSL -o "$PHYS_JAR" "${BASE_URL}/panama-sge-physics-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-physics-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
-          DEST="sge-deps/native-components/target/cross"
-          mkdir -p "$DEST"
-          cd /tmp && jar xf "$OPS_JAR" native/ && jar xf "$ANGLE_JAR" native/ && jar xf "$FT_JAR" native/ && jar xf "$PHYS_JAR" native/ && cd -
-          cp -r /tmp/native/* "$DEST/"
-          rm -rf /tmp/native
-          # Also copy to release dir for host platform
-          mkdir -p sge-deps/native-components/target/release
-          cp "$DEST/linux-x86_64/"* sge-deps/native-components/target/release/ 2>/dev/null || true
-
       - name: Publish SGE to local Maven (all platforms)
         run: sbt 'sge/publishM2; writeDemoVersion'
         env:
@@ -418,26 +340,6 @@ jobs:
           sudo apt-get install -y clang
           sudo apt-get install -y libstdc++-12-dev || sudo apt-get install -y libstdc++-14-dev || true
 
-      - name: Extract JVM native libs for publishM2
-        shell: bash
-        run: |
-          BASE_URL="${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok"
-          OPS_JAR="/tmp/panama-sge-core.jar"
-          curl -fSL -o "$OPS_JAR" "${BASE_URL}/panama-sge-core-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-core-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
-          ANGLE_JAR="/tmp/panama-angle.jar"
-          curl -fSL -o "$ANGLE_JAR" "${BASE_URL}/panama-angle-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-angle-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
-          FT_JAR="/tmp/panama-sge-freetype.jar"
-          curl -fSL -o "$FT_JAR" "${BASE_URL}/panama-sge-freetype-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-freetype-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
-          PHYS_JAR="/tmp/panama-sge-physics.jar"
-          curl -fSL -o "$PHYS_JAR" "${BASE_URL}/panama-sge-physics-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-physics-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
-          DEST="sge-deps/native-components/target/cross"
-          mkdir -p "$DEST"
-          cd /tmp && jar xf "$OPS_JAR" native/ && jar xf "$ANGLE_JAR" native/ && jar xf "$FT_JAR" native/ && jar xf "$PHYS_JAR" native/ && cd -
-          cp -r /tmp/native/* "$DEST/"
-          rm -rf /tmp/native
-          mkdir -p sge-deps/native-components/target/release
-          cp "$DEST/linux-x86_64/"* sge-deps/native-components/target/release/ 2>/dev/null || true
-
       - name: Publish SGE to local Maven (all platforms)
         run: sbt 'sge/publishM2; sgeJS/publishM2; sgeNative/publishM2; writeDemoVersion'
         env:
@@ -508,30 +410,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang
           sudo apt-get install -y libstdc++-12-dev || sudo apt-get install -y libstdc++-14-dev || true
-
-      - name: Extract JVM native libs from provider JARs
-        shell: bash
-        run: |
-          DEST="sge-deps/native-components/target/release"
-          mkdir -p "$DEST"
-          PLATFORM="${{ matrix.platform }}"
-          BASE_URL="${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok"
-          OPS_JAR="/tmp/panama-sge-core.jar"
-          curl -fSL -o "$OPS_JAR" "${BASE_URL}/panama-sge-core-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-core-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
-          ANGLE_JAR="/tmp/panama-angle.jar"
-          curl -fSL -o "$ANGLE_JAR" "${BASE_URL}/panama-angle-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-angle-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
-          FT_JAR="/tmp/panama-sge-freetype.jar"
-          curl -fSL -o "$FT_JAR" "${BASE_URL}/panama-sge-freetype-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-freetype-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
-          PHYS_JAR="/tmp/panama-sge-physics.jar"
-          curl -fSL -o "$PHYS_JAR" "${BASE_URL}/panama-sge-physics-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-physics-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
-          cd /tmp && jar xf "$OPS_JAR" "native/${PLATFORM}/" && jar xf "$ANGLE_JAR" "native/${PLATFORM}/" && jar xf "$FT_JAR" "native/${PLATFORM}/" && jar xf "$PHYS_JAR" "native/${PLATFORM}/" && cd -
-          cp /tmp/native/${PLATFORM}/* "$DEST/" 2>/dev/null || true
-          # Also need cross dir for JVM JAR packaging
-          CROSS_DEST="sge-deps/native-components/target/cross"
-          mkdir -p "$CROSS_DEST"
-          cd /tmp && rm -rf native && jar xf "$OPS_JAR" native/ && jar xf "$ANGLE_JAR" native/ && jar xf "$FT_JAR" native/ && jar xf "$PHYS_JAR" native/ && cd -
-          cp -r /tmp/native/* "$CROSS_DEST/"
-          rm -rf /tmp/native
 
       - name: Publish SGE to local Maven (all platforms)
         run: sbt 'sge/publishM2; sgeJS/publishM2; sgeNative/publishM2; writeDemoVersion'
