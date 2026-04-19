@@ -7,7 +7,7 @@
  *
  * Covenant: full-port
  * Covenant-source-reference: anim8-gdx/src/main/java/com/github/tommyettinger/anim8/PaletteReducer.java
- * Covenant-verified: 2026-04-11
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package anim8
@@ -2344,7 +2344,7 @@ class PaletteReducer {
     * smaller.
     */
   def alterBigPalette(palette: Array[Int]): Unit = {
-    if (PaletteReducer.bigPaletteMapping == null) {
+    if (PaletteReducer.bigPaletteMapping.isEmpty) {
       PaletteReducer.bigPaletteMapping = new Array[Char](0x8000)
     }
     val plen = palette.length
@@ -2396,7 +2396,7 @@ class PaletteReducer {
 
   /** Writes the current bigPaletteMapping to the given FileHandle. */
   def writeBigPalette(filename: FileHandle | Null): Unit =
-    if (PaletteReducer.bigPaletteMapping != null) {
+    if (PaletteReducer.bigPaletteMapping.nonEmpty) {
       val target =
         if (filename != null) filename.nn
         else {
@@ -2413,7 +2413,7 @@ class PaletteReducer {
     if (plen < PaletteReducer.BIG_PALETTE.length) {
       Arrays.fill(PaletteReducer.BIG_PALETTE, plen, 1024, 0)
     }
-    if (PaletteReducer.bigPaletteMapping == null) {
+    if (PaletteReducer.bigPaletteMapping.isEmpty) {
       PaletteReducer.bigPaletteMapping = new Array[Char](0x8000)
     }
     file.readString(sge.utils.Nullable("UTF8")).getChars(0, 0x8000, PaletteReducer.bigPaletteMapping, 0)
@@ -2423,7 +2423,7 @@ class PaletteReducer {
   /** Builds the BIG_PALETTE mapping. If already loaded, this does nothing. */
   def buildBigPalette(): Unit = {
     if (PaletteReducer.bigPaletteLoaded) return
-    if (PaletteReducer.bigPaletteMapping == null) {
+    if (PaletteReducer.bigPaletteMapping.isEmpty) {
       PaletteReducer.bigPaletteMapping = new Array[Char](0x8000)
     }
     // In SGE we don't have Gdx.files.classpath, so we always build from scratch.
@@ -2964,7 +2964,7 @@ object PaletteReducer {
   def sortInts(items: Array[Int], from: Int, to: Int, c: (Int, Int) => Int): Unit = boundary {
     if (to <= 0) { break(()) }
     if (from < 0 || from >= items.length || to > items.length) {
-      throw new UnsupportedOperationException("The given from/to range in sortInts() is invalid.")
+      throw new IllegalArgumentException("The given from/to range in sortInts() is invalid.")
     }
     val length = to - from
 
@@ -3091,7 +3091,7 @@ object PaletteReducer {
 
   /** Whether the big palette mapping has been loaded or built. */
   var bigPaletteLoaded:  Boolean     = false
-  var bigPaletteMapping: Array[Char] = null.asInstanceOf[Array[Char]] // @nowarn -- lazily initialized
+  var bigPaletteMapping: Array[Char] = Array.emptyCharArray // lazily initialized to 0x8000 elements
 
   /** An expanded palette with 1024 colors for reductive analysis. */
   val BIG_PALETTE: Array[Int] = Array(

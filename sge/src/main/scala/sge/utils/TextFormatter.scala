@@ -29,20 +29,12 @@ final class TextFormatter(locale: Locale, useAdvanced: Boolean) {
   private val buffer = new StringBuilder()
 
   // On JVM, java.text.MessageFormat is available and we use it for locale-aware formatting.
-  // On Scala.js/Native, the class is absent so we fall back to simpleFormat (matches GWT behavior).
-  // We use reflection to avoid a compile-time dependency on java.text.MessageFormat.
-  private val messageFormat: Nullable[AnyRef] =
-    if (useAdvanced) {
-      try {
-        val clazz       = Class.forName("java.text.MessageFormat")
-        val constructor = clazz.getConstructor(classOf[String], classOf[Locale])
-        Nullable(constructor.newInstance("", locale).asInstanceOf[AnyRef])
-      } catch {
-        case _: Exception => Nullable.empty[AnyRef]
-      }
-    } else {
-      Nullable.empty[AnyRef]
-    }
+  // On Scala.js/Native, where MessageFormat is not present, falls back to simpleFormat
+  // (matches GWT emulation behavior). Platform-specific implementation provided by
+  // TextFormatterPlatform.createMessageFormat.
+  private val messageFormat: Nullable[TextFormatterPlatform.AdvancedFormatter] =
+    if (useAdvanced) TextFormatterPlatform.createAdvancedFormatter(locale)
+    else Nullable.empty
 
   /** Formats the given pattern replacing its placeholders with the actual arguments specified by args.
     *
@@ -69,18 +61,13 @@ final class TextFormatter(locale: Locale, useAdvanced: Boolean) {
     */
   def format(pattern: String, args: AnyRef*): String =
     messageFormat.fold(simpleFormat(pattern, args)) { mf =>
-      // Use java.text.MessageFormat via reflection for locale-aware formatting.
+      // Use java.text.MessageFormat for locale-aware formatting.
       // replaceEscapeChars preprocesses the pattern: doubles single quotes (MessageFormat escape char)
       // and converts paired {{ to MessageFormat-escaped literal braces.
       try {
         val preprocessed = replaceEscapeChars(pattern)
-        val clazz        = mf.getClass
-        val applyPattern = clazz.getMethod("applyPattern", classOf[String])
-        val formatMethod = clazz.getMethod("format", classOf[Object])
-        applyPattern.invoke(mf, preprocessed)
-        formatMethod.invoke(mf, args.toArray.asInstanceOf[AnyRef]).asInstanceOf[String]
+        mf.format(preprocessed, args)
       } catch {
-        // If reflection fails at runtime (shouldn't happen on JVM), fall back to simpleFormat
         case _: Exception => simpleFormat(pattern, args)
       }
     }

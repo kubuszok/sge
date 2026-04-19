@@ -390,7 +390,7 @@ object AnimationController {
           if (loopCount > 0) loopCount -= 1
           if (loopCount != 0) listener.foreach(_.onLoop(this))
           if (loopCount == 0) {
-            val result = duration * ((loops - 1) - i) + (if (diff < Seconds.zero) duration - time else time)
+            val result = duration * ((loops - 1) - i).toFloat + (if (diff < Seconds.zero) duration - time else time)
             time = if (diff < Seconds.zero) Seconds.zero else duration
             listener.foreach(_.onEnd(this))
             break(result)
