@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 379
+ * Covenant-baseline-methods: ColorTools,a,alpha,alphaInt,b,blot,blue,blueInt,ch,contrast,d,darken,decoded,differentiateLightness,dullen,e,editRGB,enrich,fade,floatGetHSL,fromColor,fromRGBA,fromRGBA8888,g,green,greenInt,h,hue,inverseLightness,lessenChange,lighten,lightness,limit,lowerB,lowerG,lowerR,lum,main,offsetLightness,oklab,op,r,raiseB,raiseG,raiseR,randomColor,randomEdit,rc,re,red,redInt,rgb,rs,s,sat,saturation,sd,subrandomColor,toColor,toEditedFloat,toRGBA8888,x
+ * Covenant-source-reference: com/github/tommyettinger/colorful/rgb/ColorTools.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package colorful

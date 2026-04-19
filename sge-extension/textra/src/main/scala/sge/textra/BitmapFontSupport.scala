@@ -18,6 +18,13 @@
  *     boundary/break replaces return. Nullable replaces null.
  *   Merged with: decompressFromBytes is private in Java original but kept private
  *     here (LZBDecompression in textra/utils has its own copy).
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 486
+ * Covenant-baseline-methods: BitmapFontSupport,JsonFontData,bits,c,cc,data,decompressFromBytes,dictSize,dictionary,done,emptyJsonArr,emptyJsonObj,enlargeIn,entry,i,index,jsonArr,jsonInt,jsonIntOr,jsonNum,jsonNumOr,jsonObj,length,load,loadStructuredJson,maxpower,numBits,position,power,regionArr,res,resb,resetValue,this,value,w
+ * Covenant-source-reference: com/github/tommyettinger/textra/BitmapFontSupport.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

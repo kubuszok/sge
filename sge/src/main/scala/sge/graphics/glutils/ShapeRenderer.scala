@@ -11,6 +11,13 @@
  *   Audited: 2026-03-06
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 1275
+ * Covenant-baseline-methods: ShapeRenderer,ShapeType,_color,_projectionMatrix,_renderer,_transformMatrix,angle,arc,autoShapeType,box,check,circle,close,col1Bits,col2Bits,color,colorBits,combinedMatrix,cone,cos,currentType,curve,cx,cy,d,dddfx,dddfy,ddfx,ddfy,defaultRectLineWidth,dfx,dfy,drawing,ellipse,firstX,firstY,flush,fx,fx2,fy,fy2,i,identity,isDrawing,line,matrixDirty,n,point,polygon,polyline,pre1,pre2,pre4,pre5,projectionMatrix,rectLine,rectangle,renderer,rot,rotate,scale,set,setAutoShapeType,setColor,setProjectionMatrix,setTransformMatrix,shapeType,sin,subdivStep,subdivStep2,subdivStep3,t,temp,temp2,theta,this,tmp,tmp1x,tmp1y,tmp2x,tmp2y,transformMatrix,translate,triangle,tx,ty,updateMatrices,w,worldOriginX,worldOriginY,x,x1,x2,x3,x4,y1,y2,y3,y4
+ * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/ShapeRenderer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

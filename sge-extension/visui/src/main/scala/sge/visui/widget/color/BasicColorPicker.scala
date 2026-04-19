@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 292
+ * Covenant-baseline-methods: BAR_HEIGHT,BAR_WIDTH,BasicColorPicker,FIELD_WIDTH,HEX_COLOR_LENGTH,HEX_COLOR_LENGTH_WITH_ALPHA,HEX_FIELD_WIDTH,PALETTE_SIZE,PickerChangeListener,VERTICAL_BAR_WIDTH,_allowAlphaEdit,_disposed,_showColorPreviews,_showHexFields,acceptChar,allowAlphaEdit,allowAlphaEdit_,c,ch,changed,clicked,close,colorBeforeReset,colorPreviewsTable,commons,createColorWidgets,createColorsPreviewTable,createHexTable,createUI,cs,currentColorImg,cv,draw,focusHexField,getListener,hexField,hexTable,hsv,isDisposed,listener,mainTable,newColorImg,oldColor,palette,pickerColor,pickerListener,rebuildMainTable,restoreLastColor,setListener,setPickerColor,showColorPreviews,showColorPreviews_,showHexFields,showHexFields_,sizes,style,table,this,updateLinkedWidget,updateUI,updateValuesFromCurrentColor,updateValuesFromHSVFields,verticalBar,wasPedantic
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/color/BasicColorPicker.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

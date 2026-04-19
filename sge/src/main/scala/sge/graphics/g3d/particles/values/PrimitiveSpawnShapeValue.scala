@@ -17,6 +17,13 @@
  *   as parenthesized methods delegating to the underlying vars, for API parity with LibGDX
  * - Fixes (2026-03-04): override setActive → active_=; .setActive() → .active = ; .relative → .relative
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 111
+ * Covenant-baseline-methods: PrimitiveSpawnShapeValue,SpawnSide,TMP_V1,active_,edges,getSpawnDepth,getSpawnHeight,getSpawnWidth,isEdges,load,setDimensions,setEdges,shape,spawnDepth,spawnDepthDiff,spawnDepthValue,spawnHeight,spawnHeightDiff,spawnHeightValue,spawnWidth,spawnWidthDiff,spawnWidthValue,start,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/values/PrimitiveSpawnShapeValue.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

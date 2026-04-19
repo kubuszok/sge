@@ -12,6 +12,13 @@
  * - Java uses `attributes.findByUsage(Usage.Position).offset`; Scala uses `.fold(throw ...)(_.offset)`
  * - Java casts vertexSize/positionOffset to short then stores as int; Scala stores as Int directly (correct)
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 114
+ * Covenant-baseline-methods: WeightMeshSpawnShapeValue,a,attributes,b,calculateWeights,copy,distribution,indicesCount,init,m,positionOffset,spawnAux,t,this,vertexCount,vertexSize,vertices
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/values/WeightMeshSpawnShapeValue.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

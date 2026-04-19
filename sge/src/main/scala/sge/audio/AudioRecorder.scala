@@ -11,6 +11,13 @@
  *   Convention: Java interface -> Scala trait; dispose() inherited via Closeable.close()
  *   Idiom: split packages
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 36
+ * Covenant-baseline-methods: AudioRecorder,read
+ * Covenant-source-reference: com/badlogic/gdx/audio/AudioRecorder.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package audio

@@ -10,6 +10,13 @@
  *   Convention: null -> Nullable[A]; no return; split packages; braces on class
  *   Idiom: setPool(null) -> setPool(Nullable.empty); runnable.run() -> runnable.foreach(_.run())
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 53
+ * Covenant-baseline-methods: RunnableAction,act,ran,reset,restart,run,runnable,savedPool
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/RunnableAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

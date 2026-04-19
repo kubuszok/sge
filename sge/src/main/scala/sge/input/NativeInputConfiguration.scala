@@ -13,6 +13,13 @@
  *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 132
+ * Covenant-baseline-methods: NativeInputCloseCallback,NativeInputConfiguration,autoComplete,closeCallback,inputType,maskInput,maxLength,message,multiLine,onClose,placeholder,preventCorrection,setAutoComplete,setCloseCallback,setMaskInput,setMaxLength,setMultiLine,setPlaceholder,setPreventCorrection,setShowUnmaskButton,setTextInputWrapper,setType,setValidator,showUnmaskButton,textInputWrapper,validate,validator
+ * Covenant-source-reference: com/badlogic/gdx/input/NativeInputConfiguration.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package input

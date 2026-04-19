@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 1423
+ * Covenant-baseline-methods: Debug,DebugRect,Table,_clip,_columnDefaults,_columnWeightedWidth,_columnWidth,_rowHeight,_rowWeightedHeight,actor,add,addDebugRect,addDebugRects,align,alignRight,alignTop,background,backgroundBottom,backgroundLeft,backgroundRight,backgroundTop,bottom,cell,cellCount,cellDefaults,cellPool,cells,center,childrenArray,clearChildren,clearDebugRects,clip,color,columnDefaults,columnMinWidth,columnPrefWidth,columnWeightedWidth,columnWidth,columns,computeSize,currentX,currentY,cx,cy,debug,debugActor,debugActorColor,debugAll,debugCell,debugCellColor,debugRects,debugTable,debugTableColor,defaults,draw,drawBackground,drawDebug,drawDebugBounds,drawDebugRects,endRow,ensureSize,expandHeight,expandWidth,get,getCell,getCells,getColumnMinWidth,getColumnPrefWidth,getColumnWidth,getColumns,getPadBottom,getPadLeft,getPadRight,getPadTop,getPadX,getPadY,getRow,getRowHeight,getRowMinHeight,getRowPrefHeight,getRows,getSkin,height,hit,hpadding,i,implicitEndRow,invalidate,isClip,layout,layoutHeight,layoutWidth,left,minHeight,minWidth,n,obtainCell,pad,padBottom,padBottomValue,padLeft,padLeftValue,padRight,padRightValue,padTop,padTopValue,pool,prefHeight,prefWidth,rd,rect,removeActor,removeActorAt,reset,round,row,rowColumns,rowDefaults,rowHeight,rowMinHeight,rowPrefHeight,rowWeightedHeight,rows,s,setBackground,setClip,setDebug,setRound,setSkin,sizeInvalid,spaceRightLast,stack,tableAlign,tableDebug,tableHeight,tableMinHeight,tableMinWidth,tablePrefHeight,tablePrefWidth,tableWidth,totalExpand,totalGrowHeight,totalGrowWidth,uniformMinHeight,uniformMinWidth,uniformPrefHeight,uniformPrefWidth,vpadding,width,x,y,yy
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Table.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

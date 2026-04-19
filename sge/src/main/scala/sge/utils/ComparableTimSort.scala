@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 5
+ * Covenant-baseline-loc: 749
+ * Covenant-baseline-methods: ComparableTimSort,DEBUG,INITIAL_TMP_STORAGE_LENGTH,MIN_GALLOP,MIN_MERGE,a,base1,base2,binarySort,countRunAndMakeAscending,currentLo,cursor1,cursor2,dest,doSort,done,ensureCapacity,gallopLeft,gallopRight,i,j,k,lastOfs,len1,len2,localMinGallop,mergeAt,mergeCollapse,mergeForceCollapse,mergeHi,mergeLo,minGallop,minRun,minRunLength,nRemaining,n_var,ofs,pushRun,r,rangeCheck,remaining,reverseRange,runBase,runHi,runLen,sort,stackSize,start_var,tmp,tmpCount,ts
+ * Covenant-source-reference: com/badlogic/gdx/utils/ComparableTimSort.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package utils

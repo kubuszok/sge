@@ -9,6 +9,13 @@
  * Migration notes:
  * - Java interface -> Scala trait
  * - All methods faithfully ported, no API changes
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 79
+ * Covenant-baseline-methods: Layout,fillParent,fillParent_,invalidate,invalidateHierarchy,layout,layoutEnabled,layoutEnabled_,maxHeight,maxWidth,minHeight,minWidth,pack,prefHeight,prefWidth,validate
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/Layout.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

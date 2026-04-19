@@ -13,6 +13,13 @@
  * - usage initialized to 0 (matches Java default)
  * - No methods in Java source, none in Scala — pure data class
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 45
+ * Covenant-baseline-methods: ModelTexture,USAGE_AMBIENT,USAGE_BUMP,USAGE_DIFFUSE,USAGE_EMISSIVE,USAGE_NONE,USAGE_NORMAL,USAGE_REFLECTION,USAGE_SHININESS,USAGE_SPECULAR,USAGE_TRANSPARENCY,USAGE_UNKNOWN,fileName,id,usage,uvScaling,uvTranslation
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/model/data/ModelTexture.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

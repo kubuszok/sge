@@ -19,6 +19,13 @@
  * - Renames: getLastSelected → def lastSelected, getToggle/setToggle → var toggle,
  *   getMultiple/setMultiple → var multiple, getRequired/setRequired → var required,
  *   isDisabled/setDisabled → var disabled, getProgrammaticChangeEvents/setProgrammaticChangeEvents → var programmaticChangeEvents
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 276
+ * Covenant-baseline-methods: Selection,_isDisabled,_lastSelected,actor,add,addAll,added,changed,choose,cleanup,clear,contains,disabled,disabled_,fireChangeEvent,first,i,isEmpty,items,iterator,lastSelected,multiple,n,notEmpty,old,programmaticChangeEvents,remove,removeAll,removed,required,result,revert,selected,set,setActor,setAll,size,snapshot,toArray,toString,toggle
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/Selection.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes
@@ -241,7 +248,7 @@ class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
   def contains(item: Nullable[T]): Boolean =
     item.exists(selected.contains)
 
-  /** Makes a best effort to return the last item selected, else returns an arbitrary item or null if the selection is empty. */
+  /** Returns the last item selected if known, else returns an arbitrary item or null if the selection is empty. */
   def lastSelected: Nullable[T] =
     if (_lastSelected.isDefined) _lastSelected
     else if (selected.nonEmpty) Nullable(selected.head)

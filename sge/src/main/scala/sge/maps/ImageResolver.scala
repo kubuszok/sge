@@ -13,6 +13,13 @@
  *   Idiom: DirectImageResolver uses fold on Option from Map.get instead of direct null-returning ObjectMap.get
  *   Idiom: TextureAtlasImageResolver maps AtlasRegion to TextureRegion via supertype cast
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 55
+ * Covenant-baseline-methods: AssetManagerImageResolver,DirectImageResolver,ImageResolver,TextureAtlasImageResolver,getImage
+ * Covenant-source-reference: com/badlogic/gdx/maps/ImageResolver.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

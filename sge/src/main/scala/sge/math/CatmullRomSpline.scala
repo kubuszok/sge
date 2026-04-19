@@ -12,6 +12,13 @@
  *
  * AUDIT: PASS — All methods ported: set(4), valueAt, derivativeAt, approximate(3),
  * locate, approxLength. Static: calculate, derivative.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 236
+ * Covenant-baseline-methods: CatmullRomSpline,L1,L1Sqr,L2Sqr,L3Sqr,approxLength,approximate,calculate,continuous,controlPoints,derivative,derivativeAt,dst,dstNext2,dstPrev2,i,locate,n,nearest,next,previous,result,s,set,spanCount,startIndex,tempLength,this,tmp,tmp2,tmp3,u,u2,u3,valueAt
+ * Covenant-source-reference: com/badlogic/gdx/math/CatmullRomSpline.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

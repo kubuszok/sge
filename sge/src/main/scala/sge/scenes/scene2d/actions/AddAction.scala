@@ -10,6 +10,13 @@
  *   Convention: null -> Nullable[A]; no return; split packages; braces on class
  *   Idiom: target.addAction(action) -> target.foreach + actionToAdd.foreach with DynamicArray +=
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 44
+ * Covenant-baseline-methods: AddAction,act,actionToAdd,reset,restart
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/AddAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

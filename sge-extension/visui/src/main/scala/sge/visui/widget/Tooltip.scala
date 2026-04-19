@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 287
+ * Covenant-baseline-methods: Builder,DEFAULT_APPEAR_DELAY_TIME,DEFAULT_FADE_TIME,DisplayTask,MOUSE_MOVED_FADEOUT,Tooltip,TooltipInputListener,TooltipStyle,_appearDelayTime,_content,_contentCell,_displayTask,_fadeTime,_listener,_mouseMoveFadeOut,_style,_target,_width,appearDelayTime,appearDelayTime_,attach,background,build,content,contentCell,content_,detach,doFadeIn,doFadeOut,enter,exit,fadeTime,fadeTime_,i,listeners,mouseMoveFadeOut,mouseMoveFadeOut_,mouseMoved,removeTooltip,run,setPosition,setText,style,target,target_,this,touchDown,width
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/Tooltip.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

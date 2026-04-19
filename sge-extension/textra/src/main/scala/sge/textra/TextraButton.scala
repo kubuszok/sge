@@ -11,6 +11,13 @@
  *     Cell → Nullable.empty placeholder, Skin → removed
  *   Convention: getX()/setX() → public var or def pairs.
  *   Idiom: Nullable[A] for nullable fields; boundary/break for early returns.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 187
+ * Covenant-baseline-methods: TextraButton,_hasKeyboardFocus,_height,_isChecked,_isDisabled,_isOver,_isPressed,_style,_width,c,draw,focused,getFontColor,getHeight,getName,getPrefHeight,getPrefWidth,getStyle,getText,getTextraLabel,getTextraLabelCell,getWidth,hasKeyboardFocus,hasKeyboardFocus_,isChecked,isChecked_,isDisabled,isDisabled_,isOver,isOver_,isPressed,isPressed_,label,name,newLabel,setChecked,setSize,setStyle,setText,setTextraLabel,skipToTheEnd,this,toString,useIntegerPositions
+ * Covenant-source-reference: com/github/tommyettinger/textra/TextraButton.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

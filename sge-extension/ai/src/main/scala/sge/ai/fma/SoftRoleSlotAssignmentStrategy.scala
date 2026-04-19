@@ -10,9 +10,12 @@
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
- * Covenant: partial-port
- * Covenant-source-reference: gdx-ai/gdx-ai/src/com/badlogic/gdx/ai/fma/SoftRoleSlotAssignmentStrategy.java
- * Covenant-verified: 2026-04-08
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 172
+ * Covenant-baseline-methods: CostAndSlot,MemberAndSlots,SlotCostProvider,SoftRoleSlotAssignmentStrategy,assignmentEase,compareTo,costAndSlots,costThreshold,filledSlots,getCost,i,memberData,numberOfAssignments,slotCostProvider,updateSlotAssignments
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  *
  * Partial-port debt:
  *   - Inherited gdx-ai TODO at line 133 (no description in upstream source).

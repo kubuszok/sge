@@ -12,6 +12,13 @@
  *   Idiom: split packages
  *   Convention: getCalls/getTextureBindings/etc -> public vars (no-logic getters eliminated per SGE convention)
  *   Audited: 2026-03-04
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 59
+ * Covenant-baseline-methods: GLInterceptor,calls,check,drawCalls,glProfiler,reset,resolveErrorNumber,shaderSwitches,textureBindings,vertexCount
+ * Covenant-source-reference: com/badlogic/gdx/graphics/profiling/GLInterceptor.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

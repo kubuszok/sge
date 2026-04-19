@@ -5,6 +5,13 @@
  *   Convention: SGE-original utility object; pan-to-stereo conversion extracted from backend
  *     implementations into shared code; uses opaque types (Pan, Volume)
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 29
+ * Covenant-baseline-methods: AudioUtils,left,p,panToStereoVolumes,right,v
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package audio

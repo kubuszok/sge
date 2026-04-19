@@ -20,6 +20,13 @@
  * - ClassReflection.isAssignableFrom → direct Class.isAssignableFrom
  * - DEFAULT_TIME_STEP: companion object protected val (Java protected static final)
  * - Convention: opaque Seconds for deltaTime, deltaTimeSqr, update(deltaTime), setTimeStep params
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 341
+ * Covenant-baseline-methods: DEFAULT_TIME_STEP,ParticleController,_boundingBox,activateParticles,allocateChannels,bb,bind,boundingBox,c,calculateBoundingBox,ci,copiedEmitter,copiedInfluencers,copiedRenderer,copy,deltaTime,deltaTimeSqr,dispose,draw,emitter,end,findIndex,findInfluencer,getTransform,i,index,influencers,init,isComplete,killParticles,load,mul,name,particleChannels,particles,pos,positionChannel,removeInfluencer,renderer,replaceInfluencer,reset,rotate,save,scale,setTimeStep,setTransform,setTranslation,start,this,transform,translate,update
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/ParticleController.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

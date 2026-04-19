@@ -25,6 +25,13 @@
  *   getBlendingAttribute → blendingAttribute
  * - Audit: pass (2026-03-03)
  * Convention: typed GL enums (EnableCap)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 211
+ * Covenant-baseline-methods: CPU_ATTRIBUTES,CPU_COLOR_OFFSET,CPU_POSITION_OFFSET,CPU_REGION_OFFSET,CPU_SIZE_AND_ROTATION_OFFSET,CPU_VERTEX_SIZE,PointSpriteParticleBatch,TMP_V1,_blendingAttribute,_depthTestAttribute,allocParticlesData,allocRenderable,blendingAttribute,cfg,data,enablePointSprites,flush,getRenderables,load,pointSpritesEnabled,renderable,save,shader,sizeAndRotationUsage,texture,texture_,this,tp,vertices
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/batches/PointSpriteParticleBatch.java
+ * Covenant-verified: 2026-04-19
  */
 package sge.graphics.g3d.particles.batches
 

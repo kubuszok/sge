@@ -14,6 +14,13 @@
  *   Idiom: size() method -> override def size (Scala Iterable override)
  *   - getCount/getByType are delegation methods with parameters, not simple getters — kept as-is
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 108
+ * Covenant-baseline-methods: MapLayers,add,byType,count,get,getByType,getIndex,i,iterator,layers,n,remove,size
+ * Covenant-source-reference: com/badlogic/gdx/maps/MapLayers.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

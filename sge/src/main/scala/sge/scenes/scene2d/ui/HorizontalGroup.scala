@@ -10,6 +10,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 575
+ * Covenant-baseline-methods: HorizontalGroup,_align,_expand,_fill,_padBottom,_padLeft,_padRight,_padTop,_prefHeight,_prefWidth,_reverse,_round,_rowAlign,_space,_wrap,_wrapReverse,_wrapSpace,align,alignRight,alignTop,bottom,center,children,computeSize,drawDebugBounds,expand,fill,getFill,getPadBottom,getPadLeft,getPadRight,getPadTop,getRows,groupWidth,grow,i,incr,invalidate,isExpand,isReverse,isWrap,isWrapReverse,lastPrefHeight,layout,layoutWrapped,left,maxWidth,n,pad,padBottom,padLeft,padRight,padTop,prefHeight,prefWidth,r,reverse,round,rowAlign,rowBottom,rowCenter,rowDir,rowHeight,rowLeft,rowRight,rowSizes,rowTop,rowY,setRound,sizeInvalid,space,wrap,wrapReverse,wrapSpace,x,xStart,xStartAdjusted
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/HorizontalGroup.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

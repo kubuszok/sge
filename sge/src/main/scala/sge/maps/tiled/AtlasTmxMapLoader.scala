@@ -14,6 +14,13 @@
  *   - Java AtlasRegion return → Nullable[TextureRegion] via .map(r => r: TextureRegion)
  *   - Constructor requires `(using Sge)` (SGE context parameter)
  *   - Split package, braces, no-return conventions satisfied
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 234
+ * Covenant-baseline-methods: AssetManagerAtlasResolver,AtlasResolver,AtlasTmxMapLoader,DirectAtlasResolver,addStaticTiles,atlas,atlasFileHandle,atlasFilePath,atlasHandle,atlasResolver,descriptors,getAtlasFileHandle,getDependencyAssetDescriptors,getImage,load,loadAsync,loadSync,map,ownedResources,param,properties,props,setTextureFilters,this,tmxFile,trackedTextures
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/AtlasTmxMapLoader.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

@@ -10,6 +10,13 @@
  *   Idiom: `getUniqueness`/`setUniqueness` -> `var uniqueness`
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 179
+ * Covenant-baseline-methods: CAPACITY_RATIO_HI,CAPACITY_RATIO_LOW,DEFAULT_INITIAL_CAPACITY,PriorityQueue,_size,add,clear,get,growToSize,half,i,newCapacity,newQueue,oldCapacity,peek,poll,pos,queue,set,siftDown,siftUp,size,uniqueness
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

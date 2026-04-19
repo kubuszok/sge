@@ -10,6 +10,13 @@
  *   Idiom: Nullable[A] return type for get
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 46
+ * Covenant-baseline-methods: ComponentMapper,componentType,get,getFor,has
+ * Covenant-source-reference: com/badlogic/ashley/core/ComponentMapper.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ecs

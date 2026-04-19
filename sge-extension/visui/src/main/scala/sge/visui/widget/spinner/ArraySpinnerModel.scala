@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 154
+ * Covenant-baseline-methods: ArraySpinnerModel,bind,current,currentIndex,decrementModel,found,getCurrent,getCurrentIndex,getItemIndexForText,getItems,i,incrementModel,index,invalidateDataSet,itemToString,items,setCurrent,setItems,text,textChanged,this,updateCurrentItem
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/spinner/ArraySpinnerModel.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

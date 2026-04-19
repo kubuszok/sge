@@ -8,6 +8,13 @@
  * does not reduce the colors to match a palette.
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 176
+ * Covenant-baseline-methods: AnimatedPNG,COLOR_ARGB,COMPRESSION_DEFLATE,FILTER_NONE,IDAT,IEND,IHDR,INTERLACE_NONE,SIGNATURE,acTL,buffer,close,curLineBytes,dataOutput,deflater,deflaterOutput,fcTL,fdAT,flipY,output,pixmap,setCompression,setFlipY,this,write
+ * Covenant-source-reference: com/github/tommyettinger/anim8/AnimatedPNG.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package anim8

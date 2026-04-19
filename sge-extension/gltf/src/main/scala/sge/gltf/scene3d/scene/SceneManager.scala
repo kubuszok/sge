@@ -6,6 +6,13 @@
  * Scala port for SGE
  *
  * Convenient manager class for: model instances, animators, camera, environment, lights, batch/shaderProvider
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 343
+ * Covenant-baseline-methods: SceneManager,addScene,batch,camera,cascadeShadowMap,close,computedEnvironement,cullLights,depthBatch,environment,getActiveLightsCount,getBatch,getDepthBatch,getFirstDirectionalLight,getFirstDirectionalShadowLight,getRenderableProviders,getSkyBox,getTotalLightsCount,init,mirrorSource,pointLights,removeEnvironmentRotation,removeScene,render,renderColors,renderDepth,renderMirror,renderShadows,renderTransmission,renderableProviders,renderableSorter,rotOpt,setAmbientLight,setBatch,setCamera,setCascadeShadowMap,setDepthBatch,setDepthShaderProvider,setEnvironmentRotation,setMirrorSource,setShaderProvider,setSkyBox,setTransmissionSource,shadowLight,skyBox,spotLights,this,transmissionSource,update,updateEnvironment,updateSkyboxRotation,updateViewport
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

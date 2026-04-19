@@ -5,6 +5,13 @@
  *   Convention: SGE-original opaque type wrapping Float; replaces raw float volume parameters
  *     in Music, Sound, AudioDevice; validated range [0, 1]
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 29
+ * Covenant-baseline-methods: Volume,max,min,parse,toFloat,unsafeMake
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package audio

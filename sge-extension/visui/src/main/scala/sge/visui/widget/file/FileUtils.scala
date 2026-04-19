@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 144
+ * Covenant-baseline-methods: FILE_MODIFIED_DATE_COMPARATOR,FILE_NAME_COMPARATOR,FILE_SIZE_COMPARATOR,FileUtils,UNITS,compare,dirToShow,directoriesList,filesList,isValidFileName,ordering,readableFileSize,showDirInExplorer,sortFiles,toFileHandle
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/file/FileUtils.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

@@ -10,6 +10,13 @@
  *     (scene2d.ui parent style hierarchy flattened for cross-platform use)
  *   Convention: getX()/setX() → public var; deprecated BitmapFont constructors omitted.
  *   Idiom: Nullable[A] for nullable fields. No-arg constructors preserved for skin JSON.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 403
+ * Covenant-baseline-methods: CheckBoxStyle,ImageTextButtonStyle,LabelStyle,ListStyle,SelectBoxStyle,Styles,TextButtonStyle,TextFieldStyle,TextTooltipStyle,WindowStyle,background,backgroundDisabled,backgroundOpen,backgroundOver,checkboxOff,checkboxOffDisabled,checkboxOn,checkboxOnDisabled,checkboxOnOver,checkboxOver,checked,checkedDown,checkedDownFontColor,checkedFocused,checkedFocusedFontColor,checkedFontColor,checkedOffsetX,checkedOffsetY,checkedOver,checkedOverFontColor,close,cursor,disabled,disabledBackground,disabledFontColor,down,downFontColor,focused,focusedBackground,focusedFontColor,font,fontColor,fontColorSelected,fontColorUnselected,imageChecked,imageCheckedDown,imageCheckedOver,imageDisabled,imageDown,imageOver,imageUp,label,listStyle,messageFontColor,over,overFontColor,pressedOffsetX,pressedOffsetY,scrollStyle,selection,stageBackground,this,titleFont,titleFontColor,unpressedOffsetX,unpressedOffsetY,up,wrapWidth
+ * Covenant-source-reference: com/github/tommyettinger/textra/Styles.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 223
+ * Covenant-baseline-methods: QualityPalette,aA,aB,b,bA,bB,dA,dB,dL,difference,differenceAnalyzing,differenceHW,differenceMatch,forwardLight,g,l,lA,lB,m,r,s,this
+ * Covenant-source-reference: com/github/tommyettinger/anim8/QualityPalette.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package anim8

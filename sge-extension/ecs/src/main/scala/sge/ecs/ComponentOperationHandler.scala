@@ -11,15 +11,22 @@
  *   Idiom: ArrayBuffer instead of Array + Pool for operations
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 64
+ * Covenant-baseline-methods: ComponentOperation,ComponentOperationHandler,Type,add,hasOperationsToProcess,i,operations,processOperations,remove
+ * Covenant-source-reference: com/badlogic/ashley/core/ComponentOperationHandler.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ecs
 
 import scala.collection.mutable.ArrayBuffer
 
-/** Handles deferred component add/remove operations during engine update processing.
+/** Handles delayed component add/remove operations during engine update processing.
   *
-  * When the engine is updating systems, component operations are deferred and batched to avoid concurrent modification.
+  * When the engine is updating systems, component operations are delayed and batched to avoid concurrent modification.
   */
 private[ecs] class ComponentOperationHandler(delayed: () => Boolean) {
 

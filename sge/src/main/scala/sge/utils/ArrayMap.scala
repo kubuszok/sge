@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 516
+ * Covenant-baseline-methods: ArrayMap,_size,apply,clear,containsKey,containsValue,create,ensureCapacity,equals,equalsIdentity,existingIdx,firstKey,firstValue,foreachEntry,foreachKey,foreachValue,from,get,getKey,getKeyAt,getValueAt,grow,h,hashCode,i,indexOfKey,indexOfValue,insert,isEmpty,j,keyArray,mkK,mkV,needed,newCapacity,nonEmpty,peekKey,peekValue,preserveOrder,put,putAll,removeIndex,removeKey,removeValue,reverse,setKeyAt,setValueAt,shrink,shuffle,size,sizeNeeded,summonMkArray,toString,truncate,valArray
+ * Covenant-source-reference: com/badlogic/gdx/utils/ArrayMap.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package utils

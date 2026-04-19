@@ -5,6 +5,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 131
+ * Covenant-baseline-methods: AttributeLocation,BufferHandle,FramebufferHandle,GLHandleOps,ProgramHandle,RenderbufferHandle,ShaderHandle,TextureHandle,UniformLocation,apply,bindTexture,deleteBuffer,deleteFramebuffer,deleteRenderbuffer,deleteTexture,genBuffer,genFramebuffer,genRenderbuffer,genTexture,none,notFound,toInt
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

@@ -6,6 +6,13 @@
  * Scala port for SGE
  *
  * gdx view of an asset file: Model, Camera (as template), lights (as template), textures
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 69
+ * Covenant-baseline-methods: SceneAsset,animations,close,data,maxBones,meshes,pixmaps,scene,scenes,textures
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

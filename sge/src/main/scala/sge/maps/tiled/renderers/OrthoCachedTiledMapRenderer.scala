@@ -20,6 +20,13 @@
  * - Companion object holds tolerance and NUM_VERTICES constants (match Java static fields)
  * - Convention: typed GL enums (EnableCap, BlendFactor)
  * - Audited: 2026-03-04
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 411
+ * Covenant-baseline-methods: NUM_VERTICES,OrthoCachedTiledMapRenderer,ah,alphaMultiplier,aw,ax,ay,blending,cache,cacheBounds,cached,canCacheMoreE,canCacheMoreN,canCacheMoreS,canCacheMoreW,close,col1,col2,color,combinedTint,count,height,i,imageBounds,invalidateCache,isCached,j,layerHeight,layerOffsetX,layerOffsetY,layerTileHeight,layerTileWidth,layerWidth,map,mapLayers,maxTileHeight,maxTileWidth,opacityMultiplier,overCache,region,render,renderImageLayer,renderObject,renderObjects,renderTileLayer,row,row1,row2,setBlending,setMaxTileSize,setOverCache,setView,spriteCache,supportsTransparency,tolerance,unitScale,vertices,viewBounds,width
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/renderers/OrthoCachedTiledMapRenderer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

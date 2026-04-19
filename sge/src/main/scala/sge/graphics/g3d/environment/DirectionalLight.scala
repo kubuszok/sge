@@ -11,6 +11,13 @@
  *   - All 9 methods ported: setDirection x2, set x5, equals x2
  *   - Null checks → Nullable.foreach
  *   - equals(DirectionalLight) uses Nullable.fold for null safety
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 70
+ * Covenant-baseline-methods: DirectionalLight,direction,equals,set,setDirection
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/environment/DirectionalLight.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

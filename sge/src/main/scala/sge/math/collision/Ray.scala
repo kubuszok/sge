@@ -13,6 +13,13 @@
  *     added 3-arg constructor (originVec, directionVec, normalize) not in Java
  *   Idiom: split packages
  *   Audited: 2026-03-04
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 152
+ * Covenant-baseline-methods: Ray,cpy,direction,endPoint,equals,hashCode,mul,origin,prime,result,set,this,tmp,toString
+ * Covenant-source-reference: com/badlogic/gdx/math/collision/Ray.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

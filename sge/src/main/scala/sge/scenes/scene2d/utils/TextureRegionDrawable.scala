@@ -12,6 +12,13 @@
  * - instanceof check -> pattern matching for AtlasRegion in tint()
  * - All methods faithfully ported
  * - Renames: setRegion kept (has logic); getLeftWidth→leftWidth etc. via Drawable trait rename
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 89
+ * Covenant-baseline-methods: TextureRegionDrawable,_region,draw,drawable,region,setRegion,sprite,this,tint
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/TextureRegionDrawable.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

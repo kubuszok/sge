@@ -6,6 +6,13 @@
  * Scala port for SGE
  *
  * Node hack to store morph targets weights
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 44
+ * Covenant-baseline-methods: NodePlus,copy,morphTargetNames,result,set,weights
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

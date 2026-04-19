@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 261
+ * Covenant-baseline-methods: ImageTextButton,ImageTextButtonStyle,_image,_label,_style,draw,focused,fontColor,image,imageCell,imageChecked,imageCheckedDown,imageCheckedOver,imageDisabled,imageDown,imageDrawable,imageOver,imageUp,label,labelCell,newImage,newLabel,setLabel,setStyle,setText,style,text,this,toString,updateImage
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/ImageTextButton.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

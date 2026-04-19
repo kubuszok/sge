@@ -12,6 +12,13 @@
  *   - material, environment, bones, shader, userData are Nullable.
  *   - set() returns this (no explicit return).
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 98
+ * Covenant-baseline-methods: Renderable,bones,environment,material,meshPart,set,shader,userData,worldTransform
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/Renderable.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

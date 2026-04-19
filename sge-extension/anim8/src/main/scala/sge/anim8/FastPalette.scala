@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 189
+ * Covenant-baseline-methods: FastPalette,bf,difference,differenceAnalyzing,differenceHW,differenceMatch,gf,rf,this
+ * Covenant-source-reference: com/github/tommyettinger/anim8/FastPalette.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package anim8

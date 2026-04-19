@@ -14,6 +14,13 @@
  * - Constructors: 4 Java ctors mapped to primary + 3 auxiliary (matching signatures)
  * - Added getImageLayerColor/getTileLayerColor helper methods (match Java source)
  * - renderMapLayer uses Scala pattern match instead of Java instanceof chain
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 317
+ * Covenant-baseline-methods: BatchTiledMapRenderer,NUM_VERTICES,_batch,_map,_unitScale,_viewBounds,alphaMultiplier,batch,batchColor,beginRender,close,color,combinedTint,endRender,getImageLayerColor,getTileLayerColor,h,height,imageBounds,map,map_,opacityMultiplier,ownsBatch,region,render,renderImageLayer,renderMapLayer,renderObject,renderObjects,repeatedImageBounds,setView,supportsTransparency,this,unitScale,vertices,viewBounds,w,width
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/renderers/BatchTiledMapRenderer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

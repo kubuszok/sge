@@ -13,6 +13,13 @@
  *   - Private helper checkTransparencySupport + formatHasAlpha faithfully ported
  *   - Java switch -> Scala match in formatHasAlpha
  *   - Split package, braces, no-return conventions satisfied
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 59
+ * Covenant-baseline-methods: TiledMapImageLayer,_supportsTransparency,checkTransparencySupport,format,formatHasAlpha,region,repeatX,repeatY,supportsTransparency,x,y
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/TiledMapImageLayer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

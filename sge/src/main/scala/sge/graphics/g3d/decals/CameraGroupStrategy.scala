@@ -25,6 +25,13 @@
  *   Scala: camera is public var (with getter/setter), shader is private, pools are private
  *   — slightly tighter, acceptable
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 167
+ * Covenant-baseline-methods: CameraGroupStrategy,GROUP_BLEND,GROUP_OPAQUE,afterGroup,afterGroups,arrayPool,beforeGroup,beforeGroups,close,createDefaultShader,decideGroup,fragmentShader,getCamera,getGroupShader,materialGroups,setCamera,shader,this,usedArrays,vertexShader
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/decals/CameraGroupStrategy.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

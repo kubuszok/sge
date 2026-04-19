@@ -11,6 +11,13 @@
  *   Idiom: `@TaskConstraint` annotation dropped (parser uses registry instead)
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 332
+ * Covenant-baseline-methods: Status,Task,addChild,addChildToTask,cancel,cancelRunningChildren,checkGuard,childFail,childRunning,childSuccess,cloneTask,control,copyTo,end,fail,getChild,getChildCount,getObject,getStatus,guard,i,index,n,newInstance,previousStatus,reset,resetTask,run,running,setControl,start,status,success,taskCloner,tree
+ * Covenant-source-reference: com/badlogic/gdx/ai/btree/Task.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

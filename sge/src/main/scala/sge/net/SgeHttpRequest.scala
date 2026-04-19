@@ -7,6 +7,13 @@
  *   Origin: SGE-original (replaces LibGDX Net.HttpRequest with sttp-backed poolable request)
  *   Convention: mutable poolable object — same lifecycle as LibGDX HttpRequest
  *   Idiom: split packages, Nullable, Pool.Poolable
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 104
+ * Covenant-baseline-methods: SgeHttpRequest,content,contentBytes,followRedirects,headers,method,reset,timeoutMs,url,withContent,withContentBytes,withFollowRedirects,withHeader,withMethod,withTimeoutMs,withUrl
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package net

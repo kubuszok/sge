@@ -6,6 +6,13 @@
  * Scala port for SGE
  *
  * Cascade shadow map class contains several DirectionalShadowLight with different view boxes.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 154
+ * Covenant-baseline-methods: CascadeShadowMap,attribute,box,center,centerLight,close,createLight,dot,far,h,halfFrustumDepth,hd,i,lightMatrix,lights,near,offset,rate,setBaseLightBounds,setCascadeBounds,setCascades,splitPoints,splitRates,syncExtraCascades,w
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

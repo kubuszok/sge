@@ -12,6 +12,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 676
+ * Covenant-baseline-methods: BLACK,BLUE,BROWN,CHARTREUSE,CLEAR,CLEAR_WHITE,CORAL,CYAN,Color,DARK_GRAY,FIREBRICK,FOREST,GOLD,GOLDENROD,GRAY,GREEN,LIGHT_GRAY,LIME,MAGENTA,MAROON,NAVY,OLIVE,ORANGE,PINK,PURPLE,RED,ROYAL,SALMON,SCARLET,SKY,SLATE,TAN,TEAL,VIOLET,WHITE,WHITE_FLOAT_BITS,YELLOW,abgr8888ToColor,add,alpha,argb8888,argb8888ToColor,c,clamp,color,cpy,equals,f,fromHsv,hashCode,hexValue,i,lerp,luminanceAlpha,max,min,mul,p,premultiplyAlpha,q,range,result,rgb565,rgb565ToColor,rgb888,rgb888ToColor,rgba4444,rgba4444ToColor,rgba8888,rgba8888ToColor,set,sub,t,this,toFloatBits,toHsv,toIntBits,toString,value,valueOf,x
+ * Covenant-source-reference: com/badlogic/gdx/graphics/Color.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

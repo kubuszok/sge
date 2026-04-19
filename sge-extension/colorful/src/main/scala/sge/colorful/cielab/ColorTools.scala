@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 1036
+ * Covenant-baseline-methods: A,A0,A2,B,B0,B2,ColorTools,L,L0,W,X,Y,Z,a,abgr,ac,al,alc,alpha,alphaInt,b,bc,bits,bl,blot,blue,blueInt,cA,cB,cL,cbrtPositive,cc,channelA,channelB,channelL,chroma,chromaLimit,cielab,cielabByHCL,cielabByHSL,cielabHue,cielabLightness,cielabSaturation,clamp,contrast,contrastBits,cos,d,darken,decoded,differentiateLightness,dullen,e,eL,editCIELAB,enrich,fade,floatGetHSL,forwardGamma,forwardXYZ,fromColor,fromRGBA,fromRGBA8888,g,gl,green,greenInt,h,hue,inGamut,inverseLightness,ix,l,lc,lessenChange,li,lighten,lightness,limit,limitToGamut,lowerA,lowerB,main,maximizeSaturation,offsetLightness,op,r,raiseA,raiseB,randomColor,randomEdit,red,redInt,result,reverseGamma,reverseXYZ,rl,s,sL,saturation,sc,sd,sin,toCIELABColor,toColor,toEditedFloat,toRGBA,toRGBA8888,x,x0,y,z
+ * Covenant-source-reference: com/github/tommyettinger/colorful/cielab/ColorTools.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package colorful

@@ -12,6 +12,13 @@
  *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 225
+ * Covenant-baseline-methods: ACCEL,COMPASS,GYRO,KEY_DOWN,KEY_TYPED,KEY_UP,RemoteSender,SIZE,TOUCH_DOWN,TOUCH_DRAGGED,TOUCH_UP,connected,isConnected,keyDown,keyTyped,keyUp,mouseMoved,out,scrolled,sendUpdate,socket,touchCancelled,touchDown,touchDragged,touchUp
+ * Covenant-source-reference: com/badlogic/gdx/input/RemoteSender.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package input

@@ -12,6 +12,13 @@
  *   Idiom: unchecked array cast replaced with Array[AnyRef] approach
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 422
+ * Covenant-baseline-methods: CLOSED,EqualsByReferenceStopCondition,EqualsMethodStopCondition,IndexedAStarPathFinder,Metrics,NodeRecord,OPEN,StopCondition,UNVISITED,addToOpenList,category,connection,connections,costSoFar,cur,current,found,generateConnectionPath,generateNodePath,getEstimatedTotalCost,getNodeRecord,graph,i,index,initSearch,lastTime,metrics,node,nodeRecords,nr,openList,openListAdditions,openListPeak,remainingTime,reset,search,searchConnectionPath,searchId,searchInternal,searchNodePath,shouldStopSearch,startRecord,stopCondition,this,visitChildren,visitedNodes
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

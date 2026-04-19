@@ -12,6 +12,13 @@
  *   - No return statements -> boundary/break
  *   - All constructors, set(), equals(), hashCode(), compare() fully ported
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 99
+ * Covenant-baseline-methods: TextureDescriptor,compare,equals,h1,h2,hashCode,magFilter,minFilter,result,set,t1,t2,texture,this,uWrap,vWrap
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/TextureDescriptor.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

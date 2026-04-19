@@ -15,6 +15,13 @@
  *     getCorner* -> corner*
  *   Idiom: split packages
  *   Audited: 2026-03-04
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 260
+ * Covenant-baseline-methods: OrientedBoundingBox,_bounds,_vertices,aAxes,aVertices,axes,bAxes,bVertices,bounds,contains,corner000,corner001,corner010,corner011,corner100,corner101,corner110,corner111,extractVertices,intersects,inverseTransform,localV,mul,set,setBounds,setTransform,tempAxes,tempVertices,this,tmpVector,tmpVectors,transform,update,v,vertices
+ * Covenant-source-reference: com/badlogic/gdx/math/collision/OrientedBoundingBox.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

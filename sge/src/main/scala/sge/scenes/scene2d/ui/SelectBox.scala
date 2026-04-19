@@ -12,6 +12,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 615
+ * Covenant-baseline-methods: SelectBox,SelectBoxScrollPane,SelectBoxStyle,_alignment,_clickListener,_disabled,_prefHeight,_prefWidth,_style,act,alignment,alignment_,background,backgroundDisabled,backgroundDrawable,backgroundOpen,backgroundOver,bg,bh,bw,bx,by,c,clearItems,clickListener,clicked,disabled,disabledFontColor,disabled_,draw,drawItem,exit,fc,fireChangeEvent,font,fontColor,glyphLayout,hide,hideListener,hideScrollPane,i,isOver,itemToString,items,keyDown,layout,layoutPool,list,listStyle,maxListCount,maxSelectedPrefWidth,mouseMoved,newList,newScrollPane,oldPrefWidth,onHide,onShow,overFontColor,prefHeight,prefWidth,previousScrollFocus,scrollPane,scrollPaneSelf,scrollStyle,sel,selected,selectedIndex,selectedPrefWidth,selection,self,setItems,setMaxListCount,setScrollingDisabled,setSelected,setSelectedIndex,setSelectedPrefWidth,setStage,setStyle,show,showScrollPane,stagePosition,string,style,temp,this,touchDown,width
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/SelectBox.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

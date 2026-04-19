@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 503
+ * Covenant-baseline-methods: BitmapFontCache,_color,_layouts,_pageCount,_x,_y,addGlyph,addText,addToCache,adjXAmount,adjYAmount,adjustedX,adjustedY,alphaBits,clear,color,color_,colors,colorsIndex,currentIdx,currentTint,draw,finalHeight,finalWidth,finalX,finalY,glyphCount,glyphIndex,height,i,idx,intBits,integerPositions,integerPositions_,lastColorFloatBits,layout,layouts,newColor,newIdx,newPageGlyphIndices,newPageVertices,newTint,nextColorGlyphIndex,oldAlpha,page,pageCount,pageGlyphIndices,pageGlyphIndicesLength,pageVertices,pageVerticesLocal,pooledLayouts,prev,regions,requireGlyphs,requirePageGlyphs,runCount,scaleX,scaleY,setAlphas,setColors,setPageCount,setPosition,setText,tempColor,tempGlyphCount,tempGlyphCountLocal,this,tint,translate,u,u2,v,v2,vertexCount,vertices,width,x,x2,y,y2
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/BitmapFontCache.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

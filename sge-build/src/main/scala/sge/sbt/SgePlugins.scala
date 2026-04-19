@@ -19,6 +19,13 @@ import sbtprojectmatrix.ProjectMatrixKeys.projectMatrixBaseDirectory
   * Since JvmPlugin is always present in sbt, this plugin triggers for all projects
   * with SgePlugin enabled. JVM-specific settings (fork, javaOptions) are harmless on
   * JS/Native axis projects and get overridden by their respective plugins.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 134
+ * Covenant-baseline-methods: SgeAndroidPlatform,SgeBrowserPlatform,SgeDesktopJvmPlatform,SgeDesktopNativePlatform,autoImport,jvmRuntime,projectSettings,releaseCacheDir,releaseJlinkModules,releaseRoastVersion,releaseTargets,releaseUseZgc,releaseVmArgs,requires,sgeBrowserTitle,sgeJsOutputDir,trigger
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
   */
 object SgeDesktopJvmPlatform extends AutoPlugin {
 

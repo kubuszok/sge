@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 289
+ * Covenant-baseline-methods: OrderedMap,_keys,alter,alterIndex,apply,clear,containsKey,containsValue,create,ensureCapacity,equals,equalsIdentity,existing,findKey,foreachEntry,foreachKey,foreachValue,from,get,hashCode,i,isEmpty,key,keys,loadFactor,map,mkK,mkV,nonEmpty,orderedKeys,otherKeys,put,putAll,remove,removeIndex,shrink,size,summonMkArray,toString
+ * Covenant-source-reference: com/badlogic/gdx/utils/OrderedMap.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package utils

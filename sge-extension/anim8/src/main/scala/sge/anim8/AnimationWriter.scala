@@ -8,6 +8,13 @@
  *   Convention: split packages
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 35
+ * Covenant-baseline-methods: AnimationWriter,write
+ * Covenant-source-reference: com/github/tommyettinger/anim8/AnimationWriter.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package anim8

@@ -18,6 +18,13 @@
  *   - getManagedDisposables returns DynamicArray (Java returns Iterable).
  *   - All lookup methods (getAnimation, getMaterial, getNode) return Nullable.
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 473
+ * Covenant-baseline-methods: Model,animations,attributes,calculateBoundingBox,calculateTransforms,close,convertMaterial,convertMesh,disposables,extendBoundingBox,getAnimation,getMaterial,getNode,hasIndices,indicesBuffer,load,loadAnimations,loadMaterials,loadMeshes,loadNode,loadNodes,manageDisposable,managedDisposables,materials,mesh,meshParts,meshes,n,node,nodePartBones,nodes,numIndices,numVertices,offset,result,textures,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/Model.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

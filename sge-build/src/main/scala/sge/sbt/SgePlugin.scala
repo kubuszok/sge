@@ -30,6 +30,13 @@ import sbt.internal.ProjectMatrix
   *   (ThisBuild / baseDirectory).value / "native-components" / "target" / "release"
   * )
   * }}}
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 219
+ * Covenant-baseline-methods: NativeCrossAxis,SgePlugin,androidDex,androidInstall,androidPackage,androidSign,autoImport,base,commonSettings,coreDep,desktopDir,desktopSharedDir,fromProps,globalSettings,jsPlatform,jsSettings,jvmPlatform,jvmRuntimeOpts,jvmSettings,macFlags,nativePlatform,nativeSettings,projectSettings,relaxedSettings,releaseAll,releaseAppName,releaseCacheDir,releaseJlinkModules,releaseMacOsBundleId,releaseMacOsIcon,releaseNativeLibDirs,releasePackage,releasePlatform,releaseRoastVersion,releaseTargets,releaseUseZgc,releaseVmArgs,requires,rustLib,scalaVersion,sgeNativeLibDir,sgeNativeLibLocalDir,sgePackageBrowser,sgePackageNative,sgeRelease,sgeVersion,trigger,withCrossNative
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
   */
 object SgePlugin extends AutoPlugin {
 

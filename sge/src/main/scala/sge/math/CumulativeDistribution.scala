@@ -10,6 +10,13 @@
  *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 151
+ * Covenant-baseline-methods: CumulativeDistribution,CumulativeValue,add,clear,currentSize,ensureCapacity,freq,generate,generateNormalized,generateUniform,getInterval,getValue,i,intervalSum,setInterval,size,sum,value,values
+ * Covenant-source-reference: com/badlogic/gdx/math/CumulativeDistribution.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

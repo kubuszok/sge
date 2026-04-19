@@ -13,6 +13,13 @@
  *   - Java generic ctor (type, TextureDescriptor<T>) → Scala (type, TextureDescriptor[? <: Texture])
  *   - textureDescription.texture assignment uses Nullable() wrapper (no-null convention)
  *   - All 7 alias/type pairs, all 14 create* factory methods, set(region) accounted for
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 180
+ * Covenant-baseline-methods: Ambient,AmbientAlias,Bump,BumpAlias,Diffuse,DiffuseAlias,Emissive,EmissiveAlias,Mask,Normal,NormalAlias,Reflection,ReflectionAlias,Specular,SpecularAlias,TextureAttribute,compare,copy,createAmbient,createBump,createDiffuse,createEmissive,createNormal,createReflection,createSpecular,hashCode,is,offsetU,offsetV,result,scaleU,scaleV,set,textureDescription,this,uvIndex
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/attributes/TextureAttribute.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

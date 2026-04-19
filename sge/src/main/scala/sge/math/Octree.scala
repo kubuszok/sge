@@ -10,6 +10,13 @@
  *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 358
+ * Covenant-baseline-methods: Collider,Octree,OctreeNode,RayCastResult,add,bounds,children,clearChildren,createNode,distance,free,geometries,geometry,geometryNullable,geometry_,getAll,getBoundingBox,getNodesBoxes,initialCapacity,intersects,isLeaf,leaf,level,max,maxDistanceSq,merge,newObject,node,nodePool,query,rayCast,remove,root,split,tmp,update
+ * Covenant-source-reference: com/badlogic/gdx/math/Octree.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

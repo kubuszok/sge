@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 240
+ * Covenant-baseline-methods: AlphaChannelBarListener,ExtendedColorPicker,HsvChannelBarListener,RgbChannelBarListener,aBar,allowAlphaEdit_,b,bBar,ca,cb,cg,ch,cr,createColorWidgets,createUI,cs,cv,extendedTable,g,gBar,h,hBar,hsv,r,rBar,rgbListener,s,sBar,setShaderUniforms,svListener,this,updateFields,updateLinkedWidget,updateValuesFromCurrentColor,updateValuesFromHSVFields,updateValuesFromRGBFields,v,vBar
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/color/ExtendedColorPicker.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

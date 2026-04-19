@@ -12,6 +12,13 @@
  *   Convention: TypingCheckBox extends TypingButton (not TextraCheckBox).
  *     Scene2d checkbox image stored as Nullable[AnyRef] (Drawable at scene2d level).
  *   Idiom: Nullable[A] for nullable fields; checkbox drawable selection in draw().
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 108
+ * Covenant-baseline-methods: TypingCheckBox,_checkStyle,_imageCell,_imageDrawable,checkbox,draw,getImage,getImageCell,getStyle,lbl,newImage,setStyle,this
+ * Covenant-source-reference: com/github/tommyettinger/textra/TypingCheckBox.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

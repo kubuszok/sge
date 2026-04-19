@@ -12,6 +12,13 @@
  *   Idiom: null color fallback -> Nullable.getOrElse(target.fold(...)(_.color))
  *   TODO: direct Color.a mutation -- update when Color becomes immutable
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 53
+ * Covenant-baseline-methods: AlphaAction,alpha,begin,c,color,reset,start,update
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/AlphaAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

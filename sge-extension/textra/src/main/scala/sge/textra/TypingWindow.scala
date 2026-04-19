@@ -10,6 +10,13 @@
  *   Convention: TypingWindow extends TextraWindow, overrides newLabel to produce TypingLabel
  *     (as TextraLabel return type to match parent signature).
  *   Idiom: Nullable[A] for nullable fields.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 88
+ * Covenant-baseline-methods: TypingWindow,newLabel,this
+ * Covenant-source-reference: com/github/tommyettinger/textra/TypingWindow.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

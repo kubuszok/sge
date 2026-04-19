@@ -34,6 +34,13 @@
  *   setUseGpu/isUseGPU → useGPU/useGPU_=; setTexture/getTexture → texture/texture_=;
  *   getBlendingAttribute → blendingAttribute; renamed backing field texture → _texture
  * - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 805
+ * Covenant-baseline-methods: AlignMode,BillboardParticleBatch,CPU_ATTRIBUTES,CPU_COLOR_OFFSET,CPU_POSITION_OFFSET,CPU_UV_OFFSET,CPU_VERTEX_SIZE,Config,GPU_ATTRIBUTES,GPU_COLOR_OFFSET,GPU_POSITION_OFFSET,GPU_SIZE_ROTATION_OFFSET,GPU_UV_OFFSET,GPU_VERTEX_SIZE,MAX_PARTICLES_PER_MESH,MAX_VERTICES_PER_MESH,RenderablePool,TMP_M3,TMP_V1,TMP_V2,TMP_V3,TMP_V4,TMP_V5,TMP_V6,_blendingAttribute,_depthTestAttribute,_mode,_texture,_useGPU,addedVertexCount,alignMode,alignMode_,allocIndices,allocParticlesData,allocRenderable,allocRenderables,allocShader,begin,blendingAttribute,clearRenderablesPool,currentAttributes,currentVertexSize,data,directionUsage,fillVerticesGPU,fillVerticesToScreenCPU,fillVerticesToViewPointCPU,flush,free,getRenderables,getShader,i,indices,indicesCount,initRenderData,initialCapacity,load,look,max,meshCount,mode,newObject,newRenderable,putVertexCPU,putVertexGPU,renderable,renderablePool,renderables,right,s,save,setVertexData,shader,sizeAndRotationUsage,texture,texture_,this,tp,up,useGPU,useGPU_,v,vCount,vertex,vertices
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/batches/BillboardParticleBatch.java
+ * Covenant-verified: 2026-04-19
  */
 package sge.graphics.g3d.particles.batches
 

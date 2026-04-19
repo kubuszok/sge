@@ -23,6 +23,13 @@
  * - context field: Nullable in BaseShader; Scala uses context.foreach{} patterns
  * - renderable.material: Nullable in Scala; uses fold/foreach instead of direct access
  * - register() calls wrap setter in Nullable() (BaseShader API difference)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 478
+ * Covenant-baseline-methods: AlignMode,Config,Inputs,ParticleShader,ParticleType,Setters,TMP_VECTOR3,align,begin,bindMaterial,cameraInvDirection,cameraPosition,cameraRight,cameraUp,canRender,close,compareTo,config,createPrefix,currentMaterial,defaultCullFace,defaultCullFace_,defaultDepthFunc,defaultDepthFunc_,defaultFragmentShader,defaultVertexShader,end,equals,fragmentShader,ignoreUnimplemented,implementedFlags,init,materialMask,optionalAttributes,prefix,prog,regionSize,render,renderable,screenWidth,set,this,vertexMask,vertexShader,worldViewTrans
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/ParticleShader.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

@@ -13,6 +13,13 @@
  * - unPlug return: null -> Nullable[GroupPlug]: correct Nullable conversion
  * - All methods faithfully ported
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 55
+ * Covenant-baseline-methods: PluggableGroupStrategy,afterGroup,beforeGroup,plugIn,plugs,unPlug
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/decals/PluggableGroupStrategy.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

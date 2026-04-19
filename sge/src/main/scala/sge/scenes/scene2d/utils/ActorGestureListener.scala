@@ -13,6 +13,13 @@
  * - stageToLocalAmount takes explicit actor param (Java accesses outer mutable field directly)
  * - amount.-(v) used instead of amount.sub(v) (Scala operator convention)
  * - stage returns Nullable -> uses foreach for null-safety
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 194
+ * Covenant-baseline-methods: ActorGestureListener,_actor,_touchDownTarget,detector,event,fling,gestureDetector,handle,longPress,pan,panStop,pinch,stageToLocalAmount,tap,this,tmpCoords,tmpCoords2,touchDown,touchDownTarget,touchUp,zoom
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/ActorGestureListener.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

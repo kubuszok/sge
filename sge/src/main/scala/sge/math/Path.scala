@@ -11,6 +11,13 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * AUDIT: PASS — All methods ported: derivativeAt, valueAt, approximate, locate, approxLength
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 47
+ * Covenant-baseline-methods: Path,approxLength,approximate,derivativeAt,locate,valueAt
+ * Covenant-source-reference: com/badlogic/gdx/math/Path.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

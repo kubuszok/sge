@@ -9,6 +9,13 @@
  * Migration notes:
  *   Convention: opaque Nanos for time params in event methods; opaque Pixels for screenX/screenY params; opaque Key/Button for key/button params
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 230
+ * Covenant-baseline-methods: InputEventQueue,KEY_DOWN,KEY_TYPED,KEY_UP,MOUSE_MOVED,SCROLLED,SKIP,TOUCH_DOWN,TOUCH_DRAGGED,TOUCH_UP,_currentEventTime,currentEventTime,drain,keyDown,keyTyped,keyUp,mouseMoved,next,processingQueue,queue,queueTime,scrolled,touchDown,touchDragged,touchUp
+ * Covenant-source-reference: com/badlogic/gdx/InputEventQueue.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 

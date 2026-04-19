@@ -11,6 +11,13 @@
  *   Idiom: split packages; (using Sge) propagation; boundary/break not needed (no return)
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 184
+ * Covenant-baseline-methods: GLTFAssetLoader,ManagedTextureResolver,dataFileResolver,deps,dfr,fetch,getDependencies,glModel,loadAsync,loadSync,loadTextures,loader,mtr,pixmaps,sceneAsset,textureDescriptorsMipMap,textureDescriptorsSimple,textureParameters,textureResolver,this,withData
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

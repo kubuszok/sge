@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 109
+ * Covenant-baseline-methods: PreferencesIO,VIS_DEFAULT_PREFS_NAME,checkIfUsingDefaultName,data,defaultPrefsName,favoritesKeyName,i,lastDirKeyName,loadFavorites,loadFileArray,loadLastDirectory,loadRecentDirectories,prefs,recentDirKeyName,saveFavorites,saveFileArray,saveLastDirectory,saveRecentDirectories,sb,setDefaultPrefsName,this,toFileHandle
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/file/internal/PreferencesIO.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

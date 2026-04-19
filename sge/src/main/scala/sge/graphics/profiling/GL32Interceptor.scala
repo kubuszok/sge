@@ -14,6 +14,13 @@
  *   Idiom: split packages
  *   Convention: typed GL enums
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 306
+ * Covenant-baseline-methods: GL32Interceptor,glBlendBarrier,glBlendEquationSeparatei,glBlendEquationi,glBlendFuncSeparatei,glBlendFunci,glColorMaski,glCopyImageSubData,glDebugMessageCallback,glDebugMessageControl,glDebugMessageInsert,glDisablei,glDrawElementsBaseVertex,glDrawElementsInstancedBaseVertex,glDrawRangeElementsBaseVertex,glEnablei,glFramebufferTexture,glGetDebugMessageLog,glGetGraphicsResetStatus,glGetObjectLabel,glGetPointerv,glGetSamplerParameterIiv,glGetSamplerParameterIuiv,glGetTexParameterIiv,glGetTexParameterIuiv,glGetnUniformfv,glGetnUniformiv,glGetnUniformuiv,glIsEnabledi,glMinSampleShading,glObjectLabel,glPatchParameteri,glPopDebugGroup,glPushDebugGroup,glReadnPixels,glSamplerParameterIiv,glSamplerParameterIuiv,glTexBuffer,glTexBufferRange,glTexParameterIiv,glTexParameterIuiv,glTexStorage3DMultisample,v
+ * Covenant-source-reference: com/badlogic/gdx/graphics/profiling/GL32Interceptor.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

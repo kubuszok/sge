@@ -10,6 +10,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 350
+ * Covenant-baseline-methods: ETC1,ETC1Data,ETC1_RGB8_OES,PKM_HEADER_SIZE,apply,arr,buffer,checkNPOT,close,compArr,compSize,compressedData,dataOffset,decArr,decodeImage,decodedSize,dup,encodeImage,encodeImagePKM,etc1,extractBytes,formatHeader,getCompressedDataSize,getHeightPKM,getPixelSize,getWidthPKM,hasPKMHeader,height,imgArr,imgSize,in,isValidPKM,loadCompressedData,pixelSize,pixmap,pkmArr,putBytes,result,toString,width,write
+ * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/ETC1.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

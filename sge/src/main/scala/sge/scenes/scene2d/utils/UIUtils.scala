@@ -13,6 +13,13 @@
  * - No-arg methods require (using Sge); int-arg overloads are pure
  * - All methods faithfully ported
  * Convention: opaque Button/Key types for type-safe button/key code params
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 88
+ * Covenant-baseline-methods: UIUtils,alt,ctrl,isAndroid,isIos,isLinux,isMac,isWindows,left,middle,os,right,shift
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/UIUtils.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

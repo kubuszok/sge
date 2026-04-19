@@ -11,6 +11,13 @@
  *   Idiom: split packages
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 161
+ * Covenant-baseline-methods: WavInputStream,bitDepth,channels,codecType,dataRemaining,fmtChunkLength,getCodecName,read,remaining,sampleRate,seekToChunk,skipFully
+ * Covenant-source-reference: backends/gdx-backend-lwjgl3/.../audio/Wav.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package audio

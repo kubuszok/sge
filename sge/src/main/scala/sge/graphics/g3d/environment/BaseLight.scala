@@ -10,6 +10,13 @@
  *   - Audit: pass (2026-03-03)
  *   - All methods ported: setColor(r,g,b,a), setColor(Color)
  *   - Java final field → Scala val
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 21
+ * Covenant-baseline-methods: BaseLight,color
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/environment/BaseLight.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

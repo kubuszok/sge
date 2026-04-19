@@ -10,6 +10,13 @@
  *   Idiom: Java singleton pattern -> Scala object with mutable library field
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 75
+ * Covenant-baseline-methods: BehaviorTreeLibraryManager,createBehaviorTree,createRootTask,disposeBehaviorTree,instance,library
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

@@ -10,6 +10,13 @@
  *   - All 12 interface methods match Java 1:1
  *   - BlendMode Java enum → Scala 3 enum in companion object
  *   - Split package, braces, no-return conventions satisfied
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 68
+ * Covenant-baseline-methods: BlendMode,TiledMapTile,blendMode,blendMode_,id,id_,objects,offsetX,offsetX_,offsetY,offsetY_,properties,textureRegion,textureRegion_
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/TiledMapTile.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

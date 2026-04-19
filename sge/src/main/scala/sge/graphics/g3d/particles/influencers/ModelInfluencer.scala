@@ -15,6 +15,13 @@
  * - write/read(Json) omitted (Json serialization not ported).
  * - All public methods faithfully ported.
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 152
+ * Covenant-baseline-methods: ModelInfluencer,Random,Single,_modelFilenames,activateParticles,allocateChannels,copy,data,descriptor,init,killParticles,load,modelChannel,models,pool,save,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/influencers/ModelInfluencer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

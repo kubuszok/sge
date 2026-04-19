@@ -11,6 +11,13 @@
  *   Convention: null -> Nullable[A]; no return statements; split packages
  *   Idiom: Java switch -> Scala match; instanceof+cast -> pattern match; stage() null-check -> Nullable.foreach
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 143
+ * Covenant-baseline-methods: InputListener,enter,exit,handle,keyDown,keyTyped,keyUp,mouseMoved,scrolled,touchDown,touchDragged,touchUp
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/InputListener.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 337
+ * Covenant-baseline-methods: APPROVE,BLOCK_INPUT,CANCEL,DEFAULT_ALPHA,DEFAULT_FADING_TIME,DEFAULT_LISTENER,DEFAULT_MOVING_TIME,DragAdapter,DragListener,Draggable,INVISIBLE_ON_DRAG,KEEP_WITHIN_PARENT,LAST_POSITION,MIMIC_COORDINATES,MimicActor,STAGE_COORDINATES,_alpha,_blocker,_deadzoneRadius,_offsetX,_offsetY,actor,addBlocker,addMimicHidingAction,alpha,alpha_,attachMimic,attachTo,b,blockInput,blocker,deadzoneRadius,deadzoneRadius_,dragStartX,dragStartY,draw,fadingInterpolation,fadingTime,getFadingTime,getMovingTime,getStageCoordinates,getStageCoordinatesWithDeadzone,getStageCoordinatesWithOffset,getStageCoordinatesWithinParent,handled,i,invisibleWhenDragged,isBlockingInput,isDisabled,isDragged,isInvisibleWhenDragged,isKeptWithinParent,isValid,isWithinDeadzone,keepWithinParent,listener,listener_,listeners,mimic,mouseMoved,movingInterpolation,movingTime,offsetX,offsetY,onDrag,onEnd,onStart,remove,removeBlocker,scrolled,setBlockInput,setFadingInterpolation,setFadingTime,setInvisibleWhenDragged,setKeepWithinParent,setMovingInterpolation,setMovingTime,this,touchDown,touchDragged,touchUp,updateSize
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/Draggable.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

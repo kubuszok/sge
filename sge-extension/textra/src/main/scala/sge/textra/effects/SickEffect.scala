@@ -1,6 +1,13 @@
 /*
  * Ported from TextraTypist - https://github.com/tommyettinger/textratypist
  * Licensed under the Apache License, Version 2.0
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 40
+ * Covenant-baseline-methods: DEFAULT_DISTANCE,DEFAULT_FREQUENCY,DEFAULT_SPEED,SickEffect,distance,indices,interpolation,onApply,progress,progressModifier,progressOffset,speed,split,y
+ * Covenant-source-reference: com/github/tommyettinger/textra/effects/SickEffect.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

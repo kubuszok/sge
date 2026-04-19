@@ -12,6 +12,13 @@
  *   Convention: TypingTooltip extends TextraTooltip, overrides newLabel methods to
  *     produce TypingLabel. The enter method restarts the typing animation.
  *   Idiom: Nullable[A] for nullable fields.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 91
+ * Covenant-baseline-methods: TypingTooltip,container,enter,getTypingLabel,newLabel,setStyle,this,wrap
+ * Covenant-source-reference: com/github/tommyettinger/textra/TypingTooltip.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

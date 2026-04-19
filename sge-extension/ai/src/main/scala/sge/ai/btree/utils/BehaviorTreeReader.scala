@@ -16,6 +16,13 @@
  *   Idiom: Java `do { ... } while(false)` -> `boundary { ... }` block
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 535
+ * Covenant-baseline-methods: BehaviorTreeReader,attrName,attribute,btreeActions,btreeEofActions,btreeIndexOffsets,btreeIndicies,btreeKeyOffsets,btreeRangeLengths,btreeSingleLengths,btreeStart,btreeTransActions,btreeTransKeys,btreeTransTargs,buffer,comment,containsFloatingPointCharacters,cs,data,debug,endLine,endStatement,eof,executeAction,i,indent,isGuard,isSubtreeRef,length,lineNumber,needsUnescape,p,parse,parseRuntimeEx,pe,processEndLine,processValue,s,startLine,startStatement,statementName,stringIsUnquoted,taskIndex,taskProcessed,unescape
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

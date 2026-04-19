@@ -9,6 +9,13 @@
  * encoder. The original has no copyright asserted.
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 72
+ * Covenant-baseline-methods: FastGif,i,write
+ * Covenant-source-reference: com/github/tommyettinger/anim8/FastGif.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package anim8

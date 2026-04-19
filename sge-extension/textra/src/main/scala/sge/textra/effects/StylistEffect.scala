@@ -1,4 +1,12 @@
-/* Ported from TextraTypist. Licensed under Apache 2.0. */
+/* Ported from TextraTypist. Licensed under Apache 2.0.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 45
+ * Covenant-baseline-methods: StylistEffect,all,effects,onApply,shouldApply
+ * Covenant-source-reference: com/github/tommyettinger/textra/effects/StylistEffect.java
+ * Covenant-verified: 2026-04-19
+ */
 package sge
 package textra
 package effects

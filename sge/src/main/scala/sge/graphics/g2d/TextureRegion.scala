@@ -15,6 +15,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 345
+ * Covenant-baseline-methods: TextureRegion,_regionHeight,_regionWidth,_u,_u2,_v,_v2,cols,createSubRegion,flip,flipX,flipY,invTexHeight,invTexWidth,region,regionHeight,regionHeight_,regionWidth,regionWidth_,regionX,regionX_,regionY,regionY_,rows,scroll,setRegion,split,splitWithMargins,startX,texHeight,texWidth,texture,this,tiles,u,u2,u2_,u_,v,v2,v2_,v_,x,xSlices,y,ySlices
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/TextureRegion.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

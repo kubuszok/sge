@@ -13,6 +13,13 @@
  * - setBatch() uses isInstanceOf + asInstanceOf (matches Java unchecked cast)
  * - All 4 methods faithfully ported: update, setBatch, isCompatible (abstract), set
  * - Audited 2026-03-03: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 62
+ * Covenant-baseline-methods: ParticleControllerRenderer,batch,isCompatible,renderData,set,setBatch,this,update
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerRenderer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 202
+ * Covenant-baseline-methods: LZBCompression,bitsPerChar,compressToByteArray,compressToBytes,contextData,contextDataPosition,contextDataVal,contextDictSize,contextDictionary,contextDictionaryToCreate,contextEnlargeIn,contextNumBits,contextW,done,i,ii,ucl,value
+ * Covenant-source-reference: com/github/tommyettinger/textra/utils/LZBCompression.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

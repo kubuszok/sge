@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 31
+ * Covenant-baseline-methods: GAMUT_DATA,Gamut,stream
+ * Covenant-source-reference: com/github/tommyettinger/colorful/oklab/Gamut.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package colorful

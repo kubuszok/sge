@@ -9,6 +9,13 @@
  *   Convention: split packages, Nullable instead of null
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 201
+ * Covenant-baseline-methods: BehaviorTree,GuardEvaluator,Listener,_listeners,addChildToTask,addListener,bt,childAdded,childFail,childRunning,childSuccess,copyTo,getChild,getChildCount,getObject,guardEvaluator,ls,newInstance,notifyChildAdded,notifyStatusUpdated,obj,removeListener,removeListeners,reset,resetTask,root,rootTask,run,setObject,statusUpdated,step
+ * Covenant-source-reference: com/badlogic/gdx/ai/btree/BehaviorTree.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

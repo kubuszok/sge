@@ -11,6 +11,13 @@
  *   Convention: split package (sge / maps)
  *   Renames: getLayers → val layers, getProperties → val properties
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 38
+ * Covenant-baseline-methods: Map,close,layers,properties
+ * Covenant-source-reference: com/badlogic/gdx/maps/Map.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

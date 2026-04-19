@@ -12,6 +12,13 @@
  *   Idiom: Fields stored as Nullable; target/listenerActor return Nullable directly
  *   Convention: extends Pool.Poolable — given Poolable[Event] auto-derived via Poolable.fromTrait
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 96
+ * Covenant-baseline-methods: Event,bubbles,cancel,cancelled,capture,handle,handled,isCancelled,isHandled,isStopped,listenerActor,reset,stage,stop,stopped,target
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/Event.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

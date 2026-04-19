@@ -11,6 +11,13 @@
  *   Convention: Java interface -> Scala trait; static constants -> companion object vals
  *   Idiom: boundary/break (1 return), Nullable (1 null), split packages
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 72
+ * Covenant-baseline-methods: GLErrorListener,LOGGING_LISTENER,THROWING_LISTENER,onError
+ * Covenant-source-reference: com/badlogic/gdx/graphics/profiling/GLErrorListener.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

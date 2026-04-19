@@ -12,6 +12,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 328
+ * Covenant-baseline-methods: Batch,C1,C2,C3,C4,U1,U2,U3,U4,V1,V2,V3,V4,X1,X2,X3,X4,Y1,Y2,Y3,Y4,blendDstFunc,blendDstFuncAlpha,blendSrcFunc,blendSrcFuncAlpha,blendingEnabled,color,color_,disableBlending,draw,drawing,enableBlending,flush,packedColor,packedColor_,projectionMatrix,projectionMatrix_,rendering,setBlendFunction,setBlendFunctionSeparate,setColor,shader,shader_,transformMatrix,transformMatrix_
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/Batch.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

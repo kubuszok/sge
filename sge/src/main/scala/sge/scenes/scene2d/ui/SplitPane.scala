@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 431
+ * Covenant-baseline-methods: SplitPane,SplitPaneStyle,_firstWidget,_secondWidget,_style,actor,addActor,addActorAt,addActorBefore,availHeight,availWidth,bottomAreaHeight,calculateHorizBoundsAndPositions,calculateVertBoundsAndPositions,clampSplitAmount,cursorOverHandle,draw,effectiveMaxAmount,effectiveMinAmount,first,firstWidgetBounds,handle,handleBounds,handleHeight,handlePosition,handleWidth,height,initialize,isCursorOverHandle,lastPoint,layout,leftAreaWidth,maxAmount,minAmount,minHeight,minWidth,mouseMoved,prefHeight,prefWidth,removeActor,removeActorAt,rightAreaWidth,second,secondWidgetBounds,self,setFirstWidget,setMaxSplitAmount,setMinSplitAmount,setSecondWidget,setSplitAmount,setStyle,setVertical,splitAmount,style,tempScissors,this,topAreaHeight,touchDown,touchDragged,touchUp,vertical,widgetMinHeight,widgetMinWidth,widgetPrefHeight,widgetPrefWidth,width
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/SplitPane.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

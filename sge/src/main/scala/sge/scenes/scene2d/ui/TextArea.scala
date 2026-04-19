@@ -12,6 +12,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 469
+ * Covenant-baseline-methods: TextArea,TextAreaListener,availableHeight,background,calculateCurrentLineIndex,calculateOffsets,checkFocusTraversal,continueCursor,count,createInputListener,cursorLine,cursorX,cursorY,drawCursor,drawSelection,drawText,firstLineShowing,font,fontData,getTextY,goEnd,goHome,i,index,initialize,keyDown,keyTyped,lastText,letterUnderCursor,line,lineHeight,lines,linesBreak,linesShowing,maxIndex,minIndex,moveCursor,moveCursorLine,moveOffset,newLineAtEnd,offsetY,pos,prefHeight,prefRows,setCursorPosition,setPrefRows,setSelection,setStyle,showCursor,sizeChanged,textOffset,textY,this,updateCurrentLine,updateFirstLineShowing
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/TextArea.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

@@ -10,6 +10,13 @@
  *   Idiom: `@TaskAttribute` annotation dropped; Java enum with abstract methods -> Scala enum with abstract methods
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 244
+ * Covenant-baseline-methods: Orchestrator,Parallel,Policy,childFail,childRunning,childSuccess,copyTo,currentChildIndex,execute,executeJoin,executeResume,i,lastResult,n,newInstance,noRunningTasks,onChildFail,onChildSuccess,orchestrator,parallel,policy,reset,resetAllChildren,resetTask,run
+ * Covenant-source-reference: com/badlogic/gdx/ai/btree/branch/Parallel.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

@@ -11,6 +11,13 @@
  *   delegating to super(scaleInfluencer). Both approaches are functionally equivalent.
  * - All public methods faithfully ported (activateParticles, copy).
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 69
+ * Covenant-baseline-methods: ScaleInfluencer,activateParticles,copy,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/influencers/ScaleInfluencer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

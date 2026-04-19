@@ -7,6 +7,13 @@
  *   Convention: returns SoundId(0L) (Java returns 0L); uses opaque Volume/Pitch/Pan/SoundId types
  *   Idiom: split packages
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 53
+ * Covenant-baseline-methods: NoopSound,close,loop,pause,play,resume,setLooping,setPan,setPitch,setVolume,stop
+ * Covenant-source-reference: backends/gdx-backend-headless/mock/audio/MockSound.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package noop

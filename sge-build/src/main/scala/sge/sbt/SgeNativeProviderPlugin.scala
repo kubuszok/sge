@@ -13,6 +13,13 @@ import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport._
   * Auto-triggers when both `ScalaNativePlugin` and `NativeProviderPlugin` are present.
   * `NativeProviderPlugin` handles manifest discovery, extraction, linker flags, and rpath.
   * This plugin layers SGE resource patterns for Scala Native embedding.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 33
+ * Covenant-baseline-methods: SgeNativeProviderPlugin,projectSettings,requires,trigger
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
   */
 object SgeNativeProviderPlugin extends AutoPlugin {
 

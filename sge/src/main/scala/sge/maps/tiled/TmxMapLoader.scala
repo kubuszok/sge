@@ -13,6 +13,13 @@
  *   - Java setOwnedResources(textures.values().toArray()) → DynamicArray construction
  *   - Constructor requires `(using Sge)` (SGE context parameter)
  *   - Split package, braces, no-return conventions satisfied
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 252
+ * Covenant-baseline-methods: TmxMapLoader,addStaticTiles,descriptors,fileHandles,getDependencyAssetDescriptors,getDependencyFileHandles,getTileSetDependencyFileHandle,ii,imageElement,imageLayerElements,load,loadAsync,loadSync,map,ownedResources,props,source,textureFiles,textures,this,ti,tilesetElements,tmxFile,ts,tsxFile
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/TmxMapLoader.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

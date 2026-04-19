@@ -11,6 +11,13 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * AUDIT: PASS — All methods ported: contains(Vector2), contains(x,y)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 25
+ * Covenant-baseline-methods: Shape2D,contains
+ * Covenant-source-reference: com/badlogic/gdx/math/Shape2D.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

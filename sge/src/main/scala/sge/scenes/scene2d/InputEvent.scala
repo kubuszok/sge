@@ -12,6 +12,13 @@
  *   Idiom: Java static inner enum -> companion object enum; Integer.MIN_VALUE -> Int.MinValue
  *   Convention: Int key/button fields → opaque Key/Button types
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 128
+ * Covenant-baseline-methods: InputEvent,Type,button,character,eventType,isTouchFocusCancel,keyCode,pointer,relatedActor,reset,scrollAmountX,scrollAmountY,stageX,stageY,toCoordinates,toString,touchFocus
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/InputEvent.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

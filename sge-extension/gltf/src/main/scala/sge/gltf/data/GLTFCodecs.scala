@@ -9,6 +9,13 @@
  * Instead, codecs are written manually using jsoniter-scala's low-level API.
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 888
+ * Covenant-baseline-methods: GLTFCodecs,decodeValue,encodeValue,nullValue,readEntityField,readFields,readNullableArray,readNullableBoolean,readNullableFloat,readNullableFloatArray,readNullableInt,readNullableIntArray,readNullableObj,readNullableString,readNullableStringArray,readNullableStringIntMap,readObjectField
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

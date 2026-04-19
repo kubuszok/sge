@@ -13,6 +13,13 @@
  *   Idiom: implements EntityListener for add/remove detection
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 121
+ * Covenant-baseline-methods: SortedIteratingSystem,addedToEngine,endProcessing,entities,entityAdded,entityRemoved,family,forceSort,getEntities,i,newEntities,processEntity,removedFromEngine,shouldSort,sort,sortedEntities,startProcessing,update
+ * Covenant-source-reference: com/badlogic/ashley/systems/SortedIteratingSystem.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ecs

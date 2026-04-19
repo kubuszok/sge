@@ -10,6 +10,13 @@
  * - All public methods ported: spawnAux, copy
  * - Faithful conversion, no issues
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 85
+ * Covenant-baseline-methods: RectangleSpawnShapeValue,copy,depth,height,spawnAux,this,width
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/values/RectangleSpawnShapeValue.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

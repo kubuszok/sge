@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 160
+ * Covenant-baseline-methods: Calculator,DefaultSeedBitLength,Generators,calculator,cos,getCalculator,getRandom,i,random,randomElement,randomIndex,randomInt,randomPercent,rng,rollSeed,setCalculator,setRandom,shuffle,sin
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package noise

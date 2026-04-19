@@ -14,6 +14,13 @@
  * - equals(MeshPart): Scala uses `eq` for reference equality (matches Java `==` for objects)
  * - Convention: typed GL enums (PrimitiveMode)
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 175
+ * Covenant-baseline-methods: MeshPart,bounds,center,equals,halfExtents,id,mesh,offset,primitiveType,radius,render,set,size,this,update
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/model/MeshPart.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

@@ -11,6 +11,13 @@
  * - name field: @Null String -> Nullable[String]
  * - All methods faithfully ported, no API changes
  * - Renames: getLeftWidth→leftWidth, setLeftWidth→leftWidth_=, etc.; getName→name (public var)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 55
+ * Covenant-baseline-methods: BaseDrawable,bottomHeight,draw,leftWidth,minHeight,minWidth,name,rightWidth,this,toString,topHeight
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/BaseDrawable.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

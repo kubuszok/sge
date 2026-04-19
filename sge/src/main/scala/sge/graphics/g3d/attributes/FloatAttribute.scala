@@ -11,6 +11,13 @@
  *   - compareTo -> compare (Ordered[Attribute])
  *   - Two Java constructors merged into primary constructor with default value = 0f
  *   - All constants, factory methods, and instance methods accounted for
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 58
+ * Covenant-baseline-methods: AlphaTest,AlphaTestAlias,FloatAttribute,Shininess,ShininessAlias,compare,copy,createAlphaTest,createShininess,hashCode,result,value
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/attributes/FloatAttribute.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

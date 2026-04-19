@@ -21,6 +21,13 @@
  *   initialize(size); Java calls initialize then setGroupStrategy — equivalent
  * - Gdx.gl30 null check -> Sge().graphics.gl30.isDefined: correct
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 214
+ * Covenant-baseline-methods: DEFAULT_SIZE,DecalBatch,add,clear,close,flush,getSize,groupIndex,groupList,groupPool,i,idx,indices,initialize,lastMaterial,mesh,render,setGroupStrategy,targetGroup,this,usedGroups,v,vertexDataType,vertices
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/decals/DecalBatch.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

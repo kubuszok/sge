@@ -1,4 +1,12 @@
-/* Ported from TextraTypist. Licensed under Apache 2.0. */
+/* Ported from TextraTypist. Licensed under Apache 2.0.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 38
+ * Covenant-baseline-methods: DEFAULT_SPEED,SquashEffect,lineHeight,onApply,progress,realSpeed,speed,timePassed,timePassedByGlyphIndex
+ * Covenant-source-reference: com/github/tommyettinger/textra/effects/SquashEffect.java
+ * Covenant-verified: 2026-04-19
+ */
 package sge
 package textra
 package effects

@@ -13,9 +13,12 @@
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
- * Covenant: partial-port
- * Covenant-source-reference: gdx-ai/gdx-ai/src/com/badlogic/gdx/ai/pfa/HierarchicalPathFinder.java
- * Covenant-verified: 2026-04-08
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 298
+ * Covenant-baseline-methods: DEBUG,HierarchicalPathFinder,LevelPathFinderRequest,continue,currentLevel,finalizeSearch,graph,hpf,hpfRequest,initializeSearch,levelOfNodes,levelPathFinder,levelRequest,levelRequestControl,lvlCtrl,lvlReq,search,searchConnectionPath,searchLoop,searchNodePath
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  *
  * Partial-port debt:
  *   - Inherited gdx-ai FIXME at line 259: "the break below is wrong" — needs investigation

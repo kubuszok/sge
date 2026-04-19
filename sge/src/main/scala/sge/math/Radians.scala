@@ -7,6 +7,13 @@
  *   Audited: 2026-03-03
  *
  * AUDIT: N/A (SGE-original opaque type, no LibGDX counterpart)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 40
+ * Covenant-baseline-methods: HalfPi,Pi,Radians,TwoPi,apply,cos,sin,toDegrees,toFloat,unary_,zero
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

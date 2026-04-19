@@ -10,6 +10,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 126
+ * Covenant-baseline-methods: Fixed,Value,cache,get,maxHeight,maxWidth,minHeight,minWidth,percentHeight,percentWidth,prefHeight,prefWidth,toString,valueOf,zero
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Value.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes
@@ -19,8 +26,8 @@ package ui
 import sge.scenes.scene2d.utils.Layout
 import sge.utils.Nullable
 
-/** Value placeholder, allowing the value to be computed on request. Values can be provided an actor for context to reduce the number of value instances that need to be created and reduce verbosity in
-  * code that specifies values.
+/** A lazily-computed value, allowing the value to be resolved on request. Values can be provided an actor for context to reduce the number of value instances that need to be created and reduce
+  * verbosity in code that specifies values.
   * @author
   *   Nathan Sweet
   */

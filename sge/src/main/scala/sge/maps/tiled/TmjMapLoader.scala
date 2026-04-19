@@ -17,6 +17,13 @@
  *   - JsonValue tree walking replaced with jsoniter-scala codec derivation (TmjJson DTOs)
  *   Convention: jsoniter-scala codec derivation replaces JsonValue tree walking
  *   Audited: 2026-03-04
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 245
+ * Covenant-baseline-methods: TmjMapLoader,addStaticTiles,collectImageLayerFileHandles,descriptors,fileHandles,getDependencyAssetDescriptors,getDependencyFileHandles,getTileSetDependencyFileHandle,load,loadAsync,loadSync,map,ownedResources,props,r,textureFiles,textures,this,tmjFile,ts,tsjFile
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/TmjMapLoader.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

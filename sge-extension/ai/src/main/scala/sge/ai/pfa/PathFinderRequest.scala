@@ -10,6 +10,13 @@
  *   Idiom: `= _` -> `scala.compiletime.uninitialized`
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 102
+ * Covenant-baseline-methods: PathFinderRequest,SEARCH_DONE,SEARCH_FINALIZED,SEARCH_INITIALIZED,SEARCH_NEW,changeStatus,client,dispatcher,endNode,executionFrames,finalizeSearch,heuristic,initializeSearch,pathFound,responseMessageCode,resultPath,search,startNode,status,statusChanged,this
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

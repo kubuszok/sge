@@ -15,6 +15,13 @@
  *     getTextureRegion/setTextureRegion → var textureRegion,
  *     getOffsetX/setOffsetX → var offsetX, getOffsetY/setOffsetY → var offsetY,
  *     getProperties → def properties, getObjects → def objects
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 95
+ * Covenant-baseline-methods: StaticTiledMapTile,_blendMode,_id,_objects,_offsetX,_offsetY,_properties,blendMode,blendMode_,id,id_,objects,offsetX,offsetX_,offsetY,offsetY_,properties,textureRegion,textureRegion_,this
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/tiles/StaticTiledMapTile.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

@@ -9,6 +9,13 @@
  *     iterator2) replaced by standard Scala iterator() which creates fresh iterators each call.
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 72
+ * Covenant-baseline-methods: Entry,PrioritizedArray,add,clear,contains,get,idx,items,iterator,remove,setPriority,size,sortItems,sorted,toString
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package vfx

@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 120
+ * Covenant-baseline-methods: Tooltip,act,always,container,descendant,enter,exit,hide,instant,mouseMoved,setContainerPosition,stage,targetActor,this,tmp,touchDown,touchIndependent
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Tooltip.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

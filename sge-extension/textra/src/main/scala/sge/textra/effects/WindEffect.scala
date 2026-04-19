@@ -1,6 +1,13 @@
 /*
  * Ported from TextraTypist - https://github.com/tommyettinger/textratypist
  * Licensed under the Apache License, Version 2.0
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 56
+ * Covenant-baseline-methods: DEFAULT_DISTANCE,DEFAULT_INTENSITY,DEFAULT_SPACING,DISTANCE_X_RATIO,DISTANCE_Y_RATIO,IDEAL_DELTA,WindEffect,changeAmount,distanceX,distanceY,fadeout,indexOffset,intensity,lineHeight,noiseCursorX,noiseCursorY,noiseX,noiseY,normalSpacing,onApply,progress,progressModifier,progressOffset,spacing,update,x,y
+ * Covenant-source-reference: com/github/tommyettinger/textra/effects/WindEffect.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 249
+ * Covenant-baseline-methods: InstanceBufferObjectSubData,_buffer,attributes,bind,buffer,bufferChanged,bufferHandle,byteBuffer,close,createBufferObject,getBuffer,gl,invalidate,isBound,isDirect,isDirty,numAttributes,numInstances,numMaxInstances,result,setInstanceData,this,unbind,updateInstanceData,usage
+ * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/InstanceBufferObjectSubData.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

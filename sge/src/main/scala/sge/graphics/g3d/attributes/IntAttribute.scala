@@ -11,6 +11,13 @@
  *   - compareTo -> compare (Ordered[Attribute])
  *   - Two Java constructors merged into primary constructor with default value = 0
  *   - All constants, factory methods, and instance methods accounted for
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 52
+ * Covenant-baseline-methods: CullFace,CullFaceAlias,IntAttribute,compare,copy,createCullFace,hashCode,result,value
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/attributes/IntAttribute.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

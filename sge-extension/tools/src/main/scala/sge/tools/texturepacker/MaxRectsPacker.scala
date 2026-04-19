@@ -11,6 +11,13 @@
  *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 881
+ * Covenant-baseline-methods: BinarySearch,FreeRectChoiceHeuristic,MaxRects,MaxRectsPacker,adjustX,adjustY,bestResult,binHeight,binWidth,commonIntervalLength,contactPointScoreNode,current,edgePadX,edgePadY,findPositionForNewNodeBestAreaFit,findPositionForNewNodeBestLongSideFit,findPositionForNewNodeBestShortSideFit,findPositionForNewNodeBottomLeft,findPositionForNewNodeContactPoint,freeRectangles,fuzziness,getBest,getOccupancy,getResult,high,i,ii,init,insert,isContainedIn,low,max,maxHeight,maxRects,maxWidth,methods,min,minHeight,minWidth,n,next,nn,pack,packAtSize,packPage,paddingX,paddingY,pages,placeRect,pruneFreeList,rectComparator,rectanglesToCheckWhenPruning,remaining,reset,scoreRect,splitFreeNode,usedRectangles
+ * Covenant-source-reference: com/badlogic/gdx/tools/texturepacker/MaxRectsPacker.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package tools

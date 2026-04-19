@@ -13,6 +13,13 @@
  *     always calls color.set — acceptable for no-null convention
  *   - GdxRuntimeException -> SgeError.InvalidInput
  *   - All 7 alias/type pairs, all 14 create* factory methods, all constructors accounted for
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 123
+ * Covenant-baseline-methods: Ambient,AmbientAlias,AmbientLight,AmbientLightAlias,ColorAttribute,Diffuse,DiffuseAlias,Emissive,EmissiveAlias,Fog,FogAlias,Mask,Reflection,ReflectionAlias,Specular,SpecularAlias,color,compare,copy,createAmbient,createAmbientLight,createDiffuse,createEmissive,createFog,createReflection,createSpecular,hashCode,is,result,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/attributes/ColorAttribute.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

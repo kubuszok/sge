@@ -14,6 +14,13 @@
  *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 797
+ * Covenant-baseline-methods: AtlasRegion,AtlasSprite,Field,Page,Region,TextureAtlas,TextureAtlasData,_regions,_textures,addRegion,atlasRegion,close,createPatch,createSprite,createSprites,degrees,findRegion,findRegions,findValue,flip,h,height,heightRatio,index,load,name,names,newSprite,offsetX,offsetY,originX,originY,originalHeight,originalOffsetX,originalOffsetY,originalWidth,packFile,packedHeight,packedWidth,pages,parse,readEntry,region,regions,rotate,rotate90,rotatedPackedHeight,rotatedPackedWidth,setBounds,setOrigin,setOriginCenter,setPosition,setSize,textures,this,toString,values,w,width,widthRatio,x,x_,y,y_
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/TextureAtlas.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

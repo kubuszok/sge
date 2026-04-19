@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 178
+ * Covenant-baseline-methods: TooltipManager,actionTime,animations,edgeDistance,enabled,enter,files,hide,hideAction,hideAll,initialTime,instance,instant,maxWidth,offsetX,offsetY,resetTask,resetTime,run,showAction,showTask,showTooltip,shown,subsequentTime,time,touchDown
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/TooltipManager.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

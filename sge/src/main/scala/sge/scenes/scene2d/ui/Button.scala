@@ -13,6 +13,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 302
+ * Covenant-baseline-methods: Button,ButtonStyle,_isDisabled,_style,backgroundDrawable,buttonGroup,checked,checkedDown,checkedFocused,checkedOffsetX,checkedOffsetY,checkedOver,children,clickListener,clicked,disabled,disabled_,down,draw,focused,height,initialize,isChecked,isOver,isPressed,minHeight,minWidth,offset,offsetX,offsetY,over,prefHeight,prefWidth,pressedOffsetX,pressedOffsetY,programmaticChangeEvents,setChecked,setStyle,style,this,toggle,unpressedOffsetX,unpressedOffsetY,up,width
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Button.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 67
+ * Covenant-baseline-methods: NoiseUtils,a,b,bicubicNoise1D,c,d,floor,h,imul,m,n,noise1D,o,octaveBicubicNoise1D,octaveNoise1D,p,rise,seed,triangleWave,x,xFloor
+ * Covenant-source-reference: com/github/tommyettinger/textra/utils/NoiseUtils.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

@@ -12,6 +12,13 @@
  *   - copy(), hashCode(), equals() all match.
  *   - id is constructor param (Java: public field set in constructors).
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 81
+ * Covenant-baseline-methods: Material,copy,counter,equals,hashCode,nextCounter,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/Material.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

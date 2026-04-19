@@ -15,6 +15,13 @@
  *   - process(), zoom(), pinchZoom(), update(), setInvertedControls() ported
  *   - Convention: Int key/button params → opaque Key/Button types
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 254
+ * Covenant-baseline-methods: CameraGestureListener,CameraInputController,activateKey,activatePressed,alwaysScroll,autoUpdate,backwardKey,backwardPressed,button,camera,controller,controlsInverted,fling,forwardButton,forwardKey,forwardPressed,forwardTarget,gestureListener,keyDown,keyUp,longPress,multiTouch,pan,pinch,pinchZoom,pinchZoomFactor,previousZoom,process,result,rotateAngle,rotateButton,rotateLeftKey,rotateLeftPressed,rotateRightKey,rotateRightPressed,scrollFactor,scrollTarget,scrolled,setInvertedControls,startX,startY,tap,target,this,tmpV1,tmpV2,touchDown,touchDragged,touchUp,touched,translateButton,translateTarget,translateUnits,update,zoom
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/CameraInputController.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

@@ -25,6 +25,13 @@
  * @author Valentin Milea (Transformation Matrix Extension)
  * @author VaTTeRGeR (TextureArray Extension)
  * @author fgnm (PolygonBatch Extension)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 1446
+ * Covenant-baseline-methods: TextureArrayCpuPolygonSpriteBatch,adjustAffine,adjustNeeded,checkEqual,checkIdt,color,draw,drawRegionRotated,flushAndSyncTransformMatrix,fx,fx2,fy,fy2,haveIdentityRealMatrix,idx,p1x,p1y,p2x,p2y,p3x,p3y,p4x,p4y,realMatrix,setTransformMatrix,startVertex,t,texture,textureIndex,this,tmpAffine,transformMatrix,transformMatrix_,triIdx,triangles,u,u2,v,v2,vertices,virtualMatrix,worldOriginX,worldOriginY,x1,x2,x3,x4,y1,y2,y3,y4
+ * Covenant-source-reference: com/github/tommyettinger/textra/TextureArrayCpuPolygonSpriteBatch.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

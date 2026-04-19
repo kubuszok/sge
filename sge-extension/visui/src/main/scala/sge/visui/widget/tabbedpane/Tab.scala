@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 84
+ * Covenant-baseline-methods: Tab,_activeTab,_dirty,_pane,checkSavable,close,contentTable,dirty,dirty_,dispose,isActiveTab,markDirty,onHide,onShow,pane,pane_,removeFromTabPane,save,tabTitle,update
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/tabbedpane/Tab.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

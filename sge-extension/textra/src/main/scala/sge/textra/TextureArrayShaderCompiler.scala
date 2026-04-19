@@ -12,6 +12,13 @@
  *
  * Originally from Hyperlap2D's GitHub repo.
  * Originally licensed under Apache 2.0, like TextraTypist and libGDX.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 81
+ * Covenant-baseline-methods: GET_TEXTURE_FROM_ARRAY_PLACEHOLDER,MAX_TEXTURE_UNIT,TextureArrayShaderCompiler,compileShader,processArrayTextureShader
+ * Covenant-source-reference: com/github/tommyettinger/textra/TextureArrayShaderCompiler.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

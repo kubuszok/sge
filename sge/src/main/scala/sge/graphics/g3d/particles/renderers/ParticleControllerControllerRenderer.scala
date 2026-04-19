@@ -13,6 +13,13 @@
  * - update(): Java data[i] -> Scala objectData(i) (ParallelArray rename)
  * - All 4 methods ported: init, update, copy, isCompatible
  * - Audited 2026-03-03: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 57
+ * Covenant-baseline-methods: ParticleControllerControllerRenderer,c,controllerChannel,copy,i,init,isCompatible,update
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerControllerRenderer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

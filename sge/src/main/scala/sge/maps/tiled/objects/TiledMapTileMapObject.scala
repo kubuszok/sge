@@ -13,6 +13,13 @@
  * - Renames: isFlipHorizontally/setFlipHorizontally -> var flipHorizontally,
  *            isFlipVertically/setFlipVertically -> var flipVertically,
  *            getTile/setTile -> var tile
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 42
+ * Covenant-baseline-methods: TiledMapTileMapObject,flipHorizontally,flipVertically,region,tile
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/objects/TiledMapTileMapObject.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

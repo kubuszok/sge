@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 84
+ * Covenant-baseline-methods: FloatingGroup,_prefHeight,_prefWidth,_useChildrenPreferredSize,childArr,i,layout,prefHeight,prefWidth,setPrefHeight,setPrefWidth,this,useChildrenPreferredSize,useChildrenPreferredSize_
+ * Covenant-source-reference: com/kotcrab/vis/ui/layout/FloatingGroup.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

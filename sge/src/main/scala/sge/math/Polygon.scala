@@ -18,6 +18,13 @@
  * setPosition, setVertices, setVertex, translate, setRotation, rotate, setScale, scale,
  * dirty, area, vertexCount, vertex, centroid, boundingRectangle, contains(2),
  * x/y, originX/Y, rotation, scaleX/Y, resetTransformations.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 296
+ * Covenant-baseline-methods: Polygon,_bounds,_originX,_originY,_rotation,_scaleX,_scaleY,_x,_y,area,boundingRectangle,centroid,contains,dirty,i,intersects,isDirty,localVertices,maxX,maxY,minX,minY,numFloats,originX,originY,resetTransformations,rotate,rotation,scale,scaleX,scaleY,setOrigin,setPosition,setRotation,setScale,setVertex,setVertices,this,transformedVertices,translate,vertex,vertexCount,vertices,verts,worldVertices,x,y
+ * Covenant-source-reference: com/badlogic/gdx/math/Polygon.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

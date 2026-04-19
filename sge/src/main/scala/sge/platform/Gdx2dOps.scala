@@ -10,6 +10,13 @@
  *   SGE-original platform abstraction trait, no LibGDX counterpart
  *   Idiom: split packages
  *   Audited: 2026-03-10
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 56
+ * Covenant-baseline-methods: DecodeResult,Gdx2dOps,decodeImage,failureReason
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package platform

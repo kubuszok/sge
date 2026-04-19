@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 673
+ * Covenant-baseline-methods: Direction,DungeonGenerator,Point,addConnector,carveConnector,carveCorridor,carveMaze,connectorIterator,connectors,connectorsToRegions,corridorThreshold,currentRegion,deadEndRemovalIterations,destinations,di,dirValues,directions,equals,findConnectors,findDeadEndNeighbor,floorThreshold,found,gen,generate,getDefaultRoomsAmount,getDestinations,getInstance,getRegion,hashCode,i,index,instance,isCarveable,isCorridor,isDeadEnd,isNeighbor,isWall,joinRegions,lastDirection,lastRoomRegion,maxRooms,merged,next,nextRegion,nextX,nextY,normalizePosition,normalizeSize,overlapsAny,randomConnectorChance,regions,removeDeadEnds,reset,roomGenerationAttempts,rooms,running,spawnCorridors,spawnRooms,tempSet,toString,unjoined,validateRoomSizes,w,wallThreshold,windingChance,x,y
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package noise

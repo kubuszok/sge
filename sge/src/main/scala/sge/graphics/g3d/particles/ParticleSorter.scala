@@ -14,6 +14,13 @@
  * - Distance.qsort: Java uses early return in insertion sort; Scala restructured without return
  * - val → reserved word in Java; Scala uses `values` for camera.view.val → camera.view.values
  * - positionChannel.data → positionChannel.floatData (Scala FloatChannel rename)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 178
+ * Covenant-baseline-methods: Distance,None,ParticleSorter,camera,currentCapacity,currentSize,distances,ensureCapacity,indices,particleIndices,particleOffsets,qsort,sort
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/ParticleSorter.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

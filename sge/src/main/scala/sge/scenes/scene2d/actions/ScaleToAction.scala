@@ -10,6 +10,13 @@
  *   Convention: no return; split packages; braces on class
  *   Idiom: target.scaleX -> target.foreach; tuple destructure for (x,y)
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 47
+ * Covenant-baseline-methods: ScaleToAction,begin,endX,endY,setScale,startX,startY,update
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/ScaleToAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

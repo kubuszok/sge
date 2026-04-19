@@ -13,6 +13,13 @@
  *          getActor() != null -> getActor.isDefined; for loop -> while;
  *          early return in loop -> boundary/break; if (actor != null) -> actor.foreach
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 126
+ * Covenant-baseline-methods: ParallelAction,act,actions,addAction,buffer,complete,i,reset,restart,savedPool,setActor,this,toString
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/ParallelAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

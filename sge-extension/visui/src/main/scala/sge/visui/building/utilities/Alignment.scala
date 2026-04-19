@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 60
+ * Covenant-baseline-methods: Alignment,apply,getByIndex,getByValidIndex,isAlignedWithBottom,isAlignedWithLeft,isAlignedWithRight,isAlignedWithTop,isCentered,isIndexLast,isIndexValid,vals
+ * Covenant-source-reference: com/kotcrab/vis/ui/building/utilities/Alignment.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

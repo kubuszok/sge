@@ -11,6 +11,13 @@
  *   Idiom: mutable.BitSet instead of Bits
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 77
+ * Covenant-baseline-methods: ComponentType,assignedComponentTypes,bits,equals,getBitsFor,getFor,getIndexFor,hashCode,typeIndex
+ * Covenant-source-reference: com/badlogic/ashley/core/ComponentType.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ecs

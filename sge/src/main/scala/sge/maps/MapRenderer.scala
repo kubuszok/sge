@@ -11,6 +11,13 @@
  *   Convention: interface -> trait
  *   Idiom: int[] -> Array[Int]; 1:1 faithful port
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 49
+ * Covenant-baseline-methods: MapRenderer,render,setView
+ * Covenant-source-reference: com/badlogic/gdx/maps/MapRenderer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

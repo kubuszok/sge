@@ -6,6 +6,13 @@
  * Scala port for SGE
  *
  * NodePart hack to store morph targets
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 47
+ * Covenant-baseline-methods: NodePartPlus,copy,morphTargets,result,set,setRenderable
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

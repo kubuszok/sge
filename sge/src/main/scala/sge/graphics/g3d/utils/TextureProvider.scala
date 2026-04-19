@@ -14,6 +14,13 @@
  *   - AssetTextureProvider: assetManager.get(fileName, Texture.class) -> assetManager.get[Texture](...)
  *   - All methods fully ported
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 60
+ * Covenant-baseline-methods: AssetTextureProvider,FileTextureProvider,TextureProvider,load,magFilter,minFilter,this,uWrap,useMipMaps,vWrap
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/TextureProvider.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

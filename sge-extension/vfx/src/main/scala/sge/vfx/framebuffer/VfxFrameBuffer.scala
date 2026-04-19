@@ -3,6 +3,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 273
+ * Covenant-baseline-methods: BatchRendererAdapter,Renderer,RendererAdapter,RendererManager,ShapeRendererAdapter,VfxFrameBuffer,_batch,_drawing,_initialized,_renderers,_shapeRenderer,addRenderer,assignLocalMatrices,batch,begin,boundFboHandle,bufferNesting,cam,clearRenderers,close,end,f,fbo,flush,getBoundFboHandle,getFbo,getProjection,getTransform,getViewport,initialize,initialized,isDrawing,localProjection,localTransform,preservedProjection,preservedTransform,preservedViewport,previousFboHandle,projectionMatrix,projectionMatrix_,removeRenderer,renderers,reset,restoreOwnMatrices,setProjection,setTransform,shapeRenderer,texture,this,transformMatrix,transformMatrix_
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package vfx

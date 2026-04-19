@@ -15,6 +15,13 @@
  * - Java `triangleCount = indices.length / 3`; Scala correctly uses `indicesCount / 3`
  *   after assigning to `idx` local
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 90
+ * Covenant-baseline-methods: UnweightedMeshSpawnShapeValue,copy,indices,indicesCount,positionOffset,setMesh,spawnAux,this,triangleCount,vertexCount,vertexSize,vertices
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/values/UnweightedMeshSpawnShapeValue.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

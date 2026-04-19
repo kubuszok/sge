@@ -15,9 +15,12 @@
  *     implemented as standalone equivalents — no scene2d base class.
  *   Idiom: Nullable[A] for nullable fields; boundary/break for early returns.
  *
- * Covenant: partial-port
- * Covenant-source-reference: textratypist/src/main/java/com/github/tommyettinger/textra/TypingLabel.java
- * Covenant-verified: 2026-04-11
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 1416
+ * Covenant-baseline-methods: FloatArrayHelper,TypingLabel,_hasParent,act,activeEffects,actualEnd,actualWidth,adjustedWidth,ai,appendText,baseX,baseY,breakAllLines,cancelSkipping,changed,charCooldown,charCounter,clearColor,clearVariables,continue_,copySelectedText,cs,cumulative,curly,current,defaultJustify,doLayout,dragging,draw,drawSection,dt,e,ended,first,get,getAdvances,getClearColor,getCumulativeLineHeight,getDefaultToken,getEllipsis,getFont,getFromIntermediate,getInLayout,getInWorkingLayout,getIntermediateText,getLineHeight,getLineInLayout,getLineIndexInLayout,getMaxLines,getOffsets,getOriginalText,getPrefHeight,getPrefWidth,getRotations,getSelectedText,getSizing,getTextSpeed,getTypingListener,getVariables,getWorkingLayout,gi,globalIndex,glyphCharCompensation,glyphCharIndex,glyphCount,hasEnded,hasEndedBefore,hasParent,hasSelection,height,i,idx,ignoringEffects,ignoringEvents,incr,index,insertInLayout,intermediateText,invalidateHierarchy,isEnded,isIgnoringEffects,isIgnoringEvents,isPaused,isSelectable,isSkipping,isTouchable,lastTouchedIndex,layoutHeight,length,lines,ln,n,o,oi,onStage,originX,originY,originalHeight,originalText,overIndex,parseTokens,parsed,pause,paused,processCharProgression,r,randomize,rawCharIndex,regenerateLayout,removeVariable,resetShader,restart,restoreOriginalText,resume,ri,rot,s,saveOriginalText,sb,selectable,selectionDrawable,selectionEnd,selectionStart,set,setAlignment,setDefaultToken,setEllipsis,setHasParent,setHeight,setIgnoringEffects,setIgnoringEvents,setInLayout,setInWorkingLayout,setIntermediateText,setMaxLines,setPaused,setSelectable,setSize,setSuperHeight,setSuperWidth,setText,setTextSpeed,setTypingListener,setVariable,setVariables,setWidth,setWrap,si,size,sizeChanged,skipToTheEnd,skipping,sn,subAct,substring,text,textSpeed,this,toSkip,toString,tokenEntries,trackingInput,triggerEvent,typingListener,variables,widgetHeight,widgetWidth,width,workingLayout
+ * Covenant-source-reference: com/github/tommyettinger/textra/TypingLabel.java
+ * Covenant-verified: 2026-04-19
  *
  * Partial-port debt:
  *   - Clipboard integration pending SGE Clipboard backend.

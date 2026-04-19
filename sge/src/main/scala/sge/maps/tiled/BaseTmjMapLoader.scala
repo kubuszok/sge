@@ -20,6 +20,13 @@
  *   - Template merging: JsonValue deep-copy/shallow-clone → typed DTO-level merging
  *   Convention: jsoniter-scala codec derivation replaces JsonValue tree walking
  *   Audited: 2026-03-04
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 803
+ * Covenant-baseline-methods: BaseTmjMapLoader,addStaticTiles,addTileObjectGroup,addTileProperties,createAnimatedTile,data,enc,firstgid,getDependencies,getTileIds,groups,height,hexSideLength,id,loadBasicLayerInfo,loadImageLayer,loadLayer,loadLayerGroup,loadObject,loadObjectGroup,loadProperties,loadTileLayer,loadTileSet,loadTiledMap,mapBackgroundColor,mapHeight,mapOrientation,mapProperties,mapWidth,mergeObject,mergeProperties,mergeText,name,obj,objType,offsetX,offsetY,opacity,parallaxX,parallaxY,param,r,resolveTemplateObject,root,scaleX,scaleY,staggerAxis,staggerIndex,templateCache,templateObject,textureParameter,theObj,tileHeight,tileProperties,tileType,tileWidth,tintColor,tjFileName,tmpl,visible,width,x,y
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/BaseTmjMapLoader.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

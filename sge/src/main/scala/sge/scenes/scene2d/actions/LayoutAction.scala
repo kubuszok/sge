@@ -9,6 +9,13 @@
  * Migration notes:
  *   Convention: split packages; braces on class
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 41
+ * Covenant-baseline-methods: LayoutAction,act,enabled,setTarget
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/LayoutAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

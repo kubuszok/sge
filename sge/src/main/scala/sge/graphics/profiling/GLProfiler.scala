@@ -13,6 +13,13 @@
  *   Fixes: enable()/disable() fully implemented — Graphics trait has setGL* methods; Gdx.gl* globals replaced by Sge() delegation
  *   Idiom: split packages
  *   Audited: 2026-03-04
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 96
+ * Covenant-baseline-methods: GLProfiler,_enabled,calls,disable,drawCalls,enable,enabled,glInterceptor,listener,reset,shaderSwitches,textureBindings,vertexCount
+ * Covenant-source-reference: com/badlogic/gdx/graphics/profiling/GLProfiler.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

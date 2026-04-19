@@ -14,6 +14,13 @@
  *     added secondary (x,y,z,r) constructor not in Java
  *   Idiom: split packages
  *   Audited: 2026-03-04
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 63
+ * Covenant-baseline-methods: PI_4_3,Sphere,center,equals,hashCode,overlaps,prime,result,surfaceArea,this,volume
+ * Covenant-source-reference: com/badlogic/gdx/math/collision/Sphere.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

@@ -18,6 +18,13 @@
  *   structured logging, and pluggable output targets. Per-tag filtering is
  *   configured through scribe's standard mechanisms rather than per-instance
  *   Logger objects.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 33
+ * Covenant-baseline-methods: Log,debug,error,info,isDebugEnabled,trace,warn
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package utils

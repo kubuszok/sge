@@ -11,6 +11,13 @@
  *   Convention: Split packages; braces on trait body
  *   Idiom: Exact 1:1 port, no behavioral changes
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 34
+ * Covenant-baseline-methods: EventListener,handle
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/EventListener.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

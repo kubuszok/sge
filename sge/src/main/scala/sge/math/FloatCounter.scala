@@ -14,6 +14,13 @@
  *
  * AUDIT: PASS — All fields/methods ported: count, total, min, max, average, latest, value,
  * mean, put, reset, toString. INTENTIONAL: mean is Option[WindowedMean] instead of nullable.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 94
+ * Covenant-baseline-methods: FloatCounter,average,count,latest,max,mean,min,put,reset,toString,total,value
+ * Covenant-source-reference: com/badlogic/gdx/math/FloatCounter.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

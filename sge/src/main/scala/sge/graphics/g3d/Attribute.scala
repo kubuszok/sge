@@ -13,6 +13,13 @@
  *   - toString uses .getOrElse("unknown") instead of returning null.
  *   - equals(Any) handles null via pattern match (no bare null check).
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 107
+ * Covenant-baseline-methods: Attribute,MAX_ATTRIBUTE_COUNT,copy,equals,getAttributeAlias,getAttributeType,hashCode,i,idx,register,result,toString,typeBit,types
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/Attribute.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

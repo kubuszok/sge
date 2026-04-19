@@ -16,6 +16,13 @@
  *     Scala version casts after multiply: `(1000f * distanceSq).toInt` -- equivalent
  *   - All methods (sort, getTranslation, compare) fully ported
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 74
+ * Covenant-baseline-methods: DefaultRenderableSorter,b1,b2,camera,compareRenderables,getTranslation,sort,tmpV1,tmpV2
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/DefaultRenderableSorter.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

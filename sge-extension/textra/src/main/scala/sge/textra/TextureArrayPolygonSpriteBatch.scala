@@ -29,6 +29,13 @@
  * @author Nathan Sweet (Original SpriteBatch)
  * @author VaTTeRGeR (TextureArray Extension)
  * @author fgnm (PolygonBatch Extension)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 1557
+ * Covenant-baseline-methods: SPRITE_SIZE,TEXTURE_INDEX_ATTRIBUTE,TextureArrayPolygonSpriteBatch,VERTEX_SIZE,_blendDstFunc,_blendDstFuncAlpha,_blendSrcFunc,_blendSrcFuncAlpha,_color,_drawing,_projectionMatrix,_shader,_transformMatrix,activateTexture,activeShader,blendDstFunc,blendDstFuncAlpha,blendSrcFunc,blendSrcFuncAlpha,blendingDisabled,blendingEnabled,close,color,colorPacked,color_,combinedMatrix,cos,createDefaultShader,currentTextureLFUSize,currentTextureLFUSwaps,customShader,dirtyTextureArray,disableBlending,draw,drawing,enableBlending,ensureMaxTextureUnits,flush,fx,fx2,fy,fy2,getMaxTextureUnits,gl,i,idx,invTexHeight,invTexWidth,localVertices,maxTextureUnits,maxTrianglesInBatch,mesh,n,newShader,offsetIn,ownsShader,p1x,p1y,p2x,p2y,p3x,p3y,p4x,p4y,packedColor,packedColor_,projectionMatrix,projectionMatrix_,regionTriangles,regionTrianglesLength,regionVertices,regionVerticesLength,renderCalls,sX,sY,setBlendFunction,setBlendFunctionSeparate,setColor,setupMatrices,shader,shaderErrorLog,shader_,sin,startVertex,switchTexture,texture,textureCoords,textureHandle,textureIndex,textureLFUCapacity,textureLFUSize,textureLFUSwaps,textureRegion,textureUnitIndicesBuffer,this,totalRenderCalls,transformMatrix,transformMatrix_,triIdx,triangleCount,triangleIndex,triangles,u,u1,u2,u3,usedTextures,usedTexturesLFU,v,v2,vCount,vIn,vertex,vertexDataType,vertexIndex,vertices,verticesCount,vtxIdx,worldOriginX,worldOriginY,x1,x2,x3,x4,y1,y2,y3,y4
+ * Covenant-source-reference: com/github/tommyettinger/textra/TextureArrayPolygonSpriteBatch.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

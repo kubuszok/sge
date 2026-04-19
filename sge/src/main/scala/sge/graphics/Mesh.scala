@@ -12,6 +12,13 @@
  *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 1345
+ * Covenant-baseline-methods: Mesh,VertexDataType,actualCount,addManagedMesh,attributes,attrs,autoBind,bbox,bind,builder,calculateBoundingBox,calculateRadius,calculateRadiusSquared,checks,clearAllMeshes,close,copy,createIndexData,createVertexData,disableInstancedRendering,enableInstancedRendering,end,extendBoundingBox,getIndices,getIndicesBuffer,getVertexAttribute,getVertices,getVerticesBuffer,idx,index,indexData,indices,indicesBuffer,instancedAttributes,instances,invalidateAllMeshes,isInstanced,isInstancedFlag,len,makeVertexBuffer,managedResources,managedStatus,max,maxIndices,maxVertices,meshes,newVertexSize,numComponents,numInd,numIndices,numIndicesVal,numVertices,numVerticesVal,numVerts,offset,pos,posAttr,posAttrib,posOffset,posoff,render,result,scale,setAutoBind,setIndices,setInstanceData,setVertices,stride,this,tmp,tmpV,transform,transformUV,unbind,updateInstanceData,updateVertices,vertexAttributes,vertexSize,verticesBuffer,verts,vtxSize
+ * Covenant-source-reference: com/badlogic/gdx/graphics/Mesh.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

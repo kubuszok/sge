@@ -11,6 +11,20 @@ class SizesSuite extends munit.FunSuite {
     assertEqualsFloat(s.spinnerButtonHeight, 0f, 0.001f)
   }
 
+  test("Sizes all fields default to zero") {
+    val s = Sizes()
+    assertEqualsFloat(s.spacingBottom, 0f, 0.001f)
+    assertEqualsFloat(s.spacingRight, 0f, 0.001f)
+    assertEqualsFloat(s.spacingLeft, 0f, 0.001f)
+    assertEqualsFloat(s.buttonBarSpacing, 0f, 0.001f)
+    assertEqualsFloat(s.menuItemIconSize, 0f, 0.001f)
+    assertEqualsFloat(s.spinnerFieldSize, 0f, 0.001f)
+    assertEqualsFloat(s.fileChooserViewModeBigIconsSize, 0f, 0.001f)
+    assertEqualsFloat(s.fileChooserViewModeMediumIconsSize, 0f, 0.001f)
+    assertEqualsFloat(s.fileChooserViewModeSmallIconsSize, 0f, 0.001f)
+    assertEqualsFloat(s.fileChooserViewModeListWidthSize, 0f, 0.001f)
+  }
+
   test("Sizes copy constructor copies all fields") {
     val original = Sizes()
     original.scaleFactor = 2.0f
@@ -51,6 +65,38 @@ class SizesSuite extends munit.FunSuite {
     val copy = Sizes(original)
     original.scaleFactor = 3.0f
     assertEqualsFloat(copy.scaleFactor, 1.0f, 0.001f)
+  }
+
+  test("Sizes fields are independently mutable") {
+    val s = Sizes()
+    s.spacingTop = 10f
+    s.spacingBottom = 20f
+    assertEqualsFloat(s.spacingTop, 10f, 0.001f)
+    assertEqualsFloat(s.spacingBottom, 20f, 0.001f)
+    // Changing one does not affect the other
+    s.spacingTop = 30f
+    assertEqualsFloat(s.spacingBottom, 20f, 0.001f)
+  }
+
+  test("Sizes copy constructor preserves fractional values") {
+    val original = Sizes()
+    original.scaleFactor = 1.5f
+    original.borderSize = 0.75f
+    original.spinnerButtonHeight = 12.345f
+    val copy = Sizes(original)
+    assertEqualsFloat(copy.scaleFactor, 1.5f, 0.0001f)
+    assertEqualsFloat(copy.borderSize, 0.75f, 0.0001f)
+    assertEqualsFloat(copy.spinnerButtonHeight, 12.345f, 0.001f)
+  }
+
+  test("Sizes double-copy preserves values") {
+    val s1 = Sizes()
+    s1.scaleFactor = 2.5f
+    s1.menuItemIconSize = 48f
+    val s2 = Sizes(s1)
+    val s3 = Sizes(s2)
+    assertEqualsFloat(s3.scaleFactor, 2.5f, 0.001f)
+    assertEqualsFloat(s3.menuItemIconSize, 48f, 0.001f)
   }
 
   private def assertEqualsFloat(actual: Float, expected: Float, delta: Float)(using munit.Location): Unit =

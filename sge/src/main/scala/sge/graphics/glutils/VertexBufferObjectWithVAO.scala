@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 281
+ * Covenant-baseline-methods: VertexBufferObjectWithVAO,_attributes,_buffer,attributes,bind,bindAttributes,bindData,buffer,bufferChanged,bufferHandle,byteBuffer,cachedLocations,close,createVAO,deleteVAO,getBuffer,gl,gl3,gl30,init,invalidate,isBound,isDirty,isStatic,numAttributes,numMaxVertices,numVertices,ownsBuffer,pos,setVertices,stillValid,this,tmpHandle,unbind,unbindAttributes,updateVertices,usage,vaoHandle
+ * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/VertexBufferObjectWithVAO.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

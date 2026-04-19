@@ -4,6 +4,13 @@
  *   Idiom: split packages
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 328
+ * Covenant-baseline-methods: Alpha,Always,ArrayBuffer,Back,Blend,BlendEquation,BlendFactor,BufferTarget,BufferUsage,Byte,ClearMask,ColorBufferBit,CompareFunc,ConstantAlpha,ConstantColor,CopyReadBuffer,CopyWriteBuffer,CullFace,DataType,Decr,DecrWrap,DepthBufferBit,DepthComponent,DepthStencil,DepthTest,Dither,DstAlpha,DstColor,DynamicCopy,DynamicDraw,DynamicRead,ElementArrayBuffer,EnableCap,Equal,Fixed,Float,Fragment,Front,FrontAndBack,FuncAdd,FuncReverseSubtract,FuncSubtract,Gequal,Greater,HalfFloat,Incr,IncrWrap,Int,Invert,Keep,Lequal,Less,LineLoop,LineStrip,Lines,Luminance,LuminanceAlpha,Max,Min,Never,Notequal,One,OneMinusConstantAlpha,OneMinusConstantColor,OneMinusDstAlpha,OneMinusDstColor,OneMinusSrcAlpha,OneMinusSrcColor,PixelFormat,PixelPackBuffer,PixelUnpackBuffer,Points,PolygonOffsetFill,PrimitiveMode,RG,RGB,RGBA,RGBAInteger,RGBInteger,RGInteger,Red,RedInteger,Replace,SampleAlphaToCoverage,SampleCoverage,ScissorTest,ShaderType,Short,SrcAlpha,SrcAlphaSaturate,SrcColor,StaticCopy,StaticDraw,StaticRead,StencilBufferBit,StencilOp,StencilTest,StreamCopy,StreamDraw,StreamRead,Texture2D,Texture2DArray,Texture3D,TextureCubeMap,TextureCubeMapNegativeX,TextureCubeMapNegativeY,TextureCubeMapNegativeZ,TextureCubeMapPositiveX,TextureCubeMapPositiveY,TextureCubeMapPositiveZ,TextureTarget,TransformFeedbackBuffer,TriangleFan,TriangleStrip,Triangles,UniformBuffer,UnsignedByte,UnsignedInt,UnsignedShort,UnsignedShort4444,UnsignedShort5551,UnsignedShort565,Vertex,VertexProgramPointSize,Zero,apply,toInt
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

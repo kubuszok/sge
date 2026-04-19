@@ -12,6 +12,13 @@
  * - Fixes (2026-03-04): isActive()/setActive() → virtual property active/active_=
  *   with backing field _active (PrimitiveSpawnShapeValue overrides active_=)
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 42
+ * Covenant-baseline-methods: ParticleValue,_active,active,active_,load,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/values/ParticleValue.java
+ * Covenant-verified: 2026-04-19
  */
 
 package sge

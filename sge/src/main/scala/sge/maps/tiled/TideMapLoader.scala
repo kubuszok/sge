@@ -18,6 +18,13 @@
  *   - Constructor requires `(using Sge)` (SGE context parameter, replaces Java Gdx.files)
  *   - Split package, braces, no-return conventions satisfied
  *   TODO: test: decode a real .tide file end-to-end through TideMapLoader
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 335
+ * Covenant-baseline-methods: Parameters,TideMapLoader,dependencies,getDependencies,getRelativeFileHandle,images,layerElements,layers,li,load,loadLayer,loadMap,loadProperties,loadTileSheet,loadTileSheets,map,properties,root,this,ti,tilesetElements,tilesheetElements,tilesheets,xml
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/TideMapLoader.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

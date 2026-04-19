@@ -11,6 +11,13 @@
  *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 312
+ * Covenant-baseline-methods: ATLAS_FILE_EXTENSION,DEFAULT_OUTPUT_PATH,HELP,NINEPATCH_PADDING,OUTPUT_TYPE,TextureUnpacker,atlasFile,checkDirectoryValidity,checkFile,endX,endY,extractImage,extractNinePatch,g2,imageDir,main,numArgs,outputDir,outputDirFile,pads,pageIter,parseArguments,printExceptionAndExit,quiet,setQuiet,splitAtlas,splitImage,splits,startX,startY,unpacker
+ * Covenant-source-reference: com/badlogic/gdx/tools/texturepacker/TextureUnpacker.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package tools

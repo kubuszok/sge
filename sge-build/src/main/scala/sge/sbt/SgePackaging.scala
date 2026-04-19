@@ -23,6 +23,13 @@ import sbt.Keys._
   * === Native packaging ===
   *
   * `sgePackageNative` — packages Scala Native executable into a distributable directory.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 307
+ * Covenant-baseline-methods: NativeLibExts,SgePackaging,_,appName,archive,assetsDir,binary,browserSettings,cmd,codesignAdHoc,createTarGzArchive,createZipArchive,dest,dirName,dirs,distSettings,entries,exeName,exit,generateAssetManifestTask,generateHtml,hasNativeLibs,hostIsMac,html,isWindows,jsDir,jvmSettings,log,manifest,mimeType,n,nativeDir,nativeSettings,out,outDir,outFile,output,packageBrowserTask,packageNativeTask,parentDir,platform,proc,resDirs,sgeBrowserTitle,sgeGenerateAssetManifest,sgeJsOutputDir,sgeNativeBinary,sgePackageBrowser,sgePackageNative,sgeRelease,title
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
   */
 object SgePackaging {
 

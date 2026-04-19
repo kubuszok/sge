@@ -16,6 +16,13 @@
  * - Fixes (2026-03-04): setCamera → camera_=; getSorter/setSorter → sorter/sorter_=;
  *   getBufferedCount → bufferedCount; renamed backing fields to _camera/_sorter
  * - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 100
+ * Covenant-baseline-methods: BufferedParticleBatch,_camera,_sorter,allocParticlesData,begin,bufferedCount,bufferedParticlesCount,camera,camera_,currentCapacity,draw,end,ensureCapacity,flush,renderData,resetCapacity,sorter,sorter_
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/batches/BufferedParticleBatch.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

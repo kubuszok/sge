@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 274
+ * Covenant-baseline-methods: BiNormal,BoneWeight,ColorPacked,ColorUnpacked,Generic,Normal,Position,ReadonlyIterable,ReadonlyIterator,Tangent,TextureCoordinates,Usage,VertexAttributes,_textureCoordinates,attributesArray,boneWeightUnits,boneWeights,builder,cachedMask,calculateOffsets,compareTo,count,equals,findByUsage,get,hasNext,hashCode,index,iterable,iterator,iterator1,iterator2,len,mask,maskWithSizePacked,next,offset,reset,result,size,textureCoordinates,toString,valid,vertexSize
+ * Covenant-source-reference: com/badlogic/gdx/graphics/VertexAttributes.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

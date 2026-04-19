@@ -13,6 +13,13 @@
  *          setPackedColor delegates to setColor(float) matching original
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 702
+ * Covenant-baseline-methods: ColorfulSprite,SPRITE_SIZE,VERTEX_SIZE,_height,_originX,_originY,_rotation,_scaleX,_scaleY,_vertices,_width,_x,_y,boundingRectangle,bounds,color,colorTweak,currentColor,dirty,draw,flip,height,maxx,maxy,minx,miny,oldAlpha,originX,originY,performX,performY,rotate,rotate90,rotation,rotation_,scale,scaleX,scaleY,scroll,set,setAlpha,setBounds,setCenter,setCenterX,setCenterY,setColor,setFlip,setOrigin,setOriginBasedPosition,setOriginCenter,setPackedColor,setPosition,setRegion,setScale,setSize,setTweak,setTweakedColor,this,translate,translateX,translateY,tweak,u2_,u_,v2_,v_,vertices,verts,width,x,x2,x_,y,y2,y_
+ * Covenant-source-reference: colorful/src/main/java/com/github/tommyettinger/colorful/ipt/ColorfulSprite.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package colorful

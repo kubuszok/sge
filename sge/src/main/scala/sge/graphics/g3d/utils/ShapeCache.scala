@@ -16,6 +16,13 @@
  *   - Convention: typed GL enums (PrimitiveMode)
  *   - All methods (begin, end, getRenderables, getMaterial, getWorldTransform, close) ported
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 120
+ * Covenant-baseline-methods: ShapeCache,b,build,builder,building,close,getRenderables,id,material,mesh,renderable,this,worldTransform
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/ShapeCache.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

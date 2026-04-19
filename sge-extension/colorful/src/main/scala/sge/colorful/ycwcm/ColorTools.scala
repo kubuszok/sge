@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 1076
+ * Covenant-baseline-methods: ColorTools,a,al,alpha,alphaInt,b,bits,blot,blue,blueInt,c,cLuma,cMild,cWarm,chromaMild,chromaWarm,cm,cm2,cmCurr,cmOrig,cmVal,cmi,contrast,contrastBits,cool,cw,cw2,cwCurr,cwOrig,cwVal,cwi,d,darken,decoded,differentiateLightness,dist,dullen,e,editYCwCm,enrich,fade,floatGetHSL,fromColor,fromRGBA,fromRGBA8888,g,green,greenInt,hue,inGamut,inverseLightness,lessenChange,li,lighten,lightness,limit,limitToGamut,lu,luma,lumaVal,main,mildVal,offsetLightness,op,r,randomColor,randomEdit,red,redInt,rgba,s,saturation,sd,strengthen,toColor,toEditedFloat,toRGBA,toRGBA8888,toYCwCmColor,w,warm,warmVal,weaken,x,y,y2,yVal,yb,ycwcm,ye,yg,yi,yr,ys,z
+ * Covenant-source-reference: com/github/tommyettinger/colorful/ycwcm/ColorTools.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package colorful

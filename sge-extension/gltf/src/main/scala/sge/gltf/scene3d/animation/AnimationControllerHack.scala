@@ -6,6 +6,13 @@
  * Scala port for SGE
  *
  * AnimationController hack to run morph targets animations
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 433
+ * Covenant-baseline-methods: AnimationControllerHack,Transform,apply,applyAnimation,applyAnimationPlus,applyAnimations,applyNodeAnimationBlending,applyNodeAnimationDirectly,applying,begin,calculateTransforms,cubicQ,cubicV3,cubicW,d,end,existingOpt,getFirstKeyframeIndexAtTime,getMorphTargetAtTime,getNodeAnimationTransform,getRotationAtTime,getScalingAtTime,getTranslationAtTime,i,idt,index,initialCapacity,interpolation,lerp,max,n,newObject,node,q1,q2,q3,q4,reset,rot,rotation,scale,scl,set,setAnimation,setAnimationDesc,t2,t3,tmpT,toMatrix4,toString,trans,transform,transformPool,transforms,translation,weights
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

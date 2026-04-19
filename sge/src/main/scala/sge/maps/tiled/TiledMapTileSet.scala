@@ -13,6 +13,13 @@
  *   - Extends Iterable[TiledMapTile] (Java implements Iterable)
  *   - Split package, braces, no-return conventions satisfied
  *   - Renames: getName/setName → var name, getProperties → val properties
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 63
+ * Covenant-baseline-methods: TiledMapTileSet,getTile,iterator,name,properties,putTile,removeTile,size,tiles
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/TiledMapTileSet.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

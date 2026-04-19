@@ -14,6 +14,13 @@
  *   - Java no-arg ctor delegates to BlendingAttribute(null) for the null path;
  *     Scala no-arg ctor uses explicit defaults — same runtime behavior
  *   - All constants, factory methods, constructors, and instance methods accounted for
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 90
+ * Covenant-baseline-methods: Alias,BlendingAttribute,Type,blended,compare,copy,destFunction,hashCode,is,opacity,result,sourceFunction,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/attributes/BlendingAttribute.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

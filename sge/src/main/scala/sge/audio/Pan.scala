@@ -5,6 +5,13 @@
  *   Convention: SGE-original opaque type wrapping Float; replaces raw float pan parameters
  *     in Music, Sound, AudioDevice; validated range [-1, 1]
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 30
+ * Covenant-baseline-methods: Pan,center,maxLeft,maxRight,parse,toFloat,unsafeMake
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package audio

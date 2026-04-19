@@ -10,6 +10,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 75
+ * Covenant-baseline-methods: Preferences,clear,contains,flush,get,getBoolean,getFloat,getInteger,getLong,getString,put,putBoolean,putFloat,putInteger,putLong,putString,remove
+ * Covenant-source-reference: com/badlogic/gdx/Preferences.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 

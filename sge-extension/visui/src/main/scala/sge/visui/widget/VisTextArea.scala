@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 440
+ * Covenant-baseline-methods: ENTER_ANDROID,ENTER_DESKTOP,TextAreaListener,VisTextArea,_cursorXField,availableHeight,background,calculateCurrentLineIndex,calculateOffsets,continueCursor,count,createInputListener,cursorLine,cursorX,cursorY,drawCursor,drawSelection,drawText,firstLineShowing,font,getTextY,goEnd,goHome,i,index,initialize,keyDown,keyTyped,lastText,letterUnderCursor,line,lines,linesBreak,linesShowing,maxIndex,minIndex,moveCursor,moveCursorLine,moveOffset,newLineAtEnd,offsetY,pos,prefHeight,prefRows,setCursorPosition,setPrefRows,setSelection,showCursor,sizeChanged,softwrap,textOffset,textY,this,updateCurrentLine
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/VisTextArea.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

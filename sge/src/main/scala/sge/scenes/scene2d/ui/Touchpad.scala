@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 212
+ * Covenant-baseline-methods: Touchpad,TouchpadStyle,_style,background,c,calculatePositionAndValue,centerX,centerY,deadzoneBounds,draw,dx,dy,h,halfHeight,halfWidth,hit,knob,knobBounds,knobPercent,knobPercentX,knobPercentY,knobPosition,knobRadius,knobX,knobY,layout,oldPercentX,oldPercentY,oldPositionX,oldPositionY,prefHeight,prefWidth,radius,resetOnTouchUp,setDeadzone,setStyle,style,this,touchBounds,touchDown,touchDragged,touchUp,touched,w
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Touchpad.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

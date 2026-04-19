@@ -13,6 +13,13 @@
  *   Idiom: Listener[Entity] implemented via anonymous class
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 2
+ * Covenant-baseline-loc: 234
+ * Covenant-baseline-methods: Engine,addEntity,addEntityInternal,addEntityListener,addSystem,componentAdded,componentOperationHandler,componentRemoved,createComponent,createEntity,delayed,empty,entityAdded,entityManager,entityRemoved,familyManager,getEntities,getEntitiesFor,getSystem,getSystems,receive,removeAllEntities,removeAllSystems,removeEntity,removeEntityInternal,removeEntityListener,removeSystem,systemAdded,systemManager,systemRemoved,systems,update,updating
+ * Covenant-source-reference: com/badlogic/ashley/core/Engine.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ecs

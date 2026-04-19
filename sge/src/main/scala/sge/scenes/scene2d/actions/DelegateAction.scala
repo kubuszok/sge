@@ -11,6 +11,13 @@
  *   Idiom: action null-check -> action.foreach; setPool(null) -> setPool(Nullable.empty);
  *          action == null ? "" : "(" + action + ")" -> action.fold("")(a => ...)
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 60
+ * Covenant-baseline-methods: DelegateAction,act,action,delegate,reset,restart,savedPool,setActor,setTarget,toString
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/DelegateAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

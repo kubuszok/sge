@@ -15,6 +15,13 @@
  *     raw float params replaced with opaque types (Volume, Pan, Position)
  *   Idiom: split packages
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 89
+ * Covenant-baseline-methods: Music,looping,looping_,onComplete,pause,play,playing,position,position_,setPan,stop,volume,volume_
+ * Covenant-source-reference: com/badlogic/gdx/audio/Music.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package audio

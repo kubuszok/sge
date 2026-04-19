@@ -11,6 +11,13 @@
  *   Convention: split packages; `null` -> `Nullable`; `return` -> `boundary`/`break`
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 88
+ * Covenant-baseline-methods: PathFinderQueue,TIME_TOLERANCE,currentRequest,handleMessage,requestControl,requestQueue,run,size
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

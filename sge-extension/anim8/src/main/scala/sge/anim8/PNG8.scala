@@ -7,6 +7,13 @@
  * An instance can be reused to encode multiple PNGs with minimal allocation.
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 2602
+ * Covenant-baseline-methods: COLOR_INDEXED,COMPRESSION_DEFLATE,FILTER_NONE,IDAT,IEND,IHDR,INTERLACE_NONE,PLTE,PNG8,SIGNATURE,TRNS,_ditherAlgorithm,_ditherStrength,_palette,acTL,buffer,centralizePalette,chunks,clearPalette,close,colorToIndex,crc,curLineBytes,dataOutput,deflater,deflaterOutput,dispose,ditherAlgorithm,ditherAlgorithm_,ditherStrength,ditherStrength_,editPalette,editPaletteLightness,editPaletteOklab,editPaletteSaturation,ensureCurLine,errorMul,fcTL,fdAT,flipY,gi,h,hasTransparent,hueShift,in,out,output,pal,palette,paletteArray,paletteMapping,palette_,pi,pixmap,populationBias,readChunks,s,setCompression,setFlipY,str,strength,swapPalette,this,trucking,w,write,writeAdditiveDithered,writeAnimatedErrorDiffusion,writeAnimatedOrderedGeneric,writeApngHeader,writeBanterDithered,writeBlueNoiseDithered,writeBluntDithered,writeBurkesDithered,writeChaoticNoiseDithered,writeChunks,writeDiffusionDithered,writeDithered,writeDodgyDithered,writeFrameControl,writeFrameDataHeader,writeGourdDithered,writeGradientDithered,writeLoafDithered,writeMartenDithered,writeNeueDithered,writeOceanicDithered,writeOverboardDithered,writePatternDithered,writePngHeader,writePreciseSection,writePrecisely,writeRobertsDithered,writeScatterDithered,writeSeasideDithered,writeSolid,writeWovenDithered,writeWrenDithered,writeWrenOriginalDithered
+ * Covenant-source-reference: com/github/tommyettinger/anim8/PNG8.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package anim8

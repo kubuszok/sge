@@ -9,6 +9,13 @@
  *   Convention: split packages, Nullable instead of null returns, def+setter pairs
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 60
+ * Covenant-baseline-methods: SteerableAdapter,angleToVector,angularVelocity,boundingRadius,linearVelocity,maxAngularAcceleration,maxAngularAcceleration_,maxAngularSpeed,maxAngularSpeed_,maxLinearAcceleration,maxLinearAcceleration_,maxLinearSpeed,maxLinearSpeed_,newLocation,orientation,orientation_,position,tagged,tagged_,vectorToAngle,zeroLinearSpeedThreshold,zeroLinearSpeedThreshold_
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

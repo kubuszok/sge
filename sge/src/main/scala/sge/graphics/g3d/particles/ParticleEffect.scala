@@ -17,6 +17,13 @@
  * - setBatch uses boundary/break for inner break (Java labeled break)
  * - Java string equals() → Scala == (structural equality)
  * - Convention: opaque Seconds for update(deltaTime) param
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 256
+ * Covenant-baseline-methods: ParticleEffect,_boundingBox,boundingBox,close,controllers,copy,draw,end,findController,i,init,isComplete,load,n,reset,rotate,save,scale,setBatch,setTransform,start,this,translate,update
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/ParticleEffect.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

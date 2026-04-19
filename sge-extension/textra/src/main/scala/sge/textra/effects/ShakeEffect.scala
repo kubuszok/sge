@@ -1,6 +1,13 @@
 /*
  * Ported from TextraTypist - https://github.com/tommyettinger/textratypist
  * Licensed under the Apache License, Version 2.0
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 42
+ * Covenant-baseline-methods: DEFAULT_DISTANCE,DEFAULT_SPEED,ShakeEffect,distance,fadeout,lastOffsets,lastX,lastY,normalSpeed,onApply,shakeMul,speed,x,y
+ * Covenant-source-reference: com/github/tommyettinger/textra/effects/ShakeEffect.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

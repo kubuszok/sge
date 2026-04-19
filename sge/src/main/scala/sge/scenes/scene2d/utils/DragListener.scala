@@ -14,6 +14,13 @@
  *   getTouchDownX/Y → def touchDownX/touchDownY, getStageTouchDownX/Y → def stageTouchDownX/stageTouchDownY,
  *   getDragStartX/Y/setDragStartX/Y → var dragStartX/dragStartY, getDragX/Y → def dragX/dragY,
  *   getDeltaX/Y → def deltaX/deltaY, getDragDistance → def dragDistance, isDragging → def dragging
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 122
+ * Covenant-baseline-methods: DragListener,_dragX,_dragY,_dragging,_stageTouchDownX,_stageTouchDownY,_touchDownX,_touchDownY,button,cancel,deltaX,deltaY,drag,dragDistance,dragLastX,dragLastY,dragStart,dragStartX,dragStartY,dragStop,dragX,dragY,dragging,dx,dy,pressedPointer,stageTouchDownX,stageTouchDownY,tapSquareSize,touchDown,touchDownX,touchDownY,touchDragged,touchUp
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/DragListener.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

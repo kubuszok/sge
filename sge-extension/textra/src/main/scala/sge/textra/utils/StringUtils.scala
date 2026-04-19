@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 333
+ * Covenant-baseline-methods: StringUtils,appendUnsignedHex,begin,c,chars,data,decimal,end,floatFromDec,foundPoint,h,hexChar,hexCode,i,idx,indexAfter,intFromDec,intFromHex,isLowerCase,isUpperCase,items,join,len,length,lim,longFromDec,longFromHex,s,safeSubstring,shuffleWords,sign,unsignedHex,unsignedHexArray
+ * Covenant-source-reference: com/github/tommyettinger/textra/utils/StringUtils.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

@@ -11,6 +11,13 @@
  *   Convention: split packages
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 197
+ * Covenant-baseline-methods: ConstantDoubleDistribution,ConstantFloatDistribution,ConstantIntegerDistribution,ConstantLongDistribution,Distribution,DoubleDistribution,FloatDistribution,GaussianDoubleDistribution,GaussianFloatDistribution,IntegerDistribution,LongDistribution,NegativeOne,One,StandardNormal,TriangularDoubleDistribution,TriangularFloatDistribution,TriangularIntegerDistribution,TriangularLongDistribution,UniformDoubleDistribution,UniformFloatDistribution,UniformIntegerDistribution,UniformLongDistribution,Zero,ZeroPointFive,d,nextDouble,nextFloat,nextInt,nextLong,this,u
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

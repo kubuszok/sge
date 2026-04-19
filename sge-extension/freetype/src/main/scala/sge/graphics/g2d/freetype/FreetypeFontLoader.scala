@@ -11,6 +11,13 @@
  *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 80
+ * Covenant-baseline-methods: FreeTypeFontLoaderParameter,FreetypeFontLoader,deps,fontFileName,fontParameters,generator,generatorOpt,getDependencies,loadAsync,loadSync
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/freetype/FreetypeFontLoader.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

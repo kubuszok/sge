@@ -18,6 +18,13 @@
  * Notes:
  *   - currentScaling backing field pattern used correctly (constructor param + private var)
  *   - Scaling is a SAM trait (not Java enum); apply() invocation matches
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 62
+ * Covenant-baseline-methods: ScalingViewport,currentScaling,scaled,sh,sw,this,update,viewportHeight,viewportWidth
+ * Covenant-source-reference: com/badlogic/gdx/utils/viewport/ScalingViewport.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package utils

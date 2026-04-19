@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 244
+ * Covenant-baseline-methods: CellularAutomataGenerator,aliveChance,array,birthLimit,consume,count,countLivingNeighbors,deathLimit,gen,generate,getInstance,getTemporaryGrid,index,initiate,instance,isAlive,iterationIndex,iterationsAmount,length,livingNeighbors,marker,radius,random,setAlive,setDead,shouldBeBorn,shouldDie,spawnLivingCells,temporaryGrid,xOffset
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package noise

@@ -4,7 +4,12 @@
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
- * Covenant-source-reference: gdx-gltf/gltf/src/net/mgsx/gltf/loaders/shared/animation/AnimationLoader.java
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 221
+ * Covenant-baseline-methods: AnimationLoader,animMap,animation,animations,load,toSceneInterpolation
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

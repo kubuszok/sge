@@ -23,6 +23,13 @@
  *     getCurrentFrameIndex → currentFrameIndex, getCurrentFrame → currentFrame,
  *     getAnimationIntervals/setAnimationIntervals → var animationIntervals,
  *     getFrameTiles → def frameTiles
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 171
+ * Covenant-baseline-methods: AnimatedTiledMapTile,_animationIntervals,_blendMode,_frameTiles,_id,_objects,_properties,animationIntervals,animationIntervals_,blendMode,blendMode_,currentFrame,currentFrameIndex,currentTime,frameTiles,i,id,id_,initialTimeOffset,lastTiledMapRenderTime,loopDuration,objects,offsetX,offsetX_,offsetY,offsetY_,properties,textureRegion,textureRegion_,this,updateAnimationBaseTime
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/tiles/AnimatedTiledMapTile.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

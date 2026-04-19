@@ -9,6 +9,13 @@
  *   Renames: Skin → removed (standalone, no scene2d dependency)
  *   Convention: TypingButton extends TextraButton, overrides newLabel to produce TypingLabel.
  *   Idiom: Nullable[A] for nullable fields.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 31
+ * Covenant-baseline-methods: TypingButton,newLabel,this
+ * Covenant-source-reference: com/github/tommyettinger/textra/TypingButton.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

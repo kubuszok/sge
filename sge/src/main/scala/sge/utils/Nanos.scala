@@ -5,6 +5,13 @@
  *   Idiom: split packages
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 38
+ * Covenant-baseline-methods: Nanos,apply,nanosPerMilli,toFloat,toLong,toMillis,zero
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package utils

@@ -16,6 +16,13 @@
  *   - meshBuilder.setVertexTransform wrapped in Nullable.
  *   - All public methods present: begin (2), end, add (3), getRenderables, close.
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 380
+ * Covenant-baseline-methods: MeshPool,ModelCache,SimpleMeshPool,Sorter,TightMeshPool,add,building,caching,camera,close,compare,first,flush,freeMeshes,getRenderables,i,initialCapacity,items,material,max,mesh,meshBuilder,meshPartPool,n,newObject,obtain,obtainRenderable,offset,part,previous,primitiveType,renderables,renderablesPool,result,sort,this,tmp,usedMeshes,vertexAttributes
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/ModelCache.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

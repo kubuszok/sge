@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 376
+ * Covenant-baseline-methods: FloatColors,b,bits,c,ch,chroma,cv,d,decoded,e,end,g,hcl2rgbInt,hsl2rgb,hsl2rgbInt,hslColor,l,lerpFloatColors,lerpFloatColorsBlended,lv,max,min,mix,multiplyAlpha,r,rgb2hclInt,rgb2hsl,rgb2hslInt,s,setAlpha,sz,unevenMix,v,vScaled,x,y,ye,ys,z
+ * Covenant-source-reference: com/github/tommyettinger/colorful/FloatColors.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package colorful

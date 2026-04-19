@@ -10,6 +10,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 102
+ * Covenant-baseline-methods: LittleEndianInputStream,din,high,low,readBoolean,readByte,readChar,readDouble,readFloat,readFully,readInt,readLine,readLong,readShort,readUTF,readUnsignedByte,readUnsignedShort,res,skipBytes
+ * Covenant-source-reference: com/badlogic/gdx/utils/LittleEndianInputStream.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package utils

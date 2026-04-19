@@ -7,6 +7,13 @@
  *   Convention: isMono is constructor val (Java returns hardcoded false); volume uses opaque Volume type
  *   Idiom: split packages
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 33
+ * Covenant-baseline-methods: NoopAudioDevice,close,latency,pause,resume,setVolume,writeSamples
+ * Covenant-source-reference: backends/gdx-backend-headless/mock/audio/MockAudioDevice.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package noop

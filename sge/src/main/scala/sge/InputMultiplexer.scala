@@ -9,6 +9,13 @@
  * Migration notes:
  *   Convention: Int key/button params → opaque Key/Button types
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 103
+ * Covenant-baseline-methods: InputMultiplexer,addProcessor,clear,items,keyDown,keyTyped,keyUp,mouseMoved,processEvent,processors,removeProcessor,scrolled,setProcessors,size,this,touchCancelled,touchDown,touchDragged,touchUp
+ * Covenant-source-reference: com/badlogic/gdx/InputMultiplexer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 

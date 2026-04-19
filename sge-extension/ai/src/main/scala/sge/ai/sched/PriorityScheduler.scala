@@ -9,6 +9,13 @@
  *   Convention: split packages; `Nanos` opaque type for time values
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 139
+ * Covenant-baseline-methods: PrioritySchedulableRecord,PriorityScheduler,add,addWithAutomaticPhasing,frame,i,lastTime,numToRun,priority,run,timeToRun,totalPriority
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

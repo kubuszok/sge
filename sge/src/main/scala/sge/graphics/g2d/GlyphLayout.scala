@@ -13,6 +13,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 570
+ * Covenant-baseline-methods: GlyphLayout,GlyphRun,adjustedTargetWidth,alignRuns,appendRun,buffer,calculateWidths,colorStack,colors,count,currentColor,down,droppedGlyphCount,first,firstEnd,fontData,getGlyphWidth,getLineOffset,glyphCount,glyphRunPool,glyphs,glyphs2,height,i,isLastRun,last,lastGlyph,lineRun,markupEnabled,maxWidth,nextColor,parseColorMarkup,reset,runEnded,runStart,runs,second,secondStart,setLastGlyphXAdvance,setText,this,toString,truncateRun,truncateWidth,width,wrapGlyphs,wrapOrTruncate,x,xAdvances,xAdvances2,y
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/GlyphLayout.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics
@@ -92,37 +99,39 @@ class GlyphLayout extends Poolable {
         runEnd = end // Process the final run.
         isLastRun = true
       } else {
-        var continue = true
-        while (continue && i < end)
-          // Each run is delimited by newline or left square bracket.
-          str.charAt(i) match {
-            case '\n' => // End of line.
-              runEnd = i
-              newline = true
-              continue = false
-            case '[' => // Possible color tag.
-              if (markupEnabled) {
-                val length = parseColorMarkup(str, i + 1, end)
-                if (length >= 0) {
-                  runEnd = i
-                  i += length + 2
-                  if (i == end)
-                    isLastRun = true // Color tag is the last element in the string.
-                  else
-                    nextColor = colorStack.last
-                  continue = false
-                } else if (length == -2) {
-                  i += 1 // Skip first of "[[" escape sequence.
+        var delimFound = false
+        scala.util.boundary {
+          while (i < end)
+            // Each run is delimited by newline or left square bracket.
+            str.charAt(i) match {
+              case '\n' => // End of line.
+                runEnd = i
+                newline = true
+                delimFound = true
+                scala.util.boundary.break(())
+              case '[' => // Possible color tag.
+                if (markupEnabled) {
+                  val length = parseColorMarkup(str, i + 1, end)
+                  if (length >= 0) {
+                    runEnd = i
+                    i += length + 2
+                    if (i == end)
+                      isLastRun = true // Color tag is the last element in the string.
+                    else
+                      nextColor = colorStack.last
+                    delimFound = true
+                    scala.util.boundary.break(())
+                  } else if (length == -2) {
+                    i += 1 // Skip first of "[[" escape sequence.
+                  }
                 }
-              }
-              if (continue) i += 1
-            case _ =>
-              i += 1
-          }
-        if (runEnd == 0 && continue) {
+                if (!delimFound) i += 1
+              case _ =>
+                i += 1
+            }
+        }
+        if (runEnd == 0 && !delimFound) {
           // Continue to next iteration
-        } else {
-          continue = false
         }
       }
 

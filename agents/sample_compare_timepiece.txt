@@ -1,0 +1,12 @@
+=== compare sge-extension/ai/src/main/scala/sge/ai/Timepiece.scala ←→ original-src/gdx-ai/gdx-ai/src/com/badlogic/gdx/ai/DefaultTimepiece.java ===
+Missing (2):
+  - getDeltaTime
+  - getTime
+Extra in port (5):
+  + Timepiece
+  + _deltaTime
+  + _time
+  + deltaTime
+  + time
+Common: 2
+re-scale: exit=1 command=re-scale enforce compare --port sge-extension/ai/src/main/scala/sge/ai/Timepiece.scala --source original-src/gdx-ai/gdx-ai/src/com/badlogic/gdx/ai/DefaultTimepiece.java

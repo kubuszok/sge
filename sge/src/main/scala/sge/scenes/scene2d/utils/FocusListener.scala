@@ -12,6 +12,13 @@
  * - @Null Actor relatedActor -> Nullable[Actor]
  * - switch/case -> Scala pattern matching
  * - All methods faithfully ported
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 75
+ * Covenant-baseline-methods: FocusEvent,FocusListener,Type,focusType,focused,handle,keyboardFocusChanged,relatedActor,reset,scrollFocusChanged
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/FocusListener.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

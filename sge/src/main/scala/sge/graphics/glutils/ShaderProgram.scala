@@ -12,6 +12,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 1047
+ * Covenant-baseline-methods: BINORMAL_ATTRIBUTE,BONEWEIGHT_ATTRIBUTE,COLOR_ATTRIBUTE,NORMAL_ATTRIBUTE,POSITION_ATTRIBUTE,ShaderProgram,TANGENT_ATTRIBUTE,TEXCOORD_ATTRIBUTE,_attributeNames,_attributes,_fragmentShaderSource,_shaderLog,_uniformNames,_uniforms,_vertexShaderSource,actualFragmentShader,actualVertexShader,addManagedShader,attributeSizes,attributeTypes,attributes,bind,builder,checkManaged,clearAllShaderPrograms,close,compileShaders,compiled,compiledSuccessfully,createProgram,disableVertexAttribute,enableVertexAttribute,fetchAttributeLocation,fetchAttributes,fetchUniformLocation,fetchUniforms,fragmentShaderHandle,fragmentShaderSource,getAttributeLocation,getAttributeSize,getAttributeType,getUniformLocation,getUniformSize,getUniformType,gl,handle,hasAttribute,hasUniform,intbuf,invalidate,invalidateAllShaderPrograms,invalidated,linkProgram,linked,loadShader,location,log,managedResources,managedStatus,numAttributes,numManagedShaderPrograms,numUniforms,params,pedantic,prependFragmentCode,prependVertexCode,program,setAttributef,setUniform1fv,setUniform1iv,setUniform2fv,setUniform2iv,setUniform3fv,setUniform3iv,setUniform4fv,setUniform4iv,setUniformMatrix,setUniformMatrix3fv,setUniformMatrix4fv,setUniformf,setUniformi,setVertexAttribute,shader,shaderType,shaders,this,tmp,uniformSizes,uniformTypes,uniforms,using,vertexShaderHandle,vertexShaderSource
+ * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/ShaderProgram.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics
@@ -207,8 +214,8 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) ext
 
   private def fetchAttributeLocation(name: String): AttributeLocation = {
     val gl = Sge().graphics.gl20
-    // -2 == not yet cached
-    // -1 == cached but not found
+    // -2 == uncached sentinel
+    // -1 == cached-as-missing sentinel
     _attributes.get(name) match {
       case Some(location) => location
       case None           =>
@@ -222,8 +229,8 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) ext
     fetchUniformLocation(name, ShaderProgram.pedantic)
 
   def fetchUniformLocation(name: String, pedantic: Boolean): UniformLocation =
-    // -2 == not yet cached
-    // -1 == cached but not found
+    // -2 == uncached sentinel
+    // -1 == cached-as-missing sentinel
     _uniforms.get(name) match {
       case Some(location) => location
       case None           =>

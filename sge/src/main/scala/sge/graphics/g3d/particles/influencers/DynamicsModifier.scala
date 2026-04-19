@@ -16,6 +16,13 @@
  *   Rotational2D, Rotational3D, CentripetalAcceleration, PolarAcceleration,
  *   TangentialAcceleration, BrownianAcceleration.
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 531
+ * Covenant-baseline-methods: Angular,BrownianAcceleration,CentripetalAcceleration,DynamicsModifier,FaceDirection,PolarAcceleration,Rotational2D,Rotational3D,Strength,TMP_Q,TMP_V1,TMP_V2,TMP_V3,TangentialAcceleration,accelerationChannel,accellerationChannel,activateParticles,allocateChannels,angularChannel,copy,directionalVelocityChannel,isGlobal,lifeChannel,phiValue,positionChannel,rotationChannel,rotationalForceChannel,rotationalVelocity2dChannel,strengthChannel,strengthValue,thetaValue,this,update
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/influencers/DynamicsModifier.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

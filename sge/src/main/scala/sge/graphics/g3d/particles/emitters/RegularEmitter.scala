@@ -19,6 +19,13 @@
  *   getEmissionMode/setEmissionMode → public var emissionMode;
  *   getPercentComplete → percentComplete; isComplete() → isComplete (dropped parens)
  * - Note: duration, delay are internal millisecond-based floats (from RangedNumericValue), not seconds
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 239
+ * Covenant-baseline-methods: EmissionMode,RegularEmitter,activateParticles,activeParticles,actualCount,addParticles,allocateChannels,c,continuous,copy,currentLife,currentTotalLife,delay,delayTimer,delayValue,deltaMillis,duration,durationTimer,durationValue,emission,emissionDelta,emissionDiff,emissionMode,emissionValue,i,init,isComplete,k,life,lifeChannel,lifeDiff,lifeOffset,lifeOffsetDiff,lifeOffsetValue,lifePercent,lifeValue,offsetTime,percentComplete,set,start,this,update
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/emitters/RegularEmitter.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 621
+ * Covenant-baseline-methods: Break,CellConsumer,Continue,Grid,add,clamp,consume,consumed,copy,copyArr,decrement,divide,equals,fill,fillColumn,fillRow,forEach,get,getArray,hashCode,idx,increment,index,isIndexValid,iterate,length,logger,modulo,multiply,negate,replace,set,subtract,this,toIndex,toString,toX,toY,validateGrid,x,y
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package noise

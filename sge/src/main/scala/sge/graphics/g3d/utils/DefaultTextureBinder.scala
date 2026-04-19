@@ -20,6 +20,13 @@
  *   - All methods fully ported
  *   - Audit: pass (2026-03-03)
  *   Idiom: typed GL enums -- TextureTarget
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 221
+ * Covenant-baseline-methods: DefaultTextureBinder,LRU,MAX_GLES_UNITS,ROUNDROBIN,_count,begin,bind,bindCount,bindTexture,bindTextureLRU,bindTextureRoundRobin,buffer,c,currentTexture,end,getBindCount,getReuseCount,i,idx,max,maxTextureUnits,method,offset,resetCounts,reuseCount,reused,tempDesc,textures,this,unitsLRU
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/DefaultTextureBinder.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

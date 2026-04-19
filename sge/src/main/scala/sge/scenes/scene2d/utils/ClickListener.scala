@@ -16,6 +16,13 @@
  *   getButton/setButton → var button, getTouchDownX/Y → def touchDownX/touchDownY,
  *   getPressedButton/getPressedPointer → def pressedButton/pressedPointer,
  *   isPressed → def pressed, isOver → def over
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 174
+ * Covenant-baseline-methods: ClickListener,_over,_pressed,_pressedButton,_pressedPointer,_touchDownX,_touchDownY,cancel,cancelled,clicked,enter,exit,hit,inTapSquare,invalidateTapSquare,isOver,isVisualPressed,lastTapTime,over,pressed,pressedButton,pressedPointer,setTapCountInterval,setVisualPressed,tapCount,tapCountInterval,tapSquareSize,touchDown,touchDownX,touchDownY,touchDragged,touchUp,visualPressedDuration,visualPressedTime
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/ClickListener.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

@@ -11,6 +11,13 @@
  * - Array<Decal> -> DynamicArray[Decal]: correct (project-wide replacement)
  * - All methods faithfully ported; no behavioral differences
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 29
+ * Covenant-baseline-methods: GroupPlug,afterGroup,beforeGroup
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/decals/GroupPlug.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

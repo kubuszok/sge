@@ -11,6 +11,13 @@
  *   Renames: static FOREVER -> companion object val; implements FinishableAction -> with
  *   Idiom: action.act(delta) with multiple returns -> action.fold(true) with nested if/else
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 67
+ * Covenant-baseline-methods: FOREVER,RepeatAction,_isFinished,count,delegate,executedCount,finish,restart
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/RepeatAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes
@@ -26,14 +33,14 @@ import sge.utils.Seconds
 class RepeatAction extends DelegateAction with FinishableAction {
   var count:                 Int     = 0
   private var executedCount: Int     = 0
-  private var finished:      Boolean = false
+  private var _isFinished:   Boolean = false
 
   override protected def delegate(delta: Seconds): Boolean =
     if (executedCount == count) true
     else {
       action.forall { a =>
         if (a.act(delta)) {
-          if (finished) true
+          if (_isFinished) true
           else {
             if (count > 0) executedCount += 1
             if (executedCount == count) true
@@ -46,12 +53,12 @@ class RepeatAction extends DelegateAction with FinishableAction {
       }
     }
 
-  def finish(): Unit = finished = true
+  def finish(): Unit = _isFinished = true
 
   override def restart(): Unit = {
     super.restart()
     executedCount = 0
-    finished = false
+    _isFinished = false
   }
 }
 

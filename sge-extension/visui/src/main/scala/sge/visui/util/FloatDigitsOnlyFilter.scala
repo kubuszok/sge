@@ -8,6 +8,13 @@
  *   Idiom: `return` -> direct expression
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 39
+ * Covenant-baseline-methods: FloatDigitsOnlyFilter,acceptChar,cursorPos,selectionStart,text
+ * Covenant-source-reference: com/kotcrab/vis/ui/util/FloatDigitsOnlyFilter.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

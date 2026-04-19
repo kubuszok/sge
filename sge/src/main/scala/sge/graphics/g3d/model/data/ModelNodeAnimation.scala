@@ -13,6 +13,13 @@
  * - All fields use scala.compiletime.uninitialized (Java null defaults)
  * - No methods in Java source, none in Scala — pure data class
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 40
+ * Covenant-baseline-methods: ModelNodeAnimation,nodeId,rotation,scaling,translation
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/model/data/ModelNodeAnimation.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

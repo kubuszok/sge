@@ -21,6 +21,13 @@
  *     calculateBoundingBox, extendBoundingBox, getAnimation (2), getMaterial (2), getNode (3),
  *     copyAnimations (2), copyAnimation (2).
  *   - Audit: pass (2026-03-10)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 458
+ * Covenant-baseline-methods: ModelInstance,animation,animations,calculateBoundingBox,calculateTransforms,copy,copyAnimation,copyAnimations,copyNodes,copyNodesById,defaultShareKeyframes,extendBoundingBox,getAnimation,getMaterial,getNode,getRenderable,getRenderables,invalidate,materials,model,n,node,nodes,this,transform,userData
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/ModelInstance.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

@@ -13,6 +13,13 @@
  * AUDIT: PASS — All methods ported: nextLong, next, nextInt, nextInt(n), nextLong(n),
  * nextDouble, nextFloat, nextBoolean, nextBytes, setSeed, setState, getState, murmurHash3.
  * Constructors: no-arg, (seed), (seed0, seed1).
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 197
+ * Covenant-baseline-methods: NORM_DOUBLE,NORM_FLOAT,RandomXS128,bits,getState,hash,i,murmurHash3,n,next,nextBoolean,nextBytes,nextDouble,nextFloat,nextInt,nextLong,s0,s1,seed0,seed1,seedValue,setSeed,setState,this,value
+ * Covenant-source-reference: com/badlogic/gdx/math/RandomXS128.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

@@ -3,6 +3,13 @@
  * Licensed under the MIT License
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 274
+ * Covenant-baseline-methods: Collisions,_size,add,applyPermutation,boxed,clear,collision,get,h1s,h2s,i,isEmpty,items,keySort,moveXs,moveYs,normalXs,normalYs,order,others,overlaps,remove,reorder,size,sort,swapMap,tis,touchXs,touchYs,types,w1s,w2s,x1s,x2s,y1s,y2s
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package jbump

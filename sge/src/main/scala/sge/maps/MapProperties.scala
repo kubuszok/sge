@@ -15,6 +15,13 @@
  *   Idiom: toString uses string interpolation
  *   - getKeys/getValues are delegation methods returning iterators, not simple getters — kept as-is
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 114
+ * Covenant-baseline-methods: MapProperties,clear,containsKey,equals,get,getAs,hashCode,keys,obj,properties,put,putAll,remove,toString,values
+ * Covenant-source-reference: com/badlogic/gdx/maps/MapProperties.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

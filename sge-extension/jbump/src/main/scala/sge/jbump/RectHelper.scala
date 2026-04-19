@@ -3,6 +3,13 @@
  * Licensed under the MIT License
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 159
+ * Covenant-baseline-methods: RectHelper,col,dx,dy,h,hasTi,nx,ny,overlaps,rect_detectCollision,rect_detectCollision_diff,rect_detectCollision_getSegmentIntersectionIndices_col,rect_detectCollision_getSegmentIntersectionIndices_n1,rect_detectCollision_getSegmentIntersectionIndices_n2,rect_detectCollision_getSegmentIntersectionIndices_ti,rect_detectCollision_nearestCorner,ti,w,x,y
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package jbump

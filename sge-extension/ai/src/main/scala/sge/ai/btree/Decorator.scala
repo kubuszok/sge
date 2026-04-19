@@ -9,6 +9,13 @@
  *   Convention: split packages, Nullable instead of null
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 79
+ * Covenant-baseline-methods: Decorator,addChildToTask,c,child,childFail,childRunning,childSuccess,copyTo,getChild,getChildCount,reset,run
+ * Covenant-source-reference: com/badlogic/gdx/ai/btree/Decorator.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

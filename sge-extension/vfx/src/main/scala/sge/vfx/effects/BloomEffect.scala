@@ -3,6 +3,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 130
+ * Covenant-baseline-methods: BloomEffect,Settings,_blending,apply,applySettings,baseIntensity,baseIntensity_,baseSaturation,baseSaturation_,blendingDestFactor,blendingEnabled,blendingSourceFactor,blendingWasEnabled,bloomIntensity,bloomIntensity_,bloomSaturation,bloomSaturation_,bloomThreshold,bloomThreshold_,blur,blurAmount,blurAmount_,blurPasses,blurPasses_,blurType,blurType_,combine,copy,dfactor,disableBlending,enableBlending,origSrc,render,sfactor,this,threshold
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package vfx

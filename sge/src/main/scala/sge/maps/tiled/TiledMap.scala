@@ -12,6 +12,13 @@
  *   - Java Disposable → AutoCloseable; Array<Disposable> → DynamicArray[AutoCloseable]
  *   - ownedResources: Java null → Nullable[DynamicArray[AutoCloseable]]
  *   - Split package, braces, no-return conventions satisfied
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 44
+ * Covenant-baseline-methods: TiledMap,close,ownedResources,setOwnedResources,tileSets
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/TiledMap.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

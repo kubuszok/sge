@@ -14,6 +14,13 @@
  *   - No return statements -> boundary/break in getShader
  *   - All methods (getShader, createShader, close) fully ported
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 52
+ * Covenant-baseline-methods: BaseShaderProvider,close,createShader,getShader,shader,shaders
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/BaseShaderProvider.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

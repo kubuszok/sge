@@ -13,6 +13,13 @@
  *   - boundary/break used for early returns in getTileSet(String) and getTile(int)
  *   - Split package, braces, no-return conventions satisfied
  *   - getTileSet(int)/getTileSet(String)/getTile(int) are lookup methods with parameters, kept as-is
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 98
+ * Covenant-baseline-methods: TiledMapTileSets,addTileSet,getTile,getTileSet,i,iterator,n,removeTileSet,tilesets
+ * Covenant-source-reference: com/badlogic/gdx/maps/tiled/TiledMapTileSets.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package maps

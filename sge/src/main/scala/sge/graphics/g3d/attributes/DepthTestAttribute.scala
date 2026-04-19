@@ -11,6 +11,13 @@
  *   - compareTo -> compare (Ordered[Attribute])
  *   - GdxRuntimeException -> SgeError.InvalidInput
  *   - All constants, constructors, and instance methods accounted for
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 94
+ * Covenant-baseline-methods: Alias,DepthTestAttribute,Mask,Type,compare,copy,depthFunc,depthMask,depthRangeFar,depthRangeNear,hashCode,is,result,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/attributes/DepthTestAttribute.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

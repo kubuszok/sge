@@ -1,4 +1,12 @@
-/* Ported from TextraTypist. Licensed under Apache 2.0. */
+/* Ported from TextraTypist. Licensed under Apache 2.0.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 19
+ * Covenant-baseline-methods: AttentionEffect,distance,onApply,spread
+ * Covenant-source-reference: com/github/tommyettinger/textra/effects/AttentionEffect.java
+ * Covenant-verified: 2026-04-19
+ */
 package sge
 package textra
 package effects

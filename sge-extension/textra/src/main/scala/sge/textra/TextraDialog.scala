@@ -16,6 +16,13 @@
  *     is not an Actor. Listener infrastructure added directly for ChangeListener,
  *     FocusListener, and InputListener patterns.
  *   Idiom: Nullable[A] for nullable fields; boundary/break for early returns.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 456
+ * Covenant-baseline-methods: ButtonTable,ContentTable,FocusListenerMarker,IgnoreTouchDownMarker,TextraDialog,_skin,_visible,actions,add,addAction,addCaptureListener,addListener,binding,btn,button,buttonTable,cancel,cancelHide,captureListeners,clearActions,contentTable,contentY,defaults_space,draw,entries,focusListener,getButtonTable,getContentTable,handleButtonClick,handleKeyDown,hide,ignoreTouchDown,initialize,isVisible,key,keyBindings,labels,listeners,newLabel,newTypingLabel,previousKeyboardFocus,previousScrollFocus,remove,removeCaptureListener,removeListener,result,s,setObject,setStage,show,text,this,typing,values
+ * Covenant-source-reference: com/github/tommyettinger/textra/TextraDialog.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

@@ -7,6 +7,13 @@
  * JSON serialization for GLTF export. Replaces the LibGDX Json.prettyPrint(root)
  * with a purpose-built writer that serializes the GLTF data model to spec-compliant
  * JSON output with pretty-printing and prototype-aware field omission.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 860
+ * Covenant-baseline-methods: GLTFExporterJson,comma,first,i,indent,key,sb,writeAccessor,writeAnimation,writeAnimationChannel,writeAnimationSampler,writeAnimationTarget,writeArray,writeAsset,writeBuffer,writeBufferView,writeCamera,writeExtensions,writeFloat,writeFloatArray,writeGltf,writeGltfObj,writeImage,writeIntArray,writeIridescence,writeLight,writeLights,writeMaterial,writeMesh,writeMorphTarget,writeNode,writeNormalTexInfo,writeOcclusionTexInfo,writeOrthographic,writePbr,writePerspective,writePrimitive,writeSampler,writeScene,writeSkin,writeSpecular,writeString,writeStringArray,writeTexInfo,writeTexture,writeTransmission,writeVolume
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

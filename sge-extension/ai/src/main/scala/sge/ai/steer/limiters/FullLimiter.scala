@@ -9,6 +9,13 @@
  *   Convention: split packages, public vars instead of getX/setX
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 46
+ * Covenant-baseline-methods: FullLimiter,_maxAngularAcceleration,_maxAngularSpeed,_maxLinearAcceleration,_maxLinearSpeed,_zeroLinearSpeedThreshold,maxAngularAcceleration,maxAngularAcceleration_,maxAngularSpeed,maxAngularSpeed_,maxLinearAcceleration,maxLinearAcceleration_,maxLinearSpeed,maxLinearSpeed_,zeroLinearSpeedThreshold,zeroLinearSpeedThreshold_
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

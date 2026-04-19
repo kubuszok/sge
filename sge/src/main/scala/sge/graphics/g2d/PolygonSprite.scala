@@ -14,6 +14,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 342
+ * Covenant-baseline-methods: PolygonSprite,_color,_originX,_region,_rotation,_scaleX,_scaleY,_vertices,_width,_x,boundingRectangle,bounds,c,color,colorFloat,color_,currentVertices,dirty,draw,floatColor,height,maxx,maxy,minx,miny,oldAlpha,originX,originY,packedColor,pc,reg,region,regionVertices,region_,rotate,rotation,rotation_,scale,scaleX,scaleY,set,setBounds,setColor,setOrigin,setPosition,setScale,setSize,textureCoords,this,translate,translateX,translateY,v,vertices,verticesLength,verts,width,x,x_,y,y_
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/PolygonSprite.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

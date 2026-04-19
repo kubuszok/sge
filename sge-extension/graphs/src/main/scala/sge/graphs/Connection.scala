@@ -3,6 +3,13 @@
  * Licensed under the ISC License
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 4
+ * Covenant-baseline-loc: 115
+ * Covenant-baseline-methods: Connection,DirectedConnection,UndirectedConnection,a,b,equals,fixed,hasEndpoints,hashCode,internalNodeA,internalNodeB,link,linked,nodeA,nodeB,set,setWeight,toString,weight,weightFn,weightFunction,weight_
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphs

@@ -8,6 +8,13 @@
  * animated GIF encoder. The original has no copyright asserted.
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 2044
+ * Covenant-baseline-methods: AnimatedGif,_clearPalette,_ditherAlgorithm,_ditherStrength,_palette,addFrame,analyzeAdditive,analyzeBanter,analyzeBlue,analyzeBlunt,analyzeBurkes,analyzeChaotic,analyzeDiffusion,analyzeDodgy,analyzeGourd,analyzeGradient,analyzeLoaf,analyzeMarten,analyzeNeue,analyzeNone,analyzeOceanic,analyzeOverboard,analyzePattern,analyzePixels,analyzeRoberts,analyzeScatter,analyzeSeaside,analyzeWoven,analyzeWren,bi,blueStrength,by,ci,closeStream,colorDepth,colorTab,ct,curErrorBlue,curErrorGreen,curErrorRed,delay,disp0,dispose,ditherAlgorithm,ditherAlgorithm_,ditherStrength,ditherStrength_,encoder,errorMul,fastAnalysis,finish,firstFrame,flipDir,flipY,flipped,getImagePixels,gi,h,hasTransparent,height,i,image,indexedPixels,isFastAnalysis,isFlipY,j,limit,n,nPix,nextErrorBlue,nextErrorGreen,nextErrorRed,noise,noiseA,noiseB,noiseC,noiseStrength,o,out,output,oy,pal,palSize,palette,paletteArray,paletteMapping,palette_,partialDitherStrength,populationBias,repeat,s,seq,setDelay,setDispose,setFastAnalysis,setFlipY,setFrameRate,setPosition,setRepeat,setSize,si,sizeSet,start,started,str,strength,transIndex,transp,usedEntry,w,w1,w3,w5,w7,width,write,writeGraphicCtrlExt,writeImageDesc,writeLSD,writeNetscapeExt,writePalette,writePixels,writeShort,writeString,x,y,y0
+ * Covenant-source-reference: com/github/tommyettinger/anim8/AnimatedGif.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package anim8

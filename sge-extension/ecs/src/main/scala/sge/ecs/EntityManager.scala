@@ -12,6 +12,13 @@
  *   Idiom: Nullable[Entity] instead of null for EntityOperation fields
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 175
+ * Covenant-baseline-methods: EntityManager,EntityOperation,EntityOperationPool,Type,addEntity,addEntityInternal,entities,entity,entityOperationPool,entitySet,getEntities,hasPendingOperations,i,immutableEntities,initialCapacity,max,newObject,operationType,pendingOperations,processPendingOperations,removeAllEntities,removeEntity,removeEntityInternal,removed,reset
+ * Covenant-source-reference: com/badlogic/ashley/core/EntityManager.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ecs
@@ -23,9 +30,9 @@ import sge.ecs.utils.ImmutableArray
 import sge.utils.Nullable
 import sge.utils.Pool
 
-/** Manages entities within an [[Engine]]. Supports immediate and deferred add/remove operations.
+/** Manages entities within an [[Engine]]. Supports immediate and delayed add/remove operations.
   *
-  * Deferred operations are queued when the engine is updating and flushed after each system update.
+  * Delayed operations are queued when the engine is updating and flushed after each system update.
   */
 private[ecs] class EntityManager(listener: EntityListener) {
 
@@ -141,7 +148,7 @@ private[ecs] class EntityManager(listener: EntityListener) {
   }
 }
 
-/** A single deferred entity operation (add, remove, or remove-all). */
+/** A single delayed entity operation (add, remove, or remove-all). */
 final private[ecs] class EntityOperation extends Pool.Poolable {
   var operationType: EntityOperation.Type             = EntityOperation.Type.Add
   var entity:        Nullable[Entity]                 = Nullable.empty

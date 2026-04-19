@@ -9,6 +9,13 @@
  *   Convention: split packages, explicit Timepiece dependency instead of global singleton
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 76
+ * Covenant-baseline-methods: Wait,copyTo,execute,newInstance,reset,seconds,start,startTime,this,timeout,timepiece,w
+ * Covenant-source-reference: auto
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package ai

@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port for SGE
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 152
+ * Covenant-baseline-methods: FacedMultiCubemapData,consumeCubemapData,data,getTextureData,gl,h,height,i,isComplete,isManaged,isPrepared,level,levels,nx,ny,nz,prepare,px,py,pz,result,this,w,width
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

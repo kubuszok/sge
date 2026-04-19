@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 109
+ * Covenant-baseline-methods: LinkLabel,LinkLabelListener,LinkLabelStyle,_listener,_style,clickListener,clicked,draw,enter,exit,listener,listener_,this,underline,url,url_
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/LinkLabel.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

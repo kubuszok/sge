@@ -10,6 +10,13 @@
  * - Copy constructor: cannot call super(drawable) in Scala -> manual property copy
  * - instanceof check -> Scala pattern matching for AtlasSprite in tint()
  * - All methods faithfully ported
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 101
+ * Covenant-baseline-methods: SpriteDrawable,_sprite,draw,drawable,newSprite,oldColor,setSprite,sprite,spriteColor,this,tint
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/SpriteDrawable.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

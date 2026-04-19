@@ -13,6 +13,13 @@
  * - spawnAux uses boundary/break instead of return (correct pattern)
  * - Fixes (2026-03-04): removed redundant getSide/setSide (field already public var)
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 98
+ * Covenant-baseline-methods: EllipseSpawnShapeValue,copy,depth,height,load,maxT,minT,r,radiusX,radiusY,radiusZ,shape,side,spawnAux,t,this,width,z
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/values/EllipseSpawnShapeValue.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

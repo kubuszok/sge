@@ -13,6 +13,13 @@
  * AUDIT: PASS — All methods ported: set(5), valueAt, derivativeAt, approximate(3),
  * locate, approxLength, cubic(4), cubic_derivative(4). Static helpers ported.
  * Uses ClassTag[T] for array creation instead of Java reflection.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 1
+ * Covenant-baseline-loc: 355
+ * Covenant-baseline-methods: BSpline,adjustedStart,approxLength,approximate,calculate,continuous,controlPoints,cubic,cubic_derivative,d6,degree,derivative,derivativeAt,dst,dstNext2,dstPrev2,dt,i,knotCount,knots,locate,n,nearest,nearestKnot,next,previous,result,set,spanCount,t2,t3,tempLength,this,tmp,tmp2,tmp3,u,valueAt
+ * Covenant-source-reference: com/badlogic/gdx/math/BSpline.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

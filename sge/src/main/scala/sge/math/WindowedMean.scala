@@ -14,6 +14,13 @@
  * getLatest, standardDeviation, getLowest, getHighest, getValueCount, getWindowSize,
  * getWindowValues. NOTE: getHighest uses Float.MinValue (most-negative float in Scala)
  * which matches Java Float.MIN_NORMAL semantics for finding maximum correctly.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 131
+ * Covenant-baseline-methods: WindowedMean,_mean,addValue,addedValues,clear,dirty,hasEnoughData,highest,index,lastValue,latest,lowest,mean,oldest,standardDeviation,valueCount,values,windowValues
+ * Covenant-source-reference: com/badlogic/gdx/math/WindowedMean.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

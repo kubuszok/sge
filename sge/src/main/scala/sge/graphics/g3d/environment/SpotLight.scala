@@ -12,6 +12,13 @@
  *     setCutoffAngle, setExponent, set x4, setTarget, equals x2
  *   - Null checks → Nullable.foreach
  *   - equals(SpotLight) uses Nullable.fold for null safety
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 128
+ * Covenant-baseline-methods: SpotLight,cutoffAngle,direction,equals,exponent,intensity,position,set,setCutoffAngle,setDirection,setExponent,setIntensity,setPosition,setTarget
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/environment/SpotLight.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

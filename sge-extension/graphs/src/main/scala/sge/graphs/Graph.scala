@@ -3,6 +3,13 @@
  * Licensed under the ISC License
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 309
+ * Covenant-baseline-methods: Graph,_defaultEdgeWeight,a,addConnection,addEdge,addVertex,addVertices,algorithms,b,components,connectionExists,contains,createNew,defaultEdgeWeightFunction,defaultEdgeWeightFunction_,disconnect,disconnectNode,e,edgeCount,edgeExists,edgeMap,edges,entryList,existing,fixed,getConnection,getEdge,getEdges,getNode,getNodes,getWeight,i,initFromGraph,initVertices,isConnected,isDirected,iter,iterator,knownSize,node,nodeMap,numberOfComponents,obtainEdge,removeAllEdges,removeAllVertices,removeConnection,removeEdge,removeEdgeIf,removeEdges,removeVertex,removeVertexIf,removeVertices,setDefaultEdgeWeight,size,sortEdges,sortVertices,toString,vertices,visited
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphs

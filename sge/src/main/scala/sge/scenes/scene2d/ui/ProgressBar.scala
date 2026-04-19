@@ -12,6 +12,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 371
+ * Covenant-baseline-methods: ProgressBar,ProgressBarStyle,_disabled,_style,_value,act,animateDuration,animateFromValue,animateInterpolation,animateTime,animating,background,backgroundDrawable,bg,bh,bw,bx,by,c,clamp,clampedValue,currentKnob,dh,disabled,disabledBackground,disabledKnob,disabledKnobAfter,disabledKnobBefore,disabled_,draw,drawRound,dw,dx,dy,knob,knobAfter,knobAfterDrawable,knobBefore,knobBeforeDrawable,knobDrawable,knobHeight,knobWidth,max,min,oldValue,oldVisualValue,percent,position,prefHeight,prefWidth,programmaticChangeEvents,round,setAnimateDuration,setAnimateInterpolation,setRange,setRound,setStepSize,setStyle,setValue,setVisualInterpolation,stepSize,style,this,updateVisualValue,value,vertical,visualInterpolation,visualPercent,visualValue
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/ProgressBar.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

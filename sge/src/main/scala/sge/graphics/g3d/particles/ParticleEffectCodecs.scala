@@ -18,6 +18,13 @@
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  * Licensed under the Apache License, Version 2.0
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 2117
+ * Covenant-baseline-methods: EffectReference,ParticleEffectCodecs,b,buf,bufferJsonValue,className,controllerIndices,decodeDynamicsModifier,decodeEmitter,decodeInfluencer,decodeRenderer,decodeSpawnShapeValue,decodeValue,effectFilename,emitterTypes,encodeValue,escapeJsonString,i,influencerTypes,modifierTypes,nullValue,readAngularFields,readBoolean,readDynamicsModifierFields,readEffectReference,readEffectReferences,readEmitterFields,readFields,readFloat,readFloatArray,readInt,readIntArray,readPolymorphicObject,readPrimitiveSpawnShapeValueFields,readRangedNumericValue,readRegionInfluencerFields,readScaledNumericValue,readSimpleInfluencerFields,readSpawnShapeValueFields,readStrengthFields,readString,readStringArray,rendererTypes,sb,spawnShapeTypes,writeAngularFields,writeDynamicsModifierFields,writeEffectReference,writeEffectReferences,writeEmitterFields,writeFloatArray,writeIntArray,writePrimitiveSpawnShapeValueFields,writeRangedNumericValue,writeRegionInfluencerFields,writeScaledNumericValue,writeSimpleInfluencerFields,writeSpawnShapeValueFields,writeStrengthFields,writeStringArray
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

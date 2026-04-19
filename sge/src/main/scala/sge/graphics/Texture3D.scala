@@ -12,6 +12,13 @@
  *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 139
+ * Covenant-baseline-methods: Texture3D,addManagedTexture,builder,clearAllTextureArrays,data,depth,height,invalidateAllTextureArrays,load,managed,managedStatus,managedTexture3Ds,managedTextureArray,numManagedTextures3D,rWrap,reload,setWrap,textureData,this,unsafeSetWrap,upload,width
+ * Covenant-source-reference: com/badlogic/gdx/graphics/Texture3D.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

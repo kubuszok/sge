@@ -13,6 +13,13 @@
  *   - dst() → distance() (SGE Vector3 rename)
  *   - GdxRuntimeException → SgeError.InvalidInput
  *   - clamp helper preserved as private in companion object
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 177
+ * Covenant-baseline-methods: AmbientCubemap,NUM_VALUES,add,apply,arr,clamp,clear,copyArray,d,getColor,i,idx,s,sb,set,t,this,toString,x2,y2,z2
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/environment/AmbientCubemap.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

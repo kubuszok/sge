@@ -10,6 +10,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 408
+ * Covenant-baseline-methods: DEFAULT_ENCODING,I18NBundle,baseBundle,bundle,checkFileExistence,country,createBundle,createBundleImpl,debug,defaultLocale,exceptionOnMissingKey,format,formatter,get,getCandidateLocales,getFallbackLocale,keys,language,load,loadBundle,loadBundleChain,locale,locales,parent,properties,reader,result,sb,setLocale,simpleFormatter,targetLocale,targetLocaleOpt,toFileHandle,variant
+ * Covenant-source-reference: com/badlogic/gdx/utils/I18nBundle.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package utils

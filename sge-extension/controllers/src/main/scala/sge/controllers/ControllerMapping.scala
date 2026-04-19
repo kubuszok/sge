@@ -3,6 +3,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 74
+ * Covenant-baseline-methods: ControllerMapping,StandardMapping,Undefined,axisLeftX,axisLeftY,axisRightX,axisRightY,buttonA,buttonB,buttonBack,buttonDpadDown,buttonDpadLeft,buttonDpadRight,buttonDpadUp,buttonL1,buttonL2,buttonLeftStick,buttonR1,buttonR2,buttonRightStick,buttonStart,buttonX,buttonY
+ * Covenant-source-reference: com/badlogic/gdx/controllers/ControllerMapping.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package controllers

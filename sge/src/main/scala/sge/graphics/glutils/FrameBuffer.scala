@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 110
+ * Covenant-baseline-methods: FrameBuffer,attachFrameBufferColorTexture,createTexture,data,disposeColorTexture,frameBufferBuilder,result,this,unbind,webGLDepth
+ * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/FrameBuffer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

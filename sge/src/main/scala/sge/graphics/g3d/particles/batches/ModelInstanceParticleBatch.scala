@@ -14,6 +14,13 @@
  *   draw, save, load
  * - Fixes (2026-03-04): getBufferedCount → bufferedCount
  * - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 67
+ * Covenant-baseline-methods: ModelInstanceParticleBatch,begin,bufferedCount,bufferedParticlesCount,controllersRenderData,draw,end,getRenderables,load,save
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/batches/ModelInstanceParticleBatch.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

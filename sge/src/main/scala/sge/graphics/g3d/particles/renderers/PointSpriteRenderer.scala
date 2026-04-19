@@ -11,6 +11,13 @@
  * - allocateChannels() wrapped in renderData.foreach (null safety; Java accesses directly)
  * - import scala.language.implicitConversions is present but may be unused (minor)
  * - Audited 2026-03-03: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 56
+ * Covenant-baseline-methods: PointSpriteRenderer,allocateChannels,copy,isCompatible,this
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/renderers/PointSpriteRenderer.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

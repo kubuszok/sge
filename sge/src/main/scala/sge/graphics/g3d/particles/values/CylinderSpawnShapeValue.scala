@@ -10,6 +10,13 @@
  * - All public methods ported: spawnAux, copy
  * - Faithful conversion, no issues
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 71
+ * Covenant-baseline-methods: CylinderSpawnShapeValue,copy,depth,height,hf,isRadiusXZero,isRadiusZZero,radiusX,radiusZ,spawnAux,spawnTheta,this,ty,width
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/values/CylinderSpawnShapeValue.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

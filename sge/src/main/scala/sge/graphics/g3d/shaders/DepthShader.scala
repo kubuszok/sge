@@ -19,6 +19,13 @@
  * - All public methods match Java: begin, end, canRender, render, createPrefix
  * - TODO comment preserved from Java source
  * Convention: typed GL enums (EnableCap for glEnable/glDisable)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 355
+ * Covenant-baseline-methods: Config,DepthShader,_depthNumBones,alphaTestAttribute,attributes,begin,boneWeights,canRender,combineAttributes,createPrefix,defaultAlphaTest,defaultFragmentShader,defaultVertexShader,depthBufferOnly,end,isBlendedTextureRenderable,isBlendedTextureShader,numBones,prefix,render,this,tmpAttributes
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/shaders/DepthShader.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

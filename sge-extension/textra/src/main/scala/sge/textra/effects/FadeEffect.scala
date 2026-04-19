@@ -1,6 +1,13 @@
 /*
  * Ported from TextraTypist - https://github.com/tommyettinger/textratypist
  * Licensed under the Apache License, Version 2.0
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 47
+ * Covenant-baseline-methods: FadeEffect,alpha1,alpha2,color1,color2,fadeDuration,g,onApply,progress,timePassed,timePassedByGlyphIndex
+ * Covenant-source-reference: com/github/tommyettinger/textra/effects/FadeEffect.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

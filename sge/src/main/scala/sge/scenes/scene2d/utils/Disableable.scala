@@ -9,6 +9,13 @@
  * Migration notes:
  * - Java interface -> Scala trait
  * - Faithful port, no API changes
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 22
+ * Covenant-baseline-methods: Disableable,disabled,disabled_
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/Disableable.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

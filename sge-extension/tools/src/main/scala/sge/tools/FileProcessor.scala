@@ -11,6 +11,13 @@
  *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 289
+ * Covenant-baseline-methods: Entry,FileProcessor,addInputRegex,addInputSuffix,addProcessedFile,allEntries,comparator,depth,dirToEntries,effectiveOutputRoot,entryComparator,flattenOutput,inputFile,inputFilter,inputRegex,outFile,outputDir,outputFile,outputFiles,outputSuffix,process,processDir,processFile,processFiles,processInternal,recursive,setComparator,setFlattenOutput,setInputFilter,setOutputSuffix,setRecursive,this,toString
+ * Covenant-source-reference: com/badlogic/gdx/tools/FileProcessor.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package tools

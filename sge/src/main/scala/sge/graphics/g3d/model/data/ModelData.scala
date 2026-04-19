@@ -13,6 +13,13 @@
  * - String concatenation -> string interpolation in error message
  * - No API differences from Java source
  * - Status: pass
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 46
+ * Covenant-baseline-methods: ModelData,addMesh,animations,id,materials,meshes,nodes,version
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/model/data/ModelData.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

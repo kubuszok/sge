@@ -13,6 +13,13 @@
  *   - getBindCount/getReuseCount: parentheses dropped (Scala property style)
  *   - All 7 methods fully ported
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 58
+ * Covenant-baseline-methods: TextureBinder,begin,bind,end,getBindCount,getReuseCount,resetCounts
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/TextureBinder.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

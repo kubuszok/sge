@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 504
+ * Covenant-baseline-methods: ObjectMap,_size,apply,clear,containsKey,containsValue,create,createWithMk,ensureCapacity,equals,equalsIdentity,filled,findKey,foreachEntry,foreachKey,foreachValue,from,get,getUnsafe,h,hashCode,i,internalFilled,internalKeyTable,internalMask,internalShift,internalThreshold,internalValueTable,isEmpty,keyTable,len,loadFactor,locateKey,map,mask,mkK,mkV,nonEmpty,oldCapacity,oldFilled,oldKeyTable,oldValTable,otherFilled,otherKeys,otherValues,place,put,putAll,putResize,remove,resize,shift,shrink,size,summonMkArray,tableSize,threshold,toString,toStringImpl,ts,valueTable
+ * Covenant-source-reference: com/badlogic/gdx/utils/ObjectMap.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package utils

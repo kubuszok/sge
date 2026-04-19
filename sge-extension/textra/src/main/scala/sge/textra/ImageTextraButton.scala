@@ -11,6 +11,13 @@
  *     Image/Cell → Nullable placeholder, Scaling → deferred
  *   Convention: Image text button state and rendering preserved in API.
  *   Idiom: Nullable[A] for nullable fields; boundary/break for early returns.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 188
+ * Covenant-baseline-methods: ImageTextraButton,_hasKeyboardFocus,_imageDrawable,_isChecked,_isDisabled,_isOver,_isPressed,_style,c,className,dotIndex,draw,focused,getFontColor,getImage,getImageDrawable,getImageDrawableCurrent,getLabel,getStyle,getText,hasKeyboardFocus,hasKeyboardFocus_,isChecked,isChecked_,isDisabled,isDisabled_,isOver,isOver_,isPressed,isPressed_,label,name,newLabel,setChecked,setLabel,setStyle,setText,skipToTheEnd,this,toString,updateImage
+ * Covenant-source-reference: com/github/tommyettinger/textra/ImageTextraButton.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

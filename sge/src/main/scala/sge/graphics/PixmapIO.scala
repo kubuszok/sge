@@ -9,6 +9,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 3
+ * Covenant-baseline-loc: 351
+ * Covenant-baseline-methods: BUFFER_SIZE,CIM,COLOR_ARGB,COMPRESSION_DEFLATE,ChunkBuffer,FILTER_NONE,IDAT,IEND,IHDR,INTERLACE_NONE,PAETH,PNG,PixmapIO,SIGNATURE,buffer,close,curLineBytes,deflater,endChunk,flipY,lastLineLen,lineOutBytes,prevLineBytes,read,readBuffer,readCIM,setCompression,setFlipY,toGdx2DPixmapFormat,write,writeBuffer,writeCIM,writePNG
+ * Covenant-source-reference: com/badlogic/gdx/graphics/PixmapIO.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

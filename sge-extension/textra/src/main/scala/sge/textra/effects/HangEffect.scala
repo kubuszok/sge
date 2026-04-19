@@ -1,6 +1,13 @@
 /*
  * Ported from TextraTypist - https://github.com/tommyettinger/textratypist
  * Licensed under the Apache License, Version 2.0
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 38
+ * Covenant-baseline-methods: DEFAULT_DISTANCE,DEFAULT_EXTENT,HangEffect,distance,distanceFactor,extent,height,interpolation,onApply,progress,realIntensity,split,timePassed,timePassedByGlyphIndex,y
+ * Covenant-source-reference: com/github/tommyettinger/textra/effects/HangEffect.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

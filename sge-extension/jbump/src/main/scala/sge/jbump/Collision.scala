@@ -3,6 +3,13 @@
  * Licensed under the MIT License
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 51
+ * Covenant-baseline-methods: Collision,item,itemRect,move,normal,other,otherRect,overlaps,set,ti,touch
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package jbump

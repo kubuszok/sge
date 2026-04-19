@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 46
+ * Covenant-baseline-methods: Line,appendTo,glyphs,height,i,reset,size,toString,width
+ * Covenant-source-reference: com/github/tommyettinger/textra/Line.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package textra

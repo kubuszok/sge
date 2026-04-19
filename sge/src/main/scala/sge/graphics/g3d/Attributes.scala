@@ -14,6 +14,13 @@
  *   - All methods present: sort, getMask, get (3 overloads), clear, size, set (6 overloads),
  *     remove, has, indexOf, same (2), iterator, attributesHash, hashCode, equals, compare.
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 241
+ * Covenant-baseline-methods: Attributes,attributes,attributesHash,clear,compare,disable,enable,equals,get,getAs,getMask,has,hashCode,i,idx,indexOf,iterator,m,mask,n,remove,result,same,set,size,sort,sorted
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/Attributes.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

@@ -7,6 +7,13 @@
  *   Origin: SGE-original (replaces Java reflection-based style field setting in Skin.scala)
  *   Convention: type class with explicit implementations for each style type
  *   Idiom: split packages
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 708
+ * Covenant-baseline-methods: SkinStyleReader,copyFrom,create,registry,resolveColor,resolveFloat,resolveNullableColor,resolveNullableDrawable,resolveNullableFont,resolveStyle,setField,withColor,withDrawable,withFont,withStyle
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

@@ -10,6 +10,13 @@
  *   Convention: no return; split packages; braces on class
  *   Idiom: target.moveBy -> target.foreach(_.moveBy(...))
  *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 31
+ * Covenant-baseline-methods: MoveByAction,amountX,amountY,setAmount,updateRelative
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/MoveByAction.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package scenes

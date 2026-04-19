@@ -3,6 +3,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 162
+ * Covenant-baseline-methods: GLTFBinaryExporter,batch,begin,beginFloats,beginShorts,buf,buffer,buffers,config,count,createBuffer,currentBuffer,end,exportImage,fbo,file,fileName,floatBuffer,flushAllToFiles,folder,newPosition,out,pixmap,position,reset,savePNG,shortBuffer,size,view,views
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package gltf

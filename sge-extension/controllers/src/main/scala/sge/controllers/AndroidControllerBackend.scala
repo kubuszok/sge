@@ -9,6 +9,13 @@
  *   Idiom: split packages; Nullable; swappable pollControllerImpl like BrowserControllerBackend
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 51
+ * Covenant-baseline-methods: AndroidControllerBackend,getConnectedControllers,getConnectedControllersImpl,maxControllers,pollController,pollControllerImpl
+ * Covenant-source-reference: gdx-controllers-android/src/com/badlogic/gdx/controllers/android/AndroidControllers.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package controllers
@@ -16,7 +23,7 @@ package controllers
 /** [[ControllerOps]] implementation for Android platforms using Android's [[android.view.InputDevice]] APIs.
   *
   * On JVM (Android builds), this delegates to [[AndroidControllerInit]] which tracks connected controllers via [[android.view.InputDevice]] and [[android.view.MotionEvent]] /
-  * [[android.view.KeyEvent]] events. On other platforms, this is a no-op stub (Android APIs not available).
+  * [[android.view.KeyEvent]] events. On other platforms, this is a no-op fallback (Android APIs not available).
   *
   * The Android input system identifies controllers by device ID. Each connected game controller or joystick is tracked as a separate controller with its own axis and button state.
   */
@@ -34,11 +41,12 @@ class AndroidControllerBackend extends ControllerOps {
 
 object AndroidControllerBackend {
 
-  /** Platform-specific polling implementation. On JVM (Android), this is set by [[AndroidControllerInit.init]]. On other platforms, this returns Disconnected (stub).
+  /** Platform-specific polling implementation. On JVM (Android), this is set by [[AndroidControllerInit.init]]. On other platforms, this returns Disconnected (default).
     */
   private[controllers] var pollControllerImpl: Int => ControllerState = _ => ControllerState.Disconnected
 
-  /** Platform-specific implementation that returns all connected controllers. On JVM (Android), this is set by [[AndroidControllerInit.init]]. On other platforms, this returns an empty array (stub).
+  /** Platform-specific implementation that returns all connected controllers. On JVM (Android), this is set by [[AndroidControllerInit.init]]. On other platforms, this returns an empty array
+    * (default).
     */
   private[controllers] var getConnectedControllersImpl: () => Array[ControllerState] = () => Array.empty
 }

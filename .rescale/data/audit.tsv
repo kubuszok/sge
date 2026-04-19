@@ -1316,4 +1316,5 @@ sge-extension/textra/src/main/scala/sge/textra/TextureArrayCpuPolygonSpriteBatch
 sge-extension/textra/src/main/scala/sge/textra/TextureArrayPolygonSpriteBatch.scala	textra	pass	no	2026-04-18		
 sge-extension/textra/src/main/scala/sge/textra/TextureArrayShaderCompiler.scala	textra	pass	no	2026-04-18		
 sge-extension/textra/src/main/scala/sge/textra/TextureArrayShaders.scala	textra	pass	no	2026-04-18		
-sge-extension/textra/src/main/scala/sge/textra/LzmaUtils.scala	textra	pass	no	2026-04-18		
+sge-extension/textra/src/main/scala/sge/textra/LzmaUtils.scala	textra	pass	no	2026-04-19		
+sge-extension/visui/src/main/scala/sge/visui/widget/file/FileChooser.scala	file	pass	no	2026-04-19		

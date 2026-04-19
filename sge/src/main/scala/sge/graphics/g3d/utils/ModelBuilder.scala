@@ -18,6 +18,13 @@
  *   - @nowarn("msg=deprecated") on class to suppress deprecated shape builder calls
  *   - Minor: `new Matrix4()` orphan on line 43 (appears to be unused tmpTransform allocation)
  *   - Audit: pass (2026-03-03)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 579
+ * Covenant-baseline-methods: ModelBuilder,build,builder,builders,createArrow,createBox,createCapsule,createCone,createCylinder,createLineGrid,createRect,createSphere,createXYZCoordinates,currentNode,endnode,getBuilder,hxlength,hzlength,manage,meshPart,model,n,node,part,partBuilder,rebuildReferences,result,x1,x2,xlength,y1,y2,z1,z2,zlength
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/ModelBuilder.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

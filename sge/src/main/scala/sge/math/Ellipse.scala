@@ -12,6 +12,13 @@
  *
  * AUDIT: PASS — All methods ported: constructors(5), contains(x,y), contains(V2),
  * set(4 overloads), setPosition(2), setSize, area, circumference, toString, equals, hashCode.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 2
+ * Covenant-baseline-loc: 252
+ * Covenant-baseline-methods: Ellipse,a,area,b,circumference,contains,dx,dy,equals,hashCode,height,prime,result,set,setPosition,setSize,this,toString,width,x,y
+ * Covenant-source-reference: com/badlogic/gdx/math/Ellipse.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

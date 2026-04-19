@@ -12,6 +12,13 @@
  *
  * AUDIT: PASS — All methods ported: computePolygon(4), computeIndices(4).
  * Uses DynamicArray instead of FloatArray/IntArray.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 333
+ * Covenant-baseline-methods: ConvexHull,ccw,computeIndices,computePolygon,down,end,hull,i,index,indices,lower,offsetVar,originalIndices,p1x,p1y,p2x,p2y,pointCount,pointsArray,quicksortPartition,quicksortPartitionWithIndices,quicksortStack,size,sort,sortWithIndices,sortedPoints,stack,t,up,upper,x,y
+ * Covenant-source-reference: com/badlogic/gdx/math/ConvexHull.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

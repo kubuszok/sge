@@ -16,6 +16,13 @@
  * atan2, acos, asin, nextPowerOfTwo, isPowerOfTwo, clamp(int/long/float/double),
  * lerp, inverseLerp, lerpAngle, lerpAngleDeg, norm, map, log, log2, floor, floorPositive,
  * ceil, ceilPositive, round, roundPositive, isZero(2), isEqual(2), random(8).
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 14
+ * Covenant-baseline-loc: 699
+ * Covenant-baseline-methods: BIG_ENOUGH_FLOOR,BIG_ENOUGH_INT,BIG_ENOUGH_ROUND,CEIL,E,FLOAT_ROUNDING_ERROR,HALF_PI,MathUtils,PI,PI2,SIN_BITS,SIN_COUNT,SIN_MASK,Sin,a2,a3,acos,acosDeg,asin,asinDeg,atan,atan2,atan2Deg,atan2Deg360,atanDeg,atanUnchecked,atanUncheckedDeg,bound,boundHigh,boundLow,c,c11,c2,c3,c5,c7,c9,ceil,ceilPositive,clamp,cos,cosDeg,d,degFull,degRad,degToIndex,degreesToRadians,delta,endVar,floor,floorPositive,isEqual,isPowerOfTwo,isZero,lerp,lerpAngle,lerpAngleDeg,log,log2,map,n,nanoToSec,nextPowerOfTwo,norm,r,radDeg,radFull,radToIndex,radiansToDegrees,rand,randHigh,randLow,random,randomBoolean,randomGenerator,randomSign,randomTriangular,round,roundPositive,sin,sinDeg,startVar,table,tan,tanDeg,u,x2,x4,x_
+ * Covenant-source-reference: com/badlogic/gdx/math/MathUtils.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package math

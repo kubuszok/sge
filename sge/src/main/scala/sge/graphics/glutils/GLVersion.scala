@@ -11,6 +11,13 @@
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 135
+ * Covenant-baseline-methods: GLVersion,Type,_majorVersion,_minorVersion,_releaseVersion,_rendererString,_type,_vendorString,_versionString,debugVersionString,extractVersion,found,glType,isVersionEqualToOrHigher,majorVersion,matcher,minorVersion,parseInt,pattern,releaseVersion,rendererString,vendorString,versionString
+ * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/GLVersion.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package graphics

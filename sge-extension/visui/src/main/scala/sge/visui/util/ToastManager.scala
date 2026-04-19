@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 216
+ * Covenant-baseline-methods: ToastManager,UNTIL_CLOSED,alignment,bottom,center,clear,existingToast,getAlignment,getMessagePadding,getScreenPaddingX,getScreenPaddingY,i,idx,left,messagePadding,remove,removed,resize,run,screenPaddingX,screenPaddingY,setAlignment,setMessagePadding,setScreenPadding,setScreenPaddingX,setScreenPaddingY,show,table,this,timersTasks,toFront,toastMainTable,toasts,updateToastsPositions,y
+ * Covenant-source-reference: com/kotcrab/vis/ui/util/ToastManager.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

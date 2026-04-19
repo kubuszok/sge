@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 190
+ * Covenant-baseline-methods: FADE_TIME,VisWindow,act,addCloseButton,centerOnAdd,centerWindow,changed,close,closeButton,closeOnEscape,draw,fadeIn,fadeOut,fadeOutActionRunning,isKeepWithinParent,keepWithinParent,keyDown,keyUp,moveToCenter,setCenterOnAdd,setKeepWithinParent,setPosition,setStage,this,touchDown
+ * Covenant-source-reference: com/kotcrab/vis/ui/widget/VisWindow.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui

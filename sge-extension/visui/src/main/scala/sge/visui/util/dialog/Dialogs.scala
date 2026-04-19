@@ -4,6 +4,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 577
+ * Covenant-baseline-methods: BUTTON_DETAILS,BUTTON_OK,ConfirmDialog,ConfirmDialogListener,DetailsDialog,Dialogs,InputDialog,InputDialogAdapter,InputDialogListener,OptionDialog,OptionDialogAdapter,OptionDialogListener,OptionDialogType,Text,_detailsVisible,addListeners,addValidatableFieldListener,buttonBar,cancel,cancelButton,canceled,changed,close,copyButton,createScrollPane,detailsCell,detailsLabel,detailsTable,dialog,field,finished,format,get,getStackTrace,isCopyDetailsButtonVisible,isDetailsVisible,keyDown,msg,name,no,okButton,result,run,sb,scrollPane,setCancelButtonText,setCopyDetailsButtonVisible,setDetailsVisible,setNoButtonText,setStage,setText,setWrapDetails,setYesButtonText,showConfirmDialog,showDetailsDialog,showErrorDialog,showInputDialog,showOKDialog,showOptionDialog,toString,yes
+ * Covenant-source-reference: com/kotcrab/vis/ui/util/dialog/Dialogs.java
+ * Covenant-verified: 2026-04-19
  */
 package sge
 package visui
