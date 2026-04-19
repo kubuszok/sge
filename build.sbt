@@ -1142,3 +1142,54 @@ lazy val root = (project in file("."))
   .aggregate(`sge-it-browser`)
   .aggregate(`sge-it-android`)
   .aggregate(`sge-it-native-ffi`)
+
+// ── Test aggregation aliases ─────────────────────────────────────────
+// Run all unit tests for a given platform (core + all extensions).
+
+addCommandAlias("test-jvm",
+  List(
+    // Core library
+    "sge/test",
+    // Extensions
+    "sge-ai/test", "sge-ecs/test", "sge-controllers/test",
+    "sge-gltf/test", "sge-vfx/test", "sge-textra/test",
+    "sge-colorful/test", "sge-visui/test", "sge-screens/test",
+    "sge-anim8/test", "sge-noise/test", "sge-graphs/test",
+    "sge-jbump/test", "sge-physics/test", "sge-physics3d/test",
+    "sge-freetype/test", "sge-tools/test",
+    // Regression tests
+    "regressionTest/test"
+  ).mkString("; ")
+)
+
+addCommandAlias("test-js",
+  List(
+    // Core library
+    "sgeJS/test",
+    // Extensions
+    "sge-aiJS/test", "sge-ecsJS/test", "sge-controllersJS/test",
+    "sge-gltfJS/test", "sge-vfxJS/test", "sge-textraJS/test",
+    "sge-colorfulJS/test", "sge-visuiJS/test", "sge-screensJS/test",
+    "sge-anim8JS/test", "sge-noiseJS/test", "sge-graphsJS/test",
+    "sge-jbumpJS/test", "sge-physicsJS/test", "sge-physics3dJS/test",
+    "sge-freetypeJS/test",
+    // Regression tests
+    "regressionTestJS/test"
+  ).mkString("; ")
+)
+
+addCommandAlias("test-native",
+  List(
+    // Core library
+    "sgeNative/test",
+    // Extensions
+    "sge-aiNative/test", "sge-ecsNative/test", "sge-controllersNative/test",
+    "sge-gltfNative/test", "sge-vfxNative/test", "sge-textraNative/test",
+    "sge-colorfulNative/test", "sge-visuiNative/test", "sge-screensNative/test",
+    "sge-anim8Native/test", "sge-noiseNative/test", "sge-graphsNative/test",
+    "sge-jbumpNative/test", "sge-physicsNative/test", "sge-physics3dNative/test",
+    "sge-freetypeNative/test",
+    // Regression tests
+    "regressionTestNative/test"
+  ).mkString("; ")
+)
