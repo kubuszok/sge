@@ -45,7 +45,7 @@ import sge.visui.widget.file.internal.FileChooserText.*
   *   Kotcrab
   * @since 0.1.0
   */
-class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWindow("") with FileHistoryManager.FileHistoryCallback {
+class FileChooser private (private var _mode: FileChooser.Mode, private val _skipInit: Boolean)(using Sge) extends VisWindow("") with FileHistoryManager.FileHistoryCallback {
 
   import FileChooser.*
 
@@ -122,32 +122,52 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
   private var fileTypeLabel:           VisLabel            = scala.compiletime.uninitialized
   private var viewModePopupMenu:       PopupMenu           = scala.compiletime.uninitialized
 
+  // In Java, FileChooser(Mode) delegates to FileChooser((FileHandle)null, Mode) which calls init() once.
+  // In Scala, all auxiliary constructors chain through the primary constructor. The _skipInit flag ensures
+  // init() runs exactly once per construction path: the primary body calls init() unless _skipInit is set,
+  // in which case the auxiliary constructor calls init() after adjusting style/directory/title.
   {
     titleLabel.setText(TITLE_CHOOSE_FILES.get)
     _chooserStyle = VisUI.getSkin.get(classOf[FileChooserStyle])
     sizes = VisUI.getSizes
-    init(Nullable.empty)
+    if (!_skipInit) init(Nullable.empty)
   }
 
+  /** @param mode whether this chooser will be used to open or save files */
+  def this(mode: FileChooser.Mode)(using Sge) = this(mode, _skipInit = false)
+
+  /** @param directory
+    *   starting chooser directory
+    * @param mode
+    *   whether this chooser will be used to open or save files
+    */
   def this(directory: FileHandle, mode: FileChooser.Mode)(using Sge) = {
-    this(mode)
-    _chooserStyle = VisUI.getSkin.get(classOf[FileChooserStyle])
-    sizes = VisUI.getSizes
+    this(mode, _skipInit = true)
     init(Nullable(directory))
   }
 
-  def this(title: String, mode: FileChooser.Mode)(using Sge) = {
-    this(mode)
-    titleLabel.setText(title)
-  }
-
+  /** @param styleName
+    *   skin style name
+    * @param title
+    *   chooser window title
+    * @param mode
+    *   whether this chooser will be used to open or save files
+    */
   def this(styleName: String, title: String, mode: FileChooser.Mode)(using Sge) = {
-    this(mode)
+    this(mode, _skipInit = true)
     titleLabel.setText(title)
     _chooserStyle = VisUI.getSkin.get(styleName, classOf[FileChooserStyle])
     sizes = VisUI.getSizes
     init(Nullable.empty)
   }
+
+  /** @param title
+    *   chooser window title
+    * @param mode
+    *   whether this chooser will be used to open or save files
+    */
+  def this(title: String, mode: FileChooser.Mode)(using Sge) =
+    this("default", title, mode)
 
   private def init(directory: Nullable[FileHandle]): Unit = {
     isModal = true
@@ -188,7 +208,7 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
         updateSelectedFileFieldText(ignoreKeyboardFocus = true)
       }
     }
-    dirsSuggestionPopup = new DirsSuggestionPopup(this, currentPath)
+    // dirsSuggestionPopup is created in createToolbar() with its PopupMenuListener attached
 
     rebuildShortcutsList()
 
@@ -350,6 +370,7 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
   private def createCenterContentPanel(): Unit = {
     fileListAdapter = new FileListAdapter(this, currentFiles)
     fileListView = new ListView[FileHandle](fileListAdapter)
+    setupDefaultScrollPane(fileListView.getScrollPane)
 
     val fileScrollPaneTable = new VisTable()
     fileListBusyBar = new BusyBar()
@@ -415,10 +436,10 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
     )
 
     table.defaults().left()
-    table.add(Nullable[Actor](nameLabel))
-    table.add(Nullable[Actor](selectedFileTextField)).expandX().fillX().row()
-    table.add(Nullable[Actor](fileTypeLabel)).height(PrefHeightIfVisibleValue.INSTANCE)
-    table.add(Nullable[Actor](fileTypeSelectBox)).height(PrefHeightIfVisibleValue.INSTANCE).expand().fill()
+    table.add(Nullable[Actor](nameLabel)).spaceBottom(new ConstantIfVisibleValue(fileTypeSelectBox, 5f))
+    table.add(Nullable[Actor](selectedFileTextField)).expandX().fillX().spaceBottom(new ConstantIfVisibleValue(fileTypeSelectBox, 5f)).row()
+    table.add(Nullable[Actor](fileTypeLabel)).height(PrefHeightIfVisibleValue.INSTANCE).spaceBottom(new ConstantIfVisibleValue(sizes.spacingBottom))
+    table.add(Nullable[Actor](fileTypeSelectBox)).height(PrefHeightIfVisibleValue.INSTANCE).spaceBottom(new ConstantIfVisibleValue(sizes.spacingBottom)).expand().fill()
 
     selectedFileTextField.addListener(
       new InputListener() {
@@ -1145,7 +1166,11 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
         override def yes(): Unit = {
           try
             if (!_fileDeleter.delete(fileToDelete)) Dialogs.showErrorDialog(getChooserStage, POPUP_DELETE_FILE_FAILED.get)
-          catch { case e: IOException => Dialogs.showErrorDialog(getChooserStage, POPUP_DELETE_FILE_FAILED.get, e) }
+          catch {
+            case e: IOException =>
+              Dialogs.showErrorDialog(getChooserStage, POPUP_DELETE_FILE_FAILED.get, e)
+              e.printStackTrace()
+          }
           refresh()
         }
       }
@@ -1481,7 +1506,11 @@ object FileChooser {
     def setupGridGroup(sizes: Sizes, group: GridGroup): Unit = {
       if (!isGridMode) { return; } // @nowarn -- early return
       val gridSize = getGridSize(sizes)
-      if (gridSize < 0) throw new IllegalStateException("FileChooser's ViewMode " + this.toString + " has invalid size defined in Sizes.")
+      if (gridSize < 0)
+        throw new IllegalStateException(
+          "FileChooser's ViewMode " + this.toString + " has invalid size defined in Sizes. " +
+            "Expected value greater than 0, got: " + gridSize + ". Check your skin Sizes definition."
+        )
       if (this == LIST) { group.setItemSize(gridSize, 22 * sizes.scaleFactor); return; } // @nowarn -- early return
       group.setItemSize(gridSize)
     }

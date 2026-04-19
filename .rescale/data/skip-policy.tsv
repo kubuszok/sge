@@ -65,3 +65,4 @@ sge-extension/physics/src/main/scalajs/sge/platform/PhysicsOpsJs.scala	shortcuts
 sge-extension/physics3d/src/main/scalajs/sge/platform/PhysicsOpsJs3d.scala	shortcuts	JS platform boundary: physics3d requires native Rapier3D library, JS throws on use	2026-04-17	dev
 sge-extension/anim8/src/main/scala/sge/anim8/PaletteReducer.scala	shortcuts	Faithful port of Java validation: sortInts throws UnsupportedOperationException for invalid range, matching FastUtil original; null-cast for lazily-initialized bigPaletteMapping	2026-04-18	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/utils/IBLBuilder.scala	shortcuts	Pre-existing XXX patch markers from original gdx-gltf port — light direction fix comments	2026-04-18	dev
+sge-extension/textra/src/main/scala/sge/textra/LzmaUtils.scala	shortcuts	LZMA SDK algorithm port: null-casts at Java stream/array interop boundaries, flag-break-var for loop control in compression algorithm	2026-04-19	dev
