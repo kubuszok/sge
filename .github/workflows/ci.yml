@@ -91,8 +91,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Run Scala.js tests
-        run: sbt 'sgeJS/test'
+      - name: Run Scala.js tests (core + all extensions)
+        run: sbt test-js
 
       - name: Test scaladoc generation (non-blocking)
         continue-on-error: true
@@ -136,13 +136,13 @@ jobs:
 
       - uses: sbt/setup-sbt@v1
 
-      - name: Run JVM tests
-        run: sbt 'sge/test'
+      - name: Run JVM tests (core + all extensions)
+        run: sbt test-jvm
 
   # ─── Browser integration tests (Scala.js + Playwright) ─────────────
 
   test-browser-it:
-    name: Browser tests
+    name: Browser IT tests
     needs: [test-js]
     runs-on: ubuntu-latest
     steps:
@@ -229,17 +229,97 @@ jobs:
         run: choco install llvm --yes
 
       - name: Run Scala Native tests
-        run: sbt 'sgeNative/test'
+        run: sbt test-native
         env:
           SGE_SKIP_NATIVE_VALIDATION: "true"
 
+  # ─── Native FFI IT tests ────────────────────────────────────────
+
+  test-native-ffi-it:
+    name: Native FFI IT tests (${{ matrix.label }})
+    needs: [test-native]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            label: linux-x86_64
+          - os: ubuntu-24.04-arm
+            label: linux-aarch64
+          - os: macos-latest
+            label: macos-aarch64
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: sbt
+
+      - uses: sbt/setup-sbt@v1
+
+      - name: Install Scala Native system dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang
+          sudo apt-get install -y libstdc++-12-dev || sudo apt-get install -y libstdc++-14-dev || true
+
       - name: Run native FFI validation (headless)
-        if: runner.os != 'Windows'
         run: sbt 'sge-it-native-ffi/run -- --headless'
         env:
           SGE_SKIP_NATIVE_VALIDATION: "true"
 
-  # ─── Android smoke + integration tests (emulator) ──────────────
+  # ─── Desktop IT tests (GLFW + native libs) ─────────────────────
+
+  test-desktop-it:
+    name: Desktop IT tests
+    needs: [test-jvm]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: sbt
+
+      - uses: sbt/setup-sbt@v1
+
+      - name: Run Desktop integration tests
+        run: sbt 'sge-it-desktop/test'
+
+  # ─── JVM Platform IT tests (Panama, Android ops) ───────────────
+
+  test-jvm-platform-it:
+    name: JVM Platform IT tests
+    needs: [test-jvm]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: sbt
+
+      - uses: sbt/setup-sbt@v1
+
+      - name: Run JVM Platform integration tests
+        run: sbt 'sge-it-jvm-platform/test'
+
+  # ─── Android IT tests (emulator) ──────────────────────────────
 
   test-android:
     name: Android tests
@@ -282,6 +362,51 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -no-metrics
           disable-animations: true
           script: sbt 'sge-android-smoke/test'
+
+  # ─── Android IT tests (emulator, depends on unit tests) ────────
+
+  test-android-it:
+    name: Android IT tests
+    needs: [test-android]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: sbt
+
+      - uses: sbt/setup-sbt@v1
+
+      - name: Publish SGE to local Maven (all platforms)
+        run: sbt 'sge/publishM2; writeDemoVersion'
+        env:
+          SGE_SKIP_NATIVE_VALIDATION: "true"
+
+      - name: Publish sge-build plugin to Ivy local
+        working-directory: sge-build
+        run: sbt publishLocal
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Android integration tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -no-metrics
+          disable-animations: true
+          script: sbt 'sge-it-android/test'
 
   # ─── Demo smoke (Scala.js) ──────────────────────────────────────
 
