@@ -7,7 +7,7 @@ converted, 0 not started, 66 skipped (stdlib replacements), 0 deferred.
 
 ## Build Rules
 
-- Scala **3.8.2**, compiler flags: `-deprecation -feature -no-indent -rewrite -Werror`
+- Scala **3.8.3**, compiler flags: `-deprecation -feature -no-indent -Werror`
 - **Linter flags**: `-Wimplausible-patterns -Wrecurse-with-default -Wenum-comment-discard -Wunused:imports,privates,locals,patvars,nowarn`
 - **Braces required** (`-no-indent`): `{}` for all `trait`, `class`, `enum`, method defs
 - **Split packages**: `package sge` / `package graphics` / `package g2d` (never flat)
@@ -214,24 +214,25 @@ gate.
 
 | Job group | Platforms |
 |-----------|-----------|
-| JVM tests | linux-x86_64, linux-aarch64, macos-aarch64, windows-x86_64, windows-aarch64 |
-| Scala Native tests | linux-x86_64, linux-aarch64, macos-aarch64, windows-x86_64 |
-| Release verification | above + macos-x86_64 (Rosetta, JVM only) |
+| JVM tests + coverage | linux-x86_64, linux-aarch64, macos-aarch64, macos-x86_64 (Rosetta), windows-x86_64, windows-aarch64 |
+| Scala Native tests | linux-x86_64, linux-aarch64, macos-aarch64, macos-x86_64 (Rosetta), windows-x86_64 |
+| Native FFI IT | linux-x86_64, linux-aarch64, macos-aarch64, macos-x86_64 (Rosetta), windows-x86_64 |
+| Release verification | all JVM platforms + native on Linux, macOS (both archs) |
 | Android tests | ubuntu-latest (x86_64 emulator) — smoke + Pong demo APK |
 | Browser/JS | ubuntu-latest — Scala.js tests, Playwright smoke, browser packaging |
 | Demo compilation | ubuntu-latest — all 11 demos × JVM + JS + Native |
 
 **CI-specific mechanisms:**
+- macOS x86_64 via Rosetta: `actions/setup-java` with `architecture: x64` on ARM runners
 - Demos always consume published sge-build plugin (`sbt publishLocal` in sge-build/ required after plugin changes)
 - `SGE_SKIP_NATIVE_VALIDATION=true` — skip native lib validation when only Android/subset libs present
 - `matrix.native` flag — controls which verify-release steps run per platform (native link, static curl)
-- ANGLE shared libs downloaded in build-native (workflow now lives in sge-native-components repo)
+- ANGLE shared libs built in sge-native-providers repo, distributed as provider JARs
 - Native lib stubs (libobjc on Linux, companion .lib on Windows) are embedded in provider JARs
 - Windows curl uses MSVC-built static libs from kubuszok/curl-natives (real HTTP, not stubs)
 
 **Known CI limitations (excluded from pass/fail):**
 - Android: JSON_XML, FILEHANDLE_TYPES, TOUCH_DISPATCH, LIFECYCLE, CLIPBOARD
-- macOS x86_64: no runner (macos-13 retired); release verified via Rosetta
 - Windows aarch64: Scala Native unsupported (generates x64 code); JVM tests pass
 - Scaladoc: disabled (`packageDoc/publishArtifact := false`); non-blocking probe monitors upstream fix
 

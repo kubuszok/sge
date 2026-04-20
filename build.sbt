@@ -70,7 +70,7 @@ val versions = new {
   val scala = SgePlugin.scalaVersion
 
   val kindlings = "0.1.1"
-  val sttp      = "4.0.19"
+  val sttp      = "4.0.22"
   val xml       = "2.3.0"
   val scribe    = "3.17.0"
   val scalajsDom = "2.8.1"
@@ -980,7 +980,7 @@ lazy val `sge-android-smoke` = (project in file("sge-test/android-smoke"))
 // miniaudio audio engine and exercises all subsystems end-to-end:
 // bootstrap, GL2D, GL3D, audio, file I/O, JSON/XML parsing.
 //
-// Prerequisites: native libs from sge-native-components provider JARs (auto-resolved by sbt)
+// Prerequisites: native libs from sge-native-providers provider JARs (auto-resolved by sbt)
 //
 // Run: sbt --client 'sge-it-desktop/test'  or  re-scale runner desktop-it
 lazy val `sge-it-desktop` = (project in file("sge-test/it-desktop"))
@@ -1013,7 +1013,7 @@ lazy val `sge-it-desktop` = (project in file("sge-test/it-desktop"))
     },
     Test / fork := true,
     Test / javaOptions ++= {
-      // Native libs are built externally in sge-native-components and distributed as provider JARs.
+      // Native libs are built externally in sge-native-providers and distributed as provider JARs.
       // CI extracts provider JARs to sge-deps/native-components/target/release/ for linking/testing.
       // ANGLE (EGL, GLESv2) is also packaged into the same provider JARs and extracted there.
       val rustLib = ((ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release").getAbsolutePath
@@ -1195,5 +1195,21 @@ addCommandAlias("test-native",
     "sge-freetypeNative/test",
     // Regression tests
     "regressionTestNative/test"
+  ).mkString("; ")
+)
+
+// ── Coverage alias (JVM-only) ────────────────────────────────────────
+// Scala 3 coverage instrumentation is incompatible with JS/Native runtimes
+// (java.io.FileWriter references). Only run on JVM projects via test-jvm.
+// Strips -Werror to avoid false-positive warnings from instrumented code.
+
+addCommandAlias("test-coverage",
+  List(
+    "coverage",
+    """set ThisBuild / scalacOptions -= "-Werror"""",
+    "test-jvm",
+    "coverageReport",
+    "coverageAggregate",
+    "coverageOff"
   ).mkString("; ")
 )

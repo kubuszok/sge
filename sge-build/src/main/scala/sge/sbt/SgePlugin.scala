@@ -138,7 +138,7 @@ object SgePlugin extends AutoPlugin {
   }
 
   /** Scala version used by SGE. All modules must use this exact version. */
-  val scalaVersion = "3.8.2"
+  val scalaVersion = "3.8.3"
 
   // ── Compiler flags ──────────────────────────────────────────────────
 

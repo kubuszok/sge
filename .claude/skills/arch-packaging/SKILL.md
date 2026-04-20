@@ -18,7 +18,7 @@ Distribution packaging architecture for SGE games.
 
 ## Cross-Platform JVM Distribution
 - `sgeCrossNativeLibDir` setting: points to `sge-deps/native-components/target/cross/` (CI staging area)
-- Native libs built externally in sge-native-components, distributed as provider JARs
+- Native libs built externally in sge-native-providers, distributed as provider JARs
 - CI extracts provider JARs to the staging dir; per-platform libs in `cross/<classifier>/`
 - ANGLE libs (libEGL, libGLESv2) bundled alongside Rust libs
 - Static curl libs (from stunnel/static-curl) for self-contained Scala Native releases
@@ -27,7 +27,7 @@ Distribution packaging architecture for SGE games.
 ## Release Workflow
 
 Native libs are built externally in
-[sge-native-components](https://github.com/kubuszok/sge-native-components) and
+[sge-native-providers](https://github.com/kubuszok/sge-native-providers) and
 distributed as provider JARs from Maven. The release flow consumes those
 provider JARs and builds the per-platform demo archives via sbt
 command aliases defined in `demos/build.sbt`.

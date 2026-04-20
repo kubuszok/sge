@@ -26,13 +26,11 @@ jobs:
   #
   # Non-blocking initially: validates that every file with a `Covenant: full-port`
   # header still passes (no method dropped, no shortcut introduced) and that no
-  # new shortcut markers leaked into covenanted files. Once the steady state holds
-  # for ~1 week, drop `continue-on-error` to make this a hard gate.
+  # new shortcut markers leaked into covenanted files.
 
   enforce:
     name: re-scale enforce
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -103,7 +101,7 @@ jobs:
   test-jvm:
     name: JVM tests (${{ matrix.label }})
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -114,6 +112,10 @@ jobs:
           - os: ubuntu-24.04-arm
             label: linux-aarch64
             platform: linux-aarch64
+          - os: macos-latest
+            label: macos-x86_64
+            platform: macos-x86_64
+            architecture: x64
           - os: macos-latest
             label: macos-aarch64
             platform: macos-aarch64
@@ -133,11 +135,22 @@ jobs:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
           cache: sbt
+          architecture: ${{ matrix.architecture || '' }}
 
       - uses: sbt/setup-sbt@v1
 
-      - name: Run JVM tests (core + all extensions)
-        run: sbt test-jvm
+      - name: Run JVM tests with coverage (core + all extensions)
+        run: sbt test-coverage
+
+      - name: Upload coverage to Codecov
+        if: always()
+        uses: codecov/codecov-action@v5
+        with:
+          files: target/scala-3.8.3/scoverage-report/scoverage.xml
+          flags: ${{ matrix.platform }}
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   # ─── Browser integration tests (Scala.js + Playwright) ─────────────
 
@@ -187,7 +200,7 @@ jobs:
   test-native:
     name: Scala Native tests (${{ matrix.label }})
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -198,6 +211,10 @@ jobs:
           - os: ubuntu-24.04-arm
             label: linux-aarch64
             platform: linux-aarch64
+          - os: macos-latest
+            label: macos-x86_64
+            platform: macos-x86_64
+            architecture: x64
           - os: macos-latest
             label: macos-aarch64
             platform: macos-aarch64
@@ -214,6 +231,7 @@ jobs:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
           cache: sbt
+          architecture: ${{ matrix.architecture || '' }}
 
       - uses: sbt/setup-sbt@v1
 
@@ -239,7 +257,7 @@ jobs:
     name: Native FFI IT tests (${{ matrix.label }})
     needs: [test-native]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -249,7 +267,12 @@ jobs:
           - os: ubuntu-24.04-arm
             label: linux-aarch64
           - os: macos-latest
+            label: macos-x86_64
+            architecture: x64
+          - os: macos-latest
             label: macos-aarch64
+          - os: windows-latest
+            label: windows-x86_64
     steps:
       - uses: actions/checkout@v4
         with:
@@ -260,6 +283,7 @@ jobs:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
           cache: sbt
+          architecture: ${{ matrix.architecture || '' }}
 
       - uses: sbt/setup-sbt@v1
 
@@ -269,6 +293,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang
           sudo apt-get install -y libstdc++-12-dev || sudo apt-get install -y libstdc++-14-dev || true
+
+      - name: Install Scala Native system dependencies (Windows)
+        if: runner.os == 'Windows'
+        run: choco install llvm --yes
 
       - name: Run native FFI validation (headless)
         run: sbt 'sge-it-native-ffi/run -- --headless'
@@ -513,6 +541,11 @@ jobs:
             label: macos-aarch64
             platform: macos-aarch64
             native: true
+          - os: macos-latest
+            label: macos-x86_64
+            platform: macos-x86_64
+            native: true
+            architecture: x64
           - os: windows-latest
             label: windows-x86_64
             platform: windows-x86_64
@@ -531,6 +564,7 @@ jobs:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
           cache: sbt
+          architecture: ${{ matrix.architecture || '' }}
 
       - uses: sbt/setup-sbt@v1
 

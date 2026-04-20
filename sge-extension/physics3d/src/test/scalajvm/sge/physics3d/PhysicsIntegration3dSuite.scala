@@ -10,9 +10,9 @@ import munit.FunSuite
 
 /** Integration tests for 3D physics module — requires native library.
   *
-  * These tests are skipped if the native library is not available. To run them locally, build sge-native-components first:
+  * These tests are skipped if the native library is not available. To run them locally, build sge-native-providers first:
   * {{{
-  * cd ../sge-native-components && cargo build --release -p sge_physics3d
+  * cd ../sge-native-providers && cargo build --release -p sge_physics3d
   * }}}
   */
 class PhysicsIntegration3dSuite extends FunSuite {

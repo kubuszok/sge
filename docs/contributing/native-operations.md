@@ -42,7 +42,7 @@ All three are merged into the sge JVM JAR via `packageBin/mappings` (not `depend
 Both desktop and Android use the same `PanamaProvider` abstraction — only the
 underlying FFM implementation differs (`java.lang.foreign` vs `com.v7878.foreign`).
 
-## Rust Libraries (sge-native-components)
+## Rust Libraries (sge-native-providers)
 
 The Rust workspace (`native-components/`) provides compute implementations as
 three separate libraries:
@@ -59,7 +59,7 @@ three separate libraries:
 ### Physics (`physics/` → `libsge_physics`)
 - **`lib.rs`** — 2D physics via Rapier2D, C ABI exports (`sge_phys_*`)
 
-Build and test (in the external sge-native-components repo):
+Build and test (in the external sge-native-providers repo):
 ```bash
 cargo build --release             # All 3 crates
 cargo test                        # All 3 crates
