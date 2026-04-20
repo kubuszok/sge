@@ -16,13 +16,13 @@ class SelectTest extends munit.FunSuite {
     values.map(java.lang.Integer.valueOf).toArray
 
   test("select kthLowest=1 returns minimum") {
-    val items = boxed(5, 3, 8, 1, 9, 2)
+    val items  = boxed(5, 3, 8, 1, 9, 2)
     val result = Select.select(items, intOrd, 1, items.length)
     assertEquals(result.intValue(), 1)
   }
 
   test("select kthLowest=size returns maximum") {
-    val items = boxed(5, 3, 8, 1, 9, 2)
+    val items  = boxed(5, 3, 8, 1, 9, 2)
     val result = Select.select(items, intOrd, items.length, items.length)
     assertEquals(result.intValue(), 9)
   }
@@ -43,13 +43,13 @@ class SelectTest extends munit.FunSuite {
 
   test("selectIndex kthLowest=1 returns index of minimum") {
     val items = boxed(5, 3, 8, 1, 9, 2)
-    val idx = Select.selectIndex(items, intOrd, 1, items.length)
+    val idx   = Select.selectIndex(items, intOrd, 1, items.length)
     assertEquals(items(idx).intValue(), 1)
   }
 
   test("selectIndex kthLowest=size returns index of maximum") {
     val items = boxed(5, 3, 8, 1, 9, 2)
-    val idx = Select.selectIndex(items, intOrd, items.length, items.length)
+    val idx   = Select.selectIndex(items, intOrd, items.length, items.length)
     assertEquals(items(idx).intValue(), 9)
   }
 
@@ -105,9 +105,9 @@ class SelectTest extends munit.FunSuite {
   }
 
   test("select large array with quickselect path") {
-    val rng = java.util.Random(42)
-    val n = 200
-    val items = Array.fill(n)(java.lang.Integer.valueOf(rng.nextInt(10000)))
+    val rng    = java.util.Random(42)
+    val n      = 200
+    val items  = Array.fill(n)(java.lang.Integer.valueOf(rng.nextInt(10000)))
     val sorted = items.sorted(using intOrd)
     // Select the 50th smallest
     val result = Select.select(items, intOrd, 50, n)
@@ -116,12 +116,12 @@ class SelectTest extends munit.FunSuite {
 
   test("selectIndex returns valid index for middle elements") {
     val items = boxed(10, 20, 30, 40, 50)
-    val idx = Select.selectIndex(items, intOrd, 3, 5)
+    val idx   = Select.selectIndex(items, intOrd, 3, 5)
     assertEquals(items(idx).intValue(), 30)
   }
 
   test("select with string ordering") {
-    val items = Array("cherry", "apple", "banana", "date")
+    val items  = Array("cherry", "apple", "banana", "date")
     val result = Select.select(items, Ordering.String, 1, items.length)
     assertEquals(result, "apple")
   }

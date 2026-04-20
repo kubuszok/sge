@@ -8,8 +8,8 @@ class FamilyManagerSuite extends munit.FunSuite {
   private class ComponentA extends Component
   private class ComponentB extends Component
   private class EntityListenerMock extends EntityListener {
-    var addedCount:   Int = 0
-    var removedCount: Int = 0
+    var addedCount:      Int                 = 0
+    var removedCount:    Int                 = 0
     val addedEntities:   ArrayBuffer[Entity] = ArrayBuffer.empty
     val removedEntities: ArrayBuffer[Entity] = ArrayBuffer.empty
 
@@ -50,8 +50,8 @@ class FamilyManagerSuite extends munit.FunSuite {
   }
 
   test("updateFamilyMembership adds entity to matching family") {
-    val entities  = ArrayBuffer.empty[Entity]
-    val entity    = new Entity
+    val entities = ArrayBuffer.empty[Entity]
+    val entity   = new Entity
     entities += entity
     val immutable = new utils.ImmutableArray[Entity](entities)
     val manager   = new FamilyManager(immutable)
@@ -71,8 +71,8 @@ class FamilyManagerSuite extends munit.FunSuite {
   }
 
   test("updateFamilyMembership removes entity from family when component removed") {
-    val entities  = ArrayBuffer.empty[Entity]
-    val entity    = new Entity
+    val entities = ArrayBuffer.empty[Entity]
+    val entity   = new Entity
     entities += entity
     val immutable = new utils.ImmutableArray[Entity](entities)
     val manager   = new FamilyManager(immutable)
@@ -96,8 +96,8 @@ class FamilyManagerSuite extends munit.FunSuite {
   }
 
   test("addEntityListener with priority ordering") {
-    val entities  = ArrayBuffer.empty[Entity]
-    val entity    = new Entity
+    val entities = ArrayBuffer.empty[Entity]
+    val entity   = new Entity
     entities += entity
     val immutable = new utils.ImmutableArray[Entity](entities)
     val manager   = new FamilyManager(immutable)
@@ -106,11 +106,11 @@ class FamilyManagerSuite extends munit.FunSuite {
     val callOrder = ArrayBuffer[String]()
 
     val listenerLow = new EntityListener {
-      override def entityAdded(entity: Entity): Unit   = callOrder += "low-added"
+      override def entityAdded(entity:   Entity): Unit = callOrder += "low-added"
       override def entityRemoved(entity: Entity): Unit = callOrder += "low-removed"
     }
     val listenerHigh = new EntityListener {
-      override def entityAdded(entity: Entity): Unit   = callOrder += "high-added"
+      override def entityAdded(entity:   Entity): Unit = callOrder += "high-added"
       override def entityRemoved(entity: Entity): Unit = callOrder += "high-removed"
     }
 
@@ -126,8 +126,8 @@ class FamilyManagerSuite extends munit.FunSuite {
   }
 
   test("removeEntityListener stops notifications") {
-    val entities  = ArrayBuffer.empty[Entity]
-    val entity    = new Entity
+    val entities = ArrayBuffer.empty[Entity]
+    val entity   = new Entity
     entities += entity
     val immutable = new utils.ImmutableArray[Entity](entities)
     val manager   = new FamilyManager(immutable)
@@ -151,16 +151,16 @@ class FamilyManagerSuite extends munit.FunSuite {
   }
 
   test("multiple families track independently") {
-    val entities  = ArrayBuffer.empty[Entity]
-    val entity    = new Entity
+    val entities = ArrayBuffer.empty[Entity]
+    val entity   = new Entity
     entities += entity
     val immutable = new utils.ImmutableArray[Entity](entities)
     val manager   = new FamilyManager(immutable)
 
-    val familyA    = Family.all(classOf[ComponentA]).get()
-    val familyB    = Family.all(classOf[ComponentB]).get()
-    val listenerA  = new EntityListenerMock
-    val listenerB  = new EntityListenerMock
+    val familyA   = Family.all(classOf[ComponentA]).get()
+    val familyB   = Family.all(classOf[ComponentB]).get()
+    val listenerA = new EntityListenerMock
+    val listenerB = new EntityListenerMock
 
     manager.addEntityListener(familyA, 0, listenerA)
     manager.addEntityListener(familyB, 0, listenerB)
@@ -179,19 +179,23 @@ class FamilyManagerSuite extends munit.FunSuite {
   }
 
   test("notifying flag is set during updateFamilyMembership") {
-    val entities  = ArrayBuffer.empty[Entity]
-    val entity    = new Entity
+    val entities = ArrayBuffer.empty[Entity]
+    val entity   = new Entity
     entities += entity
     val immutable = new utils.ImmutableArray[Entity](entities)
     val manager   = new FamilyManager(immutable)
 
-    val family = Family.all(classOf[ComponentA]).get()
+    val family       = Family.all(classOf[ComponentA]).get()
     var wasNotifying = false
-    manager.addEntityListener(family, 0, new EntityListener {
-      override def entityAdded(entity: Entity): Unit =
-        wasNotifying = manager.notifying
-      override def entityRemoved(entity: Entity): Unit = {}
-    })
+    manager.addEntityListener(
+      family,
+      0,
+      new EntityListener {
+        override def entityAdded(entity: Entity): Unit =
+          wasNotifying = manager.notifying
+        override def entityRemoved(entity: Entity): Unit = {}
+      }
+    )
 
     entity.addInternal(new ComponentA)
     manager.updateFamilyMembership(entity)
@@ -200,18 +204,22 @@ class FamilyManagerSuite extends munit.FunSuite {
   }
 
   test("notifying flag is reset even if listener throws") {
-    val entities  = ArrayBuffer.empty[Entity]
-    val entity    = new Entity
+    val entities = ArrayBuffer.empty[Entity]
+    val entity   = new Entity
     entities += entity
     val immutable = new utils.ImmutableArray[Entity](entities)
     val manager   = new FamilyManager(immutable)
 
     val family = Family.all(classOf[ComponentA]).get()
-    manager.addEntityListener(family, 0, new EntityListener {
-      override def entityAdded(entity: Entity): Unit =
-        throw new RuntimeException("listener error")
-      override def entityRemoved(entity: Entity): Unit = {}
-    })
+    manager.addEntityListener(
+      family,
+      0,
+      new EntityListener {
+        override def entityAdded(entity: Entity): Unit =
+          throw new RuntimeException("listener error")
+        override def entityRemoved(entity: Entity): Unit = {}
+      }
+    )
 
     entity.addInternal(new ComponentA)
     intercept[RuntimeException] {
@@ -221,8 +229,8 @@ class FamilyManagerSuite extends munit.FunSuite {
   }
 
   test("entity removing flag prevents family match") {
-    val entities  = ArrayBuffer.empty[Entity]
-    val entity    = new Entity
+    val entities = ArrayBuffer.empty[Entity]
+    val entity   = new Entity
     entities += entity
     val immutable = new utils.ImmutableArray[Entity](entities)
     val manager   = new FamilyManager(immutable)
@@ -241,9 +249,9 @@ class FamilyManagerSuite extends munit.FunSuite {
   }
 
   test("registerFamily populates existing matching entities") {
-    val entities  = ArrayBuffer.empty[Entity]
-    val entity1   = new Entity
-    val entity2   = new Entity
+    val entities = ArrayBuffer.empty[Entity]
+    val entity1  = new Entity
+    val entity2  = new Entity
     entity1.addInternal(new ComponentA)
     entity2.addInternal(new ComponentB)
     entities += entity1

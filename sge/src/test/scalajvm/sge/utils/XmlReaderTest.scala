@@ -56,8 +56,8 @@ class XmlReaderTest extends munit.FunSuite {
   }
 
   test("parse from Reader") {
-    val xml    = "<test>content</test>"
-    val elem   = reader.parse(new StringReader(xml))
+    val xml  = "<test>content</test>"
+    val elem = reader.parse(new StringReader(xml))
     assertEquals(elem.name, "test")
     assertEquals(elem.text.getOrElse(fail("expected text")), "content")
   }

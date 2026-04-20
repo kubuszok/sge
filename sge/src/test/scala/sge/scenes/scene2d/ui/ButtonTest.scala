@@ -25,7 +25,7 @@ class ButtonTest extends munit.FunSuite {
 
   test("Button default state") {
     given Sge = ctx()
-    val btn = Button(makeStyle())
+    val btn   = Button(makeStyle())
     assert(!btn.checked)
     assert(!btn.disabled)
     assert(btn.programmaticChangeEvents)
@@ -38,7 +38,7 @@ class ButtonTest extends munit.FunSuite {
 
   test("setChecked changes checked state") {
     given Sge = ctx()
-    val btn = Button(makeStyle())
+    val btn   = Button(makeStyle())
     btn.programmaticChangeEvents = false
     btn.setChecked(true)
     assert(btn.checked)
@@ -48,7 +48,7 @@ class ButtonTest extends munit.FunSuite {
 
   test("toggle flips checked state") {
     given Sge = ctx()
-    val btn = Button(makeStyle())
+    val btn   = Button(makeStyle())
     btn.programmaticChangeEvents = false
     assert(!btn.checked)
     btn.toggle()
@@ -63,7 +63,7 @@ class ButtonTest extends munit.FunSuite {
 
   test("disabled property") {
     given Sge = ctx()
-    val btn = Button(makeStyle())
+    val btn   = Button(makeStyle())
     assert(!btn.disabled)
     btn.disabled = true
     assert(btn.disabled)
@@ -74,9 +74,9 @@ class ButtonTest extends munit.FunSuite {
   // ---------------------------------------------------------------------------
 
   test("setChecked fires ChangeEvent when programmaticChangeEvents is true") {
-    given Sge  = ctx()
-    val btn    = Button(makeStyle())
-    var fired  = false
+    given Sge = ctx()
+    val btn   = Button(makeStyle())
+    var fired = false
     btn.addListener(new ChangeListener() {
       def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit =
         fired = true
@@ -87,9 +87,9 @@ class ButtonTest extends munit.FunSuite {
   }
 
   test("setChecked does not fire ChangeEvent when programmaticChangeEvents is false") {
-    given Sge  = ctx()
-    val btn    = Button(makeStyle())
-    var fired  = false
+    given Sge = ctx()
+    val btn   = Button(makeStyle())
+    var fired = false
     btn.programmaticChangeEvents = false
     btn.addListener(new ChangeListener() {
       def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit =
@@ -114,9 +114,9 @@ class ButtonTest extends munit.FunSuite {
   }
 
   test("setChecked with same state is no-op") {
-    given Sge  = ctx()
-    val btn    = Button(makeStyle())
-    var fired  = false
+    given Sge = ctx()
+    val btn   = Button(makeStyle())
+    var fired = false
     btn.addListener(new ChangeListener() {
       def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit =
         fired = true
@@ -139,10 +139,10 @@ class ButtonTest extends munit.FunSuite {
   }
 
   test("Button setStyle changes style") {
-    given Sge   = ctx()
-    val style1  = makeStyle()
-    val style2  = makeStyle()
-    val btn     = Button(style1)
+    given Sge  = ctx()
+    val style1 = makeStyle()
+    val style2 = makeStyle()
+    val btn    = Button(style1)
     btn.setStyle(style2)
     assert(btn.style eq style2)
   }
@@ -190,20 +190,20 @@ class ButtonTest extends munit.FunSuite {
 
   test("Button(up) constructor") {
     given Sge = ctx()
-    val btn = Button(Nullable(BaseDrawable()))
+    val btn   = Button(Nullable(BaseDrawable()))
     assert(btn.style.up.isDefined)
   }
 
   test("Button(up, down) constructor") {
     given Sge = ctx()
-    val btn = Button(Nullable(BaseDrawable()), Nullable(BaseDrawable()))
+    val btn   = Button(Nullable(BaseDrawable()), Nullable(BaseDrawable()))
     assert(btn.style.up.isDefined)
     assert(btn.style.down.isDefined)
   }
 
   test("Button(up, down, checked) constructor") {
     given Sge = ctx()
-    val btn = Button(Nullable(BaseDrawable()), Nullable(BaseDrawable()), Nullable(BaseDrawable()))
+    val btn   = Button(Nullable(BaseDrawable()), Nullable(BaseDrawable()), Nullable(BaseDrawable()))
     assert(btn.style.up.isDefined)
     assert(btn.style.down.isDefined)
     assert(btn.style.checked.isDefined)
@@ -227,7 +227,7 @@ class ButtonTest extends munit.FunSuite {
 
   test("Button has a clickListener installed") {
     given Sge = ctx()
-    val btn = Button(makeStyle())
+    val btn   = Button(makeStyle())
     assert(btn.clickListener != null) // scalastyle:ignore null
     assert(btn.listeners.size >= 1)
   }

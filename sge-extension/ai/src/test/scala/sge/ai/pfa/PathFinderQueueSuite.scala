@@ -32,7 +32,7 @@ class PathFinderQueueSuite extends munit.FunSuite {
 
   /** A simple Telegraph for receiving messages. */
   private class SimpleClient extends Telegraph {
-    var messagesReceived: Int = 0
+    var messagesReceived:                      Int     = 0
     override def handleMessage(msg: Telegram): Boolean = {
       messagesReceived += 1
       true
@@ -56,20 +56,20 @@ class PathFinderQueueSuite extends munit.FunSuite {
   // ── Basic queue management ───────────────────────────────────────────
 
   test("new queue has size 0") {
-    val pf = new ImmediatePathFinder()
+    val pf    = new ImmediatePathFinder()
     val queue = new PathFinderQueue[Int](pf)
     assertEquals(queue.size, 0)
   }
 
   test("handleMessage adds request to queue") {
-    val pf = new ImmediatePathFinder()
+    val pf    = new ImmediatePathFinder()
     val queue = new PathFinderQueue[Int](pf)
 
     val request = new PathFinderRequest[Int]()
     request.startNode = 0
     request.endNode = 5
 
-    val client = new SimpleClient()
+    val client   = new SimpleClient()
     val telegram = makeTelegram(
       sender = Nullable(client),
       receiver = Nullable(queue),
@@ -81,7 +81,7 @@ class PathFinderQueueSuite extends munit.FunSuite {
   }
 
   test("handleMessage resets request status to SEARCH_NEW") {
-    val pf = new ImmediatePathFinder()
+    val pf    = new ImmediatePathFinder()
     val queue = new PathFinderQueue[Int](pf)
 
     val request = new PathFinderRequest[Int]()
@@ -89,7 +89,7 @@ class PathFinderQueueSuite extends munit.FunSuite {
     request.endNode = 5
     request.status = PathFinderRequest.SEARCH_DONE
 
-    val client = new SimpleClient()
+    val client   = new SimpleClient()
     val telegram = makeTelegram(
       sender = Nullable(client),
       receiver = Nullable(queue),
@@ -103,14 +103,14 @@ class PathFinderQueueSuite extends munit.FunSuite {
   }
 
   test("handleMessage sets client from telegram sender") {
-    val pf = new ImmediatePathFinder()
+    val pf    = new ImmediatePathFinder()
     val queue = new PathFinderQueue[Int](pf)
 
     val request = new PathFinderRequest[Int]()
     request.startNode = 0
     request.endNode = 5
 
-    val client = new SimpleClient()
+    val client   = new SimpleClient()
     val telegram = makeTelegram(
       sender = Nullable(client),
       receiver = Nullable(queue),
@@ -122,11 +122,11 @@ class PathFinderQueueSuite extends munit.FunSuite {
   }
 
   test("handleMessage returns true") {
-    val pf = new ImmediatePathFinder()
+    val pf    = new ImmediatePathFinder()
     val queue = new PathFinderQueue[Int](pf)
 
     val telegram = makeTelegram()
-    val result = queue.handleMessage(telegram)
+    val result   = queue.handleMessage(telegram)
     assert(result, "handleMessage should return true")
   }
 
@@ -136,14 +136,14 @@ class PathFinderQueueSuite extends munit.FunSuite {
     given tp: DefaultTimepiece = new DefaultTimepiece()
     tp.update(1.0f)
 
-    val pf = new ImmediatePathFinder()
+    val pf    = new ImmediatePathFinder()
     val queue = new PathFinderQueue[Int](pf)
 
     val request = new PathFinderRequest[Int]()
     request.startNode = 0
     request.endNode = 5
 
-    val client = new SimpleClient()
+    val client   = new SimpleClient()
     val telegram = makeTelegram(
       sender = Nullable(client),
       receiver = Nullable(queue),
@@ -161,7 +161,7 @@ class PathFinderQueueSuite extends munit.FunSuite {
   }
 
   test("multiple requests are queued in order") {
-    val pf = new ImmediatePathFinder()
+    val pf    = new ImmediatePathFinder()
     val queue = new PathFinderQueue[Int](pf)
 
     val client = new SimpleClient()
@@ -186,7 +186,7 @@ class PathFinderQueueSuite extends munit.FunSuite {
     given tp: DefaultTimepiece = new DefaultTimepiece()
     tp.update(1.0f)
 
-    val pf = new ImmediatePathFinder()
+    val pf    = new ImmediatePathFinder()
     val queue = new PathFinderQueue[Int](pf)
 
     queue.run(1000000L)
@@ -194,7 +194,7 @@ class PathFinderQueueSuite extends munit.FunSuite {
   }
 
   test("telegram without extraInfo does not add to queue") {
-    val pf = new ImmediatePathFinder()
+    val pf    = new ImmediatePathFinder()
     val queue = new PathFinderQueue[Int](pf)
 
     val telegram = makeTelegram()

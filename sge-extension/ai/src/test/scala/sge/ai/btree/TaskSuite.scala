@@ -32,13 +32,13 @@ class TaskSuite extends munit.FunSuite {
 
   test("start() is called before run() in behavior tree step") {
     var startCalled = false
-    val task = new LeafTask[String] {
-      override def start(): Unit = { startCalled = true }
+    val task        = new LeafTask[String] {
+      override def start():   Unit        = startCalled = true
       override def execute(): Task.Status = {
         assert(startCalled, "start() should be called before execute()")
         Task.Status.SUCCEEDED
       }
-      override def newInstance(): Task[String] = throw new UnsupportedOperationException
+      override def newInstance():                        Task[String] = throw new UnsupportedOperationException
       override protected def copyTo(task: Task[String]): Task[String] = task
     }
     val bt = new BehaviorTree[String](Nullable(task), Nullable("bb"))
@@ -49,10 +49,10 @@ class TaskSuite extends munit.FunSuite {
 
   test("end() is called when task succeeds") {
     var endCalled = false
-    val task = new LeafTask[String] {
-      override def end(): Unit = { endCalled = true }
-      override def execute(): Task.Status = Task.Status.SUCCEEDED
-      override def newInstance(): Task[String] = throw new UnsupportedOperationException
+    val task      = new LeafTask[String] {
+      override def end():                                Unit         = endCalled = true
+      override def execute():                            Task.Status  = Task.Status.SUCCEEDED
+      override def newInstance():                        Task[String] = throw new UnsupportedOperationException
       override protected def copyTo(task: Task[String]): Task[String] = task
     }
     val bt = new BehaviorTree[String](Nullable(task), Nullable("bb"))
@@ -62,10 +62,10 @@ class TaskSuite extends munit.FunSuite {
 
   test("end() is called when task fails") {
     var endCalled = false
-    val task = new LeafTask[String] {
-      override def end(): Unit = { endCalled = true }
-      override def execute(): Task.Status = Task.Status.FAILED
-      override def newInstance(): Task[String] = throw new UnsupportedOperationException
+    val task      = new LeafTask[String] {
+      override def end():                                Unit         = endCalled = true
+      override def execute():                            Task.Status  = Task.Status.FAILED
+      override def newInstance():                        Task[String] = throw new UnsupportedOperationException
       override protected def copyTo(task: Task[String]): Task[String] = task
     }
     val bt = new BehaviorTree[String](Nullable(task), Nullable("bb"))
@@ -75,10 +75,10 @@ class TaskSuite extends munit.FunSuite {
 
   test("end() is not called when task is running") {
     var endCalled = false
-    val task = new LeafTask[String] {
-      override def end(): Unit = { endCalled = true }
-      override def execute(): Task.Status = Task.Status.RUNNING
-      override def newInstance(): Task[String] = throw new UnsupportedOperationException
+    val task      = new LeafTask[String] {
+      override def end():                                Unit         = endCalled = true
+      override def execute():                            Task.Status  = Task.Status.RUNNING
+      override def newInstance():                        Task[String] = throw new UnsupportedOperationException
       override protected def copyTo(task: Task[String]): Task[String] = task
     }
     val bt = new BehaviorTree[String](Nullable(task), Nullable("bb"))
@@ -90,7 +90,7 @@ class TaskSuite extends munit.FunSuite {
 
   test("task transitions from FRESH to SUCCEEDED") {
     val task = new SuccessTask[String]()
-    val bt = new BehaviorTree[String](Nullable(task), Nullable("bb"))
+    val bt   = new BehaviorTree[String](Nullable(task), Nullable("bb"))
     assertEquals(task.getStatus, Task.Status.FRESH)
     bt.step()
     assertEquals(task.getStatus, Task.Status.SUCCEEDED)
@@ -98,7 +98,7 @@ class TaskSuite extends munit.FunSuite {
 
   test("task transitions from FRESH to FAILED") {
     val task = new FailTask[String]()
-    val bt = new BehaviorTree[String](Nullable(task), Nullable("bb"))
+    val bt   = new BehaviorTree[String](Nullable(task), Nullable("bb"))
     assertEquals(task.getStatus, Task.Status.FRESH)
     bt.step()
     assertEquals(task.getStatus, Task.Status.FAILED)
@@ -106,7 +106,7 @@ class TaskSuite extends munit.FunSuite {
 
   test("task transitions from FRESH to RUNNING") {
     val task = new RunningTask[String]()
-    val bt = new BehaviorTree[String](Nullable(task), Nullable("bb"))
+    val bt   = new BehaviorTree[String](Nullable(task), Nullable("bb"))
     assertEquals(task.getStatus, Task.Status.FRESH)
     bt.step()
     assertEquals(task.getStatus, Task.Status.RUNNING)
@@ -142,7 +142,7 @@ class TaskSuite extends munit.FunSuite {
 
   test("resetTask() returns task to FRESH") {
     val task = new SuccessTask[String]()
-    val bt = new BehaviorTree[String](Nullable(task), Nullable("bb"))
+    val bt   = new BehaviorTree[String](Nullable(task), Nullable("bb"))
     bt.step()
     assertEquals(task.getStatus, Task.Status.SUCCEEDED)
 
@@ -152,10 +152,10 @@ class TaskSuite extends munit.FunSuite {
 
   test("resetTask() cancels running task before resetting") {
     var endCalled = false
-    val task = new LeafTask[String] {
-      override def end(): Unit = { endCalled = true }
-      override def execute(): Task.Status = Task.Status.RUNNING
-      override def newInstance(): Task[String] = throw new UnsupportedOperationException
+    val task      = new LeafTask[String] {
+      override def end():                                Unit         = endCalled = true
+      override def execute():                            Task.Status  = Task.Status.RUNNING
+      override def newInstance():                        Task[String] = throw new UnsupportedOperationException
       override protected def copyTo(task: Task[String]): Task[String] = task
     }
     val bt = new BehaviorTree[String](Nullable(task), Nullable("bb"))
@@ -178,7 +178,7 @@ class TaskSuite extends munit.FunSuite {
 
   test("cancel() sets status to CANCELLED") {
     val task = new RunningTask[String]()
-    val bt = new BehaviorTree[String](Nullable(task), Nullable("bb"))
+    val bt   = new BehaviorTree[String](Nullable(task), Nullable("bb"))
     bt.step()
     assertEquals(task.getStatus, Task.Status.RUNNING)
 
@@ -188,10 +188,10 @@ class TaskSuite extends munit.FunSuite {
 
   test("cancel() calls end()") {
     var endCalled = false
-    val task = new LeafTask[String] {
-      override def end(): Unit = { endCalled = true }
-      override def execute(): Task.Status = Task.Status.RUNNING
-      override def newInstance(): Task[String] = throw new UnsupportedOperationException
+    val task      = new LeafTask[String] {
+      override def end():                                Unit         = endCalled = true
+      override def execute():                            Task.Status  = Task.Status.RUNNING
+      override def newInstance():                        Task[String] = throw new UnsupportedOperationException
       override protected def copyTo(task: Task[String]): Task[String] = task
     }
     val bt = new BehaviorTree[String](Nullable(task), Nullable("bb"))
@@ -225,7 +225,7 @@ class TaskSuite extends munit.FunSuite {
 
   test("setControl sets the parent task") {
     val parent = new SuccessTask[String]()
-    val child = new SuccessTask[String]()
+    val child  = new SuccessTask[String]()
     // setControl requires parent to have tree set, so use BehaviorTree as parent
     val bt = new BehaviorTree[String](Nullable(parent), Nullable("bb"))
     child.setControl(bt)
@@ -244,7 +244,7 @@ class TaskSuite extends munit.FunSuite {
 
   test("getObject returns blackboard after task has run") {
     val task = new SuccessTask[String]()
-    val bt = new BehaviorTree[String](Nullable(task), Nullable("hello"))
+    val bt   = new BehaviorTree[String](Nullable(task), Nullable("hello"))
     bt.step()
     assertEquals(task.getObject, "hello")
   }
@@ -273,7 +273,7 @@ class TaskSuite extends munit.FunSuite {
 
   test("reset() clears control, guard, status, tree") {
     val task = new SuccessTask[String]()
-    val bt = new BehaviorTree[String](Nullable(task), Nullable("bb"))
+    val bt   = new BehaviorTree[String](Nullable(task), Nullable("bb"))
     bt.step()
     task.guard = Nullable(new FailTask[String]())
 

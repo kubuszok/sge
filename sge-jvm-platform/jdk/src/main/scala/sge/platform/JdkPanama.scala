@@ -76,11 +76,13 @@ object JdkPanama extends PanamaProvider {
     def segAsByteBuffer:                        ByteBuffer    = seg.asByteBuffer()
     def segCopyFrom(src:     MemorySegment):    Unit          = seg.copyFrom(src)
 
+    def getByte(offset:    Long):                       Byte          = seg.get(vByte, offset)
     def getInt(offset:     Long):                       Int           = seg.get(vInt, offset)
     def getLong(offset:    Long):                       Long          = seg.get(vLong, offset)
     def getFloat(offset:   Long):                       Float         = seg.get(vFloat, offset)
     def getDouble(offset:  Long):                       Double        = seg.get(vDouble, offset)
     def getAddress(offset: Long):                       MemorySegment = seg.get(vAddr, offset)
+    def setByte(offset:    Long, value: Byte):          Unit          = seg.set(vByte, offset, value)
     def setInt(offset:     Long, value: Int):           Unit          = seg.set(vInt, offset, value)
     def setLong(offset:    Long, value: Long):          Unit          = seg.set(vLong, offset, value)
     def setFloat(offset:   Long, value: Float):         Unit          = seg.set(vFloat, offset, value)

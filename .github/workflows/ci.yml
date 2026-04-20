@@ -391,6 +391,9 @@ jobs:
         working-directory: sge-build
         run: sbt publishLocal
 
+      - name: Build smoke APK
+        run: sbt 'sge-android-smoke/androidSign'
+
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules

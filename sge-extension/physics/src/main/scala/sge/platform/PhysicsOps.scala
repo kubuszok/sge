@@ -263,7 +263,7 @@ private[sge] trait PhysicsOps {
   /** Gets the collider AABB. Fills `out` with [minX, minY, maxX, maxY]. */
   def colliderGetAabb(world: Long, collider: Long, out: Array[Float]): Unit
 
-  /** Gets the parent body handle of a collider. Returns 0 if no parent. */
+  /** Gets the parent body handle of a collider. */
   def colliderGetParentBody(world: Long, collider: Long): Long
 
   /** Gets the mass of a collider. */

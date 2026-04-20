@@ -10,8 +10,7 @@ import java.io.ByteArrayInputStream
 
 class LittleEndianInputStreamTest extends munit.FunSuite {
 
-  /** Helper: writes big-endian data with DataOutputStream, then reads it with LittleEndianInputStream
-    * to test the byte-swap behavior.
+  /** Helper: writes big-endian data with DataOutputStream, then reads it with LittleEndianInputStream to test the byte-swap behavior.
     */
   private def makeLittleEndianStream(bytes: Array[Byte]): LittleEndianInputStream =
     LittleEndianInputStream(new ByteArrayInputStream(bytes))

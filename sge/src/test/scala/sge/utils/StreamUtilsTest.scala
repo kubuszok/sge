@@ -113,7 +113,7 @@ class StreamUtilsTest extends munit.FunSuite {
   }
 
   test("closeQuietly calls close on valid closeable") {
-    var closed = false
+    var closed    = false
     val closeable = new Closeable {
       def close(): Unit = closed = true
     }

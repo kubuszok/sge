@@ -644,7 +644,7 @@ class PhysicsIntegrationSuite extends FunSuite {
       val mass = col.mass
       assert(mass > 0f, s"Mass should be positive, got $mass")
       val parent = col.parentBody
-      assert(parent != 0L, "Should have a parent body")
+      assertEquals(parent, body.handle, "Should have the correct parent body")
     } finally world.close()
   }
 

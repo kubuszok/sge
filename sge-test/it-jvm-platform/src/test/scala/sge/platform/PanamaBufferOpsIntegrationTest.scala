@@ -39,8 +39,11 @@ class PanamaBufferOpsIntegrationTest extends FunSuite {
     SymbolLookup.libraryLookup(found, Arena.global())
   }
 
-  override def beforeAll(): Unit =
+  private def requireNative(): Unit =
     assume(nativeLibAvailable, "sge_native_ops not on java.library.path — skipping")
+
+  override def beforeEach(context: BeforeEach): Unit =
+    requireNative()
 
   // ─── Symbol availability ──────────────────────────────────────────────
 
@@ -130,23 +133,23 @@ class PanamaBufferOpsIntegrationTest extends FunSuite {
       val dst = arena.allocate(8)
 
       // Write known pattern to source: [0xDE, 0xAD, 0xBE, 0xEF, 0x01, 0x02, 0x03, 0x04]
-      src.set(JAVA_BYTE, 0, 0xde.toByte)
-      src.set(JAVA_BYTE, 1, 0xad.toByte)
-      src.set(JAVA_BYTE, 2, 0xbe.toByte)
-      src.set(JAVA_BYTE, 3, 0xef.toByte)
-      src.set(JAVA_BYTE, 4, 0x01.toByte)
-      src.set(JAVA_BYTE, 5, 0x02.toByte)
-      src.set(JAVA_BYTE, 6, 0x03.toByte)
-      src.set(JAVA_BYTE, 7, 0x04.toByte)
+      src.setByte(0, 0xde.toByte)
+      src.setByte(1, 0xad.toByte)
+      src.setByte(2, 0xbe.toByte)
+      src.setByte(3, 0xef.toByte)
+      src.setByte(4, 0x01.toByte)
+      src.setByte(5, 0x02.toByte)
+      src.setByte(6, 0x03.toByte)
+      src.setByte(7, 0x04.toByte)
 
       // Copy 4 bytes from offset 2 in src to offset 1 in dst
       copyMh.invoke(src, 2: java.lang.Integer, dst, 1: java.lang.Integer, 4: java.lang.Integer)
 
       // Verify: dst[1..5] should contain [0xBE, 0xEF, 0x01, 0x02]
-      assertEquals(dst.get(JAVA_BYTE, 1), 0xbe.toByte)
-      assertEquals(dst.get(JAVA_BYTE, 2), 0xef.toByte)
-      assertEquals(dst.get(JAVA_BYTE, 3), 0x01.toByte)
-      assertEquals(dst.get(JAVA_BYTE, 4), 0x02.toByte)
+      assertEquals(dst.getByte(1), 0xbe.toByte)
+      assertEquals(dst.getByte(2), 0xef.toByte)
+      assertEquals(dst.getByte(3), 0x01.toByte)
+      assertEquals(dst.getByte(4), 0x02.toByte)
     } finally
       arena.close()
   }
@@ -169,26 +172,26 @@ class PanamaBufferOpsIntegrationTest extends FunSuite {
       val matrix = arena.allocate(16 * 4L) // 16 floats
 
       // Set vector: (1.0, 2.0, 3.0, 1.0)
-      data.set(JAVA_FLOAT, 0, 1.0f)
-      data.set(JAVA_FLOAT, 4, 2.0f)
-      data.set(JAVA_FLOAT, 8, 3.0f)
-      data.set(JAVA_FLOAT, 12, 1.0f)
+      data.setFloat(0, 1.0f)
+      data.setFloat(4, 2.0f)
+      data.setFloat(8, 3.0f)
+      data.setFloat(12, 1.0f)
 
       // Set identity matrix (column-major)
-      for (i <- 0 until 16) matrix.set(JAVA_FLOAT, i * 4L, 0.0f)
-      matrix.set(JAVA_FLOAT, 0 * 4L, 1.0f) // m[0]
-      matrix.set(JAVA_FLOAT, 5 * 4L, 1.0f) // m[5]
-      matrix.set(JAVA_FLOAT, 10 * 4L, 1.0f) // m[10]
-      matrix.set(JAVA_FLOAT, 15 * 4L, 1.0f) // m[15]
+      for (i <- 0 until 16) matrix.setFloat(i * 4L, 0.0f)
+      matrix.setFloat(0 * 4L, 1.0f) // m[0]
+      matrix.setFloat(5 * 4L, 1.0f) // m[5]
+      matrix.setFloat(10 * 4L, 1.0f) // m[10]
+      matrix.setFloat(15 * 4L, 1.0f) // m[15]
 
       // Transform: stride=4, count=1, offset=0
       mh.invoke(data, 4: java.lang.Integer, 1: java.lang.Integer, matrix, 0: java.lang.Integer)
 
       // Verify vector unchanged
-      assertEqualsFloat(data.get(JAVA_FLOAT, 0), 1.0f, 1e-6f)
-      assertEqualsFloat(data.get(JAVA_FLOAT, 4), 2.0f, 1e-6f)
-      assertEqualsFloat(data.get(JAVA_FLOAT, 8), 3.0f, 1e-6f)
-      assertEqualsFloat(data.get(JAVA_FLOAT, 12), 1.0f, 1e-6f)
+      assertEqualsFloat(data.getFloat(0), 1.0f, 1e-6f)
+      assertEqualsFloat(data.getFloat(4), 2.0f, 1e-6f)
+      assertEqualsFloat(data.getFloat(8), 3.0f, 1e-6f)
+      assertEqualsFloat(data.getFloat(12), 1.0f, 1e-6f)
     } finally
       arena.close()
   }
@@ -207,29 +210,29 @@ class PanamaBufferOpsIntegrationTest extends FunSuite {
       val matrix = arena.allocate(16 * 4L)
 
       // Vector: (1.0, 2.0, 3.0, 1.0)
-      data.set(JAVA_FLOAT, 0, 1.0f)
-      data.set(JAVA_FLOAT, 4, 2.0f)
-      data.set(JAVA_FLOAT, 8, 3.0f)
-      data.set(JAVA_FLOAT, 12, 1.0f)
+      data.setFloat(0, 1.0f)
+      data.setFloat(4, 2.0f)
+      data.setFloat(8, 3.0f)
+      data.setFloat(12, 1.0f)
 
       // Translation matrix: translate by (10, 20, 30)
       // Column-major identity + translation in last column
-      for (i <- 0 until 16) matrix.set(JAVA_FLOAT, i * 4L, 0.0f)
-      matrix.set(JAVA_FLOAT, 0 * 4L, 1.0f)
-      matrix.set(JAVA_FLOAT, 5 * 4L, 1.0f)
-      matrix.set(JAVA_FLOAT, 10 * 4L, 1.0f)
-      matrix.set(JAVA_FLOAT, 15 * 4L, 1.0f)
-      matrix.set(JAVA_FLOAT, 12 * 4L, 10.0f) // tx
-      matrix.set(JAVA_FLOAT, 13 * 4L, 20.0f) // ty
-      matrix.set(JAVA_FLOAT, 14 * 4L, 30.0f) // tz
+      for (i <- 0 until 16) matrix.setFloat(i * 4L, 0.0f)
+      matrix.setFloat(0 * 4L, 1.0f)
+      matrix.setFloat(5 * 4L, 1.0f)
+      matrix.setFloat(10 * 4L, 1.0f)
+      matrix.setFloat(15 * 4L, 1.0f)
+      matrix.setFloat(12 * 4L, 10.0f) // tx
+      matrix.setFloat(13 * 4L, 20.0f) // ty
+      matrix.setFloat(14 * 4L, 30.0f) // tz
 
       mh.invoke(data, 4: java.lang.Integer, 1: java.lang.Integer, matrix, 0: java.lang.Integer)
 
       // Result: (1+10, 2+20, 3+30, 1) = (11, 22, 33, 1)
-      assertEqualsFloat(data.get(JAVA_FLOAT, 0), 11.0f, 1e-6f)
-      assertEqualsFloat(data.get(JAVA_FLOAT, 4), 22.0f, 1e-6f)
-      assertEqualsFloat(data.get(JAVA_FLOAT, 8), 33.0f, 1e-6f)
-      assertEqualsFloat(data.get(JAVA_FLOAT, 12), 1.0f, 1e-6f)
+      assertEqualsFloat(data.getFloat(0), 11.0f, 1e-6f)
+      assertEqualsFloat(data.getFloat(4), 22.0f, 1e-6f)
+      assertEqualsFloat(data.getFloat(8), 33.0f, 1e-6f)
+      assertEqualsFloat(data.getFloat(12), 1.0f, 1e-6f)
     } finally
       arena.close()
   }
@@ -273,14 +276,14 @@ class PanamaBufferOpsIntegrationTest extends FunSuite {
         val offset = (row * 4 + col) * 3
         if (row < 2) {
           // Red pixel
-          input.set(JAVA_BYTE, offset.toLong, 200.toByte)
-          input.set(JAVA_BYTE, (offset + 1).toLong, 50.toByte)
-          input.set(JAVA_BYTE, (offset + 2).toLong, 50.toByte)
+          input.setByte(offset.toLong, 200.toByte)
+          input.setByte((offset + 1).toLong, 50.toByte)
+          input.setByte((offset + 2).toLong, 50.toByte)
         } else {
           // Blue pixel
-          input.set(JAVA_BYTE, offset.toLong, 50.toByte)
-          input.set(JAVA_BYTE, (offset + 1).toLong, 50.toByte)
-          input.set(JAVA_BYTE, (offset + 2).toLong, 200.toByte)
+          input.setByte(offset.toLong, 50.toByte)
+          input.setByte((offset + 1).toLong, 50.toByte)
+          input.setByte((offset + 2).toLong, 200.toByte)
         }
       }
 
@@ -293,8 +296,8 @@ class PanamaBufferOpsIntegrationTest extends FunSuite {
       // Verify: each decoded byte should be within ETC1 lossy tolerance (±16) of original
       val maxDiff = 16
       for (i <- 0 until decodedSize) {
-        val orig = input.get(JAVA_BYTE, i.toLong) & 0xff
-        val dec  = decoded.get(JAVA_BYTE, i.toLong) & 0xff
+        val orig = input.getByte(i.toLong) & 0xff
+        val dec  = decoded.getByte(i.toLong) & 0xff
         val diff = Math.abs(orig - dec)
         assert(diff <= maxDiff, s"Byte $i: original=$orig, decoded=$dec, diff=$diff (max $maxDiff)")
       }
