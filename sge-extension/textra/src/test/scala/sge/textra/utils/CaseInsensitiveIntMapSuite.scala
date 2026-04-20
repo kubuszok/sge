@@ -297,9 +297,8 @@ class CaseInsensitiveIntMapSuite extends munit.FunSuite {
     map.put("beta", 2)
     val keys      = map.keys()
     var collected = Set.empty[String]
-    while (keys.hasNext) {
+    while (keys.hasNext)
       collected += keys.next().toLowerCase
-    }
     assertEquals(collected, Set("alpha", "beta"))
   }
 
@@ -309,9 +308,8 @@ class CaseInsensitiveIntMapSuite extends munit.FunSuite {
     map.put("y", 20)
     val values    = map.values()
     var collected = Set.empty[Int]
-    while (values.hasNext) {
+    while (values.hasNext)
       collected += values.next()
-    }
     assertEquals(collected, Set(10, 20))
   }
 

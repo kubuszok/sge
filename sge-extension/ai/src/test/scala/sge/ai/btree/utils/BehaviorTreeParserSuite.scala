@@ -27,32 +27,37 @@ class BehaviorTreeParserSuite extends munit.FunSuite {
     // Register custom test tasks
     registry.registerTask(
       "mySuccess",
-      () => new LeafTask[String] {
-        override def execute(): Task.Status = Task.Status.SUCCEEDED
-        override def newInstance(): Task[String] = throw new UnsupportedOperationException
-        override protected def copyTo(task: Task[String]): Task[String] = task
-      }
+      () =>
+        new LeafTask[String] {
+          override def execute():                            Task.Status  = Task.Status.SUCCEEDED
+          override def newInstance():                        Task[String] = throw new UnsupportedOperationException
+          override protected def copyTo(task: Task[String]): Task[String] = task
+        }
     )
     registry.registerTask(
       "myFail",
-      () => new LeafTask[String] {
-        override def execute(): Task.Status = Task.Status.FAILED
-        override def newInstance(): Task[String] = throw new UnsupportedOperationException
-        override protected def copyTo(task: Task[String]): Task[String] = task
-      }
+      () =>
+        new LeafTask[String] {
+          override def execute():                            Task.Status  = Task.Status.FAILED
+          override def newInstance():                        Task[String] = throw new UnsupportedOperationException
+          override protected def copyTo(task: Task[String]): Task[String] = task
+        }
     )
     registry.registerTask(
       "myTask",
-      () => new LeafTask[String] {
-        override def execute(): Task.Status = Task.Status.SUCCEEDED
-        override def newInstance(): Task[String] = throw new UnsupportedOperationException
-        override protected def copyTo(task: Task[String]): Task[String] = task
-      },
+      () =>
+        new LeafTask[String] {
+          override def execute():                            Task.Status  = Task.Status.SUCCEEDED
+          override def newInstance():                        Task[String] = throw new UnsupportedOperationException
+          override protected def copyTo(task: Task[String]): Task[String] = task
+        },
       BehaviorTreeParser.TaskMeta(
         attributes = Map(
-          "value" -> BehaviorTreeParser.AttrInfo("value", (_, _) => {
-            // Accept the value (we just verify parsing works)
-          })
+          "value" -> BehaviorTreeParser.AttrInfo("value",
+                                                 (_, _) => {
+                                                   // Accept the value (we just verify parsing works)
+                                                 }
+          )
         )
       )
     )
@@ -65,14 +70,14 @@ class BehaviorTreeParserSuite extends munit.FunSuite {
 
   test("parse single leaf task") {
     val parser = makeParser()
-    val tree = parser.parse("mySuccess", Nullable("bb"))
+    val tree   = parser.parse("mySuccess", Nullable("bb"))
     tree.step()
     assertEquals(tree.getStatus, Task.Status.SUCCEEDED)
   }
 
   test("parse selector with children") {
     val parser = makeParser()
-    val input =
+    val input  =
       """selector
         |  myFail
         |  mySuccess""".stripMargin
@@ -83,7 +88,7 @@ class BehaviorTreeParserSuite extends munit.FunSuite {
 
   test("parse sequence with children") {
     val parser = makeParser()
-    val input =
+    val input  =
       """sequence
         |  mySuccess
         |  mySuccess""".stripMargin
@@ -94,7 +99,7 @@ class BehaviorTreeParserSuite extends munit.FunSuite {
 
   test("parse sequence that fails") {
     val parser = makeParser()
-    val input =
+    val input  =
       """sequence
         |  mySuccess
         |  myFail""".stripMargin
@@ -107,7 +112,7 @@ class BehaviorTreeParserSuite extends munit.FunSuite {
 
   test("parse nested selector inside sequence") {
     val parser = makeParser()
-    val input =
+    val input  =
       """sequence
         |  selector
         |    myFail
@@ -122,8 +127,8 @@ class BehaviorTreeParserSuite extends munit.FunSuite {
 
   test("parse task with attribute") {
     val parser = makeParser()
-    val input = """myTask value:42"""
-    val tree = parser.parse(input, Nullable("bb"))
+    val input  = """myTask value:42"""
+    val tree   = parser.parse(input, Nullable("bb"))
     tree.step()
     assertEquals(tree.getStatus, Task.Status.SUCCEEDED)
   }
@@ -132,23 +137,23 @@ class BehaviorTreeParserSuite extends munit.FunSuite {
 
   test("parse built-in success leaf") {
     val parser = makeParser()
-    val input = "success"
-    val tree = parser.parse(input, Nullable("bb"))
+    val input  = "success"
+    val tree   = parser.parse(input, Nullable("bb"))
     tree.step()
     assertEquals(tree.getStatus, Task.Status.SUCCEEDED)
   }
 
   test("parse built-in failure leaf") {
     val parser = makeParser()
-    val input = "failure"
-    val tree = parser.parse(input, Nullable("bb"))
+    val input  = "failure"
+    val tree   = parser.parse(input, Nullable("bb"))
     tree.step()
     assertEquals(tree.getStatus, Task.Status.FAILED)
   }
 
   test("parse built-in invert decorator") {
     val parser = makeParser()
-    val input =
+    val input  =
       """invert
         |  mySuccess""".stripMargin
     val tree = parser.parse(input, Nullable("bb"))
@@ -160,13 +165,13 @@ class BehaviorTreeParserSuite extends munit.FunSuite {
 
   test("parsed tree has blackboard object") {
     val parser = makeParser()
-    val tree = parser.parse("mySuccess", Nullable("hello world"))
+    val tree   = parser.parse("mySuccess", Nullable("hello world"))
     assertEquals(tree.getObject, "hello world")
   }
 
   test("parsed tree with null blackboard") {
     val parser = makeParser()
-    val tree = parser.parse("mySuccess", Nullable.empty[String])
+    val tree   = parser.parse("mySuccess", Nullable.empty[String])
     tree.step()
     assertEquals(tree.getStatus, Task.Status.SUCCEEDED)
   }

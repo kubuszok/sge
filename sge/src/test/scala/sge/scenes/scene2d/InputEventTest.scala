@@ -91,7 +91,7 @@ class InputEventTest extends munit.FunSuite {
   // ---------------------------------------------------------------------------
 
   test("InputEvent reset clears relatedActor and button") {
-    given Sge = ctx()
+    given Sge   = ctx()
     val event   = InputEvent()
     val related = Actor()
     event.relatedActor = Nullable(related)

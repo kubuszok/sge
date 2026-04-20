@@ -126,7 +126,7 @@ class Collider private[physics] (
     (buf4(0), buf4(1), buf4(2), buf4(3))
   }
 
-  /** Gets the handle of the parent body, or 0 if unattached. */
+  /** Gets the handle of the parent body. */
   def parentBody: Long =
     world.ops.colliderGetParentBody(world.handle, handle)
 

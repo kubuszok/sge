@@ -77,7 +77,7 @@ class BufferUtilsTest extends munit.FunSuite {
     BufferUtils.copy(src, dst.asInstanceOf[Buffer], 3, 0)
     assertEquals(dst.asInstanceOf[Buffer].position(), 0)
     assertEquals(dst.asInstanceOf[Buffer].limit(), 12)
-    val fb = dst.asFloatBuffer()
+    val fb  = dst.asFloatBuffer()
     val out = new Array[Float](3)
     fb.get(out)
     assertEquals(out.toSeq, src.toSeq)

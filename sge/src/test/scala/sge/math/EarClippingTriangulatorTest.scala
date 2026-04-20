@@ -22,11 +22,7 @@ class EarClippingTriangulatorTest extends munit.FunSuite {
     val ect = new EarClippingTriangulator()
     // Regular pentagon-like shape
     val vertices = Array(
-      2f, 0f,
-      4f, 1.5f,
-      3f, 4f,
-      1f, 4f,
-      0f, 1.5f
+      2f, 0f, 4f, 1.5f, 3f, 4f, 1f, 4f, 0f, 1.5f
     )
     val result = ect.computeTriangles(vertices)
     // 5 vertices -> 3 triangles = 9 indices
@@ -37,12 +33,7 @@ class EarClippingTriangulatorTest extends munit.FunSuite {
     val ect = new EarClippingTriangulator()
     // L-shaped concave polygon
     val vertices = Array(
-      0f, 0f,
-      2f, 0f,
-      2f, 1f,
-      1f, 1f,
-      1f, 2f,
-      0f, 2f
+      0f, 0f, 2f, 0f, 2f, 1f, 1f, 1f, 1f, 2f, 0f, 2f
     )
     val result = ect.computeTriangles(vertices)
     // 6 vertices -> 4 triangles = 12 indices

@@ -120,8 +120,8 @@ class ComponentOperationHandlerSuite extends munit.FunSuite {
   }
 
   test("processOperations clears operations so second call is no-op") {
-    var count   = 0
-    val entity  = new Entity
+    var count  = 0
+    val entity = new Entity
     entity.componentAdded.add(new signals.Listener[Entity] {
       override def receive(signal: signals.Signal[Entity], obj: Entity): Unit =
         count += 1

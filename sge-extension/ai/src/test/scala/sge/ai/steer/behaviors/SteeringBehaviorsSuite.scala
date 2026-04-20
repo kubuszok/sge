@@ -5,7 +5,7 @@ package behaviors
 
 import sge.ai.DefaultTimepiece
 import sge.ai.Timepiece
-import sge.ai.steer.{ SimpleSteerable, SimpleLocation }
+import sge.ai.steer.{ SimpleLocation, SimpleSteerable }
 import sge.math.Vector2
 import sge.utils.Nullable
 
@@ -22,7 +22,7 @@ class SteeringBehaviorsSuite extends munit.FunSuite {
       t
     }
 
-    val owner = new SimpleSteerable(Vector2(0, 0))
+    val owner  = new SimpleSteerable(Vector2(0, 0))
     val wander = new Wander[Vector2](owner)
     wander.wanderOffset = 5f
     wander.wanderRadius = 2f
@@ -41,7 +41,7 @@ class SteeringBehaviorsSuite extends munit.FunSuite {
       t
     }
 
-    val owner = new SimpleSteerable(Vector2(0, 0), _maxLinearAcceleration = 50f)
+    val owner  = new SimpleSteerable(Vector2(0, 0), _maxLinearAcceleration = 50f)
     val wander = new Wander[Vector2](owner)
     wander.wanderOffset = 5f
     wander.wanderRadius = 2f
@@ -62,7 +62,7 @@ class SteeringBehaviorsSuite extends munit.FunSuite {
       t
     }
 
-    val owner = new SimpleSteerable(Vector2(0, 0))
+    val owner  = new SimpleSteerable(Vector2(0, 0))
     val wander = new Wander[Vector2](owner)
     wander.wanderOffset = 10f
     wander.wanderRadius = 2f
@@ -74,7 +74,7 @@ class SteeringBehaviorsSuite extends munit.FunSuite {
 
     // The wander center should be approximately wanderOffset distance from the owner
     val center = wander.getWanderCenter
-    val dist = center.length
+    val dist   = center.length
     // Center is at owner.position + direction * wanderOffset, owner at (0,0) facing (1,0)
     assertEqualsFloat(dist, 10f, 0.1f)
   }
@@ -86,7 +86,7 @@ class SteeringBehaviorsSuite extends munit.FunSuite {
       t
     }
 
-    val owner = new SimpleSteerable(Vector2(0, 0))
+    val owner  = new SimpleSteerable(Vector2(0, 0))
     val wander = new Wander[Vector2](owner)
     wander.wanderOffset = 5f
     wander.wanderRadius = 2f
@@ -108,7 +108,7 @@ class SteeringBehaviorsSuite extends munit.FunSuite {
       t
     }
 
-    val owner = new SimpleSteerable(Vector2(0, 0))
+    val owner  = new SimpleSteerable(Vector2(0, 0))
     val wander = new Wander[Vector2](owner)
     wander.wanderOffset = 5f
     wander.wanderRadius = 2f
@@ -124,14 +124,14 @@ class SteeringBehaviorsSuite extends munit.FunSuite {
   // ── Hide ─────────────────────────────────────────────────────────────
 
   test("Hide: returns zero when no obstacles nearby") {
-    val owner = new SimpleSteerable(Vector2(0, 0))
+    val owner  = new SimpleSteerable(Vector2(0, 0))
     val target = new SimpleLocation(Vector2(10, 0)) // the hunter
 
     val emptyProximity = new Proximity[Vector2] {
-      private var _owner: Steerable[Vector2] = owner
-      override def owner: Steerable[Vector2] = _owner
-      override def owner_=(owner: Steerable[Vector2]): Unit = { _owner = owner }
-      override def findNeighbors(callback: Proximity.ProximityCallback[Vector2]): Int = 0
+      private var _owner:                                                         Steerable[Vector2] = owner
+      override def owner:                                                         Steerable[Vector2] = _owner
+      override def owner_=(owner:          Steerable[Vector2]):                   Unit               = _owner = owner
+      override def findNeighbors(callback: Proximity.ProximityCallback[Vector2]): Int                = 0
     }
 
     val hide = new Hide[Vector2](owner, Nullable(target), Nullable(emptyProximity))
@@ -146,16 +146,16 @@ class SteeringBehaviorsSuite extends munit.FunSuite {
   }
 
   test("Hide: steers toward hiding spot behind obstacle") {
-    val owner = new SimpleSteerable(Vector2(0, 0))
-    val target = new SimpleLocation(Vector2(10, 0)) // the hunter at (10,0)
+    val owner    = new SimpleSteerable(Vector2(0, 0))
+    val target   = new SimpleLocation(Vector2(10, 0)) // the hunter at (10,0)
     val obstacle = new SimpleSteerable(Vector2(5, 0), _maxLinearAcceleration = 0f) // obstacle between owner and hunter
 
     // Proximity that always returns the single obstacle
     val singleObstacleProximity = new Proximity[Vector2] {
-      private var _owner: Steerable[Vector2] = owner
-      override def owner: Steerable[Vector2] = _owner
-      override def owner_=(owner: Steerable[Vector2]): Unit = { _owner = owner }
-      override def findNeighbors(callback: Proximity.ProximityCallback[Vector2]): Int = {
+      private var _owner:                                                         Steerable[Vector2] = owner
+      override def owner:                                                         Steerable[Vector2] = _owner
+      override def owner_=(owner: Steerable[Vector2]):                            Unit               = _owner = owner
+      override def findNeighbors(callback: Proximity.ProximityCallback[Vector2]): Int                = {
         callback.reportNeighbor(obstacle)
         1
       }
@@ -174,22 +174,21 @@ class SteeringBehaviorsSuite extends munit.FunSuite {
     // Hunter at (10,0), obstacle at (5,0) with radius 1, distFromBoundary=2.
     // Hiding spot should be at ~(5 - 3, 0) = (2, 0), i.e. left of obstacle.
     // Owner at (0,0) should steer toward ~(2,0), so positive x.
-    assert(output.linear.x > 0 || output.linear.y != 0,
-      "Should steer toward hiding spot behind obstacle")
+    assert(output.linear.x > 0 || output.linear.y != 0, "Should steer toward hiding spot behind obstacle")
   }
 
   test("Hide: chooses closest hiding spot among multiple obstacles") {
-    val owner = new SimpleSteerable(Vector2(0, 0))
+    val owner  = new SimpleSteerable(Vector2(0, 0))
     val target = new SimpleLocation(Vector2(20, 0)) // the hunter far away
 
     val nearObstacle = new SimpleSteerable(Vector2(3, 0))
-    val farObstacle = new SimpleSteerable(Vector2(15, 0))
+    val farObstacle  = new SimpleSteerable(Vector2(15, 0))
 
     val multiObstacleProximity = new Proximity[Vector2] {
-      private var _owner: Steerable[Vector2] = owner
-      override def owner: Steerable[Vector2] = _owner
-      override def owner_=(owner: Steerable[Vector2]): Unit = { _owner = owner }
-      override def findNeighbors(callback: Proximity.ProximityCallback[Vector2]): Int = {
+      private var _owner:                                                         Steerable[Vector2] = owner
+      override def owner:                                                         Steerable[Vector2] = _owner
+      override def owner_=(owner: Steerable[Vector2]):                            Unit               = _owner = owner
+      override def findNeighbors(callback: Proximity.ProximityCallback[Vector2]): Int                = {
         callback.reportNeighbor(nearObstacle)
         callback.reportNeighbor(farObstacle)
         2
@@ -213,13 +212,13 @@ class SteeringBehaviorsSuite extends munit.FunSuite {
     val owner = new SimpleSteerable(Vector2(0, 0), Vector2(1, 0))
 
     val emptyProximity = new Proximity[Vector2] {
-      private var _owner: Steerable[Vector2] = owner
-      override def owner: Steerable[Vector2] = _owner
-      override def owner_=(owner: Steerable[Vector2]): Unit = { _owner = owner }
-      override def findNeighbors(callback: Proximity.ProximityCallback[Vector2]): Int = 0
+      private var _owner:                                                         Steerable[Vector2] = owner
+      override def owner:                                                         Steerable[Vector2] = _owner
+      override def owner_=(owner:          Steerable[Vector2]):                   Unit               = _owner = owner
+      override def findNeighbors(callback: Proximity.ProximityCallback[Vector2]): Int                = 0
     }
 
-    val ca = new CollisionAvoidance[Vector2](owner, emptyProximity)
+    val ca     = new CollisionAvoidance[Vector2](owner, emptyProximity)
     val output = new SteeringAcceleration[Vector2](Vector2(0, 0))
     ca.calculateSteering(output)
 
@@ -228,20 +227,20 @@ class SteeringBehaviorsSuite extends munit.FunSuite {
 
   test("CollisionAvoidance: avoids approaching neighbor") {
     // Owner moving right, neighbor moving left - head-on collision course
-    val owner = new SimpleSteerable(Vector2(0, 0), Vector2(5, 0))
+    val owner    = new SimpleSteerable(Vector2(0, 0), Vector2(5, 0))
     val neighbor = new SimpleSteerable(Vector2(10, 0), Vector2(-5, 0))
 
     val approachingProximity = new Proximity[Vector2] {
-      private var _owner: Steerable[Vector2] = owner
-      override def owner: Steerable[Vector2] = _owner
-      override def owner_=(owner: Steerable[Vector2]): Unit = { _owner = owner }
-      override def findNeighbors(callback: Proximity.ProximityCallback[Vector2]): Int = {
+      private var _owner:                                                         Steerable[Vector2] = owner
+      override def owner:                                                         Steerable[Vector2] = _owner
+      override def owner_=(owner: Steerable[Vector2]):                            Unit               = _owner = owner
+      override def findNeighbors(callback: Proximity.ProximityCallback[Vector2]): Int                = {
         callback.reportNeighbor(neighbor)
         1
       }
     }
 
-    val ca = new CollisionAvoidance[Vector2](owner, approachingProximity)
+    val ca     = new CollisionAvoidance[Vector2](owner, approachingProximity)
     val output = new SteeringAcceleration[Vector2](Vector2(0, 0))
     ca.calculateSteering(output)
 
@@ -250,20 +249,20 @@ class SteeringBehaviorsSuite extends munit.FunSuite {
 
   test("CollisionAvoidance: no steering when neighbor moves away") {
     // Owner and neighbor both moving in same direction, neighbor ahead
-    val owner = new SimpleSteerable(Vector2(0, 0), Vector2(1, 0))
+    val owner    = new SimpleSteerable(Vector2(0, 0), Vector2(1, 0))
     val neighbor = new SimpleSteerable(Vector2(10, 0), Vector2(5, 0)) // moving faster away
 
     val departingProximity = new Proximity[Vector2] {
-      private var _owner: Steerable[Vector2] = owner
-      override def owner: Steerable[Vector2] = _owner
-      override def owner_=(owner: Steerable[Vector2]): Unit = { _owner = owner }
-      override def findNeighbors(callback: Proximity.ProximityCallback[Vector2]): Int = {
+      private var _owner:                                                         Steerable[Vector2] = owner
+      override def owner:                                                         Steerable[Vector2] = _owner
+      override def owner_=(owner: Steerable[Vector2]):                            Unit               = _owner = owner
+      override def findNeighbors(callback: Proximity.ProximityCallback[Vector2]): Int                = {
         callback.reportNeighbor(neighbor)
         1
       }
     }
 
-    val ca = new CollisionAvoidance[Vector2](owner, departingProximity)
+    val ca     = new CollisionAvoidance[Vector2](owner, departingProximity)
     val output = new SteeringAcceleration[Vector2](Vector2(0, 0))
     ca.calculateSteering(output)
 
@@ -272,20 +271,20 @@ class SteeringBehaviorsSuite extends munit.FunSuite {
   }
 
   test("CollisionAvoidance: no angular acceleration") {
-    val owner = new SimpleSteerable(Vector2(0, 0), Vector2(5, 0))
+    val owner    = new SimpleSteerable(Vector2(0, 0), Vector2(5, 0))
     val neighbor = new SimpleSteerable(Vector2(10, 0), Vector2(-5, 0))
 
     val proximity = new Proximity[Vector2] {
-      private var _owner: Steerable[Vector2] = owner
-      override def owner: Steerable[Vector2] = _owner
-      override def owner_=(owner: Steerable[Vector2]): Unit = { _owner = owner }
-      override def findNeighbors(callback: Proximity.ProximityCallback[Vector2]): Int = {
+      private var _owner:                                                         Steerable[Vector2] = owner
+      override def owner:                                                         Steerable[Vector2] = _owner
+      override def owner_=(owner: Steerable[Vector2]):                            Unit               = _owner = owner
+      override def findNeighbors(callback: Proximity.ProximityCallback[Vector2]): Int                = {
         callback.reportNeighbor(neighbor)
         1
       }
     }
 
-    val ca = new CollisionAvoidance[Vector2](owner, proximity)
+    val ca     = new CollisionAvoidance[Vector2](owner, proximity)
     val output = new SteeringAcceleration[Vector2](Vector2(0, 0))
     ca.calculateSteering(output)
 
@@ -293,14 +292,14 @@ class SteeringBehaviorsSuite extends munit.FunSuite {
   }
 
   test("CollisionAvoidance: disabled returns zero") {
-    val owner = new SimpleSteerable(Vector2(0, 0), Vector2(5, 0))
+    val owner    = new SimpleSteerable(Vector2(0, 0), Vector2(5, 0))
     val neighbor = new SimpleSteerable(Vector2(10, 0), Vector2(-5, 0))
 
     val proximity = new Proximity[Vector2] {
-      private var _owner: Steerable[Vector2] = owner
-      override def owner: Steerable[Vector2] = _owner
-      override def owner_=(owner: Steerable[Vector2]): Unit = { _owner = owner }
-      override def findNeighbors(callback: Proximity.ProximityCallback[Vector2]): Int = {
+      private var _owner:                                                         Steerable[Vector2] = owner
+      override def owner:                                                         Steerable[Vector2] = _owner
+      override def owner_=(owner: Steerable[Vector2]):                            Unit               = _owner = owner
+      override def findNeighbors(callback: Proximity.ProximityCallback[Vector2]): Int                = {
         callback.reportNeighbor(neighbor)
         1
       }
@@ -315,22 +314,22 @@ class SteeringBehaviorsSuite extends munit.FunSuite {
   }
 
   test("CollisionAvoidance: selects most imminent collision among multiple neighbors") {
-    val owner = new SimpleSteerable(Vector2(0, 0), Vector2(5, 0))
-    val farNeighbor = new SimpleSteerable(Vector2(20, 0), Vector2(-5, 0)) // far away
+    val owner         = new SimpleSteerable(Vector2(0, 0), Vector2(5, 0))
+    val farNeighbor   = new SimpleSteerable(Vector2(20, 0), Vector2(-5, 0)) // far away
     val closeNeighbor = new SimpleSteerable(Vector2(5, 0), Vector2(-5, 0)) // very close
 
     val multiProximity = new Proximity[Vector2] {
-      private var _owner: Steerable[Vector2] = owner
-      override def owner: Steerable[Vector2] = _owner
-      override def owner_=(owner: Steerable[Vector2]): Unit = { _owner = owner }
-      override def findNeighbors(callback: Proximity.ProximityCallback[Vector2]): Int = {
+      private var _owner:                                                         Steerable[Vector2] = owner
+      override def owner:                                                         Steerable[Vector2] = _owner
+      override def owner_=(owner: Steerable[Vector2]):                            Unit               = _owner = owner
+      override def findNeighbors(callback: Proximity.ProximityCallback[Vector2]): Int                = {
         callback.reportNeighbor(farNeighbor)
         callback.reportNeighbor(closeNeighbor)
         2
       }
     }
 
-    val ca = new CollisionAvoidance[Vector2](owner, multiProximity)
+    val ca     = new CollisionAvoidance[Vector2](owner, multiProximity)
     val output = new SteeringAcceleration[Vector2](Vector2(0, 0))
     ca.calculateSteering(output)
 

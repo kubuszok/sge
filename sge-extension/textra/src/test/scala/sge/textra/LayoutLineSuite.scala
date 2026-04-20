@@ -58,8 +58,8 @@ class LayoutLineSuite extends munit.FunSuite {
     val sb = line.appendTo(new StringBuilder)
     val s  = sb.toString
     assert(s.contains("Hi"), s"Expected glyphs in output: $s")
-    assert(s.contains("w=16.0"), s"Expected width: $s")
-    assert(s.contains("h=12.0"), s"Expected height: $s")
+    assert(s.contains("w=16") && !s.contains("w=160"), s"Expected width: $s")
+    assert(s.contains("h=12") && !s.contains("h=120"), s"Expected height: $s")
   }
 
   test("Line toString matches appendTo") {

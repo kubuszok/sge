@@ -30,37 +30,37 @@ class TimeUtilsTest extends munit.FunSuite {
   }
 
   test("nanosToMillis conversion") {
-    val nanos = Nanos(5_000_000L) // 5 ms
+    val nanos  = Nanos(5_000_000L) // 5 ms
     val millis = TimeUtils.nanosToMillis(nanos)
     assertEquals(millis.toLong, 5L)
   }
 
   test("nanosToMillis truncates sub-millisecond") {
-    val nanos = Nanos(1_500_000L) // 1.5 ms
+    val nanos  = Nanos(1_500_000L) // 1.5 ms
     val millis = TimeUtils.nanosToMillis(nanos)
     assertEquals(millis.toLong, 1L) // truncated
   }
 
   test("millisToNanos conversion") {
     val millis = Millis(3L)
-    val nanos = TimeUtils.millisToNanos(millis)
+    val nanos  = TimeUtils.millisToNanos(millis)
     assertEquals(nanos.toLong, 3_000_000L)
   }
 
   test("nanosToMillis and millisToNanos round-trip") {
-    val original = Millis(42L)
+    val original     = Millis(42L)
     val roundTripped = TimeUtils.nanosToMillis(TimeUtils.millisToNanos(original))
     assertEquals(roundTripped.toLong, original.toLong)
   }
 
   test("timeSinceNanos returns non-negative value") {
-    val prev = TimeUtils.nanoTime()
+    val prev    = TimeUtils.nanoTime()
     val elapsed = TimeUtils.timeSinceNanos(prev)
     assert(elapsed >= Nanos.zero)
   }
 
   test("timeSinceMillis returns non-negative value") {
-    val prev = TimeUtils.millis()
+    val prev    = TimeUtils.millis()
     val elapsed = TimeUtils.timeSinceMillis(prev)
     assert(elapsed >= Millis.zero)
   }
@@ -74,7 +74,7 @@ class TimeUtilsTest extends munit.FunSuite {
   }
 
   test("large nanosToMillis conversion") {
-    val nanos = Nanos(1_000_000_000L) // 1 second = 1000 ms
+    val nanos  = Nanos(1_000_000_000L) // 1 second = 1000 ms
     val millis = TimeUtils.nanosToMillis(nanos)
     assertEquals(millis.toLong, 1000L)
   }

@@ -17,7 +17,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("Selection starts empty") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     assert(sel.isEmpty)
     assert(!sel.notEmpty)
     assertEquals(sel.size, 0)
@@ -31,7 +31,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("add inserts item") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.add("a")
     assertEquals(sel.size, 1)
@@ -41,7 +41,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("add duplicate is idempotent") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.add("a")
     sel.add("a")
@@ -50,7 +50,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("remove removes item") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.add("a")
     sel.add("b")
@@ -62,7 +62,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("remove non-existent item is no-op") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.add("a")
     sel.remove("z")
@@ -75,7 +75,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("set replaces selection with single item") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.add("a")
     sel.add("b")
@@ -87,7 +87,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("set with same single item is no-op") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.add("a")
     // Setting the same item when it's already the only selection should be no-op
@@ -134,7 +134,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("removeAll removes multiple items") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.add("a")
     sel.add("b")
@@ -153,7 +153,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("clear empties selection") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.add("a")
     sel.add("b")
@@ -165,7 +165,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("clear on empty is no-op") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.clear()
     assert(sel.isEmpty)
@@ -177,7 +177,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("contains with Nullable.empty returns false") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.add("a")
     assert(!sel.contains(Nullable.empty))
@@ -189,7 +189,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("first returns first item") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.add("first")
     sel.add("second")
@@ -200,7 +200,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("lastSelected tracks the last set/add item") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.add("a")
     assert(sel.lastSelected.exists(_ == "a"))
@@ -210,7 +210,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("lastSelected falls back to head when cleared") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.add("a")
     sel.add("b")
@@ -225,7 +225,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("disabled property") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     assert(!sel.disabled)
     sel.disabled = true
     assert(sel.disabled)
@@ -233,7 +233,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("choose does nothing when disabled") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.disabled = true
     sel.choose("a")
@@ -246,7 +246,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("choose selects item when empty") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.choose("a")
     assertEquals(sel.size, 1)
@@ -255,7 +255,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("choose replaces selection when not multiple") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.choose("a")
     sel.choose("b")
@@ -270,7 +270,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("choose does not replace in multiple mode without ctrl/toggle") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.multiple = true
     // In multiple mode without ctrl pressed, choose still replaces
@@ -286,7 +286,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("choose with toggle deselects already selected item") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.toggle = true
     sel.choose("a")
@@ -298,7 +298,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("choose with toggle and required does not deselect last item") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.toggle = true
     sel.required = true
@@ -316,7 +316,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("Selection is iterable") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.add("a")
     sel.add("b")
@@ -332,7 +332,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("toArray returns DynamicArray of selected items") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.add("x")
     sel.add("y")
@@ -346,7 +346,7 @@ class SelectionTest extends munit.FunSuite {
 
   test("toString reflects selection") {
     given Sge = ctx()
-    val sel = Selection[String]()
+    val sel   = Selection[String]()
     sel.programmaticChangeEvents = false
     sel.add("hello")
     val str = sel.toString

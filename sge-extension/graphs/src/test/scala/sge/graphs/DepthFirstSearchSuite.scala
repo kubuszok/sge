@@ -19,10 +19,12 @@ class DepthFirstSearchSuite extends FunSuite {
     graph.addEdge(3, 5)
 
     val visited = ArrayBuffer.empty[Int]
-    graph.algorithms.depthFirstSearch(1, new SearchProcessor[Int] {
-      def accept(step: SearchStep[Int]): Unit =
-        visited += step.vertex
-    })
+    graph.algorithms.depthFirstSearch(1,
+                                      new SearchProcessor[Int] {
+                                        def accept(step: SearchStep[Int]): Unit =
+                                          visited += step.vertex
+                                      }
+    )
 
     assertEquals(visited.size, 5)
     assertEquals(visited.head, 1)
@@ -40,10 +42,12 @@ class DepthFirstSearchSuite extends FunSuite {
     graph.addEdge(3, 4)
 
     val visited = ArrayBuffer.empty[Int]
-    graph.algorithms.depthFirstSearch(1, new SearchProcessor[Int] {
-      def accept(step: SearchStep[Int]): Unit =
-        visited += step.vertex
-    })
+    graph.algorithms.depthFirstSearch(1,
+                                      new SearchProcessor[Int] {
+                                        def accept(step: SearchStep[Int]): Unit =
+                                          visited += step.vertex
+                                      }
+    )
 
     assertEquals(visited.size, 2)
     assert(visited.contains(1))
@@ -61,10 +65,12 @@ class DepthFirstSearchSuite extends FunSuite {
     graph.addEdge(3, 4)
 
     val visited = ArrayBuffer.empty[Int]
-    graph.algorithms.depthFirstSearch(1, new SearchProcessor[Int] {
-      def accept(step: SearchStep[Int]): Unit =
-        visited += step.vertex
-    })
+    graph.algorithms.depthFirstSearch(1,
+                                      new SearchProcessor[Int] {
+                                        def accept(step: SearchStep[Int]): Unit =
+                                          visited += step.vertex
+                                      }
+    )
 
     // In a linear chain, DFS should visit 1, 2, 3, 4 in order
     assertEquals(visited.toList, List(1, 2, 3, 4))
@@ -77,10 +83,12 @@ class DepthFirstSearchSuite extends FunSuite {
     graph.addEdge(2, 3)
 
     val depths = ArrayBuffer.empty[(Int, Int)]
-    graph.algorithms.depthFirstSearch(1, new SearchProcessor[Int] {
-      def accept(step: SearchStep[Int]): Unit =
-        depths += ((step.vertex, step.depth))
-    })
+    graph.algorithms.depthFirstSearch(1,
+                                      new SearchProcessor[Int] {
+                                        def accept(step: SearchStep[Int]): Unit =
+                                          depths += ((step.vertex, step.depth))
+                                      }
+    )
 
     assertEquals(depths.size, 3)
     assertEquals(depths.find(_._1 == 1).get._2, 0) // root depth = 0
@@ -96,12 +104,15 @@ class DepthFirstSearchSuite extends FunSuite {
     graph.addEdge(3, 4)
 
     val visited = ArrayBuffer.empty[Int]
-    graph.algorithms.depthFirstSearch(1, new SearchProcessor[Int] {
-      def accept(step: SearchStep[Int]): Unit = {
-        visited += step.vertex
-        if (step.vertex == 2) step.terminate()
+    graph.algorithms.depthFirstSearch(
+      1,
+      new SearchProcessor[Int] {
+        def accept(step: SearchStep[Int]): Unit = {
+          visited += step.vertex
+          if (step.vertex == 2) step.terminate()
+        }
       }
-    })
+    )
 
     // Should stop after visiting vertex 2
     assert(visited.contains(1))
@@ -118,12 +129,14 @@ class DepthFirstSearchSuite extends FunSuite {
     graph.addEdge(1, 4)
 
     val visited = ArrayBuffer.empty[Int]
-    graph.algorithms.depthFirstSearch(1, new SearchProcessor[Int] {
-      def accept(step: SearchStep[Int]): Unit = {
-        visited += step.vertex
-        if (step.vertex == 2) step.ignore()
-      }
-    })
+    graph.algorithms.depthFirstSearch(1,
+                                      new SearchProcessor[Int] {
+                                        def accept(step: SearchStep[Int]): Unit = {
+                                          visited += step.vertex
+                                          if (step.vertex == 2) step.ignore()
+                                        }
+                                      }
+    )
 
     // Ignoring vertex 2 should skip its neighbour 3 but still visit 4
     assert(visited.contains(1))
@@ -140,10 +153,12 @@ class DepthFirstSearchSuite extends FunSuite {
     graph.addEdge("C", "D")
 
     val visited = ArrayBuffer.empty[String]
-    graph.algorithms.depthFirstSearch("A", new SearchProcessor[String] {
-      def accept(step: SearchStep[String]): Unit =
-        visited += step.vertex
-    })
+    graph.algorithms.depthFirstSearch("A",
+                                      new SearchProcessor[String] {
+                                        def accept(step: SearchStep[String]): Unit =
+                                          visited += step.vertex
+                                      }
+    )
 
     assertEquals(visited.size, 4)
   }
@@ -153,10 +168,12 @@ class DepthFirstSearchSuite extends FunSuite {
     graph.addVertex(42)
 
     val visited = ArrayBuffer.empty[Int]
-    graph.algorithms.depthFirstSearch(42, new SearchProcessor[Int] {
-      def accept(step: SearchStep[Int]): Unit =
-        visited += step.vertex
-    })
+    graph.algorithms.depthFirstSearch(42,
+                                      new SearchProcessor[Int] {
+                                        def accept(step: SearchStep[Int]): Unit =
+                                          visited += step.vertex
+                                      }
+    )
 
     assertEquals(visited.toList, List(42))
   }
@@ -169,10 +186,12 @@ class DepthFirstSearchSuite extends FunSuite {
     graph.addEdge(3, 1) // cycle
 
     val visited = ArrayBuffer.empty[Int]
-    graph.algorithms.depthFirstSearch(1, new SearchProcessor[Int] {
-      def accept(step: SearchStep[Int]): Unit =
-        visited += step.vertex
-    })
+    graph.algorithms.depthFirstSearch(1,
+                                      new SearchProcessor[Int] {
+                                        def accept(step: SearchStep[Int]): Unit =
+                                          visited += step.vertex
+                                      }
+    )
 
     assertEquals(visited.size, 3)
   }
@@ -184,10 +203,12 @@ class DepthFirstSearchSuite extends FunSuite {
     graph.addEdge(2, 3)
 
     val counts = ArrayBuffer.empty[(Int, Int)]
-    graph.algorithms.depthFirstSearch(1, new SearchProcessor[Int] {
-      def accept(step: SearchStep[Int]): Unit =
-        counts += ((step.vertex, step.count))
-    })
+    graph.algorithms.depthFirstSearch(1,
+                                      new SearchProcessor[Int] {
+                                        def accept(step: SearchStep[Int]): Unit =
+                                          counts += ((step.vertex, step.count))
+                                      }
+    )
 
     // Count increments with each step processed
     assertEquals(counts.find(_._1 == 1).get._2, 0) // first step

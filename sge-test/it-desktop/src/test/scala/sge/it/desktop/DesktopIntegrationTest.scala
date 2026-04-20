@@ -26,6 +26,13 @@ class DesktopIntegrationTest extends FunSuite {
   override val munitTimeout: Duration = 60.seconds
 
   test("desktop harness runs all subsystem checks") {
+    // Skip on headless CI environments (no display server for GLFW windowing)
+    val isHeadless = java.awt.GraphicsEnvironment.isHeadless ||
+      (System.getenv("DISPLAY") == null && System.getenv("WAYLAND_DISPLAY") == null &&
+        !System.getProperty("os.name", "").toLowerCase.contains("mac") &&
+        !System.getProperty("os.name", "").toLowerCase.contains("win"))
+    assume(!isHeadless, "No display server available — skipping desktop harness test")
+
     val resultsFile = File.createTempFile("sge-it-desktop-", ".json")
     resultsFile.deleteOnExit()
 

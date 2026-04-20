@@ -991,7 +991,11 @@ lazy val `sge-it-desktop` = (project in file("sge-test/it-desktop"))
     resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
     libraryDependencies ++= Seq(
       "org.scalameta" %% "munit"  % versions.munit % Test,
-      "com.outr"      %% "scribe" % versions.scribe
+      "com.outr"      %% "scribe" % versions.scribe,
+      // Panama provider JARs — multiarch-core extracts native libs from these at runtime
+      "com.kubuszok" % "pnm-provider-sge-desktop"          % versions.nativeComponents % Test,
+      "com.kubuszok" % "pnm-provider-sge-freetype-desktop" % versions.nativeComponents % Test,
+      "com.kubuszok" % "pnm-provider-sge-physics-desktop"  % versions.nativeComponents % Test
     ),
     testFrameworks += new TestFramework("munit.Framework"),
     // Need JVM platform modules on classpath

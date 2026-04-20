@@ -69,7 +69,7 @@ class ClickListenerTest extends munit.FunSuite {
   }
 
   test("invalidateTapSquare resets tap square") {
-    val cl = ClickListener()
+    val cl    = ClickListener()
     val event = InputEvent()
 
     cl.touchDown(event, 50f, 50f, 0, Button(0))
@@ -221,7 +221,7 @@ class ClickListenerTest extends munit.FunSuite {
     val actor = Actor()
     actor.setSize(200f, 200f)
     var clickCount = 0
-    val cl = new ClickListener() {
+    val cl         = new ClickListener() {
       override def clicked(event: InputEvent, x: Float, y: Float): Unit =
         clickCount += 1
     }

@@ -276,7 +276,7 @@ class PhysicsIntegration3dSuite extends FunSuite {
       val mass = col.mass
       assert(mass > 0f, s"Mass should be positive, got $mass")
       val parent = col.parentBody
-      assert(parent != 0L, "Should have a parent body")
+      assertEquals(parent, body.handle, "Should have the correct parent body")
     } finally world.close()
   }
 
@@ -477,7 +477,7 @@ class PhysicsIntegration3dSuite extends FunSuite {
       // Cast ray downward from above
       val hit = world.rayCast(0f, 10f, 0f, 0f, -1f, 0f, 20f)
       import sge.utils.Nullable
-      assert(Nullable.nonEmpty(hit), "Ray should hit the box")
+      assert(!Nullable.isEmpty(hit), "Ray should hit the box")
     } finally world.close()
   }
 
