@@ -61,7 +61,7 @@ steps:
     hint: "brew install freetype"
 
   # ── Optional: cross-platform native release builds ─────────────────
-  # Native binaries are built externally in sge-native-components and
+  # Native binaries are built externally in sge-native-providers and
   # distributed as provider JARs from Maven. These steps are only needed
   # if you want to *build* the natives locally rather than consume the
   # provider JARs.

@@ -12,13 +12,37 @@ SGE is a cross-platform 2D/3D game engine written in Scala 3, ported from
 
 ## Status
 
+### Core library
+
 - **539 / 605** core library files converted from Java to Scala 3
-- **124 / 152** backend files done (desktop, browser, headless, Android complete; iOS deferred)
+- **124 / 152** backend files done (desktop, browser, headless, Android; iOS deferred)
 - **534+ files audited** against original LibGDX sources
-- **1450 JVM + 1096 JS + 1096 Native** unit tests passing
 - **11 demo applications** build and run on all 4 platforms
 - All 11 demos produce signed Android APKs
-- 10/11 demos link on Scala Native (NetChat excluded: scala-xml SAX dependency)
+
+### Extensions
+
+17 extensions ported from the LibGDX ecosystem:
+
+| Extension | Ported from | Platforms |
+|-----------|-------------|-----------|
+| sge-ai | [gdx-ai](https://github.com/libgdx/gdx-ai) | JVM / JS / Native |
+| sge-ecs | [Ashley ECS](https://github.com/libgdx/ashley) | JVM / JS / Native |
+| sge-controllers | [gdx-controllers](https://github.com/libgdx/gdx-controllers) | JVM / JS / Native |
+| sge-freetype | LibGDX FreeType | JVM / JS / Native |
+| sge-physics | [Rapier2D](https://rapier.rs/) | JVM / JS / Native |
+| sge-physics3d | [Rapier3D](https://rapier.rs/) | JVM / JS / Native |
+| sge-gltf | [gdx-gltf](https://github.com/mgsx-dev/gdx-gltf) | JVM / JS / Native |
+| sge-vfx | [gdx-vfx](https://github.com/crashinvaders/gdx-vfx) | JVM / JS / Native |
+| sge-textra | [TextraTypist](https://github.com/tommyettinger/textratypist) | JVM / JS / Native |
+| sge-colorful | [colorful-gdx](https://github.com/tommyettinger/colorful-gdx) | JVM / JS / Native |
+| sge-visui | [VisUI](https://github.com/kotcrab/vis-ui) | JVM / JS / Native |
+| sge-screens | [libgdx-screenmanager](https://github.com/crykn/libgdx-screenmanager) | JVM / JS / Native |
+| sge-anim8 | [anim8-gdx](https://github.com/tommyettinger/anim8-gdx) | JVM / JS / Native |
+| sge-noise | [noise4j](https://github.com/czyzby/noise4j) | JVM / JS / Native |
+| sge-graphs | [simple-graphs](https://github.com/earlygrey/simple-graphs) | JVM / JS / Native |
+| sge-jbump | [jbump](https://github.com/tommyettinger/jbump) | JVM / JS / Native |
+| sge-tools | LibGDX TexturePacker | JVM only |
 
 ## Prerequisites
 
@@ -29,7 +53,8 @@ SGE is a cross-platform 2D/3D game engine written in Scala 3, ported from
 ### macOS (Homebrew)
 
 ```sh
-brew install sbt coursier node freetype
+brew install sbt coursier node
+brew install --cask zulu
 ```
 
 Optional (for specific workflows):
@@ -58,7 +83,7 @@ sbt warm via `--client` to avoid the 30s JVM startup tax.
 ```sh
 re-scale doctor                # Check toolchain (first time)
 re-scale build compile         # Compile SGE core (JVM)
-re-scale test unit             # Run 1450 JVM unit tests
+re-scale test unit             # Run JVM unit tests
 ```
 
 ### All platforms
@@ -107,20 +132,42 @@ cd demos && sbt --client 'pongJS/fastLinkJS'   # Single demo
 ## Project Structure
 
 ```
-sge/                          Core library (JVM / JS / Native)
-sge-jvm-platform/api/         Platform abstraction interfaces (JDK 17)
-sge-jvm-platform/jdk/         JDK 22+ Panama FFM implementation
-sge-jvm-platform/android/     Android backend (PanamaPort + Android APIs)
-sge-extension/freetype/       FreeType font extension (JVM / JS / Native)
-sge-extension/physics/        2D physics via Rapier2D (JVM / JS / Native)
-sge-extension/tools/          TexturePacker CLI (JVM-only)
-sge-build/                    sbt plugin (SgePlugin, AndroidBuild, packaging)
-sge-test/regression/          Single cross-platform demo (root build)
-demos/                        11 feature demos (separate sbt sub-build)
-sge-test/android-smoke/       Minimal Android smoke-test APK
-sge-test/                     Integration tests (desktop, browser, android)
-original-src/libgdx/          Original LibGDX Java source (reference only)
-docs/                         Architecture, guides, audit trail, progress
+sge/
+├── sge/                              Core library (JVM / JS / Native)
+├── sge-jvm-platform/
+│   ├── api/                          Platform abstraction interfaces (JDK 17)
+│   ├── jdk/                          JDK 22+ Panama FFM implementation
+│   └── android/                      Android backend (PanamaPort)
+├── sge-extension/
+│   ├── ai/                           AI: behavior trees, FSM, pathfinding
+│   ├── ecs/                          Entity Component System
+│   ├── controllers/                  Game controller input
+│   ├── freetype/                     FreeType font rasterization
+│   ├── physics/                      2D physics (Rapier2D)
+│   ├── physics3d/                    3D physics (Rapier3D)
+│   ├── gltf/                         glTF model loading
+│   ├── vfx/                          Visual effects (bloom, blur, CRT, ...)
+│   ├── textra/                       Advanced text rendering with effects
+│   ├── colorful/                     Color space utilities (Oklab, HSL, ...)
+│   ├── visui/                        UI widget library
+│   ├── screens/                      Screen management + transitions
+│   ├── anim8/                        Animation recording (PNG/GIF export)
+│   ├── noise/                        Procedural generation (noise, dungeons)
+│   ├── graphs/                       Graph algorithms (A*, BFS, DFS, ...)
+│   ├── jbump/                        AABB tile-based collision
+│   └── tools/                        TexturePacker CLI (JVM-only)
+├── sge-build/                        sbt plugin (SgePlugin, SgePackaging)
+├── sge-test/
+│   ├── regression/                   Cross-platform regression tests
+│   ├── it-desktop/                   Desktop IT (GLFW + ANGLE + audio)
+│   ├── it-browser/                   Browser IT (Playwright + Chromium)
+│   ├── it-jvm-platform/              Panama provider + Android ops tests
+│   ├── it-android/                   Android emulator tests
+│   ├── it-native-ffi/                Scala Native FFI validation
+│   └── android-smoke/                Minimal Android smoke APK
+├── demos/                            11 feature demos (separate sub-build)
+├── original-src/libgdx/              Reference LibGDX Java source
+└── docs/                             Architecture, guides, improvements
 ```
 
 ## Architecture
@@ -131,18 +178,30 @@ SGE uses sbt-projectmatrix to compile a single Scala 3 codebase to JVM, JS, and
 Native. Platform-specific code lives in `sge/src/main/{scalajvm,scalajs,scalanative}/`.
 Desktop-shared code (JVM + Native, not JS) is in `sge/src/main/scaladesktop/`.
 
+### Build tooling
+
+The `sge-build/` directory contains an sbt plugin with SGE-specific conventions
+(compiler flags, packaging). Generic cross-platform infrastructure (Platform
+detection, AndroidBuild, JvmPackaging, NativeProviderPlugin, ZigCross) lives in
+[sbt-multiarch-scala](https://github.com/kubuszok/sbt-multiarch-scala).
+
 ### Native components
 
 Native libraries are built in the external
-[sge-native-components](https://github.com/kubuszok/sge-native-components)
+[sge-native-providers](https://github.com/kubuszok/sge-native-providers)
 repository and distributed as provider JARs from Maven. No local Rust build
 is needed — the sbt build resolves native libraries automatically.
 
-Three separate libraries are produced:
+Four native libraries are produced:
 
 - **`libsge_native_ops`** — buffer operations, ETC1 codec, GLFW windowing, miniaudio
 - **`libsge_freetype`** — FreeType font rasterization
 - **`libsge_physics`** — Rapier2D physics engine
+- **`libsge_physics3d`** — Rapier3D physics engine
+
+Two provider JAR types distribute these:
+- `sn-provider-*` — static libraries for Scala Native linking
+- `pnm-provider-*-desktop` — shared libraries for JVM/Panama FFM
 
 On JVM, these are accessed via Panama FFM (JDK 22+ `java.lang.foreign`).
 On Scala Native, via `@extern` C FFI. On Android, via PanamaPort (backport
@@ -176,9 +235,9 @@ JVM, JS, Native, and Android targets.
 ## Testing
 
 ```sh
-re-scale test unit                    # JVM unit tests (1450)
-re-scale test unit --js               # Scala.js unit tests (1096)
-re-scale test unit --native           # Scala Native unit tests (1096)
+re-scale test unit                    # JVM unit tests
+re-scale test unit --js               # Scala.js unit tests
+re-scale test unit --native           # Scala Native unit tests
 re-scale runner browser-it            # Playwright browser integration tests
 re-scale runner desktop-it            # Desktop end-to-end (GLFW + ANGLE + audio)
 re-scale runner android-it            # Android emulator smoke test
@@ -186,15 +245,18 @@ re-scale runner android-it            # Android emulator smoke test
 
 ## CI
 
-GitHub Actions runs on every push:
+GitHub Actions runs ~20 jobs on every push:
 
-- Unit tests on JVM, JS, and Native (Linux, macOS, Windows)
-- Native FFI headless validation
+- JVM unit tests on 6 platforms (Linux, macOS ARM + x86_64, Windows)
+- Scala Native tests on 5 platforms
+- Native FFI headless validation on 5 platforms
+- Desktop IT with headless library loading validation
+- Code coverage report (JVM, via scoverage)
 - Browser smoke tests (Playwright + headless Chromium)
 - Android smoke test (emulator + SwiftShader)
-- Native linking verification for all 11 demos
-- All 11 demos compiled on all 3 platforms
-- Demo JS bundles verified in browser
+- All 11 demos compiled on JVM + JS + Native
+- Release packaging verification on 6 platforms
+- Covenant verification (enforce gate)
 
 ## License
 

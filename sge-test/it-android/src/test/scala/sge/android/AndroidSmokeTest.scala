@@ -154,8 +154,8 @@ class AndroidSmokeTest extends FunSuite {
   private def findApk(): Path = {
     val cwd        = Paths.get(System.getProperty("user.dir"))
     val candidates = Seq(
-      cwd.resolve("sge-test/android-smoke/target/scala-3.8.2/android/app-debug.apk"),
-      cwd.resolve("../../sge-test/android-smoke/target/scala-3.8.2/android/app-debug.apk").normalize
+      cwd.resolve("sge-test/android-smoke/target/scala-3.8.3/android/app-debug.apk"),
+      cwd.resolve("../../sge-test/android-smoke/target/scala-3.8.3/android/app-debug.apk").normalize
     )
     candidates
       .find(Files.exists(_))

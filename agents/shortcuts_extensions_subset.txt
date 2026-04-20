@@ -1,9 +1,0 @@
-sge-extension/ai/src/main/scala/sge/ai/pfa/HierarchicalPathFinder.scala  (2 hits)
-    247  flag-break-var          var continue = true
-    267  fixme                   // FIXME the break below is wrong
-sge-extension/ai/src/main/scala/sge/ai/fma/SoftRoleSlotAssignmentStrategy.scala  (1 hits)
-    140  todo                    // TODO
-sge-extension/ai/src/main/scala/sge/ai/fma/Formation.scala  (1 hits)
-    190  todo                    // TODO Consider the possibility of declaring mul(orientationMatrix) in Vector
-
-Total: 4 hits in 3 files

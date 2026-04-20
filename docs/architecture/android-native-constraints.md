@@ -47,7 +47,7 @@ DEXing these dependencies into the APK.
 
 ### Build Pipeline
 
-1. **Rust cross-compilation** (in the external sge-native-components repo): builds
+1. **Rust cross-compilation** (in the external sge-native-providers repo): builds
    `libsge_native_ops.so` for 3 Android architectures using NDK 27 clang as the linker
 2. **C audio bridge** (`build.rs`): builds `libsge_audio.so` from vendored miniaudio,
    linked against `-llog -lOpenSLES -lm` (Android audio APIs)
@@ -91,7 +91,7 @@ FFM symbol resolution.
 ### Configuration
 
 The `.cargo/config.toml` in the
-[sge-native-components](https://github.com/kubuszok/sge-native-components) repo
+[sge-native-providers](https://github.com/kubuszok/sge-native-providers) repo
 specifies NDK clang as the linker for each target. The cross-android build script
 sets `CC_<target>`, `CXX_<target>`, and `AR_<target>` environment variables for
 the `cc` crate used by `build.rs`.

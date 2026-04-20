@@ -9,17 +9,17 @@ External dependencies required to build, test, and release SGE.
 | JDK | 25+ | `brew install --cask zulu` | Scala compiler, Panama FFM |
 | sbt | 1.12+ | `brew install sbt` | Build tool |
 | Node.js | 18+ | `brew install node` | Scala.js linking |
-| FreeType | 2.x | `brew install freetype` | Font rasterization (system library for local dev) |
+| ~~FreeType~~ | ~~2.x~~ | ~~`brew install freetype`~~ | No longer needed — bundled in provider JARs |
 
 Native libraries (GLFW, miniaudio, buffer ops) are distributed as provider JARs
 from Maven and resolved automatically by sbt. No local Rust toolchain is needed.
 To modify native code, clone the
-[sge-native-components](https://github.com/kubuszok/sge-native-components) repo.
+[sge-native-providers](https://github.com/kubuszok/sge-native-providers) repo.
 
 ### Quick install (macOS)
 
 ```sh
-brew install sbt node freetype
+brew install sbt node
 brew install --cask zulu
 ```
 
@@ -132,7 +132,7 @@ Maven. The sbt build resolves them automatically — no manual download.
 ## Native components
 
 Native libraries are built in the external
-[sge-native-components](https://github.com/kubuszok/sge-native-components)
+[sge-native-providers](https://github.com/kubuszok/sge-native-providers)
 repository and distributed as provider JARs from Maven. Three libraries
 are produced:
 
