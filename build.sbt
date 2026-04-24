@@ -69,7 +69,7 @@ def collectClassFiles(classDir: File): Seq[(File, String)] =
 val versions = new {
   val scala = SgePlugin.scalaVersion
 
-  val kindlings = "0.1.1"
+  val kindlings = "0.1.2"
   val sttp      = "4.0.22"
   val xml       = "2.3.0"
   val scribe    = "3.17.0"
@@ -86,7 +86,7 @@ val versions = new {
   val munitScalacheck = "1.2.0"
 
   // Native component providers (from sge-native-providers repo)
-  val nativeComponents = "0.1.0"
+  val nativeComponents = "0.1.1"
   val curlProvider     = "0.1.1"
 }
 
