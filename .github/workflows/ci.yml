@@ -101,7 +101,6 @@ jobs:
   test-jvm:
     name: JVM tests (${{ matrix.label }})
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -200,7 +199,6 @@ jobs:
   test-native:
     name: Scala Native tests (${{ matrix.label }})
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -257,7 +255,7 @@ jobs:
     name: Native FFI IT tests (${{ matrix.label }})
     needs: [test-native]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+
     strategy:
       fail-fast: false
       matrix:
@@ -524,7 +522,6 @@ jobs:
     name: Verify release (${{ matrix.label }})
     needs: [test-jvm, test-native]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:

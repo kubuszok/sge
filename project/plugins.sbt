@@ -9,7 +9,7 @@ addSbtPlugin("org.scala-native" % "sbt-scala-native"   % "0.5.10")
 // publishing
 addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.3.1")
 // multiarch-scala (Platform, NativeProviderPlugin, ZigCross, JvmPackaging)
-addSbtPlugin("com.kubuszok" % "sbt-multiarch-scala" % "0.1.1")
+addSbtPlugin("com.kubuszok" % "sbt-multiarch-scala" % "0.1.2")
 // coverage
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.4.4")
 
