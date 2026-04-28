@@ -51,9 +51,10 @@ converted, 0 not started, 66 skipped (stdlib replacements), 0 deferred.
 delegates to `re-scale hook`, which validates every Bash command — if
 denied, use the suggested alternative.
 
-Source repo: <https://github.com/kubuszok/re-scale>. Install via
-`scripts/install.sh` from a clone of that repo (builds the Scala
-Native binary + wrapper and copies them into `$HOME/bin/`).
+Source repo: <https://github.com/kubuszok/re-scale>. Installed
+automatically by the re-scale plugin's SessionStart hook — it clones
+the pinned version to `~/.local/share/re-scale/<VERSION>/`, builds
+the Scala Native binary, and adds `bin/` to PATH for the session.
 
 | Command | Purpose |
 |---------|---------|
