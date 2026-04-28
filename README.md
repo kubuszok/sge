@@ -20,29 +20,31 @@ SGE is a cross-platform 2D/3D game engine written in Scala 3, ported from
 - **11 demo applications** build and run on all 4 platforms
 - All 11 demos produce signed Android APKs
 
+Ported from [LibGDX](https://github.com/libgdx/libgdx) **1.14.0** (`4b4d2c4fd`).
+
 ### Extensions
 
 17 extensions ported from the LibGDX ecosystem:
 
-| Extension | Ported from | Platforms |
-|-----------|-------------|-----------|
-| sge-ai | [gdx-ai](https://github.com/libgdx/gdx-ai) | JVM / JS / Native |
-| sge-ecs | [Ashley ECS](https://github.com/libgdx/ashley) | JVM / JS / Native |
-| sge-controllers | [gdx-controllers](https://github.com/libgdx/gdx-controllers) | JVM / JS / Native |
-| sge-freetype | LibGDX FreeType | JVM / JS / Native |
-| sge-physics | [Rapier2D](https://rapier.rs/) | JVM / JS / Native |
-| sge-physics3d | [Rapier3D](https://rapier.rs/) | JVM / JS / Native |
-| sge-gltf | [gdx-gltf](https://github.com/mgsx-dev/gdx-gltf) | JVM / JS / Native |
-| sge-vfx | [gdx-vfx](https://github.com/crashinvaders/gdx-vfx) | JVM / JS / Native |
-| sge-textra | [TextraTypist](https://github.com/tommyettinger/textratypist) | JVM / JS / Native |
-| sge-colorful | [colorful-gdx](https://github.com/tommyettinger/colorful-gdx) | JVM / JS / Native |
-| sge-visui | [VisUI](https://github.com/kotcrab/vis-ui) | JVM / JS / Native |
-| sge-screens | [libgdx-screenmanager](https://github.com/crykn/libgdx-screenmanager) | JVM / JS / Native |
-| sge-anim8 | [anim8-gdx](https://github.com/tommyettinger/anim8-gdx) | JVM / JS / Native |
-| sge-noise | [noise4j](https://github.com/czyzby/noise4j) | JVM / JS / Native |
-| sge-graphs | [simple-graphs](https://github.com/earlygrey/simple-graphs) | JVM / JS / Native |
-| sge-jbump | [jbump](https://github.com/tommyettinger/jbump) | JVM / JS / Native |
-| sge-tools | LibGDX TexturePacker | JVM only |
+| Extension | Ported from | Version | Platforms |
+|-----------|-------------|---------|-----------|
+| sge-ai | [gdx-ai](https://github.com/libgdx/gdx-ai) | 1.8.3 | JVM / JS / Native |
+| sge-ecs | [Ashley ECS](https://github.com/libgdx/ashley) | 1.8.0 | JVM / JS / Native |
+| sge-controllers | [gdx-controllers](https://github.com/libgdx/gdx-controllers) | 2.2.5 | JVM / JS / Native |
+| sge-freetype | [LibGDX FreeType](https://github.com/libgdx/libgdx) | 1.14.0 | JVM / JS / Native |
+| sge-physics | [Rapier2D](https://rapier.rs/) | 0.32 | JVM / JS / Native |
+| sge-physics3d | [Rapier3D](https://rapier.rs/) | 0.32 | JVM / JS / Native |
+| sge-gltf | [gdx-gltf](https://github.com/mgsx-dev/gdx-gltf) | 2.3.0 | JVM / JS / Native |
+| sge-vfx | [gdx-vfx](https://github.com/crashinvaders/gdx-vfx) | 0.5.4 | JVM / JS / Native |
+| sge-textra | [TextraTypist](https://github.com/tommyettinger/textratypist) | 2.2.15-SNAPSHOT | JVM / JS / Native |
+| sge-colorful | [colorful-gdx](https://github.com/tommyettinger/colorful-gdx) | 0.10.1-SNAPSHOT | JVM / JS / Native |
+| sge-visui | [VisUI](https://github.com/kotcrab/vis-ui) | 1.5.9-SNAPSHOT | JVM / JS / Native |
+| sge-screens | [libgdx-screenmanager](https://github.com/crykn/libgdx-screenmanager) | 0.7.1 | JVM / JS / Native |
+| sge-anim8 | [anim8-gdx](https://github.com/tommyettinger/anim8-gdx) | 0.6.2-SNAPSHOT | JVM / JS / Native |
+| sge-noise | [noise4j](https://github.com/czyzby/noise4j) | 0.1.0 | JVM / JS / Native |
+| sge-graphs | [simple-graphs](https://github.com/earlygrey/simple-graphs) | 4.0.0-SNAPSHOT | JVM / JS / Native |
+| sge-jbump | [jbump](https://github.com/tommyettinger/jbump) | 1.0.1 | JVM / JS / Native |
+| sge-tools | [LibGDX TexturePacker](https://github.com/libgdx/libgdx) | 1.14.0 | JVM only |
 
 ## Prerequisites
 
