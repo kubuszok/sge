@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: DragListener,_dragX,_dragY,_dragging,_stageTouchDownX,_stageTouchDownY,_touchDownX,_touchDownY,button,cancel,deltaX,deltaY,drag,dragDistance,dragLastX,dragLastY,dragStart,dragStartX,dragStartY,dragStop,dragX,dragY,dragging,dx,dy,pressedPointer,stageTouchDownX,stageTouchDownY,tapSquareSize,touchDown,touchDownX,touchDownY,touchDragged,touchUp
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/DragListener.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: b0a3e8b9b205c03085b3243fe229c6ae77a43766
  */
 package sge
 package scenes

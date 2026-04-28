@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: Task,Timer,TimerThread,addPostedTask,cancel,clear,currentThread,currentWaitMillis,delay,dispose,disposeThread,executeTime,executeTimeMillis,files,i,instance,instances,intervalMillis,isEmpty,isScheduled,loopStep,pause,pauseTimeMillis,post,postTask,postedTasks,removePostedTask,repeatCount,reset,resume,run,runPostedTasks,runPostedTasksRunnable,runTasks,schedule,scheduleTask,start,stop,stopTimeMillis,tasks,thread,threadLock,update
  * Covenant-source-reference: com/badlogic/gdx/utils/Timer.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: ff659249e292141692fb7b0b2b30c69ac38e5e0d
  */
 package sge
 package utils

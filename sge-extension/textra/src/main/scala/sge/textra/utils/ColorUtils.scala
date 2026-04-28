@@ -20,6 +20,8 @@
  * Partial-port debt:
  *   - parseDescription: only handles single color name lookup, not multi-word descriptions
  *     like "peach red" or "DARK DULLEST GREEN".
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

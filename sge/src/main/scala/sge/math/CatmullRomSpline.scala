@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: CatmullRomSpline,L1,L1Sqr,L2Sqr,L3Sqr,approxLength,approximate,calculate,continuous,controlPoints,derivative,derivativeAt,dst,dstNext2,dstPrev2,i,locate,n,nearest,next,previous,result,s,set,spanCount,startIndex,tempLength,this,tmp,tmp2,tmp3,u,u2,u3,valueAt
  * Covenant-source-reference: com/badlogic/gdx/math/CatmullRomSpline.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package math

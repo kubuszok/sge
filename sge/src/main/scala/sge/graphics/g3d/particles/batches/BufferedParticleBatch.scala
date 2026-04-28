@@ -23,6 +23,8 @@
  * Covenant-baseline-methods: BufferedParticleBatch,_camera,_sorter,allocParticlesData,begin,bufferedCount,bufferedParticlesCount,camera,camera_,currentCapacity,draw,end,ensureCapacity,flush,renderData,resetCapacity,sorter,sorter_
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/batches/BufferedParticleBatch.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */
 package sge
 package graphics

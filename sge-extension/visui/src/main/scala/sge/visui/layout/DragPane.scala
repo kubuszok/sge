@@ -6,8 +6,12 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Covenant: full-port
- * Covenant-source-reference: vis-ui/ui/src/main/java/com/kotcrab/vis/ui/layout/DragPane.java
+ * Covenant-source-reference: com/kotcrab/vis/ui/layout/DragPane.java
+ * Covenant: full-port
  * Covenant-verified: 2026-04-11
+ * Covenant-verified: 2026-04-11
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

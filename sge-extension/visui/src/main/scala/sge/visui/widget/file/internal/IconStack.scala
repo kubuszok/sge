@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: IconStack,_maxHeight,_maxWidth,_minHeight,_minWidth,_prefHeight,_prefWidth,add,ch,checkHeight,checkStyle,computeSize,h,i,invalidate,layout,maxHeight,maxWidth,minHeight,minWidth,n,prefHeight,prefWidth,sizeInvalid,w
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/file/internal/IconStack.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

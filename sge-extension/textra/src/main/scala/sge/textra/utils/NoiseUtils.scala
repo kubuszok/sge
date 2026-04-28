@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: NoiseUtils,a,b,bicubicNoise1D,c,d,floor,h,imul,m,n,noise1D,o,octaveBicubicNoise1D,octaveNoise1D,p,rise,seed,triangleWave,x,xFloor
  * Covenant-source-reference: com/github/tommyettinger/textra/utils/NoiseUtils.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

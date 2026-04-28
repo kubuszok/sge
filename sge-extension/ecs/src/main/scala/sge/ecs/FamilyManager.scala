@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: BitSetPool,EntityListenerData,FamilyManager,_notifying,addEntityListener,addListenerBits,bitsPool,data,doAddEntityListenerAtIndex,entityListenerMasks,entityListeners,families,getEntitiesFor,i,immutableFamilies,initialCapacity,insertionIndex,listener,max,newObject,notifying,priority,registerFamily,removeEntityListener,removeListenerBits,searching,snapshot,updateFamilyMembership
  * Covenant-source-reference: com/badlogic/ashley/core/FamilyManager.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: d63d542228cd8c62cc2f7adf20055b0ac59a547e
  */
 package sge
 package ecs

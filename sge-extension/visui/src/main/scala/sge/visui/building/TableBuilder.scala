@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: TableBuilder,_rowSizes,append,build,currentRowSize,fillTable,getDefaultWidgetPadding,getGreatestCommonDenominator,getLowestCommonMultiple,getRowSizes,getWidget,getWidgets,i,lcm,prepareBuiltTable,prepareNewTable,row,setTablePadding,tablePadding,this,validateRowSize,widgets
  * Covenant-source-reference: com/kotcrab/vis/ui/building/TableBuilder.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

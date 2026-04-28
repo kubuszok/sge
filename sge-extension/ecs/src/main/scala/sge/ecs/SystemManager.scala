@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: SystemListener,SystemManager,addSystem,getSystem,getSystems,idx,immutableSystems,oldSystem,removeAllSystems,removeSystem,sortSystems,sorted,systemAdded,systemComparator,systemRemoved,systemType,systems,systemsByClass
  * Covenant-source-reference: com/badlogic/ashley/core/SystemManager.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: d63d542228cd8c62cc2f7adf20055b0ac59a547e
  */
 package sge
 package ecs

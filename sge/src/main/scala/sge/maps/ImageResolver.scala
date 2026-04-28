@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: AssetManagerImageResolver,DirectImageResolver,ImageResolver,TextureAtlasImageResolver,getImage
  * Covenant-source-reference: com/badlogic/gdx/maps/ImageResolver.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package maps

@@ -16,8 +16,18 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 197
  * Covenant-baseline-methods: ConstantDoubleDistribution,ConstantFloatDistribution,ConstantIntegerDistribution,ConstantLongDistribution,Distribution,DoubleDistribution,FloatDistribution,GaussianDoubleDistribution,GaussianFloatDistribution,IntegerDistribution,LongDistribution,NegativeOne,One,StandardNormal,TriangularDoubleDistribution,TriangularFloatDistribution,TriangularIntegerDistribution,TriangularLongDistribution,UniformDoubleDistribution,UniformFloatDistribution,UniformIntegerDistribution,UniformLongDistribution,Zero,ZeroPointFive,d,nextDouble,nextFloat,nextInt,nextLong,this,u
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/utils/random/Distribution.java
+ *   Renames: `com.badlogic.gdx.ai.utils.random` -> `sge.ai.utils.random`; `MathUtils` -> `sge.math.MathUtils`
+ *   Idiom: Java class hierarchy -> Scala trait + abstract classes + final classes
+ *   Convention: split packages
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 197
+ * Covenant-baseline-methods: ConstantDoubleDistribution,ConstantFloatDistribution,ConstantIntegerDistribution,ConstantLongDistribution,Distribution,DoubleDistribution,FloatDistribution,GaussianDoubleDistribution,GaussianFloatDistribution,IntegerDistribution,LongDistribution,NegativeOne,One,StandardNormal,TriangularDoubleDistribution,TriangularFloatDistribution,TriangularIntegerDistribution,TriangularLongDistribution,UniformDoubleDistribution,UniformFloatDistribution,UniformIntegerDistribution,UniformLongDistribution,Zero,ZeroPointFive,d,nextDouble,nextFloat,nextInt,nextLong,this,u
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

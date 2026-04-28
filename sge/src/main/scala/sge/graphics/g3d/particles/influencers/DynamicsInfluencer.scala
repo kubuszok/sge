@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: DynamicsInfluencer,TMP_Q,accelChannel,accellerationChannel,activateParticles,allocateChannels,angVel2d,angularVelocityChannel,copy,has2dAngularVelocity,has3dAngularVelocity,hasAcceleration,init,k,positionChannel,previousPositionChannel,rotationChannel,set,this,update,velocities
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/influencers/DynamicsInfluencer.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */
 package sge
 package graphics

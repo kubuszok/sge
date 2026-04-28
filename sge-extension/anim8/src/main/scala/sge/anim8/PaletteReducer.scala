@@ -6,8 +6,12 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Covenant: full-port
- * Covenant-source-reference: anim8-gdx/src/main/java/com/github/tommyettinger/anim8/PaletteReducer.java
+ * Covenant-source-reference: com/github/tommyettinger/anim8/PaletteReducer.java
+ * Covenant: full-port
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 38634cefd749a9a8af4534ca285c8e72437fe181
  */
 package sge
 package anim8

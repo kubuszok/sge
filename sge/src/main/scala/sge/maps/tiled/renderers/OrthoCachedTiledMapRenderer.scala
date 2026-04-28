@@ -27,6 +27,8 @@
  * Covenant-baseline-methods: NUM_VERTICES,OrthoCachedTiledMapRenderer,ah,alphaMultiplier,aw,ax,ay,blending,cache,cacheBounds,cached,canCacheMoreE,canCacheMoreN,canCacheMoreS,canCacheMoreW,close,col1,col2,color,combinedTint,count,height,i,imageBounds,invalidateCache,isCached,j,layerHeight,layerOffsetX,layerOffsetY,layerTileHeight,layerTileWidth,layerWidth,map,mapLayers,maxTileHeight,maxTileWidth,opacityMultiplier,overCache,region,render,renderImageLayer,renderObject,renderObjects,renderTileLayer,row,row1,row2,setBlending,setMaxTileSize,setOverCache,setView,spriteCache,supportsTransparency,tolerance,unitScale,vertices,viewBounds,width
  * Covenant-source-reference: com/badlogic/gdx/maps/tiled/renderers/OrthoCachedTiledMapRenderer.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 0dc27743a43739f14f7220b4ec7dcc3ada3c8b61
  */
 package sge
 package maps

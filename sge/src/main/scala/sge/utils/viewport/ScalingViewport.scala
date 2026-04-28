@@ -25,6 +25,8 @@
  * Covenant-baseline-methods: ScalingViewport,currentScaling,scaled,sh,sw,this,update,viewportHeight,viewportWidth
  * Covenant-source-reference: com/badlogic/gdx/utils/viewport/ScalingViewport.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 72917675ed4718b7997044e26dc6f94544150391
  */
 package sge
 package utils

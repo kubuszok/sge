@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: Ambient,AmbientAlias,Bump,BumpAlias,Diffuse,DiffuseAlias,Emissive,EmissiveAlias,Mask,Normal,NormalAlias,Reflection,ReflectionAlias,Specular,SpecularAlias,TextureAttribute,compare,copy,createAmbient,createBump,createDiffuse,createEmissive,createNormal,createReflection,createSpecular,hashCode,is,offsetU,offsetV,result,scaleU,scaleV,set,textureDescription,this,uvIndex
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/attributes/TextureAttribute.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

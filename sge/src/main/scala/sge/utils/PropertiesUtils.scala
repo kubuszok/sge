@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: CONTINUE,IGNORE,KEY_DONE,LINE_SEPARATOR,NONE,PropertiesUtils,SLASH,UNICODE,br,buf,count,curIndex,dumpString,firstChar,i,keyLength,lastIndex,len,load,mode,offset,running,sb,store,storeImpl,unicode,writeComment
  * Covenant-source-reference: com/badlogic/gdx/utils/PropertiesUtils.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 72917675ed4718b7997044e26dc6f94544150391
  */
 package sge
 package utils

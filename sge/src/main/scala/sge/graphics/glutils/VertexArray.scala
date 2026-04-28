@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: VertexArray,_buffer,bind,buffer,byteBuffer,close,getBuffer,invalidate,isBound,numAttributes,numMaxVertices,numVertices,pos,setVertices,this,unbind,updateVertices
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/VertexArray.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 433466a3e68f1d847c72b566d0027400ae461e6c
  */
 package sge
 package graphics

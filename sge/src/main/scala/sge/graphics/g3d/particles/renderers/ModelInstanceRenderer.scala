@@ -22,6 +22,8 @@
  * Covenant-baseline-methods: ModelInstanceRenderer,allocateChannels,copy,hasColor,hasRotation,hasScale,init,isCompatible,this,update
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/renderers/ModelInstanceRenderer.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

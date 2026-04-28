@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: Status,Task,addChild,addChildToTask,cancel,cancelRunningChildren,checkGuard,childFail,childRunning,childSuccess,cloneTask,control,copyTo,end,fail,getChild,getChildCount,getObject,getStatus,guard,i,index,n,newInstance,previousStatus,reset,resetTask,run,running,setControl,start,status,success,taskCloner,tree
  * Covenant-source-reference: com/badlogic/gdx/ai/btree/Task.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

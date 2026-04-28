@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: VertexData,attributes,bind,buffer,close,getBuffer,invalidate,numMaxVertices,numVertices,setVertices,unbind,updateVertices
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/VertexData.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: ee1587b361cfa9be17e1829f1d4d40e6400cf28f
  */
 package sge
 package graphics

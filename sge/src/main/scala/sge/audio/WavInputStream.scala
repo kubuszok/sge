@@ -16,8 +16,19 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 161
  * Covenant-baseline-methods: WavInputStream,bitDepth,channels,codecType,dataRemaining,fmtChunkLength,getCodecName,read,remaining,sampleRate,seekToChunk,skipFully
- * Covenant-source-reference: backends/gdx-backend-lwjgl3/.../audio/Wav.java
+ * Covenant-source-reference: backends/gdx-backend-lwjgl3/src/com/badlogic/gdx/backends/lwjgl3/audio/Wav.java
+ *   Renames: Wav.WavInputStream -> WavInputStream (standalone class)
+ *   Convention: extracted from backend to core-shared; pure RIFF parser with no audio engine deps
+ *   Convention: boundary/break instead of return
+ *   Idiom: split packages
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 161
+ * Covenant-baseline-methods: WavInputStream,bitDepth,channels,codecType,dataRemaining,fmtChunkLength,getCodecName,read,remaining,sampleRate,seekToChunk,skipFully
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: ba0d0bda8b946fe2492bd3b80169a650d09f55d0
  */
 package sge
 package audio

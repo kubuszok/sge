@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: BLACK,BLUE,BROWN,CHARTREUSE,CLEAR,CLEAR_WHITE,CORAL,CYAN,Color,DARK_GRAY,FIREBRICK,FOREST,GOLD,GOLDENROD,GRAY,GREEN,LIGHT_GRAY,LIME,MAGENTA,MAROON,NAVY,OLIVE,ORANGE,PINK,PURPLE,RED,ROYAL,SALMON,SCARLET,SKY,SLATE,TAN,TEAL,VIOLET,WHITE,WHITE_FLOAT_BITS,YELLOW,abgr8888ToColor,add,alpha,argb8888,argb8888ToColor,c,clamp,color,cpy,equals,f,fromHsv,hashCode,hexValue,i,lerp,luminanceAlpha,max,min,mul,p,premultiplyAlpha,q,range,result,rgb565,rgb565ToColor,rgb888,rgb888ToColor,rgba4444,rgba4444ToColor,rgba8888,rgba8888ToColor,set,sub,t,this,toFloatBits,toHsv,toIntBits,toString,value,valueOf,x
  * Covenant-source-reference: com/badlogic/gdx/graphics/Color.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 0dc27743a43739f14f7220b4ec7dcc3ada3c8b61
  */
 package sge
 package graphics

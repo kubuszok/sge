@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: HttpMethod,HttpResponse,HttpResponseListener,Net,Protocol,cancelled,failed,getHeader,handleHttpResponse,headers,httpClient,newClientSocket,newServerSocket,openURI,result,resultAsStream,resultAsString,status
  * Covenant-source-reference: com/badlogic/gdx/Net.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 2b691f735f4b167c062f8f68186a6d7237d3d855
  */
 package sge
 

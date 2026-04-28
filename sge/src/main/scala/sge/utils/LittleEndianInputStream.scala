@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: LittleEndianInputStream,din,high,low,readBoolean,readByte,readChar,readDouble,readFloat,readFully,readInt,readLine,readLong,readShort,readUTF,readUnsignedByte,readUnsignedShort,res,skipBytes
  * Covenant-source-reference: com/badlogic/gdx/utils/LittleEndianInputStream.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package utils

@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: ColorInfluencer,Random,Single,activateParticles,allocateChannels,alphaInterpolationChannel,alphaValue,colorChannel,colorValue,copy,lifeChannel,set,this,update
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/influencers/ColorInfluencer.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

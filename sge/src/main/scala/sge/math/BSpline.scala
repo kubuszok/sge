@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: BSpline,adjustedStart,approxLength,approximate,calculate,continuous,controlPoints,cubic,cubic_derivative,d6,degree,derivative,derivativeAt,dst,dstNext2,dstPrev2,dt,i,knotCount,knots,locate,n,nearest,nearestKnot,next,previous,result,set,spanCount,t2,t3,tempLength,this,tmp,tmp2,tmp3,u,valueAt
  * Covenant-source-reference: com/badlogic/gdx/math/BSpline.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6e2e93a7b20a09539b2aaaad45f2dcef677dd9d7
  */
 package sge
 package math

@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: A,AA,ADiff,B,BA,BDiff,ColorTools,L,LA,LDiff,a,a2,abgr,ac,al,alc,alpha,alphaInt,b,b2,bc,bits,blot,blue,blueInt,cL,cbrtPositive,cc,channelA,channelB,channelL,chroma,chromaLimit,contrast,contrastBits,cube,d,dA,dB,darken,decoded,differentiateLightness,dist,distance,distanceSquared,dullen,e,eL,editOklab,enrich,fade,floatGetHSL,forwardGamma,forwardLight,fromColor,fromRGBA,fromRGBA8888,g,getRawGamutValue,green,greenInt,h,hue,idx,inGamut,inverseLightness,ix,l,lc,lessenChange,lighten,lightness,limit,limitToGamut,lowerA,lowerB,m,main,maximizeSaturation,multiplyChroma,offsetLightness,oklab,oklabByHCL,oklabByHSL,oklabHue,oklabLightness,oklabSaturation,op,r,raiseA,raiseB,randomColor,randomEdit,red,redInt,result,reverseGamma,reverseLight,rl,s,sL,saturation,sc,sd,toColor,toEditedFloat,toOklabColor,toRGBA,toRGBA8888,w,x,x0,y,z
  * Covenant-source-reference: com/github/tommyettinger/colorful/oklab/ColorTools.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: e4a5fd960eef746ca5aa826063432fb79666d74f
  */
 package sge
 package colorful

@@ -8,6 +8,8 @@
  * Covenant-baseline-methods: DEFAULT_DISTANCE,DEFAULT_INTENSITY,DEFAULT_SPACING,DISTANCE_X_RATIO,DISTANCE_Y_RATIO,IDEAL_DELTA,WindEffect,changeAmount,distanceX,distanceY,fadeout,indexOffset,intensity,lineHeight,noiseCursorX,noiseCursorY,noiseX,noiseY,normalSpacing,onApply,progress,progressModifier,progressOffset,spacing,update,x,y
  * Covenant-source-reference: com/github/tommyettinger/textra/effects/WindEffect.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

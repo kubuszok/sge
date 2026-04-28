@@ -22,6 +22,8 @@
  * Covenant-baseline-methods: Rectangle,area,aspectRatio,center,contains,equals,fitInside,fitOutside,fromString,hashCode,height,maxX,maxY,merge,minX,minY,overlaps,perimeter,position,prime,ratio,result,s0,s1,s2,set,setCenter,setPosition,setSize,size,this,tmp,tmp2,toString,width,x,xmax,xmin,y,ymax,ymin
  * Covenant-source-reference: com/badlogic/gdx/math/Rectangle.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 5950a23bec6b46030cb6bbf0ecfe54854bf9ba39
  */
 package sge
 package math

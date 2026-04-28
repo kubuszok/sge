@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: ImageProcessor,addImage,alphaRaster,bottom,breakA,clear,crcs,currentImage,dotIndex,emptyImage,end,endX,endY,getPads,getSplitPoint,getSplits,hash,hashInt,height,image,images,index,indexPattern,isPatch,name,next,pads,processImage,raster,rect,rects,resampling,rgba,right,scale,splitError,splits,startX,startY,stripWhitespace,width,x,y
  * Covenant-source-reference: com/badlogic/gdx/tools/texturepacker/ImageProcessor.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 9ba8804b9f7a2d44b0680e01dd5248e264bb839f
  */
 package sge
 package tools

@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: TextureDescriptor,compare,equals,h1,h2,hashCode,magFilter,minFilter,result,set,t1,t2,texture,this,uWrap,vWrap
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/TextureDescriptor.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

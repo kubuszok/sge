@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: HdpiUtils,glScissor,glViewport,mode,setMode,toBackBufferX,toBackBufferY,toLogicalX,toLogicalY
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/HdpiUtils.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 89fe31ac4c3d47355ace4cece969e62b02cf360b
  */
 package sge
 package graphics

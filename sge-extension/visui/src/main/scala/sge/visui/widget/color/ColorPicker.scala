@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: ColorPicker,_closeAfterPickingFinished,_listener,allowAlphaEdit,allowAlphaEdit_,buttonBar,cancelButton,changed,close,closeAfterPickingFinished,closeAfterPickingFinished_,cpStyle,createButtons,createListeners,dispose,fadeOutDueToCanceled,getListener,getPicker,isDisposed,okButton,picker,restoreButton,restoreLastColor,setListener,setPickerColor,setStage,showHexFields,showHexFields_,this
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/color/ColorPicker.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

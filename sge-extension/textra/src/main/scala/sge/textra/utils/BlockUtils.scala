@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: ALL_BLOCK_CHARS,BOX_DRAWING,BlockUtils,THIN_ACROSS,THIN_END,THIN_OVER,THIN_START,TWIN_ACROSS,TWIN_END1,TWIN_END2,TWIN_OVER1,TWIN_OVER2,TWIN_START1,TWIN_START2,WIDE_ACROSS,WIDE_END,WIDE_OVER,WIDE_START,isBlockGlyph
  * Covenant-source-reference: com/github/tommyettinger/textra/utils/BlockUtils.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

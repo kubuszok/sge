@@ -35,8 +35,15 @@
  *     all Emoji 12-14 additions.
  *
  * Covenant: full-port
- * Covenant-source-reference: textratypist/src/main/java/com/github/tommyettinger/textra/EmojiProcessor.java
+ * Covenant-source-reference: com/github/tommyettinger/textra/EmojiProcessor.java
+ *   Renames: RegExodus Pattern/Replacer -> java.util.regex.Pattern/Matcher
+ *   Convention: Emoji regex preserved for matching; replacement logic uses
+ *   Note: The massive regex pattern matches all Unicode 14 emoji sequences
+ * Covenant: full-port
  * Covenant-verified: 2026-04-11
+ * Covenant-verified: 2026-04-11
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

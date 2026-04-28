@@ -14,8 +14,17 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 92
  * Covenant-baseline-methods: StateMachine,changeState,getCurrentState,getGlobalState,getPreviousState,handleMessage,isInState,revertToPreviousState,setGlobalState,setInitialState,update
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/fsm/StateMachine.java
+ *   Renames: `com.badlogic.gdx.ai.fsm` -> `sge.ai.fsm`
+ *   Convention: split packages
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 92
+ * Covenant-baseline-methods: StateMachine,changeState,getCurrentState,getGlobalState,getPreviousState,handleMessage,isInState,revertToPreviousState,setGlobalState,setInitialState,update
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

@@ -35,6 +35,8 @@
  * Covenant-baseline-methods: COLOR_ARGB,COMPRESSION_DEFLATE,FILTER_NONE,FastPNG,IDAT,IEND,IHDR,INTERLACE_NONE,SIGNATURE,buffer,close,curLineBytes,dataOutput,deflater,deflaterOutput,flipY,output,setCompression,setFlipY,this,write
  * Covenant-source-reference: com/github/tommyettinger/anim8/FastPNG.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 38634cefd749a9a8af4534ca285c8e72437fe181
  */
 package sge
 package anim8

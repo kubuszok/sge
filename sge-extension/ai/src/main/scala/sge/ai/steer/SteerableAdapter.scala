@@ -14,8 +14,17 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 60
  * Covenant-baseline-methods: SteerableAdapter,angleToVector,angularVelocity,boundingRadius,linearVelocity,maxAngularAcceleration,maxAngularAcceleration_,maxAngularSpeed,maxAngularSpeed_,maxLinearAcceleration,maxLinearAcceleration_,maxLinearSpeed,maxLinearSpeed_,newLocation,orientation,orientation_,position,tagged,tagged_,vectorToAngle,zeroLinearSpeedThreshold,zeroLinearSpeedThreshold_
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/steer/SteerableAdapter.java
+ *   Renames: `com.badlogic.gdx.ai.steer` -> `sge.ai.steer`
+ *   Convention: split packages, Nullable instead of null returns, def+setter pairs
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 60
+ * Covenant-baseline-methods: SteerableAdapter,angleToVector,angularVelocity,boundingRadius,linearVelocity,maxAngularAcceleration,maxAngularAcceleration_,maxAngularSpeed,maxAngularSpeed_,maxLinearAcceleration,maxLinearAcceleration_,maxLinearSpeed,maxLinearSpeed_,newLocation,orientation,orientation_,position,tagged,tagged_,vectorToAngle,zeroLinearSpeedThreshold,zeroLinearSpeedThreshold_
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

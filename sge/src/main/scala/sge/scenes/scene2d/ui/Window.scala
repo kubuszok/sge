@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: MOVE,Window,WindowStyle,_style,background,c,dragging,draw,drawBackground,drawStageBackground,drawTitleTable,edge,h,hit,hitResult,isDragging,isModal,isMovable,isResizable,keepWithinStage,keepWithinStageMethod,keyDown,keyTyped,keyUp,mouseMoved,newLabel,padLeft,padTop,prefWidth,resizeBorder,scrolled,self,setStyle,stageBackground,style,this,titleFont,titleFontColor,titleLabel,titleTable,tmpPosition,tmpSize,touchDown,touchDragged,touchUp,updateEdge
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Window.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 1a29de86a17499b22dbbce82c68a0d0a27527810
  */
 package sge
 package scenes

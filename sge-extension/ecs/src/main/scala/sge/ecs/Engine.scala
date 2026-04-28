@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: Engine,addEntity,addEntityInternal,addEntityListener,addSystem,componentAdded,componentOperationHandler,componentRemoved,createComponent,createEntity,delayed,empty,entityAdded,entityManager,entityRemoved,familyManager,getEntities,getEntitiesFor,getSystem,getSystems,receive,removeAllEntities,removeAllSystems,removeEntity,removeEntityInternal,removeEntityListener,removeSystem,systemAdded,systemManager,systemRemoved,systems,update,updating
  * Covenant-source-reference: com/badlogic/ashley/core/Engine.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: d63d542228cd8c62cc2f7adf20055b0ac59a547e
  */
 package sge
 package ecs

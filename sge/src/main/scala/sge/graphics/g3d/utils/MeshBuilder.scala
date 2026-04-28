@@ -27,6 +27,8 @@
  * Covenant-baseline-methods: MAX_INDEX,MAX_VERTICES,MeshBuilder,_attributes,_lastIndex,_primitiveType,a,aBiNor,aCol,aCp,aNor,aTangent,aUv,addMesh,addVertex,arr,arrow,attributes,attrs,begin,biNorOffset,bounds,box,capsule,circle,clear,colOffset,colSize,color,cone,cpOffset,createAttributes,cylinder,ellipse,end,endpart,ensureCapacity,ensureIndices,ensureRectangleIndices,ensureRectangles,ensureTriangleIndices,ensureTriangles,ensureVertices,floatsPerVertex,getIndices,getIndicesArray,getVertexTransform,getVertices,getVerticesArray,hasColor,hasUVTransform,i,index,indices,indicesMap,isVertexTransformationEnabled,istart,lastIndex,line,meshPart,n,norOffset,normalTransform,numIndices,numVertices,o,offset,part,parts,patch,posOffset,posSize,positionTransform,primitiveType,rect,setColor,setUVRange,setVertexTransform,setVertexTransformationEnabled,sphere,stride,tangentOffset,tempC1,tmpIndices,tmpNormal,tmpVertices,transformNormal,transformPosition,triangle,uOffset,uScale,uvOffset,v,vOffset,vScale,vTmp,vertTmp1,vertTmp2,vertTmp3,vertTmp4,vertex,vertexTransformationEnabled,vertices,vindex,x,y,z
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/MeshBuilder.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 4b4d2c4fd05786d848c42cb69266dd2dd6839983
  */
 package sge
 package graphics

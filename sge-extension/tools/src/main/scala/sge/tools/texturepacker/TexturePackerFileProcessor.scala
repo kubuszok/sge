@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: TexturePackerFileProcessor,atlasExtension,atlasExtensionQ,countOnly,defaultSettings,deleteOutput,dirToSettings,i,ignoreDirs,merge,n,newSettings,newTexturePacker,pack,packCount,packFileName,packer,process,processDir,processFile,processFiles,progress,result,root,rootSettings,settingsFile,settingsFiles,settingsProcessor,this
  * Covenant-source-reference: com/badlogic/gdx/tools/texturepacker/TexturePackerFileProcessor.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 7ca82cfad3baedd3138e63679b40fc917118d06b
  */
 package sge
 package tools

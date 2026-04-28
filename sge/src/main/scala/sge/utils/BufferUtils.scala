@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: BufferUtils,allocatedBytesUnsafe,allocatedUnsafe,arr,asByteBuffer,bb,buffer,bytesToElements,clear,copy,disposeUnsafeByteBuffer,dstBb,dup,elementsToBytes,extractFloats,fb,findArrayInBuffer,findArrayInBufferEpsilon,findBufferInArray,findBufferInArrayEpsilon,findFloats,findFromBuffers,findFromBuffersEpsilon,getUnsafeBufferAddress,i,isUnsafeByteBuffer,newByteBuffer,newCharBuffer,newDoubleBuffer,newFloatBuffer,newIntBuffer,newLongBuffer,newShortBuffer,newUnsafeByteBuffer,numBytes,pos,positionInBytes,size,srcBb,srcDup,srcPos,transform,unsafeBuffers,vArr,vsArr,withFloatArray
  * Covenant-source-reference: com/badlogic/gdx/utils/BufferUtils.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: f1aaeef306f22b1d310dbf91492d566f6ba124f3
  */
 package sge
 package utils

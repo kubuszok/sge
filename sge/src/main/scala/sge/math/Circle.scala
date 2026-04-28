@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: Circle,area,circumference,contains,distance,dx,dy,equals,hashCode,overlaps,prime,radius,radiusDiff,radiusSum,result,set,setPosition,this,toString,x,y
  * Covenant-source-reference: com/badlogic/gdx/math/Circle.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 7db7626e2c8651138af102334da50a75c39ee978
  */
 package sge
 package math

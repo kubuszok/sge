@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: FOREVER,RepeatAction,_isFinished,count,delegate,executedCount,finish,restart
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/RepeatAction.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 59d660057ddc8f835b38c4dd66ed8954259edac7
  */
 package sge
 package scenes

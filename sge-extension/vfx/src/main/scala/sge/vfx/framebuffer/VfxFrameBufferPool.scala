@@ -5,11 +5,15 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Covenant: partial-port
- * Covenant-source-reference: gdx-vfx/gdx-vfx/core/src/com/crashinvaders/vfx/framebuffer/VfxFrameBufferPool.java
+ * Covenant-source-reference: com/crashinvaders/vfx/framebuffer/VfxFrameBufferPool.java
+ * Covenant: partial-port
+ * Covenant-verified: 2026-04-08
  * Covenant-verified: 2026-04-08
  *
  * Partial-port debt:
  *   - Inherited TODO: missing scaladoc on the public API. Functional but not documented.
+ *
+ * upstream-commit: ece6757aa75974d6396325d9b8e0d0b8c8b5c28e
  */
 package sge
 package vfx

@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: TemporalAction,act,began,begin,complete,end,finish,reset,restart,reverse,time,update
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/TemporalAction.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 59d660057ddc8f835b38c4dd66ed8954259edac7
  */
 package sge
 package scenes

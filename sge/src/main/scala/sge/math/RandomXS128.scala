@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: NORM_DOUBLE,NORM_FLOAT,RandomXS128,bits,getState,hash,i,murmurHash3,n,next,nextBoolean,nextBytes,nextDouble,nextFloat,nextInt,nextLong,s0,s1,seed0,seed1,seedValue,setSeed,setState,this,value
  * Covenant-source-reference: com/badlogic/gdx/math/RandomXS128.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package math

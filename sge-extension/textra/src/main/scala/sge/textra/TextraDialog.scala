@@ -23,6 +23,8 @@
  * Covenant-baseline-methods: ButtonTable,ContentTable,FocusListenerMarker,IgnoreTouchDownMarker,TextraDialog,_skin,_visible,actions,add,addAction,addCaptureListener,addListener,binding,btn,button,buttonTable,cancel,cancelHide,captureListeners,clearActions,contentTable,contentY,defaults_space,draw,entries,focusListener,getButtonTable,getContentTable,handleButtonClick,handleKeyDown,hide,ignoreTouchDown,initialize,isVisible,key,keyBindings,labels,listeners,newLabel,newTypingLabel,previousKeyboardFocus,previousScrollFocus,remove,removeCaptureListener,removeListener,result,s,setObject,setStage,show,text,this,typing,values
  * Covenant-source-reference: com/github/tommyettinger/textra/TextraDialog.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: FreeTypeFontLoaderParameter,FreetypeFontLoader,deps,fontFileName,fontParameters,generator,generatorOpt,getDependencies,loadAsync,loadSync
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/freetype/FreetypeFontLoader.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

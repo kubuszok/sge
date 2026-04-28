@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: ATLAS_FILE_EXTENSION,DEFAULT_OUTPUT_PATH,HELP,NINEPATCH_PADDING,OUTPUT_TYPE,TextureUnpacker,atlasFile,checkDirectoryValidity,checkFile,endX,endY,extractImage,extractNinePatch,g2,imageDir,main,numArgs,outputDir,outputDirFile,pads,pageIter,parseArguments,printExceptionAndExit,quiet,setQuiet,splitAtlas,splitImage,splits,startX,startY,unpacker
  * Covenant-source-reference: com/badlogic/gdx/tools/texturepacker/TextureUnpacker.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package tools

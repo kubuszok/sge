@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: Drawable,bottomHeight,bottomHeight_,draw,leftWidth,leftWidth_,minHeight,minHeight_,minWidth,minWidth_,rightWidth,rightWidth_,setMinSize,setPadding,topHeight,topHeight_
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/Drawable.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6cc6837a90cf1033741695a9ff8fe42a06c4f0fe
  */
 package sge
 package scenes

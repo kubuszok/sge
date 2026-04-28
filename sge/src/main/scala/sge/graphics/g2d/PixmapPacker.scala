@@ -26,6 +26,8 @@
  * Covenant-baseline-methods: Bounds,GuillotinePage,GuillotineStrategy,Node,PackStrategy,Page,PixmapPacker,PixmapPackerRectangle,Row,SkylinePage,SkylineStrategy,addedRects,alphaThreshold,atlas,bottom,bounds,breakA,c,close,comparator,dirty,dispose,disposed,duplicateBorder,end,endX,endY,generateTextureAtlas,getPads,getPage,getPageIndex,getRect,getSplitPoint,getSplits,height,image,indexPattern,insert,next,offsetX,offsetY,originalHeight,originalWidth,pack,packStrategy,packToTexture,padding,pads,page,pageFormat,pageHeight,pageWidth,pages,pixmapToDispose,rect,rectX,rectY,rects,rgba,right,root,rows,set,setTransparentColor,sort,splits,startX,startY,stripWhitespaceX,stripWhitespaceY,texture,this,transparentColor,updatePageTextures,updateTexture,updateTextureAtlas,updateTextureRegions,width,workingImage,workingName,x,y
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/PixmapPacker.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 615e8a496541914794ac1596e4d23f0842fec72e
  */
 package sge
 package graphics

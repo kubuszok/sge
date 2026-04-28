@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: FPSLogger,_bound,log,nanoTime,setBound,startTime
  * Covenant-source-reference: com/badlogic/gdx/graphics/FPSLogger.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 9886f3b6794b9ce745f4c7b869cb75c3649b417a
  */
 package sge
 package graphics

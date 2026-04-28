@@ -12,6 +12,8 @@
  * Covenant-baseline-methods: Styleable,setStyle,style
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Styleable.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 1a29de86a17499b22dbbce82c68a0d0a27527810
  */
 package sge
 package scenes

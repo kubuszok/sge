@@ -28,6 +28,8 @@
  * Covenant-baseline-methods: ModelInstance,animation,animations,calculateBoundingBox,calculateTransforms,copy,copyAnimation,copyAnimations,copyNodes,copyNodesById,defaultShareKeyframes,extendBoundingBox,getAnimation,getMaterial,getNode,getRenderable,getRenderables,invalidate,materials,model,n,node,nodes,this,transform,userData
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/ModelInstance.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

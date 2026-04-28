@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: Align,bottom,bottomLeft,bottomRight,buffer,center,isBottom,isCenter,isCenterHorizontal,isCenterVertical,isLeft,isRight,isTop,left,right,show,showImpl,toInt,top,topLeft,topRight,unary_
  * Covenant-source-reference: com/badlogic/gdx/utils/Align.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: aa0cbc52417eb705004c0a94361b6777c1bf8636
  */
 package sge
 package utils

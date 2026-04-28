@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: C1,C2,C3,C4,ColorfulBatch,SPRITE_SIZE,T1,T2,T3,T4,TWEAK_ATTRIBUTE,TWEAK_RESET,U1,U2,U3,U4,V1,V2,V3,V4,X1,X2,X3,X4,Y1,Y2,Y3,Y4,_blendDstFunc,_blendDstFuncAlpha,_blendSrcFunc,_blendSrcFuncAlpha,_projectionMatrix,_shader,_transformMatrix,_tweak,activeShader,adjustedCount,blendDstFunc,blendDstFuncAlpha,blendSrcFunc,blendSrcFuncAlpha,blendingDisabled,blendingEnabled,c,close,color,colorPacked,color_,combinedMatrix,copyCount,createDefaultShader,currentDataType,currentOffset,customShader,disableBlending,draw,drawExactly,drawing,enableBlending,flush,fragmentShader,fx,fx2,fy,fy2,gl,i,idx,indices,intBits,invTexHeight,invTexWidth,j,lastTexture,len,localIdx,maxSpritesInBatch,mesh,ownsShader,p1x,p1y,p2x,p2y,p3x,p3y,p4x,p4y,packedColor,packedColor_,projectionMatrix,projectionMatrix_,remainingCount,remainingVertices,renderCalls,s,setBlendFunction,setBlendFunctionSeparate,setColor,setIntColor,setIntTweak,setTweak,setTweakedColor,setupMatrices,shader,shader_,switchTexture,tempColor,texture,totalRenderCalls,transformMatrix,transformMatrix_,tweak,tweak_,u,u2,v,v2,vertexDataType,vertexShader,vertices,verticesLength,vv,worldOriginX,worldOriginY,x1,x2,x3,x4,y1,y2,y3,y4
  * Covenant-source-reference: com/github/tommyettinger/colorful/ipt_hq/ColorfulBatch.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: e4a5fd960eef746ca5aa826063432fb79666d74f
  */
 package sge
 package colorful

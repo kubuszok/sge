@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: Image,_drawable,ax,ay,c,draw,drawable,drawable_,imageAlign,imageAlign_,imageHeight,imageWidth,imageX,imageY,layout,minHeight,minWidth,prefHeight,prefWidth,scaling,scaling_,setDrawable,sx,sy,this,toString
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Image.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package scenes

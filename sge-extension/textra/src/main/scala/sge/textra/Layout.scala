@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: Layout,add,advances,appendInto,appendIntoDirect,appendSubstringInto,atLimit,baseColor,clear,count,countGlyphs,countGlyphsBeforeLine,e,ellipsis,font,getBaseColor,getEllipsis,getFont,getHeight,getJustification,getLine,getMaxLines,getTargetWidth,getWidth,glyphCount,h,i,i2,index,insertLine,justification,line,lineCount,lines,maxLines,n,offsets,peekLine,prev,pushLine,pushLineBare,reset,rotations,s,setBaseColor,setEllipsis,setFont,setJustification,setMaxLines,setTargetWidth,sizing,targetWidth,this,toString,truncateExtra
  * Covenant-source-reference: com/github/tommyettinger/textra/Layout.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

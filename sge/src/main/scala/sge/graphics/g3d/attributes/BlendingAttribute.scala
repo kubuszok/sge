@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: Alias,BlendingAttribute,Type,blended,compare,copy,destFunction,hashCode,is,opacity,result,sourceFunction,this
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/attributes/BlendingAttribute.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

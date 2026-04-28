@@ -30,6 +30,8 @@
  * Covenant-baseline-methods: AnimatedTiledMapTile,_animationIntervals,_blendMode,_frameTiles,_id,_objects,_properties,animationIntervals,animationIntervals_,blendMode,blendMode_,currentFrame,currentFrameIndex,currentTime,frameTiles,i,id,id_,initialTimeOffset,lastTiledMapRenderTime,loopDuration,objects,offsetX,offsetX_,offsetY,offsetY_,properties,textureRegion,textureRegion_,this,updateAnimationBaseTime
  * Covenant-source-reference: com/badlogic/gdx/maps/tiled/tiles/AnimatedTiledMapTile.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package maps

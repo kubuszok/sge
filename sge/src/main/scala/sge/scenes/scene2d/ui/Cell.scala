@@ -16,6 +16,8 @@
  * Covenant-baseline-methods: Cell,_expandX,_expandY,_fillX,_fillY,_row,_table,_uniformX,_uniformY,actor,actorHeight,actorWidth,actorX,actorY,align,bottom,bottomi,cellAboveIndex,center,centeri,clear,clearActor,colspan,column,computedPadBottom,computedPadLeft,computedPadRight,computedPadTop,defaults,defs,endRow,expand,expandX,expandY,fill,fillX,fillY,getActor,getMaxHeight,getMaxWidth,getMinHeight,getMinWidth,getPadBottom,getPadLeft,getPadRight,getPadTop,getPadX,getPadY,getPrefHeight,getPrefWidth,getSpaceBottom,getSpaceLeft,getSpaceRight,getSpaceTop,grow,growX,growY,hasActor,height,left,lefti,maxHeight,maxSize,maxWidth,merge,minHeight,minSize,minWidth,onef,onei,pad,padBottom,padLeft,padRight,padTop,prefHeight,prefSize,prefWidth,reset,right,righti,row,set,setActor,setActorBounds,setActorHeight,setActorWidth,setActorX,setActorY,setTable,size,space,spaceBottom,spaceLeft,spaceRight,spaceTop,table,toString,top,topi,uniform,uniformX,uniformY,width,zerof,zeroi
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Cell.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: d9758352d2b05e90cf1c07924f1ed2fbeae2f2af
  */
 package sge
 package scenes

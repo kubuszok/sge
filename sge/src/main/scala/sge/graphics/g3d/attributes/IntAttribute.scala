@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: CullFace,CullFaceAlias,IntAttribute,compare,copy,createCullFace,hashCode,result,value
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/attributes/IntAttribute.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3b7c5142691e315487b62d13e30089530d87cc20
  */
 package sge
 package graphics

@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: ImageFormat,PixmapPackerIO,SaveParameters,format,index,magFilter,minFilter,save,useIndexes,writer
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/PixmapPackerIO.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 615e8a496541914794ac1596e4d23f0842fec72e
  */
 package sge
 package graphics

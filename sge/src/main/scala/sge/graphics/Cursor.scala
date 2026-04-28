@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: Cursor,SystemCursor
  * Covenant-source-reference: com/badlogic/gdx/graphics/Cursor.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 7a7321e5208b0a9524384e1c16eaf0ab43d9e5d9
  */
 package sge
 package graphics

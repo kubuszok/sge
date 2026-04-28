@@ -23,6 +23,8 @@
  * Covenant-baseline-methods: MeshSpawnShapeValue,Triangle,descriptor,load,mesh,model,pick,save,saveData,setMesh,spawnShapeValue,this,x1,x2,x3,y1,y2,y3,z1,z2,z3
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/values/MeshSpawnShapeValue.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

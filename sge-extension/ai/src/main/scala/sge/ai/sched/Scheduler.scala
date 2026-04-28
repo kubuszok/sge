@@ -14,8 +14,17 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 55
  * Covenant-baseline-methods: Scheduler,add,addWithAutomaticPhasing
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/sched/Scheduler.java
+ *   Renames: `com.badlogic.gdx.ai.sched` -> `sge.ai.sched`
+ *   Convention: split packages
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 55
+ * Covenant-baseline-methods: Scheduler,add,addWithAutomaticPhasing
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

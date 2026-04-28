@@ -28,6 +28,8 @@
  * Covenant-baseline-methods: BaseTiledMapLoader,FLAG_FLIP_DIAGONALLY,FLAG_FLIP_HORIZONTALLY,FLAG_FLIP_VERTICALLY,MASK_CLEAR,Parameters,ProjectClassMember,addStaticTiledMapTile,alpha,castProperty,castValue,cell,classInfo,classMembers,color,convertObjectToTileSpace,createTileLayerCell,defaultValue,flipY,forceTextureFilters,generateMipMaps,getDependencyAssetDescriptors,getIdToObject,getRelativeFileHandle,idToObject,jsonAsString,jsonGetField,loadBasicProperty,loadJsonClassProperties,loadMapPropertiesClassDefaults,loadObjectProperty,loadProjectFile,loadTiledMap,map,mapHeightInPixels,mapTileHeight,mapTileWidth,mapWidthInPixels,members,name,pci,project,projectClassInfo,projectFile,projectFilePath,propertyType,result,runOnEndOfLoadTiled,t,textureMagFilter,textureMinFilter,tile,tiledColorToLibGDXColor,toString,tokens,unsignedByteToInt
  * Covenant-source-reference: com/badlogic/gdx/maps/tiled/BaseTiledMapLoader.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 323c1515ddf3855b6706caf47050acd9d5f7a057
  */
 package sge
 package maps

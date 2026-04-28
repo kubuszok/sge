@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: ArrayAdapter,add,addAll,buf,clear,get,i,indexOf,insert,item,iterable,pop,removeAll,removeAllByRef,removeIndex,removeRange,removeValue,res,reverse,set,shuffle,size,sort,swap
  * Covenant-source-reference: com/kotcrab/vis/ui/util/adapter/ArrayAdapter.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: PointMapObject,point
  * Covenant-source-reference: com/badlogic/gdx/maps/objects/PointMapObject.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: a168e9e5179eeecacf4fb26df9975da202690430
  */
 package sge
 package maps

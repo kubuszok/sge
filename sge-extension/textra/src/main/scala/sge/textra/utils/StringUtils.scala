@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: StringUtils,appendUnsignedHex,begin,c,chars,data,decimal,end,floatFromDec,foundPoint,h,hexChar,hexCode,i,idx,indexAfter,intFromDec,intFromHex,isLowerCase,isUpperCase,items,join,len,length,lim,longFromDec,longFromHex,s,safeSubstring,shuffleWords,sign,unsignedHex,unsignedHexArray
  * Covenant-source-reference: com/github/tommyettinger/textra/utils/StringUtils.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

@@ -481,3 +481,4 @@ ISS-478	sge/src/main/scala/sge/graphics/g3d/particles/ParticleEffectCodecs.scala
 ISS-479	sge-extension/freetype/src/main/scala/sge/graphics/g2d/freetype/FreeTypeFontGenerator.scala	missing	resolved	minor	SkylineStrategy not ported. PackStrategy always uses GuillotineStrategy.	2026-04-12	manual
 ISS-480	sge-extension/ai/src/main/scala/sge/ai/steer/utils/paths/LinePath.scala	missing	resolved	minor	Coherence not implemented. Path following may not work correctly.	2026-04-12	manual
 ISS-481	sge-extension/textra/src/main/scala/sge/textra/Font.scala	missing	resolved	minor	5 TODOs for multiplyAlpha with batch color alpha when ColorUtils is available.	2026-04-12	manual
+ISS-482	AssetLoader.scala	review-grok	open	critical	Test coverage missing	2026-04-27	manual

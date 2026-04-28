@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: InputEvent,Type,button,character,eventType,isTouchFocusCancel,keyCode,pointer,relatedActor,reset,scrollAmountX,scrollAmountY,stageX,stageY,toCoordinates,toString,touchFocus
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/InputEvent.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: caf7e6fe10f923ca15bee8ec7ff4911c4fc691cd
  */
 package sge
 package scenes

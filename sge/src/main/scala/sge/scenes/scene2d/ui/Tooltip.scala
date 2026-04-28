@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: Tooltip,act,always,container,descendant,enter,exit,hide,instant,mouseMoved,setContainerPosition,stage,targetActor,this,tmp,touchDown,touchIndependent
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Tooltip.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: f75d0b7ad82f6bfb172643e3ecc2e2eaf8b400fb
  */
 package sge
 package scenes

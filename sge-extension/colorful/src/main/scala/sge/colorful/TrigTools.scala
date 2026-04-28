@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: COS_TABLE,ETA,ETA_D,HALF_PI,HALF_PI_D,PI,PI2,PI_INVERSE,QUARTER_CIRCLE_INDEX,QUARTER_PI,QUARTER_PI_D,SIN_TABLE,SIN_TO_COS,TABLE_BITS,TABLE_MASK,TABLE_SIZE,TAU,TrigTools,acos,acosDeg,acosTurns,asin,asinDeg,asinTurns,atan,atan2,atan2Deg,atan2Deg360,atan2Turns,atanDeg,atanTurns,c,c11,c2,c3,c5,c7,c9,cos,cosDeg,cosDegPrecise,cosPrecise,cosTurns,cosTurnsPrecise,d,degToIndex,degreesToRadians,degreesToTableIndex,floor,from,fromC,fromS,i,masked,n,p,quadrant,r,radToIndex,radiansToDegrees,radiansToTableIndex,sin,sinDeg,sinDegPrecise,sinPrecise,sinTurns,sinTurnsPrecise,t,tan,tanDeg,tanDegPrecise,tanPrecise,tanTurns,tanTurnsPrecise,to,turnToIndex,turnsToTableIndex,x,x2,xr
  * Covenant-source-reference: com/github/tommyettinger/colorful/TrigTools.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: e4a5fd960eef746ca5aa826063432fb79666d74f
  */
 package sge
 package colorful

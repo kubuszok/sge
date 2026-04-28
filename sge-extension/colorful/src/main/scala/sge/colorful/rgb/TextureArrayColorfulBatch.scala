@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: SPRITE_FLOAT_SIZE,SPRITE_VERTEX_SIZE,TEXTURE_INDEX_ATTRIBUTE,TWEAK_ATTRIBUTE,TWEAK_RESET,TextureArrayColorfulBatch,_blendDstFunc,_blendDstFuncAlpha,_blendSrcFunc,_blendSrcFuncAlpha,_maxTextureUnits,_projectionMatrix,_shader,_transformMatrix,_tweak,activateTexture,activeShader,adjustedCount,appType,blendDstFunc,blendDstFuncAlpha,blendSrcFunc,blendSrcFuncAlpha,blendingDisabled,blendingEnabled,buf,builtFragmentShader,c,close,color,colorPacked,color_,combinedMatrix,copyCount,createDefaultShader,createShaderWithOklabTweak,currentOffset,currentTextureLFUSize,currentTextureLFUSwaps,customShader,disableBlending,draw,drawExactly,drawing,enableBlending,flush,flushIfFull,fragmentShader,fragmentShaderAlternateTintCenter,fx,fx2,fy,fy2,getMaxTextureUnits,gl,i,idx,indices,intBits,invTexHeight,invTexWidth,j,len,maxSpritesInBatch,mesh,ownsShader,p1x,p1y,p2x,p2y,p3x,p3y,p4x,p4y,packedColor,packedColor_,prependFragment,prependVertex,projectionMatrix,projectionMatrix_,remainingVertices,renderCalls,s,setBlendFunction,setBlendFunctionSeparate,setColor,setIntColor,setIntTweak,setTweak,setTweakedColor,setupMatrices,shader,shaderErrorLog,shader_,tempColor,textureHandle,textureLFUCapacity,textureLFUSize,textureLFUSwaps,textureUnitIndicesBuffer,ti,totalRenderCalls,transformMatrix,transformMatrix_,tweak,tweak_,u,u2,usedTextures,usedTexturesLFU,v,v2,vertexDataType,vertexShader,vertices,verticesLength,vv,worldOriginX,worldOriginY,x1,x2,x3,x4,y1,y2,y3,y4
  * Covenant-source-reference: com/github/tommyettinger/colorful/rgb/TextureArrayColorfulBatch.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: e4a5fd960eef746ca5aa826063432fb79666d74f
  */
 package sge
 package colorful

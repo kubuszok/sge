@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: PolygonRegionLoader,PolygonRegionParameters,actualParams,defaultParameters,getDependencies,image,load,reader,readerBuffer,texture,textureExtensions,texturePrefix,this,triangulator
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/PolygonRegionLoader.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

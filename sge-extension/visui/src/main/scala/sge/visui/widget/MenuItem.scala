@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: MenuItem,MenuItemStyle,_generateDisabledImage,_image,_label,_shortcutLabel,_style,_subMenu,changeEvent,changed,containerMenu,draw,enter,fireChangeEvent,fontColor,generateDisabledImage,generateDisabledImage_,getImage,getImageCell,getLabel,getLabelCell,getShortcut,getShortcutCell,getSubMenuIconCell,getText,hideSubMenu,imageCell,isOver,keyName,packContainerMenu,setParent,setShortcut,setStage,setStyle,setText,shortcutLabelColor,showSubMenu,sizes,style,subMenu,subMenuIconCell,subMenuImage,subMenu_,this,tmpVector
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/MenuItem.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

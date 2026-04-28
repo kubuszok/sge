@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: ALL,DitherAlgorithm,toString
  * Covenant-source-reference: com/github/tommyettinger/anim8/Dithered.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 38634cefd749a9a8af4534ca285c8e72437fe181
  */
 package sge
 package anim8

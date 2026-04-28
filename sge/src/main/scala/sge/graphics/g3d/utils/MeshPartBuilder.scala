@@ -26,6 +26,8 @@
  * Covenant-baseline-methods: MeshPartBuilder,VertexInfo,addMesh,arrow,attributes,box,capsule,circle,color,cone,cylinder,ellipse,ensureCapacity,ensureIndices,ensureRectangleIndices,ensureTriangleIndices,ensureVertices,getVertexTransform,hasColor,hasNormal,hasPosition,hasUV,index,isVertexTransformationEnabled,lastIndex,lerp,line,meshPart,normal,patch,position,primitiveType,rect,reset,set,setCol,setColor,setNor,setPos,setUV,setUVRange,setVertexTransform,setVertexTransformationEnabled,sphere,triangle,uv,vertex
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/MeshPartBuilder.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: a864e6e579fd9e81addd0026a695ece90d32ebc4
  */
 package sge
 package graphics

@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: GAMUT_DATA,Gamut,stream
  * Covenant-source-reference: com/github/tommyettinger/colorful/oklab/Gamut.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: e4a5fd960eef746ca5aa826063432fb79666d74f
  */
 package sge
 package colorful

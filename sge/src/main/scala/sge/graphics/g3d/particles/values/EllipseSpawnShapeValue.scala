@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: EllipseSpawnShapeValue,copy,depth,height,load,maxT,minT,r,radiusX,radiusY,radiusZ,shape,side,spawnAux,t,this,width,z
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/values/EllipseSpawnShapeValue.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: f087ba76cac7ff2cc4ded91efc009f52bf0987c2
  */
 package sge
 package graphics

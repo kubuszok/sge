@@ -12,8 +12,20 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 35
  * Covenant-baseline-methods: NoopAudio,availableOutputDevices,newAudioDevice,newAudioRecorder,newMusic,newSound,switchOutputDevice
- * Covenant-source-reference: backends/gdx-backend-headless/mock/audio/MockAudio.java
+ * Covenant-source-reference: backends/gdx-backend-headless/src/com/badlogic/gdx/backends/headless/mock/audio/MockAudio.java
+ *   Source: backends/gdx-backend-headless/.../mock/audio/MockAudio.java
+ *   Renames: MockAudio -> NoopAudio, mock.audio -> noop package
+ *   Convention: dispose() removed (Audio trait uses no Closeable); NoopAudioDevice(isMono) passes ctor arg (Java ignores it)
+ *   Idiom: Nullable (switchOutputDevice param), split packages
+ *   Audited: 2026-03-03
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 35
+ * Covenant-baseline-methods: NoopAudio,availableOutputDevices,newAudioDevice,newAudioRecorder,newMusic,newSound,switchOutputDevice
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 4c9b9758fbe5efe39126a52fee8f9d5fb4119b31
  */
 package sge
 package noop

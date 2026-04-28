@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: IndexArray,_buffer,actualMaxIndices,bind,buffer,byteBuffer,close,empty,getBuffer,invalidate,numIndices,numMaxIndices,pos,setIndices,unbind,updateIndices
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/IndexArray.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 433466a3e68f1d847c72b566d0027400ae461e6c
  */
 package sge
 package graphics

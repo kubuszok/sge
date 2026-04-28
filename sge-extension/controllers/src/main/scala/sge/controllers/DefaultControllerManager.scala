@@ -5,13 +5,17 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Covenant: partial-port
- * Covenant-source-reference: gdx-controllers/desktop/src/com/badlogic/gdx/controllers/desktop/DesktopControllerManager.java
+ * Covenant-source-reference: com/badlogic/gdx/controllers/desktop/JamepadControllerManager.java
+ * Covenant: partial-port
+ * Covenant-verified: 2026-04-08
  * Covenant-verified: 2026-04-08
  *
  * Partial-port debt:
  *   - Architecture divergence: original DesktopControllerManager uses GLFW event callbacks;
  *     this implementation is polling-based (call poll() each frame) for cross-platform uniformity.
  *   - Vibration not supported in the polling-based stub (rumble/haptics blocked on Panama wiring).
+ *
+ * upstream-commit: 124b68125c7ef9c552085865379f77e8bee2ae3b
  */
 package sge
 package controllers

@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: FileChooserStyle,contextMenuSelectedItem,expandDropdown,highlight,iconArrowLeft,iconArrowRight,iconDrive,iconFileAudio,iconFileImage,iconFilePdf,iconFileText,iconFolder,iconFolderNew,iconFolderParent,iconFolderStar,iconListSettings,iconRefresh,iconStar,iconStarOutline,iconTrash,popupMenuStyle,this
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/file/FileChooserStyle.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

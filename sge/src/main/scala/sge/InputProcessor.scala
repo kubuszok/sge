@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: InputProcessor,keyDown,keyTyped,keyUp,mouseMoved,scrolled,touchCancelled,touchDown,touchDragged,touchUp
  * Covenant-source-reference: com/badlogic/gdx/InputProcessor.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 9de4191d4db23192cc7ef5cd3ea0d68a42924ff6
  */
 package sge
 

@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: DistanceFieldFont,DistanceFieldFontCache,createDistanceFieldShader,distanceFieldSmoothing,draw,fragmentShader,load,newFontCache,regions,setSmoothingUniform,shader,smoothingFactor,this,vertexShader
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/DistanceFieldFont.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 632330e644393d2f9d1e1abcf26614afd5e37897
  */
 package sge
 package graphics

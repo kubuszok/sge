@@ -10,6 +10,8 @@
  * Covenant-baseline-methods: ControllerMapping,StandardMapping,Undefined,axisLeftX,axisLeftY,axisRightX,axisRightY,buttonA,buttonB,buttonBack,buttonDpadDown,buttonDpadLeft,buttonDpadRight,buttonDpadUp,buttonL1,buttonL2,buttonLeftStick,buttonR1,buttonR2,buttonRightStick,buttonStart,buttonX,buttonY
  * Covenant-source-reference: com/badlogic/gdx/controllers/ControllerMapping.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 124b68125c7ef9c552085865379f77e8bee2ae3b
  */
 package sge
 package controllers

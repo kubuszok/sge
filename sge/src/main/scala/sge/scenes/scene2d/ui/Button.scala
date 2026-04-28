@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: Button,ButtonStyle,_isDisabled,_style,backgroundDrawable,buttonGroup,checked,checkedDown,checkedFocused,checkedOffsetX,checkedOffsetY,checkedOver,children,clickListener,clicked,disabled,disabled_,down,draw,focused,height,initialize,isChecked,isOver,isPressed,minHeight,minWidth,offset,offsetX,offsetY,over,prefHeight,prefWidth,pressedOffsetX,pressedOffsetY,programmaticChangeEvents,setChecked,setStyle,style,this,toggle,unpressedOffsetX,unpressedOffsetY,up,width
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Button.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: a729bf1f0de099ebcc60562d72f008157677b559
  */
 package sge
 package scenes

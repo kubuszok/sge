@@ -26,6 +26,8 @@
  * Covenant-baseline-methods: HexagonalTiledMapRenderer,batchColor,color,hexSideLength,initHex,layerHeight,layerHexLength,layerOffsetX,layerOffsetY,layerTileHeight,layerTileWidth,layerWidth,region,renderCell,renderImageLayer,renderTileLayer,staggerAxisX,staggerIndexEven,this,vertices
  * Covenant-source-reference: com/badlogic/gdx/maps/tiled/renderers/HexagonalTiledMapRenderer.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 4259008cf864404d7bfa28d1c69f601b30a40410
  */
 package sge
 package maps

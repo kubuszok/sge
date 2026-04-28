@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: ConvexHull,ccw,computeIndices,computePolygon,down,end,hull,i,index,indices,lower,offsetVar,originalIndices,p1x,p1y,p2x,p2y,pointCount,pointsArray,quicksortPartition,quicksortPartitionWithIndices,quicksortStack,size,sort,sortWithIndices,sortedPoints,stack,t,up,upper,x,y
  * Covenant-source-reference: com/badlogic/gdx/math/ConvexHull.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6c54cfa7a21337dde7f546007c0603fb4e975e80
  */
 package sge
 package math

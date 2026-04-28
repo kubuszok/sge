@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: TiledMapTileSet,getTile,iterator,name,properties,putTile,removeTile,size,tiles
  * Covenant-source-reference: com/badlogic/gdx/maps/tiled/TiledMapTileSet.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 1ef7fee05127d9041a1cc685090077256dca4d66
  */
 package sge
 package maps

@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: ProgressBar,ProgressBarStyle,_disabled,_style,_value,act,animateDuration,animateFromValue,animateInterpolation,animateTime,animating,background,backgroundDrawable,bg,bh,bw,bx,by,c,clamp,clampedValue,currentKnob,dh,disabled,disabledBackground,disabledKnob,disabledKnobAfter,disabledKnobBefore,disabled_,draw,drawRound,dw,dx,dy,knob,knobAfter,knobAfterDrawable,knobBefore,knobBeforeDrawable,knobDrawable,knobHeight,knobWidth,max,min,oldValue,oldVisualValue,percent,position,prefHeight,prefWidth,programmaticChangeEvents,round,setAnimateDuration,setAnimateInterpolation,setRange,setRound,setStepSize,setStyle,setValue,setVisualInterpolation,stepSize,style,this,updateVisualValue,value,vertical,visualInterpolation,visualPercent,visualValue
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/ProgressBar.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: a729bf1f0de099ebcc60562d72f008157677b559
  */
 package sge
 package scenes

@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: ArrowShapeBuilder,begin,build,coneDiameter,coneHeight,direction,end,forward,left,length,stemDiameter,stemLength,temp,transform,up,userTransform,values
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/shapebuilders/ArrowShapeBuilder.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

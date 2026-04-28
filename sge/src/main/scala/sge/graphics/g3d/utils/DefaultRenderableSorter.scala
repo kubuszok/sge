@@ -23,6 +23,8 @@
  * Covenant-baseline-methods: DefaultRenderableSorter,b1,b2,camera,compareRenderables,getTranslation,sort,tmpV1,tmpV2
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/DefaultRenderableSorter.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

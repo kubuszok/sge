@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: QualityPalette,aA,aB,b,bA,bB,dA,dB,dL,difference,differenceAnalyzing,differenceHW,differenceMatch,forwardLight,g,l,lA,lB,m,r,s,this
  * Covenant-source-reference: com/github/tommyettinger/anim8/QualityPalette.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 38634cefd749a9a8af4534ca285c8e72437fe181
  */
 package sge
 package anim8

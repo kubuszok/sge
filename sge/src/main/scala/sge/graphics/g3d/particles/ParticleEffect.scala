@@ -24,6 +24,8 @@
  * Covenant-baseline-methods: ParticleEffect,_boundingBox,boundingBox,close,controllers,copy,draw,end,findController,i,init,isComplete,load,n,reset,rotate,save,scale,setBatch,setTransform,start,this,translate,update
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/ParticleEffect.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */
 package sge
 package graphics

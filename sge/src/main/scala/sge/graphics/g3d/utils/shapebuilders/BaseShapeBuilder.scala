@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: BaseShapeBuilder,FlushableMatrixPool,FlushableVectorPool,freeAll,initialCapacity,matTmp1,matrices4Pool,max,newObject,obtainM4,obtainV3,result,tmpColor0,tmpColor1,tmpColor2,tmpColor3,tmpColor4,tmpV0,tmpV1,tmpV2,tmpV3,tmpV4,tmpV5,tmpV6,tmpV7,vectorPool,vertTmp0,vertTmp1,vertTmp2,vertTmp3,vertTmp4,vertTmp5,vertTmp6,vertTmp7,vertTmp8
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/shapebuilders/BaseShapeBuilder.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

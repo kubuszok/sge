@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: ComparableTimSort,DEBUG,INITIAL_TMP_STORAGE_LENGTH,MIN_GALLOP,MIN_MERGE,a,base1,base2,binarySort,countRunAndMakeAscending,currentLo,cursor1,cursor2,dest,doSort,done,ensureCapacity,gallopLeft,gallopRight,i,j,k,lastOfs,len1,len2,localMinGallop,mergeAt,mergeCollapse,mergeForceCollapse,mergeHi,mergeLo,minGallop,minRun,minRunLength,nRemaining,n_var,ofs,pushRun,r,rangeCheck,remaining,reverseRange,runBase,runHi,runLen,sort,stackSize,start_var,tmp,tmpCount,ts
  * Covenant-source-reference: com/badlogic/gdx/utils/ComparableTimSort.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package utils

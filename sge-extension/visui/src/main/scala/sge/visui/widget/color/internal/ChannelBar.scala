@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: ChannelBar,ChannelBarListener,MODE_ALPHA,MODE_B,MODE_G,MODE_H,MODE_R,MODE_S,MODE_V,_channelBarListener,_value,changeEvent,channelBarListener,channelBarListener_,draw,getValue,newValue,selectorX,setShaderUniforms,setValue,sizes,style,touchDown,touchDragged,updateFields,updateValueFromTouch
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/color/internal/ChannelBar.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: CustomTexture3DData,bytesPerChannel,bytesPerPixel,consume3DData,depth,gl30,glFormat,glInternalFormat,glType,height,internalFormat,isManaged,isPrepared,managed,mipMapLevel,numChannels,pixels,prepare,useMipMaps,width
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/CustomTexture3DData.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: dc003c5975e93e2ef6e69db01c9ea248b03857c8
  */
 package sge
 package graphics

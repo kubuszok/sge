@@ -22,6 +22,8 @@
  * Covenant-baseline-methods: IsometricTiledMapRenderer,batchColor,bottomLeft,bottomRight,col1,col2,color,halfTileHeight,halfTileWidth,i,init,invIsotransform,isoTransform,layerOffsetX,layerOffsetY,region,renderImageLayer,renderRepeatedImage,renderTileLayer,repeatX,repeatY,row,row1,row2,screenPos,startX,startY,this,tileHeight,tileWidth,topLeft,topRight,translateScreenToIso,vertices
  * Covenant-source-reference: com/badlogic/gdx/maps/tiled/renderers/IsometricTiledMapRenderer.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 0dc27743a43739f14f7220b4ec7dcc3ada3c8b61
  */
 package sge
 package maps

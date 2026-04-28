@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: ButtonGroup,add,addAll,allChecked,buttons,canCheck,checked,checkedIndex,clear,i,lastChecked,maxCheckCount,minCheckCount,n,old,remove,removeAll,setChecked,shouldCheck,this,uncheckAll,uncheckLast
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/ButtonGroup.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package scenes

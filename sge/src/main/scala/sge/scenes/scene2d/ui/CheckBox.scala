@@ -12,6 +12,8 @@
  * Covenant-baseline-methods: CheckBox,CheckBoxStyle,_image,_imageCell,_style,checkboxOff,checkboxOffDisabled,checkboxOn,checkboxOnDisabled,checkboxOnOver,checkboxOver,draw,image,imageCell,imageDrawable,lbl,newImage,over,setStyle,style,this
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/CheckBox.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 02c1b11448a0f953f9ccae19cabeea04736c5444
  */
 package sge
 package scenes

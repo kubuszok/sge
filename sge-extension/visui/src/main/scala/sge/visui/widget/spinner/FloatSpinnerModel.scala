@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: FloatSpinnerModel,_max,_min,_scale,_step,bind,boundsValidator,checkInputBounds,current,decrementModel,incrementModel,max,max_,min,min_,scale,scale_,setScaleInternal,setValue,step,step_,text,textChanged,textFieldFilter,this,value,valueText
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/spinner/FloatSpinnerModel.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

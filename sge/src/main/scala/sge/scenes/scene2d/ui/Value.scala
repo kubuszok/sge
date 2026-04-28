@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: Fixed,Value,cache,get,maxHeight,maxWidth,minHeight,minWidth,percentHeight,percentWidth,prefHeight,prefWidth,toString,valueOf,zero
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Value.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 1ccbdf4da0c6869f404093ff338733597a28ed0c
  */
 package sge
 package scenes

@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: FloatCounter,average,count,latest,max,mean,min,put,reset,toString,total,value
  * Covenant-source-reference: com/badlogic/gdx/math/FloatCounter.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package math

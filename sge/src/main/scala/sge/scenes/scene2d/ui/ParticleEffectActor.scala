@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: ParticleEffectActor,act,allowCompletion,autoRemove,cancel,close,draw,lastDelta,ownsEffect,running,scaleChanged,start,this
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/ParticleEffectActor.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package scenes

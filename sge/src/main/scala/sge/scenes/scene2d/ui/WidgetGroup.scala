@@ -12,6 +12,8 @@
  * Covenant-baseline-methods: WidgetGroup,_fillParent,_layoutEnabled,_needsLayout,children,childrenChanged,draw,fillParent,fillParent_,hit,i,invalidate,invalidateHierarchy,layout,layoutEnabled,layoutEnabled_,maxHeight,maxWidth,minHeight,minWidth,needsLayout,pack,prefHeight,prefWidth,propagateLayoutEnabled,sizeChanged,this,validate
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/WidgetGroup.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: f7de0e075d3ae71c2c9159b4a979ef43fd93860b
  */
 package sge
 package scenes

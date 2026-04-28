@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: Effect,EffectBuilder,FADEOUT_SPLIT,apply,assignTokenName,calculateFadeout,calculateProgress,duration,indexEnd,indexStart,isFinished,localIndex,name,onApply,paramAsBoolean,paramAsColor,paramAsFloat,produce,progress,totalTime,update
  * Covenant-source-reference: com/github/tommyettinger/textra/Effect.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

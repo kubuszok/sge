@@ -25,6 +25,8 @@
  * Covenant-baseline-methods: Model,animations,attributes,calculateBoundingBox,calculateTransforms,close,convertMaterial,convertMesh,disposables,extendBoundingBox,getAnimation,getMaterial,getNode,hasIndices,indicesBuffer,load,loadAnimations,loadMaterials,loadMeshes,loadNode,loadNodes,manageDisposable,managedDisposables,materials,mesh,meshParts,meshes,n,node,nodePartBones,nodes,numIndices,numVertices,offset,result,textures,this
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/Model.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */
 package sge
 package graphics

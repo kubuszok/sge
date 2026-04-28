@@ -16,6 +16,8 @@
  * Covenant-baseline-methods: Texture3DData,consume3DData,depth,glType,height,internalFormat,isManaged,isPrepared,prepare,useMipMaps,width
  * Covenant-source-reference: com/badlogic/gdx/graphics/Texture3DData.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: dc003c5975e93e2ef6e69db01c9ea248b03857c8
  */
 package sge
 package graphics

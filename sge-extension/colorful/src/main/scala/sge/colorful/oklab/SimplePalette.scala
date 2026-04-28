@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: ALIASES,APRICOT,BLACK,BLUE,BRICK,BRONZE,BROWN,BUTTER,CACTUS,CELERY,CHARTREUSE,CHOCOLATE,CINNAMON,COBALT,COLORS_BY_HUE,CYAN,DENIM,EMBER,FERN,GRAY,GREEN,INDIGO,JADE,LAVENDER,LIME,LIST,MAGENTA,MAUVE,MINT,MOSS,NAMED,NAMES,NAMES_BY_HUE,NAMES_BY_LIGHTNESS,NAVY,OLIVE,ORANGE,PEACH,PEAR,PINK,PLUM,PURPLE,RASPBERRY,RED,ROSE,SAFFRON,SAGE,SALMON,SILVER,SKY,SimplePalette,TAN,TEAL,TRANSPARENT,TURQUOISE,VIOLET,WHITE,YELLOW,appendToKnownColors,bestCode,bestDistance,bestMatch,c,colorTries,colors,colorsByHue,combinedAdjectives,description,e,editKnownColors,end,i,idx,lightAdjectives,lightness,mc,mixing,mixingArr,namesByHue,paletteSize,parseDescription,satAdjectives,saturation,targetA,targetB,targetL,terms,totalTries,trn
  * Covenant-source-reference: com/github/tommyettinger/colorful/oklab/SimplePalette.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: e4a5fd960eef746ca5aa826063432fb79666d74f
  */
 package sge
 package colorful

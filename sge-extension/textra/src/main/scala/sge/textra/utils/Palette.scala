@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: ALIASES,BLACK,BLUE,BROWN,CHARTREUSE,CLEAR,CORAL,CYAN,DARK_GRAY,FIREBRICK,FOREST,GOLD,GOLDENROD,GRAY,GREEN,LIGHT_GRAY,LIME,LIST,MAGENTA,MAROON,NAMED,NAMES,NAVY,OLIVE,ORANGE,PINK,PURPLE,Palette,RED,ROYAL,SALMON,SCARLET,SKY,SLATE,TAN,TEAL,VIOLET,WHITE,YELLOW,addColor,apricot,black,blue,brown,butter,cactus,celeste,charcoal,chartreuse,chocolate,cobalt,coral,crimson,cyan,denim,ember,entries,fern,gray,green,indigo,jade,lavender,lime,magenta,mauve,moss,navy,orange,peach,pine,plum,puce,purple,raspberry,red,rose,saffron,sage,salmon,sand,sepia,silver,sky,tan,teal,transparent,violet,wheat,white,yellow
  * Covenant-source-reference: com/github/tommyettinger/textra/utils/Palette.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: ListStyle,SgeList,_alignment,_cullingArea,_keyListener,_prefHeight,_prefWidth,_style,adjustedY,alignment,background,bgHeight,c,clearItems,cullingArea,down,draw,drawBackground,drawItem,drawSelection,exit,font,fontColorSelected,fontColorUnselected,getItemAt,getItemIndexAt,glyphLayout,height,i,index,itemHeight,itemToString,itemY,items,keyDown,keyListener,keyTyped,layout,layoutPool,lh,lw,lx,ly,mouseMoved,oldPrefHeight,oldPrefWidth,over,overIndex,overItem,prefHeight,prefWidth,prefix,pressedIndex,pressedItem,sel,selected,selectedDrawable,selectedIndex,selection,self,setAlignment,setCullingArea,setItems,setSelected,setSelectedIndex,setSelection,setStyle,setTypeToSelect,string,style,textOffsetX,textOffsetY,textWidth,this,touchDown,touchDragged,touchUp,typeTimeout,typeToSelect
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/List.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: a729bf1f0de099ebcc60562d72f008157677b559
  */
 package sge
 package scenes

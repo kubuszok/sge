@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: Chunk,HighlightTextArea,_highlighter,calculateOffsets,chunkUpdateScheduled,createCompatibleScrollPane,defaultColor,drawText,highlighter,highlighter_,highlights,i,init,maxAreaHeight,maxAreaWidth,offsetY,parentAlpha,prefHeight,prefWidth,processHighlighter,renderChunks,scrollPane,this,updateDisplayText
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/HighlightTextArea.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

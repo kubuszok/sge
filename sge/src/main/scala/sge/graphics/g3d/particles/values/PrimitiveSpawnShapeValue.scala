@@ -24,6 +24,8 @@
  * Covenant-baseline-methods: PrimitiveSpawnShapeValue,SpawnSide,TMP_V1,active_,edges,getSpawnDepth,getSpawnHeight,getSpawnWidth,isEdges,load,setDimensions,setEdges,shape,spawnDepth,spawnDepthDiff,spawnDepthValue,spawnHeight,spawnHeightDiff,spawnHeightValue,spawnWidth,spawnWidthDiff,spawnWidthValue,start,this
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/values/PrimitiveSpawnShapeValue.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: f087ba76cac7ff2cc4ded91efc009f52bf0987c2
  */
 package sge
 package graphics

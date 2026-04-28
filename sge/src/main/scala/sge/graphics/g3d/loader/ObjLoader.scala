@@ -31,6 +31,8 @@
  * Covenant-baseline-methods: Group,MtlLoader,ObjLoader,ObjLoaderParameters,ObjMaterial,activeGroup,addTexture,build,data,faces,firstChar,g,getIndex,getMaterial,group,groups,hasNorms,hasUVs,i,id,line,load,loadModel,loadModelData,logWarning,mat,materialName,materials,mtl,norms,numFaces,numGroups,parseColor,reader,reset,setActiveGroup,this,tokens,uvs,verts
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/loader/ObjLoader.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */
 package sge
 package graphics

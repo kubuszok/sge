@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: FILE_MODIFIED_DATE_COMPARATOR,FILE_NAME_COMPARATOR,FILE_SIZE_COMPARATOR,FileUtils,UNITS,compare,dirToShow,directoriesList,filesList,isValidFileName,ordering,readableFileSize,showDirInExplorer,sortFiles,toFileHandle
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/file/FileUtils.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: Bresenham2,currentX,currentY,dx1,dx2,dy1,dy2,h,line,longest,longest2,numerator,points,pool,shortest,shortest2,w
  * Covenant-source-reference: com/badlogic/gdx/math/Bresenham2.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package math

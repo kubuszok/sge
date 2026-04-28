@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: Ambient,AmbientAlias,AmbientLight,AmbientLightAlias,ColorAttribute,Diffuse,DiffuseAlias,Emissive,EmissiveAlias,Fog,FogAlias,Mask,Reflection,ReflectionAlias,Specular,SpecularAlias,color,compare,copy,createAmbient,createAmbientLight,createDiffuse,createEmissive,createFog,createReflection,createSpecular,hashCode,is,result,this
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/attributes/ColorAttribute.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

@@ -18,8 +18,18 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 144
  * Covenant-baseline-methods: Factory,NonBlockingSemaphore,NonBlockingSemaphoreRepository,SimpleNonBlockingSemaphore,acquire,acquiredResources,addSemaphore,clear,createSemaphore,factory,getSemaphore,release,removeSemaphore,repo,sem,setFactory
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/utils/NonBlockingSemaphore.java
+ *   Renames: `com.badlogic.gdx.ai.utils` -> `sge.ai.utils`; `ObjectMap` -> `scala.collection.mutable.HashMap`
+ *   Idiom: static repository -> `object NonBlockingSemaphoreRepository`
+ *   Convention: split packages
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 144
+ * Covenant-baseline-methods: Factory,NonBlockingSemaphore,NonBlockingSemaphoreRepository,SimpleNonBlockingSemaphore,acquire,acquiredResources,addSemaphore,clear,createSemaphore,factory,getSemaphore,release,removeSemaphore,repo,sem,setFactory
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

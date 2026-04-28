@@ -25,6 +25,8 @@
  * Covenant-baseline-methods: BitmapFontSupport,JsonFontData,bits,c,cc,data,decompressFromBytes,dictSize,dictionary,done,emptyJsonArr,emptyJsonObj,enlargeIn,entry,i,index,jsonArr,jsonInt,jsonIntOr,jsonNum,jsonNumOr,jsonObj,length,load,loadStructuredJson,maxpower,numBits,position,power,regionArr,res,resb,resetValue,this,value,w
  * Covenant-source-reference: com/github/tommyettinger/textra/BitmapFontSupport.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

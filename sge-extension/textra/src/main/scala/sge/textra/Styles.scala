@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: CheckBoxStyle,ImageTextButtonStyle,LabelStyle,ListStyle,SelectBoxStyle,Styles,TextButtonStyle,TextFieldStyle,TextTooltipStyle,WindowStyle,background,backgroundDisabled,backgroundOpen,backgroundOver,checkboxOff,checkboxOffDisabled,checkboxOn,checkboxOnDisabled,checkboxOnOver,checkboxOver,checked,checkedDown,checkedDownFontColor,checkedFocused,checkedFocusedFontColor,checkedFontColor,checkedOffsetX,checkedOffsetY,checkedOver,checkedOverFontColor,close,cursor,disabled,disabledBackground,disabledFontColor,down,downFontColor,focused,focusedBackground,focusedFontColor,font,fontColor,fontColorSelected,fontColorUnselected,imageChecked,imageCheckedDown,imageCheckedOver,imageDisabled,imageDown,imageOver,imageUp,label,listStyle,messageFontColor,over,overFontColor,pressedOffsetX,pressedOffsetY,scrollStyle,selection,stageBackground,this,titleFont,titleFontColor,unpressedOffsetX,unpressedOffsetY,up,wrapWidth
  * Covenant-source-reference: com/github/tommyettinger/textra/Styles.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

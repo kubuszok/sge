@@ -30,6 +30,8 @@
  * Covenant-baseline-methods: Viewport,apply,bottomGutterHeight,calculateScissors,camera,getPickRay,leftGutterWidth,project,rightGutterWidth,rightGutterX,screenHeight,screenWidth,screenX,screenY,setScreenBounds,setScreenPosition,setScreenSize,setWorldSize,tmp,toScreenCoordinates,topGutterHeight,topGutterY,unproject,update,worldHeight,worldWidth
  * Covenant-source-reference: com/badlogic/gdx/utils/viewport/Viewport.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 282f266f14146cbde64d9b1c6732fe3240739bcb
  */
 package sge
 package utils

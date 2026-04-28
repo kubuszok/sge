@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: MeshPart,bounds,center,equals,halfExtents,id,mesh,offset,primitiveType,radius,render,set,size,this,update
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/model/MeshPart.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

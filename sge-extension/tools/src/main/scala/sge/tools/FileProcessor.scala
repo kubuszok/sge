@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: Entry,FileProcessor,addInputRegex,addInputSuffix,addProcessedFile,allEntries,comparator,depth,dirToEntries,effectiveOutputRoot,entryComparator,flattenOutput,inputFile,inputFilter,inputRegex,outFile,outputDir,outputFile,outputFiles,outputSuffix,process,processDir,processFile,processFiles,processInternal,recursive,setComparator,setFlattenOutput,setInputFilter,setOutputSuffix,setRecursive,this,toString
  * Covenant-source-reference: com/badlogic/gdx/tools/FileProcessor.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package tools

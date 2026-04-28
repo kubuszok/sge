@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: VertexBufferObjectWithVAO,_attributes,_buffer,attributes,bind,bindAttributes,bindData,buffer,bufferChanged,bufferHandle,byteBuffer,cachedLocations,close,createVAO,deleteVAO,getBuffer,gl,gl3,gl30,init,invalidate,isBound,isDirty,isStatic,numAttributes,numMaxVertices,numVertices,ownsBuffer,pos,setVertices,stillValid,this,tmpHandle,unbind,unbindAttributes,updateVertices,usage,vaoHandle
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/VertexBufferObjectWithVAO.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: ee1587b361cfa9be17e1829f1d4d40e6400cf28f
  */
 package sge
 package graphics

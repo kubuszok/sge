@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: Sound,loop,pause,play,resume,setLooping,setPan,setPitch,setVolume,stop
  * Covenant-source-reference: com/badlogic/gdx/audio/Sound.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 0de4d893abc4d02d8e1bf949edda4a9d5c547e18
  */
 package sge
 package audio

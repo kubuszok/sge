@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: GlyphLayout,GlyphRun,adjustedTargetWidth,alignRuns,appendRun,buffer,calculateWidths,colorStack,colors,count,currentColor,down,droppedGlyphCount,first,firstEnd,fontData,getGlyphWidth,getLineOffset,glyphCount,glyphRunPool,glyphs,glyphs2,height,i,isLastRun,last,lastGlyph,lineRun,markupEnabled,maxWidth,nextColor,parseColorMarkup,reset,runEnded,runStart,runs,second,secondStart,setLastGlyphXAdvance,setText,this,toString,truncateRun,truncateWidth,width,wrapGlyphs,wrapOrTruncate,x,xAdvances,xAdvances2,y
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/GlyphLayout.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: a729bf1f0de099ebcc60562d72f008157677b559
  */
 package sge
 package graphics

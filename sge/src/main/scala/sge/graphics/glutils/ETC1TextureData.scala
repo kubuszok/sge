@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: ETC1TextureData,_height,_width,consumeCustomData,consumePixmap,data,dataType,disposePixmap,file,getFormat,gl,height,isManaged,isPrepared,prepare,preparedFlag,this,useMipMaps,useMipMapsValue,width
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/ETC1TextureData.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

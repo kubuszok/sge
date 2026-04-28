@@ -22,6 +22,8 @@
  * Covenant-baseline-methods: ScaledNumericValue,endIndex,getScale,highMax,highMin,load,n,newHighValue,relative,scaling,setHigh,startIndex,startTime,startValue,timeline
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/values/ScaledNumericValue.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: f087ba76cac7ff2cc4ded91efc009f52bf0987c2
  */
 
 package sge

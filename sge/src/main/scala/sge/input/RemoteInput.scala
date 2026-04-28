@@ -24,6 +24,8 @@
  * Covenant-baseline-methods: DEFAULT_PORT,EventTrigger,KEY_DOWN,KEY_TYPED,KEY_UP,KeyEvent,MAX_TOUCHES,RemoteInput,RemoteInputListener,TOUCH_DOWN,TOUCH_DRAGGED,TOUCH_UP,TouchEvent,accel,accelerometerX,accelerometerY,accelerometerZ,azimuth,closeTextInputField,compass,connected,currentEventTime,cursorCatched,deltaX,deltaXArr,deltaY,deltaYArr,getRotationMatrix,getTextInput,gyrate,gyroscopeX,gyroscopeY,gyroscopeZ,iPs,ips,isButtonJustPressed,isButtonPressed,isCatchKey,isConnected,isKeyJustPressed,isKeyPressed,isPeripheralAvailable,isTouched,justPressedKeys,justTouched,justTouchedFlag,keyChar,keyCode,keyCount,keyJustPressed,keys,maxPointers,multiTouch,nativeOrientation,onConnected,onDisconnected,openTextInputField,pitch,pointer,pressure,processor,remoteHeight,remoteWidth,roll,rotation,run,serverSocket,setCatchKey,setCursorCatched,setCursorPosition,setInputProcessor,setKeyboardHeightObserver,setOnscreenKeyboardVisible,this,timeStamp,touchX,touchY,touched,touchedPointers,vibrate,x,y
  * Covenant-source-reference: com/badlogic/gdx/input/RemoteInput.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 892dee6814526372c81d9d72276e0d9df86da0c5
  */
 package sge
 package input

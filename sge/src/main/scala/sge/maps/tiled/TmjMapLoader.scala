@@ -24,6 +24,8 @@
  * Covenant-baseline-methods: TmjMapLoader,addStaticTiles,collectImageLayerFileHandles,descriptors,fileHandles,getDependencyAssetDescriptors,getDependencyFileHandles,getTileSetDependencyFileHandle,load,loadAsync,loadSync,map,ownedResources,props,r,textureFiles,textures,this,tmjFile,ts,tsjFile
  * Covenant-source-reference: com/badlogic/gdx/maps/tiled/TmjMapLoader.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: ef38b0d9ae9b11c2bde1743bd25d3cb5dfe6af55
  */
 package sge
 package maps

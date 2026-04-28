@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: AssetManagerAtlasResolver,AtlasResolver,AtlasTmxMapLoader,DirectAtlasResolver,addStaticTiles,atlas,atlasFileHandle,atlasFilePath,atlasHandle,atlasResolver,descriptors,getAtlasFileHandle,getDependencyAssetDescriptors,getImage,load,loadAsync,loadSync,map,ownedResources,param,properties,props,setTextureFilters,this,tmxFile,trackedTextures
  * Covenant-source-reference: com/badlogic/gdx/maps/tiled/AtlasTmxMapLoader.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: ef38b0d9ae9b11c2bde1743bd25d3cb5dfe6af55
  */
 package sge
 package maps

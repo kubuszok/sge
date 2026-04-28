@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: PoolManager,addPool,clazz,clear,free,hasPool,obtain,obtainOrNull,oldPool,pool,poolOrNull,typePools
  * Covenant-source-reference: com/badlogic/gdx/utils/PoolManager.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 80398bf4c2814b27b5234e6a85487a0691968a31
  */
 package sge
 package utils

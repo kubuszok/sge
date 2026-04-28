@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: ItemClickListener,ListAdapterListener,ListView,ListViewTable,UpdatePolicy,_clickListener,_footer,_header,_mainTable,_scrollPane,_updatePolicy,checkDrawInvalidation,clicked,dataInvalidated,draw,footer,footer_,getAdapter,getClickListener,getMainTable,getScrollPane,header,header_,invalidateDataFromAdapter,invalidateDataSet,itemsTable,rebuildView,scrollTable,setItemClickListener,this,updatePolicy,updatePolicy_
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/ListView.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

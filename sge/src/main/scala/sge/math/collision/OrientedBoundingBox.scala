@@ -22,6 +22,8 @@
  * Covenant-baseline-methods: OrientedBoundingBox,_bounds,_vertices,aAxes,aVertices,axes,bAxes,bVertices,bounds,contains,corner000,corner001,corner010,corner011,corner100,corner101,corner110,corner111,extractVertices,intersects,inverseTransform,localV,mul,set,setBounds,setTransform,tempAxes,tempVertices,this,tmpVector,tmpVectors,transform,update,v,vertices
  * Covenant-source-reference: com/badlogic/gdx/math/collision/OrientedBoundingBox.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: d56431483e250f7d0c18c55bee766858ff8fb9e8
  */
 package sge
 package math

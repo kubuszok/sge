@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: Cubemap,CubemapSide,addManagedCubemap,assetManager,builder,clearAllCubemaps,close,cubemapData,depth,direction,finishedLoading,getDirection,getUp,height,invalidateAllCubemaps,load,managed,managedCubemaps,managedStatus,numManagedCubemaps,reload,setAssetManager,this,up,width
  * Covenant-source-reference: com/badlogic/gdx/graphics/Cubemap.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

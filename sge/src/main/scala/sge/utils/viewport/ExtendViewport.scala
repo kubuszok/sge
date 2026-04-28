@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: ExtendViewport,currentScaling,maxWorldHeight,maxWorldWidth,minWorldHeight,minWorldWidth,scaled,sh,sw,this,update,viewportHeight,viewportWidth,wh,ww
  * Covenant-source-reference: com/badlogic/gdx/utils/viewport/ExtendViewport.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 665f920902e543856fdd7d496f6ec422affd46d1
  */
 package sge
 package utils

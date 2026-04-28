@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: ENTER_ANDROID,ENTER_DESKTOP,TextAreaListener,VisTextArea,_cursorXField,availableHeight,background,calculateCurrentLineIndex,calculateOffsets,continueCursor,count,createInputListener,cursorLine,cursorX,cursorY,drawCursor,drawSelection,drawText,firstLineShowing,font,getTextY,goEnd,goHome,i,index,initialize,keyDown,keyTyped,lastText,letterUnderCursor,line,lines,linesBreak,linesShowing,maxIndex,minIndex,moveCursor,moveCursorLine,moveOffset,newLineAtEnd,offsetY,pos,prefHeight,prefRows,setCursorPosition,setPrefRows,setSelection,showCursor,sizeChanged,softwrap,textOffset,textY,this,updateCurrentLine
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/VisTextArea.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

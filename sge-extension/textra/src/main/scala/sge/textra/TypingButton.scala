@@ -16,6 +16,8 @@
  * Covenant-baseline-methods: TypingButton,newLabel,this
  * Covenant-source-reference: com/github/tommyettinger/textra/TypingButton.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

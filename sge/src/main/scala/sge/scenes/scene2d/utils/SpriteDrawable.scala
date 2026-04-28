@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: SpriteDrawable,_sprite,draw,drawable,newSprite,oldColor,setSprite,sprite,spriteColor,this,tint
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/SpriteDrawable.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 436e3ceb7266888f9391cea77d27be7381434114
  */
 package sge
 package scenes

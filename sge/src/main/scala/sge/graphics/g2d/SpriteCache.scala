@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: Cache,SpriteCache,_color,_colorPacked,_customShader,_drawing,_projectionMatrix,_transformMatrix,activeShader,add,beginCache,cache,cacheCount,caches,clear,close,color,color_,combinedMatrix,count,counts,createDefaultShader,currentCache,customShader,customShader_,draw,drawing,endCache,fragmentShader,fx,fx2,fy,fy2,i,indices,invTexHeight,invTexWidth,j,lastIndex,length,lengthVar,maxCount,maxIndices,maxVertices,mesh,offset,offsetVar,p1x,p1y,p2x,p2y,p3x,p3y,p4x,p4y,packedColor,packedColor_,projectionMatrix,projectionMatrix_,renderCalls,rendering,setColor,shader,tempVertices,textureCount,textures,this,totalRenderCalls,transformMatrix,transformMatrix_,u,u2,v,v2,vertexIndex,vertexShader,vertices,verticesPerImage,worldOriginX,worldOriginY,x1,x2,x3,x4,y1,y2,y3,y4
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/SpriteCache.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */
 package sge
 package graphics

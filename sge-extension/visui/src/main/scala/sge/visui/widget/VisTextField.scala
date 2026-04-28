@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: DigitsOnlyFilter,TextFieldFilter,TextFieldListener,VisTextField,VisTextFieldStyle,_cursorPercentHeight,_enterKeyFocusTraversal,_focusBorderEnabled,_ignoreEqualsTextChange,_inputValid,_readOnly,_visStyle,acceptChar,backgroundDrawable,backgroundOver,beforeChangeEventFired,changeText,clearText,clickListener,cursorHeight,cursorPercentHeight,cursorYPadding,disabled_,draw,drawBorder,drawCursor,enter,errorBorder,exit,focusBorder,focusBorderEnabled,focusBorderEnabled_,focusField,focusGained,focusLost,initialize,isEmpty,isEnterKeyFocusTraversal,isIgnoreEqualsTextChange,isInputValid,isReadOnly,keyTyped,setCursorAtTextEnd,setCursorPercentHeight,setEnterKeyFocusTraversal,setIgnoreEqualsTextChange,setInputValid,setReadOnly,this,toString,touchDown
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/VisTextField.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

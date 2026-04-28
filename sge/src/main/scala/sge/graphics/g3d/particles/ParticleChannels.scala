@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: Acceleration,AlphaOffset,AngularVelocity2D,AngularVelocity3D,BlueOffset,Color,ColorInitializer,CosineOffset,CurrentLifeOffset,GreenOffset,HalfHeightOffset,HalfWidthOffset,Interpolation,Interpolation4,Interpolation6,InterpolationDiffOffset,InterpolationStartOffset,Life,LifePercentOffset,ModelInstance,ParticleChannels,ParticleController,Position,PreviousPosition,RedOffset,Rotation2D,Rotation2dInitializer,Rotation3D,Rotation3dInitializer,Scale,ScaleInitializer,SineOffset,TextureRegion,TextureRegionInitializer,TotalLifeOffset,U2Offset,UOffset,V2Offset,VOffset,VelocityPhiDiffOffset,VelocityPhiStartOffset,VelocityStrengthDiffOffset,VelocityStrengthStartOffset,VelocityThetaDiffOffset,VelocityThetaStartOffset,WOffset,XOffset,YOffset,ZOffset,currentGlobalId,currentId,id,init,newGlobalId,newId,resetIds
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/ParticleChannels.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 619b382c1b5dcf3572b9170294aba55e9f3b5f82
  */
 package sge
 package graphics

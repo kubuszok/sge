@@ -23,6 +23,8 @@
  * Covenant-baseline-methods: BoundingBox,center,centerX,centerY,centerZ,clr,cnt,contains,corner000,corner001,corner010,corner011,corner100,corner101,corner110,corner111,depth,dim,dimensions,ext,height,inf,intersects,isValid,max,maximum,min,minimum,mul,set,this,tmpVector,toString,update,width,x0,x1,y0,y1,z0,z1
  * Covenant-source-reference: com/badlogic/gdx/math/collision/BoundingBox.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 2b250a83948fc7814b623700c09c3d0987a39bc9
  */
 package sge
 package math

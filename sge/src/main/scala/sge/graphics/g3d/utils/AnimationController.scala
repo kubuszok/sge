@@ -24,6 +24,8 @@
  * Covenant-baseline-methods: AnimationController,AnimationDesc,AnimationListener,action,allowSameAnimation,animate,animation,animationPool,current,duration,inAction,justChangedAnimation,listener,loopCount,obtain,obtainByName,obtainFrom,offset,onEnd,onLoop,paused,previous,queue,queued,queuedTransitionTime,setAnimation,speed,time,transitionCurrentTime,transitionTargetTime,update
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/AnimationController.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: fb7187756da5e2026426d9b1770412ad4b94d8eb
  */
 package sge
 package graphics

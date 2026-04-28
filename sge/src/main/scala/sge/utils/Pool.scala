@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: DISTSQR,Default,Flushable,Pool,Poolable,QuadTreeFloat,VALUE,X,Y,add,addToChild,clear,count,depth,discard,fill,findNearestInternal,flush,free,freeAll,freeObjects,growValues,height,initialCapacity,max,maxValuesCount,ne,nearest,newObject,nw,obtain,obtainChild,obtained,peak,pool,query,reset,se,setBounds,split,sw,values,width,x,y
  * Covenant-source-reference: com/badlogic/gdx/utils/Pool.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: a729bf1f0de099ebcc60562d72f008157677b559
  */
 package sge
 package utils

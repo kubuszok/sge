@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: Cell,ROTATE_0,ROTATE_180,ROTATE_270,ROTATE_90,TiledMapTileLayer,cells,flipHorizontally,flipVertically,getCell,rotation,setCell,tile
  * Covenant-source-reference: com/badlogic/gdx/maps/tiled/TiledMapTileLayer.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package maps

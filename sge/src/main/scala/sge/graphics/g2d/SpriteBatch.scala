@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: SpriteBatch,_blendDstFunc,_blendDstFuncAlpha,_blendSrcFunc,_blendSrcFuncAlpha,_color,_projectionMatrix,_shader,_transformMatrix,activeShader,blendDstFunc,blendDstFuncAlpha,blendSrcFunc,blendSrcFuncAlpha,blendingDisabled,blendingEnabled,close,color,colorPacked,color_,combinedMatrix,copyCount,createDefaultShader,currentDataType,currentOffset,customShader,disableBlending,draw,drawing,enableBlending,flush,fragmentShader,fx,fx2,fy,fy2,gl,idx,indices,invTexHeight,invTexWidth,j,lastTexture,len,localIdx,maxSpritesInBatch,mesh,ownsShader,p1x,p1y,p2x,p2y,p3x,p3y,p4x,p4y,packedColor,packedColor_,projectionMatrix,projectionMatrix_,remainingCount,remainingVertices,renderCalls,setBlendFunction,setBlendFunctionSeparate,setColor,setupMatrices,shader,shader_,switchTexture,texture,totalRenderCalls,transformMatrix,transformMatrix_,u,u2,v,v2,vertexDataType,vertexShader,vertices,verticesLength,worldOriginX,worldOriginY,x1,x2,x3,x4,y1,y2,y3,y4
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/SpriteBatch.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: be482fa7df9f9e5ce81293264410e0c0b5a4d92d
  */
 package sge
 package graphics

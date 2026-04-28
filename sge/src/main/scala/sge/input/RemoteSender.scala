@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: ACCEL,COMPASS,GYRO,KEY_DOWN,KEY_TYPED,KEY_UP,RemoteSender,SIZE,TOUCH_DOWN,TOUCH_DRAGGED,TOUCH_UP,connected,isConnected,keyDown,keyTyped,keyUp,mouseMoved,out,scrolled,sendUpdate,socket,touchCancelled,touchDown,touchDragged,touchUp
  * Covenant-source-reference: com/badlogic/gdx/input/RemoteSender.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 9de4191d4db23192cc7ef5cd3ea0d68a42924ff6
  */
 package sge
 package input

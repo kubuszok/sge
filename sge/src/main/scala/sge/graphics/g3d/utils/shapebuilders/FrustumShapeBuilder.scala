@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: FrustumShapeBuilder,build,centerNear,centerPoint,halfNearSize,middlePoint,planePoints
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/shapebuilders/FrustumShapeBuilder.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: bac009762b9d593223a6a3a3ff05b12c97ff7e40
  */
 package sge
 package graphics

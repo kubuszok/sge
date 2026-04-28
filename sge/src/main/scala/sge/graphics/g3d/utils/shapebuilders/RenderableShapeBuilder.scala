@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: FLOAT_BYTES,RenderablePoolImpl,RenderableShapeBuilder,attributesSize,biNorAttr,binormalOffset,buildNormals,ensureIndicesCapacity,ensureVerticesCapacity,indices,initialCapacity,max,maxVerticeInIndices,mesh,min,minVerticeInIndices,newObject,norAttr,normalOffset,obtain,posAttr,positionOffset,renderables,renderablesPool,tanAttr,tangentOffset,vertices,verticesOffset,verticesQuantity
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/shapebuilders/RenderableShapeBuilder.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 470f4b347cc3da9ecff1ef177819533249a01ea3
  */
 package sge
 package graphics

@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: LinkLabel,LinkLabelListener,LinkLabelStyle,_listener,_style,clickListener,clicked,draw,enter,exit,listener,listener_,this,underline,url,url_
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/LinkLabel.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

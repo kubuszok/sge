@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: InstanceData,attributes,bind,buffer,close,getBuffer,invalidate,numInstances,numMaxInstances,setInstanceData,unbind,updateInstanceData
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/InstanceData.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: b6d788be694d082fd715b92c0d18530c827e209c
  */
 package sge
 package graphics

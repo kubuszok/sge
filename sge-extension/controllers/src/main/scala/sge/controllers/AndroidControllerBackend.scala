@@ -14,8 +14,18 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 51
  * Covenant-baseline-methods: AndroidControllerBackend,getConnectedControllers,getConnectedControllersImpl,maxControllers,pollController,pollControllerImpl
- * Covenant-source-reference: gdx-controllers-android/src/com/badlogic/gdx/controllers/android/AndroidControllers.java
+ * Covenant-source-reference: com/badlogic/gdx/controllers/android/AndroidControllers.java
+ *   Renames: AndroidControllers -> AndroidControllerBackend
+ *   Convention: polling-based ControllerOps (replaces event-queue architecture)
+ *   Idiom: split packages; Nullable; swappable pollControllerImpl like BrowserControllerBackend
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 51
+ * Covenant-baseline-methods: AndroidControllerBackend,getConnectedControllers,getConnectedControllersImpl,maxControllers,pollController,pollControllerImpl
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 124b68125c7ef9c552085865379f77e8bee2ae3b
  */
 package sge
 package controllers

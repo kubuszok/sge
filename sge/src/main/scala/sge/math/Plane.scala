@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: Plane,PlaneSide,d,dist,distance,dot,isFrontFacing,normal,set,testPoint,this,toString
  * Covenant-source-reference: com/badlogic/gdx/math/Plane.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package math

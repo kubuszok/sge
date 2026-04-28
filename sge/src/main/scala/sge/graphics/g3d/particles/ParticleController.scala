@@ -27,6 +27,8 @@
  * Covenant-baseline-methods: DEFAULT_TIME_STEP,ParticleController,_boundingBox,activateParticles,allocateChannels,bb,bind,boundingBox,c,calculateBoundingBox,ci,copiedEmitter,copiedInfluencers,copiedRenderer,copy,deltaTime,deltaTimeSqr,dispose,draw,emitter,end,findIndex,findInfluencer,getTransform,i,index,influencers,init,isComplete,killParticles,load,mul,name,particleChannels,particles,pos,positionChannel,removeInfluencer,renderer,replaceInfluencer,reset,rotate,save,scale,setTimeStep,setTransform,setTranslation,start,this,transform,translate,update
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/ParticleController.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */
 package sge
 package graphics

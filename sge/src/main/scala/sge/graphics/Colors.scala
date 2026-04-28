@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: Colors,colors,get,map,previous,put,reset
  * Covenant-source-reference: com/badlogic/gdx/graphics/Colors.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: a6dc60f58213d199a7e72cd2c01cb714a7ecfe33
  */
 package sge
 package graphics

@@ -35,6 +35,8 @@
  * Covenant-baseline-methods: FastPNG8,clearPalette,this,write
  * Covenant-source-reference: com/github/tommyettinger/anim8/FastPNG8.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 38634cefd749a9a8af4534ca285c8e72437fe181
  */
 package sge
 package anim8

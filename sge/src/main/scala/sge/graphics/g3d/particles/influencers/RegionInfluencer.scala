@@ -26,6 +26,8 @@
  * Covenant-baseline-methods: ASSET_DATA,Animated,AspectTextureRegion,Random,RegionInfluencer,Single,activateParticles,add,allocateChannels,aspectRegion,atlasName,clear,copy,data,halfInvAspectRatio,i,imageName,init,initDefault,lifeChannel,load,regionChannel,regions,save,set,this,u,u2,update,updateUV,v,v2
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/influencers/RegionInfluencer.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */
 package sge
 package graphics

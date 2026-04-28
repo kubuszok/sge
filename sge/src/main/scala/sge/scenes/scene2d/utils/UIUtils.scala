@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: UIUtils,alt,ctrl,isAndroid,isIos,isLinux,isMac,isWindows,left,middle,os,right,shift
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/UIUtils.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 70725e2c7598f7fa02214814a85adad5134bb277
  */
 package sge
 package scenes

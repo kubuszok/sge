@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: SPRITE_SIZE,Sprite,VERTEX_SIZE,_color,_height,_originX,_originY,_packedColor,_rotation,_scaleX,_scaleY,_vertices,_width,_x,_y,boundingRectangle,bounds,color,color_,dirty,draw,flip,height,maxx,maxy,minx,miny,newU2,newV2,oldAlpha,originX,originY,packedColor,packedColor_,performX,performY,rotate,rotate90,rotation,rotation_,scale,scaleX,scaleY,scroll,set,setAlpha,setBounds,setCenter,setCenterX,setCenterY,setColor,setFlip,setOrigin,setOriginBasedPosition,setOriginCenter,setPosition,setRegion,setScale,setSize,setU,setV,this,translate,translateX,translateY,u2_,u_,v2_,v_,vertices,verts,width,x,x2,x_,y,y2,y_
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/Sprite.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 436e3ceb7266888f9391cea77d27be7381434114
  */
 package sge
 package graphics

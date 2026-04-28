@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: GeometryUtils,area,avgX1,avgX2,avgY1,avgY2,barycoordInsideTriangle,colinear,d00,d01,d11,d20,d21,denom,det,dx,dx13,dx21,dx32,dy,dy13,dy21,dy32,end,ensureCCW,ensureClockwise,fromBarycoord,i,inside,isCCW,isClockwise,isPointInPolygon,j,last,lastX,lowestPositiveRoot,m1,m2,mx1,mx2,my1,my2,n,polygonArea,polygonCentroid,quadrilateralCentroid,reverseVertices,sqLength1,sqLength2,sqLength3,sqr1,sqr2,sqr3,tmp1,tmp2,tmp3,toBarycoord,triangleArea,triangleCentroid,triangleCircumcenter,triangleCircumradius,triangleQuality,u,v0,v1,v2,x,x1,y,y1
  * Covenant-source-reference: com/badlogic/gdx/math/GeometryUtils.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 47191e24502bdea8b216c7d80b6f281679f00051
  */
 package sge
 package math

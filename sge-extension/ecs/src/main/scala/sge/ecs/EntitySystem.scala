@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: EntitySystem,_engine,addedToEngine,addedToEngineInternal,checkProcessing,engine,processing,removedFromEngine,removedFromEngineInternal,update
  * Covenant-source-reference: com/badlogic/ashley/core/EntitySystem.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: d63d542228cd8c62cc2f7adf20055b0ac59a547e
  */
 package sge
 package ecs

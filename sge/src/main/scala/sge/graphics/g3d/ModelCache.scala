@@ -23,6 +23,8 @@
  * Covenant-baseline-methods: MeshPool,ModelCache,SimpleMeshPool,Sorter,TightMeshPool,add,building,caching,camera,close,compare,first,flush,freeMeshes,getRenderables,i,initialCapacity,items,material,max,mesh,meshBuilder,meshPartPool,n,newObject,obtain,obtainRenderable,offset,part,previous,primitiveType,renderables,renderablesPool,result,sort,this,tmp,usedMeshes,vertexAttributes
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/ModelCache.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

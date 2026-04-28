@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: Ellipse,a,area,b,circumference,contains,dx,dy,equals,hashCode,height,prime,result,set,setPosition,setSize,this,toString,width,x,y
  * Covenant-source-reference: com/badlogic/gdx/math/Ellipse.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 648f9b070fd76e374ff9a578527a82c155332a14
  */
 package sge
 package math

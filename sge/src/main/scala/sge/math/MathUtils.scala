@@ -23,6 +23,8 @@
  * Covenant-baseline-methods: BIG_ENOUGH_FLOOR,BIG_ENOUGH_INT,BIG_ENOUGH_ROUND,CEIL,E,FLOAT_ROUNDING_ERROR,HALF_PI,MathUtils,PI,PI2,SIN_BITS,SIN_COUNT,SIN_MASK,Sin,a2,a3,acos,acosDeg,asin,asinDeg,atan,atan2,atan2Deg,atan2Deg360,atanDeg,atanUnchecked,atanUncheckedDeg,bound,boundHigh,boundLow,c,c11,c2,c3,c5,c7,c9,ceil,ceilPositive,clamp,cos,cosDeg,d,degFull,degRad,degToIndex,degreesToRadians,delta,endVar,floor,floorPositive,isEqual,isPowerOfTwo,isZero,lerp,lerpAngle,lerpAngleDeg,log,log2,map,n,nanoToSec,nextPowerOfTwo,norm,r,radDeg,radFull,radToIndex,radiansToDegrees,rand,randHigh,randLow,random,randomBoolean,randomGenerator,randomSign,randomTriangular,round,roundPositive,sin,sinDeg,startVar,table,tan,tanDeg,u,x2,x4,x_
  * Covenant-source-reference: com/badlogic/gdx/math/MathUtils.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 9bd3c938a7c34ec06a23fc56b67b0e0a8d488915
  */
 package sge
 package math

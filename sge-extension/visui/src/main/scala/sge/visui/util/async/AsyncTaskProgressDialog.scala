@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: AsyncTaskProgressDialog,addListener,failed,finished,getStatus,messageChanged,progressBar,progressChanged,statusLabel
  * Covenant-source-reference: com/kotcrab/vis/ui/util/async/AsyncTaskProgressDialog.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

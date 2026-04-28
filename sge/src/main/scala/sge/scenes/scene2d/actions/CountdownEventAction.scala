@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: CountdownEventAction,current,handle
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/CountdownEventAction.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: b97b34a82af276a09bec2885854dc391ec65023d
  */
 package sge
 package scenes

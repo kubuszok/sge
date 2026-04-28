@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: ObjectMap,_size,apply,clear,containsKey,containsValue,create,createWithMk,ensureCapacity,equals,equalsIdentity,filled,findKey,foreachEntry,foreachKey,foreachValue,from,get,getUnsafe,h,hashCode,i,internalFilled,internalKeyTable,internalMask,internalShift,internalThreshold,internalValueTable,isEmpty,keyTable,len,loadFactor,locateKey,map,mask,mkK,mkV,nonEmpty,oldCapacity,oldFilled,oldKeyTable,oldValTable,otherFilled,otherKeys,otherValues,place,put,putAll,putResize,remove,resize,shift,shrink,size,summonMkArray,tableSize,threshold,toString,toStringImpl,ts,valueTable
  * Covenant-source-reference: com/badlogic/gdx/utils/ObjectMap.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 5bf673e4ecf9b8d8206a1d164d4326e354ace9a5
  */
 package sge
 package utils

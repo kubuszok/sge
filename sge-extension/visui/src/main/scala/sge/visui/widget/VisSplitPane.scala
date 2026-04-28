@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: VisSplitPane,VisSplitPaneStyle,addActor,addActorAt,addActorBefore,availHeight,availWidth,bottomAreaH,calculateHorizBoundsAndPositions,calculateVertBoundsAndPositions,clr,contains,draw,firstScissors,firstWidgetBounds,getFirstWidgetBounds,getSecondWidgetBounds,getSplit,h,handle,handleBounds,handleBoundsContains,handleHeight,handleOver,handlePosition,handleWidth,hit,initialize,lastPoint,layout,leftAreaW,maxAmount,minAmount,minHeight,minWidth,mouseMoved,mouseOnHandle,prefHeight,prefWidth,removeActor,rightAreaW,secondScissors,secondWidgetBounds,setFirstWidget,setMaxSplitAmount,setMinSplitAmount,setSecondWidget,setSplitAmount,setWidgets,splitAmount,style,this,topAreaH,touchDown,touchDragged,touchUp,w
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/VisSplitPane.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

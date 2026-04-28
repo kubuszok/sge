@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: DataInput,b,charCount,chars,currentB,currentCharIndex,localChars,readInt,readString,readUtf8_slow,result
  * Covenant-source-reference: com/badlogic/gdx/utils/DataInput.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 86cd3d23db3e3860d71d595708b5b24a0d379295
  */
 package sge
 package utils

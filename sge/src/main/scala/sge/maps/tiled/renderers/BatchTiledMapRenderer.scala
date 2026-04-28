@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: BatchTiledMapRenderer,NUM_VERTICES,_batch,_map,_unitScale,_viewBounds,alphaMultiplier,batch,batchColor,beginRender,close,color,combinedTint,endRender,getImageLayerColor,getTileLayerColor,h,height,imageBounds,map,map_,opacityMultiplier,ownsBatch,region,render,renderImageLayer,renderMapLayer,renderObject,renderObjects,repeatedImageBounds,setView,supportsTransparency,this,unitScale,vertices,viewBounds,w,width
  * Covenant-source-reference: com/badlogic/gdx/maps/tiled/renderers/BatchTiledMapRenderer.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: def1ddf10fbc790009df60c829074bb753074a02
  */
 package sge
 package maps

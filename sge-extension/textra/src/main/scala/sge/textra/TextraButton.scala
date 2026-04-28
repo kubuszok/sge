@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: TextraButton,_hasKeyboardFocus,_height,_isChecked,_isDisabled,_isOver,_isPressed,_style,_width,c,draw,focused,getFontColor,getHeight,getName,getPrefHeight,getPrefWidth,getStyle,getText,getTextraLabel,getTextraLabelCell,getWidth,hasKeyboardFocus,hasKeyboardFocus_,isChecked,isChecked_,isDisabled,isDisabled_,isOver,isOver_,isPressed,isPressed_,label,name,newLabel,setChecked,setSize,setStyle,setText,setTextraLabel,skipToTheEnd,this,toString,useIntegerPositions
  * Covenant-source-reference: com/github/tommyettinger/textra/TextraButton.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

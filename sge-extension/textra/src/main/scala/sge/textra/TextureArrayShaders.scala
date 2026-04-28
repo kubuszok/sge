@@ -23,6 +23,8 @@
  * Covenant-baseline-methods: TextureArrayShaders,defaultArrayFragmentShader,defaultArrayVertexShader,initializeAdaptiveTextureArrayShaders,initializeTextureArrayShaders,msdfArrayFragmentShader,msdfArrayVertexShader,sdfAdaptiveArrayFragmentShader,sdfArrayFragmentShader,sdfArrayVertexShader,sdfDerivativeArrayFragmentShader,sdfDerivativeArrayVertexShader,sdfOutlineAdaptiveArrayFragmentShader,sdfOutlineArrayFragmentShader,sdfOutlineArrayVertexShader,sdfOutlineDerivativeArrayFragmentShader,sdfOutlineDerivativeArrayVertexShader,vertexShader
  * Covenant-source-reference: com/github/tommyettinger/textra/TextureArrayShaders.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

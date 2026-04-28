@@ -22,6 +22,8 @@
  * Covenant-baseline-methods: NodePart,bones,copy,enabled,invBoneBindTransforms,material,meshPart,set,setRenderable,this
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/model/NodePart.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */
 package sge
 package graphics

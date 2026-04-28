@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: CaseInsensitiveIntMap,Entries,Entry,Keys,MapIterator,Values,_hasNext,_keyTable,_size,_valueTable,buffer,clear,containsKey,containsValue,currentIndex,ensureCapacity,entries,entry,equals,findKey,findNextIndex,found,get,getAndIncrement,h,hasNext,hashCode,hashCodeIgnoreCase,i,i0,isEmpty,iterator,key,keys,kt,len,loadFactor,locateKey,mask,n,next,nextIndex,notEmpty,oldCapacity,oldKeyTable,oldValueTable,place,put,putAll,putResize,remove,reset,resize,shrink,size,tableSize,this,threshold,toArray,toString,ts,valid,value,values,vt
  * Covenant-source-reference: com/github/tommyettinger/textra/utils/CaseInsensitiveIntMap.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

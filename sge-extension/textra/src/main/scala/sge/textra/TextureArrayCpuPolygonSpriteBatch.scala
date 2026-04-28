@@ -32,6 +32,8 @@
  * Covenant-baseline-methods: TextureArrayCpuPolygonSpriteBatch,adjustAffine,adjustNeeded,checkEqual,checkIdt,color,draw,drawRegionRotated,flushAndSyncTransformMatrix,fx,fx2,fy,fy2,haveIdentityRealMatrix,idx,p1x,p1y,p2x,p2y,p3x,p3y,p4x,p4y,realMatrix,setTransformMatrix,startVertex,t,texture,textureIndex,this,tmpAffine,transformMatrix,transformMatrix_,triIdx,triangles,u,u2,v,v2,vertices,virtualMatrix,worldOriginX,worldOriginY,x1,x2,x3,x4,y1,y2,y3,y4
  * Covenant-source-reference: com/github/tommyettinger/textra/TextureArrayCpuPolygonSpriteBatch.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

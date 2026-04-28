@@ -24,6 +24,8 @@
  * Covenant-baseline-methods: FileHandle,FileHandleStream,child,copyDirectory,copyFile,copyTo,delete,deleteDirectory,dotIndex,emptyDirectory,equals,estimateLength,exists,extension,f,file,fileObj,hash,hashCode,input,isDirectory,lastModified,length,list,map,mkdirs,moveTo,name,nameWithoutExtension,output,parent,path,pathWithoutExtension,position,raf,read,readBytes,readString,reader,sibling,stream,toString,write,writeBytes,writeString,writer
  * Covenant-source-reference: com/badlogic/gdx/files/FileHandle.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 4329e79a49222e2c56e7c8275319a6de6446f5e7
  */
 package sge
 package files

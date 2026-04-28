@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: AudioDevice,isMono,latency,pause,resume,setVolume,writeSamples
  * Covenant-source-reference: com/badlogic/gdx/audio/AudioDevice.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 990cedd5fc6c79a5181711ee67faccbb82a42c57
  */
 package sge
 package audio

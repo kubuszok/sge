@@ -23,6 +23,8 @@
  * Covenant-baseline-methods: ClickListenerState,SelectBoxScrollPane,SelectionAccessor,TextraSelectBox,_alignment,_clickListener,_color,_hasParent,_height,_isOver,_maxWidth,_minHeight,_minWidth,_needsLayout,_prefHeight,_prefWidth,_scrollPaneOpen,_scrollingDisabledY,_selectedIndex,_stage,_stagePositionX,_stagePositionY,_style,_width,_x,_y,act,background,bg,choose,clear,clearItems,color,disabled,draw,drawItem,f,first,font,fontColor,getAlignment,getBackgroundDrawable,getClickListener,getColor,getFontColor,getHeight,getItems,getList,getMaxListCount,getMaxPrefWidth,getMaxWidth,getMinHeight,getMinWidth,getPrefHeight,getPrefWidth,getScrollPane,getSelectBox,getSelected,getSelectedIndex,getSelectedPrefWidth,getSelection,getStage,getStyle,getWidth,getX,getY,handleClick,handleExit,handleHideKeyDown,handleHideTouchDown,handleListClick,handleListMouseMoved,hasParent,height,hide,hideList,hideScrollPane,i,invalidate,invalidateHierarchy,isDisabled,isOver,isScrollingDisabledY,items,label,layout,layoutScrollPane,list,maxListCount,newLabel,newList,newScrollPane,oldPrefWidth,onHide,onShow,scrollPane,selectedPrefWidth,set,setActor,setAlignment,setColor,setDisabled,setHeight,setItemTexts,setItems,setMaxListCount,setOver,setRequired,setScrollingDisabled,setScrollingDisabledY,setSelected,setSelectedIndex,setSelectedPrefWidth,setSize,setStage,setStyle,setWidth,setX,setY,show,showList,showScrollPane,toString,validate,validateSelection,width,x,y
  * Covenant-source-reference: com/github/tommyettinger/textra/TextraSelectBox.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

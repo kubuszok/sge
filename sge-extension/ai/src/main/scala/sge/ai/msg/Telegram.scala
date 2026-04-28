@@ -15,8 +15,18 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 95
  * Covenant-baseline-methods: RETURN_RECEIPT_NEEDED,RETURN_RECEIPT_SENT,RETURN_RECEIPT_UNNEEDED,Telegram,compareTo,equals,extraInfo,hashCode,message,prime,receiver,reset,result,returnReceiptStatus,sender,timestamp
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/msg/Telegram.java
+ *   Renames: `com.badlogic.gdx.ai.msg` -> `sge.ai.msg`
+ *   Convention: split packages; `null` -> `Nullable`; `getTimestamp`/`setTimestamp` -> `var timestamp`
+ *   Idiom: implements `Pool.Poolable` and `Comparable[Telegram]`
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 95
+ * Covenant-baseline-methods: RETURN_RECEIPT_NEEDED,RETURN_RECEIPT_SENT,RETURN_RECEIPT_UNNEEDED,Telegram,compareTo,equals,extraInfo,hashCode,message,prime,receiver,reset,result,returnReceiptStatus,sender,timestamp
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

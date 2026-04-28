@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: GL32Interceptor,glBlendBarrier,glBlendEquationSeparatei,glBlendEquationi,glBlendFuncSeparatei,glBlendFunci,glColorMaski,glCopyImageSubData,glDebugMessageCallback,glDebugMessageControl,glDebugMessageInsert,glDisablei,glDrawElementsBaseVertex,glDrawElementsInstancedBaseVertex,glDrawRangeElementsBaseVertex,glEnablei,glFramebufferTexture,glGetDebugMessageLog,glGetGraphicsResetStatus,glGetObjectLabel,glGetPointerv,glGetSamplerParameterIiv,glGetSamplerParameterIuiv,glGetTexParameterIiv,glGetTexParameterIuiv,glGetnUniformfv,glGetnUniformiv,glGetnUniformuiv,glIsEnabledi,glMinSampleShading,glObjectLabel,glPatchParameteri,glPopDebugGroup,glPushDebugGroup,glReadnPixels,glSamplerParameterIiv,glSamplerParameterIuiv,glTexBuffer,glTexBufferRange,glTexParameterIiv,glTexParameterIuiv,glTexStorage3DMultisample,v
  * Covenant-source-reference: com/badlogic/gdx/graphics/profiling/GL32Interceptor.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 5f2dae5f6879556f663774ba9d9ff439b5bae822
  */
 package sge
 package graphics

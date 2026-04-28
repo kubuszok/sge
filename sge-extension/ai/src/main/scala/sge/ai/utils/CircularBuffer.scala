@@ -15,8 +15,18 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 128
  * Covenant-baseline-methods: CircularBuffer,_size,clear,ensureCapacity,head,isEmpty,isFull,items,newCapacity,newItems,read,resize,size,store,tail
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/utils/CircularBuffer.java
+ *   Renames: `com.badlogic.gdx.ai.utils` -> `sge.ai.utils`
+ *   Idiom: `ArrayReflection.newInstance` -> `new Array[AnyRef]` cast; `null` -> `Nullable`
+ *   Convention: split packages
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 128
+ * Covenant-baseline-methods: CircularBuffer,_size,clear,ensureCapacity,head,isEmpty,isFull,items,newCapacity,newItems,read,resize,size,store,tail
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

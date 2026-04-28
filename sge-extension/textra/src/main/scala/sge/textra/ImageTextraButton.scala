@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: ImageTextraButton,_hasKeyboardFocus,_imageDrawable,_isChecked,_isDisabled,_isOver,_isPressed,_style,c,className,dotIndex,draw,focused,getFontColor,getImage,getImageDrawable,getImageDrawableCurrent,getLabel,getStyle,getText,hasKeyboardFocus,hasKeyboardFocus_,isChecked,isChecked_,isDisabled,isDisabled_,isOver,isOver_,isPressed,isPressed_,label,name,newLabel,setChecked,setLabel,setStyle,setText,skipToTheEnd,this,toString,updateImage
  * Covenant-source-reference: com/github/tommyettinger/textra/ImageTextraButton.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

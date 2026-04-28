@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: VisImageButton,VisImageButtonStyle,_focusBorderEnabled,_image,_style,disabled_,draw,drawBorder,drawable,focusBorder,focusBorderEnabled,focusBorderEnabled_,focusGained,focusLost,generateDisabledImage,image,imageCell,imageChecked,imageCheckedOver,imageDisabled,imageDown,imageOver,imageUp,isGenerateDisabledImage,setGenerateDisabledImage,setStyle,this,touchDown,updateImage
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/VisImageButton.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

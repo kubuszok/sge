@@ -20,8 +20,18 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 605
  * Covenant-baseline-methods: AttrInfo,BehaviorTreeParser,DebugHigh,DebugLow,DebugNone,DefaultBehaviorTreeReader,ImportStatement,RootStatement,StackedTask,Statement,Subtree,SubtreeStatement,TaskMeta,TaskRegistry,TreeTaskStatement,_indent,addImport,attribute,bt,btParser,btReader,checkMinChildren,checkRequiredAttributes,checkStatement,classes,clear,contains,createBehaviorTree,createStackedTask,createTask,currentDepth,currentTree,currentTreeStartIndent,debugLevel,defaultImports,distributionAdapters,empty,encounteredAttributes,endLine,endStatement,enter,exit,getCurrentTask,getImport,getMeta,getParser,getPrevTask,guardChain,i,init,initCurrentTree,inited,isGuard,isRootTree,isSubtreeRef,nextIndent,openTask,parse,popAndCheckMinChildren,prevTask,printTree,referenceCount,registerTask,root,rootTask,rootTaskInstance,setParser,stack,stackedTaskException,startLine,startStatement,statement,statementName,step,subtreeName,subtreeRootTaskInstance,subtrees,switchToNewTree,taskFactories,taskMetadata,taskRegistry,this,throwAttributeNameException,throwAttributeTypeException,updateCurrentTask,userImports
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/btree/utils/BehaviorTreeParser.java
+ *   Renames: `com.badlogic.gdx.ai.btree.utils` -> `sge.ai.btree.utils`; `ObjectMap` -> `mutable.HashMap`;
+ *   Convention: split packages, Nullable instead of null
+ *   Idiom: ClassReflection replaced by TaskRegistry with factory functions and TaskMeta;
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 605
+ * Covenant-baseline-methods: AttrInfo,BehaviorTreeParser,DebugHigh,DebugLow,DebugNone,DefaultBehaviorTreeReader,ImportStatement,RootStatement,StackedTask,Statement,Subtree,SubtreeStatement,TaskMeta,TaskRegistry,TreeTaskStatement,_indent,addImport,attribute,bt,btParser,btReader,checkMinChildren,checkRequiredAttributes,checkStatement,classes,clear,contains,createBehaviorTree,createStackedTask,createTask,currentDepth,currentTree,currentTreeStartIndent,debugLevel,defaultImports,distributionAdapters,empty,encounteredAttributes,endLine,endStatement,enter,exit,getCurrentTask,getImport,getMeta,getParser,getPrevTask,guardChain,i,init,initCurrentTree,inited,isGuard,isRootTree,isSubtreeRef,nextIndent,openTask,parse,popAndCheckMinChildren,prevTask,printTree,referenceCount,registerTask,root,rootTask,rootTaskInstance,setParser,stack,stackedTaskException,startLine,startStatement,statement,statementName,step,subtreeName,subtreeRootTaskInstance,subtrees,switchToNewTree,taskFactories,taskMetadata,taskRegistry,this,throwAttributeNameException,throwAttributeTypeException,updateCurrentTask,userImports
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

@@ -1,6 +1,6 @@
 # SGE Audit Database
 # file_path	package	status	tested	last_audited	notes	source
-AssetLoader.scala	assets.loaders	pass	no	2026-03-19	`resolve()` and `getDependencies()` ported.	libgdx
+AssetLoader.scala	assets.loaders	pass	yes	2026-04-27	`resolve()` and `getDependencies()` ported.	libgdx
 AsynchronousAssetLoader.scala	assets.loaders	pass	no	2026-03-19	All 3 methods (loadAsync, unloadAsync, loadSync) faithfully ported.	libgdx
 BitmapFontLoader.scala	assets.loaders	pass	no	2026-03-19	All methods ported. `BitmapFontParameter` with 6 fields (flip, genMipMaps, minFilter, magFilter, bitmapFontData, atlasName).; test: getDependencies resolves font textures; loadSync assembles BitmapFont (requires GL context)	libgdx
 CubemapLoader.scala	assets.loaders	pass	no	2026-03-19	All methods ported. `CubemapParameter` with 7 fields. Java dead code `if (info == null) return null` in `loadSync` correctly omitted.; test: loadAsync/loadSync with KTX and parameter-supplied data (requires GL context)	libgdx

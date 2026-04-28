@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: RenderContext,blendDestAlphaFactor,blendDestRgbFactor,blendSourceAlphaFactor,blendSourceRgbFactor,blending,cullFace,depthFunc,depthMask,depthRangeFar,depthRangeNear,enabled,gl,rendering,setBlending,setCullFace,setDepthMask,setDepthTest,textureBinder,wasEnabled
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/RenderContext.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 96852061e1bd8c1924511b4b3338c77da961fdb9
  */
 package sge
 package graphics

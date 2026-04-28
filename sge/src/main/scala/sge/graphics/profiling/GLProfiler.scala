@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: GLProfiler,_enabled,calls,disable,drawCalls,enable,enabled,glInterceptor,listener,reset,shaderSwitches,textureBindings,vertexCount
  * Covenant-source-reference: com/badlogic/gdx/graphics/profiling/GLProfiler.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 5f2dae5f6879556f663774ba9d9ff439b5bae822
  */
 package sge
 package graphics
