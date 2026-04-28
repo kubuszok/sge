@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: MipMapGenerator,currentPixmap,generateMipMap,generateMipMapCPU,generateMipMapDesktop,generateMipMapGLES20,height,level,setUseHardwareMipMap,useHWMipMap,width
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/MipMapGenerator.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 9f5ddf1dae56cabc9c6c8feb62eea7bed7f0c91c
  */
 package sge
 package graphics

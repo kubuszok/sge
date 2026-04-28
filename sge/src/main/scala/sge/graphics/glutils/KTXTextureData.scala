@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: GL_TEXTURE_1D,GL_TEXTURE_1D_ARRAY_EXT,GL_TEXTURE_2D_ARRAY_EXT,GL_TEXTURE_3D,KTXTextureData,_glInternalFormat,_numberOfFaces,actualTarget,buffer,bytesOfKeyValueData,cd,compressed,compressedData,consumeCubemapData,consumeCustomData,consumePixmap,dataType,disposePixmap,disposePreparedData,endianTag,getData,getFormat,glBaseInternalFormat,glFormat,glInternalFormat,glTarget,glType,glTypeSize,height,imagePos,isManaged,isPrepared,localGlFormat,localGlInternalFormat,numberOfArrayElements,numberOfFaces,numberOfMipMapLevels,numberOfMipmapLevels,pixelDepth,pixelHeight,pixelWidth,pos,prepare,previousUnpackAlignment,result,singleFace,targetInt,textureDimensions,useMipMaps,useMipMapsFlag,width
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/KTXTextureData.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

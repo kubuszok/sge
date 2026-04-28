@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: FileTextureData,_height,_width,consumeCustomData,consumePixmap,dataType,disposePixmap,file,fileHandle,format,getFormat,height,isManaged,isPrepared,isPreparedState,pixmap,pixmapToReturn,prepare,toString,useMipMaps,useMipMapsParam,width
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/FileTextureData.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

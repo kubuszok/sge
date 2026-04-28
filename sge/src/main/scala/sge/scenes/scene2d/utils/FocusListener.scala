@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: FocusEvent,FocusListener,Type,focusType,focused,handle,keyboardFocusChanged,relatedActor,reset,scrollFocusChanged
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/FocusListener.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 315fe039b15c86232cae192118446c6fa72d14d5
  */
 package sge
 package scenes

@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: Binormal,BoneWeight,ColorPacked,ColorUnpacked,Normal,Position,Tangent,TexCoords,VertexAttribute,alias,copy,equals,hashCode,key,normalized,numComponents,offset,result,sizeInBytes,t,this,unit,usage,usageIndex
  * Covenant-source-reference: com/badlogic/gdx/graphics/VertexAttribute.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 69e23c782967a2a0f53dc6d5a8607faef619c22f
  */
 package sge
 package graphics

@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: AtlasRegion,AtlasSprite,Field,Page,Region,TextureAtlas,TextureAtlasData,_regions,_textures,addRegion,atlasRegion,close,createPatch,createSprite,createSprites,degrees,findRegion,findRegions,findValue,flip,h,height,heightRatio,index,load,name,names,newSprite,offsetX,offsetY,originX,originY,originalHeight,originalOffsetX,originalOffsetY,originalWidth,packFile,packedHeight,packedWidth,pages,parse,readEntry,region,regions,rotate,rotate90,rotatedPackedHeight,rotatedPackedWidth,setBounds,setOrigin,setOriginCenter,setPosition,setSize,textures,this,toString,values,w,width,widthRatio,x,x_,y,y_
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/TextureAtlas.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */
 package sge
 package graphics

@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: ButtonBar,ButtonType,LINUX_ORDER,OSX_ORDER,WINDOWS_ORDER,_ignoreSpacing,buttons,createTable,getButton,getDefaultOrder,getTextButton,i,ignoreSpacing,ignoreSpacing_,order,order_,setButton,spacingValid,table,text,this,toString
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/ButtonBar.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

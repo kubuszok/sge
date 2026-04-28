@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: AbstractListAdapter,DEFAULT_KEY,ListClickListener,ListSelection,ListSelectionListener,SelectionMode,_itemsComparator,_listener,_programmaticChangeEvents,_selection,_selectionMode,clickListener,clickListenerOpt,clicked,deselect,deselectAll,deselectView,deselected,doSelect,fillTable,getGroupMultiSelectKey,getItemsSorter,getListener,getMultiSelectKey,getSelection,getSelectionManager,getSelectionMode,groupMultiSelectKey,i,isGroupMultiSelectKeyPressed,isMultiSelectKeyPressed,isProgrammaticChangeEvents,itemAdded,itemRemoved,itemsChanged,itemsDataChanged,listenerMissing,ls,multiSelectKey,prepareViewBeforeAddingToTable,select,selectGroup,selectView,selected,selection,setGroupMultiSelectKey,setItemClickListener,setItemsSorter,setListView,setListener,setMultiSelectKey,setProgrammaticChangeEvents,setSelectionMode,sort,touchDown,updateView,view,viewListener,viewsCache
  * Covenant-source-reference: com/kotcrab/vis/ui/util/adapter/AbstractListAdapter.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

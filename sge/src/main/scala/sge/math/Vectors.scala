@@ -29,6 +29,8 @@
  * Covenant-baseline-methods: Vector,Vector2,Vector3,Vector4,W,X,Y,Z,Zero,a,add,angle,angleDeg,angleRad,b,c,clamp,copy,cos,cosAzim,cosPolar,crossX,crossY,crossZ,d,distance,distanceSq,dot,dotProduct,downScale,dw,dx,dy,dz,epsilon,epsilonEquals,equals,flags,fromString,hasOppositeDirection,hasSameDirection,hashCode,idt,interpolate,invAlpha,isCollinear,isCollinearOpposite,isOnLine,isPerpendicular,isUnit,isZero,l_mat,l_w,len,lenSq,length,lengthSq,lerp,limit,limitSq,mul,mul4x3,mulAdd,newX,newY,newZ,nor,normalize,oldLenSq,phi,prime,prj,result,rot,rotate90,rotateAroundDeg,rotateAroundRad,rotateDeg,rotateRad,s,s0,s1,s2,scale,scl,set,setAngleDeg,setAngleRad,setFromSpherical,setLength,setLengthSq,setToRandomDirection,setZero,sin,sinAzim,sinPolar,sphericalLerp,sub,theta,tmpMat,toString,traMul,u,unrotate,untransform,v,v1,x
  * Covenant-source-reference: com/badlogic/gdx/math/Vector.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 413eddccd2765607da15a1a928689863702cf02a
  */
 package sge
 package math

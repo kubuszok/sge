@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: FacedCubemapData,consumeCubemapData,data,getTextureData,height,isComplete,isManaged,isPrepared,load,prepare,this,width
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/FacedCubemapData.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

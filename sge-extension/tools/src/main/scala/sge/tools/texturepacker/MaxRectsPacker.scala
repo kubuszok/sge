@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: BinarySearch,FreeRectChoiceHeuristic,MaxRects,MaxRectsPacker,adjustX,adjustY,bestResult,binHeight,binWidth,commonIntervalLength,contactPointScoreNode,current,edgePadX,edgePadY,findPositionForNewNodeBestAreaFit,findPositionForNewNodeBestLongSideFit,findPositionForNewNodeBestShortSideFit,findPositionForNewNodeBottomLeft,findPositionForNewNodeContactPoint,freeRectangles,fuzziness,getBest,getOccupancy,getResult,high,i,ii,init,insert,isContainedIn,low,max,maxHeight,maxRects,maxWidth,methods,min,minHeight,minWidth,n,next,nn,pack,packAtSize,packPage,paddingX,paddingY,pages,placeRect,pruneFreeList,rectComparator,rectanglesToCheckWhenPruning,remaining,reset,scoreRect,splitFreeNode,usedRectangles
  * Covenant-source-reference: com/badlogic/gdx/tools/texturepacker/MaxRectsPacker.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 435da504c87b735778e89dca44ba1812fadffb55
  */
 package sge
 package tools

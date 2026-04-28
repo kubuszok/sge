@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: QuickSelect,array,comp,left,medianOfThreePivot,mid,midIdx,partition,pivotValue,recursiveSelect,right,select,storage,swap,tmp
  * Covenant-source-reference: com/badlogic/gdx/utils/QuickSelect.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: b97b34a82af276a09bec2885854dc391ec65023d
  */
 package sge
 package utils

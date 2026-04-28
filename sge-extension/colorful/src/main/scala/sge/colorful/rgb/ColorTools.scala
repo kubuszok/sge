@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: ColorTools,a,alpha,alphaInt,b,blot,blue,blueInt,ch,contrast,d,darken,decoded,differentiateLightness,dullen,e,editRGB,enrich,fade,floatGetHSL,fromColor,fromRGBA,fromRGBA8888,g,green,greenInt,h,hue,inverseLightness,lessenChange,lighten,lightness,limit,lowerB,lowerG,lowerR,lum,main,offsetLightness,oklab,op,r,raiseB,raiseG,raiseR,randomColor,randomEdit,rc,re,red,redInt,rgb,rs,s,sat,saturation,sd,subrandomColor,toColor,toEditedFloat,toRGBA8888,x
  * Covenant-source-reference: com/github/tommyettinger/colorful/rgb/ColorTools.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: e4a5fd960eef746ca5aa826063432fb79666d74f
  */
 package sge
 package colorful

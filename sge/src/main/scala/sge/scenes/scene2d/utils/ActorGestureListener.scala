@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: ActorGestureListener,_actor,_touchDownTarget,detector,event,fling,gestureDetector,handle,longPress,pan,panStop,pinch,stageToLocalAmount,tap,this,tmpCoords,tmpCoords2,touchDown,touchDownTarget,touchUp,zoom
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/ActorGestureListener.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 980fa732f7e949dddf38d748d93920bbe7c765fc
  */
 package sge
 package scenes

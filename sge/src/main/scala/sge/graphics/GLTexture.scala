@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: GLTexture,_magFilter,_minFilter,_uWrap,_vWrap,adjustedLevel,anisotropicFilter,anisotropicFilterLevel,bind,close,dataType,delete,depth,disposePixmap,height,magFilter,managed,max,maxAnisotropicFilterLevel,minFilter,pixmap,reload,setAnisotropicFilter,setFilter,setWrap,textureObjectHandle,this,uWrap,unsafeSetAnisotropicFilter,unsafeSetFilter,unsafeSetWrap,uploadImageData,vWrap,width
  * Covenant-source-reference: com/badlogic/gdx/graphics/GLTexture.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

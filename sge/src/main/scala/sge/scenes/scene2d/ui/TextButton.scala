@@ -12,6 +12,8 @@
  * Covenant-baseline-methods: TextButton,TextButtonStyle,_label,_style,checkedDownFontColor,checkedFocusedFontColor,checkedFontColor,checkedOverFontColor,disabledFontColor,downFontColor,draw,focused,focusedFontColor,font,fontColor,label,labelCell,newLabel,overFontColor,setLabel,setStyle,setText,style,text,this,toString
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/TextButton.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 7bfcd983a25b1943935fbc0d2aed052bf5c49cd3
  */
 package sge
 package scenes

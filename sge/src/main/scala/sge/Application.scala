@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: Application,ApplicationType,addLifecycleListener,applicationListener,applicationType,audio,clipboard,exit,files,getPreferences,graphics,input,javaHeap,nativeHeap,net,postRunnable,removeLifecycleListener,version
  * Covenant-source-reference: com/badlogic/gdx/Application.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 7263ab22efbda67e02d7180e9b4dfeb01160c061
  */
 package sge
 

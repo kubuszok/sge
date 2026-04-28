@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: Texture3D,addManagedTexture,builder,clearAllTextureArrays,data,depth,height,invalidateAllTextureArrays,load,managed,managedStatus,managedTexture3Ds,managedTextureArray,numManagedTextures3D,rWrap,reload,setWrap,textureData,this,unsafeSetWrap,upload,width
  * Covenant-source-reference: com/badlogic/gdx/graphics/Texture3D.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: dc003c5975e93e2ef6e69db01c9ea248b03857c8
  */
 package sge
 package graphics

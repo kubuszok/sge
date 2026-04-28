@@ -14,8 +14,17 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 100
  * Covenant-baseline-methods: SchedulableRecord,SchedulerBase,calculatePhase,dryRunFrames,frame,frequency,i,minValue,minValueAt,phase,phaseCounters,runList,schedulable,schedulableRecords
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/sched/SchedulerBase.java
+ *   Renames: `com.badlogic.gdx.ai.sched` -> `sge.ai.sched`; `Array` -> `DynamicArray`; `IntArray` -> `DynamicArray[Int]`
+ *   Convention: split packages
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 100
+ * Covenant-baseline-methods: SchedulableRecord,SchedulerBase,calculatePhase,dryRunFrames,frame,frequency,i,minValue,minValueAt,phase,phaseCounters,runList,schedulable,schedulableRecords
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

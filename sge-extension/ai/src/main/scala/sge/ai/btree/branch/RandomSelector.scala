@@ -16,6 +16,8 @@
  * Covenant-baseline-methods: RandomSelector,newInstance,start
  * Covenant-source-reference: com/badlogic/gdx/ai/btree/branch/RandomSelector.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

@@ -15,8 +15,18 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 29
  * Covenant-baseline-methods: HeadlessApplicationConfig
- * Covenant-source-reference: backends/gdx-backend-headless/.../HeadlessApplicationConfiguration.java
+ * Covenant-source-reference: backends/gdx-backend-headless/src/com/badlogic/gdx/backends/headless/HeadlessApplicationConfiguration.java
+ *   Renames: HeadlessApplicationConfiguration -> HeadlessApplicationConfig
+ *   Convention: Java mutable POJO -> Scala final case class with defaults
+ *   Audited: 2026-03-05
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 29
+ * Covenant-baseline-methods: HeadlessApplicationConfig
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: caf7e6fe10f923ca15bee8ec7ff4911c4fc691cd
  */
 package sge
 

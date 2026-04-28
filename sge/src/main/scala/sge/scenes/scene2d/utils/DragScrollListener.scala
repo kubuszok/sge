@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: DragScrollListener,drag,dragStop,interpolation,isAbove,isBelow,maxSpeed,minSpeed,padBottom,padTop,rampTime,run,scroll,scrollDown,scrollPixels,scrollUp,setPadding,setup,startTime,tickSecs,tmpCoords
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/DragScrollListener.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: b87a82862bf9eaede23757e1da383fa3cd21bbef
  */
 package sge
 package scenes

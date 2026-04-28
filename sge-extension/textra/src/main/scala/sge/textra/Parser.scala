@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: BOOLEAN_TRUE,INDEX_PARAM,INDEX_TOKEN,PATTERN_COLOR_HEX_NO_HASH,PATTERN_MARKUP_STRIP,Parser,colorMatcher,colorPattern,colorSb,compileTokenPattern,defaultValue,found,getResetReplacement,handleBracketMinusMarkup,i,markupStripped,n,params,parseRegularTokens,parseReplacements,parseTokens,preprocess,processIfToken,result,sb,sorted,stringToBoolean,stringToColor,stringToColorMarkup,stringToFloat,stringToStyleMarkup,styleMatcher,stylePattern,styleSb,text,text2,tokens,variable,variableValue
  * Covenant-source-reference: com/github/tommyettinger/textra/Parser.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

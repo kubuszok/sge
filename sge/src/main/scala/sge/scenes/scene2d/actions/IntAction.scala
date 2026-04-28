@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: IntAction,begin,getEnd,setEnd,this,update,value
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/IntAction.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package scenes

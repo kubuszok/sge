@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: Dialog,button,buttonTable,cancel,cancelHide,changed,contentTable,focusChanged,focusListener,hide,ignoreTouchDown,initialize,kbActor,key,keyDown,keyboardFocusChanged,previousKeyboardFocus,previousScrollFocus,result,run,s,scrollActor,scrollFocusChanged,setObject,setStage,show,skin,text,this,touchDown,values
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Dialog.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 7bfcd983a25b1943935fbc0d2aed052bf5c49cd3
  */
 package sge
 package scenes

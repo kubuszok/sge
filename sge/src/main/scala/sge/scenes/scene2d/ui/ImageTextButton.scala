@@ -12,6 +12,8 @@
  * Covenant-baseline-methods: ImageTextButton,ImageTextButtonStyle,_image,_label,_style,draw,focused,fontColor,image,imageCell,imageChecked,imageCheckedDown,imageCheckedOver,imageDisabled,imageDown,imageDrawable,imageOver,imageUp,label,labelCell,newImage,newLabel,setLabel,setStyle,setText,style,text,this,toString,updateImage
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/ImageTextButton.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: a06d69f30f24c95419f7d34c0b46b114f2b54d94
  */
 package sge
 package scenes

@@ -26,6 +26,8 @@
  * Covenant-baseline-methods: EmissionMode,RegularEmitter,activateParticles,activeParticles,actualCount,addParticles,allocateChannels,c,continuous,copy,currentLife,currentTotalLife,delay,delayTimer,delayValue,deltaMillis,duration,durationTimer,durationValue,emission,emissionDelta,emissionDiff,emissionMode,emissionValue,i,init,isComplete,k,life,lifeChannel,lifeDiff,lifeOffset,lifeOffsetDiff,lifeOffsetValue,lifePercent,lifeValue,offsetTime,percentComplete,set,start,this,update
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/emitters/RegularEmitter.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

@@ -16,6 +16,8 @@
  * Covenant-baseline-methods: InputEventQueue,KEY_DOWN,KEY_TYPED,KEY_UP,MOUSE_MOVED,SCROLLED,SKIP,TOUCH_DOWN,TOUCH_DRAGGED,TOUCH_UP,_currentEventTime,currentEventTime,drain,keyDown,keyTyped,keyUp,mouseMoved,next,processingQueue,queue,queueTime,scrolled,touchDown,touchDragged,touchUp
  * Covenant-source-reference: com/badlogic/gdx/InputEventQueue.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 

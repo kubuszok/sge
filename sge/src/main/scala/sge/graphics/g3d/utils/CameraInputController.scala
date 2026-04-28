@@ -22,6 +22,8 @@
  * Covenant-baseline-methods: CameraGestureListener,CameraInputController,activateKey,activatePressed,alwaysScroll,autoUpdate,backwardKey,backwardPressed,button,camera,controller,controlsInverted,fling,forwardButton,forwardKey,forwardPressed,forwardTarget,gestureListener,keyDown,keyUp,longPress,multiTouch,pan,pinch,pinchZoom,pinchZoomFactor,previousZoom,process,result,rotateAngle,rotateButton,rotateLeftKey,rotateLeftPressed,rotateRightKey,rotateRightPressed,scrollFactor,scrollTarget,scrolled,setInvertedControls,startX,startY,tap,target,this,tmpV1,tmpV2,touchDown,touchDragged,touchUp,touched,translateButton,translateTarget,translateUnits,update,zoom
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/CameraInputController.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

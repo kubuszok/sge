@@ -15,8 +15,18 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 102
  * Covenant-baseline-methods: PathFinderRequest,SEARCH_DONE,SEARCH_FINALIZED,SEARCH_INITIALIZED,SEARCH_NEW,changeStatus,client,dispatcher,endNode,executionFrames,finalizeSearch,heuristic,initializeSearch,pathFound,responseMessageCode,resultPath,search,startNode,status,statusChanged,this
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/pfa/PathFinderRequest.java
+ *   Renames: `com.badlogic.gdx.ai.pfa` -> `sge.ai.pfa`; `MessageManager.getInstance()` -> `MessageManager`
+ *   Convention: split packages; `null` -> `Nullable`
+ *   Idiom: `= _` -> `scala.compiletime.uninitialized`
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 102
+ * Covenant-baseline-methods: PathFinderRequest,SEARCH_DONE,SEARCH_FINALIZED,SEARCH_INITIALIZED,SEARCH_NEW,changeStatus,client,dispatcher,endNode,executionFrames,finalizeSearch,heuristic,initializeSearch,pathFound,responseMessageCode,resultPath,search,startNode,status,statusChanged,this
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

@@ -24,6 +24,8 @@
  * Covenant-baseline-methods: Channel,ChannelDescriptor,ChannelInitializer,FloatChannel,IntChannel,ObjectChannel,ParallelArray,add,addChannel,addElement,allocateChannel,arraySupplier,arrays,capacity,channel,clear,clearSlot,count,data,findIndex,floatData,getChannel,id,init,intData,k,last,objectData,owner,removeArray,removeElement,setCapacity,size,strideSize,swap
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/ParallelArray.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 619b382c1b5dcf3572b9170294aba55e9f3b5f82
  */
 
 package sge

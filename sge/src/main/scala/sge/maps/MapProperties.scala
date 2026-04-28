@@ -22,6 +22,8 @@
  * Covenant-baseline-methods: MapProperties,clear,containsKey,equals,get,getAs,hashCode,keys,obj,properties,put,putAll,remove,toString,values
  * Covenant-source-reference: com/badlogic/gdx/maps/MapProperties.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 9b704b889aa3f4d8c5456cc147a766865b1fc7d8
  */
 package sge
 package maps

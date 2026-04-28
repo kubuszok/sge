@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: OrthographicCamera,rotate,setToOrtho,this,translate,update,vh,vw,zoom
  * Covenant-source-reference: com/badlogic/gdx/graphics/OrthographicCamera.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 8834ea9cadf3dc71069cfc7b70b8f203c1f5b42b
  */
 package sge
 package graphics

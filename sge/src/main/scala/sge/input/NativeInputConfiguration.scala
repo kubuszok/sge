@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: NativeInputCloseCallback,NativeInputConfiguration,autoComplete,closeCallback,inputType,maskInput,maxLength,message,multiLine,onClose,placeholder,preventCorrection,setAutoComplete,setCloseCallback,setMaskInput,setMaxLength,setMultiLine,setPlaceholder,setPreventCorrection,setShowUnmaskButton,setTextInputWrapper,setType,setValidator,showUnmaskButton,textInputWrapper,validate,validator
  * Covenant-source-reference: com/badlogic/gdx/input/NativeInputConfiguration.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3b8493d39e25e352c32c088243be406cc49fb435
  */
 package sge
 package input

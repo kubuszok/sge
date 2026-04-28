@@ -26,6 +26,8 @@
  * Covenant-baseline-methods: Config,DepthShader,_depthNumBones,alphaTestAttribute,attributes,begin,boneWeights,canRender,combineAttributes,createPrefix,defaultAlphaTest,defaultFragmentShader,defaultVertexShader,depthBufferOnly,end,isBlendedTextureRenderable,isBlendedTextureShader,numBones,prefix,render,this,tmpAttributes
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/shaders/DepthShader.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: e08a2cfaf5996f9666fdbd360f90c2e78da08951
  */
 package sge
 package graphics

@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: Actor,POOLS,_actions,_captureListeners,_debug,_iteratingCaptureListeners,_iteratingListeners,_listeners,_parent,_pendingCaptureListenerRemovals,_pendingListenerRemovals,_stage,a,act,actions,addAction,addCaptureListener,addListener,adjusted,ascendants,ascendantsVisible,ax,ay,captureListeners,childX,childY,clear,clearActions,clearListeners,clipBegin,clipEnd,color,debug,draw,drawDebug,drawDebugBounds,fire,firstAscendant,getX,getY,hasActions,hasKeyboardFocus,hasParent,hasScrollFocus,height,hit,i,isAscendantOf,isDebug,isDescendantOf,isTouchFocusListener,isTouchFocusTarget,isTouchable,listeners,listenersToNotify,localToActorCoordinates,localToAscendantCoordinates,localToParentCoordinates,localToScreenCoordinates,localToStageCoordinates,moveBy,name,notify,originX,originY,p,parent,parentToLocalCoordinates,positionChanged,remove,removeAction,removeCaptureListener,removeListener,result,right,rotateBy,rotation,rotationChanged,scaleBy,scaleChanged,scaleX,scaleY,screenToLocalCoordinates,setBounds,setDebug,setHeight,setOrigin,setParent,setPosition,setRotation,setScale,setScaleX,setScaleY,setSize,setStage,setWidth,setX,setY,setZIndex,sizeBy,sizeChanged,stage,stageToLocalCoordinates,toBack,toFront,toString,top,touchable,userObject,visible,width,x,y,zIndex
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/Actor.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 80398bf4c2814b27b5234e6a85487a0691968a31
  */
 package sge
 package scenes

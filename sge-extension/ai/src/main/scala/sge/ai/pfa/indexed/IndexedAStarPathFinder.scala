@@ -17,8 +17,18 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 422
  * Covenant-baseline-methods: CLOSED,EqualsByReferenceStopCondition,EqualsMethodStopCondition,IndexedAStarPathFinder,Metrics,NodeRecord,OPEN,StopCondition,UNVISITED,addToOpenList,category,connection,connections,costSoFar,cur,current,found,generateConnectionPath,generateNodePath,getEstimatedTotalCost,getNodeRecord,graph,i,index,initSearch,lastTime,metrics,node,nodeRecords,nr,openList,openListAdditions,openListPeak,remainingTime,reset,search,searchConnectionPath,searchId,searchInternal,searchNodePath,shouldStopSearch,startRecord,stopCondition,this,visitChildren,visitedNodes
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/pfa/indexed/IndexedAStarPathFinder.java
+ *   Renames: `com.badlogic.gdx.ai.pfa.indexed` -> `sge.ai.pfa.indexed`; `Array` -> `DynamicArray`;
+ *   Convention: split packages; `null` -> `Nullable`; `return` -> `boundary`/`break`;
+ *   Idiom: unchecked array cast replaced with Array[AnyRef] approach
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 422
+ * Covenant-baseline-methods: CLOSED,EqualsByReferenceStopCondition,EqualsMethodStopCondition,IndexedAStarPathFinder,Metrics,NodeRecord,OPEN,StopCondition,UNVISITED,addToOpenList,category,connection,connections,costSoFar,cur,current,found,generateConnectionPath,generateNodePath,getEstimatedTotalCost,getNodeRecord,graph,i,index,initSearch,lastTime,metrics,node,nodeRecords,nr,openList,openListAdditions,openListPeak,remainingTime,reset,search,searchConnectionPath,searchId,searchInternal,searchNodePath,shouldStopSearch,startRecord,stopCondition,this,visitChildren,visitedNodes
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: HttpParametersUtils,convertHttpParameters,convertedParameters,defaultEncoding,encode,keySet,nameValueSeparator,parameterSeparator
  * Covenant-source-reference: com/badlogic/gdx/net/HttpParametersUtils.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 72917675ed4718b7997044e26dc6f94544150391
  */
 package sge
 package net

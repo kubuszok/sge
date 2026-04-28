@@ -27,6 +27,8 @@
  * Covenant-baseline-methods: BaseTmjMapLoader,addStaticTiles,addTileObjectGroup,addTileProperties,createAnimatedTile,data,enc,firstgid,getDependencies,getTileIds,groups,height,hexSideLength,id,loadBasicLayerInfo,loadImageLayer,loadLayer,loadLayerGroup,loadObject,loadObjectGroup,loadProperties,loadTileLayer,loadTileSet,loadTiledMap,mapBackgroundColor,mapHeight,mapOrientation,mapProperties,mapWidth,mergeObject,mergeProperties,mergeText,name,obj,objType,offsetX,offsetY,opacity,parallaxX,parallaxY,param,r,resolveTemplateObject,root,scaleX,scaleY,staggerAxis,staggerIndex,templateCache,templateObject,textureParameter,theObj,tileHeight,tileProperties,tileType,tileWidth,tintColor,tjFileName,tmpl,visible,width,x,y
  * Covenant-source-reference: com/badlogic/gdx/maps/tiled/BaseTmjMapLoader.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: c9e20437cb4a3d4f8f9ef7e52ec0c44d15a1325c
  */
 package sge
 package maps

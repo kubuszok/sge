@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: TimeScaleAction,delegate,scale
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/TimeScaleAction.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 286f79efa802dd1fbc8deaa073b73230c0321447
  */
 package sge
 package scenes

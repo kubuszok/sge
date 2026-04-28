@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: IsometricStaggeredTiledMapRenderer,batchColor,color,layerHeight,layerOffsetX,layerOffsetY,layerTileHeight,layerTileHeight50,layerTileWidth,layerTileWidth50,layerWidth,maxX,maxY,minX,minY,region,renderImageLayer,renderTileLayer,this,vertices,y
  * Covenant-source-reference: com/badlogic/gdx/maps/tiled/renderers/IsometricStaggeredTiledMapRenderer.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 0dc27743a43739f14f7220b4ec7dcc3ada3c8b61
  */
 package sge
 package maps

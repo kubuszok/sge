@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: WindowedMean,_mean,addValue,addedValues,clear,dirty,hasEnoughData,highest,index,lastValue,latest,lowest,mean,oldest,standardDeviation,valueCount,values,windowValues
  * Covenant-source-reference: com/badlogic/gdx/math/WindowedMean.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package math

@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: FileTextureArrayData,_depth,consumeTextureArrayData,containsCustomData,depth,formatVar,glType,height,internalFormat,isManaged,isPrepared,prepare,prepared,textureDatas,this,useMipMapsVar,width
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/FileTextureArrayData.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: ea02a3928e3180ac3fa78e147f26ec1da0da5790
  */
 package sge
 package graphics

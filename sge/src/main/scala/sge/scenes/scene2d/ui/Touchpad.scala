@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: Touchpad,TouchpadStyle,_style,background,c,calculatePositionAndValue,centerX,centerY,deadzoneBounds,draw,dx,dy,h,halfHeight,halfWidth,hit,knob,knobBounds,knobPercent,knobPercentX,knobPercentY,knobPosition,knobRadius,knobX,knobY,layout,oldPercentX,oldPercentY,oldPositionX,oldPositionY,prefHeight,prefWidth,radius,resetOnTouchUp,setDeadzone,setStyle,style,this,touchBounds,touchDown,touchDragged,touchUp,touched,w
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Touchpad.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: a729bf1f0de099ebcc60562d72f008157677b559
  */
 package sge
 package scenes

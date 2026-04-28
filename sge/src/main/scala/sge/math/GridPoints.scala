@@ -23,6 +23,8 @@
  * Covenant-baseline-methods: GridPoint2,GridPoint3,add,dst,dst2,set,sub,xd,yd,zd
  * Covenant-source-reference: com/badlogic/gdx/math/GridPoint2.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package math

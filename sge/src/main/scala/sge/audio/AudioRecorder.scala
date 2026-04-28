@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: AudioRecorder,read
  * Covenant-source-reference: com/badlogic/gdx/audio/AudioRecorder.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package audio

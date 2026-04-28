@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: Collider,Octree,OctreeNode,RayCastResult,add,bounds,children,clearChildren,createNode,distance,free,geometries,geometry,geometryNullable,geometry_,getAll,getBoundingBox,getNodesBoxes,initialCapacity,intersects,isLeaf,leaf,level,max,maxDistanceSq,merge,newObject,node,nodePool,query,rayCast,remove,root,split,tmp,update
  * Covenant-source-reference: com/badlogic/gdx/math/Octree.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: f5861db5b94f9ccd22ffce7ae7f8dc5851d6afe5
  */
 package sge
 package math

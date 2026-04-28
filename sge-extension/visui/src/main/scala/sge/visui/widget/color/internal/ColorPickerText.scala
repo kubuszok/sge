@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: ColorPickerText,format,get,getBundle,name,toString
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/color/internal/ColorPickerText.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

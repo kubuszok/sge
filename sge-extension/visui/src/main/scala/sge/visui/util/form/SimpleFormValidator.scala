@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: ChangeSharedListener,CheckedButtonWrapper,EmptyInputValidator,FormValidatorStyle,SimpleFormValidator,_successMsg,_treatDisabledFieldsAsValid,add,addDisableTarget,buttons,changeListener,changed,checked,colorTransitionDuration,custom,disableTargets,errorLabelColor,errorMsgText,fields,floatNumber,formInvalid,i,integerNumber,isTreatDisabledFieldsAsValid,notEmpty,removeDisableTarget,result,setButtonStateInvalid,setMessageLabel,setSuccessMessage,setTreatDisabledFieldsAsValid,this,unchecked,updateWidgets,validLabelColor,validate,validator,valueGreaterThan,valueLesserThan,wrapper
  * Covenant-source-reference: com/kotcrab/vis/ui/util/form/SimpleFormValidator.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: OrthogonalTiledMapRenderer,batchColor,col1,col2,color,layerHeight,layerOffsetX,layerOffsetY,layerTileHeight,layerTileWidth,layerWidth,renderTileLayer,row,row1,row2,this,vertices,xStart,y
  * Covenant-source-reference: com/badlogic/gdx/maps/tiled/renderers/OrthogonalTiledMapRenderer.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 0dc27743a43739f14f7220b4ec7dcc3ada3c8b61
  */
 package sge
 package maps

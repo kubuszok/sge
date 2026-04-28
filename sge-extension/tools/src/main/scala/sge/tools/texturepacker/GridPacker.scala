@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: GridPacker,adjustX,adjustY,cellHeight,cellWidth,i,j,maxHeight,maxWidth,n,pack,packPage,paddingX,paddingY,page,pages,reversed,x,y
  * Covenant-source-reference: com/badlogic/gdx/tools/texturepacker/GridPacker.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 62773d804463ceecdb53d87aa8d02025ae3ef2e5
  */
 package sge
 package tools

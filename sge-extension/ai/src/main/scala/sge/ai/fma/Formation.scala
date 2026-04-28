@@ -16,12 +16,22 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 211
  * Covenant-baseline-methods: Formation,addMember,anchor,changePattern,currentAnchor,driftOffset,findMemberSlot,i,motionModerator,occupiedSlots,orientationMatrix,orientationOffset,pattern,positionOffset,removeMember,slot,slotAssignmentAt,slotAssignmentCount,slotAssignmentStrategy,slotAssignments,updateSlotAssignments,updateSlots
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/fma/Formation.java
+ *   Renames: `com.badlogic.gdx.ai.fma` -> `sge.ai.fma`; `Array` -> `DynamicArray`;
+ *   Convention: split packages; `null` -> `Nullable`; getters/setters -> `var`
+ *   Idiom: Vector2/Vector3 `mul(Matrix3)` -> type match with `rotateRad` for Vector2
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 211
+ * Covenant-baseline-methods: Formation,addMember,anchor,changePattern,currentAnchor,driftOffset,findMemberSlot,i,motionModerator,occupiedSlots,orientationMatrix,orientationOffset,pattern,positionOffset,removeMember,slot,slotAssignmentAt,slotAssignmentCount,slotAssignmentStrategy,slotAssignments,updateSlotAssignments,updateSlots
+ * Covenant-verified: 2026-04-19
  * Covenant-verified: 2026-04-19
  *
  * Partial-port debt:
  *   - Inherited gdx-ai TODO: "Consider the possibility of declaring mul(orientationMatrix)
  *     in Vector". Pending upstream design decision.
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

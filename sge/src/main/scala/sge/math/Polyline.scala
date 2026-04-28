@@ -24,6 +24,8 @@
  * Covenant-baseline-methods: Polyline,_length,_originX,_originY,_rotation,_scaleX,_scaleY,_scaledLength,_x,_y,boundingRectangle,bounds,calculateLength,calculateScaledLength,contains,dirty,i,isDirty,length,localVertices,maxX,maxY,minX,minY,numFloats,originX,originY,rotate,rotation,scale,scaleX,scaleY,scaledLength,setOrigin,setPosition,setRotation,setScale,setVertices,shouldCalculateLength,shouldCalculateScaledLength,this,transformedVertices,translate,vertices,worldVertices,x,y
  * Covenant-source-reference: com/badlogic/gdx/math/Polyline.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 132ad85c036c39d22069df1f755f332c40f02888
  */
 package sge
 package math

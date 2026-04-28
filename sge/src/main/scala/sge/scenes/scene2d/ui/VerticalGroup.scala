@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: VerticalGroup,_align,_columnAlign,_expand,_fill,_padBottom,_padLeft,_padRight,_padTop,_prefHeight,_prefWidth,_reverse,_round,_space,_wrap,_wrapSpace,align,alignRight,alignTop,bottom,center,children,colSizes,columnAlign,columnBottom,columnCenter,columnLeft,columnRight,columnSizes,columnTop,columnWidth,columnX,columns,computeSize,drawDebugBounds,end,expand,fill,getFill,getPadBottom,getPadLeft,getPadRight,getPadTop,groupHeight,grow,i,incr,invalidate,isExpand,isReverse,isWrap,lastPrefWidth,layout,layoutWrapped,left,maxHeight,n,pad,padBottom,padLeft,padRight,padTop,prefHeight,prefWidth,r,reverse,round,setRound,sizeInvalid,space,wrap,wrapSpace,y,yStart
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/VerticalGroup.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 878442082928adfe2fcd325dce9f10b5568181e8
  */
 package sge
 package scenes

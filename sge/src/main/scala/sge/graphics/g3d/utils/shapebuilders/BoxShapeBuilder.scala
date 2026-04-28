@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: BoxShapeBuilder,build,hd,hh,hw,i000,i001,i010,i011,i100,i101,i110,i111,primitiveType,x0,x1,y0,y1,z0,z1
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/shapebuilders/BoxShapeBuilder.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: G3dBinaryModelLoader,json,model,parseModel
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/loader/G3dModelLoader.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */
 package sge
 package graphics

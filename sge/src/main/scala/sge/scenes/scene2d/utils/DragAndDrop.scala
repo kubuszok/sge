@@ -27,6 +27,8 @@
  * Covenant-baseline-methods: DragAndDrop,Payload,Source,Target,_target,activePointer,addSource,addTarget,button,cancelTouchFocus,cancelTouchFocusExcept,clear,currentDragActor,currentPayload,currentSource,drag,dragActor,dragActorX,dragActorY,dragSource,dragStart,dragStop,dragTime,dragValidTime,dragging,drop,invalidDragActor,isDragValid,isValidTarget,keepWithinStage,listener,obj,payload,removeDragActor,removeSource,removeTarget,reset,self,setDragActorPosition,setTouchOffset,sourceListeners,tapSquareSize,targets,tmpVector,touchOffsetX,touchOffsetY,validDragActor
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/DragAndDrop.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3a19c4119a11067212ef25441088b7cacba386bf
  */
 package sge
 package scenes

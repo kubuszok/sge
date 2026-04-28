@@ -15,8 +15,18 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 179
  * Covenant-baseline-methods: CAPACITY_RATIO_HI,CAPACITY_RATIO_LOW,DEFAULT_INITIAL_CAPACITY,PriorityQueue,_size,add,clear,get,growToSize,half,i,newCapacity,newQueue,oldCapacity,peek,poll,pos,queue,set,siftDown,siftUp,size,uniqueness
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/msg/PriorityQueue.java
+ *   Renames: `com.badlogic.gdx.ai.msg` -> `sge.ai.msg`
+ *   Convention: split packages; `null` -> `Nullable`; `ObjectSet` -> `scala.collection.mutable.HashSet`
+ *   Idiom: `getUniqueness`/`setUniqueness` -> `var uniqueness`
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 179
+ * Covenant-baseline-methods: CAPACITY_RATIO_HI,CAPACITY_RATIO_LOW,DEFAULT_INITIAL_CAPACITY,PriorityQueue,_size,add,clear,get,growToSize,half,i,newCapacity,newQueue,oldCapacity,peek,poll,pos,queue,set,siftDown,siftUp,size,uniqueness
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: GradientColorValue,b1,colors,endIndex,factor,g1,getColor,load,n,r1,startIndex,startTime,temp,timeline
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/values/GradientColorValue.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: f087ba76cac7ff2cc4ded91efc009f52bf0987c2
  */
 
 package sge

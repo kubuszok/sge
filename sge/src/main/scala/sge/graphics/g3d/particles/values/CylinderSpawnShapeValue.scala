@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: CylinderSpawnShapeValue,copy,depth,height,hf,isRadiusXZero,isRadiusZZero,radiusX,radiusZ,spawnAux,spawnTheta,this,ty,width
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/values/CylinderSpawnShapeValue.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: f087ba76cac7ff2cc4ded91efc009f52bf0987c2
  */
 package sge
 package graphics

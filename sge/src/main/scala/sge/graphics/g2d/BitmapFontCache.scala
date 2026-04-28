@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: BitmapFontCache,_color,_layouts,_pageCount,_x,_y,addGlyph,addText,addToCache,adjXAmount,adjYAmount,adjustedX,adjustedY,alphaBits,clear,color,color_,colors,colorsIndex,currentIdx,currentTint,draw,finalHeight,finalWidth,finalX,finalY,glyphCount,glyphIndex,height,i,idx,intBits,integerPositions,integerPositions_,lastColorFloatBits,layout,layouts,newColor,newIdx,newPageGlyphIndices,newPageVertices,newTint,nextColorGlyphIndex,oldAlpha,page,pageCount,pageGlyphIndices,pageGlyphIndicesLength,pageVertices,pageVerticesLocal,pooledLayouts,prev,regions,requireGlyphs,requirePageGlyphs,runCount,scaleX,scaleY,setAlphas,setColors,setPageCount,setPosition,setText,tempColor,tempGlyphCount,tempGlyphCountLocal,this,tint,translate,u,u2,v,v2,vertexCount,vertices,width,x,x2,y,y2
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/BitmapFontCache.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: a729bf1f0de099ebcc60562d72f008157677b559
  */
 package sge
 package graphics

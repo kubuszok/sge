@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: VisCheckBox,VisCheckBoxStyle,_focusBorderEnabled,_imageStackCell,_style,backgroundImage,bgImage,checkBackground,checkBackgroundDown,checkBackgroundOver,draw,drawBorder,errorBorder,focusBorder,focusBorderEnabled,focusBorderEnabled_,focusGained,focusLost,getCheckboxBgImage,getCheckboxTickImage,getImageStack,imageStack,imageStackCell,isStateInvalid,lbl,setStateInvalid,setStyle,stateInvalid,this,tick,tickDisabled,tickImage,tickImg,touchDown
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/VisCheckBox.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

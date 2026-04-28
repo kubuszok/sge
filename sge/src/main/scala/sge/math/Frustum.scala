@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: Frustum,array,boundsInFrustum,clipSpacePlanePoints,clipSpacePlanePointsArray,j,planePoints,planePointsArray,planes,pointInFrustum,sphereInFrustum,sphereInFrustumWithoutNearFar,tmpV,update
  * Covenant-source-reference: com/badlogic/gdx/math/Frustum.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: b68467077c2413b1a797daef5e615d6f0e381681
  */
 package sge
 package math

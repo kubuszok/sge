@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: TiledDrawable,_color,align,bottomPartialHeight,color,draw,drawX,drawY,drawable,fullX,fullY,leftPartialWidth,oldColor,regionHeight,regionWidth,rightPartialWidth,scale,texture,textureHeight,textureWidth,this,tint,topPartialHeight,u,u2,v,v2
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/TiledDrawable.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: f23b840f59763fb221f623dbee2d80cf22af4bb6
  */
 package sge
 package scenes

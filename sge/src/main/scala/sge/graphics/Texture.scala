@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: Texture,TextureFilter,TextureWrap,addManagedTexture,assetManager,assetManager_,builder,clearAllTextures,close,depth,draw,finishedLoading,height,invalidateAllTextures,isMipMap,load,managed,managedStatus,managedTextureArray,managedTextures,numManagedTextures,reload,textureData,this,toString,width
  * Covenant-source-reference: com/badlogic/gdx/graphics/Texture.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: a44578f41d09aa837473316dad2165235faf4562
  */
 package sge
 package graphics

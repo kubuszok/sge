@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: ImageButton,ImageButtonStyle,_image,_style,draw,image,imageCell,imageChecked,imageCheckedDown,imageCheckedOver,imageDisabled,imageDown,imageDrawable,imageOver,imageUp,newImage,setStyle,style,this,toString,updateImage
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/ImageButton.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: a06d69f30f24c95419f7d34c0b46b114f2b54d94
  */
 package sge
 package scenes

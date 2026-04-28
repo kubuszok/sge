@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: ArraySpinnerModel,bind,current,currentIndex,decrementModel,found,getCurrent,getCurrentIndex,getItemIndexForText,getItems,i,incrementModel,index,invalidateDataSet,itemToString,items,setCurrent,setItems,text,textChanged,this,updateCurrentItem
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/spinner/ArraySpinnerModel.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

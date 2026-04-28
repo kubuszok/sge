@@ -25,6 +25,8 @@
  * Covenant-baseline-methods: ModelBuilder,build,builder,builders,createArrow,createBox,createCapsule,createCone,createCylinder,createLineGrid,createRect,createSphere,createXYZCoordinates,currentNode,endnode,getBuilder,hxlength,hzlength,manage,meshPart,model,n,node,part,partBuilder,rebuildReferences,result,x1,x2,xlength,y1,y2,z1,z2,zlength
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/ModelBuilder.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 4b4d2c4fd05786d848c42cb69266dd2dd6839983
  */
 package sge
 package graphics

@@ -33,6 +33,8 @@
  * Covenant-baseline-methods: C1,C2,C3,C4,Decal,SIZE,U1,U2,U3,U4,V1,V2,V3,V4,VERTEX_SIZE,X1,X2,X3,X4,Y1,Y2,Y3,Y4,Z1,Z2,Z3,Z4,_color,_vertices,bottom,color,colorFloat,color_,decal,dimensions,dir,height,height_,intBits,left,lookAt,newDecal,position,resetVertices,right,rotateX,rotateY,rotateZ,rotation,rotator,scale,scaleX,scaleX_,scaleY,scaleY_,setBlending,setColor,setDimensions,setPackedColor,setPosition,setRotation,setRotationX,setRotationY,setRotationZ,setScale,textureRegion,textureRegion_,this,tmp,tmp2,top,tr,transformVertices,transformationOffset,translate,translateX,translateY,translateZ,tx,update,updateUVs,updated,value,vertices,width,width_,x,x_,y,y_,z,z_
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/decals/Decal.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

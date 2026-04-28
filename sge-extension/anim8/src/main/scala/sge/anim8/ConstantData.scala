@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: ConstantData,ENCODED_SNUGGLY,TRI_BLUE_NOISE,TRI_BLUE_NOISE_B,TRI_BLUE_NOISE_C,TRI_BLUE_NOISE_MULTIPLIERS,TRI_BLUE_NOISE_MULTIPLIERS_B,TRI_BLUE_NOISE_MULTIPLIERS_C,arr,computeMultipliers,i,is,loadResource
  * Covenant-source-reference: com/github/tommyettinger/anim8/ConstantData.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 38634cefd749a9a8af4534ca285c8e72437fe181
  */
 package sge
 package anim8

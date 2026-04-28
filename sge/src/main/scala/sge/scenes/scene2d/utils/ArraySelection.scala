@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: ArraySelection,_rangeSelect,changed,choose,rangeSelect,rangeStart,setRangeSelect,validate
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/ArraySelection.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: dcde42972f6defe3d5bd92c702eb23344a6ab189
  */
 package sge
 package scenes

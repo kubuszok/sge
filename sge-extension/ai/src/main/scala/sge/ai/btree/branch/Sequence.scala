@@ -16,6 +16,8 @@
  * Covenant-baseline-methods: Sequence,childFail,childSuccess,newInstance
  * Covenant-source-reference: com/badlogic/gdx/ai/btree/branch/Sequence.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

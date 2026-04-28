@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: TiledMapLoader,atlasTmjMapLoader,atlasTmxMapLoader,extension,file,getDependencies,load,loadAsync,loadSync,param,this,tmjMapLoader,tmxMapLoader,usesAtlas,xmlReader
  * Covenant-source-reference: com/badlogic/gdx/maps/tiled/TiledMapLoader.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: ef38b0d9ae9b11c2bde1743bd25d3cb5dfe6af55
  */
 package sge
 package maps

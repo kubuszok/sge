@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: TextTooltip,TextTooltipStyle,_style,background,label,newLabel,setStyle,style,this,wrap,wrapWidth
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/TextTooltip.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 1a29de86a17499b22dbbce82c68a0d0a27527810
  */
 package sge
 package scenes

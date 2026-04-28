@@ -14,8 +14,17 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 270
  * Covenant-baseline-methods: GravityComponentHandler,Jump,JumpCallback,JumpDescriptor,JumpTarget,airborneTime,calculateAirborneTimeAndVelocity,calculateRealSteering,calculateTarget,callback,checkAirborneTimeAndCalculateVelocity,delta,g,getComponent,gravity,gravityComponentHandler,isJumpAchievable,jumpDescriptor,jumpTarget,landingPosition,linearVelocity,maxVerticalVelocity,planarVelocity,position,reportAchievability,set,setComponent,setJumpDescriptor,setTakeoffTolerance,sqrtTerm,takeoff,takeoffPosition,takeoffPositionTolerance,takeoffVelocityTolerance,targetLinearVelocity,targetPosition,time
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/steer/behaviors/Jump.java
+ *   Renames: `com.badlogic.gdx.ai.steer` -> `sge.ai.steer`; `GdxAI.getTimepiece()` -> `(using Timepiece)`
+ *   Convention: split packages, Nullable instead of null
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 270
+ * Covenant-baseline-methods: GravityComponentHandler,Jump,JumpCallback,JumpDescriptor,JumpTarget,airborneTime,calculateAirborneTimeAndVelocity,calculateRealSteering,calculateTarget,callback,checkAirborneTimeAndCalculateVelocity,delta,g,getComponent,gravity,gravityComponentHandler,isJumpAchievable,jumpDescriptor,jumpTarget,landingPosition,linearVelocity,maxVerticalVelocity,planarVelocity,position,reportAchievability,set,setComponent,setJumpDescriptor,setTakeoffTolerance,sqrtTerm,takeoff,takeoffPosition,takeoffPositionTolerance,takeoffVelocityTolerance,targetLinearVelocity,targetPosition,time
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

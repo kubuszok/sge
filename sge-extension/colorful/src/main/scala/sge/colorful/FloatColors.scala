@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: FloatColors,b,bits,c,ch,chroma,cv,d,decoded,e,end,g,hcl2rgbInt,hsl2rgb,hsl2rgbInt,hslColor,l,lerpFloatColors,lerpFloatColorsBlended,lv,max,min,mix,multiplyAlpha,r,rgb2hclInt,rgb2hsl,rgb2hslInt,s,setAlpha,sz,unevenMix,v,vScaled,x,y,ye,ys,z
  * Covenant-source-reference: com/github/tommyettinger/colorful/FloatColors.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: e4a5fd960eef746ca5aa826063432fb79666d74f
  */
 package sge
 package colorful

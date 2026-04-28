@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: CumulativeDistribution,CumulativeValue,add,clear,currentSize,ensureCapacity,freq,generate,generateNormalized,generateUniform,getInterval,getValue,i,intervalSum,setInterval,size,sum,value,values
  * Covenant-source-reference: com/badlogic/gdx/math/CumulativeDistribution.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */
 package sge
 package math

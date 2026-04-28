@@ -10,6 +10,8 @@
  * Covenant-baseline-methods: ControllerManager,ManageCurrentControllerListener,_currentController,addListener,axisMoved,buttonDown,buttonUp,clearListeners,connected,controllers,currentController,disconnected,getControllers,getListeners,removeListener
  * Covenant-source-reference: com/badlogic/gdx/controllers/ControllerManager.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 124b68125c7ef9c552085865379f77e8bee2ae3b
  */
 package sge
 package controllers

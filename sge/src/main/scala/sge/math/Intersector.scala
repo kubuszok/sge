@@ -27,6 +27,8 @@
  * Covenant-baseline-methods: Intersector,MinimumTranslationVector,SplitTriangle,_intersection,add,back,backOffset,best,bounds,boundsIntersectsFrustum,closestX,closestY,d,d1xd2,d2sx,d2sy,delta,denom,depth,det,detd,difx,dify,dir,direction,distanceLinePoint,distanceSegmentPoint,divX,divY,divZ,dst2,e,edge1,edge2,edgeSplit,endA,endB,ep1,ep2,f,first,floatArray,floatArray2,front,frontCurrent,frontOffset,frustumIsInsideBounds,hasOverlap,hit,i,ii,intersectBoundsPlaneFast,intersectFrustumBounds,intersectLinePlane,intersectLinePolygon,intersectLines,intersectPlanes,intersectPolygonEdges,intersectPolygons,intersectRayBounds,intersectRayBoundsFast,intersectRayOrientedBounds,intersectRayOrientedBoundsFast,intersectRayPlane,intersectRayRay,intersectRaySphere,intersectRayTriangle,intersectRayTriangles,intersectRectangles,intersectSegmentCircle,intersectSegmentPlane,intersectSegmentPolygon,intersectSegmentRectangle,intersectSegments,ip,isPointInPolygon,isPointInTriangle,l,last,last1,len,length2,lowest,max,maxx,maxy,maxz,min,min_dist,minx,miny,minz,n,nearestSegmentPoint,normal,normalLength,numBack,numFront,oBBposition,oddNodes,origin,overlapConvexPolygons,overlaps,overlapsOnAxisOfShape,p,p1,pointLineSide,pvec,px1,py1,qvec,r1,r2,r3,radius,rectangleEndX,rectangleEndY,reset,s,second,side,side12,side_,splitEdge,splitTriangle,stride,sx,sy,t,t1,t2,tMax,tMin,tmp,tmp1,tmp2,tmp3,toString,total,transform,tvec,u,ua,ub,v,v0,v1,v2,v2a,v2b,v2c,v2d,vertices,vertices2,x,x1,x3,xDiff,xaxis,xd,y,y1,yDiff,yaxis,yd,yi,zaxis
  * Covenant-source-reference: com/badlogic/gdx/math/Intersector.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: e61454599581bbeade4b6a2a1514f35d70bf6322
  */
 package sge
 package math

@@ -24,6 +24,8 @@
  * Covenant-baseline-methods: BaseShader,GlobalSetter,LocalSetter,Setter,Uniform,Validator,_attributes,alias,begin,camera,close,combinedAttributes,context,currentMesh,end,environmentMask,existing,getAttributeLocations,getInstancedAttributeLocations,getUniformAlias,getUniformID,globalUniforms,has,i,init,instancedAttributes,isGlobal,loc,localUniforms,locations,locs,materialMask,meshChanged,n,overallMask,program,register,render,set,setFloat,setInt,setters,tempArray,tempArray2,this,uniforms,validate,validators
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/shaders/BaseShader.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6db0232e4cc7a4d1a2960c2db2ece406c5c350a9
  */
 package sge
 package graphics

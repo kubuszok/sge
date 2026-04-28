@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: Sge,apply
  * Covenant-source-reference: com/badlogic/gdx/Gdx.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 5f2dae5f6879556f663774ba9d9ff439b5bae822
  */
 package sge
 

@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: Screen,close,hide,pause,render,resize,resume,show
  * Covenant-source-reference: com/badlogic/gdx/Screen.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: d862041b45cdf5cf90ef370035867b25bea2af89
  */
 package sge
 

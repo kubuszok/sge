@@ -15,6 +15,8 @@
  * Covenant-baseline-methods: AnimatedPNG,COLOR_ARGB,COMPRESSION_DEFLATE,FILTER_NONE,IDAT,IEND,IHDR,INTERLACE_NONE,SIGNATURE,acTL,buffer,close,curLineBytes,dataOutput,deflater,deflaterOutput,fcTL,fdAT,flipY,output,pixmap,setCompression,setFlipY,this,write
  * Covenant-source-reference: com/github/tommyettinger/anim8/AnimatedPNG.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 38634cefd749a9a8af4534ca285c8e72437fe181
  */
 package sge
 package anim8

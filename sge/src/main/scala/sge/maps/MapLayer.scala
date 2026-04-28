@@ -28,6 +28,8 @@
  * Covenant-baseline-methods: MapLayer,_offsetX,_offsetY,_opacity,_parent,_renderOffsetX,_renderOffsetY,_tintColor,calculateRenderOffsets,combinedTintColor,invalidateRenderOffset,name,objects,offsetX,offsetX_,offsetY,offsetY_,opacity,opacity_,parallaxX,parallaxY,parent,parent_,properties,renderOffsetDirty,renderOffsetX,renderOffsetY,tempColor,tintColor,tintColor_,visible
  * Covenant-source-reference: com/badlogic/gdx/maps/MapLayer.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 0dc27743a43739f14f7220b4ec7dcc3ada3c8b61
  */
 package sge
 package maps

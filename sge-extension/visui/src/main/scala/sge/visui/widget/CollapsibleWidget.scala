@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: CollapseAction,CollapsibleWidget,_collapsed,_table,actionRunning,childrenChanged,collapseAction,collapseDuration,collapseDuration_,collapseInterpolation,collapseInterpolation_,collapsed,collapsed_,currentHeight,draw,layout,prefHeight,prefWidth,setCollapsed,setTable,this,update,updateTouchable
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/CollapsibleWidget.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

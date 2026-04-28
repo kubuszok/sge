@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: Container,_actor,_align,_background,_clip,_fillX,_fillY,_maxHeight,_maxWidth,_minHeight,_minWidth,_padBottom,_padLeft,_padRight,_padTop,_prefHeight,_prefWidth,_round,actor,actorCulling,addActor,addActorAfter,addActorAt,addActorBefore,align,alignRight,alignTop,background,bottom,center,clip,draw,drawBackground,drawDebug,fill,fillX,fillY,getFillX,getFillY,getPadBottom,getPadLeft,getPadRight,getPadTop,height,hit,isClip,layout,left,maxHeight,maxHeightValue,maxSize,maxWidth,maxWidthValue,minHeight,minHeightValue,minSize,minWidth,pad,padBottom,padBottomValue,padLeft,padLeftValue,padRight,padRightValue,padTop,padTopValue,padX,padY,prefHeight,prefHeightValue,prefSize,prefWidth,prefWidthValue,removeActor,removeActorAt,removed,setActor,setBackground,setClip,setCullingArea,setRound,size,this,v,value,width
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Container.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: f3423c144644b6c6c205620b0a3fec13ad434741
  */
 package sge
 package scenes

@@ -24,6 +24,8 @@
  * Covenant-baseline-methods: TypingDialog,_skin,_visible,actions,addAction,addCaptureListener,addListener,binding,btn,button,buttonTable,cancel,cancelHide,captureListeners,clearActions,contentTable,contentY,draw,focusListener,getButtonTable,getContentTable,handleButtonClick,handleKeyDown,hide,ignoreTouchDown,initialize,isVisible,key,keyBindings,listeners,newLabel,newTypingLabel,previousKeyboardFocus,previousScrollFocus,remove,removeCaptureListener,removeListener,result,s,setObject,setStage,show,text,this,typing,values
  * Covenant-source-reference: com/github/tommyettinger/textra/TypingDialog.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

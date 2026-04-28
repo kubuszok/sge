@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: GLVersion,Type,_majorVersion,_minorVersion,_releaseVersion,_rendererString,_type,_vendorString,_versionString,debugVersionString,extractVersion,found,glType,isVersionEqualToOrHigher,majorVersion,matcher,minorVersion,parseInt,pattern,releaseVersion,rendererString,vendorString,versionString
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/GLVersion.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 8c73ac5833142bf408f9b6f979b1672efb89fa36
  */
 package sge
 package graphics

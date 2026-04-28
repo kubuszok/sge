@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: PolygonSprite,_color,_originX,_region,_rotation,_scaleX,_scaleY,_vertices,_width,_x,boundingRectangle,bounds,c,color,colorFloat,color_,currentVertices,dirty,draw,floatColor,height,maxx,maxy,minx,miny,oldAlpha,originX,originY,packedColor,pc,reg,region,regionVertices,region_,rotate,rotation,rotation_,scale,scaleX,scaleY,set,setBounds,setColor,setOrigin,setPosition,setScale,setSize,textureCoords,this,translate,translateX,translateY,v,vertices,verticesLength,verts,width,x,x_,y,y_
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/PolygonSprite.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

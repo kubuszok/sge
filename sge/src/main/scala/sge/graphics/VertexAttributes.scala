@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: BiNormal,BoneWeight,ColorPacked,ColorUnpacked,Generic,Normal,Position,ReadonlyIterable,ReadonlyIterator,Tangent,TextureCoordinates,Usage,VertexAttributes,_textureCoordinates,attributesArray,boneWeightUnits,boneWeights,builder,cachedMask,calculateOffsets,compareTo,count,equals,findByUsage,get,hasNext,hashCode,index,iterable,iterator,iterator1,iterator2,len,mask,maskWithSizePacked,next,offset,reset,result,size,textureCoordinates,toString,valid,vertexSize
  * Covenant-source-reference: com/badlogic/gdx/graphics/VertexAttributes.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 2aeb6c0fc0d190191289ac71a38c386305eabb4a
  */
 package sge
 package graphics

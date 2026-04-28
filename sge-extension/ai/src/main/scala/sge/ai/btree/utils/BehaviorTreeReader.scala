@@ -21,8 +21,20 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 535
  * Covenant-baseline-methods: BehaviorTreeReader,attrName,attribute,btreeActions,btreeEofActions,btreeIndexOffsets,btreeIndicies,btreeKeyOffsets,btreeRangeLengths,btreeSingleLengths,btreeStart,btreeTransActions,btreeTransKeys,btreeTransTargs,buffer,comment,containsFloatingPointCharacters,cs,data,debug,endLine,endStatement,eof,executeAction,i,indent,isGuard,isSubtreeRef,length,lineNumber,needsUnescape,p,parse,parseRuntimeEx,pe,processEndLine,processValue,s,startLine,startStatement,statementName,stringIsUnquoted,taskIndex,taskProcessed,unescape
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/btree/utils/BehaviorTreeReader.java
+ *   Renames: `com.badlogic.gdx.ai.btree.utils` -> `sge.ai.btree.utils`
+ *   Convention: split packages, Nullable instead of null, boundary/break instead of labeled break/continue
+ *   Idiom: static arrays -> companion object vals; GdxRuntimeException -> SgeError.InvalidInput;
+ *   Idiom: Java labeled `break outer` -> `scala.util.boundary`/`break`
+ *   Idiom: Java `do { ... } while(false)` -> `boundary { ... }` block
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 535
+ * Covenant-baseline-methods: BehaviorTreeReader,attrName,attribute,btreeActions,btreeEofActions,btreeIndexOffsets,btreeIndicies,btreeKeyOffsets,btreeRangeLengths,btreeSingleLengths,btreeStart,btreeTransActions,btreeTransKeys,btreeTransTargs,buffer,comment,containsFloatingPointCharacters,cs,data,debug,endLine,endStatement,eof,executeAction,i,indent,isGuard,isSubtreeRef,length,lineNumber,needsUnescape,p,parse,parseRuntimeEx,pe,processEndLine,processValue,s,startLine,startStatement,statementName,stringIsUnquoted,taskIndex,taskProcessed,unescape
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

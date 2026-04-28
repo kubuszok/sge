@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: TooltipManager,actionTime,animations,edgeDistance,enabled,enter,files,hide,hideAction,hideAll,initialTime,instance,instant,maxWidth,offsetX,offsetY,resetTask,resetTime,run,showAction,showTask,showTooltip,shown,subsequentTime,time,touchDown
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/TooltipManager.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 10478a75550b82e13cc2501eda20512a85f8c840
  */
 package sge
 package scenes

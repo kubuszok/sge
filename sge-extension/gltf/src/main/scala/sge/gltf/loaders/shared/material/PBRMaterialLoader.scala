@@ -5,8 +5,12 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Covenant: full-port
- * Covenant-source-reference: gdx-gltf/gltf/src/net/mgsx/gltf/loaders/shared/material/PBRMaterialLoader.java
+ * Covenant-source-reference: net/mgsx/gltf/loaders/shared/material/PBRMaterialLoader.java
+ * Covenant: full-port
  * Covenant-verified: 2026-04-11
+ * Covenant-verified: 2026-04-11
+ *
+ * upstream-commit: 683054a88382f71e8472abbc1c29931277c1cf22
  */
 package sge
 package gltf

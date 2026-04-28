@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: Bezier,approxLength,approximate,cubic,cubic_derivative,derivativeAt,dt,dt2,l1,l1Sqr,l2Sqr,l3Sqr,linear,linear_derivative,locate,n,p1,p2,p3,points,quadratic,quadratic_derivative,s,set,t2,tempLength,this,tmp,tmp2,tmp3,valueAt
  * Covenant-source-reference: com/badlogic/gdx/math/Bezier.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 9a31dc4e14f20153d40d33e4307f1bceab13c593
  */
 package sge
 package math

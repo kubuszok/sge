@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: Element,XmlElement,XmlReader,addChild,attributes,buffer,childCount,children,fromAttr,get,getAttribute,getBoolean,getBooleanAttribute,getChild,getChildByName,getChildByNameRecursive,getChildrenByName,getChildrenByNameRecursively,getChildrenByNameRecursivelyImpl,getFloat,getFloatAttribute,getInt,getIntAttribute,hasAttribute,hasChild,hasChildRecursive,parse,parseImpl,remove,removeChild,replaceChild,result,sb,setAttribute,text,toString,value
  * Covenant-source-reference: com/badlogic/gdx/utils/XmlReader.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 67dece18d30aa54cbe046f4ccc40322c098fb839
  */
 package sge
 package utils

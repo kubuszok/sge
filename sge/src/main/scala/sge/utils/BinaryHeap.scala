@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: BinaryHeap,Node,add,clear,contains,currentIndex,down,equals,h,hashCode,index,isEmpty,node,nodes,notEmpty,oldValue,peek,pop,remove,removed,setValue,size,toString,up,value
  * Covenant-source-reference: com/badlogic/gdx/utils/BinaryHeap.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package utils

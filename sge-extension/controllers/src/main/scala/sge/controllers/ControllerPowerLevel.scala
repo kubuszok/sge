@@ -10,6 +10,8 @@
  * Covenant-baseline-methods: ControllerPowerLevel
  * Covenant-source-reference: com/badlogic/gdx/controllers/ControllerPowerLevel.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 124b68125c7ef9c552085865379f77e8bee2ae3b
  */
 package sge
 package controllers

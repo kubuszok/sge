@@ -26,6 +26,8 @@
  *   - Clipboard integration pending SGE Clipboard backend.
  *   - Input tracking (trackingInput / selectable) partial —
  *     screenToLocalCoordinates, justTouched, isTouched require scene2d wiring.
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

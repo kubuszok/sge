@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: Camera,combined,direction,far,frustum,getPickRay,invProjectionView,lookAt,near,normalizeUp,position,project,projection,ray,rotate,rotateAround,tmpVec,transform,translate,unproject,up,update,view,viewportHeight,viewportWidth,x,y
  * Covenant-source-reference: com/badlogic/gdx/graphics/Camera.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 282f266f14146cbde64d9b1c6732fe3240739bcb
  */
 package sge
 package graphics

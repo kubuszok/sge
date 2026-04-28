@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: Emitter,end,init,isComplete,maxParticleCount,minParticleCount,percent,set,setParticleCount,this
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/emitters/Emitter.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: f087ba76cac7ff2cc4ded91efc009f52bf0987c2
  */
 package sge
 package graphics

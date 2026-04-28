@@ -17,8 +17,20 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 195
  * Covenant-baseline-methods: NoopGraphics,_continuous,_deltaTime,_fps,_frameCounter,_frameCounterStart,_frameId,_lastFrameTime,backBufferHeight,backBufferScale,backBufferWidth,bufferFormat,continuousRendering,deltaTime,density,displayMode,displayModes,elapsed,frameId,framesPerSecond,fullscreen,getDisplayMode,getDisplayModes,gl20,gl20_,gl30,gl30Available,gl30_,gl31,gl31Available,gl31_,gl32,gl32Available,gl32_,glVersion,graphicsType,height,monitor,monitors,newCursor,noopDisplayMode,noopHeight,noopMonitor,noopWidth,now,ppcX,ppcY,ppiX,ppiY,primaryMonitor,rawDeltaTime,requestRendering,safeInsetBottom,safeInsetLeft,safeInsetRight,safeInsetTop,setContinuousRendering,setCursor,setForegroundFPS,setFullscreenMode,setResizable,setSystemCursor,setTitle,setUndecorated,setVSync,setWindowedMode,supportsDisplayModeChange,supportsExtension,updateTime,width
- * Covenant-source-reference: backends/gdx-backend-headless/mock/graphics/MockGraphics.java
+ * Covenant-source-reference: backends/gdx-backend-headless/src/com/badlogic/gdx/backends/headless/mock/graphics/MockGraphics.java
+ *   Source: backends/gdx-backend-headless/.../mock/graphics/MockGraphics.java
+ *   Renames: MockGraphics -> NoopGraphics
+ *   Convention: extends Graphics directly (Java extends AbstractGraphics); configurable width/height (Java returns 0);
+ *   Idiom: Nullable (gl30/31/32, newCursor), split packages
+ *   Audited: 2026-03-04
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 195
+ * Covenant-baseline-methods: NoopGraphics,_continuous,_deltaTime,_fps,_frameCounter,_frameCounterStart,_frameId,_lastFrameTime,backBufferHeight,backBufferScale,backBufferWidth,bufferFormat,continuousRendering,deltaTime,density,displayMode,displayModes,elapsed,frameId,framesPerSecond,fullscreen,getDisplayMode,getDisplayModes,gl20,gl20_,gl30,gl30Available,gl30_,gl31,gl31Available,gl31_,gl32,gl32Available,gl32_,glVersion,graphicsType,height,monitor,monitors,newCursor,noopDisplayMode,noopHeight,noopMonitor,noopWidth,now,ppcX,ppcY,ppiX,ppiY,primaryMonitor,rawDeltaTime,requestRendering,safeInsetBottom,safeInsetLeft,safeInsetRight,safeInsetTop,setContinuousRendering,setCursor,setForegroundFPS,setFullscreenMode,setResizable,setSystemCursor,setTitle,setUndecorated,setVSync,setWindowedMode,supportsDisplayModeChange,supportsExtension,updateTime,width
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 5f2dae5f6879556f663774ba9d9ff439b5bae822
  */
 package sge
 package noop

@@ -14,8 +14,17 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 76
  * Covenant-baseline-methods: Wait,copyTo,execute,newInstance,reset,seconds,start,startTime,this,timeout,timepiece,w
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/btree/leaf/Wait.java
+ *   Renames: `com.badlogic.gdx.ai.btree.leaf` -> `sge.ai.btree.leaf`; `GdxAI.getTimepiece()` -> constructor `timepiece` parameter
+ *   Convention: split packages, explicit Timepiece dependency instead of global singleton
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 76
+ * Covenant-baseline-methods: Wait,copyTo,execute,newInstance,reset,seconds,start,startTime,this,timeout,timepiece,w
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

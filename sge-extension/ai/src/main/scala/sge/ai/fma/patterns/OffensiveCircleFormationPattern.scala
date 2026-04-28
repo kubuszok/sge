@@ -14,8 +14,17 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 37
  * Covenant-baseline-methods: OffensiveCircleFormationPattern,calculateSlotLocation
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/fma/patterns/OffensiveCircleFormationPattern.java
+ *   Renames: `com.badlogic.gdx.ai.fma.patterns` -> `sge.ai.fma.patterns`
+ *   Convention: split packages
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 37
+ * Covenant-baseline-methods: OffensiveCircleFormationPattern,calculateSlotLocation
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

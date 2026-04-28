@@ -22,6 +22,8 @@
  * Covenant-baseline-methods: FillViewport,this
  * Covenant-source-reference: com/badlogic/gdx/utils/viewport/FillViewport.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3bbb9d7fd4dc9e8bf64193d75595e02dd6a11007
  */
 package sge
 package utils

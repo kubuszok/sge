@@ -15,8 +15,18 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 75
  * Covenant-baseline-methods: BehaviorTreeLibraryManager,createBehaviorTree,createRootTask,disposeBehaviorTree,instance,library
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/btree/utils/BehaviorTreeLibraryManager.java
+ *   Renames: `com.badlogic.gdx.ai.btree.utils` -> `sge.ai.btree.utils`
+ *   Convention: split packages, Nullable instead of null
+ *   Idiom: Java singleton pattern -> Scala object with mutable library field
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 75
+ * Covenant-baseline-methods: BehaviorTreeLibraryManager,createBehaviorTree,createRootTask,disposeBehaviorTree,instance,library
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

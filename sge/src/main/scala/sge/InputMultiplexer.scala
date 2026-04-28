@@ -16,6 +16,8 @@
  * Covenant-baseline-methods: InputMultiplexer,addProcessor,clear,items,keyDown,keyTyped,keyUp,mouseMoved,processEvent,processors,removeProcessor,scrolled,setProcessors,size,this,touchCancelled,touchDown,touchDragged,touchUp
  * Covenant-source-reference: com/badlogic/gdx/InputMultiplexer.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 4e54c0a351d4f009a42973d70fdf164128b97c2b
  */
 package sge
 

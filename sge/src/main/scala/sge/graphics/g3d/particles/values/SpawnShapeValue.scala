@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: SpawnShapeValue,copy,init,load,save,shape,spawn,spawnAux,start,this,xOffsetValue,yOffsetValue,zOffsetValue
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/values/SpawnShapeValue.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: f087ba76cac7ff2cc4ded91efc009f52bf0987c2
  */
 package sge
 package graphics

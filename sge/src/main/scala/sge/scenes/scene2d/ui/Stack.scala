@@ -12,6 +12,8 @@
  * Covenant-baseline-methods: Stack,_maxHeight,_maxWidth,_minHeight,_minWidth,_prefHeight,_prefWidth,add,children,computeSize,height,i,invalidate,layout,maxHeight,maxWidth,minHeight,minWidth,n,prefHeight,prefWidth,sizeInvalid,this,width
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Stack.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package scenes

@@ -22,6 +22,8 @@
  * Covenant-baseline-methods: FWSkin,allFonts,atlasFile,fontFile,fontPath,fw,getBoolField,getField,getFloatField,getStringField,hAdj,js,jslzma,load,loadFontsFromBitmapFontSection,loadFontsFromFontSection,loadTextraCheckBoxStyles,loadTextraImageTextButtonStyles,loadTextraLabelStyles,loadTextraListStyles,loadTextraSelectBoxStyles,loadTextraTextButtonStyles,loadTextraTextFieldStyles,loadTextraTextTooltipStyles,loadTextraWindowStyles,lzb,makeGridGlyphs,nameStart,path,readFont,regionName,resizeDistanceFields,scaledSize,this,ubj,ublzma,useIntegerPositions,wAdj,xAdj,yAdj
  * Covenant-source-reference: com/github/tommyettinger/textra/FWSkin.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

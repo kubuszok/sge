@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: GLOnlyTextureData,consumeCustomData,consumePixmap,dataType,disposePixmap,format,getFormat,height,internalFormat,isManaged,isPrepared,mipLevel,prepare,preparedState,this,useMipMaps,width
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/GLOnlyTextureData.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 83cb18fa4939ce600e1a1ba54b4c1329252620ac
  */
 package sge
 package graphics

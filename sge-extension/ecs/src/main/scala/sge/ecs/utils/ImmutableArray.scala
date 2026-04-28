@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: ImmutableArray,apply,contains,equals,first,hashCode,indexOf,iterator,lastIndexOf,peek,random,size,this,toArray,toString
  * Covenant-source-reference: com/badlogic/ashley/utils/ImmutableArray.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: d63d542228cd8c62cc2f7adf20055b0ac59a547e
  */
 package sge
 package ecs

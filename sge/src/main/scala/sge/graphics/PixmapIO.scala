@@ -16,6 +16,8 @@
  * Covenant-baseline-methods: BUFFER_SIZE,CIM,COLOR_ARGB,COMPRESSION_DEFLATE,ChunkBuffer,FILTER_NONE,IDAT,IEND,IHDR,INTERLACE_NONE,PAETH,PNG,PixmapIO,SIGNATURE,buffer,close,curLineBytes,deflater,endChunk,flipY,lastLineLen,lineOutBytes,prevLineBytes,read,readBuffer,readCIM,setCompression,setFlipY,toGdx2DPixmapFormat,write,writeBuffer,writeCIM,writePNG
  * Covenant-source-reference: com/badlogic/gdx/graphics/PixmapIO.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

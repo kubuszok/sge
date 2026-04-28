@@ -5,11 +5,15 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Covenant: partial-port
- * Covenant-source-reference: gdx-gltf/gltf/src/net/mgsx/gltf/loaders/blender/BlenderShapeKeys.java
+ * Covenant-source-reference: net/mgsx/gltf/loaders/blender/BlenderShapeKeys.java
+ * Covenant: partial-port
+ * Covenant-verified: 2026-04-08
  * Covenant-verified: 2026-04-08
  *
  * Partial-port debt:
  *   - targetNames parsing from glMesh.extras requires GLTF JSON codecs (not yet ported).
+ *
+ * upstream-commit: 683054a88382f71e8472abbc1c29931277c1cf22
  */
 package sge
 package gltf

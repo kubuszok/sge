@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: DataBuffer,OptimizedByteArrayOutputStream,_buffer,buffer,bytes,clear,size,toByteArray
  * Covenant-source-reference: com/badlogic/gdx/utils/DataBuffer.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: f19a2bf2e1397ffe5aeae538d7edcc07c4f7f32b
  */
 package sge
 package utils

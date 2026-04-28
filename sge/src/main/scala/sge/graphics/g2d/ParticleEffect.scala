@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: ParticleEffect,_emitters,allowCompletion,boundingBox,bounds,close,draw,emitters,findEmitter,flipY,i,index,input,isComplete,load,loadEmitterImages,loadEmitters,loadTexture,loadedSprites,motionScale,newEmitter,ownsTexture,preAllocateParticles,reader,reset,save,scaleEffect,setDuration,setEmittersCleanUpBlendFunction,setFlip,setPosition,start,this,update,xSizeScale,ySizeScale
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/ParticleEffect.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: e8c483fe0df31b0796057c257cb983645aa3dc8a
  */
 package sge
 package graphics

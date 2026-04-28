@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: ArrayMap,_size,apply,clear,containsKey,containsValue,create,ensureCapacity,equals,equalsIdentity,existingIdx,firstKey,firstValue,foreachEntry,foreachKey,foreachValue,from,get,getKey,getKeyAt,getValueAt,grow,h,hashCode,i,indexOfKey,indexOfValue,insert,isEmpty,j,keyArray,mkK,mkV,needed,newCapacity,nonEmpty,peekKey,peekValue,preserveOrder,put,putAll,removeIndex,removeKey,removeValue,reverse,setKeyAt,setValueAt,shrink,shuffle,size,sizeNeeded,summonMkArray,toString,truncate,valArray
  * Covenant-source-reference: com/badlogic/gdx/utils/ArrayMap.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: ff659249e292141692fb7b0b2b30c69ac38e5e0d
  */
 package sge
 package utils

@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: OrderedMap,_keys,alter,alterIndex,apply,clear,containsKey,containsValue,create,ensureCapacity,equals,equalsIdentity,existing,findKey,foreachEntry,foreachKey,foreachValue,from,get,hashCode,i,isEmpty,key,keys,loadFactor,map,mkK,mkV,nonEmpty,orderedKeys,otherKeys,put,putAll,remove,removeIndex,shrink,size,summonMkArray,toString
  * Covenant-source-reference: com/badlogic/gdx/utils/OrderedMap.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 5bf673e4ecf9b8d8206a1d164d4326e354ace9a5
  */
 package sge
 package utils

@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: ColorTools,a,al,alpha,alphaInt,b,bits,blot,blue,blueInt,c,cLuma,cMild,cWarm,chromaMild,chromaWarm,cm,cm2,cmCurr,cmOrig,cmVal,cmi,contrast,contrastBits,cool,cw,cw2,cwCurr,cwOrig,cwVal,cwi,d,darken,decoded,differentiateLightness,dist,dullen,e,editYCwCm,enrich,fade,floatGetHSL,fromColor,fromRGBA,fromRGBA8888,g,green,greenInt,hue,inGamut,inverseLightness,lessenChange,li,lighten,lightness,limit,limitToGamut,lu,luma,lumaVal,main,mildVal,offsetLightness,op,r,randomColor,randomEdit,red,redInt,rgba,s,saturation,sd,strengthen,toColor,toEditedFloat,toRGBA,toRGBA8888,toYCwCmColor,w,warm,warmVal,weaken,x,y,y2,yVal,yb,ycwcm,ye,yg,yi,yr,ys,z
  * Covenant-source-reference: com/github/tommyettinger/colorful/ycwcm/ColorTools.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: e4a5fd960eef746ca5aa826063432fb79666d74f
  */
 package sge
 package colorful

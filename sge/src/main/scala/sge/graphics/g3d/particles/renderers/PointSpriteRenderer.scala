@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: PointSpriteRenderer,allocateChannels,copy,isCompatible,this
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/renderers/PointSpriteRenderer.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 72917675ed4718b7997044e26dc6f94544150391
  */
 package sge
 package graphics

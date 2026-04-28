@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: TextraArea,drawCursor,getPrefHeight,getTextY,layoutHeight,lineHeight,linesHeight,moveCursorVertically,rf,s,textY,this
  * Covenant-source-reference: com/github/tommyettinger/textra/TextraArea.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

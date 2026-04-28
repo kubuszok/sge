@@ -26,6 +26,8 @@
  * Covenant-baseline-methods: Selection,_isDisabled,_lastSelected,actor,add,addAll,added,changed,choose,cleanup,clear,contains,disabled,disabled_,fireChangeEvent,first,i,isEmpty,items,iterator,lastSelected,multiple,n,notEmpty,old,programmaticChangeEvents,remove,removeAll,removed,required,result,revert,selected,set,setActor,setAll,size,snapshot,toArray,toString,toggle
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/Selection.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: a729bf1f0de099ebcc60562d72f008157677b559
  */
 package sge
 package scenes

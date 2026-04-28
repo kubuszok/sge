@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: GET_TEXTURE_FROM_ARRAY_PLACEHOLDER,MAX_TEXTURE_UNIT,TextureArrayShaderCompiler,compileShader,processArrayTextureShader
  * Covenant-source-reference: com/github/tommyettinger/textra/TextureArrayShaderCompiler.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

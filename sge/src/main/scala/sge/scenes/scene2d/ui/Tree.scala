@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: Node,Tree,TreeStyle,_clickListener,_overNode,_prefHeight,_prefWidth,_style,a,actor,actorIndex,actorY,add,addAll,addToTree,background,changed,children,clearChildren,clickListener,clicked,collapseAll,color,computeSize,countActors,cullBottom,cullTop,cullingArea,draw,drawBackground,drawExpandIcon,drawIcon,drawIcons,drawOver,drawSelection,enter,exit,expandAll,expandTo,expandX,expanded,findExpandedValues,findNode,foundNode,getExpandIcon,getHeight,getNodeAt,hasChildren,height,i,icon,iconSpacingLeft,iconSpacingRight,iconX,idx,indentSpacing,initialize,insert,invalidate,isAscendantOf,isDescendantOf,isSelectable,layout,level,minus,minusOver,mouseMoved,n,node,over,overNode,overNode_,overValue,paddingLeft,paddingRight,parent,plus,plusMinusWidth,plusOver,prefHeight,prefWidth,rY,rangeStart,remove,removeFromTree,removeNodeFromTree,restoreExpandedValues,result,rootNodes,selectNodes,selectable,selectedNode,selectedValue,selection,self,setActor,setExpanded,setIconSpacing,setIndentSpacing,setPadding,setStyle,setYSpacing,sizeInvalid,spacing,style,this,tmp,tree,updateChildren,updateRootNodes,value,width,x,y,ySpacing,yy
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Tree.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 1a29de86a17499b22dbbce82c68a0d0a27527810
  */
 package sge
 package scenes

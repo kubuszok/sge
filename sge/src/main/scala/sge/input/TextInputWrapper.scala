@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: TextInputWrapper,selectionEnd,selectionStart,text,writeResults
  * Covenant-source-reference: com/badlogic/gdx/input/TextInputWrapper.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3b8493d39e25e352c32c088243be406cc49fb435
  */
 package sge
 package input

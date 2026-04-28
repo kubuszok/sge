@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: Event,bubbles,cancel,cancelled,capture,handle,handled,isCancelled,isHandled,isStopped,listenerActor,reset,stage,stop,stopped,target
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/Event.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package scenes

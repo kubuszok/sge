@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: InternalListener,MOVE,TextraWindow,TitleTable,_alpha,_color,_height,_isModal,_isMovable,_isResizable,_keepWithinStage,_maxHeight,_maxWidth,_minHeight,_minWidth,_padBottom,_padLeft,_padRight,_padTop,_resizeBorder,_style,_width,_x,_y,color,dragging,draw,drawBackground,drawStageBackground,drawTitleTable,edge,font,getBackground,getColor,getHeight,getMaxHeight,getMaxWidth,getMinHeight,getMinWidth,getPadBottom,getPadLeft,getPadRight,getPadTop,getPrefWidth,getResizeBorder,getRight,getStyle,getTitleLabel,getTitleTable,getTop,getWidth,getX,getY,hit,internalListener,invalidateHierarchy,isDragging,isModal,isMovable,isResizable,keepWithinStage,keyDown,keyTyped,keyUp,label,lastX,lastY,mouseMoved,newLabel,pack,padLeft2,padTop2,pw,scrolled,self,setBackground,setBounds,setColor,setHeight,setKeepWithinStage,setMaxHeight,setMaxWidth,setMinHeight,setMinWidth,setModal,setMovable,setPadBottom,setPadLeft,setPadRight,setPadTop,setPosition,setResizable,setResizeBorder,setSize,setStyle,setWidth,setX,setY,skipToTheEnd,startX,startY,this,titleLabel,titleTable,toFront,touchDown,touchDragged,touchUp,updateEdge,x,y
  * Covenant-source-reference: com/github/tommyettinger/textra/TextraWindow.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

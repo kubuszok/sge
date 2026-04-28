@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: CHAR_LIMIT_PER_FRAME,DEFAULT_CLEAR_COLOR,DEFAULT_SPEED_PER_CHAR,DEFAULT_WAIT_VALUE,EFFECT_END_TOKENS,EFFECT_START_TOKENS,GLOBAL_VARS,INTERVAL_MULTIPLIERS_BY_CHAR,MAX_SPEED_MODIFIER,MIN_SPEED_MODIFIER,TypingConfig,b,defaultInitialText,dirtyEffectMaps,getDefaultInitialText,initializeGlobalVars,name,registerEffect,setDefaultInitialText,unregisterEffect
  * Covenant-source-reference: com/github/tommyettinger/textra/TypingConfig.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

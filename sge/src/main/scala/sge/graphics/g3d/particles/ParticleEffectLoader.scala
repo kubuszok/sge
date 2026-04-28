@@ -23,6 +23,8 @@
  * Covenant-baseline-methods: ParticleEffectLoadParameter,ParticleEffectLoader,ParticleEffectSaveParameter,assets,batches,config,data,descriptors,effectData,file,getDependencies,items,jsonAst,loadAsync,loadSync,manager,prettyPrint,save,this
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/ParticleEffectLoader.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 9fb9353c99ae5b30b455262832c13a84c2736bd4
  */
 package sge.graphics.g3d.particles
 

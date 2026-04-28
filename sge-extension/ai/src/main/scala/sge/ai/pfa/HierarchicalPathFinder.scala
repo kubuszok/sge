@@ -17,12 +17,22 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 298
  * Covenant-baseline-methods: DEBUG,HierarchicalPathFinder,LevelPathFinderRequest,continue,currentLevel,finalizeSearch,graph,hpf,hpfRequest,initializeSearch,levelOfNodes,levelPathFinder,levelRequest,levelRequestControl,lvlCtrl,lvlReq,search,searchConnectionPath,searchLoop,searchNodePath
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/pfa/HierarchicalPathFinder.java
+ *   Renames: `com.badlogic.gdx.ai.pfa` -> `sge.ai.pfa`; `TimeUtils` -> `sge.utils.TimeUtils`;
+ *   Convention: split packages; `null` -> `Nullable`; `return` -> `boundary`/`break`;
+ *   Idiom: inner static class `LevelPathFinderRequest` -> private class
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 298
+ * Covenant-baseline-methods: DEBUG,HierarchicalPathFinder,LevelPathFinderRequest,continue,currentLevel,finalizeSearch,graph,hpf,hpfRequest,initializeSearch,levelOfNodes,levelPathFinder,levelRequest,levelRequestControl,lvlCtrl,lvlReq,search,searchConnectionPath,searchLoop,searchNodePath
+ * Covenant-verified: 2026-04-19
  * Covenant-verified: 2026-04-19
  *
  * Partial-port debt:
  *   - Inherited gdx-ai FIXME at line 259: "the break below is wrong" — needs investigation
  *     against the original Java source to confirm semantics.
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

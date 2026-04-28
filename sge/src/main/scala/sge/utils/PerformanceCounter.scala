@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: PerformanceCounter,current,currentLoad,d,lastTick,load,nano2seconds,reset,sb,start,startTime,stop,t,tick,time,toString,valid
  * Covenant-source-reference: com/badlogic/gdx/utils/PerformanceCounter.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package utils

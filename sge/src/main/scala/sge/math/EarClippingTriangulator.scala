@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: CONCAVE,CONVEX,EarClippingTriangulator,area,classifyVertex,computeSpannedAreaSign,computeTriangles,current,cutEarTip,findEarTip,i,indices,indicesArray,isEarTip,n,next,nextIdx,nextIndex,p1,p1x,p1y,p2,p2x,p2y,p3,p3x,p3y,prevIndex,previous,previousIndex,triangles,triangulate,vertexCount,vertexOffset,vertexTypes,vertices
  * Covenant-source-reference: com/badlogic/gdx/math/EarClippingTriangulator.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package math

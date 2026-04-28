@@ -34,6 +34,8 @@
  *   - Underline/strikethrough decoration rendering
  *   - Box-drawing character rendering (need BlockUtils.BOX_DRAWING)
  *   - Pixel-size projection-matrix calculation uses 1px≈1unit fallback (requires (using Sge) propagation into drawGlyph)
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

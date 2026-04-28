@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: Slider,SliderStyle,backgroundDown,backgroundDrawable,backgroundOver,bg,button,calculatePositionAndValue,draggingPointer,enter,exit,isDragging,knob,knobAfterDown,knobAfterDrawable,knobAfterOver,knobBeforeDown,knobBeforeDrawable,knobBeforeOver,knobDown,knobDrawable,knobOver,maxVal,minVal,mouseOver,oldPosition,oldValue,over,setSnapToValues,setVisualInterpolationInverse,setVisualPercent,sliderStyle,snap,snapToValues,snapToValuesThreshold,snapValues,snappedValue,style,this,threshold,touchDown,touchDragged,touchUp,value,valueSet,visualInterpolationInverse
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Slider.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: a729bf1f0de099ebcc60562d72f008157677b559
  */
 package sge
 package scenes

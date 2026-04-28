@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: PolygonBatch,draw
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/PolygonBatch.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 2932c93f5fddfd29dd241fee44282cc9e695ab44
  */
 package sge
 package graphics

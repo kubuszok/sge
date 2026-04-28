@@ -14,8 +14,17 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 54
  * Covenant-baseline-methods: Face,calculateRealSteering,face,toTarget
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/steer/behaviors/Face.java
+ *   Renames: `com.badlogic.gdx.ai.steer` -> `sge.ai.steer`
+ *   Convention: split packages, Nullable instead of null
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 54
+ * Covenant-baseline-methods: Face,calculateRealSteering,face,toTarget
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

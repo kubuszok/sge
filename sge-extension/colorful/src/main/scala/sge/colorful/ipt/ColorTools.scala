@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: ColorTools,abgr,al,alpha,alphaInt,b,bc,bits,blot,blue,blueInt,bv,ci,contrast,contrastBits,cp,crMid,crScale,ct,d,darken,decoded,differentiateLightness,dullen,e,eAlpha,eI,eP,eT,editIPT,enrich,fade,floatGetHSL,fromColor,fromHSI,fromRGBA,fromRGBA8888,g,gc,green,greenInt,gv,h,hue,i,i2,ib,ig,inGamut,intensity,inverseLightness,ipt,ir,lessenChange,lighten,lightness,limit,limitToGamut,main,mgMid,mgScale,offsetLightness,op,opacity,other,p,p2,pOrig,protan,protanDown,protanUp,r,randomColor,randomEdit,rc,red,redInt,rv,s,sI,sP,sT,saturation,scale,subrandomColor,t,t2,tOrig,toColor,toEditedFloat,toIPTColor,toRGBA,toRGBA8888,tritan,tritanDown,tritanUp,w,x,y,ybMid,ybScale,z
  * Covenant-source-reference: com/github/tommyettinger/colorful/ipt/ColorTools.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: e4a5fd960eef746ca5aa826063432fb79666d74f
  */
 package sge
 package colorful

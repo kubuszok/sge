@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: FilePopupMenu,FilePopupMenuCallback,addToFavorites,build,buildForFavorite,changed,clicked,delete,file,fileDeleterChanged,isAddedToStage,newDirectory,refresh,removeFromFavorites,showFileDelDialog,showInExplorer,showNewDirDialog,sortBy,sortingPopupMenu,style
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/file/internal/FilePopupMenu.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

@@ -16,8 +16,17 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 189
  * Covenant-baseline-methods: PathSmoother,inputPathLength,lastTime,path,ray,raycastCollisionDetector,remainingTime,smoothPath
- * Covenant-source-reference: auto
+ * Covenant-source-reference: com/badlogic/gdx/ai/pfa/PathSmoother.java
+ *   Renames: `com.badlogic.gdx.ai.pfa` -> `sge.ai.pfa`; `Vector` -> `sge.math.Vector`;
+ *   Convention: split packages; `null` -> `Nullable`; `return` -> `boundary`/`break`
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 189
+ * Covenant-baseline-methods: PathSmoother,inputPathLength,lastTime,path,ray,raycastCollisionDetector,remainingTime,smoothPath
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

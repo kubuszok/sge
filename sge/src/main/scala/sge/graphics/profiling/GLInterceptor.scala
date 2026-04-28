@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: GLInterceptor,calls,check,drawCalls,glProfiler,reset,resolveErrorNumber,shaderSwitches,textureBindings,vertexCount
  * Covenant-source-reference: com/badlogic/gdx/graphics/profiling/GLInterceptor.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3eede16860c339c639ae02552ec348f1432e9afe
  */
 package sge
 package graphics

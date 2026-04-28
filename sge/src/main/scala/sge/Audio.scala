@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: Audio,availableOutputDevices,newAudioDevice,newAudioRecorder,newMusic,newSound,switchOutputDevice
  * Covenant-source-reference: com/badlogic/gdx/Audio.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 4c9b9758fbe5efe39126a52fee8f9d5fb4119b31
  */
 package sge
 

@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: Toast,ToastStyle,_mainTable,_toastManager,act,background,changed,close,closeButton,closeButtonStyle,createMainTable,fadeIn,fadeOut,mainTable,this,toast,toastManager,toastManager_
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/toast/Toast.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

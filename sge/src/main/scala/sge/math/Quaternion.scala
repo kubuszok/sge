@@ -23,6 +23,8 @@
  * Covenant-baseline-methods: Quaternion,absDot,add,angle,angleAround,angleAroundRad,angleRad,axisAngle,axisAngleRad,chp,chr,chy,chy_chp,chy_shp,coeff,conjugate,cpy,d,dot,equals,exp,gimbalPole,hashCode,hp,hr,hy,idt,isIdentity,l2,len,len2,mul,mulLeft,newW,newX,newY,newZ,nor,norm,normExp,pitch,pitchRad,pole,prime,result,roll,rollRad,s,scale0,scale1,set,setEulerAngles,setEulerAnglesRad,setFromAxes,setFromAxis,setFromAxisRad,setFromCross,setFromMatrix,shp,shr,shy,shy_chp,shy_shp,slerp,swingTwist,t,theta,this,tmp1,tmp2,toMatrix,toString,transform,w,xw,xx,xxNorm,xy,xyNorm,xz,xzNorm,yaw,yawRad,yw,yxNorm,yy,yyNorm,yz,yzNorm,zw,zxNorm,zyNorm,zz,zzNorm
  * Covenant-source-reference: com/badlogic/gdx/math/Quaternion.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package math

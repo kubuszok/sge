@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: TiledMapImageLayer,_supportsTransparency,checkTransparencySupport,format,formatHasAlpha,region,repeatX,repeatY,supportsTransparency,x,y
  * Covenant-source-reference: com/badlogic/gdx/maps/tiled/TiledMapImageLayer.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 0dc27743a43739f14f7220b4ec7dcc3ada3c8b61
  */
 package sge
 package maps

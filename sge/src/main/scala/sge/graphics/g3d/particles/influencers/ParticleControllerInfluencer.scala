@@ -24,6 +24,8 @@
  * Covenant-baseline-methods: ParticleControllerInfluencer,Random,Single,_effectReferences,activateParticles,allocateChannels,clear,close,controllers,copy,createPool,data,effects,effectsIndices,end,i,init,killParticles,load,particleControllerChannel,pool,save,templates,this
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/influencers/ParticleControllerInfluencer.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */
 package sge
 package graphics

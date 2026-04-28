@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: PreferencesIO,VIS_DEFAULT_PREFS_NAME,checkIfUsingDefaultName,data,defaultPrefsName,favoritesKeyName,i,lastDirKeyName,loadFavorites,loadFileArray,loadLastDirectory,loadRecentDirectories,prefs,recentDirKeyName,saveFavorites,saveFileArray,saveLastDirectory,saveRecentDirectories,sb,setDefaultPrefsName,this,toFileHandle
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/file/internal/PreferencesIO.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

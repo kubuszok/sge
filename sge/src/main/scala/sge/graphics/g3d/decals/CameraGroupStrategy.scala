@@ -32,6 +32,8 @@
  * Covenant-baseline-methods: CameraGroupStrategy,GROUP_BLEND,GROUP_OPAQUE,afterGroup,afterGroups,arrayPool,beforeGroup,beforeGroups,close,createDefaultShader,decideGroup,fragmentShader,getCamera,getGroupShader,materialGroups,setCamera,shader,this,usedArrays,vertexShader
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/decals/CameraGroupStrategy.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 2729e989ca16f1dba2da7ef8b754fd6c6a9c0394
  */
 package sge
 package graphics

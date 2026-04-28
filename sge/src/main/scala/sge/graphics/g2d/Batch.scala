@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: Batch,C1,C2,C3,C4,U1,U2,U3,U4,V1,V2,V3,V4,X1,X2,X3,X4,Y1,Y2,Y3,Y4,blendDstFunc,blendDstFuncAlpha,blendSrcFunc,blendSrcFuncAlpha,blendingEnabled,color,color_,disableBlending,draw,drawing,enableBlending,flush,packedColor,packedColor_,projectionMatrix,projectionMatrix_,rendering,setBlendFunction,setBlendFunctionSeparate,setColor,shader,shader_,transformMatrix,transformMatrix_
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/Batch.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: d3ec4309792159ee97df8c1d87fcb8025e3ab683
  */
 package sge
 package graphics

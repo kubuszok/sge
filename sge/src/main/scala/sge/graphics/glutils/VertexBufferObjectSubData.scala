@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: VertexBufferObjectSubData,_buffer,attributes,bind,buffer,bufferChanged,bufferHandle,byteBuffer,close,createBufferObject,getBuffer,gl,invalidate,isBound,isDirect,isDirty,isStatic,numAttributes,numMaxVertices,numVertices,result,setVertices,this,unbind,updateVertices,usage
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/VertexBufferObjectSubData.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 433466a3e68f1d847c72b566d0027400ae461e6c
  */
 package sge
 package graphics

@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: DriveCheckerListener,DriveCheckerService,ListenerSet,RootMode,_instance,add,addListener,addListenerInternal,getInstance,list,notifyListeners,pool,processResults,processRoot,readableListeners,readableRoots,rootMode,roots,run,writableListeners,writableRoots
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/file/internal/DriveCheckerService.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

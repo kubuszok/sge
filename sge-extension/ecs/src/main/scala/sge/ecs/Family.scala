@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: Builder,Family,_all,_exclude,_one,all,entityComponentBits,equals,exclude,families,familyIndex,get,getBitsString,getFamilyHash,hashCode,i,index,matches,numBits,one,sb,zeroBits
  * Covenant-source-reference: com/badlogic/ashley/core/Family.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: d63d542228cd8c62cc2f7adf20055b0ac59a547e
  */
 package sge
 package ecs

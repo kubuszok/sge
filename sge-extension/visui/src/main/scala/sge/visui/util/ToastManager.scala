@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: ToastManager,UNTIL_CLOSED,alignment,bottom,center,clear,existingToast,getAlignment,getMessagePadding,getScreenPaddingX,getScreenPaddingY,i,idx,left,messagePadding,remove,removed,resize,run,screenPaddingX,screenPaddingY,setAlignment,setMessagePadding,setScreenPadding,setScreenPaddingX,setScreenPaddingY,show,table,this,timersTasks,toFront,toastMainTable,toasts,updateToastsPositions,y
  * Covenant-source-reference: com/kotcrab/vis/ui/util/ToastManager.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

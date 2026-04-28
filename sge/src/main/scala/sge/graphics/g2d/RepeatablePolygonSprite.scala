@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: RepeatablePolygonSprite,boundRect,buildVertices,color,cols,dirty,draw,finalDensity,gridHeight,gridWidth,i,idx,indices,intersectionPoly,offset,offsetVertices,parts,polygon,region,regionAspectRatio,rows,setColor,setPolygon,setPosition,snapToGrid,tmpPoly,triangulator,vertices,x,y
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/RepeatablePolygonSprite.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

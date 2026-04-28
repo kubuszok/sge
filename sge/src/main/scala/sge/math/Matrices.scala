@@ -27,6 +27,8 @@
  * Covenant-baseline-methods: M00,M01,M02,M03,M10,M11,M12,M13,M20,M21,M22,M23,M30,M31,M32,M33,Matrix3,Matrix4,a,avg,b,cos,cpy,det,det3x3,extract4x3Matrix,getScale,hasRotationOrScaling,idt,inv,inv_det,inv_w,l_a1,l_a2,l_det,l_fd,l_vex,l_vey,l_vez,lerp,m00,m01,m02,m03,m10,m11,m12,m13,m20,m21,m22,m23,m30,m31,m32,m33,mul,mulLeft,mulVec,oc,prj,quat,quat2,right,rot,rotate,rotateRad,rotateTowardDirection,rotateTowardTarget,rotation,rotationRad,scale,scaleX,scaleXSquared,scaleY,scaleYSquared,scaleZ,scaleZSquared,scl,set,setAsAffine,setFromEulerAngles,setFromEulerAnglesRad,setToLookAt,setToOrtho,setToOrtho2D,setToProjection,setToRotation,setToRotationRad,setToScaling,setToTranslation,setToTranslationAndScaling,setToWorld,setTranslation,sin,this,tmp,tmpForward,tmpMat,tmpUp,tmpVec,toNormalMatrix,toString,tra,translate,translation,transpose,trn,tx,ty,tz,v00,v01,v02,v03,v10,v11,v12,v13,v20,v21,v22,v23,v30,v31,v32,v33,values,vecOffset,w,wx,wy,wz,x,x_orth,xs,xw,xx,xy,xz,y,y_orth,ys,yw,yy,yz,z,z_orth,zs,zw,zz
  * Covenant-source-reference: com/badlogic/gdx/math/Matrix3.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 413e0dd9078a3a38005062ead111b2722fa83a12
  */
 package sge
 package math

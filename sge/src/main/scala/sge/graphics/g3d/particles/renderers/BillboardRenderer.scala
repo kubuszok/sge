@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: BillboardRenderer,allocateChannels,copy,isCompatible,this
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/renderers/BillboardRenderer.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: f087ba76cac7ff2cc4ded91efc009f52bf0987c2
  */
 package sge
 package graphics

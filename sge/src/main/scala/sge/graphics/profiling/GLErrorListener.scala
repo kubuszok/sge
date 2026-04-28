@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: GLErrorListener,LOGGING_LISTENER,THROWING_LISTENER,onError
  * Covenant-source-reference: com/badlogic/gdx/graphics/profiling/GLErrorListener.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3eede16860c339c639ae02552ec348f1432e9afe
  */
 package sge
 package graphics

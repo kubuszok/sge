@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: DelayAction,delegate,finish,restart,time
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/actions/DelayAction.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 59d660057ddc8f835b38c4dd66ed8954259edac7
  */
 package sge
 package scenes

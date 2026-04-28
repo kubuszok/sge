@@ -18,6 +18,8 @@
  * Covenant: full-port
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/freetype/FreeTypeFontGenerator.java
  * Covenant-verified: 2026-04-12
+ *
+ * upstream-commit: 615e8a496541914794ac1596e4d23f0842fec72e
  */
 package sge
 package graphics

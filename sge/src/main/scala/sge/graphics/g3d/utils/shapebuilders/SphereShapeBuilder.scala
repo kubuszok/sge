@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: SphereShapeBuilder,angleU,angleV,auo,avo,build,closedVFrom,closedVTo,curr1,hd,hh,hw,normalTransform,s,stepU,stepV,tempOffset,tmpIndices,u,us,v,vs
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/shapebuilders/SphereShapeBuilder.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

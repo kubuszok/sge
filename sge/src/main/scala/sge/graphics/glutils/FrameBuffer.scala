@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: FrameBuffer,attachFrameBufferColorTexture,createTexture,data,disposeColorTexture,frameBufferBuilder,result,this,unbind,webGLDepth
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/FrameBuffer.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 686c71152e9e2ae018b535777532c88f2f792876
  */
 package sge
 package graphics

@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: ScreenUtils,clear,frameBufferTexture,getFrameBufferPixels,getFrameBufferPixmap,getFrameBufferTexture,h,hi,lines,mask,numBytes,pixels,pixmap,potH,potPixmap,potW,texture,textureRegion,w,wi
  * Covenant-source-reference: com/badlogic/gdx/utils/ScreenUtils.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3d8cfb8ce3d86cdf0909ce298c38ecca53d50ea0
  */
 package sge
 package utils

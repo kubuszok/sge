@@ -19,6 +19,8 @@
  * Covenant-baseline-methods: Group,_cullingArea,act,actor,addActor,addActorAfter,addActorAt,addActorBefore,alpha,applyTransform,buffer,children,childrenChanged,clear,clearChildren,computeTransform,computedTransform,cullingArea,debugAll,draw,drawChildren,drawDebug,drawDebugChildren,findActor,firstIndex,getChild,hasChildren,hit,i,index,localToDescendantCoordinates,maxIndex,n,oldTransform,originX,originY,p,parentGroup,removeActor,removeActorAt,resetTransform,secondIndex,setCullingArea,setDebug,setStage,snapshot,swapActor,toString,transform,worldTransform
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/Group.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */
 package sge
 package scenes

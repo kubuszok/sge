@@ -21,6 +21,8 @@
  * Covenant-baseline-methods: ScreenViewport,this,unitsPerPixel,update
  * Covenant-source-reference: com/badlogic/gdx/utils/viewport/ScreenViewport.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 41d63a75762b51bf966e3df746cb9037ea14ff0b
  */
 package sge
 package utils

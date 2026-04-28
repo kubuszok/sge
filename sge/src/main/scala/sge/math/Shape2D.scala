@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: Shape2D,contains
  * Covenant-source-reference: com/badlogic/gdx/math/Shape2D.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 7fdccbf6ea3a454308b83af1374f11e42ddec55c
  */
 package sge
 package math

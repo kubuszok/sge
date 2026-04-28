@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: OrderedSet,_items,add,addAll,alter,alterIndex,apply,clear,contains,create,ensureCapacity,equals,first,foreach,from,get,h,hashCode,i,isEmpty,items,key,loadFactor,mk,n,nonEmpty,orderedItems,remove,removeIndex,set,shrink,size,summonMkArray,toArray,toString
  * Covenant-source-reference: com/badlogic/gdx/utils/OrderedSet.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 1039c144ae1a226a2235b8a9e9614ea46f3a84ad
  */
 package sge
 package utils

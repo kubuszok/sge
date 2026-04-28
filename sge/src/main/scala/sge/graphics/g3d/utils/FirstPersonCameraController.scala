@@ -22,6 +22,8 @@
  * Covenant-baseline-methods: FirstPersonCameraController,autoUpdate,backwardKey,camera,degreesPerPixel,deltaX,deltaY,downKey,dt,forwardKey,keyDown,keyUp,keys,setDegreesPerPixel,setVelocity,strafeLeftKey,strafeRightKey,tmp,touchDragged,upKey,update,velocity
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/FirstPersonCameraController.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

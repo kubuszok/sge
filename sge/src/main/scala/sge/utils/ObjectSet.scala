@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: ObjectSet,_size,add,addAll,addResize,apply,array,clear,contains,create,createWithMk,ensureCapacity,equals,filled,first,foreach,from,get,h,hashCode,i,internalFilled,internalKeyTable,internalMask,internalMk,internalShift,internalThreshold,isEmpty,items,keyTable,len,loadFactor,locateKey,mask,mk,n,nonEmpty,oldCapacity,oldFilled,oldKeyTable,otherFilled,otherKeys,place,remove,resize,shift,shrink,size,summonMkArray,tableSize,threshold,toArray,toString,ts
  * Covenant-source-reference: com/badlogic/gdx/utils/ObjectSet.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 5bf673e4ecf9b8d8206a1d164d4326e354ace9a5
  */
 package sge
 package utils

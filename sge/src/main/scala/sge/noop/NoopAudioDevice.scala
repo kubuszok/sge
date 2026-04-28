@@ -12,8 +12,20 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 33
  * Covenant-baseline-methods: NoopAudioDevice,close,latency,pause,resume,setVolume,writeSamples
- * Covenant-source-reference: backends/gdx-backend-headless/mock/audio/MockAudioDevice.java
+ * Covenant-source-reference: backends/gdx-backend-headless/src/com/badlogic/gdx/backends/headless/mock/audio/MockAudioDevice.java
+ *   Source: backends/gdx-backend-headless/.../mock/audio/MockAudioDevice.java
+ *   Renames: MockAudioDevice -> NoopAudioDevice, dispose() -> close()
+ *   Convention: isMono is constructor val (Java returns hardcoded false); volume uses opaque Volume type
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 33
+ * Covenant-baseline-methods: NoopAudioDevice,close,latency,pause,resume,setVolume,writeSamples
  * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 990cedd5fc6c79a5181711ee67faccbb82a42c57
  */
 package sge
 package noop

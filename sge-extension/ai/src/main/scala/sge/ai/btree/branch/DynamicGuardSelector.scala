@@ -16,6 +16,8 @@
  * Covenant-baseline-methods: DynamicGuardSelector,branch,childFail,childRunning,childSuccess,childToRun,copyTo,i,n,newInstance,reset,resetTask,run,runningChild
  * Covenant-source-reference: com/badlogic/gdx/ai/btree/branch/DynamicGuardSelector.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
 package sge
 package ai

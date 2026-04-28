@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: Attribute,MAX_ATTRIBUTE_COUNT,copy,equals,getAttributeAlias,getAttributeType,hashCode,i,idx,register,result,toString,typeBit,types
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/Attribute.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6e3aa711f82fdf44f0fad645e248f84cc0734548
  */
 package sge
 package graphics

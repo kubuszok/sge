@@ -5,12 +5,16 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Covenant: partial-port
- * Covenant-source-reference: gdx-controllers/gwt/src/com/badlogic/gdx/controllers/gwt/GwtControllerManager.java
+ * Covenant-source-reference: com/badlogic/gdx/controllers/gwt/GwtControllers.java
+ * Covenant: partial-port
+ * Covenant-verified: 2026-04-08
  * Covenant-verified: 2026-04-08
  *
  * Partial-port debt:
  *   - On JVM/Native this backend is a no-op stub. Real polling lives in
  *     [[BrowserControllerImpl]] which only compiles on Scala.js.
+ *
+ * upstream-commit: 124b68125c7ef9c552085865379f77e8bee2ae3b
  */
 package sge
 package controllers

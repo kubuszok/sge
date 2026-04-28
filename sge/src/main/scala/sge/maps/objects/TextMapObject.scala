@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: TextMapObject,bold,fontFamily,horizontalAlign,italic,kerning,pixelSize,rectangle,rotation,strikeout,text,underline,verticalAlign,wrap
  * Covenant-source-reference: com/badlogic/gdx/maps/objects/TextMapObject.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 0ca3d94492ce51a923c3e43998907caa38f049ac
  */
 package sge
 package maps

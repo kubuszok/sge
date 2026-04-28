@@ -16,6 +16,8 @@
  * Covenant-baseline-methods: TabButtonTable,TabbedPane,TabbedPaneStyle,TabbedPaneTable,Text,_activeTab,_allowTabDeselect,_mainTable,_separatorCell,_tabsPaneCell,activeTab,add,addListener,addListeners,addTab,allowTabDeselect,allowTabDeselect_,background,button,buttonStyle,buttonTable,changed,checkIfTabsBelongsToThisPane,children,closeButton,closeButtonStyle,closeTabAsUser,configureDragPane,deselect,disableTab,disabled_,draggable,enter,exit,format,found,get,getBundle,getTabTitle,getTabs,getTabsPane,getUIOrderedTabs,group,handleTabSwitch,i,idx,index,insert,isTabDisabled,iter,listeners,mouseMoved,name,no,notifyListenersRemoved,notifyListenersRemovedAll,notifyListenersSwitched,onDrag,onEnd,onStart,remove,removeAll,removeListener,removeTab,result,select,selectFirstEnabledTab,separatorBar,separatorCell,setCloseButtonOnMouseMove,setDefaultUpImage,setDraggedUpImage,setPaneCells,sharedCloseActiveButtonStyle,success,switchTab,switchToNewTab,tab,table,tabs,tabsButtonMap,tabsPane,tabsPaneCell,this,throwNotBelongingTabException,tmpRect,tmpVector,toString,touchDown,touchUp,up,updateTabTitle,vertical,yes
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/tabbedpane/TabbedPane.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

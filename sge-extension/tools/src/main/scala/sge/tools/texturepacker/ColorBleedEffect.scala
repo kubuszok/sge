@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: ColorBleedEffect,Mask,MaskIterator,alpha,argb,blank,blue,changing,changingSize,executeIteration,getPixelIndex,green,hasNext,height,isBlank,iterations,iterator,lastPending,markAsInProgress,mask,n,next,offsets,pending,pendingSize,processImage,processedImage,red,removeIndex,reset,rgb,width
  * Covenant-source-reference: com/badlogic/gdx/tools/texturepacker/ColorBleedEffect.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 6f87260f509e9a596afe089046e83f8dd7ab4ac3
  */
 package sge
 package tools

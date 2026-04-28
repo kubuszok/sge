@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: ModelTexture,USAGE_AMBIENT,USAGE_BUMP,USAGE_DIFFUSE,USAGE_EMISSIVE,USAGE_NONE,USAGE_NORMAL,USAGE_REFLECTION,USAGE_SHININESS,USAGE_SPECULAR,USAGE_TRANSPARENCY,USAGE_UNKNOWN,fileName,id,usage,uvScaling,uvTranslation
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/model/data/ModelTexture.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

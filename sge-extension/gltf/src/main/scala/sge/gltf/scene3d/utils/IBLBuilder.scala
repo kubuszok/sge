@@ -23,8 +23,19 @@
  *   Audited: 2026-04-18
  *
  * Covenant: full-port
- * Covenant-source-reference: gdx-gltf/gltf/src/net/mgsx/gltf/scene3d/utils/IBLBuilder.java
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/utils/IBLBuilder.java
+ * https://learnopengl.com/PBR/IBL/Specular-IBL
+ * https://learnopengl.com/PBR/IBL/Diffuse-irradiance
+ *   Convention: uses (using Sge) context parameter
+ *   Convention: rect() → rectangle(), dispose() → close(), getSide() → side (Nullable)
+ *   Convention: typed GL enums (EnableCap, BlendFactor, ClearMask)
+ *   Idiom: split packages
+ *   Audited: 2026-04-18
+ * Covenant: full-port
  * Covenant-verified: 2026-04-18
+ * Covenant-verified: 2026-04-18
+ *
+ * upstream-commit: 683054a88382f71e8472abbc1c29931277c1cf22
  */
 package sge
 package gltf

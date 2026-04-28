@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: InstanceBufferObjectSubData,_buffer,attributes,bind,buffer,bufferChanged,bufferHandle,byteBuffer,close,createBufferObject,getBuffer,gl,invalidate,isBound,isDirect,isDirty,numAttributes,numInstances,numMaxInstances,result,setInstanceData,this,unbind,updateInstanceData,usage
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/InstanceBufferObjectSubData.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: b6d788be694d082fd715b92c0d18530c827e209c
  */
 package sge
 package graphics

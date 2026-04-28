@@ -17,6 +17,8 @@
  * Covenant-baseline-methods: IteratingSystem,addedToEngine,endProcessing,entities,getEntities,processEntity,removedFromEngine,startProcessing,update
  * Covenant-source-reference: com/badlogic/ashley/systems/IteratingSystem.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: d63d542228cd8c62cc2f7adf20055b0ac59a547e
  */
 package sge
 package ecs

@@ -8,6 +8,8 @@
  * Covenant-baseline-methods: DEFAULT_DISTANCE,DEFAULT_FREQUENCY,RainbowEffect,distance,distanceMod,frequency,frequencyMod,lightness,onApply,progress,saturation
  * Covenant-source-reference: com/github/tommyettinger/textra/effects/RainbowEffect.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra

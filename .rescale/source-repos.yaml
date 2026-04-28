@@ -1,0 +1,32 @@
+# Maps source library names to source root paths (relative to project root).
+# Used by `re-scale fileinfo --then track-commit` to resolve git repos
+# for upstream commit tracking.
+#
+# Each value is the path to the directory where source-reference paths
+# (e.g. com/badlogic/gdx/Gdx.java) are directly resolvable. For submodules,
+# this includes the internal prefix (e.g. gdx/src/ inside libgdx).
+#
+# Resolution: CommitTracker looks up source_lib from migration.tsv in this
+# map, then runs `git log` with source-reference as the path.
+
+source-repos:
+  libgdx: original-src/libgdx/gdx/src
+  libgdx-root: original-src/libgdx
+  libgdx-tools: original-src/libgdx/extensions/gdx-tools/src
+  libgdx-freetype: original-src/libgdx/extensions/gdx-freetype/src
+  gdx-ai: original-src/gdx-ai/gdx-ai/src
+  ashley: original-src/ashley/ashley/src
+  noise4j: original-src/noise4j/src
+  jbump: original-src/jbump/jbump/src
+  gdx-controllers: original-src/gdx-controllers/gdx-controllers-core/src/main/java
+  gdx-controllers-desktop: original-src/gdx-controllers/gdx-controllers-desktop/src/main/java
+  gdx-controllers-android: original-src/gdx-controllers/gdx-controllers-android/src
+  gdx-controllers-gwt: original-src/gdx-controllers/gdx-controllers-gwt/src/main/java
+  gdx-gltf: original-src/gdx-gltf/gltf/src
+  colorful-gdx: original-src/colorful-gdx/colorful/src/main/java
+  anim8-gdx: original-src/anim8-gdx/src/main/java
+  textratypist: original-src/textratypist/src/main/java
+  vis-ui: original-src/vis-ui/ui/src/main/java
+  libgdx-screenmanager: original-src/libgdx-screenmanager/src/main/java
+  gdx-vfx: original-src/gdx-vfx/gdx-vfx/core/src
+  simple-graphs: original-src/simple-graphs/src/main/java

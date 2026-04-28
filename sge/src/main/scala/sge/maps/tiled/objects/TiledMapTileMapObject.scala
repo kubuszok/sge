@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: TiledMapTileMapObject,flipHorizontally,flipVertically,region,tile
  * Covenant-source-reference: com/badlogic/gdx/maps/tiled/objects/TiledMapTileMapObject.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 671b8b6b402c53b89192508405f059efe5adfe38
  */
 package sge
 package maps

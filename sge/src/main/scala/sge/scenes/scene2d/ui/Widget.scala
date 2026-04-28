@@ -12,6 +12,8 @@
  * Covenant-baseline-methods: Widget,_fillParent,_layoutEnabled,_needsLayout,draw,fillParent,fillParent_,invalidate,invalidateHierarchy,layout,layoutEnabled,layoutEnabled_,maxHeight,maxWidth,minHeight,minWidth,needsLayout,pack,prefHeight,prefWidth,sizeChanged,validate
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Widget.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package scenes

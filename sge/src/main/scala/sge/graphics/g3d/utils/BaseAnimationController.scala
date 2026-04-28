@@ -28,6 +28,8 @@
  * Covenant-baseline-methods: BaseAnimationController,Transform,apply,applyAnimation,applyAnimations,applyNodeAnimationBlending,applyNodeAnimationDirectly,applying,begin,end,getFirstKeyframeIndexAtTime,getNodeAnimationTransform,getRotationAtTime,getScalingAtTime,getTranslationAtTime,idt,lastIndex,lerp,node,removeAnimation,reset,rotation,scale,set,target,tmpT,toMatrix4,toString,transform,transformPool,transforms,translation
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/BaseAnimationController.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

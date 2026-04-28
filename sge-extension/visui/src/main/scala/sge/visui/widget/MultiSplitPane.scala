@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: MultiSplitPane,MultiSplitPaneStyle,_handleBounds,actors,addActor,addActorAfter,addActorAt,addActorBefore,areaUsed,availHeight,availWidth,calculateHorizBoundsAndPositions,calculateVertBoundsAndPositions,clr,contains,currentSplit,currentX,currentY,draw,getHandleContaining,getStyle,h,handle,handleBoundsContains,handleHeight,handleOver,handleOverD,handleOverIndex,handlePosition,handleWidth,hit,i,initialize,lastPoint,layout,maxSplit,minHeight,minSplit,minWidth,mouseMoved,prefHeight,prefWidth,removeActor,result,scissors,setSplit,setStyle,setWidgets,splitAdvance,splits,style,this,touchDown,touchDragged,touchUp,w,widgetBounds
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/MultiSplitPane.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

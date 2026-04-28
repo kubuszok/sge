@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: FileHistoryCallback,FileHistoryManager,_historyForward,backButton,buttonsTable,changed,dir,forwardButton,getButtonsTable,getCurrentDirectory,getDefaultClickListener,getHistoryStage,hasHistoryBack,hasHistoryForward,history,historyAdd,historyBack,historyClear,historyForward,setDirectory,setDirectoryFromHistory,touchDown,touchUp
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/file/internal/FileHistoryManager.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

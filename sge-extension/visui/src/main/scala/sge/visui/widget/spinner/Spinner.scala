@@ -11,6 +11,8 @@
  * Covenant-baseline-methods: ButtonInputListener,ButtonRepeatTask,Spinner,SpinnerStyle,TextFieldEventPolicy,_disabled,_labelCell,_programmaticChangeEvents,_textFieldCell,_textFieldEventPolicy,addButtonsListeners,addTextFieldListeners,advance,buttonRepeatInitialTime,buttonRepeatTask,buttonRepeatTime,buttonsTable,changed,createTextField,cursor,decrement,decrementInternal,disabled,disabled_,down,downButton,increment,incrementInternal,keyDown,keyboardFocusChanged,maxLength,maxLength_,model,model_,notifyValueChanged,prefWidth,programmaticChangeEvents,programmaticChangeEvents_,run,scrolled,selectorName,selectorName_,textField,textFieldEventPolicy,textFieldEventPolicy_,textFieldLocal,tf,this,touchDown,touchUp,up,upButton
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/spinner/Spinner.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
 package sge
 package visui

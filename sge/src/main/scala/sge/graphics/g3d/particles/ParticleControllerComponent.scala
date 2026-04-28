@@ -20,6 +20,8 @@
  * Covenant-baseline-methods: ParticleControllerComponent,TMP_M3,TMP_M4,TMP_Q,TMP_Q2,TMP_V1,TMP_V2,TMP_V3,TMP_V4,TMP_V5,TMP_V6,activateParticles,allocateChannels,close,controller,copy,end,init,killParticles,load,save,set,start,update
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/ParticleControllerComponent.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: f087ba76cac7ff2cc4ded91efc009f52bf0987c2
  */
 package sge
 package graphics

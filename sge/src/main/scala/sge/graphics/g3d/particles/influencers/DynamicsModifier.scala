@@ -23,6 +23,8 @@
  * Covenant-baseline-methods: Angular,BrownianAcceleration,CentripetalAcceleration,DynamicsModifier,FaceDirection,PolarAcceleration,Rotational2D,Rotational3D,Strength,TMP_Q,TMP_V1,TMP_V2,TMP_V3,TangentialAcceleration,accelerationChannel,accellerationChannel,activateParticles,allocateChannels,angularChannel,copy,directionalVelocityChannel,isGlobal,lifeChannel,phiValue,positionChannel,rotationChannel,rotationalForceChannel,rotationalVelocity2dChannel,strengthChannel,strengthValue,thetaValue,this,update
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/influencers/DynamicsModifier.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
 package sge
 package graphics

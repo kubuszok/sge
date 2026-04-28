@@ -5,13 +5,17 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Covenant: partial-port
- * Covenant-source-reference: gdx-controllers/desktop/src/com/badlogic/gdx/controllers/desktop/DesktopController.java
+ * Covenant-source-reference: com/badlogic/gdx/controllers/desktop/support/JamepadController.java
+ * Covenant: partial-port
+ * Covenant-verified: 2026-04-08
  * Covenant-verified: 2026-04-08
  *
  * Partial-port debt:
  *   - JVM polling stub: GLFW joystick functions are not exposed through the sge-core Panama
  *     downcall layer yet. The Scala Native variant uses @extern bindings directly and is
  *     functional. JVM polling returns disconnected state until the Panama downcalls land.
+ *
+ * upstream-commit: 124b68125c7ef9c552085865379f77e8bee2ae3b
  */
 package sge
 package controllers

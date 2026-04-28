@@ -18,6 +18,8 @@
  * Covenant-baseline-methods: Select,fastMax,fastMin,highestIdx,idx,lowestIdx,quickSelect,select,selectIndex
  * Covenant-source-reference: com/badlogic/gdx/utils/Select.java
  * Covenant-verified: 2026-04-19
+ *
+ * upstream-commit: b97b34a82af276a09bec2885854dc391ec65023d
  */
 package sge
 package utils
