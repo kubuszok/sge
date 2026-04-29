@@ -6,14 +6,12 @@ sge-extension/ai/src/main/scala/sge/ai/btree/decorator/Include.scala	shortcuts	g
 sge-extension/ai/src/main/scala/sge/ai/btree/TaskCloneException.scala	shortcuts	Java interop: this(null,null) ctor for RuntimeException compatibility	2026-04-08	dev
 sge-extension/ai/src/main/scala/sge/ai/btree/utils/DistributionAdapters.scala	shortcuts	Java interop: this(null,null) ctor for RuntimeException compatibility	2026-04-08	dev
 sge-extension/ai/src/main/scala/sge/ai/pfa/PathFinder.scala	shortcuts	Documentation comment about throwing in subclasses, no actual throw	2026-04-08	dev
-sge-extension/gltf/src/main/scala/sge/gltf/data/GLTFCodecs.scala	shortcuts	jsoniter codec Java interop boundary: every nullValue override is a null.asInstanceOf at the Java codec contract	2026-04-08	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/animation/AnimationControllerHack.scala	shortcuts	Java interop with libgdx 3D animation API: getOrElse(null).asInstanceOf for Interpolation/WeightVector	2026-04-08	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/scene/MirrorSource.scala	shortcuts	Lifecycle clear-to-null on dispose, all @nowarn-d Java interop boundaries	2026-04-08	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/shaders/PBRShaderProvider.scala	shortcuts	Lazy-init null pattern for shader source caches, all @nowarn	2026-04-08	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/shaders/PBRDepthShaderProvider.scala	shortcuts	Lazy-init null pattern for shader source caches, all @nowarn	2026-04-08	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/lights/DirectionalShadowLight.scala	shortcuts	FrameBuffer lifecycle pattern, @nowarn Java interop	2026-04-08	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/scene/CascadeShadowMap.scala	shortcuts	var initialization with null.asInstanceOf, assigned in loop body	2026-04-08	dev
-sge-extension/gltf/src/main/scala/sge/gltf/scene3d/model/NodePartPlus.scala	shortcuts	userData getOrElse(null) Java interop boundary	2026-04-08	dev
 sge-extension/freetype/src/main/scalajs/sge/platform/FreetypePlatform.scala	shortcuts	Scala.js platform stub: FreeType requires native FFI, JS users pre-generate fonts	2026-04-08	dev
 sge-extension/freetype/src/main/scalajs/sge/platform/FreetypeOpsJs.scala	shortcuts	Scala.js stub implementation of FreetypeOps - throws by design on JS	2026-04-08	dev
 sge-extension/freetype/src/main/scala/sge/platform/FreetypeOps.scala	shortcuts	Trait/interface comment mentioning JS stub variant	2026-04-08	dev
@@ -25,7 +23,6 @@ sge-extension/visui/src/main/scala/sge/visui/widget/VisSplitPane.scala	shortcuts
 sge-extension/visui/src/main/scala/sge/visui/widget/file/FileUtils.scala	shortcuts	Catches UnsupportedOperationException from Desktop platform API for unsupported OSs	2026-04-08	dev
 sge-extension/visui/src/main/scala/sge/visui/util/adapter/AbstractListAdapter.scala	shortcuts	Abstract methods throw if not overridden by subclass with non-DISABLED selection mode	2026-04-08	dev
 sge-extension/visui/src/main/scala/sge/visui/building/utilities/CellWidget.scala	shortcuts	of(null) builder helper, @nowarn Java interop	2026-04-08	dev
-sge-extension/anim8/src/main/scala/sge/anim8/OtherMath.scala	shortcuts	Math approximation library: 'approximation' describes the algorithm being implemented (cube root, atan2, probit), not a TODO	2026-04-08	dev
 sge-extension/anim8/src/main/scala/sge/anim8/AnimatedPNG.scala	shortcuts	Doc comment 'minimal allocation' is a feature description, not a TODO	2026-04-08	dev
 sge-extension/anim8/src/main/scala/sge/anim8/FastGif.scala	shortcuts	Doc comment 'fastAnalysis enabled' is a feature description	2026-04-08	dev
 sge-extension/screens/src/main/scala/sge/screen/transition/ScreenTransition.scala	shortcuts	Doc comment about screen lifecycle ('not yet hidden' is a state, not a TODO)	2026-04-08	dev
@@ -35,8 +32,6 @@ sge-extension/screens/src/test/scala/sge/screen/ScreenManagerSuite.scala	shortcu
 sge-extension/ai/src/test/scala/sge/ai/msg/MessageDispatcherSuite.scala	shortcuts	Test asserts message has 'Not yet delivered' state	2026-04-08	dev
 sge-extension/ai/src/main/scala/sge/ai/msg/MessageDispatcher.scala	shortcuts	'pending message' is the queue concept being implemented, not a TODO	2026-04-08	dev
 sge-extension/graphs/src/main/scala/sge/graphs/	shortcuts	Apache Commons Graph port: linked-list/hash-bucket/algorithm-state null pointers, all @nowarn-d	2026-04-08	dev
-sge-extension/colorful/src/main/scala/sge/colorful/TrigTools.scala	shortcuts	Math approximation library: 'approximation' describes the algorithm being implemented	2026-04-08	dev
-sge-extension/colorful/src/main/scala/sge/colorful/oklab/ColorTools.scala	shortcuts	Math approximation library: cube-root approximation algorithm	2026-04-08	dev
 sge-extension/ecs/src/main/scala/sge/ecs/EntityManager.scala	shortcuts	ECS deferred-operation queue: 'deferred' is the queue concept being implemented, not a TODO	2026-04-08	dev
 sge-extension/ecs/src/main/scala/sge/ecs/ComponentOperationHandler.scala	shortcuts	ECS deferred-operation queue: 'deferred' is the queue concept being implemented, not a TODO	2026-04-08	dev
 sge-extension/ecs/src/main/scala/sge/ecs/FamilyManager.scala	shortcuts	ECS deferred listener registration via bitmask tracking — 'deferred' describes the design	2026-04-08	dev
@@ -74,7 +69,6 @@ sge/src/main/scala/sge/math/Quaternion.scala	shortcuts	TODO comment from origina
 sge/src/main/scala/sge/math/MathUtils.scala	shortcuts	approximation-comment hits are original Javadoc comments describing math approximations	2026-04-19	dev
 sge/src/main/scala/sge/math/Ellipse.scala	shortcuts	approximation-comment hits are original Javadoc comments describing Ramanujan circumference approximation	2026-04-19	dev
 sge-extension/ai/src/main/scala/sge/ai/btree/TaskCloneException.scala	shortcuts	null required for Java interop (RuntimeException constructor)	2026-04-19	dev
-sge/src/main/scala/sge/utils/ComparableTimSort.scala	shortcuts	pending-comment: 'pending runs' is algorithmic terminology in TimSort, not a TODO marker; flag-break-var: done/breakOuter/gallopContinue flags control complex nested merge loops with multiple exit points — boundary/break already used at outer level	2026-04-19	dev
 sge/src/main/scala/sge/graphics/PixmapIO.scala	shortcuts	False positive: 'minimal' appears in legitimate Scaladoc describing PNG allocation behavior (original LibGDX comments)	2026-04-19	dev
 sge/src/main/scala/sge/graphics/glutils/ShaderProgram.scala	shortcuts	not-yet-comment at lines 210,225 are cache sentinel value documentation (// -2 == not yet cached), not TODO markers	2026-04-19	dev
 sge-extension/ai/src/main/scala/sge/ai/btree/TaskCloneException.scala	verify	null required for Java interop (RuntimeException constructor)	2026-04-19	dev
@@ -104,14 +98,12 @@ sge/src/main/scala/sge/scenes/scene2d/actions/RepeatAction.scala	shortcuts	var f
 sge/src/main/scala/sge/graphics/g3d/shaders/DepthShader.scala	shortcuts	TODO comment preserved from original LibGDX source (DepthShader.java)	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/utils/MeshPartBuilder.scala	shortcuts	TODO comment preserved from original LibGDX source (MeshPartBuilder.java)	2026-04-19	dev
 sge-extension/textra/src/main/scala/sge/textra/TextraLabel.scala	shortcuts	Catch clause for UnsupportedOperationException from external drawable.draw() - not a stub	2026-04-19	dev
-sge/src/main/scala/sge/graphics/g3d/shaders/BaseShader.scala	shortcuts	null-cast at Java interop boundary for dummy init call (@nowarn)	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/decals/SimpleOrthoGroupStrategy.scala	shortcuts	FIXME comment preserved from original LibGDX source (SimpleOrthoGroupStrategy.java)	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/Shader.scala	shortcuts	TODO comment preserved from original LibGDX source (Shader.java)	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/utils/TextureDescriptor.scala	shortcuts	TODO comment preserved from original LibGDX source (TextureDescriptor.java)	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/model/NodePart.scala	shortcuts	FIXME comment preserved from original LibGDX source (NodePart.java)	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/ModelInstance.scala	shortcuts	FIXME comment preserved from original LibGDX source (ModelInstance.java)	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/utils/DefaultRenderableSorter.scala	shortcuts	FIXME comment preserved from original LibGDX source (DefaultRenderableSorter.java)	2026-04-19	dev
-sge/src/main/scala/sge/graphics/g2d/GlyphLayout.scala	shortcuts	flag-break-var at line 95: var continue controls inner while-loop for run delimiter scanning; boundary/break used at outer level	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/utils/shapebuilders/SphereShapeBuilder.scala	shortcuts	FIXME comment preserved from original LibGDX source (SphereShapeBuilder.java)	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/utils/CameraInputController.scala	shortcuts	FIXME comment preserved from original LibGDX source (CameraInputController.java)	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g2d/Batch.scala	shortcuts	pending-comment at line 235: 'pending sprites' describes batch flush semantics from original Batch.java Javadoc	2026-04-19	dev
@@ -122,7 +114,6 @@ sge/src/main/scala/sge/graphics/g3d/particles/ParallelArray.scala	shortcuts	FIXM
 sge/src/main/scala/sge/graphics/g3d/model/NodeAnimation.scala	shortcuts	for-now comment preserved from original LibGDX source (NodeAnimation.java)	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/decals/Decal.scala	shortcuts	TODO comment preserved from original LibGDX source (Decal.java)	2026-04-19	dev
 sge-extension/ecs/src/main/scala/sge/ecs/Engine.scala	shortcuts	UnsupportedOperationException in createComponent is intentional: original uses ReflectionPool which is not available; callers should use new directly or PooledEngine	2026-04-19	dev
-sge/src/main/scala/sge/utils/DynamicArray.scala	shortcuts	null-cast: null.asInstanceOf[A] sentinel for exhausted snapshot iterator, @nowarn-annotated Java interop boundary matching original Array.java ArrayIterable pattern	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/particles/ParticleEffectCodecs.scala	shortcuts	SGE-original: UnsupportedOperationException for unknown type dispatch in JSON codecs + for-now comment	2026-04-19	dev
 sge-extension/textra/src/main/scala/sge/textra/TypingLabel.scala	shortcuts	Catch clause for UnsupportedOperationException from external drawable.draw() - not a stub	2026-04-19	dev
 sge-extension/ecs/src/main/scala/sge/ecs/Engine.scala	verify	UnsupportedOperationException in createComponent is intentional: original uses ReflectionPool; callers should use new or PooledEngine	2026-04-19	dev
@@ -145,7 +136,6 @@ sge/src/main/scala/sge/maps/tiled/TideMapLoader.scala	verify	todo@297: original 
 sge/src/main/scala/sge/scenes/scene2d/utils/Selection.scala	shortcuts	Line 244 'best effort' is original LibGDX Javadoc describing lastSelected behavior, not a TODO	2026-04-19	dev
 sge-extension/textra/src/main/scala/sge/textra/utils/ColorUtils.scala	shortcuts	False positive: 'placeholder' appears in Scaladoc describing a sentinel int value 256, not stub code	2026-04-19	dev
 sge/src/main/scala/sge/input/NativeInputConfiguration.scala	shortcuts	Doc comment '@param placeholder' describes the placeholder parameter, original LibGDX Javadoc	2026-04-19	dev
-sge/src/main/scala/sge/utils/ComparableTimSort.scala	verify	pending-comment: 'pending runs' is algorithmic terminology in TimSort, not a TODO marker; flag-break-var: done/breakOuter/gallopContinue flags control complex nested merge loops with multiple exit points — boundary/break already used at outer level	2026-04-19	dev
 sge/src/main/scala/sge/scenes/scene2d/ui/Value.scala	shortcuts	Line 22 'Value placeholder' is the original LibGDX Javadoc class description, not a TODO	2026-04-19	dev
 sge/src/main/scala/sge/scenes/scene2d/ui/Container.scala	shortcuts	Lines 228,237,246 UnsupportedOperationException is original LibGDX design: Container only supports single child via setActor	2026-04-19	dev
 sge/src/main/scala/sge/input/NativeInputConfiguration.scala	verify	Doc comment '@param placeholder' describes the placeholder parameter, original LibGDX Javadoc	2026-04-19	dev
@@ -174,7 +164,6 @@ sge-extension/colorful/src/main/scala/sge/colorful/oklab/ColorTools.scala	shortc
 sge/src/main/scala/sge/utils/TimSort.scala	verify	pending-comment: 'pending runs' is algorithmic terminology in TimSort; null-cast: clearing references after sort for GC, matching original Java source	2026-04-19	dev
 sge/src/main/scala/sge/utils/I18nBundle.scala	verify	scala-unimpl: '???' appears as string literal in missing-key fallback ('???key???'), matching LibGDX original; placeholder-comment: Scaladoc describing the debug(placeholder) method parameter	2026-04-19	dev
 sge/src/main/scala/sge/utils/Select.scala	verify	minimal-comment: 'very minimal extra memory' is original LibGDX Scaladoc describing algorithm memory characteristics	2026-04-19	dev
-sge/src/main/scala/sge/utils/DynamicArray.scala	verify	null-cast: null.asInstanceOf[A] sentinel for exhausted snapshot iterator, @nowarn-annotated Java interop boundary	2026-04-19	dev
 sge/src/main/scala/sge/utils/TextFormatter.scala	verify	placeholder-comment and simplified-comment: Scaladoc describing {0}/{1} placeholder syntax and 'simplified form' format mode, matching original TextFormatter.java Javadoc	2026-04-19	dev
 sge/src/main/scala/sge/utils/Nullable.scala	verify	null-cast: Nullable.orNull is the intended Java interop escape hatch, already @deprecated with interop-only guidance	2026-04-19	dev
 sge/src/main/scala/sge/platform/Gdx2dOps.scala	verify	stub-comment@5,6: header describes platform implementation status (JS/Native stubs), not that this trait is a stub	2026-04-19	dev
@@ -189,18 +178,13 @@ sge-extension/anim8/src/main/scala/sge/anim8/PNG8.scala	shortcuts	False positive
 sge/src/main/scala/sge/scenes/scene2d/utils/TiledDrawable.scala	verify	Line 76 UnsupportedOperationException is original LibGDX design: TiledDrawable.draw with transform params is not supported	2026-04-19	dev
 sge-extension/freetype/src/main/scala/sge/platform/FreetypeOps.scala	shortcuts	stub-comment in platform ops trait header	2026-04-19	dev
 sge-extension/gltf/src/main/scala/sge/gltf/exporters/GLTFExporterJson.scala	shortcuts	minimal-comment in JSON serialization code	2026-04-19	dev
-sge-extension/gltf/src/main/scala/sge/gltf/exporters/GLTFExporter.scala	shortcuts	null-cast at Java interop boundary for texture export	2026-04-19	dev
 sge-extension/gltf/src/main/scala/sge/gltf/exporters/GLTFMeshExporter.scala	shortcuts	todo for optional morph target export	2026-04-19	dev
 sge-extension/gltf/src/main/scala/sge/gltf/exporters/GLTFCameraExporter.scala	shortcuts	todo comments from upstream gdx-gltf source	2026-04-19	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/animation/AnimationControllerHack.scala	shortcuts	get-or-else-null at Java interop boundaries for animation data	2026-04-19	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/utils/MaterialConverter.scala	shortcuts	approximation-comment from upstream gdx-gltf source	2026-04-19	dev
-sge-extension/gltf/src/main/scala/sge/gltf/scene3d/model/NodePartPlus.scala	shortcuts	get-or-else-null at Java interop boundary	2026-04-19	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/shaders/PBRShaderProvider.scala	shortcuts	get-or-else-null at Java interop boundaries for shader attribute lookups	2026-04-19	dev
-sge-extension/gltf/src/main/scala/sge/gltf/scene3d/shaders/PBRDepthShaderProvider.scala	shortcuts	null-cast at Java interop boundary for shader config	2026-04-19	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/scene/SceneManager.scala	shortcuts	null-cast at Java interop boundaries for render pipeline	2026-04-19	dev
-sge-extension/gltf/src/main/scala/sge/gltf/scene3d/scene/CascadeShadowMap.scala	shortcuts	null-cast at Java interop boundary	2026-04-19	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/scene/MirrorSource.scala	shortcuts	null-cast at Java interop boundaries for framebuffer rendering	2026-04-19	dev
-sge-extension/gltf/src/main/scala/sge/gltf/scene3d/lights/DirectionalShadowLight.scala	shortcuts	null-cast at Java interop boundary for shadow map	2026-04-19	dev
 sge-extension/gltf/src/main/scala/sge/gltf/data/extensions/KHRLightsPunctual.scala	shortcuts	todo from upstream gdx-gltf source	2026-04-19	dev
 sge-extension/gltf/src/main/scala/sge/gltf/data/GLTFCodecs.scala	shortcuts	null-cast in jsoniter-scala codec implementations for mutable GLTF data model	2026-04-19	dev
 sge-extension/gltf/src/main/scala/sge/gltf/loaders/shared/GLTFLoaderBase.scala	shortcuts	xxx marker from upstream gdx-gltf source	2026-04-19	dev
@@ -223,4 +207,127 @@ sge-extension/screens/src/main/scala/sge/screen/transition/ScreenTransition.scal
 sge-extension/screens/src/main/scala/sge/screen/ScreenManager.scala	shortcuts	not-yet-comment for planned screen management feature	2026-04-19	dev
 sge-extension/screens/src/main/scala/sge/screen/ManagedScreen.scala	shortcuts	not-yet-comment for planned managed screen feature	2026-04-19	dev
 sge-extension/tools/src/main/scala/sge/tools/texturepacker/MaxRectsPacker.scala	shortcuts	minimal-comment in packing algorithm	2026-04-19	dev
+sge-extension/gltf/src/main/scala/sge/gltf/data/GLTFCodecs.scala	shortcuts	jsoniter codec Java interop boundary: every nullValue override is a null.asInstanceOf at the Java codec contract	2026-04-08	dev
+sge-extension/gltf/src/main/scala/sge/gltf/scene3d/model/NodePartPlus.scala	shortcuts	userData getOrElse(null) Java interop boundary	2026-04-08	dev
+sge-extension/anim8/src/main/scala/sge/anim8/OtherMath.scala	shortcuts	Math approximation library: 'approximation' describes the algorithm being implemented (cube root, atan2, probit), not a TODO	2026-04-08	dev
+sge-extension/colorful/src/main/scala/sge/colorful/TrigTools.scala	shortcuts	Math approximation library: 'approximation' describes the algorithm being implemented	2026-04-08	dev
+sge-extension/colorful/src/main/scala/sge/colorful/oklab/ColorTools.scala	shortcuts	Math approximation library: cube-root approximation algorithm	2026-04-08	dev
+sge/src/main/scala/sge/utils/ComparableTimSort.scala	shortcuts	pending-comment: 'pending runs' is algorithmic terminology in TimSort, not a TODO marker; flag-break-var: done/breakOuter/gallopContinue flags control complex nested merge loops with multiple exit points — boundary/break already used at outer level	2026-04-19	dev
+sge/src/main/scala/sge/graphics/g3d/shaders/BaseShader.scala	shortcuts	null-cast at Java interop boundary for dummy init call (@nowarn)	2026-04-19	dev
+sge/src/main/scala/sge/graphics/g2d/GlyphLayout.scala	shortcuts	flag-break-var at line 95: var continue controls inner while-loop for run delimiter scanning; boundary/break used at outer level	2026-04-19	dev
+sge/src/main/scala/sge/utils/DynamicArray.scala	shortcuts	null-cast: null.asInstanceOf[A] sentinel for exhausted snapshot iterator, @nowarn-annotated Java interop boundary matching original Array.java ArrayIterable pattern	2026-04-19	dev
+sge/src/main/scala/sge/utils/ComparableTimSort.scala	verify	pending-comment: 'pending runs' is algorithmic terminology in TimSort, not a TODO marker; flag-break-var: done/breakOuter/gallopContinue flags control complex nested merge loops with multiple exit points — boundary/break already used at outer level	2026-04-19	dev
+sge/src/main/scala/sge/utils/DynamicArray.scala	verify	null-cast: null.asInstanceOf[A] sentinel for exhausted snapshot iterator, @nowarn-annotated Java interop boundary	2026-04-19	dev
+sge-extension/gltf/src/main/scala/sge/gltf/exporters/GLTFExporter.scala	shortcuts	null-cast at Java interop boundary for texture export	2026-04-19	dev
+sge-extension/gltf/src/main/scala/sge/gltf/scene3d/model/NodePartPlus.scala	shortcuts	get-or-else-null at Java interop boundary	2026-04-19	dev
+sge-extension/gltf/src/main/scala/sge/gltf/scene3d/shaders/PBRDepthShaderProvider.scala	shortcuts	null-cast at Java interop boundary for shader config	2026-04-19	dev
+sge-extension/gltf/src/main/scala/sge/gltf/scene3d/scene/CascadeShadowMap.scala	shortcuts	null-cast at Java interop boundary	2026-04-19	dev
+sge-extension/gltf/src/main/scala/sge/gltf/scene3d/lights/DirectionalShadowLight.scala	shortcuts	null-cast at Java interop boundary for shadow map	2026-04-19	dev
 sge-extension/tools/src/main/scala/sge/tools/texturepacker/TexturePacker.scala	shortcuts	this-null-arg at Java interop boundary for Settings init	2026-04-19	dev
+sge/src/main/scala/sge/scenes/scene2d/ui/SplitPane.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge/src/main/scala/sge/scenes/scene2d/ui/Container.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge/src/main/scala/sge/scenes/scene2d/ui/ScrollPane.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge/src/main/scala/sge/scenes/scene2d/utils/TiledDrawable.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge/src/main/scala/sge/noop/NoopGraphics.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge/src/main/scala/sge/net/SgeHttpClient.scala	shortcuts	pending-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge/src/main/scala/sge/input/NativeInputConfiguration.scala	shortcuts	placeholder-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge/src/main/scala/sge/platform/WindowingOps.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge/src/main/scala/sge/utils/DynamicArray.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge/src/main/scala/sge/utils/TimSort.scala	shortcuts	pending-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge/src/main/scala/sge/utils/TextFormatter.scala	shortcuts	placeholder-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge/src/main/scala/sge/utils/Select.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge/src/main/scala/sge/utils/ComparableTimSort.scala	shortcuts	pending-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge/src/main/scala/sge/utils/Nullable.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge/src/main/scala/sge/math/Ellipse.scala	shortcuts	approximation-comment: Math approximation from original Java source	2026-04-29	dev
+sge/src/main/scala/sge/math/MathUtils.scala	shortcuts	approximation-comment: Math approximation from original Java source	2026-04-29	dev
+sge/src/main/scala/sge/files/FileHandles.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge/src/main/scala/sge/Net.scala	shortcuts	best-effort-comment: Intentional best-effort design	2026-04-29	dev
+sge/src/main/scala/sge/Graphics.scala	shortcuts	best-effort-comment: Intentional best-effort design	2026-04-29	dev
+sge/src/main/scala/sge/graphics/PixmapIO.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge/src/main/scala/sge/graphics/g2d/TextureAtlas.scala	shortcuts	not-yet-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge/src/main/scala/sge/graphics/g2d/Batch.scala	shortcuts	pending-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge/src/main/scala/sge/graphics/g3d/ModelCache.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge/src/main/scala/sge/graphics/g3d/particles/ParticleEffectCodecs.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge/src/main/scala/sge/graphics/g3d/shaders/BaseShader.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/ai/src/main/scala/sge/ai/msg/MessageDispatcher.scala	shortcuts	flag-break-var: Scala 3 boundary/break replacement pattern	2026-04-29	dev
+sge-extension/ai/src/main/scala/sge/ai/pfa/HierarchicalPathFinder.scala	shortcuts	flag-break-var: Scala 3 boundary/break replacement pattern	2026-04-29	dev
+sge-extension/ai/src/main/scala/sge/ai/pfa/indexed/IndexedAStarPathFinder.scala	shortcuts	flag-break-var: Scala 3 boundary/break replacement pattern	2026-04-29	dev
+sge-extension/ai/src/main/scala/sge/ai/pfa/PathFinder.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge-extension/ai/src/main/scala/sge/ai/btree/decorator/Include.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge-extension/ai/src/main/scala/sge/ai/btree/utils/BehaviorTreeReader.scala	shortcuts	flag-break-var: Scala 3 boundary/break replacement pattern	2026-04-29	dev
+sge-extension/ai/src/main/scala/sge/ai/btree/utils/DistributionAdapters.scala	shortcuts	this-null-arg: Java interop null constructor argument	2026-04-29	dev
+sge-extension/ai/src/main/scala/sge/ai/btree/TaskCloneException.scala	shortcuts	this-null-arg: Java interop null constructor argument	2026-04-29	dev
+sge-extension/ai/src/main/scala/sge/ai/steer/limiters/LinearSpeedLimiter.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge-extension/ai/src/main/scala/sge/ai/steer/limiters/AngularSpeedLimiter.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge-extension/ai/src/main/scala/sge/ai/steer/limiters/AngularAccelerationLimiter.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge-extension/ai/src/main/scala/sge/ai/steer/limiters/NullLimiter.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge-extension/ai/src/main/scala/sge/ai/steer/limiters/LinearAccelerationLimiter.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge-extension/ai/src/main/scala/sge/ai/steer/limiters/LinearLimiter.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge-extension/ai/src/main/scala/sge/ai/steer/limiters/AngularLimiter.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge-extension/ai/src/main/scala/sge/ai/steer/SteerableAdapter.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge-extension/anim8/src/main/scala/sge/anim8/LZWEncoder.scala	shortcuts	flag-break-var: Scala 3 boundary/break replacement pattern	2026-04-29	dev
+sge-extension/anim8/src/main/scala/sge/anim8/AnimatedPNG.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/anim8/src/main/scala/sge/anim8/PNG8.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/anim8/src/main/scala/sge/anim8/FastGif.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/anim8/src/main/scala/sge/anim8/AnimatedGif.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/anim8/src/main/scala/sge/anim8/OtherMath.scala	shortcuts	approximation-comment: Math approximation from original Java source	2026-04-29	dev
+sge-extension/colorful/src/main/scala/sge/colorful/cielab/ColorTools.scala	shortcuts	approximation-comment: Math approximation from original Java source	2026-04-29	dev
+sge-extension/colorful/src/main/scala/sge/colorful/cielab/ColorfulBatch.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/colorful/src/main/scala/sge/colorful/ipt/ColorfulBatch.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/colorful/src/main/scala/sge/colorful/ycwcm/ColorfulBatch.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/colorful/src/main/scala/sge/colorful/TrigTools.scala	shortcuts	approximation-comment: Math approximation from original Java source	2026-04-29	dev
+sge-extension/colorful/src/main/scala/sge/colorful/oklab/TextureArrayColorfulBatch.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/colorful/src/main/scala/sge/colorful/oklab/ColorTools.scala	shortcuts	approximation-comment: Math approximation from original Java source	2026-04-29	dev
+sge-extension/colorful/src/main/scala/sge/colorful/oklab/ColorfulBatch.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/colorful/src/main/scala/sge/colorful/rgb/TextureArrayColorfulBatch.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/colorful/src/main/scala/sge/colorful/rgb/ColorfulBatch.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/colorful/src/main/scala/sge/colorful/ipt_hq/ColorfulBatch.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/colorful/src/main/scala/sge/colorful/hsluv/ColorTools.scala	shortcuts	approximation-comment: Math approximation from original Java source	2026-04-29	dev
+sge-extension/colorful/src/main/scala/sge/colorful/hsluv/ColorfulBatch.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/ecs/src/main/scala/sge/ecs/Engine.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge-extension/gltf/src/main/scala/sge/gltf/exporters/GLTFExporterJson.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/gltf/src/main/scala/sge/gltf/exporters/GLTFExporter.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/gltf/src/main/scala/sge/gltf/scene3d/animation/AnimationControllerHack.scala	shortcuts	get-or-else-null: Null boundary utility for Java interop	2026-04-29	dev
+sge-extension/gltf/src/main/scala/sge/gltf/scene3d/utils/MaterialConverter.scala	shortcuts	approximation-comment: Math approximation from original Java source	2026-04-29	dev
+sge-extension/gltf/src/main/scala/sge/gltf/scene3d/model/NodePartPlus.scala	shortcuts	get-or-else-null: Null boundary utility for Java interop	2026-04-29	dev
+sge-extension/gltf/src/main/scala/sge/gltf/scene3d/shaders/PBRShaderProvider.scala	shortcuts	get-or-else-null: Null boundary utility for Java interop	2026-04-29	dev
+sge-extension/gltf/src/main/scala/sge/gltf/scene3d/shaders/PBRDepthShaderProvider.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/gltf/src/main/scala/sge/gltf/scene3d/scene/SceneManager.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/gltf/src/main/scala/sge/gltf/scene3d/scene/CascadeShadowMap.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/gltf/src/main/scala/sge/gltf/scene3d/scene/MirrorSource.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/gltf/src/main/scala/sge/gltf/scene3d/lights/DirectionalShadowLight.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/gltf/src/main/scala/sge/gltf/data/GLTFCodecs.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/graphs/src/main/scala/sge/graphs/Connection.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/graphs/src/main/scala/sge/graphs/algorithms/DepthFirstSearch.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/graphs/src/main/scala/sge/graphs/algorithms/CycleDetector.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/graphs/src/main/scala/sge/graphs/algorithms/Algorithms.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/graphs/src/main/scala/sge/graphs/algorithms/AStarSearch.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/graphs/src/main/scala/sge/graphs/algorithms/SearchStep.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/graphs/src/main/scala/sge/graphs/internal/NodeMap.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/graphs/src/main/scala/sge/graphs/internal/BinaryHeap.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/graphs/src/main/scala/sge/graphs/Graph.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/graphs/src/main/scala/sge/graphs/Path.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge-extension/graphs/src/main/scala/sge/graphs/UndirectedGraph.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/graphs/src/main/scala/sge/graphs/DirectedGraph.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/graphs/src/main/scala/sge/graphs/Node.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/jbump/src/main/scala/sge/jbump/util/Nullable.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/jbump/src/main/scala/sge/jbump/World.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/screens/src/main/scala/sge/screen/transition/ScreenTransition.scala	shortcuts	not-yet-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/screens/src/main/scala/sge/screen/ScreenManager.scala	shortcuts	not-yet-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/screens/src/main/scala/sge/screen/ManagedScreen.scala	shortcuts	not-yet-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/textra/src/main/scala/sge/textra/BitmapFontSupport.scala	shortcuts	not-yet-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/textra/src/main/scala/sge/textra/utils/LZBCompression.scala	shortcuts	flag-break-var: Scala 3 boundary/break replacement pattern	2026-04-29	dev
+sge-extension/textra/src/main/scala/sge/textra/utils/ColorUtils.scala	shortcuts	placeholder-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/textra/src/main/scala/sge/textra/TextraLabel.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge-extension/textra/src/main/scala/sge/textra/TypingLabel.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge-extension/textra/src/main/scala/sge/textra/LzmaUtils.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/textra/src/main/scala/sge/textra/Font.scala	shortcuts	get-or-else-null: Null boundary utility for Java interop	2026-04-29	dev
+sge-extension/tools/src/main/scala/sge/tools/texturepacker/MaxRectsPacker.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
+sge-extension/tools/src/main/scala/sge/tools/texturepacker/TexturePacker.scala	shortcuts	this-null-arg: Java interop null constructor argument	2026-04-29	dev
+sge-extension/visui/src/main/scala/sge/visui/widget/file/FileUtils.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge-extension/visui/src/main/scala/sge/visui/widget/VisSplitPane.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge-extension/visui/src/main/scala/sge/visui/widget/MultiSplitPane.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge-extension/visui/src/main/scala/sge/visui/util/adapter/AbstractListAdapter.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
+sge-extension/visui/src/main/scala/sge/visui/building/utilities/CellWidget.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
+sge-extension/ai/src/main/scala/sge/ai/fma/Formation.scala	shortcuts	TODO from original gdx-ai source, not an SGE gap	2026-04-29	dev
+sge-extension/ai/src/main/scala/sge/ai/fma/SoftRoleSlotAssignmentStrategy.scala	shortcuts	TODO from original gdx-ai source, not an SGE gap	2026-04-29	dev
