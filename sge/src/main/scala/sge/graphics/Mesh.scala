@@ -15,8 +15,8 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 1345
- * Covenant-baseline-methods: Mesh,VertexDataType,actualCount,addManagedMesh,attributes,attrs,autoBind,bbox,bind,builder,calculateBoundingBox,calculateRadius,calculateRadiusSquared,checks,clearAllMeshes,close,copy,createIndexData,createVertexData,disableInstancedRendering,enableInstancedRendering,end,extendBoundingBox,getIndices,getIndicesBuffer,getVertexAttribute,getVertices,getVerticesBuffer,idx,index,indexData,indices,indicesBuffer,instancedAttributes,instances,invalidateAllMeshes,isInstanced,isInstancedFlag,len,makeVertexBuffer,managedResources,managedStatus,max,maxIndices,maxVertices,meshes,newVertexSize,numComponents,numInd,numIndices,numIndicesVal,numVertices,numVerticesVal,numVerts,offset,pos,posAttr,posAttrib,posOffset,posoff,render,result,scale,setAutoBind,setIndices,setInstanceData,setVertices,stride,this,tmp,tmpV,transform,transformUV,unbind,updateInstanceData,updateVertices,vertexAttributes,vertexSize,verticesBuffer,verts,vtxSize
+ * Covenant-baseline-loc: 1336
+ * Covenant-baseline-methods: Mesh,VertexDataType,actualCount,addManagedMesh,attributes,attrs,autoBind,bbox,bind,builder,calculateBoundingBox,calculateRadius,calculateRadiusSquared,checks,clearAllMeshes,close,copy,createIndexData,createVertexData,disableInstancedRendering,enableInstancedRendering,end,extendBoundingBox,getIndices,getIndicesBuffer,getVertexAttribute,getVertices,getVerticesBuffer,idx,index,indexData,indices,instancedAttributes,instances,invalidateAllMeshes,isInstanced,isInstancedFlag,len,makeVertexBuffer,managedResources,managedStatus,max,maxIndices,maxVertices,meshes,newVertexSize,numComponents,numInd,numIndices,numIndicesVal,numVertices,numVerticesVal,numVerts,offset,pos,posAttr,posAttrib,posOffset,posoff,render,result,scale,setAutoBind,setIndices,setInstanceData,setVertices,stride,this,tmp,tmpV,transform,transformUV,unbind,updateInstanceData,updateVertices,vertexAttributes,vertexSize,verts,vtxSize
  * Covenant-source-reference: com/badlogic/gdx/graphics/Mesh.java
  * Covenant-verified: 2026-04-19
  *
@@ -719,15 +719,6 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
   def instancedAttributes: Nullable[VertexAttributes] =
     instances.map(_.attributes)
 
-  /** @return
-    *   the backing FloatBuffer holding the vertices. Does not have to be a direct buffer on Android!
-    * @deprecated
-    *   use {@link #getVerticesBuffer(boolean)} instead
-    */
-  @deprecated("use getVerticesBuffer(Boolean) instead", "")
-  def verticesBuffer: FloatBuffer =
-    vertices.getBuffer(true)
-
   def getVerticesBuffer(forWriting: Boolean): FloatBuffer =
     vertices.getBuffer(forWriting)
 
@@ -777,15 +768,6 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
         }
     }
   }
-
-  /** @return
-    *   the backing shortbuffer holding the indices. Does not have to be a direct buffer on Android!
-    * @deprecated
-    *   use {@link #getIndicesBuffer(boolean)} instead
-    */
-  @deprecated("use getIndicesBuffer(Boolean) instead", "")
-  def indicesBuffer: ShortBuffer =
-    indices.getBuffer(true)
 
   def getIndicesBuffer(forWriting: Boolean): ShortBuffer =
     indices.getBuffer(forWriting)

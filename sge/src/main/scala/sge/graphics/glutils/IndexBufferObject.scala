@@ -14,8 +14,8 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 195
- * Covenant-baseline-methods: IndexBufferObject,_buffer,actualMaxIndices,bind,buffer,bufferHandle,byteBuffer,close,empty,getBuffer,invalidate,isBound,isDirect,isDirty,numIndices,numMaxIndices,ownsBuffer,pos,setIndices,this,unbind,updateIndices,usage
+ * Covenant-baseline-loc: 197
+ * Covenant-baseline-methods: IndexBufferObject,_buffer,actualMaxIndices,bind,bufferHandle,byteBuffer,close,empty,getBuffer,invalidate,isBound,isDirect,isDirty,numIndices,numMaxIndices,ownsBuffer,pos,setIndices,this,unbind,updateIndices,usage
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/IndexBufferObject.java
  * Covenant-verified: 2026-04-19
  *
@@ -154,13 +154,6 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using Sge) extends I
       Sge().graphics.gl20.glBufferData(BufferTarget.ElementArrayBuffer, byteBuffer.limit(), byteBuffer, usage)
       isDirty = false
     }
-  }
-
-  /** @deprecated use {@link #getBuffer(boolean)} instead */
-  @deprecated("use getBuffer(boolean) instead")
-  override def buffer: ShortBuffer = {
-    isDirty = true
-    _buffer
   }
 
   override def getBuffer(forWriting: Boolean): ShortBuffer = {

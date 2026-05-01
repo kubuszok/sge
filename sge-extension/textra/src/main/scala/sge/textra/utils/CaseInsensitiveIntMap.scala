@@ -7,7 +7,7 @@
  *   Renames: `GdxRuntimeException` -> `SgeError.InvalidInput`; `Array` -> `DynamicArray`;
  *     `IntArray` -> `DynamicArray[Int]`; `Category.caseUp` -> `Character.toUpperCase`;
  *     `Compatibility.imul` -> `*` (regular int multiplication)
- *   Convention: `return` -> `boundary`/`break`; internal null usage with `@nowarn` for
+ *   Convention: `return` -> `boundary`/`break`; internal null usage for
  *     low-level open-addressing table; braces required; split packages
  *   Idiom: split packages
  *
@@ -26,7 +26,6 @@ package sge
 package textra
 package utils
 
-import scala.annotation.nowarn
 import scala.util.boundary
 import scala.util.boundary.break
 
@@ -55,24 +54,17 @@ class CaseInsensitiveIntMap private (
   private[utils] var mask:        Int
 ) {
 
-  @nowarn("msg=null")
   @transient private var entries1: CaseInsensitiveIntMap.Entries = null
-  @nowarn("msg=null")
   @transient private var entries2: CaseInsensitiveIntMap.Entries = null
-  @nowarn("msg=null")
-  @transient private var values1: CaseInsensitiveIntMap.Values = null
-  @nowarn("msg=null")
-  @transient private var values2: CaseInsensitiveIntMap.Values = null
-  @nowarn("msg=null")
-  @transient private var keys1: CaseInsensitiveIntMap.Keys = null
-  @nowarn("msg=null")
-  @transient private var keys2: CaseInsensitiveIntMap.Keys = null
+  @transient private var values1:  CaseInsensitiveIntMap.Values  = null
+  @transient private var values2:  CaseInsensitiveIntMap.Values  = null
+  @transient private var keys1:    CaseInsensitiveIntMap.Keys    = null
+  @transient private var keys2:    CaseInsensitiveIntMap.Keys    = null
 
   /** Creates a new map with the specified initial capacity and load factor. This map will hold initialCapacity items before growing the backing table.
     * @param initialCapacity
     *   The backing array size is initialCapacity / loadFactor, increased to the next power of two.
     */
-  @nowarn("msg=null")
   def this(initialCapacity: Int, loadFactor: Float) = {
     this(
       _keyTable = null,
@@ -105,7 +97,6 @@ class CaseInsensitiveIntMap private (
   /** Creates a new map and puts key-value pairs sequentially from the two given arrays until either array is exhausted. The initial capacity will be the length of the shorter of the two arrays, and
     * the load factor will be 0.6.
     */
-  @nowarn("msg=null")
   def this(keys: Array[String], values: Array[Int]) = {
     this(
       _keyTable = null,
@@ -146,7 +137,6 @@ class CaseInsensitiveIntMap private (
 
   /** Returns the index of the key if already present, else ~index for the next empty index. This can be overridden in this package to compare for equality differently than `Object.equals`.
     */
-  @nowarn("msg=null")
   private[utils] def locateKey(key: String): Int = boundary {
     if (key == null)
       throw new IllegalArgumentException("key cannot be null.")
@@ -192,7 +182,6 @@ class CaseInsensitiveIntMap private (
   }
 
   /** Puts keys with values in sequential pairs from the two arrays given, until either array is exhausted. */
-  @nowarn("msg=null")
   def putAll(keys: Array[String], values: Array[Int]): Unit = {
     val len = Math.min(keys.length, values.length)
     ensureCapacity(len)
@@ -204,7 +193,6 @@ class CaseInsensitiveIntMap private (
     }
   }
 
-  @nowarn("msg=null")
   def putAll(map: CaseInsensitiveIntMap): Unit = {
     ensureCapacity(map._size)
     val kt = map._keyTable
@@ -219,7 +207,6 @@ class CaseInsensitiveIntMap private (
   }
 
   /** Skips checks for existing keys, doesn't increment size. */
-  @nowarn("msg=null")
   protected def putResize(key: String, value: Int): Unit = boundary {
     val kt = _keyTable
     var i  = place(key)
@@ -258,7 +245,6 @@ class CaseInsensitiveIntMap private (
   }
 
   /** Returns the value for the removed key, or the default value if the key is not in the map. */
-  @nowarn("msg=null")
   def remove(key: String, defaultValue: Int): Int = {
     val i0 = locateKey(key)
     if (i0 < 0) {
@@ -314,7 +300,6 @@ class CaseInsensitiveIntMap private (
     }
   }
 
-  @nowarn("msg=null")
   def clear(): Unit =
     if (_size == 0) {
       // nothing to do
@@ -325,7 +310,6 @@ class CaseInsensitiveIntMap private (
 
   /** Returns true if the specified value is in the map. Note this traverses the entire map and compares every value, which may be an expensive operation.
     */
-  @nowarn("msg=null")
   def containsValue(value: Int): Boolean = boundary {
     val kt = _keyTable
     val vt = _valueTable
@@ -342,7 +326,6 @@ class CaseInsensitiveIntMap private (
 
   /** Returns the key for the specified value, or null if it is not in the map. Note this traverses the entire map and compares every value, which may be an expensive operation.
     */
-  @nowarn("msg=null")
   def findKey(value: Int): String = boundary {
     val kt = _keyTable
     val vt = _valueTable
@@ -362,7 +345,6 @@ class CaseInsensitiveIntMap private (
     if (_keyTable.length < ts) resize(ts)
   }
 
-  @nowarn("msg=null")
   final private[utils] def resize(newSize: Int): Unit = {
     val oldCapacity = _keyTable.length
     threshold = (newSize * loadFactor).toInt
@@ -384,7 +366,6 @@ class CaseInsensitiveIntMap private (
     }
   }
 
-  @nowarn("msg=null")
   override def hashCode(): Int = {
     var h  = _size
     val kt = _keyTable
@@ -399,7 +380,6 @@ class CaseInsensitiveIntMap private (
     h
   }
 
-  @nowarn("msg=null")
   override def equals(obj: Any): Boolean = boundary {
     if (obj.asInstanceOf[AnyRef] eq this) break(true)
     obj match {
@@ -427,7 +407,6 @@ class CaseInsensitiveIntMap private (
 
   override def toString(): String = toString(", ", braces = true)
 
-  @nowarn("msg=null")
   def toString(separator: String, braces: Boolean): String = boundary {
     if (_size == 0) break(if (braces) "{}" else "")
     val buffer = new StringBuilder(32)
@@ -466,7 +445,6 @@ class CaseInsensitiveIntMap private (
 
   /** Returns an iterator for the entries in the map. Remove is supported. Use the `Entries` constructor for nested or multithreaded iteration.
     */
-  @nowarn("msg=null")
   def entries(): CaseInsensitiveIntMap.Entries = {
     if (entries1 == null) {
       entries1 = new CaseInsensitiveIntMap.Entries(this)
@@ -486,7 +464,6 @@ class CaseInsensitiveIntMap private (
   }
 
   /** Returns an iterator for the values in the map. Remove is supported. */
-  @nowarn("msg=null")
   def values(): CaseInsensitiveIntMap.Values = {
     if (values1 == null) {
       values1 = new CaseInsensitiveIntMap.Values(this)
@@ -506,7 +483,6 @@ class CaseInsensitiveIntMap private (
   }
 
   /** Returns an iterator for the keys in the map. Remove is supported. */
-  @nowarn("msg=null")
   def keys(): CaseInsensitiveIntMap.Keys = {
     if (keys1 == null) {
       keys1 = new CaseInsensitiveIntMap.Keys(this)
@@ -547,7 +523,6 @@ object CaseInsensitiveIntMap {
   }
 
   class Entry {
-    @nowarn("msg=null")
     var key:   String = null
     var value: Int    = 0
 
@@ -570,7 +545,6 @@ object CaseInsensitiveIntMap {
       findNextIndex()
     }
 
-    @nowarn("msg=null")
     def findNextIndex(): Unit = boundary {
       val kt = map._keyTable
       val n  = kt.length
@@ -585,7 +559,6 @@ object CaseInsensitiveIntMap {
       _hasNext = false
     }
 
-    @nowarn("msg=null")
     def remove(): Unit = {
       var i = currentIndex
       if (i < 0) throw new IllegalStateException("next must be called before remove.")
@@ -718,7 +691,6 @@ object CaseInsensitiveIntMap {
     * @return
     *   an int hashCode; quality should be similarly good across any bits
     */
-  @nowarn("msg=null")
   def hashCodeIgnoreCase(data: CharSequence, seedIn: Int): Int =
     if (data == null) 0
     else {

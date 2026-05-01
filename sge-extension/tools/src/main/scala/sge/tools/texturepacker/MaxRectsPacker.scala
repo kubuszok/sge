@@ -104,8 +104,8 @@ class MaxRectsPacker(val settings: Settings) extends Packer {
   private def packPage(inputRects: ArrayBuffer[Rect]): Page = {
     val paddingX = settings.paddingX
     val paddingY = settings.paddingY
-    var maxWidth:  Float = settings.maxWidth
-    var maxHeight: Float = settings.maxHeight
+    var maxWidth:  Float = settings.maxWidth.toFloat
+    var maxHeight: Float = settings.maxHeight.toFloat
     var edgePadX = false
     var edgePadY = false
     if (settings.edgePadding) {

@@ -14,8 +14,8 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 232
- * Covenant-baseline-methods: InstanceBufferObject,_attributes,_buffer,_usage,attributes,bind,buffer,bufferChanged,bufferHandle,byteBuffer,close,data,getBuffer,gl,invalidate,isBound,isDirty,l,numAttributes,numInstances,numMaxInstances,ownsBuffer,pos,setBuffer,setInstanceData,this,unbind,updateInstanceData,usage,usage_
+ * Covenant-baseline-loc: 234
+ * Covenant-baseline-methods: InstanceBufferObject,_attributes,_buffer,_usage,attributes,bind,bufferChanged,bufferHandle,byteBuffer,close,data,getBuffer,gl,invalidate,isBound,isDirty,l,numAttributes,numInstances,numMaxInstances,ownsBuffer,pos,setBuffer,setInstanceData,this,unbind,updateInstanceData,usage,usage_
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/InstanceBufferObject.java
  * Covenant-verified: 2026-04-19
  *
@@ -68,13 +68,6 @@ class InstanceBufferObject(isStatic: Boolean, numVertices: Int, instanceAttribut
   override def numInstances: Int = _buffer.limit() * 4 / _attributes.vertexSize
 
   override def numMaxInstances: Int = byteBuffer.capacity() / _attributes.vertexSize
-
-  /** @deprecated use getBuffer(Boolean) instead */
-  @deprecated("use getBuffer(Boolean) instead", "1.0")
-  override def buffer: FloatBuffer = {
-    isDirty = true
-    _buffer
-  }
 
   override def getBuffer(forWriting: Boolean): FloatBuffer = {
     isDirty |= forWriting

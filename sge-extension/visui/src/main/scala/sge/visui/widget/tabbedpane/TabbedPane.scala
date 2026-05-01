@@ -34,7 +34,7 @@ import sge.scenes.scene2d.utils.{ ChangeListener, Drawable, UIUtils }
 import sge.utils.{ Nullable, Scaling }
 import sge.visui.{ Locales, Sizes, VisUI }
 import sge.visui.i18n.BundleText
-import sge.visui.layout.{ DragPane, HorizontalFlowGroup, VerticalFlowGroup }
+import sge.visui.layout.{ DragPane, FlowGroup }
 import sge.visui.util.dialog.Dialogs
 
 import scala.collection.mutable.ArrayBuffer
@@ -57,7 +57,7 @@ class TabbedPane(style: TabbedPane.TabbedPaneStyle, sizes: Sizes)(using sge: Sge
 
   private val _mainTable: TabbedPane.TabbedPaneTable = new TabbedPane.TabbedPaneTable(this)
   private val tabsPane:   DragPane                   = new DragPane(
-    if (style.vertical) new VerticalFlowGroup() else new HorizontalFlowGroup()
+    new FlowGroup(style.vertical)
   )
 
   private val tabs:          ArrayBuffer[Tab]                                = ArrayBuffer.empty

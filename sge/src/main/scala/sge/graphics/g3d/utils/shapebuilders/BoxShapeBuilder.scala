@@ -38,7 +38,6 @@ import sge.utils.Nullable
   * @author
   *   realitix, xoppa
   */
-@scala.annotation.nowarn("msg=deprecated")
 object BoxShapeBuilder {
   import BaseShapeBuilder._
 
@@ -46,7 +45,8 @@ object BoxShapeBuilder {
     * @param box
     */
   def build(builder: MeshPartBuilder, box: BoundingBox): Unit = {
-    builder.box(
+    build(
+      builder,
       box.corner000(obtainV3()),
       box.corner010(obtainV3()),
       box.corner100(obtainV3()),

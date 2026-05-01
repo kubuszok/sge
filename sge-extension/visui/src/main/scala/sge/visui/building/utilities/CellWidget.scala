@@ -62,10 +62,10 @@ class CellWidget[W <: Actor] private (builder: CellWidget.CellWidgetBuilder[W]) 
   }
 
   private def applySizeData(cell: Cell[?]): Unit = {
-    if (_width > 0) cell.width(_width)
-    if (_height > 0) cell.height(_height)
-    if (_minWidth > 0) cell.minWidth(_minWidth)
-    if (_minHeight > 0) cell.minHeight(_minHeight)
+    if (_width > 0) cell.width(_width.toFloat)
+    if (_height > 0) cell.height(_height.toFloat)
+    if (_minWidth > 0) cell.minWidth(_minWidth.toFloat)
+    if (_minHeight > 0) cell.minHeight(_minHeight.toFloat)
   }
 
   private def applyFillingData(cell: Cell[?]): Unit = {

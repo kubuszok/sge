@@ -14,8 +14,8 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 102
- * Covenant-baseline-methods: VertexData,attributes,bind,buffer,close,getBuffer,invalidate,numMaxVertices,numVertices,setVertices,unbind,updateVertices
+ * Covenant-baseline-loc: 101
+ * Covenant-baseline-methods: VertexData,attributes,bind,close,getBuffer,invalidate,numMaxVertices,numVertices,setVertices,unbind,updateVertices
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/VertexData.java
  * Covenant-verified: 2026-04-19
  *
@@ -66,16 +66,6 @@ trait VertexData extends AutoCloseable {
     *   the number of floats to copy
     */
   def updateVertices(targetOffset: Int, vertices: Array[Float], sourceOffset: Int, count: Int): Unit
-
-  /** Returns the underlying FloatBuffer and marks it as dirty, causing the buffer contents to be uploaded on the next call to bind. If you need immediate uploading use
-    * {@link #setVertices(float[], int, int)} ; Any modifications made to the Buffer *after* the call to bind will not automatically be uploaded.
-    * @return
-    *   the underlying FloatBuffer holding the vertex data.
-    * @deprecated
-    *   use {@link #getBuffer(boolean)} instead.
-    */
-  @deprecated("use getBuffer(boolean) instead", "")
-  def buffer: FloatBuffer
 
   /** Returns the underlying FloatBuffer for reading or writing.
     * @param forWriting

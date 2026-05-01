@@ -77,18 +77,24 @@ class DragPane(group: WidgetGroup)(using Sge) extends Container[WidgetGroup]() {
   def isGrid: Boolean = grp.isInstanceOf[GridGroup]
 
   /** @return
-    *   true if children are displayed with a [[VerticalFlowGroup]].
+    *   true if children are displayed with a vertical [[FlowGroup]].
     * @see
     *   [[getVerticalFlowGroup]]
     */
-  def isVerticalFlow: Boolean = grp.isInstanceOf[VerticalFlowGroup]
+  def isVerticalFlow: Boolean = grp match {
+    case fg: FlowGroup => fg.vertical
+    case _ => false
+  }
 
   /** @return
-    *   true if children are displayed with a [[HorizontalFlowGroup]].
+    *   true if children are displayed with a horizontal [[FlowGroup]].
     * @see
     *   [[getHorizontalFlowGroup]]
     */
-  def isHorizontalFlow: Boolean = grp.isInstanceOf[HorizontalFlowGroup]
+  def isHorizontalFlow: Boolean = grp match {
+    case fg: FlowGroup => !fg.vertical
+    case _ => false
+  }
 
   /** @return
     *   true if children are displayed with a [[FloatingGroup]].
@@ -149,20 +155,20 @@ class DragPane(group: WidgetGroup)(using Sge) extends Container[WidgetGroup]() {
   /** @return
     *   internally managed group of actors.
     * @throws ClassCastException
-    *   if drag pane is not horizontal flow.
+    *   if drag pane is not a horizontal flow.
     * @see
     *   [[isHorizontalFlow]]
     */
-  def getHorizontalFlowGroup: HorizontalFlowGroup = grp.asInstanceOf[HorizontalFlowGroup]
+  def getHorizontalFlowGroup: FlowGroup = grp.asInstanceOf[FlowGroup]
 
   /** @return
     *   internally managed group of actors.
     * @throws ClassCastException
-    *   if drag pane is not vertical flow.
+    *   if drag pane is not a vertical flow.
     * @see
     *   [[isVerticalFlow]]
     */
-  def getVerticalFlowGroup: VerticalFlowGroup = grp.asInstanceOf[VerticalFlowGroup]
+  def getVerticalFlowGroup: FlowGroup = grp.asInstanceOf[FlowGroup]
 
   /** @return
     *   internally managed group of actors.

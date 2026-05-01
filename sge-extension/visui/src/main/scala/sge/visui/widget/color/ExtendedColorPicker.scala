@@ -175,7 +175,7 @@ class ExtendedColorPicker(initStyle: ColorPickerWidgetStyle, initListener: Nulla
     if (sBar.isInputValid) s = sBar.getValue
     if (vBar.isInputValid) v = vBar.getValue
 
-    pickerColor = ColorUtils.HSVtoRGB(h, s, v, pickerColor.a)
+    pickerColor = ColorUtils.HSVtoRGB(h.toFloat, s.toFloat, v.toFloat, pickerColor.a)
 
     val cr = MathUtils.round(pickerColor.r * 255.0f)
     val cg = MathUtils.round(pickerColor.g * 255.0f)

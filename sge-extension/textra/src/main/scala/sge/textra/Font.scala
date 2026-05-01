@@ -24,8 +24,8 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 4267
- * Covenant-baseline-methods: ALTERNATE_MODES_MASK,BLACK_OUTLINE,BLUE_OUTLINE,BOLD,COLOR_MASK,CONTEXT,DROP_SHADOW,DistanceFieldType,ERROR,Font,FontFamily,GlyphRegion,HALO,JOSTLE,MIDSCRIPT,NEON,NOTE,OBLIQUE,PACKED_BLACK,PACKED_BLUE,PACKED_CONTEXT_COLOR,PACKED_ERROR_COLOR,PACKED_HALO_COLOR,PACKED_NOTE_COLOR,PACKED_RED,PACKED_SHADOW_COLOR,PACKED_SUGGEST_COLOR,PACKED_WARN_COLOR,PACKED_WHITE,PACKED_YELLOW,RED_OUTLINE,SHINY,SMALL_CAPS,STRIKETHROUGH,SUBSCRIPT,SUGGEST,SUPERSCRIPT,TexturelessAtlasRegion,TexturelessRegion,UNDERLINE,WARN,WHITE_OUTLINE,YELLOW_OUTLINE,a,actualCrispness,addAtlas,addImage,addSpacingGlyph,adjustCellWidth,adjustLineHeight,altMode,app,applyChar,applyColor,applyMode,applyScale,applyStyle,atlas,atlasLookup,b,baseColor,baseline,batchAlpha,batchAlpha1_5,batchAlpha2,batchAlpha3,batchColor,batchShader,block,boldStrength,boxDrawingBreadth,breakChars,bu,bu2,bv,bv2,c,calculateSize,calculateXAdvances,canUseTextures,capitalize,capsLock,cellHeight,cellWidth,centerX,centerY,changedW,clearPaddingForBitmapFont,clearStatic,close,color,colorLookup,columns,connected,cos,cs,current,currentHeight,data,debugString,defaultValue,descent,dfType,dispose,distanceField,distanceFieldCrispness,drawBlockSequence,drawBlocks,drawColor,drawFancyLine,drawGlyph,drawGlyphs,drawMarkupText,drawText,drawVertices,dropShadowOffsetX,dropShadowOffsetY,earlier,ellipsis,emptyJsonArr,emptyJsonObj,enableShader,enableSquareBrackets,extractChar,extractColor,extractIntScale,extractMode,extractScale,extractStyle,family,fancyX,fancyY,files,finalizeFontCommon,finalizeJsonFont,fitCell,flip,flipX,flipY,fnt,fntHandle,font,fontAliases,fontIndex,fontShader,fsx,fsy,get,getBoldStrength,getBoxDrawingBreadth,getColorLookup,getCrispness,getDescent,getDistanceField,getFamily,getFancyLineX,getFancyLineY,getInlineImageOffsetX,getInlineImageOffsetY,getInlineImageStretch,getInlineImageXAdvance,getJsonExtension,getName,getObliqueStrength,getOutlineStrength,getStoredState,getStrikethroughX,getStrikethroughY,getUnderlineX,getUnderlineY,gi,glowStrength,glyph,glyphCount,glyphs,h,halfHeight,halfWidth,handleEllipsis,handleIntegerPosition,handleLineWrap,heightAdjust,i,idx,initial,inlineImageOffsetX,inlineImageOffsetY,inlineImageStretch,inlineImageXAdvance,insertZeroWidthSpacesInCJK,integerPosition,iph,ipw,isMono,iw,ix,iy,j,jsonArr,jsonInt,jsonIntOr,jsonNum,jsonNumOr,jsonObj,jsonStr,jsonStrOr,jsonStr_,justify,kern,kernArr,kerning,kerningPair,l,lc,len,ln,loadFNT,loadFromBitmapFont,loadJSON,loadSad,lowerCase,make,mapping,markup,markupGlyph,max,maxDimension,minWidth,missingId,modes,msdfFragmentShader,multiplyCrispness,n,name,nameLookup,namesByCC,namesByCharCode,nl,oCenterX,oCenterY,obliqueStrength,offsetX,offsetY,offsetYBm,omitCurlyBraces,originalCellHeight,originalCellWidth,originalScaleX,originalScaleY,osx,osy,outlineStrength,ox,oxc,oy,oyAdj,oyc,p0x,p0y,p1x,p1y,p2x,p2y,padding,paddingForBitmapFont,pages,parent,parents,parseModeFlags,pauseDistanceFieldShader,pre,previousWasLetter,regH,regenerateLayout,regionHeight,regionHeight_,regionWidth,regionWidth_,regionX,regionX_,regionY,regionY_,regions,removeStoredState,resizeDistanceField,resizeDistanceFields,resumeDistanceFieldShader,root,rotation,rows,scale,scaleCorrection,scaleHeightTo,scaleTo,scaleVal,scaleX,scaleXLocal,scaleY,scaleYLocal,scaledHeight,sclX,script,sdfBlackOutlineFragmentShader,sdfBlackOutlineFragmentShaderUsingDerivatives,sdfFragmentShader,sdfFragmentShaderUsingDerivatives,secondaryColor,setBoldStrength,setBoxDrawingBreadth,setColorLookup,setCrispness,setDescent,setDistanceField,setFamily,setFancyLinePosition,setInlineImageMetrics,setInlineImageStretch,setLineMetrics,setName,setObliqueStrength,setOutlineStrength,setPaddingForBitmapFont,setQuadVertices,setRegion,setRegionBounds,setSharing,setStrikethroughMetrics,setStrikethroughPosition,setTextureFilter,setUnderlineMetrics,setUnderlinePosition,shader,sharing,sin,size,sizingX,sizingY,smoothingValues,sn,solidBlock,solidBlockGR,space,spaceChars,squashed,start,storeState,storedStates,strikeBreadth,strikeLength,strikeX,strikeY,targetWidth,tex,this,tlHeight,tlWidth,tlX,tlY,toString,tr,trrh,u,u2,underBreadth,underLength,underX,underY,useIntegerPositions,v,v2,vertexShader,vertices,w,widthAdjust,wsx,x,x0,xAdjust,xAdvance,xOutline,xPx,xShift,xac,xc,y,y0,yAdjust,yGrid,yOutline,yPx,yShift,yt,zwSpace
+ * Covenant-baseline-loc: 4241
+ * Covenant-baseline-methods: ALTERNATE_MODES_MASK,BLACK_OUTLINE,BLUE_OUTLINE,BOLD,COLOR_MASK,CONTEXT,DROP_SHADOW,DistanceFieldType,ERROR,Font,FontFamily,GlyphRegion,HALO,JOSTLE,MIDSCRIPT,NEON,NOTE,OBLIQUE,PACKED_BLACK,PACKED_BLUE,PACKED_CONTEXT_COLOR,PACKED_ERROR_COLOR,PACKED_HALO_COLOR,PACKED_NOTE_COLOR,PACKED_RED,PACKED_SHADOW_COLOR,PACKED_SUGGEST_COLOR,PACKED_WARN_COLOR,PACKED_WHITE,PACKED_YELLOW,RED_OUTLINE,SHINY,SMALL_CAPS,STRIKETHROUGH,SUBSCRIPT,SUGGEST,SUPERSCRIPT,TexturelessAtlasRegion,TexturelessRegion,UNDERLINE,WARN,WHITE_OUTLINE,YELLOW_OUTLINE,a,actualCrispness,addAtlas,addImage,addSpacingGlyph,adjustCellWidth,adjustLineHeight,altMode,app,applyChar,applyColor,applyMode,applyStyle,atlas,atlasLookup,b,baseColor,baseline,batchAlpha,batchAlpha1_5,batchAlpha2,batchAlpha3,batchColor,batchShader,block,boldStrength,boxDrawingBreadth,breakChars,bu,bu2,bv,bv2,c,calculateSize,calculateXAdvances,canUseTextures,capitalize,capsLock,cellHeight,cellWidth,centerX,centerY,changedW,clearPaddingForBitmapFont,clearStatic,close,color,colorLookup,columns,connected,cos,cs,current,currentHeight,data,debugString,defaultValue,descent,dfType,dispose,distanceField,distanceFieldCrispness,drawBlockSequence,drawBlocks,drawColor,drawFancyLine,drawGlyph,drawGlyphs,drawMarkupText,drawText,drawVertices,dropShadowOffsetX,dropShadowOffsetY,earlier,ellipsis,emptyJsonArr,emptyJsonObj,enableShader,enableSquareBrackets,extractChar,extractColor,extractMode,extractStyle,family,fancyX,fancyY,files,finalizeFontCommon,finalizeJsonFont,fitCell,flip,flipX,flipY,fnt,fntHandle,font,fontAliases,fontIndex,fontShader,fsx,fsy,get,getBoldStrength,getBoxDrawingBreadth,getColorLookup,getCrispness,getDescent,getDistanceField,getFamily,getFancyLineX,getFancyLineY,getInlineImageOffsetX,getInlineImageOffsetY,getInlineImageStretch,getInlineImageXAdvance,getJsonExtension,getName,getObliqueStrength,getOutlineStrength,getStoredState,getStrikethroughX,getStrikethroughY,getUnderlineX,getUnderlineY,gi,glowStrength,glyph,glyphCount,glyphs,h,halfHeight,halfWidth,handleEllipsis,handleIntegerPosition,handleLineWrap,heightAdjust,i,idx,initial,inlineImageOffsetX,inlineImageOffsetY,inlineImageStretch,inlineImageXAdvance,insertZeroWidthSpacesInCJK,integerPosition,iph,ipw,isMono,iw,ix,iy,j,jsonArr,jsonInt,jsonIntOr,jsonNum,jsonNumOr,jsonObj,jsonStr,jsonStrOr,jsonStr_,justify,kern,kernArr,kerning,kerningPair,l,lc,len,ln,loadFNT,loadFromBitmapFont,loadJSON,loadSad,lowerCase,make,mapping,markup,markupGlyph,max,maxDimension,minWidth,missingId,modes,msdfFragmentShader,multiplyCrispness,n,name,nameLookup,namesByCC,namesByCharCode,nl,oCenterX,oCenterY,obliqueStrength,offsetX,offsetY,offsetYBm,omitCurlyBraces,originalCellHeight,originalCellWidth,originalScaleX,originalScaleY,osx,osy,outlineStrength,ox,oxc,oy,oyAdj,oyc,p0x,p0y,p1x,p1y,p2x,p2y,padding,paddingForBitmapFont,pages,parent,parents,parseModeFlags,pauseDistanceFieldShader,pre,previousWasLetter,regH,regenerateLayout,regionHeight,regionHeight_,regionWidth,regionWidth_,regionX,regionX_,regionY,regionY_,regions,removeStoredState,resizeDistanceField,resizeDistanceFields,resumeDistanceFieldShader,root,rotation,rows,scale,scaleCorrection,scaleHeightTo,scaleTo,scaleVal,scaleX,scaleXLocal,scaleY,scaleYLocal,scaledHeight,sclX,script,sdfBlackOutlineFragmentShader,sdfBlackOutlineFragmentShaderUsingDerivatives,sdfFragmentShader,sdfFragmentShaderUsingDerivatives,secondaryColor,setBoldStrength,setBoxDrawingBreadth,setColorLookup,setCrispness,setDescent,setDistanceField,setFamily,setFancyLinePosition,setInlineImageMetrics,setInlineImageStretch,setLineMetrics,setName,setObliqueStrength,setOutlineStrength,setPaddingForBitmapFont,setQuadVertices,setRegion,setRegionBounds,setSharing,setStrikethroughMetrics,setStrikethroughPosition,setTextureFilter,setUnderlineMetrics,setUnderlinePosition,shader,sharing,sin,size,sizingX,sizingY,smoothingValues,sn,solidBlock,solidBlockGR,space,spaceChars,squashed,start,storeState,storedStates,strikeBreadth,strikeLength,strikeX,strikeY,targetWidth,tex,this,tlHeight,tlWidth,tlX,tlY,toString,tr,trrh,u,u2,underBreadth,underLength,underX,underY,useIntegerPositions,v,v2,vertexShader,vertices,w,widthAdjust,wsx,x,x0,xAdjust,xAdvance,xOutline,xPx,xShift,xac,xc,y,y0,yAdjust,yGrid,yOutline,yPx,yShift,yt,zwSpace
  * Covenant-source-reference: com/github/tommyettinger/textra/Font.java
  * Covenant-verified: 2026-04-19
  *
@@ -3462,7 +3462,13 @@ class Font {
     while (yGrid < rows) {
       var xGrid = 0
       while (xGrid < columns) {
-        val gr = new GlyphRegion(parent, xGrid * (cellWidth.toInt + padding) + padding, yGrid * (cellHeight.toInt + padding) + padding, cellWidth, cellHeight)
+        val gr = new GlyphRegion(
+          parent,
+          (xGrid * (cellWidth.toInt + padding) + padding).toFloat,
+          (yGrid * (cellHeight.toInt + padding) + padding).toFloat,
+          cellWidth,
+          cellHeight
+        )
         gr.offsetX = 0; gr.offsetY = descent; gr.xAdvance = if (ch == 10) 0 else cellWidth
         mapping.put(ch, gr)
         if (ch == '[') { if (mapping.contains(2)) mapping.put(rows * columns, mapping(2)); mapping.put(2, gr) }
@@ -3713,37 +3719,6 @@ object Font {
     else if (files.internal(jsonName + ".json").exists()) jsonName + ".json"
     else throw new RuntimeException("No file was found with an appropriate extension appended to " + jsonName)
   }
-
-  /** This no longer does anything because scale is no longer stored inside each glyph. This allows scales to smoothly change from 0.001f to 123456.789f, or whatever the user requests. The scale is
-    * now stored in Layout.sizing and a similar value in Layout.advances.
-    * @param glyph
-    *   ignored
-    * @return
-    *   1.0f, always; you need to get the scale from a Layout directly
-    */
-  @deprecated("use the Layout.sizing or Layout.advances fields in a Layout instead")
-  def extractScale(glyph: Long): Float = 1f
-
-  /** This no longer does anything because scale is no longer stored inside each glyph, and isn't an int. The scale is now stored in Layout.sizing and a similar value in Layout.advances.
-    * @param glyph
-    *   ignored
-    * @return
-    *   4, always; you need to get the scale from a Layout directly
-    */
-  @deprecated("use the Layout.sizing or Layout.advances fields in a Layout instead")
-  def extractIntScale(glyph: Long): Int = 4
-
-  /** This no longer does anything because scale is no longer stored inside each glyph; this returns `glyph` without changes. The scale is now stored in Layout.sizing and a similar value in
-    * Layout.advances.
-    * @param glyph
-    *   a glyph as a long, as used by Layout and Line
-    * @param scale
-    *   ignored
-    * @return
-    *   glyph, without changes
-    */
-  @deprecated("scaling is now stored in both the Layout.sizing and Layout.advances fields in a Layout")
-  def applyScale(glyph: Long, scale: Float): Long = glyph
 
   /** If true, Fonts can use Texture objects. Set to false for headless usage. */
   var canUseTextures: Boolean = true

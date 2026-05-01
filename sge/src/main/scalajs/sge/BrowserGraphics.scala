@@ -91,7 +91,6 @@ class BrowserGraphics(
 
   override def frameId:         Long    = _frameId
   override def deltaTime:       Seconds = _deltaTime
-  override def rawDeltaTime:    Seconds = _deltaTime
   override def framesPerSecond: Int     = fps.toInt
 
   /** Update frame timing. Called once per frame by BrowserApplication. */

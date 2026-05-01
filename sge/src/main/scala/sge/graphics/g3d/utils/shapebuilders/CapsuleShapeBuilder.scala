@@ -33,7 +33,6 @@ import sge.utils.SgeError
   * @author
   *   xoppa
   */
-@scala.annotation.nowarn("msg=deprecated")
 object CapsuleShapeBuilder {
   import BaseShapeBuilder._
 

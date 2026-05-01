@@ -16,8 +16,8 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 163
- * Covenant-baseline-methods: ScreenUtils,clear,frameBufferTexture,getFrameBufferPixels,getFrameBufferPixmap,getFrameBufferTexture,h,hi,lines,mask,numBytes,pixels,pixmap,potH,potPixmap,potW,texture,textureRegion,w,wi
+ * Covenant-baseline-loc: 167
+ * Covenant-baseline-methods: ScreenUtils,clear,frameBufferTexture,getFrameBufferPixels,getFrameBufferTexture,h,hi,lines,mask,numBytes,pixels,pixmap,potH,potPixmap,potW,texture,textureRegion,w,wi
  * Covenant-source-reference: com/badlogic/gdx/utils/ScreenUtils.java
  * Covenant-verified: 2026-04-19
  *
@@ -121,11 +121,6 @@ object ScreenUtils {
 
     textureRegion
   }
-
-  /** @deprecated use {@link Pixmap#createFromFrameBuffer(int, int, int, int)} instead. */
-  @deprecated("use Pixmap.createFromFrameBuffer instead", "")
-  def getFrameBufferPixmap(x: Pixels, y: Pixels, w: Pixels, h: Pixels)(using Sge): Pixmap =
-    Pixmap.createFromFrameBuffer(x, y, w, h)
 
   /** Returns the current framebuffer contents as a byte[] array with a length equal to screen width * height * 4. The byte[] will always contain RGBA8888 data. Because of differences in screen and
     * image origins the framebuffer contents should be flipped along the Y axis if you intend save them to disk as a bitmap. Flipping is not a cheap operation, so use this functionality wisely.

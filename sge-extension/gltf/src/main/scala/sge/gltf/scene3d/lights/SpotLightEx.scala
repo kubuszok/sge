@@ -34,25 +34,12 @@ class SpotLightEx extends SpotLight {
   override def set(copyFrom: SpotLight): SpotLight =
     copyFrom match {
       case ex: SpotLightEx =>
-        set(
-          copyFrom.color,
-          copyFrom.position,
-          copyFrom.direction,
-          copyFrom.intensity,
-          copyFrom.cutoffAngle,
-          copyFrom.exponent,
-          ex.range
-        )
+        super.set(copyFrom.color, copyFrom.position, copyFrom.direction, copyFrom.intensity, copyFrom.cutoffAngle, copyFrom.exponent)
+        this.range = ex.range
+        this
       case _ =>
         set(copyFrom.color, copyFrom.position, copyFrom.direction, copyFrom.intensity, copyFrom.cutoffAngle, copyFrom.exponent)
     }
-
-  @deprecated("use setRad or setDeg instead", "gdx-gltf")
-  def set(color: Color, position: Vector3, direction: Vector3, intensity: Float, cutoffAngle: Float, exponent: Float, range: Nullable[Float]): SpotLightEx = {
-    super.set(color, position, direction, intensity, cutoffAngle, exponent)
-    this.range = range
-    this
-  }
 
   def setRad(color: Color, position: Vector3, direction: Vector3, intensity: Float, outerConeAngleRad: Float, innerConeAngleRad: Float, range: Nullable[Float]): SpotLightEx = {
     if (color != null) this.color.set(color) // @nowarn — inherited API allows null

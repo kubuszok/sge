@@ -15,7 +15,7 @@
  *   - All factory methods (createBox, createRect, createCylinder, createCone,
  *     createSphere, createCapsule, createXYZCoordinates, createArrow, createLineGrid) ported
  *   - All part() overloads (5 total) ported
- *   - @nowarn("msg=deprecated") on class to suppress deprecated shape builder calls
+ *   - Shape builder calls migrated from deprecated MeshPartBuilder methods to ShapeBuilder objects
  *   - Minor: `new Matrix4()` orphan on line 43 (appears to be unused tmpTransform allocation)
  *   - Audit: pass (2026-03-03)
  *
@@ -24,7 +24,7 @@
  * Covenant-baseline-loc: 579
  * Covenant-baseline-methods: ModelBuilder,build,builder,builders,createArrow,createBox,createCapsule,createCone,createCylinder,createLineGrid,createRect,createSphere,createXYZCoordinates,currentNode,endnode,getBuilder,hxlength,hzlength,manage,meshPart,model,n,node,part,partBuilder,rebuildReferences,result,x1,x2,xlength,y1,y2,z1,z2,zlength
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/utils/ModelBuilder.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-05-01
  *
  * upstream-commit: 4b4d2c4fd05786d848c42cb69266dd2dd6839983
  */
@@ -33,13 +33,14 @@ package graphics
 package g3d
 package utils
 
-import scala.annotation.{ nowarn, publicInBinary }
+import scala.annotation.publicInBinary
 import scala.util.boundary
 import scala.util.boundary.break
 import scala.util.control.NonFatal
 
 import sge.graphics.{ Color, Mesh, PrimitiveMode, VertexAttributes }
 import sge.graphics.g3d.model.{ MeshPart, Node, NodePart }
+import sge.graphics.g3d.utils.shapebuilders._
 import sge.math.Vector3
 import sge.Sge
 import sge.utils.{ DynamicArray, Nullable, SgeError }
@@ -51,7 +52,6 @@ import sge.utils.{ DynamicArray, Nullable, SgeError }
   * @author
   *   Xoppa
   */
-@nowarn("msg=deprecated")
 class ModelBuilder()(using Sge) {
 
   /** The model currently being build */
@@ -230,7 +230,7 @@ class ModelBuilder()(using Sge) {
     */
   def createBox(width: Float, height: Float, depth: Float, primitiveType: PrimitiveMode, material: Material, attributes: Long): Model = {
     begin()
-    part("box", primitiveType, attributes, material).box(width, height, depth)
+    BoxShapeBuilder.build(part("box", primitiveType, attributes, material), width, height, depth)
     end()
   }
 
@@ -321,7 +321,7 @@ class ModelBuilder()(using Sge) {
     */
   def createCylinder(width: Float, height: Float, depth: Float, divisions: Int, primitiveType: PrimitiveMode, material: Material, attributes: Long, angleFrom: Float, angleTo: Float): Model = {
     begin()
-    part("cylinder", primitiveType, attributes, material).cylinder(width, height, depth, divisions, angleFrom, angleTo)
+    CylinderShapeBuilder.build(part("cylinder", primitiveType, attributes, material), width, height, depth, divisions, angleFrom, angleTo)
     end()
   }
 
@@ -356,7 +356,7 @@ class ModelBuilder()(using Sge) {
     */
   def createCone(width: Float, height: Float, depth: Float, divisions: Int, primitiveType: PrimitiveMode, material: Material, attributes: Long, angleFrom: Float, angleTo: Float): Model = {
     begin()
-    part("cone", primitiveType, attributes, material).cone(width, height, depth, divisions, angleFrom, angleTo)
+    ConeShapeBuilder.build(part("cone", primitiveType, attributes, material), width, height, depth, divisions, angleFrom, angleTo)
     end()
   }
 
@@ -429,7 +429,18 @@ class ModelBuilder()(using Sge) {
     angleVTo:      Float
   ): Model = {
     begin()
-    part("sphere", primitiveType, attributes, material).sphere(width, height, depth, divisionsU, divisionsV, angleUFrom, angleUTo, angleVFrom, angleVTo)
+    SphereShapeBuilder.build(
+      part("sphere", primitiveType, attributes, material),
+      width,
+      height,
+      depth,
+      divisionsU,
+      divisionsV,
+      angleUFrom,
+      angleUTo,
+      angleVFrom,
+      angleVTo
+    )
     end()
   }
 
@@ -448,7 +459,7 @@ class ModelBuilder()(using Sge) {
     */
   def createCapsule(radius: Float, height: Float, divisions: Int, primitiveType: PrimitiveMode, material: Material, attributes: Long): Model = {
     begin()
-    part("capsule", primitiveType, attributes, material).capsule(radius, height, divisions)
+    CapsuleShapeBuilder.build(part("capsule", primitiveType, attributes, material), radius, height, divisions)
     end()
   }
 
@@ -469,11 +480,11 @@ class ModelBuilder()(using Sge) {
 
     val partBuilder = part("xyz", primitiveType, attributes, material)
     partBuilder.setColor(Nullable(Color.RED))
-    partBuilder.arrow(0, 0, 0, axisLength, 0, 0, capLength, stemThickness, divisions)
+    ArrowShapeBuilder.build(partBuilder, 0, 0, 0, axisLength, 0, 0, capLength, stemThickness, divisions)
     partBuilder.setColor(Nullable(Color.GREEN))
-    partBuilder.arrow(0, 0, 0, 0, axisLength, 0, capLength, stemThickness, divisions)
+    ArrowShapeBuilder.build(partBuilder, 0, 0, 0, 0, axisLength, 0, capLength, stemThickness, divisions)
     partBuilder.setColor(Nullable(Color.BLUE))
-    partBuilder.arrow(0, 0, 0, 0, 0, axisLength, capLength, stemThickness, divisions)
+    ArrowShapeBuilder.build(partBuilder, 0, 0, 0, 0, 0, axisLength, capLength, stemThickness, divisions)
 
     end()
   }
@@ -505,7 +516,7 @@ class ModelBuilder()(using Sge) {
     attributes:    Long
   ): Model = {
     begin()
-    part("arrow", primitiveType, attributes, material).arrow(x1, y1, z1, x2, y2, z2, capLength, stemThickness, divisions)
+    ArrowShapeBuilder.build(part("arrow", primitiveType, attributes, material), x1, y1, z1, x2, y2, z2, capLength, stemThickness, divisions)
     end()
   }
 

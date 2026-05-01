@@ -14,8 +14,8 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 130
- * Covenant-baseline-methods: InstanceData,attributes,bind,buffer,close,getBuffer,invalidate,numInstances,numMaxInstances,setInstanceData,unbind,updateInstanceData
+ * Covenant-baseline-loc: 128
+ * Covenant-baseline-methods: InstanceData,attributes,bind,close,getBuffer,invalidate,numInstances,numMaxInstances,setInstanceData,unbind,updateInstanceData
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/InstanceData.java
  * Covenant-verified: 2026-04-19
  *
@@ -91,17 +91,6 @@ trait InstanceData extends AutoCloseable {
     *   the number of floats to copy
     */
   def updateInstanceData(targetOffset: Int, data: FloatBuffer, sourceOffset: Int, count: Int): Unit
-
-  /** Returns the underlying FloatBuffer and marks it as dirty, causing the buffer contents to be uploaded on the next call to bind. If you need immediate uploading use setInstanceData(Array[Float],
-    * Int, Int); Any modifications made to the Buffer *after* the call to bind will not automatically be uploaded.
-    *
-    * @return
-    *   the underlying FloatBuffer holding the vertex data.
-    * @deprecated
-    *   use getBuffer(Boolean) instead
-    */
-  @deprecated("use getBuffer(Boolean) instead", "1.0")
-  def buffer: FloatBuffer
 
   /** Returns the underlying FloatBuffer for reading or writing.
     * @param forWriting

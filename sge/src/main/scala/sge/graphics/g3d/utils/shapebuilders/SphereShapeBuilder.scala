@@ -35,7 +35,6 @@ import sge.utils.{ DynamicArray, Nullable }
   * @author
   *   xoppa
   */
-@scala.annotation.nowarn("msg=deprecated")
 object SphereShapeBuilder {
   import BaseShapeBuilder._
 
@@ -45,20 +44,12 @@ object SphereShapeBuilder {
   def build(builder: MeshPartBuilder, width: Float, height: Float, depth: Float, divisionsU: Int, divisionsV: Int): Unit =
     build(builder, width, height, depth, divisionsU, divisionsV, 0, 360, 0, 180)
 
-  /** @deprecated
-    *   use {@link MeshPartBuilder#setVertexTransform(Matrix4)} instead of using the method signature taking a matrix.
-    */
-  @deprecated("use MeshPartBuilder.setVertexTransform instead", "")
   def build(builder: MeshPartBuilder, transform: Matrix4, width: Float, height: Float, depth: Float, divisionsU: Int, divisionsV: Int): Unit =
     build(builder, transform, width, height, depth, divisionsU, divisionsV, 0, 360, 0, 180)
 
   def build(builder: MeshPartBuilder, width: Float, height: Float, depth: Float, divisionsU: Int, divisionsV: Int, angleUFrom: Float, angleUTo: Float, angleVFrom: Float, angleVTo: Float): Unit =
     build(builder, matTmp1.idt(), width, height, depth, divisionsU, divisionsV, angleUFrom, angleUTo, angleVFrom, angleVTo)
 
-  /** @deprecated
-    *   use {@link MeshPartBuilder#setVertexTransform(Matrix4)} instead of using the method signature taking a matrix.
-    */
-  @deprecated("use MeshPartBuilder.setVertexTransform instead", "")
   def build(
     builder:    MeshPartBuilder,
     transform:  Matrix4,

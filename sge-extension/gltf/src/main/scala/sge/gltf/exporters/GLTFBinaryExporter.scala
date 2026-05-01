@@ -27,7 +27,7 @@ import sge.graphics.glutils.FrameBuffer
 import sge.gltf.data.data.{ GLTFBuffer, GLTFBufferView }
 import sge.gltf.data.texture.GLTFImage
 import sge.gltf.loaders.exceptions.{ GLTFRuntimeException, GLTFUnsupportedException }
-import sge.utils.{ Nullable, ScreenUtils }
+import sge.utils.Nullable
 
 private[exporters] class GLTFBinaryExporter(
   private val folder: FileHandle,
@@ -140,7 +140,7 @@ private[exporters] class GLTFBinaryExporter(
     batch.begin()
     batch.draw(texture, 0, 0, 1, 1, 0, 0, 1, 1)
     batch.end()
-    val pixmap = ScreenUtils.getFrameBufferPixmap(Pixels(0), Pixels(0), texture.width, texture.height)
+    val pixmap = Pixmap.createFromFrameBuffer(Pixels(0), Pixels(0), texture.width, texture.height)
     fbo.end()
     batch.close()
     fbo.close()

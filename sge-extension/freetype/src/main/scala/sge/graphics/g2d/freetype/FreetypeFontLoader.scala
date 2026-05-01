@@ -39,7 +39,6 @@ import sge.utils.{ DynamicArray, Nullable }
   */
 class FreetypeFontLoader(resolver: FileHandleResolver)(using Sge) extends AsynchronousAssetLoader[BitmapFont, FreetypeFontLoader.FreeTypeFontLoaderParameter](resolver) {
 
-  @scala.annotation.nowarn("msg=deprecated") // null check — parameter arrives from AssetManager which may pass null
   override def loadAsync(
     manager:   AssetManager,
     fileName:  String,
@@ -49,7 +48,6 @@ class FreetypeFontLoader(resolver: FileHandleResolver)(using Sge) extends Asynch
     if (parameter == null)
       throw new RuntimeException("FreetypeFontParameter must be set in AssetManager#load to point at a TTF file!")
 
-  @scala.annotation.nowarn("msg=deprecated") // null check — parameter arrives from AssetManager which may pass null
   override def loadSync(
     manager:   AssetManager,
     fileName:  String,
