@@ -26,8 +26,8 @@ private[net] object AndroidHttpBackendFactory extends HttpBackendFactory {
 
   override def send(request: SttpRequest[Either[String, String]]): Future[SttpResponse[Either[String, String]]] =
     Future {
-      @SuppressWarnings(Array("all"))
-      val url  = new URL(request.uri.toString()) // @nowarn - URL(String) deprecated in JDK 20+ but required for Android
+      @scala.annotation.nowarn("msg=deprecated") // URL(String) deprecated in JDK 20+ but required for Android
+      val url  = new URL(request.uri.toString())
       val conn = url.openConnection().asInstanceOf[HttpURLConnection]
       try {
         conn.setRequestMethod(request.method.method)

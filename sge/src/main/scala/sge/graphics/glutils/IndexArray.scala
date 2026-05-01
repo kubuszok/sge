@@ -13,8 +13,8 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 104
- * Covenant-baseline-methods: IndexArray,_buffer,actualMaxIndices,bind,buffer,byteBuffer,close,empty,getBuffer,invalidate,numIndices,numMaxIndices,pos,setIndices,unbind,updateIndices
+ * Covenant-baseline-loc: 108
+ * Covenant-baseline-methods: IndexArray,_buffer,actualMaxIndices,bind,byteBuffer,close,empty,getBuffer,invalidate,numIndices,numMaxIndices,pos,setIndices,unbind,updateIndices
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/IndexArray.java
  * Covenant-verified: 2026-04-19
  *
@@ -89,11 +89,6 @@ class IndexArray(maxIndices: Int) extends IndexData with AutoCloseable {
     BufferUtils.copy(indices, offset, byteBuffer, count)
     byteBuffer.asInstanceOf[Buffer].position(pos)
   }
-
-  /** @deprecated use {@link #getBuffer(boolean)} instead */
-  @deprecated("use getBuffer(boolean) instead")
-  override def buffer: ShortBuffer =
-    _buffer
 
   override def getBuffer(forWriting: Boolean): ShortBuffer =
     _buffer

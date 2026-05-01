@@ -201,7 +201,7 @@ class BasicColorPicker protected (initStyle: ColorPickerWidgetStyle, initListene
   }
 
   protected def updateValuesFromHSVFields(): Unit =
-    pickerColor = ColorUtils.HSVtoRGB(verticalBar.getValue, palette.getS, palette.getV, pickerColor.a)
+    pickerColor = ColorUtils.HSVtoRGB(verticalBar.getValue.toFloat, palette.getS.toFloat, palette.getV.toFloat, pickerColor.a)
 
   def restoreLastColor(): Unit = {
     val colorBeforeReset = new Color(pickerColor)

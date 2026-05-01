@@ -14,8 +14,8 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 229
- * Covenant-baseline-methods: VertexBufferObject,_attributes,_buffer,_usage,attributes,bind,buffer,bufferChanged,bufferHandle,byteBuffer,close,data,getBuffer,gl,init,invalidate,isBound,isDirty,l,numAttributes,numMaxVertices,numVertices,ownsBuffer,pos,setBuffer,setVertices,this,unbind,updateVertices,usage,usage_
+ * Covenant-baseline-loc: 231
+ * Covenant-baseline-methods: VertexBufferObject,_attributes,_buffer,_usage,attributes,bind,bufferChanged,bufferHandle,byteBuffer,close,data,getBuffer,gl,init,invalidate,isBound,isDirty,l,numAttributes,numMaxVertices,numVertices,ownsBuffer,pos,setBuffer,setVertices,this,unbind,updateVertices,usage,usage_
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/VertexBufferObject.java
  * Covenant-verified: 2026-04-19
  *
@@ -97,13 +97,6 @@ class VertexBufferObject(using Sge) extends VertexData {
   override def numVertices: Int = _buffer.limit() * 4 / _attributes.vertexSize
 
   override def numMaxVertices: Int = byteBuffer.capacity() / _attributes.vertexSize
-
-  /** @deprecated use {@link #getBuffer(boolean)} instead */
-  @deprecated("use getBuffer(boolean) instead", "")
-  override def buffer: FloatBuffer = {
-    isDirty = true
-    _buffer
-  }
 
   override def getBuffer(forWriting: Boolean): FloatBuffer = {
     isDirty = isDirty || forWriting

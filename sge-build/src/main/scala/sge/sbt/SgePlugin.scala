@@ -154,7 +154,6 @@ object SgePlugin extends AutoPlugin {
       "-Wrecurse-with-default",
       "-Wenum-comment-discard",
       "-Wunused:imports,privates,locals,patvars,nowarn",
-      "-Wconf:cat=deprecation:info",
       // Kindlings macro derivation timeout — raised for Rosetta x86_64 emulation
       // where macro expansion is ~3x slower than native ARM64.
       "-Xmacro-settings:jsoniterDerivation.timeout=30s",

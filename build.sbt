@@ -319,7 +319,7 @@ lazy val `sge-jvm-platform-android` = (project in file("sge-jvm-platform/android
         IO.createDirectory(cacheDir)
         if (!aarFile.exists()) {
           log.info(s"Downloading PanamaPort AAR from $aarUrl")
-          val in = new java.net.URL(aarUrl).openStream()
+          val in = new java.net.URI(aarUrl).toURL.openStream()
           try { IO.transfer(in, aarFile) }
           finally { in.close() }
         }

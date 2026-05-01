@@ -13,8 +13,8 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 128
- * Covenant-baseline-methods: VertexArray,_buffer,bind,buffer,byteBuffer,close,getBuffer,invalidate,isBound,numAttributes,numMaxVertices,numVertices,pos,setVertices,this,unbind,updateVertices
+ * Covenant-baseline-loc: 133
+ * Covenant-baseline-methods: VertexArray,_buffer,bind,byteBuffer,close,getBuffer,invalidate,isBound,numAttributes,numMaxVertices,numVertices,pos,setVertices,this,unbind,updateVertices
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/VertexArray.java
  * Covenant-verified: 2026-04-19
  *
@@ -58,10 +58,6 @@ class VertexArray(initialNumVertices: Int, val attributes: VertexAttributes) ext
 
   override def close(): Unit =
     BufferUtils.disposeUnsafeByteBuffer(byteBuffer)
-
-  /** @deprecated use {@link #getBuffer(boolean)} instead */
-  override def buffer: FloatBuffer =
-    _buffer
 
   override def getBuffer(forWriting: Boolean): FloatBuffer =
     _buffer

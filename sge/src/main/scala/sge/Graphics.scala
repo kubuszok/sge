@@ -14,8 +14,8 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 378
- * Covenant-baseline-methods: BufferFormat,DisplayMode,Graphics,GraphicsType,Monitor,backBufferHeight,backBufferScale,backBufferWidth,bufferFormat,continuousRendering,deltaTime,density,displayMode,displayModes,frameId,framesPerSecond,fullscreen,getDisplayMode,getDisplayModes,gl,gl20,gl20_,gl30,gl30Available,gl30_,gl31,gl31Available,gl31_,gl32,gl32Available,gl32_,glVersion,graphicsType,height,monitor,monitors,newCursor,ppcX,ppcY,ppiX,ppiY,primaryMonitor,rawDeltaTime,requestRendering,safeInsetBottom,safeInsetLeft,safeInsetRight,safeInsetTop,setContinuousRendering,setCursor,setForegroundFPS,setFullscreenMode,setResizable,setSystemCursor,setTitle,setUndecorated,setVSync,setWindowedMode,supportsDisplayModeChange,supportsExtension,toString,width
+ * Covenant-baseline-loc: 379
+ * Covenant-baseline-methods: BufferFormat,DisplayMode,Graphics,GraphicsType,Monitor,backBufferHeight,backBufferScale,backBufferWidth,bufferFormat,continuousRendering,deltaTime,density,displayMode,displayModes,frameId,framesPerSecond,fullscreen,getDisplayMode,getDisplayModes,gl,gl20,gl20_,gl30,gl30Available,gl30_,gl31,gl31Available,gl31_,gl32,gl32Available,gl32_,glVersion,graphicsType,height,monitor,monitors,newCursor,ppcX,ppcY,ppiX,ppiY,primaryMonitor,requestRendering,safeInsetBottom,safeInsetLeft,safeInsetRight,safeInsetTop,setContinuousRendering,setCursor,setForegroundFPS,setFullscreenMode,setResizable,setSystemCursor,setTitle,setUndecorated,setVSync,setWindowedMode,supportsDisplayModeChange,supportsExtension,toString,width
  * Covenant-source-reference: com/badlogic/gdx/Graphics.java
  * Covenant-verified: 2026-04-19
  *
@@ -130,14 +130,6 @@ trait Graphics {
 
   /** @return the time span between the current frame and the last frame in seconds. */
   def deltaTime: Seconds
-
-  /** @return
-    *   the time span between the current frame and the last frame in seconds, without smoothing
-    * @deprecated
-    *   use {@link #deltaTime} instead.
-    */
-  @deprecated("use deltaTime instead", "1.0")
-  def rawDeltaTime: Seconds
 
   /** @return the average number of frames per second */
   def framesPerSecond: Int

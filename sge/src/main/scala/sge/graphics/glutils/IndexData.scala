@@ -13,8 +13,8 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 94
- * Covenant-baseline-methods: IndexData,bind,buffer,close,getBuffer,invalidate,numIndices,numMaxIndices,setIndices,unbind,updateIndices
+ * Covenant-baseline-loc: 92
+ * Covenant-baseline-methods: IndexData,bind,close,getBuffer,invalidate,numIndices,numMaxIndices,setIndices,unbind,updateIndices
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/IndexData.java
  * Covenant-verified: 2026-04-19
  *
@@ -69,17 +69,6 @@ trait IndexData extends AutoCloseable {
     *   the number of shorts to copy
     */
   def updateIndices(targetOffset: Int, indices: Array[Short], offset: Int, count: Int): Unit
-
-  /** <p> Returns the underlying ShortBuffer. If you modify the buffer contents they will be uploaded on the next call to {@link #bind()} . If you need immediate uploading use
-    * {@link #setIndices(short[], int, int)} . </p>
-    *
-    * @return
-    *   the underlying short buffer.
-    * @deprecated
-    *   use {@link #getBuffer(boolean)} instead
-    */
-  @deprecated("use getBuffer(boolean) instead", "")
-  def buffer: ShortBuffer
 
   /** Returns the underlying ShortBuffer for reading or writing.
     * @param forWriting

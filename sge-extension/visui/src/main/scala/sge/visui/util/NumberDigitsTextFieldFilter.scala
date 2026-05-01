@@ -8,7 +8,7 @@
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 41
- * Covenant-baseline-methods: NumberDigitsTextFieldFilter,_useFieldCursorPosition,acceptNegativeValues,acceptNegativeValues_,setAcceptNegativeValues,setUseFieldCursorPosition,useFieldCursorPosition,useFieldCursorPosition_
+ * Covenant-baseline-methods: NumberDigitsTextFieldFilter,_useFieldCursorPosition,acceptNegativeValues,acceptNegativeValues_,useFieldCursorPosition,useFieldCursorPosition_
  * Covenant-source-reference: com/kotcrab/vis/ui/util/NumberDigitsTextFieldFilter.java
  * Covenant-verified: 2026-04-19
  *
@@ -35,8 +35,6 @@ abstract class NumberDigitsTextFieldFilter(private var _acceptNegativeValues: Bo
 
   def acceptNegativeValues:                   Boolean = _acceptNegativeValues
   def acceptNegativeValues_=(value: Boolean): Unit    = _acceptNegativeValues = value
-  @deprecated("Use acceptNegativeValues_=", "")
-  def setAcceptNegativeValues(value: Boolean): Unit = _acceptNegativeValues = value
 
   def useFieldCursorPosition: Boolean = _useFieldCursorPosition
 
@@ -45,6 +43,4 @@ abstract class NumberDigitsTextFieldFilter(private var _acceptNegativeValues: Bo
     *   cursor position is set to 0 when you change text programmatically. Non zero cursor position can happen when you are changing text when field still has user focus.
     */
   def useFieldCursorPosition_=(value: Boolean): Unit = _useFieldCursorPosition = value
-  @deprecated("Use useFieldCursorPosition_=", "")
-  def setUseFieldCursorPosition(value: Boolean): Unit = _useFieldCursorPosition = value
 }

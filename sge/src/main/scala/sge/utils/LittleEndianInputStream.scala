@@ -13,7 +13,7 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 102
+ * Covenant-baseline-loc: 113
  * Covenant-baseline-methods: LittleEndianInputStream,din,high,low,readBoolean,readByte,readChar,readDouble,readFloat,readFully,readInt,readLine,readLong,readShort,readUTF,readUnsignedByte,readUnsignedShort,res,skipBytes
  * Covenant-source-reference: com/badlogic/gdx/utils/LittleEndianInputStream.java
  * Covenant-verified: 2026-04-19
@@ -101,6 +101,7 @@ final class LittleEndianInputStream(in: InputStream) extends FilterInputStream(i
   def readDouble(): Double =
     java.lang.Double.longBitsToDouble(readLong())
 
+  @deprecated("DataInputStream.readLine() is deprecated by Java with no replacement", "")
   @throws[IOException]
   def readLine(): String =
     din.readLine()

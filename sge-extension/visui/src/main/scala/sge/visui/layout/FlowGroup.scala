@@ -22,8 +22,7 @@ import sge.scenes.scene2d.Touchable
 import sge.scenes.scene2d.ui.WidgetGroup
 import sge.scenes.scene2d.utils.Layout
 
-/** Arranges actors to flow in a specified layout direction using up available space and, if sensible, expanding in that direction. This is a more versatile implementation of a flow group subsuming
-  * [[HorizontalFlowGroup]] and [[VerticalFlowGroup]].
+/** Arranges actors to flow in a specified layout direction using up available space and, if sensible, expanding in that direction.
   * @author
   *   ccmb2r
   * @since 1.4.7

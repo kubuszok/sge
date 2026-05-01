@@ -177,7 +177,6 @@ class DesktopGraphics private[sge] (
 
   override def frameId:         Long    = _frameId
   override def deltaTime:       Seconds = _deltaTime
-  override def rawDeltaTime:    Seconds = _deltaTime
   override def framesPerSecond: Int     = _fps
 
   // ─── Type / version ──────────────────────────────────────────────────

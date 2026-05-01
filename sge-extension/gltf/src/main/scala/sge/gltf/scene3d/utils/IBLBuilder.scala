@@ -50,7 +50,7 @@ import sge.graphics.glutils.{ FrameBuffer, FrameBufferCubemap, ShaderProgram, Sh
 import sge.graphics.glutils.ShapeRenderer.ShapeType
 import sge.graphics.Pixmap
 import sge.math.{ Matrix4, Vector3 }
-import sge.utils.{ DynamicArray, Nullable, ScreenUtils, SgeError }
+import sge.utils.{ DynamicArray, Nullable, SgeError }
 
 class IBLBuilder private (using sge: Sge) extends AutoCloseable {
 
@@ -164,7 +164,7 @@ class IBLBuilder private (using sge: Sge) extends AutoCloseable {
         renderGradientForSide(side, blur)
         renderLightsForSide(side, false)
 
-        maps(index) = ScreenUtils.getFrameBufferPixmap(Pixels.zero, Pixels.zero, Pixels(size), Pixels(size))
+        maps(index) = Pixmap.createFromFrameBuffer(Pixels.zero, Pixels.zero, Pixels(size), Pixels(size))
         index += 1
         s += 1
       }
