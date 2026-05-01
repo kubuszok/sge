@@ -14,7 +14,7 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 598
+ * Covenant-baseline-loc: 583
  * Covenant-baseline-methods: Container,_actor,_align,_background,_clip,_fillX,_fillY,_maxHeight,_maxWidth,_minHeight,_minWidth,_padBottom,_padLeft,_padRight,_padTop,_prefHeight,_prefWidth,_round,actor,actorCulling,addActor,addActorAfter,addActorAt,addActorBefore,align,alignRight,alignTop,background,bottom,center,clip,draw,drawBackground,drawDebug,fill,fillX,fillY,getFillX,getFillY,getPadBottom,getPadLeft,getPadRight,getPadTop,height,hit,isClip,layout,left,maxHeight,maxHeightValue,maxSize,maxWidth,maxWidthValue,minHeight,minHeightValue,minSize,minWidth,pad,padBottom,padBottomValue,padLeft,padLeftValue,padRight,padRightValue,padTop,padTopValue,padX,padY,prefHeight,prefHeightValue,prefSize,prefWidth,prefWidthValue,removeActor,removeActorAt,removed,setActor,setBackground,setClip,setCullingArea,setRound,size,this,v,value,width
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Container.java
  * Covenant-verified: 2026-04-19
@@ -227,39 +227,15 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
   /** @return May be null. */
   def actor: Nullable[T] = _actor
 
-  /** @deprecated
-    *   Container may have only a single child.
-    * @see
-    *   #setActor(Actor)
-    */
-  // @deprecated("Use Container#setActor.", "")
   override def addActor(actor: Actor): Unit =
     throw new UnsupportedOperationException("Use Container#setActor.")
 
-  /** @deprecated
-    *   Container may have only a single child.
-    * @see
-    *   #setActor(Actor)
-    */
-  // @deprecated("Use Container#setActor.", "")
   override def addActorAt(index: Int, actor: Actor): Unit =
     throw new UnsupportedOperationException("Use Container#setActor.")
 
-  /** @deprecated
-    *   Container may have only a single child.
-    * @see
-    *   #setActor(Actor)
-    */
-  // @deprecated("Use Container#setActor.", "")
   override def addActorBefore(actorBefore: Actor, actor: Actor): Unit =
     throw new UnsupportedOperationException("Use Container#setActor.")
 
-  /** @deprecated
-    *   Container may have only a single child.
-    * @see
-    *   #setActor(Actor)
-    */
-  // @deprecated("Use Container#setActor.", "")
   override def addActorAfter(actorAfter: Actor, actor: Actor): Unit =
     throw new UnsupportedOperationException("Use Container#setActor.")
 
