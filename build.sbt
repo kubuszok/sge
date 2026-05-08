@@ -117,7 +117,7 @@ val sge = (projectMatrix in file("sge"))
     settings = SgePlugin.jvmSettings() ++ SgeNativeLibs.validationSettings ++ Seq(
       libraryDependencies += "ch.epfl.lamp" %% "gears" % versions.gears,
       // multiarch-core for NativeLibLoader (runtime shared library loading)
-      libraryDependencies += "com.kubuszok" %% "multiarch-core" % "1.0-0.1.2-3-gba7ffe4-SNAPSHOT",
+      libraryDependencies += "com.kubuszok" %% "multiarch-core" % "0.1.2-3-gba7ffe4-SNAPSHOT",
       // JVM platform modules on classpath (no dependsOn — avoids transitive dep for consumers).
       // All 3 needed: API for compilation, JDK + Android for runtime provider detection.
       Compile / unmanagedClasspath ++= {
