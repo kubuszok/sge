@@ -985,6 +985,8 @@ lazy val `sge-it-jvm-platform` = (project in file("sge-test/it-jvm-platform"))
   .settings(
     scalaVersion := versions.scala,
     libraryDependencies += "org.scalameta" %% "munit" % versions.munit % Test,
+    libraryDependencies += "com.kubuszok" %% "multiarch-panama-jdk" % "0.1.2-3-gba7ffe4-SNAPSHOT",
+    resolvers += mavenCentralSnapshots,
     testFrameworks += new TestFramework("munit.Framework")
   )
   .dependsOn(`sge-jvm-platform-api`, `sge-jvm-platform-android`)
