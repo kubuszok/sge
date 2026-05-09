@@ -117,9 +117,9 @@ val sge = (projectMatrix in file("sge"))
     settings = SgePlugin.jvmSettings() ++ SgeNativeLibs.validationSettings ++ Seq(
       libraryDependencies += "ch.epfl.lamp" %% "gears" % versions.gears,
       // multiarch-core for NativeLibLoader (runtime shared library loading)
-      libraryDependencies += "com.kubuszok" %% "multiarch-core" % "0.1.2-3-gba7ffe4-SNAPSHOT",
+      libraryDependencies += "com.kubuszok" %% "multiarch-core" % "0.2.0",
       // multiarch-panama-jdk for PanamaProvider abstraction (JdkPanama + PanamaPortProvider)
-      libraryDependencies += "com.kubuszok" %% "multiarch-panama-jdk" % "0.1.2-3-gba7ffe4-SNAPSHOT",
+      libraryDependencies += "com.kubuszok" %% "multiarch-panama-jdk" % "0.2.0",
       // SGE-specific JVM platform modules on classpath (Android ops interfaces + impls).
       // No dependsOn — avoids transitive dep for consumers.
       Compile / unmanagedClasspath ++= {
@@ -268,7 +268,7 @@ lazy val `sge-jvm-platform-api` = (project in file("sge-jvm-platform/api"))
     // Target JDK 17 bytecode — no java.lang.foreign or android.* references
     scalacOptions ++= Seq("-release", "17"),
     // PanamaProvider type alias references multiarch-panama-api
-    libraryDependencies += "com.kubuszok" %% "multiarch-panama-api" % "0.1.2-3-gba7ffe4-SNAPSHOT",
+    libraryDependencies += "com.kubuszok" %% "multiarch-panama-api" % "0.2.0",
     resolvers += mavenCentralSnapshots
   )
 
@@ -985,7 +985,7 @@ lazy val `sge-it-jvm-platform` = (project in file("sge-test/it-jvm-platform"))
   .settings(
     scalaVersion := versions.scala,
     libraryDependencies += "org.scalameta" %% "munit" % versions.munit % Test,
-    libraryDependencies += "com.kubuszok" %% "multiarch-panama-jdk" % "0.1.2-3-gba7ffe4-SNAPSHOT",
+    libraryDependencies += "com.kubuszok" %% "multiarch-panama-jdk" % "0.2.0",
     resolvers += mavenCentralSnapshots,
     testFrameworks += new TestFramework("munit.Framework")
   )
