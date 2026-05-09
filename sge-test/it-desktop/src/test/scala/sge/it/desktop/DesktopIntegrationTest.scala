@@ -34,8 +34,8 @@ class DesktopIntegrationTest extends FunSuite {
     assume(libPath.nonEmpty, "java.library.path is not set — skipping")
 
     // Use Panama to load native libraries and verify key symbols exist.
-    // JdkPanama is on the classpath via sge-jvm-platform-jdk.
-    val panama = sge.platform.JdkPanama
+    // JdkPanama is on the classpath via multiarch-panama-jdk dependency.
+    val panama = multiarch.panama.JdkPanama
     import panama.*
 
     val arena = Arena.global()

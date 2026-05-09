@@ -8,17 +8,18 @@ module.
 
 | Tool | Version | Notes |
 |------|---------|-------|
-| **Scala** | 3.8.2 | Requires JDK 17+; emits Java 17 class files (version 61) |
-| **sbt** | 1.10.7 | Thin client mode via `sbt --client` |
+| **Scala** | 3.8.3 | Requires JDK 17+; emits Java 17 class files (version 61) |
+| **sbt** | 1.12.7 | Thin client mode via `sbt --client` |
 | **sbt-projectmatrix** | 0.11.0 | Cross-platform project definition; will be built-in with sbt 2.0 |
-| **sbt-scalajs** | 1.20.2 | Scala.js compiler + linker; must match Scala version expectations |
+| **sbt-scalajs** | 1.21.0 | Scala.js compiler + linker; must match Scala version expectations |
 | **sbt-scala-native** | 0.5.10 | Scala Native compiler + linker; Zone API uses context functions |
-| **JDK** | 23+ | Required for Panama FFM; 21+ works for CI compilation |
+| **sbt-multiarch-scala** | 0.1.2 | Native provider plugin, JVM packaging, Android build |
+| **JDK** | 25 | Required for Panama FFM; Zulu 25 for all CI platforms |
 | **Node.js** | 22+ | Required for `sbt browser/run`; 23+ for WASM flags |
 
 ### Version Compatibility Constraints
 
-**Scala 3.8.2 requires sbt-scalajs 1.20.0+.** The Scala 3.8.2 compiler backend
+**Scala 3.8.x requires sbt-scalajs 1.20.0+.** The Scala 3.8.x compiler backend
 emits Scala.js IR that references runtime library features (e.g., `js.async`)
 introduced in Scala.js 1.20.x. Using older sbt-scalajs versions (1.17.x, 1.18.x)
 causes a compiler crash:
@@ -48,15 +49,122 @@ Zone { implicit z =>
 ### project/plugins.sbt
 
 ```scala
-addSbtPlugin("com.eed3si9n"      % "sbt-projectmatrix" % "0.11.0")
-addSbtPlugin("org.scala-js"     % "sbt-scalajs"       % "1.20.2")
-addSbtPlugin("org.scala-native" % "sbt-scala-native"  % "0.5.10")
+addSbtPlugin("com.eed3si9n"     % "sbt-projectmatrix"  % "0.11.0")
+addSbtPlugin("org.scala-js"     % "sbt-scalajs"        % "1.21.0")
+addSbtPlugin("org.scala-native" % "sbt-scala-native"   % "0.5.10")
+addSbtPlugin("com.kubuszok"     % "sbt-multiarch-scala" % "0.1.2")
 ```
 
 ### project/build.properties
 
 ```
-sbt.version=1.10.7
+sbt.version=1.12.7
+```
+
+## sbt-multiarch-scala: Native Provider System
+
+`sbt-multiarch-scala` provides automatic native library management for Scala
+Native, JVM (JNI/Panama), and Android. It eliminates manual linker flag
+configuration by discovering provider manifests from classpath JARs.
+
+### How NativeProviderPlugin works
+
+1. **Discovery**: Scans classpath JARs for `sn-provider.json` (Scala Native),
+   `jni-provider.json` (JNI), or `pnm-provider.json` (Panama) manifests
+2. **Extraction**: Extracts platform-specific `.a`/`.lib` files to
+   `target/native-libs/<platform-classifier>/`
+3. **Flag merging**: Collects `flags-groups` from all manifests, deduplicates by
+   group equality, produces final linker flags
+4. **nativeConfig wiring**: Appends to existing `nativeConfig.linkingOptions`:
+   `-L<libDir>` + library paths + merged flags + rpath
+
+### Flag ordering (critical)
+
+The plugin produces flags in this exact order:
+
+```
+[existing nativeConfig.linkingOptions]
+  ++ [-L<libDir>]
+  ++ [/absolute/path/to/library.a, ...]
+  ++ [deduplicated flag groups flattened]
+  ++ [rpath flags (platform-specific)]
+```
+
+rpath flags:
+- **macOS**: `-rpath <libDir> -rpath @executable_path`
+- **Linux**: `-Wl,-rpath,<libDir> -Wl,-rpath,$$ORIGIN`
+- **Windows**: no rpath (DLLs copied next to executable after linking)
+
+### Settings evaluation order (the critical gotcha)
+
+When combining `NativeProviderPlugin.projectSettings` with custom `nativeConfig`
+settings, **order matters**. The plugin uses `nativeConfig :=` which reads
+`.value` (the previously computed config) and appends flags. If your custom
+`nativeConfig :=` comes **after** the plugin's settings in the sequence, it
+reads the plugin's computed value correctly. If it comes **before**, the plugin
+overwrites your settings.
+
+**Correct pattern:**
+
+```scala
+.nativePlatform(settings =
+  NativeProviderPlugin.projectSettings ++ Seq(
+    nativeConfig := {
+      val c = nativeConfig.value  // reads plugin's computed value
+      c.withEmbedResources(true)
+       .withLinkingOptions(c.linkingOptions ++ Seq("-lstdc++"))
+    }
+  )
+)
+```
+
+**Wrong pattern (plugin overwrites your settings):**
+
+```scala
+.nativePlatform(settings = Seq(
+    nativeConfig := {
+      nativeConfig.value.withEmbedResources(true)
+    }
+  ) ++ NativeProviderPlugin.projectSettings  // overwrites the above!
+)
+```
+
+### Using `~=` vs `:=` with NativeProviderPlugin
+
+The `~=` operator transforms the current value without reading other settings.
+The `:=` operator with `.value` creates a dependency chain. When `NativeProviderPlugin`
+uses `:=`, subsequent `~=` on `nativeConfig` will transform the plugin's output.
+But a subsequent `:=` will **replace** it unless it reads `.value`.
+
+**Safe alternative with `~=`:**
+
+```scala
+.nativePlatform(settings =
+  NativeProviderPlugin.projectSettings ++ Seq(
+    nativeConfig ~= { _.withEmbedResources(true) }
+  )
+)
+```
+
+### C++ standard library linking
+
+Native projects using C++ code need the platform-appropriate stdlib:
+
+```scala
+nativeConfig := {
+  val c = nativeConfig.value
+  val cppLib = if (System.getProperty("os.name", "").toLowerCase.contains("mac"))
+    "-lc++" else "-lstdc++"
+  c.withLinkingOptions(c.linkingOptions ++ Seq(cppLib))
+}
+```
+
+### Local development override
+
+For local development with pre-built native libraries (bypassing JAR extraction):
+
+```scala
+NativeExtractSettings.nativeLibSourceDir := baseDirectory.value / "native-libs"
 ```
 
 ## build.sbt Structure
@@ -64,7 +172,7 @@ sbt.version=1.10.7
 ### Shared settings
 
 ```scala
-val scala3 = "3.8.2"
+val scala3 = "3.8.3"
 
 val commonSettings = Seq(
   scalaVersion := scala3,
@@ -109,7 +217,7 @@ lazy val core = (projectMatrix in file("core"))
 - `.jvmPlatform()` generates subproject `core3` (JVM has empty ID suffix)
 - `.jsPlatform()` generates subproject `coreJS3`
 - `.nativePlatform()` generates subproject `coreNative3`
-- The `3` suffix is the Scala binary version (3.8.2 → binary `3`)
+- The `3` suffix is the Scala binary version (3.8.3 → binary `3`)
 
 ### App module (projectMatrix, depends on core)
 
@@ -208,7 +316,7 @@ stdout goes to the sbt server process, not the thin client terminal. Use
 `sbt --client 'desktopNative/nativeLink'` then run the binary directly:
 
 ```bash
-./desktop-native/target/scala-3.8.2/sge-desktop-native
+./desktop-native/target/scala-3.8.3/sge-desktop-native
 ```
 
 ## sbt-projectmatrix Project ID Naming
@@ -230,7 +338,7 @@ cross-project dependency wiring.
 
 **The JVM platform has an empty suffix** — this is intentional. JVM is treated as
 the "default" platform by sbt-projectmatrix. The binary version `3` comes from
-Scala 3.8.2.
+Scala 3.8.3.
 
 ### Referencing Variants in build.sbt
 
@@ -516,7 +624,7 @@ The JVM `VirtualAxis` has an empty `idSuffix`. A matrix named `core` produces
 
 ### 3. Scala.js version must match Scala compiler
 
-Scala 3.8.2 ships with `scala3-library_sjs1_3-3.8.2.jar` that depends on
+Scala 3.8.3 ships with `scala3-library_sjs1_3-3.8.3.jar` that depends on
 Scala.js 1.20.x internals. Using sbt-scalajs < 1.20.0 causes a compiler crash.
 Always match the sbt-scalajs version to what the Scala compiler expects.
 

@@ -6,12 +6,14 @@
 package sge
 package platform
 
+import multiarch.panama.JdkPanama
+
 import munit.FunSuite
 
 class PanamaProviderTest extends FunSuite {
 
   test("JdkPanama is discoverable via reflection") {
-    val cls = Class.forName("sge.platform.JdkPanama$")
+    val cls = Class.forName("multiarch.panama.JdkPanama$")
     val obj = cls.getField("MODULE$").get(null).asInstanceOf[PanamaProvider]
     assert(obj != null)
   }

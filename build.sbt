@@ -118,27 +118,26 @@ val sge = (projectMatrix in file("sge"))
       libraryDependencies += "ch.epfl.lamp" %% "gears" % versions.gears,
       // multiarch-core for NativeLibLoader (runtime shared library loading)
       libraryDependencies += "com.kubuszok" %% "multiarch-core" % "0.1.2-3-gba7ffe4-SNAPSHOT",
-      // JVM platform modules on classpath (no dependsOn — avoids transitive dep for consumers).
-      // All 3 needed: API for compilation, JDK + Android for runtime provider detection.
+      // multiarch-panama-jdk for PanamaProvider abstraction (JdkPanama + PanamaPortProvider)
+      libraryDependencies += "com.kubuszok" %% "multiarch-panama-jdk" % "0.1.2-3-gba7ffe4-SNAPSHOT",
+      // SGE-specific JVM platform modules on classpath (Android ops interfaces + impls).
+      // No dependsOn — avoids transitive dep for consumers.
       Compile / unmanagedClasspath ++= {
         val apiDirs     = (`sge-jvm-platform-api` / Compile / products).value
-        val jdkDirs     = (`sge-jvm-platform-jdk` / Compile / products).value
         val androidDirs = (`sge-jvm-platform-android` / Compile / products).value
-        (apiDirs ++ jdkDirs ++ androidDirs).map(Attributed.blank)
+        (apiDirs ++ androidDirs).map(Attributed.blank)
       },
       // Also on test classpath (forked JVM doesn't inherit Compile / unmanagedClasspath)
       Test / unmanagedClasspath ++= {
         val apiDirs     = (`sge-jvm-platform-api` / Compile / products).value
-        val jdkDirs     = (`sge-jvm-platform-jdk` / Compile / products).value
         val androidDirs = (`sge-jvm-platform-android` / Compile / products).value
-        (apiDirs ++ jdkDirs ++ androidDirs).map(Attributed.blank)
+        (apiDirs ++ androidDirs).map(Attributed.blank)
       },
-      // Merge all 3 platform modules' class files into sge's JVM JAR
+      // Merge SGE-specific platform modules' class files into sge's JVM JAR
       Compile / packageBin / mappings ++= {
         val apiDirs     = (`sge-jvm-platform-api` / Compile / products).value
-        val jdkDirs     = (`sge-jvm-platform-jdk` / Compile / products).value
         val androidDirs = (`sge-jvm-platform-android` / Compile / products).value
-        (apiDirs ++ jdkDirs ++ androidDirs).flatMap(collectClassFiles)
+        (apiDirs ++ androidDirs).flatMap(collectClassFiles)
       },
       // Bundle core + ANGLE native shared libraries for all platforms into the JAR.
       // Extension libs (sge_freetype, sge_physics) are bundled by their respective extension JARs.
@@ -251,14 +250,15 @@ val regressionTest = (projectMatrix in file("sge-test/regression"))
 
 // ── JVM Platform modules ──────────────────────────────────────────────
 //
-// Three modules isolate JDK-version-dependent and platform-specific code:
-//   sge-jvm-platform-api     — PanamaProvider trait + Android ops interfaces (JDK 17)
-//   sge-jvm-platform-jdk     — JdkPanama impl (JDK 22+, java.lang.foreign)
-//   sge-jvm-platform-android — PanamaPort + Android backend impls (JDK 17, android.jar)
+// Two modules for SGE-specific Android platform code:
+//   sge-jvm-platform-api     — PanamaProvider type alias + Android ops interfaces (JDK 17)
+//   sge-jvm-platform-android — Android backend impls (JDK 17, android.jar)
 //
-// None are published. Their class files are merged into sge's JVM JAR
-// at package time (see sge jvmPlatform settings). Runtime feature
-// detection in sge picks the right provider/implementation.
+// PanamaProvider trait, JdkPanama, and PanamaPortProvider are now in
+// multiarch-panama-api / multiarch-panama-jdk (published by multiarch-scala).
+//
+// These modules are not published. Their class files are merged into sge's JVM JAR
+// at package time (see sge jvmPlatform settings).
 
 lazy val `sge-jvm-platform-api` = (project in file("sge-jvm-platform/api"))
   .settings(publishSettings *)
@@ -266,17 +266,11 @@ lazy val `sge-jvm-platform-api` = (project in file("sge-jvm-platform/api"))
   .settings(
     scalaVersion := versions.scala,
     // Target JDK 17 bytecode — no java.lang.foreign or android.* references
-    scalacOptions ++= Seq("-release", "17")
+    scalacOptions ++= Seq("-release", "17"),
+    // PanamaProvider type alias references multiarch-panama-api
+    libraryDependencies += "com.kubuszok" %% "multiarch-panama-api" % "0.1.2-3-gba7ffe4-SNAPSHOT",
+    resolvers += mavenCentralSnapshots
   )
-
-lazy val `sge-jvm-platform-jdk` = (project in file("sge-jvm-platform/jdk"))
-  .settings(publishSettings *)
-  .settings(noPublishSettings *)
-  .settings(
-    scalaVersion := versions.scala,
-    // No -release flag — needs java.lang.foreign (JDK 22+)
-  )
-  .dependsOn(`sge-jvm-platform-api`)
 
 // SGE convention: downloaded Android SDK lives under sge-deps/
 lazy val sgeAndroidSdkCacheDir: File = new File("./sge-deps/android-sdk")
@@ -292,7 +286,6 @@ lazy val `sge-jvm-platform-android` = (project in file("sge-jvm-platform/android
     publish / skip := true,
     // Target JDK 17 bytecode (Android ART)
     scalacOptions ++= Seq("-release", "17"),
-    // src/main/scala/ always compiles (PanamaPortProvider — no Android SDK deps).
     // src/main/scala-android/ only compiled when android.jar is present.
     Compile / unmanagedJars ++= {
       val base     = (ThisBuild / baseDirectory).value
@@ -306,35 +299,6 @@ lazy val `sge-jvm-platform-android` = (project in file("sge-jvm-platform/android
       if (hasAndroidSdk)
         Seq(baseDirectory.value / "src" / "main" / "scala-android")
       else Seq.empty
-    },
-    // PanamaPort — Panama FFM backport for Android (API 26+).
-    // Published as AAR (not JAR), so we resolve via coursier, extract classes.jar, and add as unmanaged.
-    Compile / unmanagedJars ++= {
-      val aarUrl  = s"https://repo1.maven.org/maven2/io/github/vova7878/panama/Core/${versions.panamaPort}/Core-${versions.panamaPort}.aar"
-      val cacheDir = streams.value.cacheDirectory / "panama-port"
-      val aarFile  = cacheDir / s"Core-${versions.panamaPort}.aar"
-      val jarFile  = cacheDir / s"Core-${versions.panamaPort}-classes.jar"
-      val log = streams.value.log
-      if (!jarFile.exists()) {
-        IO.createDirectory(cacheDir)
-        if (!aarFile.exists()) {
-          log.info(s"Downloading PanamaPort AAR from $aarUrl")
-          val in = new java.net.URI(aarUrl).toURL.openStream()
-          try { IO.transfer(in, aarFile) }
-          finally { in.close() }
-        }
-        // AAR is a ZIP; extract classes.jar from it
-        log.info(s"Extracting classes.jar from PanamaPort AAR")
-        val zip = new java.util.zip.ZipFile(aarFile)
-        try {
-          val entry = zip.getEntry("classes.jar")
-          if (entry == null) sys.error("PanamaPort AAR does not contain classes.jar")
-          val in = zip.getInputStream(entry)
-          try { IO.transfer(in, jarFile) }
-          finally { in.close() }
-        } finally { zip.close() }
-      }
-      Seq(Attributed.blank(jarFile))
     }
   )
   .dependsOn(`sge-jvm-platform-api`)
@@ -363,9 +327,9 @@ lazy val `sge-tools` = (project in file("sge-extension/tools"))
     // sge-tools needs sge JVM classes on its classpath
     Compile / unmanagedClasspath ++= {
       val apiDirs     = (`sge-jvm-platform-api` / Compile / products).value
-      val jdkDirs     = (`sge-jvm-platform-jdk` / Compile / products).value
+
       val androidDirs = (`sge-jvm-platform-android` / Compile / products).value
-      (apiDirs ++ jdkDirs ++ androidDirs).map(Attributed.blank)
+      (apiDirs ++ androidDirs).map(Attributed.blank)
     }
   )
   .dependsOn(sge.jvm(versions.scala))
@@ -387,8 +351,7 @@ val `sge-freetype` = (projectMatrix in file("sge-extension/freetype"))
       resolvers += mavenCentralSnapshots,
       Compile / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
-        (apiDirs ++ jdkDirs).map(Attributed.blank)
+        apiDirs.map(Attributed.blank)
       },
       // Bundle sge_freetype shared libs into the extension JAR
       Compile / packageBin / mappings ++= {
@@ -449,13 +412,11 @@ val `sge-physics` = (projectMatrix in file("sge-extension/physics"))
       libraryDependencies += "com.kubuszok" % "pnm-provider-sge-physics-desktop" % versions.nativeComponents,
       Compile / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
-        (apiDirs ++ jdkDirs).map(Attributed.blank)
+        apiDirs.map(Attributed.blank)
       },
       Test / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
-        (apiDirs ++ jdkDirs).map(Attributed.blank)
+        apiDirs.map(Attributed.blank)
       },
       // Bundle sge_physics shared libs into the extension JAR
       Compile / packageBin / mappings ++= {
@@ -515,13 +476,11 @@ val `sge-physics3d` = (projectMatrix in file("sge-extension/physics3d"))
       libraryDependencies += "com.kubuszok" % "pnm-provider-sge-physics3d-desktop" % versions.nativeComponents,
       Compile / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
-        (apiDirs ++ jdkDirs).map(Attributed.blank)
+        apiDirs.map(Attributed.blank)
       },
       Test / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
-        (apiDirs ++ jdkDirs).map(Attributed.blank)
+        apiDirs.map(Attributed.blank)
       },
       // Bundle sge_physics3d shared libs into the extension JAR
       Compile / packageBin / mappings ++= {
@@ -631,8 +590,7 @@ val `sge-controllers` = (projectMatrix in file("sge-extension/controllers"))
     settings = SgePlugin.jvmSettings(projectDir = "sge-extension/controllers") ++ Seq(
       Compile / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
-        (apiDirs ++ jdkDirs).map(Attributed.blank)
+        apiDirs.map(Attributed.blank)
       }
     )
   )
@@ -681,8 +639,7 @@ val `sge-gltf` = (projectMatrix in file("sge-extension/gltf"))
     settings = SgePlugin.jvmSettings(projectDir = "sge-extension/gltf") ++ Seq(
       Compile / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
-        (apiDirs ++ jdkDirs).map(Attributed.blank)
+        apiDirs.map(Attributed.blank)
       }
     )
   )
@@ -713,8 +670,7 @@ val `sge-vfx` = (projectMatrix in file("sge-extension/vfx"))
     settings = SgePlugin.jvmSettings(projectDir = "sge-extension/vfx") ++ Seq(
       Compile / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
-        (apiDirs ++ jdkDirs).map(Attributed.blank)
+        apiDirs.map(Attributed.blank)
       }
     )
   )
@@ -745,8 +701,7 @@ val `sge-textra` = (projectMatrix in file("sge-extension/textra"))
     settings = SgePlugin.jvmSettings(projectDir = "sge-extension/textra") ++ Seq(
       Compile / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
-        (apiDirs ++ jdkDirs).map(Attributed.blank)
+        apiDirs.map(Attributed.blank)
       }
     )
   )
@@ -777,8 +732,7 @@ val `sge-colorful` = (projectMatrix in file("sge-extension/colorful"))
     settings = SgePlugin.jvmSettings(projectDir = "sge-extension/colorful") ++ Seq(
       Compile / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
-        (apiDirs ++ jdkDirs).map(Attributed.blank)
+        apiDirs.map(Attributed.blank)
       }
     )
   )
@@ -809,8 +763,7 @@ val `sge-visui` = (projectMatrix in file("sge-extension/visui"))
     settings = SgePlugin.jvmSettings(projectDir = "sge-extension/visui") ++ Seq(
       Compile / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
-        (apiDirs ++ jdkDirs).map(Attributed.blank)
+        apiDirs.map(Attributed.blank)
       }
     )
   )
@@ -841,8 +794,7 @@ val `sge-screens` = (projectMatrix in file("sge-extension/screens"))
     settings = SgePlugin.jvmSettings(projectDir = "sge-extension/screens") ++ Seq(
       Compile / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
-        (apiDirs ++ jdkDirs).map(Attributed.blank)
+        apiDirs.map(Attributed.blank)
       }
     )
   )
@@ -957,9 +909,9 @@ lazy val `sge-android-smoke` = (project in file("sge-test/android-smoke"))
     // Also add sge's JVM platform modules to classpath
     Compile / unmanagedClasspath ++= {
       val apiDirs     = (`sge-jvm-platform-api` / Compile / products).value
-      val jdkDirs     = (`sge-jvm-platform-jdk` / Compile / products).value
+
       val androidDirs = (`sge-jvm-platform-android` / Compile / products).value
-      (apiDirs ++ jdkDirs ++ androidDirs).map(Attributed.blank)
+      (apiDirs ++ androidDirs).map(Attributed.blank)
     }
   )
   .dependsOn(sge.jvm(versions.scala))
@@ -1001,15 +953,15 @@ lazy val `sge-it-desktop` = (project in file("sge-test/it-desktop"))
     // Need JVM platform modules on classpath
     Compile / unmanagedClasspath ++= {
       val apiDirs     = (`sge-jvm-platform-api` / Compile / products).value
-      val jdkDirs     = (`sge-jvm-platform-jdk` / Compile / products).value
+
       val androidDirs = (`sge-jvm-platform-android` / Compile / products).value
-      (apiDirs ++ jdkDirs ++ androidDirs).map(Attributed.blank)
+      (apiDirs ++ androidDirs).map(Attributed.blank)
     },
     Test / unmanagedClasspath ++= {
       val apiDirs     = (`sge-jvm-platform-api` / Compile / products).value
-      val jdkDirs     = (`sge-jvm-platform-jdk` / Compile / products).value
+
       val androidDirs = (`sge-jvm-platform-android` / Compile / products).value
-      (apiDirs ++ jdkDirs ++ androidDirs).map(Attributed.blank)
+      (apiDirs ++ androidDirs).map(Attributed.blank)
     },
     Test / fork := true,
     Test / javaOptions ++= {
@@ -1035,7 +987,7 @@ lazy val `sge-it-jvm-platform` = (project in file("sge-test/it-jvm-platform"))
     libraryDependencies += "org.scalameta" %% "munit" % versions.munit % Test,
     testFrameworks += new TestFramework("munit.Framework")
   )
-  .dependsOn(`sge-jvm-platform-api`, `sge-jvm-platform-jdk`, `sge-jvm-platform-android`)
+  .dependsOn(`sge-jvm-platform-api`, `sge-jvm-platform-android`)
 
 // Browser integration tests — JVM-based Playwright tests that exercise compiled
 // Scala.js output in a real headless Chromium browser. Catches runtime JS errors

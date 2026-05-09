@@ -15,7 +15,7 @@ package platform
 import munit.FunSuite
 
 class PanamaBufferOpsIntegrationTest extends FunSuite {
-  import JdkPanama.*
+  import multiarch.panama.JdkPanama.*
 
   private def nativeLibAvailable: Boolean =
     try {
@@ -29,7 +29,7 @@ class PanamaBufferOpsIntegrationTest extends FunSuite {
       case _: Exception => false
     }
 
-  private lazy val panama = JdkPanama
+  private lazy val panama = multiarch.panama.JdkPanama
   private lazy val lib: panama.SymbolLookup = {
     import panama.*
     val libName = System.mapLibraryName("sge_native_ops")
