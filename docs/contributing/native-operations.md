@@ -45,7 +45,7 @@ underlying FFM implementation differs (`java.lang.foreign` vs `com.v7878.foreign
 ## Rust Libraries (sge-native-providers)
 
 The Rust workspace (`native-components/`) provides compute implementations as
-three separate libraries:
+four separate libraries:
 
 ### Core (`core/` → `libsge_native_ops`)
 - **`etc1.rs`** — ETC1 texture compression codec, C ABI exports (`etc1_*`, `sge_pkm_*`)
@@ -58,6 +58,9 @@ three separate libraries:
 
 ### Physics (`physics/` → `libsge_physics`)
 - **`lib.rs`** — 2D physics via Rapier2D, C ABI exports (`sge_phys_*`)
+
+### Physics3D (`physics3d/` → `libsge_physics3d`)
+- **`lib.rs`** — 3D physics via Rapier3D, C ABI exports (`sge_phys3d_*`)
 
 Build and test (in the external sge-native-providers repo):
 ```bash

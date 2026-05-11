@@ -1,9 +1,9 @@
 # SGE Demos
 
 Eleven feature demos for the SGE (Scala Game Engine), each exercising different
-engine subsystems. Ten demos run on all three platforms (JVM, Scala.js, Scala
-Native); Net Chat is JVM-only (XmlReader depends on a SAX parser only available
-on JVM).
+engine subsystems. Ten demos run on all four platforms (JVM, Scala.js, Scala
+Native, Android); Net Chat is JVM-only (XmlReader depends on a SAX parser only
+available on JVM).
 
 ## Running
 
@@ -18,13 +18,13 @@ sbt --client '<project>Native/run'    # Native
 
 ```bash
 cd demos
-sbt --client releaseAll               # Build all 9 cross-platform demos + Android APKs
+sbt --client releaseAll               # Build all 10 cross-platform demos + Android APKs
 sbt --client releaseNetChat           # Build Net Chat separately (JVM only)
 sbt --client collectReleases          # Collect all artifacts into target/releases/
 ```
 
 `releaseAll` builds JVM distributions (all 6 platforms), browser packages,
-native binaries, and Android APKs for all 9 cross-platform demos.
+native binaries, and Android APKs for all 10 cross-platform demos.
 
 `collectReleases` gathers all artifacts (JVM archives, browser packages,
 native binaries, and APKs) from each demo's `target/` into a single

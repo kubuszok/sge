@@ -8,7 +8,7 @@ Use this checklist when verifying an AI-converted file. Track status via
 - [ ] File has license header as the first thing (before `package`)
 - [ ] `Original source` path matches the LibGDX file(s) this was ported from
 - [ ] `Original authors` extracted from `@author` tags (or "See AUTHORS file")
-- [ ] `Scala port Copyright 2024-2026 Mateusz Kubuszok` line present
+- [ ] `Scala port copyright 2025-2026 Mateusz Kubuszok` line present
 
 ## Compilation
 

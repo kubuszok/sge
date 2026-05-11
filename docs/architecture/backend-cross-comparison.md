@@ -1,4 +1,11 @@
-# Cross-Backend Comparison & Sharing Analysis
+# Cross-Backend Comparison & Sharing Analysis (Historical)
+
+> **Note (2026-05):** This is a **pre-implementation analysis** from 2026-03-03.
+> It references LWJGL and proposes module structures that were superseded by
+> the actual implementation: SGE eliminated LWJGL entirely, using Rust C ABI
+> libraries via Panama FFM (JVM/Android) and @extern (Scala Native) instead.
+> Kept for historical reference — see the current architecture in
+> [platform-targets.md](platform-targets.md) and [build-structure.md](build-structure.md).
 
 **Date**: 2026-03-03
 **Purpose**: Identify what backend functionality can be shared in SGE core vs what must stay platform-specific.

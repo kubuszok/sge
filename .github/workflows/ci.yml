@@ -18,7 +18,7 @@ env:
   # Same JDK used for release packaging (see demos/build.sbt jdkUrls).
   JAVA_VERSION: "25"
   JAVA_DISTRIBUTION: "zulu"
-  NODE_VERSION: "22"
+  NODE_VERSION: "24"
   SONATYPE_SNAPSHOTS: "https://central.sonatype.com/repository/maven-snapshots"
 
 jobs:

@@ -13,9 +13,9 @@ module.
 | **sbt-projectmatrix** | 0.11.0 | Cross-platform project definition; will be built-in with sbt 2.0 |
 | **sbt-scalajs** | 1.21.0 | Scala.js compiler + linker; must match Scala version expectations |
 | **sbt-scala-native** | 0.5.10 | Scala Native compiler + linker; Zone API uses context functions |
-| **sbt-multiarch-scala** | 0.1.2 | Native provider plugin, JVM packaging, Android build |
+| **sbt-multiarch-scala** | 0.2.0 | Native provider plugin, JVM packaging, Android build |
 | **JDK** | 25 | Required for Panama FFM; Zulu 25 for all CI platforms |
-| **Node.js** | 22+ | Required for `sbt browser/run`; 23+ for WASM flags |
+| **Node.js** | 24+ | Required for `sbt browser/run`; 23+ for WASM flags |
 
 ### Version Compatibility Constraints
 
@@ -52,7 +52,7 @@ Zone { implicit z =>
 addSbtPlugin("com.eed3si9n"     % "sbt-projectmatrix"  % "0.11.0")
 addSbtPlugin("org.scala-js"     % "sbt-scalajs"        % "1.21.0")
 addSbtPlugin("org.scala-native" % "sbt-scala-native"   % "0.5.10")
-addSbtPlugin("com.kubuszok"     % "sbt-multiarch-scala" % "0.1.2")
+addSbtPlugin("com.kubuszok"     % "sbt-multiarch-scala" % "0.2.0")
 ```
 
 ### project/build.properties
@@ -189,7 +189,6 @@ val sgeSettings = Seq(
     "-deprecation",
     "-feature",
     "-no-indent",
-    "-rewrite",
     "-Werror",
     "-Wimplausible-patterns",
     "-Wrecurse-with-default",
@@ -437,8 +436,7 @@ lazy val browser = project.in(file("browser"))
 - ~30% faster for numeric computation, up to 5.6x for hash/crypto
 - `@JSExport` silently ignored (only `@JSExportTopLevel` works)
 
-See [research/findings/03-scalajs-wasm.md](../../research/findings/03-scalajs-wasm.md)
-for full evaluation.
+See [wasm-strategy.md](wasm-strategy.md) for the full evaluation.
 
 ## Scala Native FFI Configuration
 
@@ -551,40 +549,14 @@ sbt --client 'cmd1' 'cmd2'  # second command ignored
 | `browser/run` | JS | fastLinkJS + Node.js execution |
 | `desktopNative/run` | Native | nativeLink + binary execution; stdout via sbt server |
 
-## Dependency Configuration for Real Backends
+## Dependency Configuration
 
-### JVM Desktop (LWJGL)
+SGE uses Rust C ABI libraries (via `sbt-multiarch-scala` provider JARs) instead
+of LWJGL. Native library dependencies are resolved automatically by
+`NativeProviderPlugin` — see the [Native Provider System](#sbt-multiarch-scala-native-provider-system)
+section above.
 
-```scala
-val lwjglVersion = "3.3.6"
-val lwjglNatives = {
-  val os = System.getProperty("os.name").toLowerCase
-  val arch = System.getProperty("os.arch")
-  if (os.contains("mac")) {
-    if (arch == "aarch64") "natives-macos-arm64" else "natives-macos"
-  } else if (os.contains("linux")) {
-    if (arch == "aarch64") "natives-linux-arm64" else "natives-linux"
-  } else "natives-windows"
-}
-
-lazy val desktopJvm = project.in(file("desktop-jvm"))
-  .settings(
-    libraryDependencies ++= Seq(
-      "org.lwjgl" % "lwjgl"        % lwjglVersion,
-      "org.lwjgl" % "lwjgl-glfw"   % lwjglVersion,
-      "org.lwjgl" % "lwjgl-opengl" % lwjglVersion,
-      "org.lwjgl" % "lwjgl-openal" % lwjglVersion,
-      "org.lwjgl" % "lwjgl-stb"    % lwjglVersion,
-      "org.lwjgl" % "lwjgl"        % lwjglVersion classifier lwjglNatives,
-      "org.lwjgl" % "lwjgl-glfw"   % lwjglVersion classifier lwjglNatives,
-      "org.lwjgl" % "lwjgl-opengl" % lwjglVersion classifier lwjglNatives,
-      "org.lwjgl" % "lwjgl-openal" % lwjglVersion classifier lwjglNatives,
-      "org.lwjgl" % "lwjgl-stb"    % lwjglVersion classifier lwjglNatives
-    )
-  )
-```
-
-### Scala.js Browser (scala-js-dom)
+For Scala.js, `scalajs-dom` provides typed access to WebGL and DOM APIs:
 
 ```scala
 lazy val browser = project.in(file("browser"))
@@ -592,20 +564,6 @@ lazy val browser = project.in(file("browser"))
   .settings(
     libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "2.8.0"
   )
-```
-
-### Scala Native Desktop (system libraries via @extern)
-
-No sbt library dependencies needed for system C libraries (GLFW, OpenGL, OpenAL).
-Link via `nativeLinkingOptions` and `@link` annotations:
-
-```scala
-// build.sbt
-nativeLinkingOptions ++= Seq(
-  "-framework", "OpenGL",    // macOS
-  "-framework", "Cocoa",     // macOS
-  "-lglfw"                   // GLFW
-)
 ```
 
 ## Gotchas and Known Issues

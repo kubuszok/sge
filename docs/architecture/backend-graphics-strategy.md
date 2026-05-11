@@ -3,9 +3,14 @@
 **Date**: 2026-03-05
 **Status**: Decided
 
-## Decision: ANGLE + Panama + SDL3
+## Decision: ANGLE + Panama + GLFW
 
-SGE will use a unified native graphics and platform layer across all backends,
+> **Note (2026-05):** This document was written during the initial architecture
+> phase. The ANGLE + Panama decision is implemented. SDL3 was deferred — SGE uses
+> **GLFW** for windowing/input on desktop (JVM + Native). LWJGL has been fully
+> eliminated in favor of Rust C ABI libraries accessed via Panama FFM and @extern.
+
+SGE uses a unified native graphics and platform layer across all backends,
 eliminating the LWJGL dependency in favor of direct C library access.
 
 ### Architecture

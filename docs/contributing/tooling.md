@@ -25,14 +25,14 @@ Use for looking up documentation of external libraries (LWJGL, scala-js-dom, etc
 
 ## Source Reference
 
-The original LibGDX source is available locally as a git submodule:
+The original LibGDX source is available locally:
 
 ```
-./libgdx/                         # Git submodule (read-only reference)
-./libgdx/gdx/src/com/badlogic/gdx/   # Core library source
+./original-src/libgdx/                         # Local reference source (read-only)
+./original-src/libgdx/gdx/src/com/badlogic/gdx/   # Core library source
 ```
 
-**NEVER fetch LibGDX source from GitHub.** Always read from the local submodule.
+**NEVER fetch LibGDX source from GitHub.** Always read from the local reference.
 
 Path mapping: `com/badlogic/gdx/<path>.java` → `sge/src/main/scala/sge/<path>.scala`
 
@@ -40,8 +40,8 @@ Path mapping: `com/badlogic/gdx/<path>.java` → `sge/src/main/scala/sge/<path>.
 
 Build tool configuration is in `build.sbt`. Key settings:
 
-- Scala 3.8.2
-- Compiler flags: `-deprecation`, `-feature`, `-no-indent`, `-rewrite`, `-Werror`
+- Scala 3.8.3
+- Compiler flags: `-deprecation`, `-feature`, `-no-indent`, `-Werror`
 - Prefer MCP tools or `re-scale build compile` / `re-scale build fmt` over running sbt directly
 
 If you must run SBT directly (discouraged), **always use `sbt --client`** to avoid the overhead
