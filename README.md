@@ -50,7 +50,7 @@ Ported from [LibGDX](https://github.com/libgdx/libgdx) **1.14.0** (`4b4d2c4fd`).
 
 - **JDK 25+** (Azul Zulu recommended)
 - **sbt 1.12+**
-- **Node.js 18+** (for Scala.js linking)
+- **Node.js 24+** (for Scala.js linking)
 
 ### macOS (Homebrew)
 

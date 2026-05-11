@@ -14,7 +14,7 @@ SGE targets four compilation platforms via Scala's cross-compilation ecosystem.
 | iOS | Scala Native + SDL3 + ANGLE | `libgdx/backends/gdx-backend-robovm/` | Deferred |
 
 **All platforms passing**: JVM 1450 tests, JS 1096 tests, Native 1096 tests.
-10 demo applications build and run on all 4 active platforms.
+11 demo applications build and run on all 4 active platforms.
 
 ## Core (Platform-Agnostic)
 

@@ -10,4 +10,6 @@ Reference documentation for the Java-to-Scala conversion process.
 | [type-mappings.md](type-mappings.md) | LibGDX → SGE type/package mapping table |
 | [code-style.md](code-style.md) | Brace rules, split packages, scalafmt, comment preservation |
 | [verification-checklist.md](verification-checklist.md) | Checklist for marking a file as "verified" |
+| [setup.md](setup.md) | Development setup — required and optional dependencies |
 | [tooling.md](tooling.md) | MCP tools, SBT client, local reference usage |
+| [native-operations.md](native-operations.md) | Native ops architecture — Rust FFI, Panama, platform modules |

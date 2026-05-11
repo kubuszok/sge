@@ -11,11 +11,11 @@
 | `com.badlogic.gdx.files` | `sge.files` | |
 | `com.badlogic.gdx.graphics` | `sge.graphics` | |
 | `com.badlogic.gdx.graphics.g2d` | `sge.graphics.g2d` | |
-| `com.badlogic.gdx.graphics.g3d` | `sge.graphics.g3d` | Not yet started |
+| `com.badlogic.gdx.graphics.g3d` | `sge.graphics.g3d` | Complete |
 | `com.badlogic.gdx.graphics.glutils` | `sge.graphics.glutils` | |
 | `com.badlogic.gdx.graphics.profiling` | `sge.graphics.profiling` | |
 | `com.badlogic.gdx.input` | `sge.input` | |
-| `com.badlogic.gdx.maps` | `sge.maps` | Not yet started |
+| `com.badlogic.gdx.maps` | `sge.maps` | Complete |
 | `com.badlogic.gdx.math` | `sge.math` | |
 | `com.badlogic.gdx.math.collision` | `sge.math.collision` | |
 | `com.badlogic.gdx.net` | `sge.net` | |

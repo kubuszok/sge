@@ -154,7 +154,7 @@ with information that isn't needed for the current task.
 
 ## Conversion Guides
 
-- [Conversion rules](docs/contributing/conversion-rules.md) — full 19-step procedure
+- [Conversion rules](docs/contributing/conversion-rules.md) — 9-step procedure (19 type adjustment rules)
 - [Type mappings](docs/contributing/type-mappings.md) — package/class renames, skipped classes
 - [Code style](docs/contributing/code-style.md) — license header template, formatting
 - [Nullable guide](docs/contributing/nullable-guide.md) — `Nullable[A]` opaque type

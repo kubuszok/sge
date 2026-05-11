@@ -102,7 +102,7 @@ Configuration is in `.scalafmt.conf`.
 
 ## Compiler Flags
 
-Core flags: `-deprecation`, `-feature`, `-no-indent`, `-rewrite`, `-Werror`
+Core flags: `-deprecation`, `-feature`, `-no-indent`, `-Werror`
 
 Linter flags (all enabled):
 - `-Wimplausible-patterns` — warn on pattern matches that can never match

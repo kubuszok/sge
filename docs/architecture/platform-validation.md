@@ -258,8 +258,8 @@ engineering effort, not architectural risk.
 
 ## Relationship to Research Prototype
 
-The `research/` prototype (5 experiments, see [research findings](../../research/findings/))
-established theoretical feasibility. The `hello-world/` prototype establishes
+The `research/` prototype (5 experiments) established theoretical feasibility.
+The `hello-world/` prototype establishes
 practical feasibility:
 
 | Question | Research answer | Hello-world proof |

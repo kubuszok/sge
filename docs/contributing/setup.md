@@ -8,7 +8,7 @@ External dependencies required to build, test, and release SGE.
 |------------|---------|-----------------|---------|
 | JDK | 25+ | `brew install --cask zulu` | Scala compiler, Panama FFM |
 | sbt | 1.12+ | `brew install sbt` | Build tool |
-| Node.js | 18+ | `brew install node` | Scala.js linking |
+| Node.js | 24+ | `brew install node` | Scala.js linking |
 | ~~FreeType~~ | ~~2.x~~ | ~~`brew install freetype`~~ | No longer needed — bundled in provider JARs |
 
 Native libraries (GLFW, miniaudio, buffer ops) are distributed as provider JARs
@@ -133,7 +133,7 @@ Maven. The sbt build resolves them automatically — no manual download.
 
 Native libraries are built in the external
 [sge-native-providers](https://github.com/kubuszok/sge-native-providers)
-repository and distributed as provider JARs from Maven. Three libraries
+repository and distributed as provider JARs from Maven. Four libraries
 are produced:
 
 | Library | Purpose |
@@ -141,9 +141,10 @@ are produced:
 | `libsge_native_ops` | Buffer ops, ETC1 codec, GLFW windowing, miniaudio |
 | `libsge_freetype` | FreeType font rasterization |
 | `libsge_physics` | Rapier2D physics engine |
+| `libsge_physics3d` | Rapier3D physics engine |
 
 No local Rust build is needed. The sbt build resolves provider JARs
-automatically via `sbt-multi-arch-release`.
+automatically via `sbt-multiarch-scala`.
 
 ### Static curl (Scala Native only)
 

@@ -74,11 +74,11 @@ axes for building Scala Native binaries targeting non-host platforms (via zig).
 
 | Tool | Version |
 |------|---------|
-| Scala | 3.8.2 |
+| Scala | 3.8.3 |
 | sbt | 1.12+ |
 | sbt-projectmatrix | 0.11.0 |
-| sbt-scalajs | 1.20.2 |
+| sbt-scalajs | 1.21.0 |
 | sbt-scala-native | 0.5.10 |
-| JDK | 23+ (distribution), 21+ (CI) |
+| JDK | 25 |
 
 See [cross-platform-settings.md](cross-platform-settings.md) for the full settings reference.
