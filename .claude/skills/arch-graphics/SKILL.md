@@ -1,10 +1,10 @@
 ---
-description: Load the graphics architecture decision doc covering ANGLE, Panama FFM, and rendering strategy
+description: Load the graphics architecture reference covering ANGLE, Panama FFM, and rendering strategy
 ---
 
-Load the graphics architecture decision doc.
+Load the platform targets doc which includes the graphics architecture rationale.
 
-$READ docs/architecture/backend-graphics-strategy.md
+$READ docs/architecture/platform-targets.md
 
 Architecture: ANGLE (GL ES → native APIs) + Panama FFM (no LWJGL/JNI).
-Covers: ANGLE rationale, Panama benefits, browser strategy, iOS deferral, Android PanamaPort.
+Covers: ANGLE rationale, Panama benefits, LWJGL elimination, per-platform details, iOS deferral.

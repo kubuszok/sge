@@ -32,13 +32,41 @@ SGE replaces LibGDX's global `Gdx` singleton with Scala 3 context parameters.
 User code receives platform services via `(using Sge)` on class constructors
 rather than accessing mutable global state.
 
+## Architecture Rationale
+
+### Why ANGLE (not native OpenGL)
+
+ANGLE (Almost Native Graphics Layer Engine) translates OpenGL ES calls to
+platform-native GPU APIs (Metal on macOS, Vulkan on Linux/Windows, Direct3D
+on Windows). It is BSD-licensed, maintained by Google, and is the WebGL
+implementation in Chrome, Edge, and Firefox. Using ANGLE means SGE writes to
+a single GL ES API that works everywhere, including macOS where Apple
+deprecated native OpenGL.
+
+### Why Panama FFM (not LWJGL or JNI)
+
+LWJGL provides Java bindings to C libraries (GLFW, OpenGL, OpenAL, stb). With
+Panama FFM (`java.lang.foreign`, finalized in JDK 22), we call C libraries
+directly — no LWJGL, no JNI. This gives JVM and Scala Native backends identical
+native library dependencies (same Rust C ABI exports), shared knowledge, and
+shared testing. On Android, PanamaPort (`com.v7878.foreign`) provides the same
+API on ART.
+
+| LWJGL module (eliminated) | Replacement |
+|---------------------------|-------------|
+| lwjgl-opengl / lwjgl-opengles | ANGLE via Panama |
+| lwjgl-glfw | GLFW via Panama |
+| lwjgl-openal | miniaudio via Panama |
+| lwjgl-stb | Pure Scala decoders |
+| lwjgl-core | `java.lang.foreign` |
+
 ## JVM (Desktop)
 
 The primary desktop target. SGE uses:
-- **GLFW** — windowing and input (vendored in `native-components/`)
+- **GLFW** — windowing and input
 - **ANGLE** — OpenGL ES via `libEGL` + `libGLESv2` (pre-built from sge-angle-natives)
-- **miniaudio** — audio (vendored in `native-components/`)
-- **Rust FFI via Panama FFM** — JDK 23+, `java.lang.foreign` downcall handles
+- **miniaudio** — audio
+- **Rust FFI via Panama FFM** — JDK 25+, `java.lang.foreign` downcall handles
 
 Platform-specific sources: `sge/src/main/scalajvm/sge/platform/`
 Desktop-shared sources (JVM + Native): `sge/src/main/scaladesktop/sge/platform/`
