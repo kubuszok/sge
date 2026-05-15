@@ -23,7 +23,7 @@ object Nanos {
   def apply(value: Long): Nanos = value
   val zero:               Nanos = 0L
 
-  given MkArray[Nanos] = MkArray.mkLong.asInstanceOf[MkArray[Nanos]]
+  given MkArray.OfLongs[Nanos] = MkArray.ofLongAs[Nanos]
 
   private val nanosPerMilli: Long = 1000000L
 

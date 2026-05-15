@@ -16,12 +16,10 @@
 package sge
 package audio
 
-import lowlevel.MkArray
-
 opaque type Volume = Float
 object Volume {
 
-  given lowlevel.MkArray[Volume] = lowlevel.MkArray.mkFloat.asInstanceOf[lowlevel.MkArray[Volume]]
+  given lowlevel.MkArray.OfFloats[Volume] = lowlevel.MkArray.ofFloatAs[Volume]
 
   def parse(value: Float): Either[String, Volume] =
     if (value < 0 || value > 1) Left(s"Volume must be between 0 and 1, got $value")

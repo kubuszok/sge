@@ -34,7 +34,6 @@ import sge.graphics.{ EnableCap, GL20 }
 import sge.graphics.glutils.ShaderProgram
 import lowlevel.util.DynamicArray
 import lowlevel.Nullable
-import lowlevel.util.Sort
 
 /** <p> Minimalistic grouping strategy useful for orthogonal scenes where the camera faces the negative z axis. Handles enabling and disabling of blending and uses world-z only front to back sorting
   * for transparent decals. </p> <p> States (* = any, EV = entry value - same as value before flush):<br/> <table> <tr> <td></td> <td>expects</td> <td>exits on</td> </tr> <tr> <td>glDepthMask</td>
@@ -53,7 +52,7 @@ class SimpleOrthoGroupStrategy(using Sge) extends GroupStrategy {
 
   override def beforeGroup(group: Int, contents: DynamicArray[Decal]): Unit =
     if (group == SimpleOrthoGroupStrategy.GROUP_BLEND) {
-      Sort.sort(contents, comparator)
+      contents.sort(comparator)
       Sge().graphics.gl.glEnable(EnableCap.Blend)
       // no need for writing into the z buffer if transparent decals are the last thing to be rendered
       // and they are rendered back to front

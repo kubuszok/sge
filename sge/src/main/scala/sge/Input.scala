@@ -396,7 +396,7 @@ object Input {
   object Key {
     inline def apply(value: Int): Key = value
 
-    given lowlevel.MkArray[Key] = lowlevel.MkArray.mkInt.asInstanceOf[lowlevel.MkArray[Key]]
+    given lowlevel.MkArray.OfInts[Key] = lowlevel.MkArray.ofIntAs[Key]
 
     extension (k: Key) {
       inline def toInt: Int = k
@@ -410,7 +410,7 @@ object Input {
   object Button {
     inline def apply(value: Int): Button = value
 
-    given lowlevel.MkArray[Button] = lowlevel.MkArray.mkInt.asInstanceOf[lowlevel.MkArray[Button]]
+    given lowlevel.MkArray.OfInts[Button] = lowlevel.MkArray.ofIntAs[Button]
 
     extension (b: Button) {
       inline def toInt: Int = b

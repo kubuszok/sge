@@ -69,7 +69,7 @@ def collectClassFiles(classDir: File): Seq[(File, String)] =
 val versions = new {
   val scala = SgePlugin.scalaVersion
 
-  val lls       = "cc2f33b307d0601953599940c594ccf3d83707d8-SNAPSHOT"
+  val lls       = "82b19cbb0f15b3f9e2493b4412bd09541474440f-SNAPSHOT"
   val kindlings = "0.1.2"
   val sttp      = "4.0.22"
   val xml       = "2.3.0"

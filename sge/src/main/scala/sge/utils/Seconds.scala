@@ -23,7 +23,7 @@ object Seconds {
   def apply(value: Float): Seconds = value
   val zero:                Seconds = 0f
 
-  given MkArray[Seconds] = MkArray.mkFloat.asInstanceOf[MkArray[Seconds]]
+  given MkArray.OfFloats[Seconds] = MkArray.ofFloatAs[Seconds]
 
   extension (s: Seconds) {
     inline def toFloat:     Float   = s

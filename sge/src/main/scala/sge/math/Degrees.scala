@@ -18,14 +18,13 @@
 package sge
 package math
 
-import lowlevel.MkArray
 import lowlevel.math.MathUtils
 
 opaque type Degrees = Float
 object Degrees {
   def apply(value: Float): Degrees = value
 
-  given lowlevel.MkArray[Degrees] = lowlevel.MkArray.mkFloat.asInstanceOf[lowlevel.MkArray[Degrees]]
+  given lowlevel.MkArray.OfFloats[Degrees] = lowlevel.MkArray.ofFloatAs[Degrees]
 
   inline def Full:    Degrees = 360f
   inline def Half:    Degrees = 180f

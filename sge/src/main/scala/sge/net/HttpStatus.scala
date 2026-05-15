@@ -23,8 +23,6 @@
 package sge
 package net
 
-import lowlevel.MkArray
-
 /** This implementation is widely based Apache's HttpStatus which uses license (Apache license 2.0) - http://www.apache.org/licenses/LICENSE-2.0 For more information on the Apache Software Foundation,
   * please see <http://www.apache.org/>.
   *
@@ -36,7 +34,7 @@ object HttpStatus {
 
   def apply(statusCode: Int): HttpStatus = statusCode
 
-  given lowlevel.MkArray[HttpStatus] = lowlevel.MkArray.mkInt.asInstanceOf[lowlevel.MkArray[HttpStatus]]
+  given lowlevel.MkArray.OfInts[HttpStatus] = lowlevel.MkArray.ofIntAs[HttpStatus]
 
   extension (status: HttpStatus) {
 
