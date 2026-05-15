@@ -37,7 +37,7 @@ import hearth.kindlings.fastshowpretty.{ FastShowPretty, RenderConfig }
 opaque type Align = Int
 object Align {
 
-  given MkArray[Align] = MkArray.mkInt.asInstanceOf[MkArray[Align]]
+  given MkArray.OfInts[Align] = MkArray.ofIntAs[Align]
 
   val center: Align = 1 << 0
   val top:    Align = 1 << 1

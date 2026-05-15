@@ -18,14 +18,13 @@
 package sge
 package math
 
-import lowlevel.MkArray
 import lowlevel.math.MathUtils
 
 opaque type Radians = Float
 object Radians {
   def apply(value: Float): Radians = value
 
-  given lowlevel.MkArray[Radians] = lowlevel.MkArray.mkFloat.asInstanceOf[lowlevel.MkArray[Radians]]
+  given lowlevel.MkArray.OfFloats[Radians] = lowlevel.MkArray.ofFloatAs[Radians]
 
   inline def Pi:     Radians = 3.1415927f
   inline def TwoPi:  Radians = 6.2831855f

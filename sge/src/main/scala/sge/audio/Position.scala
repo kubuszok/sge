@@ -16,12 +16,10 @@
 package sge
 package audio
 
-import lowlevel.MkArray
-
 opaque type Position = Float
 object Position {
 
-  given lowlevel.MkArray[Position] = lowlevel.MkArray.mkFloat.asInstanceOf[lowlevel.MkArray[Position]]
+  given lowlevel.MkArray.OfFloats[Position] = lowlevel.MkArray.ofFloatAs[Position]
 
   def parse(seconds: Float): Either[String, Position] =
     if (seconds < 0.0) Left(s"Position must be greater than 0, got $seconds")
