@@ -27,10 +27,13 @@
 package sge
 package maps
 
+import sge.utils.createRef
+
 import scala.util.boundary
 import scala.util.boundary.break
 import scala.reflect.ClassTag
-import sge.utils.{ DynamicArray, MkArray, Nullable }
+import lowlevel.{ MkArray, Nullable }
+import lowlevel.util.DynamicArray
 
 /** Ordered list of {@link MapLayer} instances owned by a {@link Map} */
 class MapLayers extends Iterable[MapLayer] {
@@ -91,7 +94,7 @@ class MapLayers extends Iterable[MapLayer] {
     *   array with all the layers matching type
     */
   def byType[T <: MapLayer](using tag: ClassTag[T]): DynamicArray[T] =
-    getByType(DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true))
+    getByType(DynamicArray.createRef[T]())
 
   /** @param fill
     *   array to be filled with the matching layers

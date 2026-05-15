@@ -41,7 +41,7 @@ import sge.graphics.glutils.ETC1.ETC1Data
 import sge.utils.BufferUtils
 import sge.utils.SgeError
 import sge.utils.StreamUtils
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.Sge
 import scala.annotation.nowarn
 

@@ -20,7 +20,8 @@ package physics
 
 import sge.graphics.Color
 import sge.graphics.glutils.ShapeRenderer
-import sge.math.{ MathUtils, Matrix4 }
+import lowlevel.math.MathUtils
+import sge.math.Matrix4
 
 /** Debug renderer that draws physics collider outlines using a [[ShapeRenderer]].
   *

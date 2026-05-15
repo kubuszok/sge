@@ -39,7 +39,9 @@ import sge.graphics.g3d.utils.DefaultTextureBinder
 import sge.graphics.g3d.utils.RenderContext
 import sge.graphics.g3d.utils.RenderableSorter
 import sge.graphics.g3d.utils.ShaderProvider
-import sge.utils.{ DynamicArray, Nullable, Pool, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.{ Pool, SgeError }
 
 import scala.annotation.publicInBinary
 

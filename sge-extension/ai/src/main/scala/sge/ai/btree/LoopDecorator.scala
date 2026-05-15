@@ -23,7 +23,7 @@ package sge
 package ai
 package btree
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** `LoopDecorator` is an abstract class providing basic functionalities for concrete looping decorators.
   *

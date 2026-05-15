@@ -27,7 +27,7 @@ package ui
 
 import sge.scenes.scene2d.ui.Label.LabelStyle
 import sge.scenes.scene2d.utils.Drawable
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A tooltip that shows a label.
   * @author

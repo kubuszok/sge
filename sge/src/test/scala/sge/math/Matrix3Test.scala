@@ -5,6 +5,8 @@
 package sge
 package math
 
+import lowlevel.math.MathUtils
+
 class Matrix3Test extends munit.FunSuite {
 
   private val epsilon = 1e-4f

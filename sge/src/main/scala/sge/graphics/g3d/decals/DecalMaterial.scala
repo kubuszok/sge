@@ -34,7 +34,7 @@ package g3d
 package decals
 
 import sge.graphics.g2d.TextureRegion
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 import scala.compiletime.uninitialized
 

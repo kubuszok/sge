@@ -20,7 +20,7 @@ package widget
 package color
 
 import sge.scenes.scene2d.ui.Window.WindowStyle
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** @author Kotcrab */
 class ColorPickerStyle() extends WindowStyle {

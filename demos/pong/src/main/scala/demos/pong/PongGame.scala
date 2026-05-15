@@ -11,7 +11,8 @@ import sge.utils.Seconds
 import sge.graphics.Color
 import sge.graphics.glutils.ShapeRenderer
 import sge.graphics.glutils.ShapeRenderer.ShapeType
-import sge.math.{Interpolation, MathUtils, Vector2}
+import lowlevel.math.MathUtils
+import sge.math.{Interpolation, Vector2}
 import sge.utils.ScreenUtils
 import sge.utils.viewport.FitViewport
 import demos.shared.DemoScene

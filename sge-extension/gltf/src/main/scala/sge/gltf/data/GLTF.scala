@@ -23,7 +23,7 @@ import sge.gltf.data.geometry.GLTFMesh
 import sge.gltf.data.material.GLTFMaterial
 import sge.gltf.data.scene.{ GLTFNode, GLTFScene, GLTFSkin }
 import sge.gltf.data.texture.{ GLTFImage, GLTFSampler, GLTFTexture }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTF extends GLTFObject {
   var asset:   Nullable[GLTFAsset]               = Nullable.empty

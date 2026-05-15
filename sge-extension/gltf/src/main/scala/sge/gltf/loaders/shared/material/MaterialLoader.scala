@@ -20,7 +20,7 @@ package material
 import scala.collection.mutable.ArrayBuffer
 import sge.graphics.g3d.Material
 import sge.gltf.data.material.GLTFMaterial
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 trait MaterialLoader {
 

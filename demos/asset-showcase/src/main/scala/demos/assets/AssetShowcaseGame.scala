@@ -17,7 +17,8 @@ import sge.graphics.g3d.environment.DirectionalLight
 import sge.graphics.g2d.SpriteBatch
 import sge.graphics.glutils.ShapeRenderer
 import sge.graphics.glutils.ShapeRenderer.ShapeType
-import sge.utils.{Nullable, ScreenUtils}
+import lowlevel.Nullable
+import sge.utils.ScreenUtils
 import demos.shared.DemoScene
 
 /** Asset loading showcase: demonstrates AssetManager loading of 2D textures,

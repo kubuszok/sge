@@ -30,7 +30,8 @@ import sge.graphics.GL30
 import sge.graphics.GL31
 import sge.graphics.GL32
 import sge.graphics.Pixmap
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** This interface encapsulates communication with the graphics processor. Depending on the available hardware and the current {@link Application} configuration, access to {@link GL20} and
   * {@link GL30} are provided here. <p> If supported by the backend, this interface lets you query the available display modes (graphics resolution and color depth) and change it. <p> This interface

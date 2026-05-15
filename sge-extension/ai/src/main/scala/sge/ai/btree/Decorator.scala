@@ -23,7 +23,7 @@ package sge
 package ai
 package btree
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A `Decorator` is a wrapper that provides custom behavior for its child. The child can be of any kind (branch task, leaf task, or another decorator).
   *

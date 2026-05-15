@@ -18,7 +18,8 @@ package loaders
 import sge.files.FileHandle
 import sge.graphics.g2d.TextureAtlas
 import sge.scenes.scene2d.ui.Skin
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 import scala.collection.mutable
 

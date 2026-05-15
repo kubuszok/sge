@@ -39,7 +39,9 @@ import scala.util.boundary.break
 import sge.files.FileHandle
 import sge.graphics.{ Color, Texture }
 import sge.graphics.g2d.TextureRegion
-import sge.utils.{ DynamicArray, Nullable, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.SgeError
 
 import scala.language.implicitConversions
 

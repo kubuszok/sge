@@ -15,7 +15,7 @@
 package sge
 package graphics
 
-import sge.utils.MkArray
+import lowlevel.MkArray
 
 /** Opaque types for OpenGL enum parameters, preventing accidental mixing of unrelated GL constants.
   *

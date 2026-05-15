@@ -5,7 +5,7 @@ package pfa
 import sge.ai.DefaultTimepiece
 import sge.ai.msg.Telegram
 import sge.ai.msg.Telegraph
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class PathFinderQueueSuite extends munit.FunSuite {
 

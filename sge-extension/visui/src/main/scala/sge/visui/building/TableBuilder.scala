@@ -23,7 +23,7 @@ import scala.language.implicitConversions
 import sge.Sge
 import sge.scenes.scene2d.Actor
 import sge.scenes.scene2d.ui.Table
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 import sge.visui.building.utilities.{ CellWidget, Padding }
 import sge.visui.building.utilities.layouts.{ ActorLayout, TableLayout }
 

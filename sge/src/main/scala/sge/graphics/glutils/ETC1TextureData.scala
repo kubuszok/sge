@@ -31,7 +31,8 @@ import sge.graphics.Pixmap
 import sge.graphics.Pixmap.Format
 import sge.graphics.TextureData
 import sge.graphics.glutils.ETC1.ETC1Data
-import sge.utils.{ Nullable, SgeError }
+import lowlevel.Nullable
+import sge.utils.SgeError
 
 class ETC1TextureData(
   val file:                    Nullable[FileHandle],

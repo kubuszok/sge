@@ -27,6 +27,8 @@
 package sge
 package utils
 
+import lowlevel.util.DynamicArray
+
 /** Executes tasks in the future on the main loop thread.
   * @author
   *   Nathan Sweet (original implementation)

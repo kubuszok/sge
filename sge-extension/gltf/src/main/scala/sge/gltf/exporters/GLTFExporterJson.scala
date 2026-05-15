@@ -31,7 +31,7 @@ import sge.gltf.data.geometry.{ GLTFMesh, GLTFMorphTarget, GLTFPrimitive }
 import sge.gltf.data.material.{ GLTFMaterial, GLTFpbrMetallicRoughness }
 import sge.gltf.data.scene.{ GLTFNode, GLTFScene, GLTFSkin }
 import sge.gltf.data.texture.{ GLTFImage, GLTFNormalTextureInfo, GLTFOcclusionTextureInfo, GLTFSampler, GLTFTexture, GLTFTextureInfo }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Minimal JSON writer for GLTF export. Produces pretty-printed, spec-compliant JSON matching the behavior of LibGDX's Json.prettyPrint with setUsePrototypes(true).
   */

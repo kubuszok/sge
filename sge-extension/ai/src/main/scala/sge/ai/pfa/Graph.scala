@@ -30,7 +30,7 @@ package sge
 package ai
 package pfa
 
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** A graph is a collection of nodes, each one having a collection of outgoing [[Connection connections]].
   *

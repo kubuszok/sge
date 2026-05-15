@@ -23,7 +23,7 @@
 package sge
 package ecs
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Provides super fast [[Component]] retrieval from [[Entity]] objects.
   *

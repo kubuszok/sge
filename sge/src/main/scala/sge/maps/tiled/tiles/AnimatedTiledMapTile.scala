@@ -42,7 +42,9 @@ import scala.util.boundary
 import scala.util.boundary.break
 import sge.graphics.g2d.TextureRegion
 import sge.maps.{ MapObjects, MapProperties }
-import sge.utils.{ DynamicArray, Millis, Nullable, SgeError, TimeUtils }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.{ Millis, SgeError, TimeUtils }
 
 /** @brief Represents a changing {@link TiledMapTile}. */
 class AnimatedTiledMapTile private (

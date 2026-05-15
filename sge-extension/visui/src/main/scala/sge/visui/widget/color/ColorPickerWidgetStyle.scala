@@ -20,7 +20,7 @@ package widget
 package color
 
 import sge.scenes.scene2d.utils.Drawable
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Style used by [[ExtendedColorPicker]] and [[BasicColorPicker]]. [[ColorPicker]] dialog is using [[ColorPickerStyle]].
   * @author

@@ -28,7 +28,8 @@ import sge.scenes.scene2d.actions.Actions
 import sge.scenes.scene2d.ui.Window
 import sge.scenes.scene2d.ui.Window.WindowStyle
 import sge.scenes.scene2d.utils.{ ChangeListener, ClickListener }
-import sge.utils.{ Align, Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.{ Align, Seconds }
 import sge.visui.{ FocusManager, VisUI }
 
 /** Extends functionality of standard scene2d.ui [[Window]].

@@ -32,7 +32,8 @@ package input
 
 import java.io.{ DataInputStream, IOException }
 import java.net.{ InetAddress, ServerSocket }
-import sge.utils.{ Nullable, SgeError }
+import lowlevel.Nullable
+import sge.utils.SgeError
 import scala.annotation.nowarn
 import sge.Input.{ Button, Key, KeyboardHeightObserver, OnscreenKeyboardType, Orientation, Peripheral, VibrationType }
 import sge.input.NativeInputConfiguration

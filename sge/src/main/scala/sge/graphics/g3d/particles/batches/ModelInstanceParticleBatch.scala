@@ -33,7 +33,7 @@ package batches
 import sge.graphics.g3d.Renderable
 import sge.graphics.g3d.particles.ResourceData
 import sge.graphics.g3d.particles.renderers.ModelInstanceControllerRenderData
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 import sge.utils.Pool
 
 /** * This class is used to render particles having a model instance channel.

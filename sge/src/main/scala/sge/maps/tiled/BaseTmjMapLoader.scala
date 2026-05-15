@@ -43,7 +43,9 @@ import sge.maps.objects._
 import sge.maps.tiled.objects.TiledMapTileMapObject
 import sge.maps.tiled.tiles.{ AnimatedTiledMapTile, StaticTiledMapTile }
 import sge.math.{ Polygon, Polyline }
-import sge.utils.{ DynamicArray, Json, Nullable, ObjectMap, StreamUtils, readJson }
+import lowlevel.Nullable
+import lowlevel.util.{ DynamicArray, ObjectMap }
+import sge.utils.{ Json, StreamUtils, readJson }
 
 import java.io.{ BufferedInputStream, ByteArrayInputStream, IOException, InputStream }
 import java.util.zip.{ GZIPInputStream, InflaterInputStream }

@@ -33,7 +33,7 @@ package behaviors
 
 import sge.ai.utils.Location
 import sge.math.Vector
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** `Arrive` behavior moves the agent towards a target position. It is similar to seek but it attempts to arrive at the target position with a zero velocity.
   *

@@ -25,7 +25,7 @@ package sge
 package ai
 package btree
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.utils.Pool
 
 /** This is the abstract base class of all behavior tree tasks. The `Task` of a behavior tree has a status, one control and a list of children.

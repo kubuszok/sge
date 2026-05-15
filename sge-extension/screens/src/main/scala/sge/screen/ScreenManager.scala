@@ -23,7 +23,8 @@ import sge.graphics.g2d.TextureRegion
 import sge.graphics.glutils.{ FrameBuffer, HdpiUtils }
 import sge.screen.transition.ScreenTransition
 import sge.screen.utils.ScreenFboUtils
-import sge.utils.{ Nullable, ScreenUtils, Seconds }
+import lowlevel.Nullable
+import sge.utils.{ ScreenUtils, Seconds }
 
 /** A screen manager that handles the different screens of a game and their transitions.
   *

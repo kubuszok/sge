@@ -30,7 +30,9 @@
 package sge
 package math
 
-import sge.utils.Nullable
+import lowlevel.math.MathUtils
+
+import lowlevel.Nullable
 
 class Polyline() extends Shape2D {
   private var localVertices:               Array[Float] = Array.empty[Float]

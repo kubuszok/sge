@@ -31,7 +31,8 @@ import sge.graphics.g3d.attributes.{ ColorAttribute, DirectionalLightsAttribute,
 import sge.graphics.g3d.environment.{ BaseLight, DirectionalLight, PointLight, SpotLight }
 import sge.graphics.g3d.model.Node
 import sge.graphics.g3d.utils.{ DepthShaderProvider, RenderableSorter, ShaderProvider }
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 class SceneManager(using sge: Sge) {
 

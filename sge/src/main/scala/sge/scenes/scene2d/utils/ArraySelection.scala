@@ -28,8 +28,10 @@ package scenes
 package scene2d
 package utils
 
+import sge.utils.createRef
 import sge.Sge
-import sge.utils.{ DynamicArray, MkArray, Nullable }
+import lowlevel.{ MkArray, Nullable }
+import lowlevel.util.DynamicArray
 
 /** A selection that supports range selection by knowing about the array of items being selected.
   * @author
@@ -93,7 +95,7 @@ class ArraySelection[T](private val array: DynamicArray[T])(using Sge) extends S
     } else {
       var changed  = false
       val iter     = items.iterator
-      val toRemove = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
+      val toRemove = DynamicArray.createRef[T]()
       while (iter.hasNext) {
         val s = iter.next()
         if (!array.contains(s)) {

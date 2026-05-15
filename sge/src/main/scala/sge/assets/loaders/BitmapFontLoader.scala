@@ -19,7 +19,9 @@ import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.graphics.Texture.TextureFilter
 import sge.graphics.g2d.{ BitmapFont, BitmapFontData, TextureAtlas, TextureRegion }
-import sge.utils.{ DynamicArray, Nullable, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.SgeError
 import scala.util.boundary
 
 /** {@link AssetLoader} for {@link BitmapFont} instances. Loads the font description file (.fnt) asynchronously, loads the {@link Texture} containing the glyphs as a dependency. The

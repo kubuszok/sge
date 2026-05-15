@@ -14,7 +14,9 @@ import sge.Sge
 import sge.SgeTestFixture
 import sge.graphics.g3d.model.{ Animation, NodeKeyframe }
 import sge.graphics.g3d.utils.AnimationController.AnimationDesc
-import sge.utils.{ DynamicArray, Nullable, Seconds }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.Seconds
 
 class AnimationControllerTest extends munit.FunSuite {
 

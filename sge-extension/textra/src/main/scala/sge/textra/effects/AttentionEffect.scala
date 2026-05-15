@@ -13,7 +13,7 @@ package sge
 package textra
 package effects
 
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 
 class AttentionEffect(label: TypingLabel, params: Array[String]) extends Effect(label) {
   private var spread = 5f; private var stretchY = 2f

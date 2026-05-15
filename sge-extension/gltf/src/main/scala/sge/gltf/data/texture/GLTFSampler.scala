@@ -16,7 +16,7 @@ package gltf
 package data
 package texture
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFSampler extends GLTFEntity {
   var minFilter: Nullable[Int] = Nullable.empty

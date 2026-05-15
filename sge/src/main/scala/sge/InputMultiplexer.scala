@@ -22,7 +22,7 @@
 package sge
 
 import Input.{ Button, Key }
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 import scala.util.boundary, boundary.break
 
 /** An {@link InputProcessor} that delegates to an ordered list of other InputProcessors. Delegation for an event stops if a processor returns true, which indicates that the event was handled.

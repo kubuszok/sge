@@ -23,7 +23,8 @@ import sge.Input.{ Key, Keys }
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener, Stage }
 import sge.scenes.scene2d.ui.Cell
 import sge.scenes.scene2d.utils.ChangeListener
-import sge.utils.{ Align, Nullable }
+import lowlevel.Nullable
+import sge.utils.Align
 import sge.visui.{ Locales, VisUI }
 import sge.visui.i18n.BundleText
 import sge.visui.util.{ InputValidator, TableUtils }

@@ -2,7 +2,7 @@ package sge
 package ai
 package msg
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class TestTelegraph extends Telegraph {
   var received:                              List[Int] = List.empty

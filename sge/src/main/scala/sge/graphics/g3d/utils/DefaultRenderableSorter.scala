@@ -33,7 +33,8 @@ package utils
 
 import sge.graphics.g3d.attributes.BlendingAttribute
 import sge.math.{ Matrix4, Vector3 }
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 class DefaultRenderableSorter extends RenderableSorter {
   private var camera: Nullable[Camera] = Nullable.empty

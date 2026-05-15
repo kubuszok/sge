@@ -19,7 +19,7 @@ package sge
 package physics
 
 import sge.platform.PhysicsPlatform
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A 2D physics simulation world backed by Rapier2D.
   *

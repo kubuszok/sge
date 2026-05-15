@@ -20,7 +20,7 @@ package util
 package highlight
 
 import sge.graphics.Color
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 import sge.visui.widget.HighlightTextArea
 
 /** Highlighter rule using [[String#indexOf]] to detect text matches.

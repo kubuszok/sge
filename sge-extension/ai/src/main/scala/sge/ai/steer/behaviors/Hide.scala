@@ -33,7 +33,7 @@ package behaviors
 
 import sge.ai.utils.Location
 import sge.math.Vector
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 import scala.compiletime.uninitialized
 

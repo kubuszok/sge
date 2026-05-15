@@ -21,7 +21,8 @@ package animation
 
 import sge.gltf.scene3d.model.WeightVector
 import sge.graphics.g3d.model.{ NodeAnimation, NodeKeyframe }
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 class NodeAnimationHack extends NodeAnimation {
 

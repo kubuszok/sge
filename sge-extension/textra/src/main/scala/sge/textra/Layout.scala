@@ -22,7 +22,7 @@ import scala.util.boundary
 import scala.util.boundary.break
 
 import sge.graphics.Color
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A replacement for libGDX's GlyphLayout; stores one or more (possibly empty) Lines of text. */
 class Layout() {

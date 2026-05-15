@@ -38,8 +38,9 @@ package steer
 package utils
 package paths
 
-import sge.math.{ MathUtils, Vector }
-import sge.utils.DynamicArray
+import lowlevel.math.MathUtils
+import sge.math.Vector
+import lowlevel.util.DynamicArray
 
 import scala.compiletime.uninitialized
 

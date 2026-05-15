@@ -26,11 +26,14 @@ package scenes
 package scene2d
 package ui
 
+import sge.utils.createRef
+
 import sge.graphics.g2d.Batch
 import sge.math.Vector2
 import sge.scenes.scene2d.{ Actor, InputEvent }
 import sge.scenes.scene2d.utils.{ ClickListener, Drawable, Layout, Selection, UIUtils }
-import sge.utils.{ DynamicArray, MkArray, Nullable }
+import lowlevel.{ MkArray, Nullable }
+import lowlevel.util.DynamicArray
 
 /** A tree widget where each node has an icon, actor, and child nodes. <p> The preferred size of the tree is determined by the preferred size of the actors for the expanded nodes. <p>
   * {@link ChangeEvent} is fired when the selected node changes.
@@ -44,7 +47,7 @@ import sge.utils.{ DynamicArray, MkArray, Nullable }
 class Tree[N <: Tree.Node[N, V, ? <: Actor], V](initialStyle: Tree.TreeStyle)(using Sge) extends WidgetGroup with Styleable[Tree.TreeStyle] {
 
   private var _style: Tree.TreeStyle  = scala.compiletime.uninitialized
-  val rootNodes:      DynamicArray[N] = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[N]], 16, true)
+  val rootNodes:      DynamicArray[N] = DynamicArray.createRef[N]()
   val selection:      Selection[N]    = new Selection[N]() {
     override protected def changed(): Unit =
       size match {
@@ -672,7 +675,7 @@ object Tree {
   abstract class Node[N <: Node[N, V, A], V, A <: Actor] {
     var actor:      A                  = scala.compiletime.uninitialized
     var parent:     Nullable[N]        = Nullable.empty
-    val children:   DynamicArray[N]    = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[N]], 16, true)
+    val children:   DynamicArray[N]    = DynamicArray.createRef[N]()
     var selectable: Boolean            = true
     var expanded:   Boolean            = false
     var icon:       Nullable[Drawable] = Nullable.empty

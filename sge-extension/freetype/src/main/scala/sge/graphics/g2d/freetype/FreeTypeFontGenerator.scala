@@ -36,8 +36,10 @@ import sge.graphics.Pixmap.{ Blending, Format }
 import sge.graphics.Texture.TextureFilter
 import sge.graphics.g2d.{ BitmapFont, BitmapFontData, GlyphRun, PixmapPacker, TextureRegion }
 import sge.graphics.g2d.freetype.FreeType.*
-import sge.math.MathUtils
-import sge.utils.{ DynamicArray, Nullable, SgeError }
+import lowlevel.math.MathUtils
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.SgeError
 
 /** Generates {@link BitmapFont} and {@link BitmapFont.BitmapFontData} instances from TrueType, OTF, and other FreeType supported fonts.
   *

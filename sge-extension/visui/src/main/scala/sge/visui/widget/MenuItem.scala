@@ -29,7 +29,8 @@ import sge.scenes.scene2d.ui.{ Button, Cell, Image, Label }
 import sge.scenes.scene2d.ui.Label.LabelStyle
 import sge.scenes.scene2d.ui.TextButton.TextButtonStyle
 import sge.scenes.scene2d.utils.{ ChangeListener, Drawable }
-import sge.utils.{ Align, Nullable, Scaling }
+import lowlevel.Nullable
+import sge.utils.{ Align, Scaling }
 import sge.visui.VisUI
 import sge.visui.util.OsUtils
 

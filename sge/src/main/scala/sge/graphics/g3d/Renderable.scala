@@ -28,7 +28,7 @@ package g3d
 
 import sge.graphics.g3d.model.MeshPart
 import sge.math.Matrix4
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A Renderable contains all information about a single render instruction (typically a draw call).
   *

@@ -30,7 +30,7 @@ package renderers
 
 import sge.Sge
 import sge.graphics.g2d.{ Batch, SpriteBatch }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class IsometricStaggeredTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, ownsBatch: Boolean)(using Sge) extends BatchTiledMapRenderer(map, unitScale, batch, ownsBatch) {
 

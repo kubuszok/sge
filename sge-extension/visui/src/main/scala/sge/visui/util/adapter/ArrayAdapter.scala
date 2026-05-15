@@ -22,7 +22,7 @@ package adapter
 import java.util.Comparator
 
 import sge.scenes.scene2d.Actor
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** Built-in adapter implementation for [[DynamicArray]].
   * @author

@@ -2407,7 +2407,7 @@ class PaletteReducer {
           // Cannot use Gdx.files in SGE; require an explicit file handle
           return
         }
-      target.writeString(new String(PaletteReducer.bigPaletteMapping), false, sge.utils.Nullable("UTF8"))
+      target.writeString(new String(PaletteReducer.bigPaletteMapping), false, lowlevel.Nullable("UTF8"))
     }
 
   /** Loads the bigPaletteMapping from the given file, using the provided palette. */
@@ -2420,7 +2420,7 @@ class PaletteReducer {
     if (PaletteReducer.bigPaletteMapping.isEmpty) {
       PaletteReducer.bigPaletteMapping = new Array[Char](0x8000)
     }
-    file.readString(sge.utils.Nullable("UTF8")).getChars(0, 0x8000, PaletteReducer.bigPaletteMapping, 0)
+    file.readString(lowlevel.Nullable("UTF8")).getChars(0, 0x8000, PaletteReducer.bigPaletteMapping, 0)
     PaletteReducer.bigPaletteLoaded = true
   }
 

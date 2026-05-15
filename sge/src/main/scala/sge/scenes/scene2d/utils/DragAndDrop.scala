@@ -40,7 +40,8 @@ import scala.util.boundary
 import scala.util.boundary.break
 import sge.Input.Button
 import sge.math.Vector2
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 /** Manages drag and drop operations through registered drag sources and drop targets.
   * @author

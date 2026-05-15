@@ -21,7 +21,7 @@ package value
 
 import sge.scenes.scene2d.Actor
 import sge.scenes.scene2d.ui.{ Value => SceneValue }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Allows to use libGDX [[SceneValue]] with lambdas.
   * @author

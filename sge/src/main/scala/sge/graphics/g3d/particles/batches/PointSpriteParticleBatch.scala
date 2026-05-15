@@ -58,8 +58,8 @@ import sge.graphics.g3d.particles.ResourceData
 import sge.graphics.g3d.particles.renderers.PointSpriteControllerRenderData
 import sge.graphics.glutils.ShaderProgram
 import sge.math.Vector3
-import sge.utils.DynamicArray
-import sge.utils.Nullable
+import lowlevel.util.DynamicArray
+import lowlevel.Nullable
 import sge.utils.Pool
 
 /** This class is used to draw particles as point sprites.

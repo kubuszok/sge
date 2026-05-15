@@ -27,6 +27,11 @@
 package sge
 package utils
 
+import sge.utils.createRef
+
+import lowlevel.MkArray
+import lowlevel.util.DynamicArray
+
 import scala.language.implicitConversions
 import scala.util.boundary
 import scala.util.boundary.break
@@ -45,7 +50,7 @@ trait Pool[A] {
 
   var peak: Int = 0
 
-  private val freeObjects = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[A]], initialCapacity, true)
+  private val freeObjects = DynamicArray.createRef[A](initialCapacity)
 
   protected def newObject(): A
 
@@ -142,7 +147,7 @@ object Pool {
   }
 
   trait Flushable[A] extends Pool[A] {
-    protected val obtained = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[A]], 16, true)
+    protected val obtained = DynamicArray.createRef[A]()
 
     override def obtain(): A = {
       val result = super.obtain()
@@ -173,7 +178,7 @@ object Pool {
     */
   class QuadTreeFloat(val maxValues: Int = 16, val maxDepth: Int = 8) extends Poolable {
     import QuadTreeFloat._
-    import sge.utils.Nullable
+    import lowlevel.Nullable
 
     private val maxValuesCount = maxValues * 3
     var x:      Float                   = scala.compiletime.uninitialized

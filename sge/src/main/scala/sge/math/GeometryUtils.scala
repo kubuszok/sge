@@ -27,6 +27,8 @@
 package sge
 package math
 
+import lowlevel.math.MathUtils
+
 /** @author Nathan Sweet (original implementation) */
 object GeometryUtils {
 

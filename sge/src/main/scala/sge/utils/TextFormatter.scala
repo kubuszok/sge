@@ -26,7 +26,7 @@
 package sge
 package utils
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 import java.util.Locale
 

@@ -30,7 +30,7 @@ package tiled
 import sge.graphics.Pixmap
 import sge.graphics.g2d.TextureRegion
 import sge.maps.MapLayer
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class TiledMapImageLayer(
   var region:  TextureRegion,

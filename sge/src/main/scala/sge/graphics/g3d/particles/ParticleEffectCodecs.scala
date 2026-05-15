@@ -42,7 +42,7 @@ import sge.graphics.g3d.particles.emitters.{ Emitter, RegularEmitter }
 import sge.graphics.g3d.particles.influencers._
 import sge.graphics.g3d.particles.renderers._
 import sge.graphics.g3d.particles.values._
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Transport structure for ParticleControllerInfluencer serialization. Maps a ParticleEffect asset filename to the indices of controllers within that effect.
   */

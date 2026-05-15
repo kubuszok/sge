@@ -3,7 +3,7 @@ package sge
 package scenes
 package scene2d
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.utils.Seconds
 
 class Scene2DTest extends munit.FunSuite {

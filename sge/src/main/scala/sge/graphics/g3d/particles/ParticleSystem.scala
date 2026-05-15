@@ -32,7 +32,7 @@ package particles
 import sge.Sge
 import sge.graphics.g3d.{ Renderable, RenderableProvider }
 import sge.graphics.g3d.particles.batches.ParticleBatch
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 import sge.utils.Pool
 
 import scala.annotation.publicInBinary

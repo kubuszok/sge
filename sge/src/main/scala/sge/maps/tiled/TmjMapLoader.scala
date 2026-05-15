@@ -36,7 +36,9 @@ import sge.assets.loaders.{ FileHandleResolver, TextureLoader }
 import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.graphics.g2d.TextureRegion
-import sge.utils.{ DynamicArray, Nullable, readJson }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.readJson
 
 import scala.collection.mutable
 

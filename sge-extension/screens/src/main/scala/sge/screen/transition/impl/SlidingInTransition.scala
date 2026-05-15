@@ -19,7 +19,7 @@ package impl
 
 import sge.graphics.g2d.SpriteBatch
 import sge.math.Interpolation
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A transition where the new screen is sliding in. Can be reused.
   *

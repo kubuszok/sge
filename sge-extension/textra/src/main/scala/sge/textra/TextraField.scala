@@ -38,7 +38,9 @@ import sge.graphics.g2d.Batch
 import sge.math.Vector2
 import sge.scenes.scene2d.{ Actor, Group, Stage }
 import sge.scenes.scene2d.utils.{ Drawable, UIUtils }
-import sge.utils.{ Align, Clipboard, DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.{ Align, Clipboard }
 
 /** A single-line text input field using a Font.
   *

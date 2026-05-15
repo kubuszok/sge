@@ -20,7 +20,7 @@ package widget
 package file
 
 import sge.scenes.scene2d.utils.Drawable
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.widget.PopupMenu
 
 /** @author Kotcrab */

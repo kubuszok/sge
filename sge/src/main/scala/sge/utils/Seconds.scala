@@ -16,6 +16,8 @@
 package sge
 package utils
 
+import lowlevel.MkArray
+
 opaque type Seconds = Float
 object Seconds {
   def apply(value: Float): Seconds = value

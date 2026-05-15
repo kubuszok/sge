@@ -31,7 +31,7 @@ package ai
 package fma
 
 import sge.math.Vector
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** `BoundedSlotAssignmentStrategy` is an abstract implementation of [[SlotAssignmentStrategy]] that supports roles. Generally speaking, there are hard and soft roles. Hard roles cannot be broken,
   * soft roles can.

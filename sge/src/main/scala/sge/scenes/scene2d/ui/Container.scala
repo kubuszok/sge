@@ -32,7 +32,8 @@ import sge.math.Rectangle
 import sge.scenes.scene2d.{ Actor, Touchable }
 import sge.scenes.scene2d.ui.Value.Fixed
 import sge.scenes.scene2d.utils.{ Cullable, Drawable, Layout }
-import sge.utils.{ Align, Nullable }
+import lowlevel.Nullable
+import sge.utils.Align
 
 import scala.language.implicitConversions
 

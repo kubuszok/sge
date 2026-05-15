@@ -20,7 +20,7 @@ package widget
 package file
 
 import sge.files.FileHandle
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** Implementation of [[FileChooserListener]] that can be used when user picks only one file. Provides convenient [[selected(FileHandle)]] method. If user picked more than one file (note that chooser
   * must be in multiple select mode for that to happen, see [[FileChooser.selectionMode_=]]), that method will be called only for first selected file and remaining files will be ignored.

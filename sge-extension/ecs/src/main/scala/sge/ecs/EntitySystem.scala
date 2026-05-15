@@ -24,7 +24,7 @@
 package sge
 package ecs
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Abstract class for processing sets of [[Entity]] objects.
   *

@@ -23,8 +23,8 @@ package sge
 package ai
 package btree
 
-import sge.utils.DynamicArray
-import sge.utils.Nullable
+import lowlevel.util.DynamicArray
+import lowlevel.Nullable
 
 /** The behavior tree itself.
   *

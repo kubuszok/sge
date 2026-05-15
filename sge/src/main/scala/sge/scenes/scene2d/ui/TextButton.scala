@@ -23,7 +23,9 @@ package ui
 import sge.graphics.Color
 import sge.graphics.g2d.{ Batch, BitmapFont }
 import sge.scenes.scene2d.utils.Drawable
-import sge.utils.{ Align, DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.Align
 
 /** A button with a child {@link Label} to display text.
   * @author

@@ -20,7 +20,8 @@ package scene3d
 package model
 
 import sge.graphics.g3d.model.Node
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 class NodePlus extends Node {
 

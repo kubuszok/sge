@@ -16,7 +16,7 @@ package gltf
 package data
 package texture
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFTextureInfo extends GLTFObject {
   var index:    Nullable[Int] = Nullable.empty

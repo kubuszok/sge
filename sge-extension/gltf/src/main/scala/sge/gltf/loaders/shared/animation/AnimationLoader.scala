@@ -27,7 +27,8 @@ import sge.gltf.loaders.shared.scene.NodeResolver
 import sge.gltf.scene3d.animation.{ Interpolation as SceneInterpolation, NodeAnimationHack }
 import sge.gltf.scene3d.model.{ CubicQuaternion, CubicVector3, CubicWeightVector, NodePlus, WeightVector }
 import sge.math.{ Quaternion, Vector3 }
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 class AnimationLoader {
 

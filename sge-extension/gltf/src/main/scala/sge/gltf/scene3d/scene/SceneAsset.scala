@@ -21,7 +21,8 @@ package scene
 
 import sge.graphics.{ Mesh, Pixmap, Texture }
 import sge.graphics.g3d.model.Animation
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 class SceneAsset extends AutoCloseable {
 

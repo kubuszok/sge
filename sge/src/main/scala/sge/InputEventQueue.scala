@@ -22,7 +22,9 @@
 package sge
 
 import Input.{ Button, Key }
-import sge.utils.{ DynamicArray, Nanos, Nullable, NumberUtils }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.{ Nanos, NumberUtils }
 
 /** Queues events that are later passed to an {@link InputProcessor} .
   * @author

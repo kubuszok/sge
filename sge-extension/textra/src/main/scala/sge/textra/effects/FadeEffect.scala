@@ -15,7 +15,7 @@ package sge
 package textra
 package effects
 
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.textra.utils.ColorUtils
 import scala.collection.mutable.HashMap
 

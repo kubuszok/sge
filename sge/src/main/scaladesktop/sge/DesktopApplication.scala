@@ -23,7 +23,8 @@ import sge.graphics.ClearMask
 import sge.net.DesktopNet
 import sge.noop.NoopDesktopAudio
 import sge.platform.{ GlOps, WindowingOps }
-import sge.utils.{ Clipboard, Nullable, SgeError }
+import lowlevel.Nullable
+import sge.utils.{ Clipboard, SgeError }
 
 import scala.collection.mutable.ArrayBuffer
 

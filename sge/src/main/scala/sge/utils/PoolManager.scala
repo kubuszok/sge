@@ -24,6 +24,8 @@
 package sge
 package utils
 
+import lowlevel.Nullable
+
 import scala.collection.mutable.{ Map => MutableMap }
 import scala.reflect.ClassTag
 

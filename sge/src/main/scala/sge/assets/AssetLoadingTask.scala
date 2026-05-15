@@ -21,7 +21,9 @@ import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success, boundary }
 import sge.assets.loaders.{ AssetLoader, AsynchronousAssetLoader, SynchronousAssetLoader }
 import sge.files.FileHandle
-import sge.utils.{ DynamicArray, Nullable, SgeError, TimeUtils }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.{ SgeError, TimeUtils }
 
 /** Responsible for loading an asset through an AssetLoader based on an AssetDescriptor. Please don't forget to update the overriding emu file on GWT backend when changing this file!
   *

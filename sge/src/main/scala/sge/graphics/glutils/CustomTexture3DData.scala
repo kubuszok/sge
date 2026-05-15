@@ -30,7 +30,8 @@ import java.nio.ByteBuffer
 import sge.graphics.GL20
 import sge.graphics.GL30
 import sge.graphics.Texture3DData
-import sge.utils.{ BufferUtils, Nullable, SgeError }
+import lowlevel.Nullable
+import sge.utils.{ BufferUtils, SgeError }
 
 /** A {@link Texture3DData} implementation that addresses 2 use cases :
   *

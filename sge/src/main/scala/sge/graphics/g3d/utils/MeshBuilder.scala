@@ -40,9 +40,12 @@ import sge.graphics.VertexAttributes.Usage
 import sge.graphics.g2d.TextureRegion
 import sge.graphics.g3d.model.MeshPart
 import sge.graphics.glutils.ShaderProgram
-import sge.math.{ MathUtils, Matrix3, Matrix4, Vector2, Vector3 }
+import lowlevel.math.MathUtils
+import sge.math.{ Matrix3, Matrix4, Vector2, Vector3 }
 import sge.math.collision.BoundingBox
-import sge.utils.{ DynamicArray, Nullable, ObjectMap, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.{ DynamicArray, ObjectMap }
+import sge.utils.SgeError
 
 /** Class to construct a mesh, optionally splitting it into one or more mesh parts. Before you can call any other method you must call {@link #begin(VertexAttributes)} or
   * {@link #begin(VertexAttributes, int)}. To use mesh parts you must call {@link #part(String, int)} before you start building the part. The MeshPart itself is only valid after the call to

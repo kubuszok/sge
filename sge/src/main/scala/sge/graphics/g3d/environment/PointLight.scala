@@ -29,7 +29,7 @@ package environment
 import scala.language.implicitConversions
 
 import sge.math.Vector3
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class PointLight extends BaseLight[PointLight] {
   val position:  Vector3 = Vector3()

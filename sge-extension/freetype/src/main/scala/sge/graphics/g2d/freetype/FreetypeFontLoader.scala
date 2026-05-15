@@ -32,7 +32,8 @@ import sge.assets.loaders.{ AsynchronousAssetLoader, FileHandleResolver }
 import sge.files.FileHandle
 import sge.graphics.g2d.BitmapFont
 import sge.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 /** Creates {@link BitmapFont} instances from FreeType font files. Requires a {@link FreeTypeFontLoaderParameter} to be passed to {@link AssetManager#load} which specifies the name of the TTF file as
   * well the parameters used to generate the BitmapFont (size, characters, etc.)

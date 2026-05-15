@@ -25,9 +25,9 @@ package sge
 package tools
 package texturepacker
 
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.tools.texturepacker.TexturePacker.*
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 import scala.collection.mutable.{ ArrayBuffer, HashSet }
 import scala.util.boundary

@@ -16,7 +16,7 @@
 package sge
 package graphics
 
-import sge.utils.MkArray
+import lowlevel.MkArray
 
 /** Opaque types for GL object handles, preventing accidental mixing of texture handles with buffer handles, shader handles, etc.
   */
@@ -25,7 +25,7 @@ object TextureHandle {
   def apply(raw: Int): TextureHandle = raw
   val none:            TextureHandle = 0
 
-  given MkArray[TextureHandle] = utils.MkArray.mkInt.asInstanceOf[MkArray[TextureHandle]]
+  given MkArray[TextureHandle] = lowlevel.MkArray.mkInt.asInstanceOf[MkArray[TextureHandle]]
 
   extension (h: TextureHandle) {
     inline def toInt: Int = h
@@ -37,7 +37,7 @@ object BufferHandle {
   def apply(raw: Int): BufferHandle = raw
   val none:            BufferHandle = 0
 
-  given MkArray[BufferHandle] = utils.MkArray.mkInt.asInstanceOf[MkArray[BufferHandle]]
+  given MkArray[BufferHandle] = lowlevel.MkArray.mkInt.asInstanceOf[MkArray[BufferHandle]]
 
   extension (h: BufferHandle) {
     inline def toInt: Int = h
@@ -49,7 +49,7 @@ object ShaderHandle {
   def apply(raw: Int): ShaderHandle = raw
   val none:            ShaderHandle = 0
 
-  given MkArray[ShaderHandle] = utils.MkArray.mkInt.asInstanceOf[MkArray[ShaderHandle]]
+  given MkArray[ShaderHandle] = lowlevel.MkArray.mkInt.asInstanceOf[MkArray[ShaderHandle]]
 
   extension (h: ShaderHandle) {
     inline def toInt: Int = h
@@ -61,7 +61,7 @@ object ProgramHandle {
   def apply(raw: Int): ProgramHandle = raw
   val none:            ProgramHandle = 0
 
-  given MkArray[ProgramHandle] = utils.MkArray.mkInt.asInstanceOf[MkArray[ProgramHandle]]
+  given MkArray[ProgramHandle] = lowlevel.MkArray.mkInt.asInstanceOf[MkArray[ProgramHandle]]
 
   extension (h: ProgramHandle) {
     inline def toInt: Int = h
@@ -73,7 +73,7 @@ object FramebufferHandle {
   def apply(raw: Int): FramebufferHandle = raw
   val none:            FramebufferHandle = 0
 
-  given MkArray[FramebufferHandle] = utils.MkArray.mkInt.asInstanceOf[MkArray[FramebufferHandle]]
+  given MkArray[FramebufferHandle] = lowlevel.MkArray.mkInt.asInstanceOf[MkArray[FramebufferHandle]]
 
   extension (h: FramebufferHandle) {
     inline def toInt: Int = h
@@ -85,7 +85,7 @@ object RenderbufferHandle {
   def apply(raw: Int): RenderbufferHandle = raw
   val none:            RenderbufferHandle = 0
 
-  given MkArray[RenderbufferHandle] = utils.MkArray.mkInt.asInstanceOf[MkArray[RenderbufferHandle]]
+  given MkArray[RenderbufferHandle] = lowlevel.MkArray.mkInt.asInstanceOf[MkArray[RenderbufferHandle]]
 
   extension (h: RenderbufferHandle) {
     inline def toInt: Int = h
@@ -98,7 +98,7 @@ object UniformLocation {
   def apply(raw: Int): UniformLocation = raw
   val notFound:        UniformLocation = -1
 
-  given MkArray[UniformLocation] = utils.MkArray.mkInt.asInstanceOf[MkArray[UniformLocation]]
+  given MkArray[UniformLocation] = lowlevel.MkArray.mkInt.asInstanceOf[MkArray[UniformLocation]]
 
   extension (l: UniformLocation) {
     inline def toInt:                      Int             = l
@@ -115,7 +115,7 @@ object AttributeLocation {
   def apply(raw: Int): AttributeLocation = raw
   val notFound:        AttributeLocation = -1
 
-  given MkArray[AttributeLocation] = utils.MkArray.mkInt.asInstanceOf[MkArray[AttributeLocation]]
+  given MkArray[AttributeLocation] = lowlevel.MkArray.mkInt.asInstanceOf[MkArray[AttributeLocation]]
 
   extension (l: AttributeLocation) {
     inline def toInt: Int = l

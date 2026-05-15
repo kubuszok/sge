@@ -37,7 +37,9 @@ import sge.assets.loaders.SynchronousAssetLoader
 import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.math.EarClippingTriangulator
-import sge.utils.{ DynamicArray, Nullable, SgeError, StreamUtils }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.{ SgeError, StreamUtils }
 
 import scala.language.implicitConversions
 

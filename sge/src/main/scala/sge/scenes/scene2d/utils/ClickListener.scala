@@ -32,7 +32,8 @@ package scene2d
 package utils
 
 import sge.Input.Button
-import sge.utils.{ Millis, Nanos, Nullable, TimeUtils }
+import lowlevel.Nullable
+import sge.utils.{ Millis, Nanos, TimeUtils }
 
 /** Detects mouse over, mouse or finger touch presses, and clicks on an actor. A touch must go down over the actor and is considered pressed as long as it is over the actor or within the
   * {@link #setTapSquareSize(float) tap square}. This behavior makes it easier to press buttons on a touch interface when the initial touch happens near the edge of the actor. Double clicks can be

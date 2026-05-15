@@ -22,7 +22,9 @@ import sge.graphics.Texture.{ TextureFilter, TextureWrap }
 import sge.graphics.g3d.Model
 import sge.graphics.g3d.model.data.ModelData
 import sge.graphics.g3d.utils.TextureProvider
-import sge.utils.{ DynamicArray, Nullable, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.SgeError
 
 abstract class ModelLoader[P <: ModelLoader.ModelParameters](resolver: FileHandleResolver)(using Sge) extends AsynchronousAssetLoader[Model, P](resolver) {
 

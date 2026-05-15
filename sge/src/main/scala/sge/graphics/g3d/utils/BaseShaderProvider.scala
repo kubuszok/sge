@@ -32,7 +32,9 @@ package utils
 import scala.util.boundary
 import scala.util.boundary.break
 
-import sge.utils.{ DynamicArray, Nullable, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.SgeError
 
 abstract class BaseShaderProvider extends ShaderProvider {
 

@@ -18,7 +18,7 @@ package sge
 package physics3d
 
 import sge.platform.PhysicsPlatform3d
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A 3D physics simulation world backed by Rapier3D.
   *

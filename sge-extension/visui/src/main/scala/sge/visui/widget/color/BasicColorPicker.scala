@@ -27,7 +27,7 @@ import sge.graphics.glutils.ShaderProgram
 import sge.scenes.scene2d.{ Actor, InputEvent }
 import sge.scenes.scene2d.ui.{ Image, TextField }
 import sge.scenes.scene2d.utils.{ ChangeListener, ClickListener }
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.{ FocusManager, Sizes, VisUI }
 import sge.visui.util.ColorUtils
 import sge.visui.widget.{ VisLabel, VisTable, VisValidatableTextField }

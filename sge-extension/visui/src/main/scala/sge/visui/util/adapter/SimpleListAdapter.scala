@@ -21,7 +21,8 @@ package adapter
 
 import sge.scenes.scene2d.Actor
 import sge.scenes.scene2d.utils.Drawable
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 import sge.visui.VisUI
 import sge.visui.widget.{ VisLabel, VisTable }
 

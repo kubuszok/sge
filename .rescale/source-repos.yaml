@@ -9,6 +9,18 @@
 # Resolution: CommitTracker looks up source_lib from migration.tsv in this
 # map, then runs `git log` with source-reference as the path.
 
+# External repos: types extracted to separate repositories.
+# When a file's source-reference belongs to a package owned by an external
+# repo, tools should look in that repo instead of local original-src.
+external-repos:
+  lls:
+    path: ../lls
+    source-root: lls/src/main/scala
+    packages:
+      - lowlevel
+      - lowlevel.util
+      - lowlevel.math
+
 source-repos:
   libgdx: original-src/libgdx/gdx/src
   libgdx-root: original-src/libgdx

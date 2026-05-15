@@ -33,7 +33,8 @@ import sge.gltf.data.geometry.{ GLTFMesh, GLTFMorphTarget, GLTFPrimitive }
 import sge.gltf.data.material.{ GLTFMaterial, GLTFpbrMetallicRoughness }
 import sge.gltf.data.scene.{ GLTFNode, GLTFScene, GLTFSkin }
 import sge.gltf.data.texture.{ GLTFImage, GLTFNormalTextureInfo, GLTFOcclusionTextureInfo, GLTFSampler, GLTFTexture, GLTFTextureInfo }
-import sge.utils.{ Json, JsonCodec, Nullable, given_JsonCodec_Json }
+import lowlevel.Nullable
+import sge.utils.{ Json, JsonCodec, given_JsonCodec_Json }
 
 /** Central registry of GLTF JSON codecs. Import `GLTFCodecs.given` to bring all codecs into scope for `readFromString[GLTF](json)`.
   */

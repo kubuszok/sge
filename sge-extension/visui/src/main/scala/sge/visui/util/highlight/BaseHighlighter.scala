@@ -20,7 +20,7 @@ package util
 package highlight
 
 import sge.graphics.Color
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 import sge.visui.widget.HighlightTextArea
 
 /** Highlighter aggregates multiple [[HighlightRule]] into single collection. Highlighter is used by [[HighlightTextArea]] to get information about which parts of text should be highlighted. Compared

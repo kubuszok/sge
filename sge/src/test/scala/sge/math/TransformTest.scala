@@ -5,6 +5,8 @@
 package sge
 package math
 
+import lowlevel.math.MathUtils
+
 /** Focused regression tests for transform bugs fixed in Phase 1:
   *   - Matrix3 identity constructor
   *   - Matrix3.mul correctness

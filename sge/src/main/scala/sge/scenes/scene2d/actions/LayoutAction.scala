@@ -25,7 +25,8 @@ package scene2d
 package actions
 
 import sge.scenes.scene2d.utils.Layout
-import sge.utils.{ Nullable, Seconds, SgeError }
+import lowlevel.Nullable
+import sge.utils.{ Seconds, SgeError }
 
 /** Sets an actor's layout to enabled or disabled. The actor must implement Layout.
   * @author

@@ -5,7 +5,7 @@ package scene2d
 package utils
 
 import sge.Input.Button
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Tests for ClickListener: initial state, tap square, cancel, pressed/over state. */
 class ClickListenerTest extends munit.FunSuite {

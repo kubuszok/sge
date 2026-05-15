@@ -30,8 +30,8 @@ package sge
 package ai
 package sched
 
-import sge.utils.DynamicArray
-import sge.utils.MkArray
+import lowlevel.util.DynamicArray
+import lowlevel.MkArray
 
 /** Base class for scheduler implementations.
   *
@@ -49,9 +49,9 @@ abstract class SchedulerBase[T <: SchedulableRecord](
     extends Scheduler {
 
   /** The list of the scheduled tasks. */
-  protected val schedulableRecords: DynamicArray[T] = DynamicArray.createWithMk[T](mk, 16, true)
+  protected val schedulableRecords: DynamicArray[T] = { given MkArray[T] = mk; DynamicArray[T](true, 16) }
 
-  protected val runList: DynamicArray[T] = DynamicArray.createWithMk[T](mk, 16, true)
+  protected val runList: DynamicArray[T] = { given MkArray[T] = mk; DynamicArray[T](true, 16) }
 
   protected val phaseCounters: DynamicArray[Int] = DynamicArray[Int]()
 

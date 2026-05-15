@@ -24,7 +24,7 @@ import sge.graphics.{ Color, Pixmap, Texture }
 import sge.graphics.Pixmap.Format
 import sge.graphics.Texture.TextureWrap
 import sge.graphics.glutils.ShaderProgram
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.Sizes
 
 /** @author Kotcrab */

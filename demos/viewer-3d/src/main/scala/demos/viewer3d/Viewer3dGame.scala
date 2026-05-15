@@ -18,8 +18,10 @@ import sge.graphics.g3d.environment.{DirectionalLight, PointLight}
 import sge.graphics.g3d.utils.ModelBuilder
 import sge.graphics.glutils.ShapeRenderer
 import sge.graphics.glutils.ShapeRenderer.ShapeType
-import sge.math.{MathUtils, Vector3}
-import sge.utils.{Nullable, ScreenUtils}
+import lowlevel.math.MathUtils
+import sge.math.Vector3
+import lowlevel.Nullable
+import sge.utils.ScreenUtils
 import demos.shared.DemoScene
 
 /** 3D model viewer: five procedural shapes with directional + point lighting,

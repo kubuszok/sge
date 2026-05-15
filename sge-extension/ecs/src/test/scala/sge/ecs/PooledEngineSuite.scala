@@ -5,7 +5,8 @@ import scala.collection.mutable.ArrayBuffer
 
 import sge.ecs.signals.{ Listener, Signal }
 import sge.ecs.utils.ImmutableArray
-import sge.utils.{ Nullable, Pool }
+import lowlevel.Nullable
+import sge.utils.Pool
 
 // Top-level classes with public no-arg constructors for reflection-based createComponent
 class PooledPositionComponent extends Component {

@@ -30,7 +30,7 @@ package sge
 package ai
 package pfa
 
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** Default implementation of a [[GraphPath]] that uses an internal [[DynamicArray]] to store nodes or connections.
   *

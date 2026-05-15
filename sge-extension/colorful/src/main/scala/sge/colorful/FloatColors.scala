@@ -18,7 +18,7 @@ package sge
 package colorful
 
 import sge.graphics.Color
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 
 /** Various utility methods for working with colors encoded as packed floats in any of the formats this can use.
   */

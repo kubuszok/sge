@@ -26,9 +26,11 @@ import sge.gltf.scene3d.model.{ CubicQuaternion, CubicVector3, CubicWeightVector
 import sge.graphics.g3d.ModelInstance
 import sge.graphics.g3d.model.{ Animation, Node, NodeAnimation, NodeKeyframe, NodePart }
 import sge.graphics.g3d.utils.AnimationController
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 import sge.math.{ Matrix4, Quaternion, Vector3 }
-import sge.utils.{ DynamicArray, ObjectMap, Pool, Seconds, SgeError }
+import lowlevel.util.{ DynamicArray, ObjectMap }
+import sge.utils.{ Pool, Seconds, SgeError }
 
 /** AnimationController hack to run morph targets animations */
 class AnimationControllerHack(target: ModelInstance) extends AnimationController(target) {
@@ -99,7 +101,7 @@ class AnimationControllerHack(target: ModelInstance) extends AnimationController
     *   loop count : 0 paused, -1 infinite, n for n loops
     */
   def setAnimation(animation: Animation, loopCount: Int): Unit =
-    setAnimation(animation, Seconds.zero, Seconds(animation.duration), loopCount, 1f, sge.utils.Nullable.empty) // duration is raw Float in Animation
+    setAnimation(animation, Seconds.zero, Seconds(animation.duration), loopCount, 1f, lowlevel.Nullable.empty) // duration is raw Float in Animation
 }
 
 object AnimationControllerHack {

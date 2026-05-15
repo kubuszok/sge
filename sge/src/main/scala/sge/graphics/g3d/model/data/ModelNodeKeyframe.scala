@@ -28,7 +28,7 @@ package g3d
 package model
 package data
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class ModelNodeKeyframe[T] {
 

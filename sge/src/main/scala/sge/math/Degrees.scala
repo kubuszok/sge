@@ -18,11 +18,14 @@
 package sge
 package math
 
+import lowlevel.MkArray
+import lowlevel.math.MathUtils
+
 opaque type Degrees = Float
 object Degrees {
   def apply(value: Float): Degrees = value
 
-  given utils.MkArray[Degrees] = utils.MkArray.mkFloat.asInstanceOf[utils.MkArray[Degrees]]
+  given lowlevel.MkArray[Degrees] = lowlevel.MkArray.mkFloat.asInstanceOf[lowlevel.MkArray[Degrees]]
 
   inline def Full:    Degrees = 360f
   inline def Half:    Degrees = 180f
@@ -32,9 +35,8 @@ object Degrees {
   extension (d: Degrees) {
     inline def toFloat:   Float   = d
     inline def toRadians: Radians = Radians(d * MathUtils.degreesToRadians)
-    def sin:              Float   = MathUtils.Sin.table((d * MathUtils.degToIndex).toInt & MathUtils.SIN_MASK)
-    def cos:              Float   =
-      MathUtils.Sin.table(((d + 90) * MathUtils.degToIndex).toInt & MathUtils.SIN_MASK)
+    def sin:              Float   = MathUtils.sinDeg(d)
+    def cos:              Float   = MathUtils.cosDeg(d)
     @annotation.targetName("plus")
     def +(other: Degrees): Degrees = d + other
     @annotation.targetName("minus")

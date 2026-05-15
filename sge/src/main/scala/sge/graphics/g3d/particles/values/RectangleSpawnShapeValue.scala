@@ -26,7 +26,8 @@ package g3d
 package particles
 package values
 
-import sge.math.{ MathUtils, Vector3 }
+import lowlevel.math.MathUtils
+import sge.math.Vector3
 
 /** Encapsulate the formulas to spawn a particle on a rectangle shape.
   * @author

@@ -15,7 +15,8 @@ package sge
 package textra
 package effects
 
-import sge.math.{ Interpolation, MathUtils }
+import lowlevel.math.MathUtils
+import sge.math.Interpolation
 import scala.collection.mutable.ArrayBuffer
 
 /** Shakes the text in a random pattern. */

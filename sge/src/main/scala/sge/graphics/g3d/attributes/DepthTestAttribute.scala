@@ -27,7 +27,7 @@ package g3d
 package attributes
 
 import sge.graphics.GL20
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.utils.{ NumberUtils, SgeError }
 
 class DepthTestAttribute(

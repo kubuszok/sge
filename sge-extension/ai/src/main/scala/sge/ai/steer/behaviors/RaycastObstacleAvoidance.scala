@@ -34,7 +34,7 @@ package behaviors
 import sge.ai.steer.utils.RayConfiguration
 import sge.ai.utils.{ Collision, RaycastCollisionDetector }
 import sge.math.Vector
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** With the `RaycastObstacleAvoidance` the moving agent (the owner) casts one or more rays out in the direction of its motion. If these rays collide with an obstacle, then a target is created that
   * will avoid the collision, and the owner does a basic seek on this target. Typically, the rays extend a short distance ahead of the character (usually a distance corresponding to a few seconds of

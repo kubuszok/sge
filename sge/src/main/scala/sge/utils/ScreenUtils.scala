@@ -30,7 +30,7 @@ import java.nio.Buffer
 import sge.graphics.{ ClearMask, Color, DataType, GL20, PixelFormat, Pixmap, Texture }
 import sge.graphics.Pixmap.{ Blending, Format }
 import sge.graphics.g2d.TextureRegion
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 
 /** Class with static helper methods related to currently bound OpenGL frame buffer, including access to the current OpenGL FrameBuffer. These methods can be used to get the entire screen content or a
   * portion thereof.

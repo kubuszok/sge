@@ -18,7 +18,8 @@ package sge
 import sge.files.AndroidFileHandle
 import sge.net.AndroidNet
 import sge.platform.android._
-import sge.utils.{ DynamicArray, Nullable, ObjectMap }
+import lowlevel.Nullable
+import lowlevel.util.{ DynamicArray, ObjectMap }
 
 /** An [[Application]] implementation for Android.
   *

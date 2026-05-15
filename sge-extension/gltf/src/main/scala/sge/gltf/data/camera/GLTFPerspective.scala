@@ -16,7 +16,7 @@ package gltf
 package data
 package camera
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFPerspective extends GLTFObject {
   var yfov:        Float           = 0f

@@ -1,6 +1,8 @@
 package sge
 package math
 
+import lowlevel.math.MathUtils
+
 class Vector2Test extends munit.FunSuite {
 
   test("toString") {

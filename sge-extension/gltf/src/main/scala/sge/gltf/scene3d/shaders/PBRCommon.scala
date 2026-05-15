@@ -22,7 +22,8 @@ import sge.gltf.scene3d.attributes.PBRTextureAttribute
 import sge.graphics.{ EnableCap, GL20 }
 import sge.graphics.g3d.Renderable
 import sge.math.Matrix3
-import sge.utils.{ BufferUtils, Nullable, SgeError }
+import lowlevel.Nullable
+import sge.utils.{ BufferUtils, SgeError }
 
 import scala.util.boundary
 import scala.util.boundary.break

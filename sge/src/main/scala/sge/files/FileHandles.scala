@@ -51,7 +51,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.channels.FileChannel
 import java.nio.channels.FileChannel.MapMode
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Represents a file or directory on the filesystem, classpath, Android app storage, or Android assets directory. FileHandles are created via a {@link Files} instance.
   *
@@ -119,7 +119,7 @@ class FileHandle(val internalFile: File, val fileType: FileType, private val ext
         case _                                  => false
       }
     ) {
-      utils.Nullable(getClass.getResourceAsStream("/" + internalFile.getPath().replace('\\', '/'))).getOrElse {
+      lowlevel.Nullable(getClass.getResourceAsStream("/" + internalFile.getPath().replace('\\', '/'))).getOrElse {
         throw utils.SgeError.FileReadError(this, "File not found")
       }
     } else {

@@ -30,7 +30,7 @@ import sge.math.Affine2
 import sge.math.Matrix4
 import sge.graphics.Color
 import sge.graphics.glutils.ShaderProgram
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 import scala.annotation.publicInBinary
 

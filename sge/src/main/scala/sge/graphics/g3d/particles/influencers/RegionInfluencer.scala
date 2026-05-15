@@ -35,14 +35,16 @@ package g3d
 package particles
 package influencers
 
+import lowlevel.math.MathUtils
+
 import sge.assets.AssetManager
 import sge.graphics.Texture
 import sge.graphics.g2d.{ TextureAtlas, TextureRegion }
 import sge.graphics.g3d.particles.ParallelArray.FloatChannel
 import sge.graphics.g3d.particles.ParticleChannels
 import sge.graphics.g3d.particles.ResourceData
-import sge.utils.DynamicArray
-import sge.utils.Nullable
+import lowlevel.util.DynamicArray
+import lowlevel.Nullable
 
 /** It's an {@link Influencer} which assigns a region of a {@link Texture} to the particles.
   * @author
@@ -271,7 +273,7 @@ object RegionInfluencer {
       var i = startIndex * regionChannel.strideSize
       val c = i + count * regionChannel.strideSize
       while (i < c) {
-        val regionIdx = sge.math.MathUtils.random(regions.size - 1)
+        val regionIdx = MathUtils.random(regions.size - 1)
         val region    = regions(regionIdx)
         regionChannel.floatData(i + ParticleChannels.UOffset) = region.u
         regionChannel.floatData(i + ParticleChannels.VOffset) = region.v

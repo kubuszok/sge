@@ -16,7 +16,9 @@ package assets
 package loaders
 
 import sge.files.FileHandle
-import sge.utils.{ DynamicArray, I18NBundle, Nullable, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.{ I18NBundle, SgeError }
 import java.util.Locale
 
 /** {@link AssetLoader} for {@link I18NBundle} instances. The I18NBundle is loaded asynchronously. <p> Notice that you can't load two bundles with the same base name and different locale or encoding

@@ -29,8 +29,8 @@ import sge.files.{ FileHandle, FileType }
 import sge.graphics.Pixmap.Format
 import sge.graphics.Texture.{ TextureFilter, TextureWrap }
 import sge.graphics.g2d.TextureAtlas.TextureAtlasData
-import sge.math.MathUtils
-import sge.utils.Nullable
+import lowlevel.math.MathUtils
+import lowlevel.Nullable
 
 import java.awt.{ Color, Graphics2D, RenderingHints }
 import java.awt.image.BufferedImage

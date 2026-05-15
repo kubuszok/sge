@@ -29,7 +29,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashSet
 
 import sge.ecs.utils.ImmutableArray
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.utils.Pool
 
 /** Manages entities within an [[Engine]]. Supports immediate and delayed add/remove operations.

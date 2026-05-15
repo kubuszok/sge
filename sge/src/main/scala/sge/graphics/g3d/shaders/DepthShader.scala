@@ -40,7 +40,8 @@ import sge.graphics.GL20
 import sge.graphics.g3d.attributes.{ BlendingAttribute, FloatAttribute, TextureAttribute }
 import sge.graphics.g3d.utils.RenderContext
 import sge.graphics.glutils.ShaderProgram
-import sge.utils.{ Nullable, SgeError }
+import lowlevel.Nullable
+import sge.utils.SgeError
 
 class DepthShader(
   renderable:    Renderable,

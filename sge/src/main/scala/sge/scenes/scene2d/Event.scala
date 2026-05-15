@@ -26,7 +26,7 @@ package sge
 package scenes
 package scene2d
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.utils.Pool
 
 /** The base class for all events. <p> By default an event will "bubble" up through an actor's parent's handlers (see {@link #setBubbles(boolean)}). <p> An actor's capture listeners can

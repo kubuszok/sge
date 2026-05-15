@@ -1,7 +1,7 @@
 package sge
 package math
 
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 class ConvexHullTest extends munit.FunSuite {
 

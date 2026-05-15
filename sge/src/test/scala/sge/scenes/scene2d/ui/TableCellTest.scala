@@ -4,7 +4,8 @@ package scenes
 package scene2d
 package ui
 
-import sge.utils.{ Align, Nullable }
+import lowlevel.Nullable
+import sge.utils.Align
 
 /** Tests for Table cell management and Cell configuration. No GL context required. */
 class TableCellTest extends munit.FunSuite {

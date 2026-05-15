@@ -17,7 +17,7 @@ package data
 package geometry
 
 import scala.collection.mutable.{ ArrayBuffer, HashMap }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFPrimitive extends GLTFObject {
   var attributes: Nullable[HashMap[String, Int]]         = Nullable.empty

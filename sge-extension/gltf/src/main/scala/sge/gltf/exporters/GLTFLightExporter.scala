@@ -25,7 +25,8 @@ import sge.gltf.data.extensions.KHRLightsPunctual.{ GLTFLight, GLTFLightNode, GL
 import sge.gltf.data.scene.GLTFNode
 import sge.gltf.loaders.exceptions.{ GLTFRuntimeException, GLTFUnsupportedException }
 import sge.gltf.scene3d.lights.{ DirectionalLightEx, PointLightEx, SpotLightEx }
-import sge.utils.{ Nullable, ObjectMap }
+import lowlevel.Nullable
+import lowlevel.util.ObjectMap
 
 private[exporters] class GLTFLightExporter(private val base: GLTFExporter) {
 

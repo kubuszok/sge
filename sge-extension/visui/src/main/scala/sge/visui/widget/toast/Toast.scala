@@ -26,7 +26,8 @@ import sge.scenes.scene2d.{ Action, Actor }
 import sge.scenes.scene2d.actions.Actions
 import sge.scenes.scene2d.ui.Table
 import sge.scenes.scene2d.utils.{ ChangeListener, Drawable }
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 import sge.visui.VisUI
 import sge.visui.util.ToastManager
 

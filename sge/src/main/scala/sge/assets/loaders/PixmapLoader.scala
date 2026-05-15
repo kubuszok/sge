@@ -18,7 +18,9 @@ package loaders
 
 import sge.files.FileHandle
 import sge.graphics.Pixmap
-import sge.utils.{ DynamicArray, Nullable, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.SgeError
 
 /** {@link AssetLoader} for {@link Pixmap} instances. The Pixmap is loaded asynchronously.
   * @author

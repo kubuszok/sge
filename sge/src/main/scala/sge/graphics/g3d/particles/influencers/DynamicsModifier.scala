@@ -36,7 +36,8 @@ import sge.graphics.g3d.particles.ParallelArray.FloatChannel
 import sge.graphics.g3d.particles.ParticleChannels
 import sge.graphics.g3d.particles.ParticleControllerComponent
 import sge.graphics.g3d.particles.values.ScaledNumericValue
-import sge.math.{ MathUtils, Matrix4, Quaternion, Vector3 }
+import lowlevel.math.MathUtils
+import sge.math.{ Matrix4, Quaternion, Vector3 }
 import scala.annotation.nowarn
 
 /** It's the base class for any kind of influencer which operates on angular velocity and acceleration of the particles. All the classes that will inherit this base class can and should be used only

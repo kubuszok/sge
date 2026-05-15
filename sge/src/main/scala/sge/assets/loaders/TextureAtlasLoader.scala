@@ -19,7 +19,9 @@ import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.graphics.g2d.TextureAtlas
 import sge.graphics.g2d.TextureAtlas.TextureAtlasData
-import sge.utils.{ DynamicArray, Nullable, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.SgeError
 
 /** {@link AssetLoader} to load {@link TextureAtlas} instances. Passing a {@link TextureAtlasParameter} to {@link AssetManager#load(String, Class, AssetLoaderParameters)} allows to specify whether the
   * atlas regions should be flipped on the y-axis or not.

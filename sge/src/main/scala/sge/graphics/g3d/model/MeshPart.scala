@@ -33,7 +33,7 @@ import sge.graphics.{ Mesh, PrimitiveMode }
 import sge.graphics.glutils.ShaderProgram
 import sge.math.Vector3
 import sge.math.collision.BoundingBox
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A MeshPart is composed of a subset of vertices of a {@link Mesh}, along with the primitive type. The vertices subset is described by an offset and size. When the mesh is indexed (which is when
   * {@link Mesh#numIndices} > 0), then the {@link #offset} represents the offset in the indices array and {@link #size} represents the number of indices. When the mesh isn't indexed, then the

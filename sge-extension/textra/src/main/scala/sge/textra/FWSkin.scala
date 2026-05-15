@@ -44,7 +44,7 @@ import sge.scenes.scene2d.ui.TextField
 import sge.scenes.scene2d.ui.TextTooltip
 import sge.scenes.scene2d.ui.Window
 import sge.utils.Json
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.utils.SgeError
 import sge.utils.given
 import sge.utils.readJson

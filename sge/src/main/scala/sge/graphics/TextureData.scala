@@ -24,7 +24,7 @@
 package sge
 package graphics
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 import scala.language.implicitConversions
 
 import sge.graphics.{ Pixmap, PixmapIO }

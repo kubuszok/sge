@@ -34,7 +34,8 @@ import sge.scenes.scene2d.{ Actor, InputEvent, InputListener, Touchable }
 import sge.scenes.scene2d.ui.Label.LabelStyle
 import sge.scenes.scene2d.utils.Drawable
 import sge.Input.{ Button, Key }
-import sge.utils.{ Align, Nullable }
+import lowlevel.Nullable
+import sge.utils.Align
 
 /** A table that can be dragged and act as a modal window. The top padding is used as the window's title height. <p> The preferred size of a window is the preferred size of the title text and the
   * children as laid out by the table. After adding children to the window, it can be convenient to call {@link #pack()} to size the window to the size of the children.

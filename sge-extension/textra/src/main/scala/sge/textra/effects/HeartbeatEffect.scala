@@ -13,7 +13,7 @@ package sge
 package textra
 package effects
 
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 
 class HeartbeatEffect(label: TypingLabel, params: Array[String]) extends Effect(label) {
   private val DEFAULT_FREQUENCY = 1f; private val DEFAULT_EXPANSION = 0.5f

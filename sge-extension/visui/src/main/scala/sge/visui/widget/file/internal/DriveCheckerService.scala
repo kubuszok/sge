@@ -25,7 +25,7 @@ import java.util.concurrent.{ ExecutorService, Executors }
 
 import scala.collection.mutable
 
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** Used to check whether file system root is readable or writeable.
   * @author

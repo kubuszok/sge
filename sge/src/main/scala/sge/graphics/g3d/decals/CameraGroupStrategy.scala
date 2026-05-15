@@ -43,9 +43,9 @@ package decals
 import sge.graphics.Camera
 import sge.graphics.EnableCap
 import sge.graphics.glutils.ShaderProgram
-import sge.utils.DynamicArray
-import sge.utils.Nullable
-import sge.utils.ObjectMap
+import lowlevel.util.DynamicArray
+import lowlevel.Nullable
+import lowlevel.util.ObjectMap
 import sge.utils.Pool
 import sge.utils.SgeError
 

@@ -19,7 +19,7 @@ package visui
 package widget
 package spinner
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Basic implementation of [[SpinnerModel]] simplifying event handling for custom models.
   * @author

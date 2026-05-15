@@ -25,7 +25,7 @@ package sge
 package graphics
 
 import scala.collection.mutable.Map as MutableMap
-import sge.utils.Nullable
+import lowlevel.Nullable
 import scala.language.implicitConversions
 
 /** A general purpose class containing named colors that can be changed at will. For example, the markup language defined by the {@code BitmapFontCache} class uses this class to retrieve colors and

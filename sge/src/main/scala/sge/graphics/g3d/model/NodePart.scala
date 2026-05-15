@@ -31,7 +31,8 @@ package g3d
 package model
 
 import sge.math.Matrix4
-import sge.utils.{ ArrayMap, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.ArrayMap
 
 /** A combination of {@link MeshPart} and {@link Material}, used to represent a {@link Node}'s graphical properties. A NodePart is the smallest visible part of a {@link Model}, each NodePart implies a
   * render call.

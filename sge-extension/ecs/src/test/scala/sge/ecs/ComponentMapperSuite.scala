@@ -1,7 +1,7 @@
 package sge
 package ecs
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class ComponentMapperSuite extends munit.FunSuite {
 

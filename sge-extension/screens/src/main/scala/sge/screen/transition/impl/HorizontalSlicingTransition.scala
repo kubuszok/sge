@@ -19,8 +19,10 @@ package impl
 
 import sge.graphics.g2d.{ SpriteBatch, TextureRegion }
 import sge.graphics.glutils.HdpiUtils
-import sge.math.{ Interpolation, MathUtils }
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.math.MathUtils
+import sge.math.Interpolation
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** A transition where the new screen is sliding in in horizontal slices. Can be reused.
   *

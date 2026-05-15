@@ -25,6 +25,8 @@
 package sge
 package math
 
+import lowlevel.math.MathUtils
+
 /** A convenient 2D ellipse class, based on the circle class
   * @author
   *   tonyp7 (original implementation)

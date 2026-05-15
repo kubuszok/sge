@@ -29,7 +29,8 @@ package utils
 import scala.util.boundary
 import scala.util.boundary.break
 
-import sge.utils.{ DynamicArray, SgeError }
+import lowlevel.util.DynamicArray
+import sge.utils.SgeError
 
 /** An unordered map where the keys are case-insensitive Strings and the values are unboxed ints. Null keys are not allowed. No allocation is done except when growing the table size.
   *

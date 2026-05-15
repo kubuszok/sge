@@ -26,7 +26,7 @@ package scenes
 package scene2d
 
 import sge.Input.{ Button, Key }
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.math.Vector2
 
 /** EventListener for low-level input events. Unpacks {@link InputEvent}s and calls the appropriate method. By default the methods here do nothing with the event. Users are expected to override the

@@ -28,9 +28,9 @@ package graphics
 package g3d
 package decals
 
-import sge.utils.DynamicArray
-import sge.utils.ObjectMap
-import sge.utils.Nullable
+import lowlevel.util.DynamicArray
+import lowlevel.util.ObjectMap
+import lowlevel.Nullable
 
 /** This class in combination with the {@link GroupPlug GroupPlugs} allows you to build a modular {@link GroupStrategy} out of routines you already implemented.
   */

@@ -35,7 +35,8 @@ package sge
 package maps
 
 import sge.graphics.Color
-import sge.utils.{ Nullable, SgeError }
+import lowlevel.Nullable
+import sge.utils.SgeError
 
 /** Map layer containing a set of objects and properties */
 class MapLayer {

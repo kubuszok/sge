@@ -27,7 +27,7 @@ import sge.graphics.glutils.FrameBuffer
 import sge.gltf.data.data.{ GLTFBuffer, GLTFBufferView }
 import sge.gltf.data.texture.GLTFImage
 import sge.gltf.loaders.exceptions.{ GLTFRuntimeException, GLTFUnsupportedException }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 private[exporters] class GLTFBinaryExporter(
   private val folder: FileHandle,

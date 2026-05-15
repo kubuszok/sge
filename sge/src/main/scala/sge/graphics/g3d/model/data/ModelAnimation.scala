@@ -28,7 +28,7 @@ package g3d
 package model
 package data
 
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 class ModelAnimation {
   var id:             String                           = scala.compiletime.uninitialized

@@ -18,7 +18,8 @@ package scene3d
 package attributes
 
 import sge.graphics.g3d.Attribute
-import sge.math.{ MathUtils, Plane, Vector3 }
+import lowlevel.math.MathUtils
+import sge.math.{ Plane, Vector3 }
 
 class ClippingPlaneAttribute(
   val plane: Plane

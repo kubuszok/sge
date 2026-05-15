@@ -23,7 +23,7 @@ import scala.collection.mutable
 import sge.scenes.scene2d.Actor
 import sge.scenes.scene2d.ui.Button
 import sge.scenes.scene2d.utils.ChangeListener
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.{ Locales, Sizes, VisUI }
 import sge.visui.util.OsUtils
 

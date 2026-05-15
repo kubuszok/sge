@@ -20,7 +20,7 @@ package widget
 
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener }
 import sge.scenes.scene2d.ui.Tree
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.{ FocusManager, VisUI }
 
 /** Does not provide additional features over standard [[Tree]], however for proper VisUI focus border management VisTree should be always preferred. Compatible with standard [[Tree]].

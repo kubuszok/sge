@@ -33,7 +33,7 @@ package behaviors
 
 import sge.ai.utils.Location
 import sge.math.Vector
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** `Seek` behavior moves the owner towards the target position. Given a target, this behavior calculates the linear steering acceleration which will direct the agent towards the target as fast as
   * possible.

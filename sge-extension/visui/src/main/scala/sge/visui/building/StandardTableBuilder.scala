@@ -19,7 +19,7 @@ package visui
 package building
 
 import sge.scenes.scene2d.ui.Table
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.building.utilities.Padding
 
 /** Builds a standard table with the appended widgets. Each table's row will have the same colspan.

@@ -12,7 +12,7 @@ converted, 0 not started, 66 skipped (stdlib replacements), 0 deferred.
 - **Braces required** (`-no-indent`): `{}` for all `trait`, `class`, `enum`, method defs
 - **Split packages**: `package sge` / `package graphics` / `package g2d` (never flat)
 - **No `return`**: use `scala.util.boundary`/`break`
-- **No `null`**: use `Nullable[A]` opaque type. **Never use `orNull`** except at Java interop boundaries (requires `@nowarn` + comment)
+- **No `null`**: use `Nullable[A]` opaque type (from `lowlevel.Nullable`). **Never use `orNull`** except at Java interop boundaries (requires `@nowarn` + comment)
 - **No comment removal**: preserve all original comments
 - **No `scala.Enumeration`**: use Scala 3 `enum`, preferably `extends java.lang.Enum`
 - **Case classes must be `final`**: all `case class` declarations require `final`
@@ -28,7 +28,7 @@ converted, 0 not started, 66 skipped (stdlib replacements), 0 deferred.
 
 | Directory | Purpose |
 |-----------|---------|
-| `sge/` | Core library (projectMatrix: JVM/JS/Native) |
+| `sge/` | Core library (projectMatrix: JVM/JS/Native). Depends on `lls` for `lowlevel.*` types. |
 | `sge-jvm-platform/` | JVM platform modules: `api/`, `jdk/`, `android/` (merged into sge JAR) |
 | `sge-extension/freetype/` | FreeType font extension (JVM/JS/Native) |
 | `sge-extension/physics/` | 2D physics via Rapier2D (JVM/JS/Native) |
@@ -124,6 +124,7 @@ Per-project rule overrides live at `.rescale/claude-hooks.yaml`.
 | `metals-mcp` | Compile, search, inspect, format (install via `cs install metals-mcp`) |
 | `context7` MCP | External library docs (LWJGL, scala-js-dom, etc) |
 | `./original-src/libgdx/` | Local reference source. **Never fetch from GitHub.** |
+| `../lls/` | [lls](https://github.com/kubuszok/lls) (lowlevel-scala) local checkout. Shared zero-allocation types extracted from `sge.utils.*`. Changes to `lowlevel.*` types go to lls, not sge. |
 
 ## Skill Dispatch Rules
 
@@ -146,6 +147,7 @@ with information that isn't needed for the current task.
 | Rust native ops, C ABI bridge | `/arch-native-bridge` |
 | Packaging, distribution, releases | `/arch-packaging` |
 | Opaque types, API improvements | `/guide-improvements` |
+| Types from `lowlevel.*` (MkArray, Nullable, ArrayView, DynamicArray, collections) | `/guide-lls-types` |
 | Auditing a file | `/re-scale:audit-file <path>` |
 | Auditing a package | `/audit-package <pkg>` |
 | Finding code issues | `/re-scale:find-issues` |

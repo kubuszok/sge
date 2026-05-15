@@ -32,7 +32,7 @@ package steer
 package behaviors
 
 import sge.math.Vector
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** This steering behavior produces a linear acceleration trying to match target's velocity. It does not produce any angular acceleration.
   *

@@ -35,7 +35,7 @@ import sge.graphics.g2d.{ Batch, SpriteBatch }
 import sge.maps.{ MapGroupLayer, MapLayer, MapObject }
 import sge.maps.tiled.tiles.AnimatedTiledMapTile
 import sge.math.{ Matrix4, Rectangle }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 abstract class BatchTiledMapRenderer(
   protected var _map:       TiledMap,

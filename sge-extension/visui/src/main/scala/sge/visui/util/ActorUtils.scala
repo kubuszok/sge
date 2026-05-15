@@ -20,7 +20,8 @@ package util
 
 import sge.graphics.OrthographicCamera
 import sge.scenes.scene2d.{ Actor, Stage }
-import sge.utils.{ Align, Nullable }
+import lowlevel.Nullable
+import sge.utils.Align
 
 /** [[Actor]] related utils.
   * @author

@@ -29,7 +29,7 @@ package utils
 
 import sge.graphics.{ Color, Texture }
 import sge.graphics.g2d.{ Batch, Sprite, TextureAtlas, TextureRegion }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Drawable for a {@link TextureRegion}.
   * @author

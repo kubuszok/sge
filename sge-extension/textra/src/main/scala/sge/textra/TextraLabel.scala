@@ -33,7 +33,7 @@ import sge.graphics.Color
 import sge.scenes.scene2d.utils.Drawable
 import sge.scenes.scene2d.utils.TransformDrawable
 import sge.utils.Align
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A scene2d.ui Widget that displays text using a Font rather than a libGDX BitmapFont. This supports being laid out in a Table. This permits square-bracket tag markup from Font. It does not support
   * the curly-brace token markup that its subclass TypingLabel does, nor does this handle input in the way TypingLabel can.
@@ -335,7 +335,7 @@ class TextraLabel {
 
       // If the call to calculateSize() changed layout's height, update height.
       val newHeight = layout.getHeight
-      if (!sge.math.MathUtils.isEqual(originalHeight, newHeight)) {
+      if (!lowlevel.math.MathUtils.isEqual(originalHeight, newHeight)) {
         setSuperHeight(newHeight)
       }
     }
@@ -348,8 +348,8 @@ class TextraLabel {
     val rot     = _rotation
     val originX = _originX
     val originY = _originY
-    val sn      = sge.math.MathUtils.sinDeg(rot)
-    val cs      = sge.math.MathUtils.cosDeg(rot)
+    val sn      = lowlevel.math.MathUtils.sinDeg(rot)
+    val cs      = lowlevel.math.MathUtils.cosDeg(rot)
 
     val lines = layout.lineCount
     var baseX = _x

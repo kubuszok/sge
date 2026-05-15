@@ -22,7 +22,7 @@ import sge.graphics.g2d.TextureRegion
 import sge.graphics.g3d.Attribute
 import sge.graphics.g3d.attributes.TextureAttribute
 import sge.graphics.g3d.utils.TextureDescriptor
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 
 class PBRTextureAttribute(
   `type`: Long
@@ -37,7 +37,7 @@ class PBRTextureAttribute(
 
   def this(`type`: Long, texture: Texture) = {
     this(`type`)
-    this.textureDescription.texture = sge.utils.Nullable(texture)
+    this.textureDescription.texture = lowlevel.Nullable(texture)
   }
 
   def this(`type`: Long, region: TextureRegion) = {

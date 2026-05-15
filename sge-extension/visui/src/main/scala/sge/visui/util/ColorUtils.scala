@@ -19,7 +19,7 @@ package visui
 package util
 
 import sge.graphics.Color
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 
 /** Utilities for converting between RGB and HSV color systems.
   * @author

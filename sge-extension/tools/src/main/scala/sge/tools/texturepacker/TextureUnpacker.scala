@@ -27,7 +27,7 @@ package texturepacker
 
 import sge.files.{ FileHandle, FileType }
 import sge.graphics.g2d.TextureAtlas.TextureAtlasData
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 import java.awt.{ Color, Graphics2D }
 import java.awt.geom.AffineTransform

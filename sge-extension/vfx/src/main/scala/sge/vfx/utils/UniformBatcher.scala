@@ -17,7 +17,7 @@ package utils
 
 import sge.graphics.glutils.ShaderProgram
 import sge.math.{ Matrix3, Matrix4, Vector2, Vector3 }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class UniformBatcher(using Sge) {
 

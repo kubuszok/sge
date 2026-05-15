@@ -33,13 +33,17 @@ package g3d
 package particles
 package influencers
 
+import lowlevel.math.MathUtils
+
 import sge.assets.AssetManager
 import sge.graphics.g3d.particles.EffectReference
 import sge.graphics.g3d.particles.ParallelArray.ObjectChannel
 import sge.graphics.g3d.particles.ParticleChannels
 import sge.graphics.g3d.particles.ParticleController
 import sge.graphics.g3d.particles.ResourceData
-import sge.utils.{ DynamicArray, Nullable, Pool }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.Pool
 
 import scala.language.implicitConversions
 
@@ -219,7 +223,7 @@ object ParticleControllerInfluencer {
     private def createPool(): Pool[ParticleController] = {
       val self = this
       new Pool.Default[ParticleController](() => {
-        val ctrl = self.templates(sge.math.MathUtils.random(self.templates.size - 1)).copy()
+        val ctrl = self.templates(MathUtils.random(self.templates.size - 1)).copy()
         ctrl.init()
         ctrl
       }) {

@@ -24,7 +24,7 @@ import sge.math.Rectangle
 import sge.scenes.scene2d.{ Group, InputEvent, InputListener }
 import sge.scenes.scene2d.ui.ScrollPane
 import sge.scenes.scene2d.utils.Cullable
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Custom [[VisTextArea]] supporting embedding in scroll pane by calculating required space needed for current text.
   *

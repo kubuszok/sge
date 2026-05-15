@@ -8,8 +8,10 @@ import sge.{Input, Pixels, Sge, WorldUnits}
 import sge.utils.Seconds
 import sge.graphics.Color
 import sge.graphics.glutils.ShapeRenderer
-import sge.math.{FloatCounter, MathUtils, WindowedMean}
-import sge.utils.{DynamicArray, ObjectSet, Poolable, Pool, ScreenUtils, Sort}
+import lowlevel.math.MathUtils
+import sge.math.{FloatCounter, WindowedMean}
+import lowlevel.util.{DynamicArray, ObjectSet, Sort}
+import sge.utils.{Poolable, Pool, ScreenUtils}
 import sge.utils.viewport.FitViewport
 
 import scala.compiletime.uninitialized

@@ -19,7 +19,8 @@ package physics3d
 
 import sge.graphics.Color
 import sge.graphics.glutils.ShapeRenderer
-import sge.math.{ MathUtils, Matrix4 }
+import lowlevel.math.MathUtils
+import sge.math.Matrix4
 
 /** Debug renderer that draws 3D physics collider wireframes using a [[ShapeRenderer]].
   *

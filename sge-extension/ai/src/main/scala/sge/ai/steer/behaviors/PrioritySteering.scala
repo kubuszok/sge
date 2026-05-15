@@ -32,7 +32,7 @@ package steer
 package behaviors
 
 import sge.math.Vector
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 import scala.reflect.ClassTag
 import scala.util.boundary

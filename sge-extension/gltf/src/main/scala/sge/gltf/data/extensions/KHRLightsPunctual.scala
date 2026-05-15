@@ -22,7 +22,7 @@ import sge.graphics.g3d.environment.BaseLight
 import sge.gltf.loaders.exceptions.GLTFIllegalException
 import sge.gltf.loaders.shared.GLTFTypes
 import sge.gltf.scene3d.lights.{ DirectionalLightEx, PointLightEx, SpotLightEx }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** [[sge.gltf.data.scene.GLTFNode]] and [[sge.gltf.data.GLTF]] (root) extension. See https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_lights_punctual
   */

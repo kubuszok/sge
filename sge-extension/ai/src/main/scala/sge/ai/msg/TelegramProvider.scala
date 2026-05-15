@@ -30,7 +30,7 @@ package sge
 package ai
 package msg
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Telegram providers respond to [[MessageDispatcher.addListener]] by providing optional [[Telegram.extraInfo]] to be sent in a Telegram of a given type to the newly registered [[Telegraph]].
   *

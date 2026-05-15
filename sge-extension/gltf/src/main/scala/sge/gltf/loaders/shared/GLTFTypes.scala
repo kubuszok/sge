@@ -32,8 +32,9 @@ import sge.gltf.data.texture.GLTFSampler
 import sge.gltf.loaders.exceptions.{ GLTFIllegalException, GLTFUnsupportedException }
 import sge.gltf.loaders.shared.animation.Interpolation
 import sge.gltf.scene3d.model.{ CubicQuaternion, CubicVector3, CubicWeightVector, WeightVector }
-import sge.math.{ MathUtils, Quaternion, Vector3 }
-import sge.utils.Nullable
+import lowlevel.math.MathUtils
+import sge.math.{ Quaternion, Vector3 }
+import lowlevel.Nullable
 
 object GLTFTypes {
 

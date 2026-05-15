@@ -5,7 +5,7 @@ package assets
 import munit.FunSuite
 import sge.assets.loaders._
 import sge.files.{ FileHandle, FileType }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Compile-time smoke tests for asset loaders.
   *

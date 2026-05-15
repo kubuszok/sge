@@ -16,7 +16,7 @@ package sge
 
 import sge.files.FileType
 import sge.graphics.Color
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Per-window configuration for desktop applications. Can be used when creating additional windows via the desktop application.
   *

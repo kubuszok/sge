@@ -21,7 +21,8 @@ import sge.gltf.scene3d.scene.Scene
 import sge.graphics.g3d.model.Animation
 import sge.graphics.g3d.utils.AnimationController
 import sge.graphics.g3d.utils.AnimationController.AnimationDesc
-import sge.utils.{ DynamicArray, Seconds }
+import lowlevel.util.DynamicArray
+import sge.utils.Seconds
 
 class AnimationsPlayer(private val scene: Scene) {
 

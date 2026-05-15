@@ -63,7 +63,10 @@ import sge.graphics.GLTexture
 import sge.graphics.g3d.utils.{ RenderContext, TextureDescriptor }
 import sge.graphics.glutils.ShaderProgram
 import sge.math.{ Matrix3, Matrix4, Vector3 }
-import sge.utils.{ DynamicArray, Nullable, SgeError }
+import lowlevel.Nullable
+import lowlevel.leanView
+import lowlevel.util.DynamicArray
+import sge.utils.SgeError
 
 class DefaultShader(
   renderable:    Renderable,
@@ -92,10 +95,8 @@ class DefaultShader(
   protected val directionalLights: Array[DirectionalLight] = {
     val n   = if (lighting && config.numDirectionalLights > 0) config.numDirectionalLights else 0
     val arr = new Array[DirectionalLight](n)
-    var i   = 0
-    while (i < arr.length) {
+    arr.leanView.zipWithIndex.foreach { (_, i) =>
       arr(i) = DirectionalLight()
-      i += 1
     }
     arr
   }
@@ -103,10 +104,8 @@ class DefaultShader(
   protected val pointLights: Array[PointLight] = {
     val n   = if (lighting && config.numPointLights > 0) config.numPointLights else 0
     val arr = new Array[PointLight](n)
-    var i   = 0
-    while (i < arr.length) {
+    arr.leanView.zipWithIndex.foreach { (_, i) =>
       arr(i) = PointLight()
-      i += 1
     }
     arr
   }
@@ -114,10 +113,8 @@ class DefaultShader(
   protected val spotLights: Array[SpotLight] = {
     val n   = if (lighting && config.numSpotLights > 0) config.numSpotLights else 0
     val arr = new Array[SpotLight](n)
-    var i   = 0
-    while (i < arr.length) {
+    arr.leanView.zipWithIndex.foreach { (_, i) =>
       arr(i) = SpotLight()
-      i += 1
     }
     arr
   }
@@ -343,10 +340,8 @@ class DefaultShader(
     if (spotLightsSize < 0) spotLightsSize = 0
 
     boneWeightsLocations.foreach { locs =>
-      var i = 0
-      while (i < locs.length) {
+      locs.leanView.zipWithIndex.foreach { (_, i) =>
         locs(i) = prog.getAttributeLocation(ShaderProgram.BONEWEIGHT_ATTRIBUTE + i).toInt
-        i += 1
       }
     }
   }
@@ -358,12 +353,15 @@ class DefaultShader(
   override def begin(camera: Camera, context: RenderContext): Unit = {
     super.begin(camera, context)
 
-    for (dirLight <- directionalLights)
+    directionalLights.leanView.foreach { dirLight =>
       dirLight.set(0, 0, 0, 0, -1, 0)
-    for (pointLight <- pointLights)
+    }
+    pointLights.leanView.foreach { pointLight =>
       pointLight.set(0, 0, 0, 0, 0, 0, 0)
-    for (spotLight <- spotLights)
+    }
+    spotLights.leanView.foreach { spotLight =>
       spotLight.set(0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0)
+    }
     lightsSet = false
 
     if (has(u_time)) {
@@ -373,10 +371,11 @@ class DefaultShader(
 
     // set generic vertex attribute value for all bone weights in case a mesh has missing attributes.
     boneWeightsLocations.foreach { locs =>
-      for (location <- locs)
+      locs.leanView.foreach { location =>
         if (location >= 0) {
           Sge().graphics.gl.glVertexAttrib2f(location, 0, 0)
         }
+      }
     }
   }
 

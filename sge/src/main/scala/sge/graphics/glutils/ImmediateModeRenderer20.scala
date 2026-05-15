@@ -28,7 +28,8 @@ package glutils
 import sge.graphics.VertexAttributes.Usage
 import sge.graphics.{ Color, Mesh, PrimitiveMode, VertexAttribute }
 import sge.math.Matrix4
-import sge.utils.{ DynamicArray, SgeError }
+import lowlevel.util.DynamicArray
+import sge.utils.SgeError
 import sge.Sge
 
 import scala.compiletime.uninitialized

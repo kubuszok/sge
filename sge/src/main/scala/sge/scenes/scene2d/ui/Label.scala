@@ -28,7 +28,9 @@ package ui
 import sge.graphics.Color
 import sge.graphics.g2d.{ Batch, BitmapFont, BitmapFontCache, GlyphLayout }
 import sge.scenes.scene2d.utils.Drawable
-import sge.utils.{ Align, DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.Align
 
 /** A text label, with optional word wrapping. <p> The preferred size of the label is determined by the actual text bounds, unless word wrap is enabled.
   * @author

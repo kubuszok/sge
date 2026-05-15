@@ -16,7 +16,7 @@ package gltf
 package data
 package data
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFBufferView extends GLTFEntity {
   var byteOffset: Int           = 0

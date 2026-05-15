@@ -23,8 +23,9 @@ package lights
 
 import sge.graphics.Color
 import sge.graphics.g3d.environment.SpotLight
-import sge.math.{ MathUtils, Vector3 }
-import sge.utils.Nullable
+import lowlevel.math.MathUtils
+import sge.math.Vector3
+import lowlevel.Nullable
 
 class SpotLightEx extends SpotLight {
 

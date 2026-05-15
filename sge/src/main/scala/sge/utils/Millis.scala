@@ -16,6 +16,8 @@
 package sge
 package utils
 
+import lowlevel.MkArray
+
 opaque type Millis = Long
 object Millis {
   def apply(value: Long): Millis = value

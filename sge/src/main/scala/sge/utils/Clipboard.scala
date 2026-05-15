@@ -24,6 +24,8 @@
 package sge
 package utils
 
+import lowlevel.Nullable
+
 /** A very simple clipboard interface for text content.
   *
   * @author

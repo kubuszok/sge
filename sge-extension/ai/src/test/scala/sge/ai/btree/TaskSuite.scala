@@ -2,7 +2,7 @@ package sge
 package ai
 package btree
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class TaskSuite extends munit.FunSuite {
 

@@ -35,7 +35,7 @@ package values
 import scala.util.boundary
 import scala.util.boundary.break
 
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 
 /** A value which has a defined minimum and maximum upper and lower bounds. Defines the variations of the value on a time line.
   * @author

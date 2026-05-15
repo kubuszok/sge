@@ -33,7 +33,9 @@ import sge.assets.{ AssetDescriptor, AssetLoaderParameters, AssetManager }
 import sge.assets.loaders.{ AsynchronousAssetLoader, FileHandleResolver }
 import sge.files.FileHandle
 import sge.graphics.g3d.particles.batches.ParticleBatch
-import sge.utils.{ DynamicArray, Json, Nullable, WriterConfig, readJson, writeToString }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.{ Json, WriterConfig, readJson, writeToString }
 import sge.utils.given
 
 /** This class can save and load a {@link ParticleEffect}. It should be added as {@link AsynchronousAssetLoader} to the {@link AssetManager} so it will be able to load the effects. It's important to

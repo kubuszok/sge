@@ -16,7 +16,7 @@
 package sge
 package audio
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Browser implementation of [[BrowserAudio]] using the Web Audio API.
   *

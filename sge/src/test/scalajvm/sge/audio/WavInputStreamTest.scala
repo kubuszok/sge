@@ -6,6 +6,8 @@
 package sge
 package audio
 
+import lowlevel.Nullable
+
 import java.io.{ ByteArrayOutputStream, File, FileOutputStream }
 
 class WavInputStreamTest extends munit.FunSuite {
@@ -74,7 +76,7 @@ class WavInputStreamTest extends munit.FunSuite {
     val pcm  = new Array[Byte](100)
     val wav  = buildWav(channels = 1, sampleRate = 44100, bitDepth = 16, pcmData = pcm)
     val file = writeTempWav(wav)
-    val fh   = files.FileHandle(file, files.FileType.Absolute, utils.Nullable.empty)
+    val fh   = files.FileHandle(file, files.FileType.Absolute, Nullable.empty)
 
     val wis = WavInputStream(fh)
     try {
@@ -90,7 +92,7 @@ class WavInputStreamTest extends munit.FunSuite {
     val pcm  = new Array[Byte](200)
     val wav  = buildWav(channels = 2, sampleRate = 48000, bitDepth = 16, pcmData = pcm)
     val file = writeTempWav(wav)
-    val fh   = files.FileHandle(file, files.FileType.Absolute, utils.Nullable.empty)
+    val fh   = files.FileHandle(file, files.FileType.Absolute, Nullable.empty)
 
     val wis = WavInputStream(fh)
     try {
@@ -105,7 +107,7 @@ class WavInputStreamTest extends munit.FunSuite {
     val pcm  = new Array[Byte](50)
     val wav  = buildWav(channels = 1, sampleRate = 22050, bitDepth = 8, pcmData = pcm)
     val file = writeTempWav(wav)
-    val fh   = files.FileHandle(file, files.FileType.Absolute, utils.Nullable.empty)
+    val fh   = files.FileHandle(file, files.FileType.Absolute, Nullable.empty)
 
     val wis = WavInputStream(fh)
     try {
@@ -122,7 +124,7 @@ class WavInputStreamTest extends munit.FunSuite {
     val pcm  = Array[Byte](1, 2, 3, 4, 5, 6, 7, 8)
     val wav  = buildWav(channels = 1, sampleRate = 8000, bitDepth = 8, pcmData = pcm)
     val file = writeTempWav(wav)
-    val fh   = files.FileHandle(file, files.FileType.Absolute, utils.Nullable.empty)
+    val fh   = files.FileHandle(file, files.FileType.Absolute, Nullable.empty)
 
     val wis = WavInputStream(fh)
     try {
@@ -137,7 +139,7 @@ class WavInputStreamTest extends munit.FunSuite {
     val pcm  = Array[Byte](1, 2)
     val wav  = buildWav(channels = 1, sampleRate = 8000, bitDepth = 8, pcmData = pcm)
     val file = writeTempWav(wav)
-    val fh   = files.FileHandle(file, files.FileType.Absolute, utils.Nullable.empty)
+    val fh   = files.FileHandle(file, files.FileType.Absolute, Nullable.empty)
 
     val wis = WavInputStream(fh)
     try {
@@ -152,7 +154,7 @@ class WavInputStreamTest extends munit.FunSuite {
     val pcm  = Array[Byte](10, 20, 30)
     val wav  = buildWav(channels = 1, sampleRate = 8000, bitDepth = 8, pcmData = pcm)
     val file = writeTempWav(wav)
-    val fh   = files.FileHandle(file, files.FileType.Absolute, utils.Nullable.empty)
+    val fh   = files.FileHandle(file, files.FileType.Absolute, Nullable.empty)
 
     val wis = WavInputStream(fh)
     try {
@@ -169,7 +171,7 @@ class WavInputStreamTest extends munit.FunSuite {
 
   test("rejects non-RIFF file") {
     val file = writeTempWav(Array[Byte](0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
-    val fh   = files.FileHandle(file, files.FileType.Absolute, utils.Nullable.empty)
+    val fh   = files.FileHandle(file, files.FileType.Absolute, Nullable.empty)
     intercept[utils.SgeError.InvalidInput] {
       WavInputStream(fh)
     }

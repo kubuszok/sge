@@ -24,7 +24,8 @@
 package sge
 package graphics
 
-import sge.utils.Nullable
+import lowlevel.Nullable
+import lowlevel.leanView
 import java.util.NoSuchElementException
 import scala.util.boundary, boundary.break
 
@@ -84,8 +85,7 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
 
   private def calculateOffsets(): Int = {
     var count = 0
-    for (i <- attributesArray.indices) {
-      val attribute = attributesArray(i)
+    attributesArray.leanView.foreach { attribute =>
       attribute.offset = count
       count += attribute.sizeInBytes
     }
@@ -107,15 +107,15 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
   override def toString(): String = {
     val builder = new StringBuilder()
     builder.append("[")
-    for (i <- attributesArray.indices) {
+    attributesArray.leanView.foreach { attr =>
       builder.append("(")
-      builder.append(attributesArray(i).alias)
+      builder.append(attr.alias)
       builder.append(", ")
-      builder.append(attributesArray(i).usage)
+      builder.append(attr.usage)
       builder.append(", ")
-      builder.append(attributesArray(i).numComponents)
+      builder.append(attr.numComponents)
       builder.append(", ")
-      builder.append(attributesArray(i).offset)
+      builder.append(attr.offset)
       builder.append(")")
       builder.append("\n")
     }
@@ -140,8 +140,9 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
 
   override def hashCode(): Int = {
     var result = 61L * attributesArray.length
-    for (i <- attributesArray.indices)
-      result = result * 61 + attributesArray(i).hashCode()
+    attributesArray.leanView.foreach { attr =>
+      result = result * 61 + attr.hashCode()
+    }
     (result ^ (result >> 32)).toInt
   }
 
@@ -152,8 +153,9 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
   def mask: Long = {
     if (cachedMask == -1) {
       var result = 0L
-      for (i <- attributesArray.indices)
-        result |= attributesArray(i).usage
+      attributesArray.leanView.foreach { attr =>
+        result |= attr.usage
+      }
       cachedMask = result
     }
     cachedMask
@@ -170,8 +172,7 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
   def boneWeights: Int = {
     if (boneWeightUnits < 0) {
       boneWeightUnits = 0
-      for (i <- attributesArray.indices) {
-        val a = attributesArray(i)
+      attributesArray.leanView.foreach { a =>
         if (a.usage == VertexAttributes.Usage.BoneWeight) {
           boneWeightUnits = Math.max(boneWeightUnits, a.unit + 1)
         }
@@ -184,8 +185,7 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
   def textureCoordinates: Int = {
     if (_textureCoordinates < 0) {
       _textureCoordinates = 0
-      for (i <- attributesArray.indices) {
-        val a = attributesArray(i)
+      attributesArray.leanView.foreach { a =>
         if (a.usage == VertexAttributes.Usage.TextureCoordinates) {
           _textureCoordinates = Math.max(_textureCoordinates, a.unit + 1)
         }

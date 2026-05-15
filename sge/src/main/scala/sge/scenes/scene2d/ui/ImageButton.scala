@@ -27,7 +27,8 @@ package ui
 
 import sge.graphics.g2d.Batch
 import sge.scenes.scene2d.utils.Drawable
-import sge.utils.{ Nullable, Scaling }
+import lowlevel.Nullable
+import sge.utils.Scaling
 
 /** A button with a child {@link Image} to display an image. This is useful when the button must be larger than the image and the image centered on the button. If the image is the size of the button,
   * a {@link Button} without any children can be used, where the {@link Button.ButtonStyle#up}, {@link Button.ButtonStyle#down}, and {@link Button.ButtonStyle#checked} nine patches define the image.

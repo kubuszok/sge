@@ -25,7 +25,9 @@
 package sge
 package utils
 
-import sge.math.MathUtils
+import lowlevel.util.DynamicArray
+
+import lowlevel.math.MathUtils
 
 /** @author xoppa (original implementation) */
 final class PerformanceCounters {

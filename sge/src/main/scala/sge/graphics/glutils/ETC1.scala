@@ -34,7 +34,7 @@ import java.util.zip.GZIPOutputStream
 import sge.files.FileHandle
 import sge.graphics.Pixmap
 import sge.graphics.Pixmap.Format
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.platform.PlatformOps
 import sge.utils.BufferUtils
 import sge.utils.SgeError

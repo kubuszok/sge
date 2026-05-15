@@ -3,7 +3,7 @@
 package sge.it.desktop.checks
 
 import sge.Sge
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.it.desktop.CheckResult
 
 /** Writes text to the clipboard, reads it back, and verifies the roundtrip. */

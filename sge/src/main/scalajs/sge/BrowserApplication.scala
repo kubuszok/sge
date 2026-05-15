@@ -29,7 +29,8 @@ import sge.graphics.{ GL20, GL30, WebGL20, WebGL30 }
 import sge.graphics.glutils.GLVersion
 import sge.input.DefaultBrowserInput
 import sge.noop.NoopAudio
-import sge.utils.{ Clipboard, Nullable }
+import lowlevel.Nullable
+import sge.utils.Clipboard
 
 /** Browser (Scala.js) application entry point. Creates an HTML canvas, obtains a WebGL context, sets up all subsystems (graphics, audio, input, files, net), and runs a `requestAnimationFrame`-based
   * main loop.

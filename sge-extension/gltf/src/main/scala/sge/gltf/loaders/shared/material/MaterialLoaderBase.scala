@@ -21,7 +21,7 @@ import scala.collection.mutable.ArrayBuffer
 import sge.graphics.g3d.Material
 import sge.gltf.data.material.GLTFMaterial
 import sge.gltf.loaders.shared.texture.TextureResolver
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 abstract class MaterialLoaderBase(
   protected val textureResolver: TextureResolver,

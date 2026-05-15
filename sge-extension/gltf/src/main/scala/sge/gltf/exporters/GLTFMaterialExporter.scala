@@ -29,7 +29,9 @@ import sge.gltf.data.extensions.{ KHRMaterialsEmissiveStrength, KHRMaterialsIOR,
 import sge.gltf.data.material.{ GLTFMaterial, GLTFpbrMetallicRoughness }
 import sge.gltf.data.texture.{ GLTFImage, GLTFNormalTextureInfo, GLTFOcclusionTextureInfo, GLTFSampler, GLTFTexture, GLTFTextureInfo }
 import sge.gltf.scene3d.attributes.{ PBRColorAttribute, PBRFlagAttribute, PBRFloatAttribute, PBRHDRColorAttribute, PBRIridescenceAttribute, PBRTextureAttribute, PBRVolumeAttribute }
-import sge.utils.{ DynamicArray, Nullable, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.SgeError
 
 private[exporters] class GLTFMaterialExporter(private val base: GLTFExporter)(using Sge) {
 

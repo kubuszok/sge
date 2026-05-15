@@ -12,6 +12,8 @@
 package sge
 package smoke
 
+import lowlevel.Nullable
+
 import sge.utils.XmlReader
 
 /** [[ApplicationListener]] for the Android smoke + integration test.

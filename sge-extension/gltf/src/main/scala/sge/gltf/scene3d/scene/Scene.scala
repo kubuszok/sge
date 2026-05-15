@@ -27,7 +27,9 @@ import sge.graphics.g3d.model.Node
 import sge.graphics.g3d.utils.AnimationController
 import sge.math.{ Matrix4, Vector3 }
 import sge.Sge
-import sge.utils.{ DynamicArray, Nullable, ObjectMap, Pool, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.{ DynamicArray, ObjectMap }
+import sge.utils.{ Pool, SgeError }
 
 class Scene(
   var modelInstance:       ModelInstance,

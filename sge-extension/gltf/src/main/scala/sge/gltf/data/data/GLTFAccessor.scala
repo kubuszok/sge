@@ -16,7 +16,7 @@ package gltf
 package data
 package data
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFAccessor extends GLTFEntity {
   var bufferView:    Nullable[Int]          = Nullable.empty

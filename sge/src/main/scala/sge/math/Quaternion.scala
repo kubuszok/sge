@@ -29,6 +29,8 @@
 package sge
 package math
 
+import lowlevel.math.MathUtils
+
 import sge.utils.NumberUtils
 
 /** A simple quaternion class.

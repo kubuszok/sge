@@ -28,7 +28,7 @@ package ecs
 
 import sge.ecs.signals.{ Listener, Signal }
 import sge.ecs.utils.ImmutableArray
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** The heart of the Entity framework. It is responsible for keeping track of [[Entity]] and managing [[EntitySystem]] objects. The Engine should be updated every tick via the [[update]] method.
   *

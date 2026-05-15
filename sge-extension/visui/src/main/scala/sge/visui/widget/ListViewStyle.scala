@@ -19,7 +19,7 @@ package visui
 package widget
 
 import sge.scenes.scene2d.ui.ScrollPane
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** @author Kotcrab */
 class ListViewStyle {

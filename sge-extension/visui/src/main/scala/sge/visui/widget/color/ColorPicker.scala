@@ -24,7 +24,7 @@ import scala.language.implicitConversions
 import sge.graphics.Color
 import sge.scenes.scene2d.{ Actor, Stage }
 import sge.scenes.scene2d.utils.ChangeListener
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.VisUI
 import sge.visui.widget.{ ButtonBar, VisTable, VisTextButton, VisWindow }
 import sge.visui.widget.color.internal.ColorPickerText.*

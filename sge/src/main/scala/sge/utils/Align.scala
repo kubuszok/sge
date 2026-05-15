@@ -7,10 +7,9 @@
  * Migration notes:
  *   Renames: `int` constants -> opaque type `Align`; static methods -> extension methods
  *   Convention: Java class with static int fields -> opaque type with extension methods;
- *     `toString(int)` -> `align.show` extension + `Show[Align]` type class;
+ *     `toString(int)` -> `align.show` extension + `FastShowPretty[Align]` type class;
  *     added bitwise operators and `isCenter`
  *   Idiom: split packages
- *   TODO: replace given Show[Align] with derived FastShowPretty[Align]
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -26,6 +25,9 @@
  */
 package sge
 package utils
+
+import lowlevel.MkArray
+import hearth.kindlings.fastshowpretty.{ FastShowPretty, RenderConfig }
 
 /** Provides bit flag constants for alignment.
   *
@@ -50,7 +52,7 @@ object Align {
 
   /** Formats alignment flags as a human-readable string (e.g. "top,left").
     *
-    * This is a private helper; use `align.show` (extension) or the `Show[Align]` type class. Replaces the original `Align.toString(int)` static method.
+    * This is a private helper; use `align.show` (extension) or the `FastShowPretty[Align]` type class. Replaces the original `Align.toString(int)` static method.
     */
   private def showImpl(a: Int): String = {
     val buffer = new StringBuilder(13)
@@ -85,9 +87,8 @@ object Align {
     def show: String = showImpl(a)
   }
 
-  given Show[Align] with {
-    extension (align: Align) {
-      def show: String = showImpl(align)
-    }
+  given FastShowPretty[Align] with {
+    def render(sb: StringBuilder, config: RenderConfig, level: Int)(value: Align): StringBuilder =
+      sb.append(showImpl(value))
   }
 }

@@ -30,7 +30,8 @@ import sge.graphics.g3d.Renderable
 import sge.graphics.g3d.attributes.BlendingAttribute
 import sge.graphics.g3d.utils.RenderableSorter
 import sge.math.{ Matrix4, Vector3 }
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 class SceneRenderableSorter extends RenderableSorter with Comparator[Renderable] {
 

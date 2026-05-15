@@ -48,7 +48,7 @@ import sge.math.Quaternion
 import sge.math.Vector2
 import sge.math.Vector3
 import sge.utils.NumberUtils
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** <p/> Represents a sprite in 3d space. Typical 3d transformations such as translation, rotation and scaling are supported. The position includes a z component other than setting the depth no manual
   * layering has to be performed, correct overlay is guaranteed by using the depth buffer. <p/> Decals are handled by the {@link DecalBatch}.

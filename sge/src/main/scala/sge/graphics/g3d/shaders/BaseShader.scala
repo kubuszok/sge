@@ -38,7 +38,9 @@ import scala.util.boundary.break
 import sge.graphics.g3d.utils.{ RenderContext, TextureDescriptor }
 import sge.graphics.glutils.ShaderProgram
 import sge.math.{ Matrix3, Matrix4, Vector2, Vector3 }
-import sge.utils.{ DynamicArray, Nullable, ObjectMap, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.{ DynamicArray, ObjectMap }
+import sge.utils.SgeError
 
 /** @author
   *   Xoppa A BaseShader is a wrapper around a ShaderProgram that keeps track of the uniform and attribute locations. It does not manage the ShaderPogram, you are still responsible for disposing the

@@ -49,8 +49,10 @@ import sge.graphics.{ BlendFactor, Color, EnableCap, GL20, Mesh, PrimitiveMode, 
 import sge.graphics.VertexAttributes.Usage
 import sge.graphics.g2d.{ PolygonBatch, PolygonRegion, TextureRegion }
 import sge.graphics.glutils.ShaderProgram
-import sge.math.{ Affine2, MathUtils, Matrix4 }
-import sge.utils.{ BufferUtils, Nullable, SgeError }
+import lowlevel.math.MathUtils
+import sge.math.{ Affine2, Matrix4 }
+import lowlevel.Nullable
+import sge.utils.{ BufferUtils, SgeError }
 
 import scala.annotation.publicInBinary
 import scala.language.implicitConversions

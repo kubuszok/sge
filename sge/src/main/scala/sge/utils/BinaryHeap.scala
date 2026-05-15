@@ -26,7 +26,7 @@ package utils
 import java.util.Arrays
 
 import scala.util.boundary, boundary.break
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A binary heap that stores nodes which each have a float value and are sorted either lowest first or highest first. The Node class can be extended to store additional information.
   * @author

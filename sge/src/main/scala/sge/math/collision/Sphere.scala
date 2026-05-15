@@ -28,6 +28,8 @@ package sge
 package math
 package collision
 
+import lowlevel.math.MathUtils
+
 /** Encapsulates a 3D sphere with a center and a radius
   *
   * @author

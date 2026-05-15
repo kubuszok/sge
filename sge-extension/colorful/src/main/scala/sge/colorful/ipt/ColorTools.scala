@@ -23,7 +23,7 @@ import scala.util.boundary.break
 
 import sge.colorful.{ FloatColors, TrigTools }
 import sge.graphics.Color
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 
 /** Contains code for manipulating colors as `int` and packed `float` values in the IPT color space. IPT has more perceptually-uniform handling of hue than some other color spaces, like YCwCm, and
   * even though the version here gives up the complex exponential adjustments to various components that the original IPT paper used, it still is pretty good at preserving perceptual lightness. In

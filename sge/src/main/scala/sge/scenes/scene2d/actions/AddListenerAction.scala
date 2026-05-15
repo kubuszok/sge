@@ -25,7 +25,8 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** Adds a listener to an actor.
   * @author

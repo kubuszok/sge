@@ -21,12 +21,13 @@ package widget
 import scala.language.implicitConversions
 
 import sge.graphics.g2d.Batch
-import sge.math.{ Interpolation, MathUtils, Vector2 }
+import lowlevel.math.MathUtils
+import sge.math.{ Interpolation, Vector2 }
 import sge.utils.Seconds
 import sge.scenes.scene2d.{ Action, Actor, InputEvent, InputListener, Stage, Touchable }
 import sge.scenes.scene2d.actions.Actions
 import sge.scenes.scene2d.utils.Disableable
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Draws copies of dragged actors which have this listener attached.
   * @author

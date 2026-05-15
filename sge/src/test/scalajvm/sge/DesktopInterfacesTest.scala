@@ -5,6 +5,8 @@
  */
 package sge
 
+import lowlevel.Nullable
+
 class DesktopInterfacesTest extends munit.FunSuite {
 
   // ---- DesktopAudio ----
@@ -23,12 +25,12 @@ class DesktopInterfacesTest extends munit.FunSuite {
       override def close():  Unit = closed = true
 
       // Audio trait stubs
-      override def newAudioDevice(samplingRate:         Int, isMono: Boolean):   _root_.sge.audio.AudioDevice   = ???
-      override def newAudioRecorder(samplingRate:       Int, isMono: Boolean):   _root_.sge.audio.AudioRecorder = ???
-      override def newSound(fileHandle:                 files.FileHandle):       _root_.sge.audio.Sound         = ???
-      override def newMusic(file:                       files.FileHandle):       _root_.sge.audio.Music         = ???
-      override def switchOutputDevice(deviceIdentifier: utils.Nullable[String]): Boolean                        = false
-      override def availableOutputDevices:                                       Array[String]                  = Array.empty
+      override def newAudioDevice(samplingRate:         Int, isMono: Boolean): _root_.sge.audio.AudioDevice   = ???
+      override def newAudioRecorder(samplingRate:       Int, isMono: Boolean): _root_.sge.audio.AudioRecorder = ???
+      override def newSound(fileHandle:                 files.FileHandle):     _root_.sge.audio.Sound         = ???
+      override def newMusic(file:                       files.FileHandle):     _root_.sge.audio.Music         = ???
+      override def switchOutputDevice(deviceIdentifier: Nullable[String]):     Boolean                        = false
+      override def availableOutputDevices:                                     Array[String]                  = Array.empty
     }
 
     desktopAudio.update()

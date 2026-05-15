@@ -31,7 +31,8 @@ package utils
 import sge.Input.Button
 import sge.input.GestureDetector
 import sge.math.Vector2
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** Detects tap, long press, fling, pan, zoom, and pinch gestures on an actor. If there is only a need to detect tap, use {@link ClickListener}.
   * @see

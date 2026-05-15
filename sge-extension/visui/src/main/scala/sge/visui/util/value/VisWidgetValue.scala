@@ -21,7 +21,7 @@ package value
 
 import sge.scenes.scene2d.Actor
 import sge.scenes.scene2d.ui.{ Value => SceneValue, Widget }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Allows to use libGDX [[SceneValue]] with lambdas for scene2d.ui widgets. Note that this cannot be added to actors, only widgets are supported, if you try to do so you will get
   * [[ClassCastException]] when this Value has been invoked.

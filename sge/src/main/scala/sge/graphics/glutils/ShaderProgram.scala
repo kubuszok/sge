@@ -31,7 +31,7 @@ import sge.graphics.{ AttributeLocation, Color, GL20, UniformLocation }
 import sge.math.{ Matrix3, Matrix4, Vector2, Vector3, Vector4 }
 import sge.{ Application, Sge }
 import sge.files.FileHandle
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 import scala.collection.mutable.Map as MutableMap
 import java.nio.{ Buffer, ByteBuffer, ByteOrder, FloatBuffer }
 import scala.compiletime.uninitialized

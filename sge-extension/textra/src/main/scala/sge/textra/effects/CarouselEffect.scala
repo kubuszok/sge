@@ -13,7 +13,7 @@ package sge
 package textra
 package effects
 
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import scala.collection.mutable.HashMap
 
 class CarouselEffect(label: TypingLabel, params: Array[String]) extends Effect(label) {

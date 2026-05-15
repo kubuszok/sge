@@ -38,12 +38,12 @@ import scala.util.boundary.break
 
 import sge.graphics.Color
 import sge.graphics.g2d.Batch
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.scenes.scene2d.utils.Drawable
 import sge.scenes.scene2d.utils.TransformDrawable
 import sge.textra.utils.ColorUtils
 import sge.utils.Align
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** An extension of TextraLabel that progressively shows the text as if it was being typed in real time, and allows the use of tokens in the format: {TOKEN=PARAMETER;ANOTHER_PARAMETER;MORE}. These
   * tokens can add various effects to spans of text.

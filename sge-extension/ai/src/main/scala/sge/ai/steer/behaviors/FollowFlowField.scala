@@ -32,7 +32,7 @@ package steer
 package behaviors
 
 import sge.math.Vector
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** The `FollowFlowField` behavior produces a linear acceleration that tries to align the motion of the owner with the local tangent of a flow field.
   *

@@ -2,6 +2,8 @@ package sge
 package ai
 package utils
 
+import lowlevel.Nullable
+
 class CircularBufferSuite extends munit.FunSuite {
 
   test("store and read basic") {

@@ -26,8 +26,8 @@ package sge
 package graphics
 package g2d
 
-import sge.math.MathUtils
-import sge.utils.DynamicArray
+import lowlevel.math.MathUtils
+import lowlevel.util.DynamicArray
 import scala.compiletime.uninitialized
 import scala.reflect.ClassTag
 

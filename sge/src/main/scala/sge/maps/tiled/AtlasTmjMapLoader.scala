@@ -37,7 +37,9 @@ import sge.assets.loaders.{ FileHandleResolver, TextureLoader }
 import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.graphics.g2d.{ TextureAtlas, TextureRegion }
-import sge.utils.{ DynamicArray, Nullable, readJson }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.readJson
 
 /** A TiledMap Loader which loads tiles from a TextureAtlas instead of separate images.
   *

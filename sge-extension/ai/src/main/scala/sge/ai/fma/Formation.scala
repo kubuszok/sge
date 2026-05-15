@@ -42,7 +42,8 @@ import scala.util.boundary.break
 
 import sge.ai.utils.Location
 import sge.math.{ Matrix3, Vector, Vector2, Vector3 }
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 /** A `Formation` coordinates the movement of a group of characters so that they retain some group organization. Characters belonging to a formation must implement the [[FormationMember]] trait. At
   * its simplest, a formation can consist of moving in a fixed geometric pattern such as a V or line abreast, but it is not limited to that. Formations can also make use of the environment. Squads of

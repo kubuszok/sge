@@ -33,7 +33,7 @@ package influencers
 import sge.graphics.g3d.particles.ParallelArray.FloatChannel
 import sge.graphics.g3d.particles.ParticleChannels
 import sge.graphics.g3d.particles.values.{ GradientColorValue, ScaledNumericValue }
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 
 /** It's an {@link Influencer} which controls particles color and transparency.
   * @author

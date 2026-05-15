@@ -6,6 +6,8 @@
 package sge
 package utils
 
+import lowlevel.util.DynamicArray
+
 import sge.Input.{ Button, Key }
 import sge.audio.{ Pan, Pitch, Position, SoundId, Volume }
 import sge.graphics.{

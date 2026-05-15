@@ -29,7 +29,7 @@ package g3d
 package model
 package data
 
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** Returned by a ModelLoader, contains meshes, materials, nodes and animations. OpenGL resources like textures or vertex buffer objects are not stored. Instead, a ModelData instance needs to be
   * converted to a Model first.

@@ -29,7 +29,7 @@ import scala.util.boundary.break
 import java.util.regex.{ Matcher, Pattern }
 import sge.textra.utils.{ CaseInsensitiveIntMap, Palette, StringUtils }
 import scala.language.implicitConversions
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Utility class to parse tokens from a TypingLabel; not intended for external use in most situations. */
 object Parser {

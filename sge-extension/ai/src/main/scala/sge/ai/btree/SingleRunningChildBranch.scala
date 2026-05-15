@@ -23,9 +23,9 @@ package sge
 package ai
 package btree
 
-import sge.math.MathUtils
-import sge.utils.DynamicArray
-import sge.utils.Nullable
+import lowlevel.math.MathUtils
+import lowlevel.util.DynamicArray
+import lowlevel.Nullable
 
 /** A `SingleRunningChildBranch` task is a branch task that supports only one running child at a time.
   *

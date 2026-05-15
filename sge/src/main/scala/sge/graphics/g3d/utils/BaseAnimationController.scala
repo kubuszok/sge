@@ -41,7 +41,9 @@ import scala.language.implicitConversions
 
 import sge.graphics.g3d.model.{ Animation, Node, NodeAnimation, NodeKeyframe }
 import sge.math.{ Matrix4, Quaternion, Vector3 }
-import sge.utils.{ DynamicArray, Nullable, Pool, Seconds, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.{ Pool, Seconds, SgeError }
 
 /** Base class for applying one or more {@link Animation}s to a {@link ModelInstance}. This class only applies the actual {@link Node} transformations, it does not manage animations or keep track of
   * animation states. See {@link AnimationController} for an implementation of this class which does manage animations.

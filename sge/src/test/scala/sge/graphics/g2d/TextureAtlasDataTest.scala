@@ -6,7 +6,7 @@ package sge
 package graphics
 package g2d
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Tests for TextureAtlas inner data classes that don't require GL context. */
 class TextureAtlasDataTest extends munit.FunSuite {

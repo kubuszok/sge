@@ -28,8 +28,10 @@ package utils
 package shapebuilders
 
 import sge.graphics.g3d.utils.MeshPartBuilder
-import sge.math.{ MathUtils, Matrix3, Matrix4 }
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.math.MathUtils
+import sge.math.{ Matrix3, Matrix4 }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 /** Helper class with static methods to build sphere shapes using {@link MeshPartBuilder}.
   * @author

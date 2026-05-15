@@ -19,7 +19,7 @@ package sge
 package net
 
 import java.io.{ ByteArrayInputStream, InputStream }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Wraps an sttp [[Response]] to implement [[Net.HttpResponse]].
   *

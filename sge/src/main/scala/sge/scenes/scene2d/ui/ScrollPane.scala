@@ -30,11 +30,13 @@ package ui
 
 import sge.graphics.g2d.Batch
 import sge.graphics.glutils.ShapeRenderer
-import sge.math.{ Interpolation, MathUtils, Rectangle, Vector2 }
+import lowlevel.math.MathUtils
+import sge.math.{ Interpolation, Rectangle, Vector2 }
 import sge.scenes.scene2d.{ Actor, Event, InputEvent, InputListener, Touchable }
 import sge.scenes.scene2d.utils.{ ActorGestureListener, Cullable, Drawable, Layout }
 import sge.Input.Button
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** A group that scrolls a child actor using scrollbars and/or mouse or touch dragging. <p> The actor is sized to its preferred size. If the actor's preferred width or height is less than the size of
   * this scroll pane, it is set to the size of this scroll pane. Scrollbars appear when the actor is larger than the scroll pane. <p> The scroll pane's preferred size is that of the child actor. At

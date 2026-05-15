@@ -34,7 +34,8 @@ package actions
 import sge.graphics.Color
 import sge.math.Interpolation
 import scala.reflect.ClassTag
-import sge.utils.{ Nullable, Pool, PoolManager, Seconds, SgeError }
+import lowlevel.Nullable
+import sge.utils.{ Pool, PoolManager, Seconds, SgeError }
 
 /** Static convenience methods for using pooled actions, intended for import.
   * @author

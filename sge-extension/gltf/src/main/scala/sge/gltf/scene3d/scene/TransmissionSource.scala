@@ -26,7 +26,9 @@ import sge.graphics.{ Camera, ClearMask, Pixmap, Texture, TextureTarget }
 import sge.graphics.g3d.{ Environment, ModelBatch, Renderable, RenderableProvider }
 import sge.graphics.g3d.utils.{ RenderableSorter, ShaderProvider }
 import sge.graphics.glutils.FrameBuffer
-import sge.utils.{ DynamicArray, Nullable, Pool }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.Pool
 
 class TransmissionSource(shaderProvider: ShaderProvider, sorter: RenderableSorter)(using Sge) extends AutoCloseable {
 

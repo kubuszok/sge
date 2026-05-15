@@ -28,7 +28,8 @@ import scala.util.boundary.break
 
 import sge.graphics.g2d.Batch
 import sge.scenes.scene2d.utils.Drawable
-import sge.utils.{ Align, Nullable }
+import lowlevel.Nullable
+import sge.utils.Align
 
 /** A multiple-line TextraField using a Font; not ready for production yet.
   *

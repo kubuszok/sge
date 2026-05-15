@@ -26,7 +26,8 @@
 package sge
 package math
 
-import sge.utils.{ DynamicArray, Pool }
+import lowlevel.util.DynamicArray
+import sge.utils.Pool
 
 /** Returns a list of points at integer coordinates for a line on a 2D grid, using the Bresenham algorithm. <p>
   *

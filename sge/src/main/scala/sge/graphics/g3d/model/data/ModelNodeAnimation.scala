@@ -31,7 +31,7 @@ package data
 
 import sge.math.Quaternion
 import sge.math.Vector3
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 class ModelNodeAnimation {
 

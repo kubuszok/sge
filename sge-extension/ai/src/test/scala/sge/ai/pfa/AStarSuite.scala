@@ -3,7 +3,7 @@ package ai
 package pfa
 
 import sge.ai.pfa.indexed.{ IndexedAStarPathFinder, IndexedGraph }
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** A simple grid node with (x, y) coordinates and a precomputed index. */
 final class GridNode(val x: Int, val y: Int, val index: Int) {

@@ -29,8 +29,10 @@ package particles
 package values
 
 import sge.graphics.VertexAttributes
-import sge.math.{ CumulativeDistribution, MathUtils, Vector3 }
-import sge.utils.{ Nullable, SgeError }
+import lowlevel.math.MathUtils
+import sge.math.{ CumulativeDistribution, Vector3 }
+import lowlevel.Nullable
+import sge.utils.SgeError
 
 /** Encapsulate the formulas to spawn a particle on a mesh shape dealing with not uniform area triangles.
   * @author

@@ -35,7 +35,7 @@ import scala.collection.mutable
 import sge.graphics.Color
 import sge.graphics.g2d.Batch
 import sge.scenes.scene2d.ui.Skin
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Displays a dialog, which is a {@link TypingWindow} with a {@link TypingLabel} for a title, a content table, and a button table. Methods are provided to add a {@link TextraLabel} or
   * {@link TypingLabel} to the content table and buttons to the button table, but any widgets can be added. When a button is clicked, {@link #result(Object)} is called and the dialog is removed from

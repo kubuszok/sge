@@ -23,7 +23,8 @@ package internal
 import sge.scenes.scene2d.Actor
 import sge.scenes.scene2d.ui.Image
 import sge.scenes.scene2d.utils.{ ChangeListener, Drawable }
-import sge.utils.{ Nullable, Scaling }
+import lowlevel.Nullable
+import sge.utils.Scaling
 import sge.visui.widget.{ MenuItem, PopupMenu }
 
 /** @author Kotcrab */

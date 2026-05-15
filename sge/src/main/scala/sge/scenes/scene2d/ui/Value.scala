@@ -26,7 +26,7 @@ package scene2d
 package ui
 
 import sge.scenes.scene2d.utils.Layout
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A lazily-computed value, allowing the value to be resolved on request. Values can be provided an actor for context to reduce the number of value instances that need to be created and reduce
   * verbosity in code that specifies values.

@@ -17,7 +17,7 @@
 package sge
 package textra
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Simple listener for label events. You can derive from this and only override what you are interested in. */
 class TypingAdapter extends TypingListener {

@@ -17,7 +17,7 @@ package gltf
 package scene3d
 package model
 
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.utils.SgeError
 
 class WeightVector(

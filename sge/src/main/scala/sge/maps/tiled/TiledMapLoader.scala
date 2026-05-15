@@ -29,7 +29,9 @@ package tiled
 import sge.assets.{ AssetDescriptor, AssetManager }
 import sge.assets.loaders.{ AsynchronousAssetLoader, FileHandleResolver }
 import sge.files.FileHandle
-import sge.utils.{ DynamicArray, Nullable, XmlReader }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.XmlReader
 
 import scala.language.implicitConversions
 import scala.util.boundary

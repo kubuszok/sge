@@ -30,7 +30,7 @@ import sge.Sge
 import sge.assets.{ AssetDescriptor, AssetLoaderParameters, AssetManager }
 import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
 import sge.files.FileHandle
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** Makes {@link FreeTypeFontGenerator} manageable via {@link AssetManager}.
   *

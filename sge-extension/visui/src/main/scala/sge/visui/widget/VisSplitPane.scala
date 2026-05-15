@@ -23,7 +23,7 @@ import sge.math.{ Rectangle, Vector2 }
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener, Touchable }
 import sge.scenes.scene2d.ui.{ SplitPane, WidgetGroup }
 import sge.scenes.scene2d.utils.{ Drawable, Layout, ScissorStack }
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.{ FocusManager, VisUI }
 import sge.visui.widget.internal.SplitPaneCursorManager
 

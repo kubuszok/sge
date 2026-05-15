@@ -19,7 +19,7 @@ package visui
 package util
 package highlight
 
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 import sge.visui.widget.HighlightTextArea
 
 /** @author

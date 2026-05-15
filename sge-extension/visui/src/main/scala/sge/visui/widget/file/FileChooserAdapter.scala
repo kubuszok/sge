@@ -20,7 +20,7 @@ package widget
 package file
 
 import sge.files.FileHandle
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** Empty implementation of [[FileChooserListener]].
   * @author

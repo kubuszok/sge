@@ -30,7 +30,8 @@ package g3d
 
 import scala.util.boundary
 import scala.util.boundary.break
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 class Attributes extends Iterable[Attribute] with Ordered[Attributes] {
 

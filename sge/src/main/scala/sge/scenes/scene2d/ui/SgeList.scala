@@ -28,13 +28,17 @@ package scenes
 package scene2d
 package ui
 
+import sge.utils.createRef
+
 import sge.graphics.Color
 import sge.graphics.g2d.{ Batch, BitmapFont, GlyphLayout }
 import sge.math.Rectangle
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener }
 import sge.scenes.scene2d.utils.{ ArraySelection, Cullable, Drawable, UIUtils }
 import sge.Input.{ Button, Key }
-import sge.utils.{ Align, DynamicArray, MkArray, Nullable }
+import lowlevel.{ MkArray, Nullable }
+import lowlevel.util.DynamicArray
+import sge.utils.Align
 
 /** A list (aka list box) displays textual items and highlights the currently selected item. <p> {@link ChangeEvent} is fired when the list selection changes. <p> The preferred size of the list is
   * determined by the text bounds of the items and the size of the {@link ListStyle#selection}.
@@ -47,7 +51,7 @@ class SgeList[T](initialStyle: SgeList.ListStyle)(using Sge) extends Widget with
   import SgeList._
 
   private var _style:       ListStyle           = scala.compiletime.uninitialized
-  val items:                DynamicArray[T]     = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
+  val items:                DynamicArray[T]     = DynamicArray.createRef[T]()
   var selection:            ArraySelection[T]   = ArraySelection(items)
   private var _cullingArea: Nullable[Rectangle] = Nullable.empty
   private var _prefWidth:   Float               = 0f

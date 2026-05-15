@@ -32,7 +32,7 @@ package sge
 package ai
 package utils
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A circular buffer, possibly resizable.
   *

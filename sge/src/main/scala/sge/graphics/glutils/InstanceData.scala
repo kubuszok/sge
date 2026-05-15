@@ -26,7 +26,7 @@ package graphics
 package glutils
 
 import sge.graphics.VertexAttributes
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 import java.nio.FloatBuffer
 

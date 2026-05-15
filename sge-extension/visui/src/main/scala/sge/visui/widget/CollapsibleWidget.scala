@@ -23,7 +23,8 @@ import sge.math.Interpolation
 import sge.scenes.scene2d.Touchable
 import sge.scenes.scene2d.actions.FloatAction
 import sge.scenes.scene2d.ui.{ Table, WidgetGroup }
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** Widget containing table that can be vertically collapsed.
   * @author

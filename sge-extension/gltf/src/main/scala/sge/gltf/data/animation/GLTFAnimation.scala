@@ -17,7 +17,7 @@ package data
 package animation
 
 import scala.collection.mutable.ArrayBuffer
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFAnimation extends GLTFEntity {
   var channels: Nullable[ArrayBuffer[GLTFAnimationChannel]] = Nullable.empty

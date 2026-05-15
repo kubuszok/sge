@@ -31,7 +31,7 @@ package ai
 package fma
 
 import sge.math.Vector
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** This trait defines how each [[FormationMember]] is assigned to a slot in the [[Formation]].
   *

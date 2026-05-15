@@ -31,10 +31,12 @@ package graphics
 package g2d
 
 import sge.graphics.GL20
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.math.collision.BoundingBox
 
-import sge.utils.{ DynamicArray, Nullable, Seconds }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.Seconds
 
 import scala.language.implicitConversions
 

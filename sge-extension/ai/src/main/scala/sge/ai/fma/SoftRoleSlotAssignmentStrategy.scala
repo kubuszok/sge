@@ -37,7 +37,7 @@ import scala.util.boundary
 import scala.util.boundary.break
 
 import sge.math.Vector
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** `SoftRoleSlotAssignmentStrategy` is a concrete implementation of [[BoundedSlotAssignmentStrategy]] that supports soft roles, i.e. roles that can be broken. Rather than a member having a list of
   * roles it can fulfill, it has a set of values representing how difficult it would find it to fulfill every role. The value is known as the slot cost. To make a slot impossible for a member to fill,

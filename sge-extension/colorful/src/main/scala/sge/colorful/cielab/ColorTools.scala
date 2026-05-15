@@ -23,7 +23,7 @@ import scala.util.boundary.break
 
 import sge.colorful.{ FloatColors, TrigTools }
 import sge.graphics.Color
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 
 /** Contains code for manipulating colors as `int` and packed `float` values in the CIE L*A*B* color space. This is the old standard (and for some things, gold standard) of color spaces, introduced in
   * 1976 and never fully superseded by a newer color space.

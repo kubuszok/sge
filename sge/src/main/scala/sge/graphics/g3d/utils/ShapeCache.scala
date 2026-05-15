@@ -34,7 +34,9 @@ package utils
 import sge.graphics.{ Mesh, PrimitiveMode, VertexAttribute, VertexAttributes }
 import sge.graphics.VertexAttributes.Usage
 import sge.math.Matrix4
-import sge.utils.{ DynamicArray, Nullable, Pool, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.{ Pool, SgeError }
 
 import scala.annotation.publicInBinary
 

@@ -25,7 +25,8 @@ import sge.Input.{ Key, Keys }
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener }
 import sge.scenes.scene2d.ui.Cell
 import sge.scenes.scene2d.utils.{ ChangeListener, Disableable, Drawable, FocusListener }
-import sge.utils.{ Nullable, Seconds, Timer }
+import lowlevel.Nullable
+import sge.utils.{ Seconds, Timer }
 import sge.visui.{ Sizes, VisUI }
 
 /** Spinner can be used to select number or object using up and down buttons or by entering value into text field. Supports custom models that allows selecting either int, floats or even custom

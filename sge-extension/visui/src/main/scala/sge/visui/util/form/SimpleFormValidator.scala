@@ -28,7 +28,9 @@ import sge.scenes.scene2d.Actor
 import sge.scenes.scene2d.actions.Actions
 import sge.scenes.scene2d.ui.{ Button, Label }
 import sge.scenes.scene2d.utils.{ ChangeListener, Disableable }
-import sge.utils.{ DynamicArray, Nullable, Seconds }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.Seconds
 import sge.visui.VisUI
 import sge.visui.util.Validators
 import sge.visui.widget.{ VisCheckBox, VisValidatableTextField }

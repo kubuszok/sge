@@ -18,7 +18,8 @@ package transition
 
 import sge.graphics.g2d.{ SpriteBatch, TextureRegion }
 import sge.math.Interpolation
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 import sge.utils.viewport.{ ScreenViewport, Viewport }
 
 /** The base class for all transitions using a SpriteBatch. Can be reused.

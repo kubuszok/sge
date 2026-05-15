@@ -12,8 +12,10 @@ import sge.graphics.{Color, Pixmap, Texture}
 import sge.graphics.g2d.SpriteBatch
 import sge.graphics.glutils.ShapeRenderer
 import sge.graphics.glutils.ShapeRenderer.ShapeType
-import sge.math.MathUtils
-import sge.utils.{DynamicArray, Nullable, Pool, Poolable, ScreenUtils}
+import lowlevel.math.MathUtils
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.{Pool, Poolable, ScreenUtils}
 import sge.utils.viewport.FitViewport
 import demos.shared.DemoScene
 

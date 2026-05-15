@@ -26,7 +26,7 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.graphics.Color
 
 /** Sets the actor's color (or a specified color), from the current to the new color. Note this action transitions from the color at the time the action starts to the specified color.

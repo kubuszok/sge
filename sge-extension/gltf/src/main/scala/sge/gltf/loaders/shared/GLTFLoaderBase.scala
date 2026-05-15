@@ -18,7 +18,8 @@ package shared
 
 import scala.collection.mutable.{ ArrayBuffer, HashMap, HashSet }
 import sge.Sge
-import sge.utils.{ DynamicArray, Log }
+import lowlevel.util.DynamicArray
+import sge.utils.Log
 import sge.graphics.{ Camera, Mesh, Pixmap, Texture }
 import sge.graphics.g3d.{ Material, Model }
 import sge.graphics.g3d.environment.BaseLight
@@ -37,7 +38,7 @@ import sge.gltf.loaders.shared.texture.{ ImageResolver, TextureResolver }
 import sge.gltf.scene3d.model.NodePlus
 import sge.gltf.scene3d.scene.{ SceneAsset, SceneModel }
 import sge.math.Matrix4
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFLoaderBase(private var textureResolver: Nullable[TextureResolver] = Nullable.empty) extends AutoCloseable {
 

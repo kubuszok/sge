@@ -31,10 +31,11 @@ import sge.graphics.Pixmap.Format
 import sge.graphics.glutils.FileTextureData
 import sge.graphics.glutils.PixmapTextureData
 import sge.files.FileHandle
-import sge.utils.{ Nullable, SgeError }
+import lowlevel.Nullable
+import sge.utils.SgeError
 import sge.assets.{ AssetLoaderParameters, AssetManager }
 import sge.assets.loaders.TextureLoader.TextureParameter
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 import scala.collection.mutable.Map
 
 /** A Texture wraps a standard OpenGL ES texture. <p> A Texture can be managed. If the OpenGL context is lost all managed textures get invalidated. This happens when a user switches to another

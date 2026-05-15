@@ -19,7 +19,7 @@ import java.io.{ File, FileInputStream, IOException, InputStream }
 import java.nio.{ ByteBuffer, ByteOrder }
 import java.nio.channels.FileChannel
 import sge.platform.android.FilesOps
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A [[FileHandle]] backed by Android's AssetManager for Internal files and standard file I/O for other types.
   *

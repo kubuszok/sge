@@ -23,7 +23,7 @@ import java.util.Comparator
 
 import sge.scenes.scene2d.{ Actor, InputEvent, Touchable }
 import sge.scenes.scene2d.utils.{ ClickListener, UIUtils }
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.widget.ListView
 import sge.visui.widget.VisTable
 

@@ -32,13 +32,13 @@ import sge.graphics.g2d.Sprite.{ SPRITE_SIZE, VERTEX_SIZE }
 
 import sge.graphics.VertexAttributes.Usage
 import sge.graphics.glutils.ShaderProgram
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.math.Matrix4
 import sge.utils.SgeError
 import sge.graphics.{ Color, Mesh, PrimitiveMode, Texture, VertexAttribute }
 import sge.graphics.g2d.{ Sprite, TextureRegion }
-import sge.utils.DynamicArray
-import sge.utils.Nullable
+import lowlevel.util.DynamicArray
+import lowlevel.Nullable
 
 import scala.annotation.publicInBinary
 import scala.compiletime.uninitialized

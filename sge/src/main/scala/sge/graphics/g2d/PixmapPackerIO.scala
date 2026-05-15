@@ -30,7 +30,8 @@ import java.io.IOException
 import sge.files.FileHandle
 import sge.graphics.PixmapIO
 import sge.graphics.Texture.TextureFilter
-import sge.utils.{ Nullable, SgeError }
+import lowlevel.Nullable
+import sge.utils.SgeError
 
 /** Saves PixmapPackers to files.
   * @author

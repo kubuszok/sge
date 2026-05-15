@@ -18,7 +18,8 @@
 package sge
 package net
 
-import sge.utils.{ Nullable, Pool }
+import lowlevel.Nullable
+import sge.utils.Pool
 import scala.collection.mutable
 
 /** Mutable, poolable HTTP request configuration. Obtain instances via [[SgeHttpClient.obtainRequest]], configure with fluent setters, and pass to [[SgeHttpClient.send]]. After the request completes

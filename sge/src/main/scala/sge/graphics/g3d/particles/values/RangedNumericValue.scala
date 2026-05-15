@@ -28,7 +28,7 @@ package g3d
 package particles
 package values
 
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 
 /** A value which has a defined minimum and maximum bounds.
   * @author

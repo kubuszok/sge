@@ -23,7 +23,7 @@ import java.util.Random as JRandom
 import scala.util.boundary
 import scala.util.boundary.break
 
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 
 object StringUtils {
 

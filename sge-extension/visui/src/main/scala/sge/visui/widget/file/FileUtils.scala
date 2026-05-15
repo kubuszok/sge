@@ -24,7 +24,7 @@ import java.text.DecimalFormat
 import java.util.Comparator
 
 import sge.files.FileHandle
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 import sge.visui.util.OsUtils
 
 /** File related utils. Note that FileUtils are not available on GWT.

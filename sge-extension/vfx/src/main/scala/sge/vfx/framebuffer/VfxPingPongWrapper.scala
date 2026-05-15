@@ -16,7 +16,7 @@ package vfx
 package framebuffer
 
 import sge.graphics.{ ClearMask, Color, Texture }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Encapsulates a pair of [[VfxFrameBuffer]]s with the ability to swap between them.
   *

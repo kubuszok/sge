@@ -4,7 +4,7 @@ package ecs
 import scala.collection.mutable.ArrayBuffer
 
 import sge.ecs.utils.ImmutableArray
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 // Top-level class with public no-arg constructor for createComponent test
 class EngineTestComponentD extends Component

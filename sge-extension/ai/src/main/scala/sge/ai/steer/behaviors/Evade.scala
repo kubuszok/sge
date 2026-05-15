@@ -32,7 +32,7 @@ package steer
 package behaviors
 
 import sge.math.Vector
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** `Evade` behavior is almost the same as [[Pursue]] except that the agent flees from the estimated future position of the pursuer. Indeed, reversing the acceleration is all we have to do.
   *

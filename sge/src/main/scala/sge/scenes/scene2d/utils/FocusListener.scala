@@ -27,7 +27,7 @@ package scenes
 package scene2d
 package utils
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Listener for {@link FocusEvent}.
   * @author

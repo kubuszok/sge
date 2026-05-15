@@ -17,7 +17,7 @@ package data
 package geometry
 
 import scala.collection.mutable.ArrayBuffer
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFMesh extends GLTFEntity {
   var primitives: Nullable[ArrayBuffer[GLTFPrimitive]] = Nullable.empty

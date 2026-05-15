@@ -16,7 +16,7 @@ package gltf
 package data
 package animation
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFAnimationTarget extends GLTFObject {
   var node: Nullable[Int]    = Nullable.empty

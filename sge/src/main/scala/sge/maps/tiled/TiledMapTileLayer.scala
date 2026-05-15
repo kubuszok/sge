@@ -27,7 +27,7 @@ package maps
 package tiled
 
 import sge.maps.MapLayer
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** @brief Layer for a TiledMap */
 class TiledMapTileLayer(val width: Int, val height: Int, val tileWidth: Int, val tileHeight: Int) extends MapLayer {

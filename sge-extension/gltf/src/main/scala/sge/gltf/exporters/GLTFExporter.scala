@@ -28,7 +28,8 @@ import sge.gltf.data.geometry.{ GLTFMesh, GLTFPrimitive }
 import sge.gltf.data.scene.{ GLTFNode, GLTFScene }
 import sge.gltf.loaders.exceptions.{ GLTFIllegalException, GLTFRuntimeException }
 import sge.gltf.scene3d.scene.{ Scene, SceneAsset, SceneModel }
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 class GLTFExporter(private val config: GLTFExporterConfig)(using Sge) {
 
@@ -250,7 +251,7 @@ class GLTFExporter(private val config: GLTFExporterConfig)(using Sge) {
       if (!node.translation.isZero) {
         data.translation = Nullable(GLTFExportTypes.toArray(node.translation))
       }
-      if (!node.scale.epsilonEquals(1, 1, 1, sge.math.MathUtils.FLOAT_ROUNDING_ERROR)) {
+      if (!node.scale.epsilonEquals(1, 1, 1, lowlevel.math.MathUtils.FLOAT_ROUNDING_ERROR)) {
         data.scale = Nullable(GLTFExportTypes.toArray(node.scale))
       }
       if (!node.rotation.isIdentity()) {

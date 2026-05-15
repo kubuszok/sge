@@ -21,7 +21,8 @@ package loaders
 package blender
 
 import sge.gltf.data.geometry.GLTFMesh
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 /** Blender stores shape key names in mesh extras.
   *

@@ -13,7 +13,8 @@ package screen
 import sge.graphics.g2d.TextureRegion
 import sge.noop.{ NoopAudio, NoopGraphics, NoopInput }
 import sge.screen.transition.ScreenTransition
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 class ScreenManagerIntegrationSuite extends munit.FunSuite {
 

@@ -40,7 +40,8 @@ import sge.graphics.{ Cursor, Pixmap }
 import sge.graphics.Cursor.SystemCursor
 import sge.graphics.{ GL20, GL30, GL31, GL32 }
 import sge.graphics.glutils.GLVersion
-import sge.utils.{ Nanos, Nullable, Seconds, TimeUtils }
+import lowlevel.Nullable
+import sge.utils.{ Nanos, Seconds, TimeUtils }
 
 /** A no-op [[sge.Graphics]] implementation for headless/testing use. Tracks frame timing via [[updateTime]] but provides no GL context.
   */

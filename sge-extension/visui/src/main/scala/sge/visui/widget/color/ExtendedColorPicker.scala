@@ -20,8 +20,8 @@ package widget
 package color
 
 import sge.graphics.glutils.ShaderProgram
-import sge.math.MathUtils
-import sge.utils.Nullable
+import lowlevel.math.MathUtils
+import lowlevel.Nullable
 import sge.visui.VisUI
 import sge.visui.util.ColorUtils
 import sge.visui.widget.VisTable

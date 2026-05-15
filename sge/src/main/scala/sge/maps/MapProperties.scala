@@ -29,7 +29,7 @@ package sge
 package maps
 
 import scala.collection.mutable
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** @brief
   *   Set of string indexed values representing map elements' properties, allowing to retrieve, modify and add properties to the set.

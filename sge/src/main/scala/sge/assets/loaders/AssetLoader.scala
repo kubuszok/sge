@@ -17,7 +17,7 @@ package loaders
 
 import sge.files.FileHandle
 import sge.assets.AssetLoaderParameters
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** Abstract base class for asset loaders.
   * @author

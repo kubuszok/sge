@@ -20,7 +20,7 @@ package widget
 package toast
 
 import sge.scenes.scene2d.Actor
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Toast with provided user message and arbitrary amount of [[LinkLabel]] below it acting as action buttons.
   * @author

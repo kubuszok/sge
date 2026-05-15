@@ -23,7 +23,7 @@ import scala.util.boundary.break
 
 import sge.colorful.{ FloatColors, TrigTools }
 import sge.graphics.Color
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 
 /** Contains code for manipulating colors as `int` and packed `float` values in the Oklab color space. Oklab is a perceptual color space that builds on the same foundation as IPT, but is
   * better-calibrated for uniform lightness and colorfulness. The difference between two Oklab colors is approximated by the Euclidean distance between their components.

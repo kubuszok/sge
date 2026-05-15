@@ -31,10 +31,10 @@ import sge.graphics.g2d.Sprite.{ SPRITE_SIZE, VERTEX_SIZE }
 import sge.graphics.VertexAttributes.Usage
 import sge.graphics.glutils.ShaderProgram
 import sge.math.Affine2
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.math.Matrix4
 import sge.graphics.{ Color, GL20, Mesh, Texture, VertexAttribute }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 import scala.annotation.publicInBinary
 import scala.compiletime.uninitialized

@@ -32,7 +32,7 @@ package sge
 package ai
 package msg
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** An unbounded priority queue based on a priority heap. The elements of the priority queue are ordered according to their natural ordering. A priority queue does not permit empty elements.
   *

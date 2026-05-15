@@ -24,7 +24,7 @@ package sge
 package textra
 
 import sge.graphics.Color
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** An outer object that holds all styles for TextraTypist widgets. These are each named to match a scene2d.ui style. These styles are typically loaded from a skin JSON file using FWSkin, but can also
   * be created on their own.

@@ -29,8 +29,9 @@ import sge.gltf.loaders.exceptions.GLTFIllegalException
 import sge.gltf.loaders.shared.GLTFTypes
 import sge.gltf.loaders.shared.texture.TextureResolver
 import sge.gltf.scene3d.attributes.{ PBRColorAttribute, PBRFlagAttribute, PBRFloatAttribute, PBRHDRColorAttribute, PBRIridescenceAttribute, PBRTextureAttribute, PBRVolumeAttribute }
-import sge.math.MathUtils
-import sge.utils.{ Log, Nullable }
+import lowlevel.math.MathUtils
+import lowlevel.Nullable
+import sge.utils.Log
 
 class PBRMaterialLoader(textureResolver: TextureResolver)
     extends MaterialLoaderBase(

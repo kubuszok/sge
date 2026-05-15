@@ -6,6 +6,8 @@
 package sge
 package utils
 
+import lowlevel.Nullable
+
 import java.io.{ ByteArrayInputStream, StringReader }
 
 class XmlReaderTest extends munit.FunSuite {

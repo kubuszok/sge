@@ -32,7 +32,7 @@ package fsm
 
 import sge.ai.msg.Telegram
 import sge.ai.msg.Telegraph
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A state machine manages the state transitions of its entity. Additionally, the state machine may be delegated by the entity to handle its messages.
   *

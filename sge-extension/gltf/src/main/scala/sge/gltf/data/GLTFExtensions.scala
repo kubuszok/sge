@@ -17,7 +17,8 @@ package gltf
 package data
 
 import scala.collection.mutable.HashMap
-import sge.utils.{ Json, Nullable }
+import lowlevel.Nullable
+import sge.utils.Json
 
 /** Holds extension data from a GLTF JSON element. Known extensions (KHR_materials_*, KHR_lights_punctual, KHR_texture_transform) are deserialized into typed objects during JSON parsing. Unknown
   * extensions are stored as raw JSON for forward compatibility.

@@ -18,7 +18,7 @@ package scene3d
 package attributes
 
 import sge.graphics.g3d.Attribute
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 
 class PBRIridescenceAttribute(
   var factor:       Float,

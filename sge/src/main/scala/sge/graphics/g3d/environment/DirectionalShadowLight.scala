@@ -41,7 +41,7 @@ import sge.graphics.g3d.utils.TextureDescriptor
 import sge.graphics.glutils.FrameBuffer
 import sge.math.Matrix4
 import sge.math.Vector3
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 import scala.annotation.publicInBinary
 

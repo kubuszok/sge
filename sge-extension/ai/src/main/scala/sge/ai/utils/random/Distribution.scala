@@ -34,7 +34,7 @@ package ai
 package utils
 package random
 
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 
 // ── Distribution trait ──────────────────────────────────────────────────
 

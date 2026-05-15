@@ -26,7 +26,10 @@ package graphics
 package g2d
 
 import sge.graphics.Color
-import sge.utils.{ DynamicArray, Nullable, Pool }
+import lowlevel.Nullable
+import lowlevel.leanView
+import lowlevel.util.DynamicArray
+import sge.utils.Pool
 import sge.utils.NumberUtils
 import scala.util.boundary
 import scala.util.boundary.break
@@ -83,9 +86,8 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
     _y += adjYAmount
 
     val pageVerticesLocal = this.pageVertices
-    for (i <- pageVerticesLocal.indices) {
-      val vertices = pageVerticesLocal(i)
-      var ii       = 0
+    pageVerticesLocal.leanView.zipWithIndex.foreach { (vertices, i) =>
+      var ii = 0
       while (ii < idx(i)) {
         vertices(ii) += adjXAmount
         vertices(ii + 1) += adjYAmount
@@ -101,8 +103,9 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
 
     val pageVerticesLocal   = this.pageVertices
     val tempGlyphCountLocal = this.tempGlyphCount
-    for (i <- tempGlyphCountLocal.indices)
+    tempGlyphCountLocal.leanView.zipWithIndex.foreach { (_, i) =>
       tempGlyphCountLocal(i) = 0
+    }
 
     var i = 0
     while (i < _layouts.size) {
@@ -147,9 +150,8 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
     val alphaBits = (254 * alpha).toInt << 24
     var prev      = 0f
     var newColor  = 0f
-    for (j <- pageVertices.indices) {
-      val vertices = pageVertices(j)
-      var i        = 2
+    pageVertices.leanView.zipWithIndex.foreach { (vertices, j) =>
+      var i = 2
       while (i < idx(j)) {
         val c = vertices(i)
         if (c == prev && i != 2) {
@@ -166,9 +168,8 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   }
 
   def setColors(color: Float): Unit =
-    for (j <- pageVertices.indices) {
-      val vertices = pageVertices(j)
-      var i        = 2
+    pageVertices.leanView.zipWithIndex.foreach { (vertices, j) =>
+      var i = 2
       while (i < idx(j)) {
         vertices(i) = color
         i += 5
@@ -227,11 +228,11 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
 
   def draw(spriteBatch: Batch): Unit = {
     val regions = font.regions
-    for (j <- pageVertices.indices)
+    pageVertices.leanView.zipWithIndex.foreach { (vertices, j) =>
       if (idx(j) > 0) { // ignore if this texture has no glyphs
-        val vertices = pageVertices(j)
         spriteBatch.draw(regions(j).texture, vertices, 0, idx(j))
       }
+    }
   }
 
   def draw(spriteBatch: Batch, start: Int, end: Int): Unit = scala.util.boundary {
@@ -242,7 +243,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
 
     // Determine vertex offset and count to render for each page. Some pages might not need to be rendered at all.
     val regions = font.regions
-    for (i <- pageVertices.indices) {
+    pageVertices.leanView.zipWithIndex.foreach { (_, i) =>
       var offset = -1
       var count  = 0
 
@@ -287,7 +288,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
     _y = 0
     pooledLayouts.flush()
     _layouts.clear()
-    for (i <- idx.indices) {
+    idx.leanView.zipWithIndex.foreach { (_, i) =>
       if (pageGlyphIndices.nonEmpty) pageGlyphIndices(i).clear()
       idx(i) = 0
     }
@@ -299,8 +300,9 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
       requirePageGlyphs(0, layout.glyphCount)
     } else {
       val tempGlyphCountLocal = this.tempGlyphCount
-      for (i <- tempGlyphCountLocal.indices)
+      tempGlyphCountLocal.leanView.zipWithIndex.foreach { (_, i) =>
         tempGlyphCountLocal(i) = 0
+      }
       // Determine # of glyphs in each page.
       var i = 0
       while (i < layout.runs.size) {
@@ -313,8 +315,9 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
         i += 1
       }
       // Require that many for each page.
-      for (i <- tempGlyphCountLocal.indices)
-        requirePageGlyphs(i, tempGlyphCountLocal(i))
+      tempGlyphCountLocal.leanView.zipWithIndex.foreach { (count, i) =>
+        requirePageGlyphs(i, count)
+      }
     }
 
   private def requirePageGlyphs(page: Int, glyphCount: Int): Unit = {

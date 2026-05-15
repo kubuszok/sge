@@ -26,7 +26,8 @@ package sge
 package graphics
 
 import scala.collection.mutable
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 import sge.graphics.GLTexture
 import sge.graphics.Texture.TextureWrap

@@ -33,7 +33,7 @@ package decorator
 
 import sge.ai.utils.NonBlockingSemaphore
 import sge.ai.utils.NonBlockingSemaphoreRepository
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A `SemaphoreGuard` decorator allows you to specify how many characters should be allowed to concurrently execute its child which represents a limited resource used in different behavior trees
   * (note that this does not necessarily involve multithreading concurrency).

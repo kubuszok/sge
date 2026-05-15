@@ -26,7 +26,7 @@ import sge.graphics.g2d.{ Batch, BitmapFont }
 import sge.scenes.scene2d.{ Actor, InputEvent }
 import sge.scenes.scene2d.ui.Label
 import sge.scenes.scene2d.utils.{ ClickListener, Drawable }
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.VisUI
 import sge.visui.util.CursorManager
 

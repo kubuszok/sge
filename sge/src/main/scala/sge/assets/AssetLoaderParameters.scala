@@ -14,7 +14,7 @@
 package sge
 package assets
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class AssetLoaderParameters[T] {
 

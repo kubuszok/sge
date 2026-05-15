@@ -29,7 +29,8 @@ package ui
 import sge.math.Interpolation
 import sge.scenes.scene2d.utils.{ ChangeListener, Drawable }
 import sge.Input.Button
-import sge.utils.Nullable
+import lowlevel.Nullable
+import lowlevel.leanView
 
 /** A slider is a horizontal indicator that allows a user to set a value. The slider has a range (min, max) and a stepping between each value the slider represents. <p> {@link ChangeEvent} is fired
   * when the slider knob is moved. Canceling the event will move the knob to where it was previously. <p> For a horizontal progress bar, its preferred height is determined by the larger of the knob
@@ -182,17 +183,14 @@ class Slider(
       else {
         var bestDiff:  Float = -1
         var bestValue: Float = 0
-        var i = 0
-        while (i < values.length) {
-          val snapValue = values(i)
-          val diff      = Math.abs(value - snapValue)
+        values.leanView.foreach { snapValue =>
+          val diff = Math.abs(value - snapValue)
           if (diff <= threshold) {
             if (bestDiff == -1 || diff < bestDiff) {
               bestDiff = diff
               bestValue = snapValue
             }
           }
-          i += 1
         }
         if (bestDiff == -1) value else bestValue
       }

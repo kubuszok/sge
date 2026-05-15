@@ -23,7 +23,7 @@ package internal
 import sge.graphics.Texture
 import sge.graphics.g2d.Batch
 import sge.graphics.glutils.ShaderProgram
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.widget.VisImage
 
 /** Allow to render standard [[VisImage]] with shader. Shader uniforms can be set in [[setShaderUniforms]].

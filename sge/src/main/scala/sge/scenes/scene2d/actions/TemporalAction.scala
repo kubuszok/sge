@@ -28,7 +28,8 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 import sge.math.Interpolation
 
 /** Base class for actions that transition over time using the percent complete.

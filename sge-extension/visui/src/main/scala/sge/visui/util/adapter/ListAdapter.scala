@@ -19,7 +19,7 @@ package visui
 package util
 package adapter
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.widget.ListView
 import sge.visui.widget.VisTable
 

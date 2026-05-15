@@ -25,9 +25,9 @@ package graphics
 package g2d
 
 import sge.math.Affine2
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.math.Matrix4
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.utils.SgeError
 import sge.Sge
 import sge.graphics.glutils.ShaderProgram

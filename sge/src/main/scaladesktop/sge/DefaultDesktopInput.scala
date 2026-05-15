@@ -19,7 +19,8 @@ package sge
 import sge.graphics.glutils.HdpiMode
 import sge.input.NativeInputConfiguration
 import sge.platform.WindowingOps
-import sge.utils.{ Nanos, Nullable }
+import lowlevel.Nullable
+import sge.utils.Nanos
 import scala.collection.mutable
 
 /** Default desktop input implementation using GLFW/SDL3 callbacks via [[WindowingOps]].

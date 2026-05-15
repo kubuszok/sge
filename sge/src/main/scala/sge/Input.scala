@@ -24,7 +24,8 @@
  */
 package sge
 
-import sge.utils.{ Nanos, Nullable }
+import lowlevel.Nullable
+import sge.utils.Nanos
 
 /** <p> Interface to the input facilities. This allows polling the state of the keyboard, the touch screen and the accelerometer. On some backends (desktop, gwt, etc) the touch screen is replaced by
   * mouse input. The accelerometer is of course not available on all backends. </p>
@@ -395,7 +396,7 @@ object Input {
   object Key {
     inline def apply(value: Int): Key = value
 
-    given sge.utils.MkArray[Key] = sge.utils.MkArray.mkInt.asInstanceOf[sge.utils.MkArray[Key]]
+    given lowlevel.MkArray[Key] = lowlevel.MkArray.mkInt.asInstanceOf[lowlevel.MkArray[Key]]
 
     extension (k: Key) {
       inline def toInt: Int = k
@@ -409,7 +410,7 @@ object Input {
   object Button {
     inline def apply(value: Int): Button = value
 
-    given sge.utils.MkArray[Button] = sge.utils.MkArray.mkInt.asInstanceOf[sge.utils.MkArray[Button]]
+    given lowlevel.MkArray[Button] = lowlevel.MkArray.mkInt.asInstanceOf[lowlevel.MkArray[Button]]
 
     extension (b: Button) {
       inline def toInt: Int = b

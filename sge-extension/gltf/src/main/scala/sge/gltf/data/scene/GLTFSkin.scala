@@ -17,7 +17,7 @@ package data
 package scene
 
 import scala.collection.mutable.ArrayBuffer
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFSkin extends GLTFEntity {
   var inverseBindMatrices: Nullable[Int]              = Nullable.empty

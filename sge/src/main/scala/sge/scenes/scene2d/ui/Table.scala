@@ -31,7 +31,9 @@ import sge.graphics.g2d.Batch
 import sge.graphics.glutils.ShapeRenderer
 import sge.math.Rectangle
 import sge.scenes.scene2d.utils.{ Drawable, Layout }
-import sge.utils.{ Align, DynamicArray, Nullable, Pool }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.{ Align, Pool }
 
 /** A group that sizes and positions children using table constraints.
   *

@@ -35,9 +35,10 @@ import java.util.Arrays
 import sge.graphics.g3d.particles.ParallelArray.FloatChannel
 import sge.graphics.g3d.particles.ParticleChannels
 import sge.graphics.g3d.particles.ParticleController
-import sge.math.{ MathUtils, Quaternion }
-import sge.utils.DynamicArray
-import sge.utils.Nullable
+import lowlevel.math.MathUtils
+import sge.math.Quaternion
+import lowlevel.util.DynamicArray
+import lowlevel.Nullable
 
 /** It's an {@link Influencer} which controls the particles dynamics (movement, rotations).
   * @author

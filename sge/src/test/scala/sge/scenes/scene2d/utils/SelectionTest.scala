@@ -4,7 +4,8 @@ package scenes
 package scene2d
 package utils
 
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 /** Tests for Selection: add, remove, set, clear, multiple, required, toggle, disabled, iterability. */
 class SelectionTest extends munit.FunSuite {

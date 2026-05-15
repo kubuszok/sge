@@ -16,6 +16,8 @@
 package sge
 package utils
 
+import lowlevel.MkArray
+
 opaque type Nanos = Long
 object Nanos {
   def apply(value: Long): Nanos = value

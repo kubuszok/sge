@@ -28,7 +28,7 @@ package math
 import scala.util.boundary
 import scala.util.boundary.break
 
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** A simple implementation of the ear cutting algorithm to triangulate simple polygons without holes. For more information: <ul> <li><a
   * href="http://cgm.cs.mcgill.ca/~godfried/teaching/cg-projects/97/Ian/algorithm2.html">http://cgm.cs.mcgill.ca/~godfried/ teaching/cg-projects/97/Ian/algorithm2.html</a></li> <li><a href=

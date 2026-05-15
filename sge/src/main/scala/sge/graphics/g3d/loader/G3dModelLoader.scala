@@ -42,7 +42,9 @@ import sge.files.FileHandle
 import sge.graphics.{ Color, PrimitiveMode, VertexAttribute }
 import sge.graphics.g3d.model.data._
 import sge.math.{ Matrix4, Quaternion, Vector2, Vector3 }
-import sge.utils.{ ArrayMap, DynamicArray, Nullable, SgeError, readJson }
+import lowlevel.Nullable
+import lowlevel.util.{ ArrayMap, DynamicArray }
+import sge.utils.{ SgeError, readJson }
 
 /** Loads G3D models from `.g3dj` (JSON text) files. For binary `.g3db` (UBJson) format, see [[G3dBinaryModelLoader]]. */
 class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoader[ModelLoader.ModelParameters](resolver) {

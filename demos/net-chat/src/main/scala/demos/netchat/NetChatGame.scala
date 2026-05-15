@@ -10,11 +10,11 @@ import sge.Input
 import sge.graphics.Color
 import sge.graphics.glutils.ShapeRenderer
 import sge.graphics.glutils.ShapeRenderer.ShapeType
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.utils.Millis
 import sge.utils.Seconds
 import sge.utils.Nanos
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.utils.ScreenUtils
 import sge.utils.TextFormatter
 import sge.utils.TimeUtils

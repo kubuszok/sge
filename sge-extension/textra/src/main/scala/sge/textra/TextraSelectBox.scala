@@ -34,7 +34,8 @@ import scala.collection.mutable.ArrayBuffer
 import sge.graphics.Color
 import sge.graphics.g2d.Batch
 import sge.scenes.scene2d.utils.Drawable
-import sge.utils.{ Align, Nullable }
+import lowlevel.Nullable
+import sge.utils.Align
 
 /** A select box (aka a drop-down list) allows a user to choose one of a number of values from a list. When inactive, the selected value is displayed. When activated, it shows the list of values that
   * may be selected.

@@ -3,7 +3,7 @@ package ai
 package fsm
 
 import sge.ai.msg.Telegram
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class TrackingState extends State[String] {
   var events:                                                 List[String] = List.empty

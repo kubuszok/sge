@@ -30,8 +30,8 @@ package sge
 package ai
 package fsm
 
-import sge.utils.DynamicArray
-import sge.utils.Nullable
+import lowlevel.util.DynamicArray
+import lowlevel.Nullable
 
 /** A [[StateMachine]] implementation that keeps track of all previous [[State]]s via a stack. This makes sense for example in case of a hierarchical menu structure where each menu screen is one state
   * and one wants to navigate back to the main menu anytime, via [[revertToPreviousState]].

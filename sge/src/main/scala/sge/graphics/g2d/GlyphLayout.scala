@@ -28,7 +28,9 @@ package graphics
 package g2d
 
 import sge.graphics.{ Color, Colors }
-import sge.utils.{ DynamicArray, Nullable, Pool }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.Pool
 import sge.utils.Pool.Poolable
 
 import scala.language.implicitConversions

@@ -31,11 +31,15 @@ package g3d
 package particles
 package influencers
 
+import lowlevel.math.MathUtils
+
 import sge.assets.AssetManager
 import sge.graphics.g3d.{ Model, ModelInstance }
 import sge.graphics.g3d.particles.ParallelArray.ObjectChannel
 import sge.graphics.g3d.particles.{ ParticleChannels, ResourceData }
-import sge.utils.{ DynamicArray, Nullable, Pool }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.Pool
 
 /** It's an {@link Influencer} which controls which {@link Model} will be assigned to the particles as {@link ModelInstance}.
   * @author
@@ -116,7 +120,7 @@ object ModelInfluencer {
   final class Random extends ModelInfluencer {
     private val pool: Pool[ModelInstance] = Pool.Default[ModelInstance](
       () => {
-        val idx = sge.math.MathUtils.random(models.size - 1)
+        val idx = MathUtils.random(models.size - 1)
         ModelInstance(models(idx))
       },
       initialCapacity = 16,

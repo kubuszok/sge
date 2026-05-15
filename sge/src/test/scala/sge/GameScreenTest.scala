@@ -1,7 +1,7 @@
 /* Copyright 2025-2026 Mateusz Kubuszok / Licensed under Apache 2.0 */
 package sge
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.utils.Seconds
 
 class GameScreenTest extends munit.FunSuite {

@@ -21,7 +21,8 @@ package net
 import scala.collection.mutable
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success }
-import sge.utils.{ Nullable, Pool }
+import lowlevel.Nullable
+import sge.utils.Pool
 
 /** HTTP client that manages a pool of reusable [[SgeHttpRequest]] objects and dispatches them via an sttp backend. Requests are obtained from the pool, configured, sent, and automatically returned to
   * the pool upon completion or cancellation.

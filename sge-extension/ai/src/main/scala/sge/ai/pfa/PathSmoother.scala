@@ -35,7 +35,7 @@ package pfa
 import sge.ai.utils.Ray
 import sge.ai.utils.RaycastCollisionDetector
 import sge.math.Vector
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.utils.TimeUtils
 
 import scala.util.boundary, boundary.break

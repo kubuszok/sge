@@ -26,7 +26,7 @@ import sge.gltf.data.texture.GLTFImage
 import sge.gltf.loaders.exceptions.GLTFIllegalException
 import sge.gltf.loaders.shared.data.DataFileResolver
 import sge.gltf.loaders.shared.texture.PixmapBinaryLoaderHack
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class SeparatedDataFileResolver extends DataFileResolver {
 

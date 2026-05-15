@@ -25,7 +25,8 @@ import sge.gltf.scene3d.animation.NodeAnimationHack
 import sge.graphics.g3d.{ Model, ModelInstance, Renderable }
 import sge.graphics.g3d.model.{ Animation, Node, NodeAnimation, NodeKeyframe, NodePart }
 import sge.math.{ Quaternion, Vector3 }
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 class ModelInstanceHack(model: Model) extends ModelInstance(model) {
 

@@ -22,7 +22,7 @@ package async
 import scala.language.implicitConversions
 
 import sge.scenes.scene2d.Actor
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.Locales.CommonText
 import sge.visui.util.TableUtils
 import sge.visui.util.dialog.Dialogs

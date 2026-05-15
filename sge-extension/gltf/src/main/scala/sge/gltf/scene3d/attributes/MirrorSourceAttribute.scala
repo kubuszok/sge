@@ -20,7 +20,8 @@ package attributes
 import sge.graphics.Texture
 import sge.graphics.g3d.Attribute
 import sge.graphics.g3d.utils.TextureDescriptor
-import sge.math.{ MathUtils, Vector3 }
+import lowlevel.math.MathUtils
+import sge.math.Vector3
 
 class MirrorSourceAttribute extends Attribute(MirrorSourceAttribute.Type) {
 

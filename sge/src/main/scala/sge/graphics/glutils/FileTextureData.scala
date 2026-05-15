@@ -30,7 +30,7 @@ import sge.graphics.Pixmap.Format
 import sge.graphics.PixmapIO
 import sge.graphics.TextureData
 import sge.utils.SgeError
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class FileTextureData(
   val file:            FileHandle,

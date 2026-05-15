@@ -45,9 +45,10 @@ import sge.scenes.scene2d.utils.NinePatchDrawable
 import sge.scenes.scene2d.utils.SpriteDrawable
 import sge.scenes.scene2d.utils.TextureRegionDrawable
 import sge.scenes.scene2d.utils.TiledDrawable
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 import sge.utils.Json
-import sge.utils.Nullable
+import lowlevel.Nullable
+import lowlevel.leanView
 import sge.utils.SgeError
 import sge.utils.readJson
 
@@ -269,16 +270,12 @@ class Skin()(using Sge) extends AutoCloseable {
   /** Adds all named texture regions from the atlas. The atlas will not be automatically disposed when the skin is disposed. */
   def addRegions(atlas: TextureAtlas): Unit = {
     val regions = atlas.regions
-    var i       = 0
-    val n       = regions.length
-    while (i < n) {
-      val region = regions(i)
-      var name   = region.name
+    regions.leanView.foreach { region =>
+      var name = region.name
       if (region.index != -1) {
         name = name + "_" + region.index
       }
       add(name, region, classOf[TextureRegion])
-      i += 1
     }
   }
 

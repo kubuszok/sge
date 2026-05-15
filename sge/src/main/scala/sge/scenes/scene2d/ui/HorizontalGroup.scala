@@ -27,7 +27,9 @@ package ui
 
 import sge.graphics.glutils.ShapeRenderer
 import sge.scenes.scene2d.utils.Layout
-import sge.utils.{ Align, DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.Align
 
 /** A group that lays out its children side by side horizontally, with optional wrapping. This can be easier than using {@link Table} when actors need to be inserted into or removed from the middle of
   * the group. {@link #getChildren()} can be sorted to change the order of the actors (eg {@link Actor#setZIndex(int)}). {@link #invalidate()} must be called after changing the children order. <p> The

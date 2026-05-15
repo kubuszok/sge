@@ -29,7 +29,7 @@ import sge.graphics.Pixmap.Blending
 import sge.graphics.glutils.MipMapGenerator
 import sge.graphics.Texture.{ TextureFilter, TextureWrap }
 import sge.utils.BufferUtils
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import java.nio.Buffer
 import scala.util.boundary
 import scala.util.boundary.break

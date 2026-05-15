@@ -30,8 +30,10 @@ import sge.graphics.Mesh.VertexDataType
 import sge.graphics.VertexAttributes.Usage
 import sge.graphics.g2d.{ Batch, TextureRegion }
 import sge.graphics.glutils.ShaderProgram
-import sge.math.{ Affine2, MathUtils, Matrix4 }
-import sge.utils.{ Nullable, NumberUtils }
+import lowlevel.math.MathUtils
+import sge.math.{ Affine2, Matrix4 }
+import lowlevel.Nullable
+import sge.utils.NumberUtils
 
 import scala.annotation.publicInBinary
 import scala.compiletime.uninitialized

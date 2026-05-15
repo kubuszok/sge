@@ -33,8 +33,8 @@ package utils
 
 import scala.collection.mutable
 
-import sge.utils.DynamicArray
-import sge.utils.Nullable
+import lowlevel.util.DynamicArray
+import lowlevel.Nullable
 
 /** A `BehaviorTreeLibrary` using reference pools.
   *

@@ -18,7 +18,7 @@ package sge
 package audio
 
 import sge.platform.AudioOps
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A streaming music track played via the miniaudio engine.
   *

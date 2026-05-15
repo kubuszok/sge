@@ -30,9 +30,9 @@ package g2d
 import sge.graphics.Color
 import sge.graphics.Texture
 import sge.graphics.g2d.Batch.*
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.math.Rectangle
-import sge.utils.Nullable
+import lowlevel.Nullable
 import scala.compiletime.uninitialized
 import scala.util.boundary
 import scala.util.boundary.break

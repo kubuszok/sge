@@ -26,7 +26,8 @@ import sge.files.FileHandle
 import sge.files.FileType
 import sge.scenes.scene2d.{ Actor, InputEvent }
 import sge.scenes.scene2d.utils.{ ChangeListener, ClickListener }
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 import sge.visui.widget.{ MenuItem, PopupMenu }
 
 /** @author Kotcrab */

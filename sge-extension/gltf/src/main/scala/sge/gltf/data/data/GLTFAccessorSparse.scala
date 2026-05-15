@@ -16,7 +16,7 @@ package gltf
 package data
 package data
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFAccessorSparse extends GLTFObject {
   var count:   Int                                 = 0

@@ -25,7 +25,8 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** An action that runs a {@link Runnable}. Alternatively, the {@link #run()} method can be overridden instead of setting a runnable.
   * @author

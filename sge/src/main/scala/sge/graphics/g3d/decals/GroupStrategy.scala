@@ -28,8 +28,8 @@ package g3d
 package decals
 
 import sge.graphics.glutils.ShaderProgram
-import sge.utils.DynamicArray
-import sge.utils.Nullable
+import lowlevel.util.DynamicArray
+import lowlevel.Nullable
 
 /** <p> This class provides hooks which are invoked by {@link DecalBatch} to evaluate the group a sprite falls into, as well as to adjust settings before and after rendering a group. </p> <p> A group
   * is identified by an integer. The {@link #beforeGroup(int, DynamicArray) beforeGroup()} method provides the strategy with a list of all the decals, which are contained in the group itself, and will

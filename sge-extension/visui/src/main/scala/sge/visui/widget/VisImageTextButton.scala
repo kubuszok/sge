@@ -25,7 +25,8 @@ import sge.graphics.g2d.{ Batch, BitmapFont }
 import sge.scenes.scene2d.{ InputEvent, InputListener }
 import sge.scenes.scene2d.ui.{ Button, Cell, Image, Label }
 import sge.scenes.scene2d.utils.Drawable
-import sge.utils.{ Align, Nullable, Scaling }
+import lowlevel.Nullable
+import sge.utils.{ Align, Scaling }
 import sge.visui.{ FocusManager, Focusable, VisUI }
 import sge.visui.util.BorderOwner
 

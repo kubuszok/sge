@@ -17,7 +17,8 @@ package sge
 import sge.Input.*
 import sge.platform.{ AndroidInputState, AndroidMouseHandler, AndroidTouchHandler, DefaultAndroidInputState }
 import sge.platform.android.{ AndroidConfigOps, HapticsOps, InputDialogCallback, InputMethodOps, SensorOps, TouchInputOps }
-import sge.utils.{ Nanos, Nullable }
+import lowlevel.Nullable
+import sge.utils.Nanos
 
 /** An implementation of [[Input]] for Android.
   *

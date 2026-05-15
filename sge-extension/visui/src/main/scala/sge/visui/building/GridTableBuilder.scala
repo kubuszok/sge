@@ -19,7 +19,7 @@ package visui
 package building
 
 import sge.scenes.scene2d.ui.Table
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.building.utilities.Padding
 
 /** Ignores row() calls and builds table with all widgets put into rows of given size.

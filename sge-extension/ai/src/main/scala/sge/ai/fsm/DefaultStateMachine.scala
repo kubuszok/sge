@@ -31,7 +31,7 @@ package ai
 package fsm
 
 import sge.ai.msg.Telegram
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Default implementation of the [[StateMachine]] trait.
   *

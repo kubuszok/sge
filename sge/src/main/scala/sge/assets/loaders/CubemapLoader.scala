@@ -20,7 +20,9 @@ import sge.graphics.{ Cubemap, CubemapData }
 import sge.graphics.Pixmap.Format
 import sge.graphics.Texture.{ TextureFilter, TextureWrap }
 import sge.graphics.glutils.KTXTextureData
-import sge.utils.{ DynamicArray, Nullable, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.SgeError
 import scala.annotation.nowarn
 
 /** {@link AssetLoader} for {@link Cubemap} instances. The pixel data is loaded asynchronously. The texture is then created on the rendering thread, synchronously. Passing a {@link CubemapParameter}

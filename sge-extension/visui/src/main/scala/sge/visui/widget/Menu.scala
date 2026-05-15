@@ -22,7 +22,7 @@ import sge.math.Vector2
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener }
 import sge.scenes.scene2d.ui.TextButton
 import sge.scenes.scene2d.utils.Drawable
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.VisUI
 
 /** Menu used in MenuBar, it is a standard [[PopupMenu]] with title displayed in MenuBar.

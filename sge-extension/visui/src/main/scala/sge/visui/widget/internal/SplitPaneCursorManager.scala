@@ -22,7 +22,7 @@ package internal
 import sge.graphics.Cursor
 import sge.scenes.scene2d.{ Actor, InputEvent }
 import sge.scenes.scene2d.utils.ClickListener
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.util.CursorManager
 
 /** Manages setting custom cursor for split panes. This is VisUI internal class

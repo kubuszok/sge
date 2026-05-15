@@ -38,7 +38,8 @@ import sge.math.Rectangle
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener, Stage }
 import sge.scenes.scene2d.ui.Skin
 import sge.scenes.scene2d.utils.Drawable
-import sge.utils.{ Align, Nullable }
+import lowlevel.Nullable
+import sge.utils.Align
 
 /** A TextraListBox displays TextraLabels and highlights the currently selected item.
   *

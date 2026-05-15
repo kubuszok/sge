@@ -26,7 +26,8 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** Base class for an action that wraps another action.
   * @author

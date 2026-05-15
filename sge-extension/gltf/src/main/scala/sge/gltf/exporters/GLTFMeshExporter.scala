@@ -27,7 +27,7 @@ import sge.gltf.data.geometry.{ GLTFMorphTarget, GLTFPrimitive }
 import sge.gltf.loaders.exceptions.GLTFUnsupportedException
 import sge.gltf.loaders.shared.GLTFTypes
 import sge.gltf.scene3d.attributes.PBRVertexAttributes
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 private[exporters] class GLTFMeshExporter(private val base: GLTFExporter) {
 

@@ -24,7 +24,7 @@ import sge.Input.Buttons
 import sge.files.FileHandle
 import sge.scenes.scene2d.{ Actor, InputEvent, Stage }
 import sge.scenes.scene2d.utils.{ ChangeListener, ClickListener }
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 import sge.visui.util.dialog.Dialogs
 import sge.visui.widget.{ VisImageButton, VisTable }
 

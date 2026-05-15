@@ -38,10 +38,11 @@ import scala.util.boundary.break
 import sge.Sge
 import sge.assets.AssetManager
 import sge.graphics.g3d.particles.batches.ParticleBatch
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 import sge.math.{ Matrix4, Quaternion, Vector3 }
 import sge.math.collision.BoundingBox
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** It's a set of particles controllers. It can be updated, rendered, transformed which means the changes will be applied on all the particles controllers.
   * @author

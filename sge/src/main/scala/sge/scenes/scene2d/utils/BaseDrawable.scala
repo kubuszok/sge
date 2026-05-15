@@ -27,7 +27,7 @@ package scene2d
 package utils
 
 import sge.graphics.g2d.Batch
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Drawable that stores the size information but doesn't draw anything.
   * @author

@@ -13,7 +13,8 @@ package utils
 import scala.language.implicitConversions
 import sge.graphics.g3d.model.Animation
 import sge.graphics.g3d.utils.AnimationController.AnimationDesc
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 class AnimationDescTest extends munit.FunSuite {
 

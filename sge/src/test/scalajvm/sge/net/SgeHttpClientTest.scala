@@ -8,7 +8,7 @@ package net
 
 import munit.FunSuite
 import scala.concurrent.{ Future, Promise }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class SgeHttpClientTest extends FunSuite {
 

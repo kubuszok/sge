@@ -36,7 +36,8 @@ import sge.graphics.g3d.attributes.{ BlendingAttribute, ColorAttribute }
 import sge.graphics.g3d.particles.ParallelArray.{ FloatChannel, ObjectChannel }
 import sge.graphics.g3d.particles.{ ParticleChannels, ParticleControllerComponent }
 import sge.graphics.g3d.particles.batches.{ ModelInstanceParticleBatch, ParticleBatch }
-import sge.utils.{ Nullable, SgeError }
+import lowlevel.Nullable
+import sge.utils.SgeError
 
 /** A {@link ParticleControllerRenderer} which will render particles as {@link ModelInstance} to a {@link ModelInstanceParticleBatch}.
   * @author

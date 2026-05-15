@@ -21,7 +21,7 @@ package utilities
 
 import sge.scenes.scene2d.Actor
 import sge.scenes.scene2d.ui.{ Cell, Table }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Wraps a Scene2D widget, allowing to store cell data for delayed Table creation.
   * @author

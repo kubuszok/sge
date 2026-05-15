@@ -18,7 +18,7 @@ package sge
 package audio
 
 import scala.scalajs.js
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Web Audio API implementation of [[Sound]].
   *

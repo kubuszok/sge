@@ -22,7 +22,8 @@ import scala.language.implicitConversions
 
 import sge.scenes.scene2d.{ Actor, Group, Stage, Touchable }
 import sge.scenes.scene2d.ui.{ Table, WidgetGroup }
-import sge.utils.{ Align, Nullable, Seconds, Timer }
+import lowlevel.Nullable
+import sge.utils.{ Align, Seconds, Timer }
 import sge.visui.widget.VisTable
 import sge.visui.widget.toast.{ Toast, ToastTable }
 

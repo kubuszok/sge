@@ -26,7 +26,7 @@ package graphics
 package g3d
 package attributes
 
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.utils.NumberUtils
 
 class FloatAttribute(

@@ -20,7 +20,7 @@ package widget
 package file
 
 import sge.files.FileHandle
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** Implementation of [[FileChooserListener]] that streams chooser selection. Provides convenient [[selected(FileHandle)]] method that will be called for every selected file after user finished
   * choosing files. Before streaming starts [[begin]] is called, after streaming has finished [[end]] is called.

@@ -24,7 +24,9 @@ import sge.Input.Key
 import sge.graphics.g2d.{ Batch, BitmapFont, GlyphLayout }
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener }
 import sge.scenes.scene2d.utils.Drawable
-import sge.utils.{ Align, DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.Align
 import sge.visui.VisUI
 
 /** A multiple-line text input field, entirely based on [[sge.scenes.scene2d.ui.TextField]].

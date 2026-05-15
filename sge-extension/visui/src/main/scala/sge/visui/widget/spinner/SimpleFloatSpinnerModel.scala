@@ -21,7 +21,7 @@ package spinner
 
 import java.math.{ BigDecimal, RoundingMode }
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.util.{ FloatDigitsOnlyFilter, InputValidator, IntDigitsOnlyFilter, NumberDigitsTextFieldFilter, Validators }
 
 /** Spinner models allowing to select float values. Uses float to store values, good for small numbers with low precision. If high precision is required or very big numbers are used then

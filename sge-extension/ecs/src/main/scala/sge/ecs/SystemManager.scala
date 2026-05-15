@@ -29,7 +29,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
 
 import sge.ecs.utils.ImmutableArray
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Manages [[EntitySystem]]s within an [[Engine]]. Systems are kept sorted by priority and can be looked up by class.
   */

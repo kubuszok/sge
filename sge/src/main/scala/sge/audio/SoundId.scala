@@ -16,12 +16,14 @@
 package sge
 package audio
 
+import lowlevel.MkArray
+
 opaque type SoundId = Long
 object SoundId {
 
   def apply(value: Long): SoundId = value
 
-  given utils.MkArray[SoundId] = utils.MkArray.mkLong.asInstanceOf[utils.MkArray[SoundId]]
+  given lowlevel.MkArray[SoundId] = lowlevel.MkArray.mkLong.asInstanceOf[lowlevel.MkArray[SoundId]]
 
   extension (soundId: SoundId) {
     inline def toLong: Long = soundId

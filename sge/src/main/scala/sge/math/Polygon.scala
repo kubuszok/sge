@@ -31,7 +31,9 @@
 package sge
 package math
 
-import sge.utils.Nullable
+import lowlevel.math.MathUtils
+
+import lowlevel.Nullable
 
 /** Encapsulates a 2D polygon defined by it's vertices relative to an origin point (default of 0, 0). */
 class Polygon() extends Shape2D {

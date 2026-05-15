@@ -19,7 +19,7 @@ package visui
 package building
 
 import sge.scenes.scene2d.ui.Table
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.building.utilities.Padding
 
 /** Builds a table with the appended widgets, trying to keep them centered.

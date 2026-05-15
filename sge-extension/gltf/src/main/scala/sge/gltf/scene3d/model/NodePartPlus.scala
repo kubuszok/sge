@@ -21,7 +21,7 @@ package model
 
 import sge.graphics.g3d.Renderable
 import sge.graphics.g3d.model.NodePart
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class NodePartPlus extends NodePart {
 

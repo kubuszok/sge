@@ -21,7 +21,8 @@ import sge.Sge
 import sge.gltf.scene3d.attributes.PBRColorAttribute
 import sge.graphics.g3d.{ Renderable, Shader }
 import sge.graphics.g3d.attributes.{ BlendingAttribute, FloatAttribute, TextureAttribute }
-import sge.utils.{ Nullable, SgeError }
+import lowlevel.Nullable
+import sge.utils.SgeError
 
 class PBREmissiveShaderProvider(config: PBRShaderConfig)(using Sge) extends PBRShaderProvider(config) {
 

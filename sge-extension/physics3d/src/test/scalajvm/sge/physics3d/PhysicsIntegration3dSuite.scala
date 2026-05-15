@@ -476,7 +476,7 @@ class PhysicsIntegration3dSuite extends FunSuite {
 
       // Cast ray downward from above
       val hit = world.rayCast(0f, 10f, 0f, 0f, -1f, 0f, 20f)
-      import sge.utils.Nullable
+      import lowlevel.Nullable
       assert(!Nullable.isEmpty(hit), "Ray should hit the box")
     } finally world.close()
   }

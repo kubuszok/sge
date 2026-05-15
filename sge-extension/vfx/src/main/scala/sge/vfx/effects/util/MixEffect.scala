@@ -16,7 +16,7 @@ package vfx
 package effects
 package util
 
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.vfx.VfxRenderContext
 import sge.vfx.framebuffer.VfxFrameBuffer
 import sge.vfx.gl.VfxGLUtils

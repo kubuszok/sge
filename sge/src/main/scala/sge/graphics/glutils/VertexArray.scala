@@ -28,7 +28,8 @@ import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 
-import sge.utils.{ BufferUtils, Nullable }
+import lowlevel.Nullable
+import sge.utils.BufferUtils
 
 /** <p> Convenience class for working with OpenGL vertex arrays. It interleaves all data in the order you specified in the constructor via {@link VertexAttribute} . </p>
   *

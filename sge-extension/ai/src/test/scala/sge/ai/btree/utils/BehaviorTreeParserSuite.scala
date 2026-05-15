@@ -6,7 +6,7 @@ package utils
 import sge.ai.btree.branch.{ Selector, Sequence }
 import sge.ai.btree.decorator.Invert
 import sge.ai.btree.leaf.{ Failure => FailureLeaf, Success => SuccessLeaf }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class BehaviorTreeParserSuite extends munit.FunSuite {
 

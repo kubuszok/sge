@@ -19,7 +19,7 @@ package visui
 package util
 
 import sge.graphics.Cursor
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Manages default cursor of VisUI app. If you are using custom cursor you must set it here otherwise some VisUI widget that changes cursors will reset it to default system cursor.
   * @author

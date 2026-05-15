@@ -27,7 +27,8 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 import sge.math.Interpolation
 
 /** An action that has a float, whose value is transitioned over time.

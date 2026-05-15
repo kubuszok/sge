@@ -1,6 +1,8 @@
 package sge
 package math
 
+import lowlevel.math.MathUtils
+
 class Vector3RotTest extends munit.FunSuite {
 
   private val Eps = 0.0001f

@@ -33,7 +33,7 @@ package behaviors
 
 import sge.ai.utils.{ ArithmeticUtils, Location }
 import sge.math.Vector
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** `ReachOrientation` tries to align the owner to the target. It pays no attention to the position or velocity of the owner or target. This steering behavior does not produce any linear acceleration;
   * it only responds by turning.

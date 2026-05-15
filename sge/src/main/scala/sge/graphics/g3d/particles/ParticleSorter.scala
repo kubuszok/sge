@@ -32,7 +32,7 @@ package particles
 import sge.graphics.Camera
 import sge.graphics.g3d.particles.renderers.ParticleControllerRenderData
 import sge.math.{ Matrix4, Vector3 }
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** This class is used by particle batches to sort the particles before rendering.
   * @author

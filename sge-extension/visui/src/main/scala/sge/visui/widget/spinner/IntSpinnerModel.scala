@@ -19,7 +19,7 @@ package visui
 package widget
 package spinner
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.util.{ InputValidator, IntDigitsOnlyFilter, Validators }
 
 /** Spinner models allowing to select int values.

@@ -26,7 +26,8 @@ package graphics
 package glutils
 
 import sge.files.FileHandle
-import sge.utils.Nullable
+import lowlevel.Nullable
+import lowlevel.leanView
 import scala.annotation.nowarn
 import sge.utils.SgeError
 
@@ -59,7 +60,7 @@ class FileTextureArrayData(format: Pixmap.Format, useMipMaps: Boolean, files: Fi
   override def prepare(): Unit = {
     var width  = -1
     var height = -1
-    for (data <- textureDatas) {
+    textureDatas.leanView.foreach { data =>
       if (!data.isPrepared) data.prepare()
       if (width == -1) {
         width = data.width
@@ -73,12 +74,11 @@ class FileTextureArrayData(format: Pixmap.Format, useMipMaps: Boolean, files: Fi
 
   override def consumeTextureArrayData(): Unit = {
     var containsCustomData = false
-    for (i <- textureDatas.indices)
-      if (textureDatas(i).dataType == TextureData.TextureDataType.Custom) {
-        textureDatas(i).consumeCustomData(TextureTarget.Texture2DArray)
+    textureDatas.leanView.zipWithIndex.foreach { (texData, i) =>
+      if (texData.dataType == TextureData.TextureDataType.Custom) {
+        texData.consumeCustomData(TextureTarget.Texture2DArray)
         containsCustomData = true
       } else {
-        val texData       = textureDatas(i)
         var pixmap        = texData.consumePixmap()
         var disposePixmap = texData.disposePixmap
         if (texData.getFormat != pixmap.format) {
@@ -108,6 +108,7 @@ class FileTextureArrayData(format: Pixmap.Format, useMipMaps: Boolean, files: Fi
         )
         if (disposePixmap) pixmap.close()
       }
+    }
     if (useMipMapsVar && !containsCustomData) {
       Sge().graphics.gl20.glGenerateMipmap(TextureTarget.Texture2DArray)
     }

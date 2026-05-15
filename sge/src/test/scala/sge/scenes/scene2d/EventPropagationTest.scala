@@ -3,7 +3,7 @@ package sge
 package scenes
 package scene2d
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Tests for Scene2D event propagation: capture → target → bubble flow, stop/cancel/handled semantics. */
 class EventPropagationTest extends munit.FunSuite {

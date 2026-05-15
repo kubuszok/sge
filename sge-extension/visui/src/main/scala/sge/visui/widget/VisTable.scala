@@ -19,7 +19,7 @@ package visui
 package widget
 
 import sge.scenes.scene2d.ui.{ Cell, Table }
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.util.TableUtils
 
 /** Extends functionality of standard [[Table]], supports setting default VisUI spacing and has utility methods for adding separators. Compatible with [[Table]].

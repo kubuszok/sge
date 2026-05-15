@@ -18,7 +18,7 @@ package sge
 package visui
 
 import sge.scenes.scene2d.{ Actor, Stage }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Manages focus of VisUI components. This is different from scene2d.ui focus management. In scene2d widgets can only acquire keyboard and scroll focus. VisUI focus manager allows any widget to
   * acquire general user focus, this is used mainly to manage rendering focus borders around widgets. Generally there is no need to call these methods manually.

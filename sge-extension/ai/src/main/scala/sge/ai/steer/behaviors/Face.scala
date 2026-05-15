@@ -33,7 +33,7 @@ package behaviors
 
 import sge.ai.utils.Location
 import sge.math.Vector
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** `Face` behavior makes the owner look at its target. It delegates to the [[ReachOrientation]] behavior to perform the rotation but calculates the target orientation first based on target and owner
   * position.

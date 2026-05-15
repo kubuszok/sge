@@ -41,7 +41,9 @@ import sge.files.FileHandle
 import sge.graphics.Color
 import sge.graphics.g2d.TextureRegion
 import sge.maps.tiled.tiles.StaticTiledMapTile
-import sge.utils.{ DynamicArray, Json, Nullable, ObjectMap, readJson }
+import lowlevel.Nullable
+import lowlevel.util.{ DynamicArray, ObjectMap }
+import sge.utils.{ Json, readJson }
 
 import scala.collection.mutable
 import scala.util.boundary

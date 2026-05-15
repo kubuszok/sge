@@ -21,7 +21,7 @@ package value
 
 import sge.scenes.scene2d.Actor
 import sge.scenes.scene2d.ui.{ Value => SceneValue }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Value that returns given fixed constant value if widget is visible. If actor is invisible then returns 0.
   * @author

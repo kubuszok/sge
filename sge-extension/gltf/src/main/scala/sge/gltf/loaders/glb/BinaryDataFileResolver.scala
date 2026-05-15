@@ -28,7 +28,8 @@ import sge.gltf.loaders.gltf.{ GLTFJsonParser, SeparatedDataFileResolver }
 import sge.gltf.loaders.shared.GLTFLoaderBase
 import sge.gltf.loaders.shared.data.DataFileResolver
 import sge.gltf.loaders.shared.texture.PixmapBinaryLoaderHack
-import sge.utils.{ LittleEndianInputStream, Nullable }
+import lowlevel.Nullable
+import sge.utils.LittleEndianInputStream
 
 class BinaryDataFileResolver extends DataFileResolver {
 

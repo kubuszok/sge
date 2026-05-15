@@ -31,8 +31,9 @@ package attributes
 import sge.graphics.Texture
 import sge.graphics.g2d.TextureRegion
 import sge.graphics.g3d.utils.TextureDescriptor
-import sge.math.MathUtils
-import sge.utils.{ Nullable, NumberUtils, SgeError }
+import lowlevel.math.MathUtils
+import lowlevel.Nullable
+import sge.utils.{ NumberUtils, SgeError }
 
 class TextureAttribute(
   `type`:                 Long,

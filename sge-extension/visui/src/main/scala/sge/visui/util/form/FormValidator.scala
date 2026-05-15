@@ -26,7 +26,7 @@ import java.io.File
 import sge.files.FileHandle
 import sge.scenes.scene2d.ui.Label
 import sge.scenes.scene2d.utils.Disableable
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.widget.{ VisTextField, VisValidatableTextField }
 
 /** Utility class made for creating input forms that requires inputting various information and that information cannot be wrong. For example user registration form.

@@ -22,7 +22,7 @@ package highlight
 import java.util.regex.Pattern
 
 import sge.graphics.Color
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 import sge.visui.widget.HighlightTextArea
 
 /** Highlighter rule using regex to detect text matches. Regexes and thus this rule can't be used on GWT.

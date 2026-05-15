@@ -29,7 +29,7 @@ import sge.graphics.Pixmap.Format
 import sge.graphics.TextureData
 import sge.graphics.TextureData.TextureDataType
 import sge.utils.SgeError
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class PixmapTextureData private (format: Format, pixmap: Pixmap, val useMipMaps: Boolean, val disposePixmap: Boolean, val isManaged: Boolean) extends TextureData {
 

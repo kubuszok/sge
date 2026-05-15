@@ -33,7 +33,9 @@ import sge.assets.loaders.{ FileHandleResolver, TextureLoader }
 import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.graphics.g2d.{ TextureAtlas, TextureRegion }
-import sge.utils.{ DynamicArray, Nullable, XmlReader }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.XmlReader
 
 import scala.language.implicitConversions
 
@@ -153,7 +155,7 @@ class AtlasTmxMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmx
 
     if (Nullable(imageSource).isDefined && imageSource.nonEmpty) {
       val lastgid = firstgid + ((imageWidth / tilewidth) * (imageHeight / tileheight)) - 1
-      for (region <- atlas.findRegions(name))
+      lowlevel.leanView(atlas.findRegions(name)).foreach { region =>
         // Handle unused tileIds
         if (Nullable(region).isDefined) {
           val tileId = firstgid + region.index
@@ -161,6 +163,7 @@ class AtlasTmxMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmx
             addStaticTiledMapTile(tileSet, region, tileId, offsetX.toFloat, offsetY.toFloat)
           }
         }
+      }
     }
 
     // Add tiles with individual image sources

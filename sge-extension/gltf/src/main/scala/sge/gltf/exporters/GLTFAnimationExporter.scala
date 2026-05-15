@@ -27,7 +27,8 @@ import sge.gltf.loaders.shared.GLTFTypes
 import sge.gltf.scene3d.animation.{ Interpolation, NodeAnimationHack }
 import sge.gltf.scene3d.model.{ CubicQuaternion, CubicVector3, CubicWeightVector, WeightVector }
 import sge.math.{ Quaternion, Vector3 }
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 private[exporters] class GLTFAnimationExporter(private val base: GLTFExporter) {
 

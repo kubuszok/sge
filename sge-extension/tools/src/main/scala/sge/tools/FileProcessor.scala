@@ -24,7 +24,7 @@
 package sge
 package tools
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 import java.io.{ File, FilenameFilter }
 import java.util.regex.Pattern

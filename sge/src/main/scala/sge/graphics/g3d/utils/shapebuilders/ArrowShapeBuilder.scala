@@ -29,7 +29,7 @@ package shapebuilders
 
 import sge.graphics.g3d.utils.MeshPartBuilder
 import sge.math.{ Matrix4, Vector3 }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Helper class with static methods to build arrow shapes using {@link MeshPartBuilder}.
   * @author

@@ -19,8 +19,8 @@ package visui
 package widget
 package spinner
 
-import sge.math.MathUtils
-import sge.utils.Nullable
+import lowlevel.math.MathUtils
+import lowlevel.Nullable
 import sge.visui.util.InputValidator
 
 import scala.collection.mutable.ArrayBuffer

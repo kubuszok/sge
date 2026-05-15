@@ -19,7 +19,7 @@ package audio
 
 import org.scalajs.dom
 import scala.scalajs.js
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Web Audio API implementation of [[Music]] using an HTML `<audio>` element for streaming playback, routed through an [[AudioControlGraph]] for volume and pan control.
   *

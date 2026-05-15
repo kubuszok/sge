@@ -33,7 +33,7 @@
 | `DefaultPool` | `Pool.Default` |
 | `FlushablePool` | `Pool.Flushable` |
 | `GdxRuntimeException` | `SgeError` |
-| `GdxNativesLoader` | `SgeNativesLoader` |
+| `GdxNativesLoader` | *(removed — native loading via multiarch-core)* |
 | `SerializationException` | `SgeError.SerializationError` |
 | `QuadTreeFloat` | `Pool.QuadTreeFloat` |
 
@@ -103,3 +103,26 @@ All `Json*`, `UBJson*`, `XmlReader`, `XmlWriter` classes are skipped — Scala h
 | `ArraySupplier`, `Predicate` | Plain Scala functions | Scala functions replace SAM types |
 | `Base64Coder` | `java.util.Base64` | Available since JDK 7 |
 | `Disposable` | `AutoCloseable` / `Resource` | Scala/JDK standard |
+
+## Types Extracted to lls (lowlevel.*)
+
+The following types have been extracted from SGE to the standalone
+[lls](https://github.com/kubuszok/lls) library (`com.kubuszok:lls`).
+SGE depends on lls; canonical development happens in the lls repo.
+
+| Old SGE Type | lls Type | Notes |
+|-------------|----------|-------|
+| `sge.utils.Nullable[A]` | `lowlevel.Nullable[A]` | Opaque union type |
+| `sge.utils.MkArray[A]` | `lowlevel.MkArray[A]` | Sealed type class hierarchy |
+| `sge.utils.DynamicArray[A]` | `lowlevel.util.DynamicArray[A]` | Unboxed resizable array |
+| `sge.utils.ObjectMap[K,V]` | `lowlevel.util.ObjectMap[K,V]` | Fibonacci hashing map |
+| `sge.utils.ObjectSet[A]` | `lowlevel.util.ObjectSet[A]` | Open-addressing set |
+| `sge.utils.OrderedMap[K,V]` | `lowlevel.util.OrderedMap[K,V]` | Insertion-ordered map |
+| `sge.utils.OrderedSet[A]` | `lowlevel.util.OrderedSet[A]` | Insertion-ordered set |
+| `sge.utils.ArrayMap[K,V]` | `lowlevel.util.ArrayMap[K,V]` | Linear-scan map |
+| `sge.utils.Eval[A]` | `lowlevel.util.Eval[A]` | Stack-safe lazy evaluation |
+| `sge.utils.Resource[A]` | `lowlevel.util.Resource[A]` | Resource management |
+| `sge.utils.Sort` | `lowlevel.util.Sort` | TimSort facade |
+| `sge.utils.Select` | `lowlevel.util.Select` | QuickSelect |
+| `sge.math.MathUtils` | `lowlevel.math.MathUtils` | Fast math utilities |
+| N/A | `lowlevel.ArrayView[A,_,_]` | Zero-allocation array iteration (lls-only) |

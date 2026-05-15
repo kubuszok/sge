@@ -36,7 +36,9 @@ import java.util.{ ArrayList, List => JList, Locale, MissingResourceException }
 import scala.collection.mutable.{ LinkedHashSet, Set => MutableSet }
 import scala.util.boundary
 import sge.files.FileHandle
-import sge.utils.{ Nullable, ObjectMap, PropertiesUtils, TextFormatter }
+import lowlevel.Nullable
+import lowlevel.util.ObjectMap
+import sge.utils.{ PropertiesUtils, TextFormatter }
 
 import scala.language.implicitConversions
 

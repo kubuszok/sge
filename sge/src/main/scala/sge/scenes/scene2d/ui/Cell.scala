@@ -24,7 +24,8 @@ package scenes
 package scene2d
 package ui
 
-import sge.utils.{ Align, Nullable, Pool }
+import lowlevel.Nullable
+import sge.utils.{ Align, Pool }
 
 /** A cell for a {@link Table}.
   * @author

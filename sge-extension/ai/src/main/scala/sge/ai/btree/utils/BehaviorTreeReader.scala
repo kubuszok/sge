@@ -50,7 +50,7 @@ import scala.util.boundary
 import scala.util.boundary.break
 
 import sge.files.FileHandle
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.utils.SgeError
 import sge.utils.StreamUtils
 

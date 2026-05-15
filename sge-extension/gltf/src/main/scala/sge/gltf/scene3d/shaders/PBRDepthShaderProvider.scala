@@ -22,7 +22,7 @@ import sge.gltf.scene3d.attributes.PBRVertexAttributes
 import sge.graphics.g3d.{ Renderable, Shader }
 import sge.graphics.g3d.shaders.DepthShader
 import sge.graphics.g3d.utils.DepthShaderProvider
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 import scala.language.implicitConversions
 

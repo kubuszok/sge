@@ -5,7 +5,7 @@ package scene2d
 package ui
 
 import sge.scenes.scene2d.utils.{ BaseDrawable, ChangeListener }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Tests for Button: checked state, toggle, disabled, programmatic change events, style. */
 class ButtonTest extends munit.FunSuite {

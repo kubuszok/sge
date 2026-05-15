@@ -31,7 +31,7 @@ import scala.collection.mutable.ArrayBuffer
 
 import sge.ecs.signals.Signal
 import sge.ecs.utils.{ Bag, ImmutableArray }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Simple containers of [[Component]]s that give them "data". The component's data is then processed by [[EntitySystem]]s.
   *

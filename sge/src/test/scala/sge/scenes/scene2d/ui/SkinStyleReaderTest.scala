@@ -17,7 +17,7 @@ import sge.graphics.Color
 import sge.scenes.scene2d.utils.BaseDrawable
 import sge.scenes.scene2d.utils.Drawable
 import sge.utils.Json
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class SkinStyleReaderTest extends munit.FunSuite {
 

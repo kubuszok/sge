@@ -19,7 +19,7 @@ package visui
 package widget
 package toast
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Base class for all toast content tables. Note that using this class is not required ([[VisTable]] can be used directly) however it's preferred because it provides access to [[Toast]] instance and
   * [[fadeOut]] method. Using ToastTable also allows to reuse [[Toast]] instance instead of creating new one every time you want to show toast.

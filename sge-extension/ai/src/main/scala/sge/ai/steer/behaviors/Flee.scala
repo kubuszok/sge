@@ -33,7 +33,7 @@ package behaviors
 
 import sge.ai.utils.Location
 import sge.math.Vector
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** `Flee` behavior does the opposite of [[Seek]]. It produces a linear steering force that moves the agent away from a target position.
   *

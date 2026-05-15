@@ -23,7 +23,7 @@ package sge
 package ai
 package btree
 
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** A branch task defines a behavior tree branch, contains logic of starting or running sub-branches and leaves.
   *

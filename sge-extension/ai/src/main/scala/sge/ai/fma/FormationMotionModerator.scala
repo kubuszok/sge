@@ -32,7 +32,8 @@ package fma
 
 import sge.ai.utils.Location
 import sge.math.Vector
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 /** A `FormationMotionModerator` moderates the movement of the formation based on the current positions of the members in its slots: in effect to keep the anchor point on a leash. If the members in
   * the slots are having trouble reaching their targets, then the formation as a whole should be held back to give them a chance to catch up.

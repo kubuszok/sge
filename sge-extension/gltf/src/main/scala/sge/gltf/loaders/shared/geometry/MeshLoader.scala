@@ -35,7 +35,7 @@ import sge.gltf.loaders.shared.data.{ AccessorBuffer, DataResolver }
 import sge.gltf.loaders.shared.material.MaterialLoader
 import sge.gltf.scene3d.attributes.{ PBRTextureAttribute, PBRVertexAttributes }
 import sge.gltf.scene3d.model.{ NodePartPlus, NodePlus, WeightVector }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class MeshLoader {
 

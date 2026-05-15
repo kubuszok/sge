@@ -29,9 +29,9 @@ package environment
 
 import scala.language.implicitConversions
 
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.math.Vector3
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Note that the default shader doesn't support spot lights, you'll have to supply your own shader to use this class.
   * @author

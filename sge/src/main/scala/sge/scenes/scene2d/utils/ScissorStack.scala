@@ -30,7 +30,8 @@ package utils
 import sge.graphics.{ Camera, EnableCap }
 import sge.graphics.glutils.HdpiUtils
 import sge.math.{ Matrix4, Rectangle, Vector3 }
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 /** A stack of {@link Rectangle} objects to be used for clipping via {@link GL20#glScissor(int, int, int, int)}. When a new Rectangle is pushed onto the stack, it will be merged with the current top
   * of stack. The minimum area of overlap is then set as the real top of the stack.

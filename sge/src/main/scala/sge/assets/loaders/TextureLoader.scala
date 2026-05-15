@@ -21,7 +21,9 @@ import sge.graphics.Texture
 import sge.graphics.Texture.TextureFilter
 import sge.graphics.Texture.TextureWrap
 import sge.graphics.TextureData
-import sge.utils.{ DynamicArray, Nullable, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.SgeError
 
 /** {@link AssetLoader} for {@link Texture} instances. The pixel data is loaded asynchronously. The texture is then created on the rendering thread, synchronously. Passing a {@link TextureParameter}
   * to {@link AssetManager#load(String, Class, AssetLoaderParameters)} allows one to specify parameters as can be passed to the various Texture constructors, e.g. filtering, whether to generate

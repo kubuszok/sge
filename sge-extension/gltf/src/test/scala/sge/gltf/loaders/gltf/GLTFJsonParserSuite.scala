@@ -4,7 +4,7 @@ package loaders
 package gltf
 
 import sge.gltf.data.GLTFCodecs.given
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFJsonParserSuite extends munit.FunSuite {
 

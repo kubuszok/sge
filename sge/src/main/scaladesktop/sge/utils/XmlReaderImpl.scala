@@ -4,6 +4,7 @@
 package sge
 package utils
 
+import lowlevel.Nullable
 import scala.xml.{ Elem, Node, XML }
 
 private[utils] object XmlReaderImpl {

@@ -26,8 +26,10 @@
 package sge
 package math
 
+import lowlevel.math.MathUtils
+
 import scala.reflect.ClassTag
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** @author Xoppa (original implementation) */
 object BSpline {

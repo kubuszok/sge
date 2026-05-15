@@ -22,7 +22,7 @@ package internal
 
 import sge.scenes.scene2d.Actor
 import sge.scenes.scene2d.utils.ChangeListener
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.Sizes
 import sge.visui.widget.{ VisLabel, VisTable }
 

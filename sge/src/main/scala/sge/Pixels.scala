@@ -27,7 +27,7 @@ object Pixels {
   inline def apply(value: Int): Pixels = value
   val zero:                     Pixels = 0
 
-  given utils.MkArray[Pixels] = utils.MkArray.mkInt.asInstanceOf[utils.MkArray[Pixels]]
+  given lowlevel.MkArray[Pixels] = lowlevel.MkArray.mkInt.asInstanceOf[lowlevel.MkArray[Pixels]]
 
   extension (p: Pixels) {
     inline def toInt:    Int    = p

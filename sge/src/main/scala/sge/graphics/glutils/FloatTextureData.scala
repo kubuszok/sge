@@ -36,7 +36,7 @@ import sge.graphics.Pixmap.Format
 import sge.graphics.TextureData
 import sge.utils.BufferUtils
 import sge.utils.SgeError
-import sge.utils.Nullable
+import lowlevel.Nullable
 import scala.annotation.nowarn
 import sge.Sge
 

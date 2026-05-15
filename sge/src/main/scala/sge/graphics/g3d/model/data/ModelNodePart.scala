@@ -30,7 +30,7 @@ package model
 package data
 
 import sge.math.Matrix4
-import sge.utils.ArrayMap
+import lowlevel.util.ArrayMap
 
 class ModelNodePart {
   var materialId: String                    = scala.compiletime.uninitialized

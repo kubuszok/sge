@@ -23,7 +23,7 @@ import scala.util.boundary.break
 
 import sge.colorful.FloatColors
 import sge.graphics.Color
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 
 /** Contains code for manipulating colors as `int` and packed `float` values in the IPT color space. IPT has more perceptually-uniform handling of hue than some other color spaces, like YCwCm, and
   * this version goes further than the IPT package by performing gamma correction and all the complex exponential adjustments to various components that the original IPT paper used.

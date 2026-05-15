@@ -33,7 +33,8 @@ import sge.files.FileHandle
 import sge.graphics.Pixmap.Format
 import sge.graphics.glutils.FacedCubemapData
 import sge.math.Vector3
-import sge.utils.{ Nullable, SgeError }
+import lowlevel.Nullable
+import sge.utils.SgeError
 import sge.{ Application, Sge }
 
 /** Wraps a standard OpenGL ES Cubemap. Must be disposed when it is no longer used.

@@ -16,7 +16,7 @@
 package sge
 package audio
 
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.platform.AudioOps
 
 /** A raw PCM audio output device backed by miniaudio.

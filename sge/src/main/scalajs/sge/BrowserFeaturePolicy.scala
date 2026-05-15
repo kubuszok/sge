@@ -17,7 +17,7 @@ package sge
 
 import org.scalajs.dom.document
 import scala.scalajs.js
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Implementation of the [[https://w3c.github.io/webappsec-feature-policy/#featurepolicy Feature Policy Interface]].
   *

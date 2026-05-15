@@ -35,7 +35,7 @@ package pfa
 import sge.ai.msg.MessageDispatcher
 import sge.ai.msg.MessageManager
 import sge.ai.msg.Telegraph
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A request for interruptible pathfinding that should be sent to a [[PathFinderQueue]] through a [[sge.ai.msg.Telegram Telegram]].
   *

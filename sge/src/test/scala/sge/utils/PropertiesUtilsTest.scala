@@ -6,6 +6,8 @@
 package sge
 package utils
 
+import lowlevel.util.ObjectMap
+
 import java.io.{ StringReader, StringWriter }
 
 class PropertiesUtilsTest extends munit.FunSuite {

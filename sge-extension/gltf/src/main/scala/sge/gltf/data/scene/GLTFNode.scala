@@ -17,7 +17,7 @@ package data
 package scene
 
 import scala.collection.mutable.ArrayBuffer
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFNode extends GLTFEntity {
   var children:    Nullable[ArrayBuffer[Int]] = Nullable.empty

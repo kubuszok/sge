@@ -28,10 +28,10 @@ package sge
 package graphics
 package g2d
 
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.math.Rectangle
 import sge.graphics.Color
-import sge.utils.Nullable
+import lowlevel.Nullable
 import scala.compiletime.uninitialized
 
 /** @author

@@ -30,8 +30,8 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;;
 
 import sge.utils.{ BufferUtils, SgeError }
-import sge.utils.DynamicArray
-import sge.utils.Nullable
+import lowlevel.util.DynamicArray
+import lowlevel.Nullable
 
 /** <p> A {@link VertexData} implementation that uses vertex buffer objects and vertex array objects. (This is required for OpenGL 3.0+ core profiles. In particular, the default VAO has been
   * deprecated, as has the use of client memory for passing vertex attributes.) Use of VAOs should give a slight performance benefit since you don't have to bind the attributes on every draw anymore.

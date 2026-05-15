@@ -17,7 +17,7 @@
 package sge
 package textra
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Simple listener for label events. */
 trait TypingListener {

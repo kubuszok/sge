@@ -42,7 +42,9 @@ import scala.util.boundary.break
 import sge.graphics.g3d.model.{ Animation, Node, NodeAnimation, NodeKeyframe, NodePart }
 import sge.math.{ Matrix4, Quaternion, Vector3 }
 import sge.math.collision.BoundingBox
-import sge.utils.{ DynamicArray, Nullable, Pool }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.Pool
 
 /** An instance of a {@link Model}, allows to specify global transform and modify the materials, as it has a copy of the model's materials. Multiple instances can be created from the same Model, all
   * sharing the meshes and textures of the Model. The Model owns the meshes and textures, to dispose of these, the Model has to be disposed. Therefor, the Model must outlive all its ModelInstances

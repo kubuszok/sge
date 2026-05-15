@@ -37,8 +37,9 @@ import scala.util.boundary
 import scala.util.boundary.break
 
 import sge.graphics.g3d.model.Animation
-import sge.math.MathUtils
-import sge.utils.{ Nullable, Pool, Seconds, SgeError }
+import lowlevel.math.MathUtils
+import lowlevel.Nullable
+import sge.utils.{ Pool, Seconds, SgeError }
 
 /** Class to control one or more {@link Animation}s on a {@link ModelInstance}. Use the {@link #setAnimation(String, int, float, AnimationListener)} method to change the current animation. Use the
   * {@link #animate(String, int, float, AnimationListener, float)} method to start an animation, optionally blending onto the current animation. Use the

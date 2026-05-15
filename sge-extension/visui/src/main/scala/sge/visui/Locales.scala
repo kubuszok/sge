@@ -19,7 +19,8 @@ package visui
 
 import java.util.Locale
 
-import sge.utils.{ I18NBundle, Nullable }
+import lowlevel.Nullable
+import sge.utils.I18NBundle
 import sge.visui.i18n.BundleText
 
 /** Manages VisUI's I18N bundles.

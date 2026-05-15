@@ -17,7 +17,7 @@ package assets
 import scala.reflect.ClassTag
 
 import sge.files.FileHandle
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Describes an asset to be loaded by its filename, type and AssetLoaderParameters. Instances of this are used in AssetLoadingTask to load the actual asset.
   * @author

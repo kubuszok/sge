@@ -24,7 +24,7 @@ package sge
 package net
 
 import java.net.{ InetSocketAddress, ServerSocket => JServerSocket }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Server socket implementation using java.net.ServerSocket.
   *

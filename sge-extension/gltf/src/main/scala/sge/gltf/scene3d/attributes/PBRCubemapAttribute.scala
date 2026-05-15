@@ -30,7 +30,7 @@ class PBRCubemapAttribute(
   def this(`type`: Long, cubemap: Cubemap) =
     this(`type`, {
            val td = TextureDescriptor[Cubemap]()
-           td.texture = sge.utils.Nullable(cubemap)
+           td.texture = lowlevel.Nullable(cubemap)
            td
          }
     )

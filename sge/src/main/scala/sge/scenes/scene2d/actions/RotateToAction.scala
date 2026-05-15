@@ -26,7 +26,7 @@ package scenes
 package scene2d
 package actions
 
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 
 /** Sets the actor's rotation from its current value to a specific value.
   * @author

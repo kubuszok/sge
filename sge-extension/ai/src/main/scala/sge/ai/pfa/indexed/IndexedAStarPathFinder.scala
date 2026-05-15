@@ -36,7 +36,7 @@ package pfa
 package indexed
 
 import sge.utils.BinaryHeap
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.utils.TimeUtils
 
 import scala.util.boundary, boundary.break

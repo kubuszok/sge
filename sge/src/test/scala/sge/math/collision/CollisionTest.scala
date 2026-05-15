@@ -2,6 +2,8 @@ package sge
 package math
 package collision
 
+import lowlevel.math.MathUtils
+
 class CollisionTest extends munit.FunSuite {
 
   test("boundingBox") {

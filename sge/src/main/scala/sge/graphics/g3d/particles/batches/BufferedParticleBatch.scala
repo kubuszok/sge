@@ -35,7 +35,7 @@ package batches
 import sge.graphics.Camera
 import sge.graphics.g3d.particles.ParticleSorter
 import sge.graphics.g3d.particles.renderers.ParticleControllerRenderData
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** Base class of all the batches requiring to buffer {@link ParticleControllerRenderData}
   * @author

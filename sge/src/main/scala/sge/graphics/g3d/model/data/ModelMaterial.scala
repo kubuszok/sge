@@ -30,7 +30,7 @@ package g3d
 package model
 package data
 
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 class ModelMaterial {
   var id: String = scala.compiletime.uninitialized

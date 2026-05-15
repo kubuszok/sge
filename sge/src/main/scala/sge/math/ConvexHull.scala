@@ -25,7 +25,8 @@
 package sge
 package math
 
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 /** Computes the convex hull of a set of points using the monotone chain convex hull algorithm (aka Andrew's algorithm).
   * @author

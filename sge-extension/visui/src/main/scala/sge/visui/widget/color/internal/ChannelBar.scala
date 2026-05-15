@@ -26,7 +26,7 @@ import sge.graphics.glutils.ShaderProgram
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener, Touchable }
 import sge.scenes.scene2d.utils.ChangeListener
 import sge.scenes.scene2d.utils.ChangeListener.ChangeEvent
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.Sizes
 
 /** Used to display channel color bars in color picker.

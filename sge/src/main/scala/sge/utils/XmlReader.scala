@@ -25,6 +25,10 @@
 package sge
 package utils
 
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import lowlevel.util.ObjectMap
+
 import java.io.{ InputStream, InputStreamReader, Reader }
 
 import scala.util.boundary

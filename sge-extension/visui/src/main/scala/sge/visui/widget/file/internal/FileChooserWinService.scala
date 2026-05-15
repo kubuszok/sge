@@ -27,7 +27,8 @@ import java.util.concurrent.{ ExecutorService, Executors }
 
 import scala.collection.mutable
 
-import sge.utils.{ DynamicArray, Nullable, ObjectMap }
+import lowlevel.Nullable
+import lowlevel.util.{ DynamicArray, ObjectMap }
 import sge.visui.util.OsUtils
 
 /** Used to get system drive name. Only used on Windows.

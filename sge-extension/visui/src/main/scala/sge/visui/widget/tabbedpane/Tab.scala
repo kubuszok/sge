@@ -20,7 +20,7 @@ package widget
 package tabbedpane
 
 import sge.scenes.scene2d.ui.Table
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Base class for tabs used in TabbedPane. Tab can be savable, meaning that it can be saved and will display warning dialog 'do you want to save changes' before closing. Tab can be also closeable by
   * user meaning that user can close this tab manually from tabbed pane (using 'X' button or by pressing mouse wheel on tab).

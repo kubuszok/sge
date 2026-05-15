@@ -21,7 +21,8 @@ import sge.graphics.Camera
 import sge.graphics.g3d.Model
 import sge.graphics.g3d.environment.BaseLight
 import sge.graphics.g3d.model.Node
-import sge.utils.{ Nullable, ObjectMap }
+import lowlevel.Nullable
+import lowlevel.util.ObjectMap
 
 class SceneModel extends AutoCloseable {
 

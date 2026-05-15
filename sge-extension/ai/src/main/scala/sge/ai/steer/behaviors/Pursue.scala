@@ -32,7 +32,7 @@ package steer
 package behaviors
 
 import sge.math.Vector
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** `Pursue` behavior produces a force that steers the agent towards the evader (the target). Actually it predicts where an agent will be in time `t` and seeks towards that point to intercept it.
   *

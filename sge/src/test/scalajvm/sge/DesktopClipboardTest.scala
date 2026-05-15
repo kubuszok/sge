@@ -5,7 +5,7 @@
  */
 package sge
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class DesktopClipboardTest extends munit.FunSuite {
 

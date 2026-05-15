@@ -15,7 +15,8 @@ package sge
 package textra
 package effects
 
-import sge.math.{ Interpolation, MathUtils }
+import lowlevel.math.MathUtils
+import sge.math.Interpolation
 import scala.collection.mutable.HashMap
 
 /** Hangs the text in midair and suddenly drops it. Doesn't repeat itself. */

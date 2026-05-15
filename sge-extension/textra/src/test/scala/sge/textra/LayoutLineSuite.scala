@@ -1,7 +1,7 @@
 package sge
 package textra
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class LayoutLineSuite extends munit.FunSuite {
 

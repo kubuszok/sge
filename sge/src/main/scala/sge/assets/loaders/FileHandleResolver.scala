@@ -19,7 +19,7 @@ package assets
 package loaders
 
 import sge.files.{ FileHandle, FileType }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Interface for classes the can map a file name to a {@link FileHandle} . Used to allow the {@link AssetManager} to load resources from anywhere or implement caching strategies.
   * @author

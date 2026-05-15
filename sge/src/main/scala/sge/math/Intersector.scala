@@ -33,9 +33,12 @@
 package sge
 package math
 
+import lowlevel.math.MathUtils
+
 import sge.math.Plane.PlaneSide
 import sge.math.collision.{ BoundingBox, OrientedBoundingBox, Ray }
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 import scala.util.boundary
 import scala.util.boundary.break
 

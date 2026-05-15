@@ -8,6 +8,8 @@
 package sge
 package utils
 
+import lowlevel.util.DynamicArray
+
 class FlushablePoolTest extends munit.FunSuite {
 
   /** Test implementation of a flushable pool. Exposes `obtained` via a public accessor since the trait declares it as `protected`.

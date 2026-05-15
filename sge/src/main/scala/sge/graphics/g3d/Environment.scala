@@ -36,7 +36,9 @@ import sge.graphics.g3d.environment.DirectionalLight
 import sge.graphics.g3d.environment.PointLight
 import sge.graphics.g3d.environment.ShadowMap
 import sge.graphics.g3d.environment.SpotLight
-import sge.utils.{ DynamicArray, Nullable, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.SgeError
 
 class Environment extends Attributes {
 

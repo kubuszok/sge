@@ -31,7 +31,8 @@ import sge.math.{ Rectangle, Vector2 }
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener, Touchable }
 import sge.scenes.scene2d.ui.{ Button, ButtonGroup, Cell, Image }
 import sge.scenes.scene2d.utils.{ ChangeListener, Drawable, UIUtils }
-import sge.utils.{ Nullable, Scaling }
+import lowlevel.Nullable
+import sge.utils.Scaling
 import sge.visui.{ Locales, Sizes, VisUI }
 import sge.visui.i18n.BundleText
 import sge.visui.layout.{ DragPane, FlowGroup }

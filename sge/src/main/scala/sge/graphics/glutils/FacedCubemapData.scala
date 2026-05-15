@@ -32,7 +32,8 @@ import sge.graphics.Pixmap.Blending
 import sge.graphics.Pixmap.Format
 import sge.graphics.{ CubemapData, GL20, Pixmap, TextureData }
 import sge.graphics.TextureData.TextureDataType
-import sge.utils.{ Nullable, SgeError }
+import lowlevel.Nullable
+import sge.utils.SgeError
 import sge.Sge
 
 /** A FacedCubemapData holds a cubemap data definition based on a {@link TextureData} per face.

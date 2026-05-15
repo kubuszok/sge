@@ -18,7 +18,8 @@ package screen
 import scala.collection.mutable.ArrayBuffer
 
 import sge.graphics.Color
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** A basic screen for use with a {@link ScreenManager}. To render it, the screen has to be {@linkplain ScreenManager#pushScreen pushed}.
   *

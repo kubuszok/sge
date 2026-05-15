@@ -23,7 +23,7 @@ package sge
 package textra
 
 import sge.graphics.Color
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A button with a child {@link TypingLabel} to display text.
   */

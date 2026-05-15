@@ -35,7 +35,8 @@ import sge.gltf.data.texture.{ GLTFImage, GLTFSampler, GLTFTexture }
 import sge.gltf.loaders.shared.{ GLTFLoaderBase, GLTFTypes, SceneAssetLoaderParameters }
 import sge.gltf.loaders.shared.texture.{ ImageResolver, TextureResolver }
 import sge.gltf.scene3d.scene.SceneAsset
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 class GLTFAssetLoader(resolver: FileHandleResolver)(using sge: Sge) extends AsynchronousAssetLoader[SceneAsset, SceneAssetLoaderParameters](resolver) {
 

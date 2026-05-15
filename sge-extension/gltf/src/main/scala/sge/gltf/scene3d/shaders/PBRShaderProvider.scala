@@ -28,7 +28,8 @@ import sge.graphics.g3d.attributes.{ ColorAttribute, TextureAttribute }
 import sge.graphics.g3d.shaders.{ DefaultShader, DepthShader }
 import sge.graphics.g3d.utils.{ DefaultShaderProvider, DepthShaderProvider }
 import sge.graphics.glutils.ShaderProgram
-import sge.utils.{ Nullable, SgeError }
+import lowlevel.Nullable
+import sge.utils.SgeError
 
 import scala.language.implicitConversions
 

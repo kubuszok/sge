@@ -32,7 +32,8 @@ package fma
 package patterns
 
 import sge.ai.utils.Location
-import sge.math.{ MathUtils, Vector }
+import lowlevel.math.MathUtils
+import sge.math.Vector
 
 /** The offensive circle posts members around the circumference of a circle, so their fronts are to the center of the circle. The circle can consist of any number of members. Although a huge number of
   * members might look silly, this implementation doesn't put any fixed limit.

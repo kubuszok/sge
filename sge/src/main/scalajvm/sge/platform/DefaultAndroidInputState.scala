@@ -12,7 +12,7 @@
 package sge
 package platform
 
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** Concrete implementation of [[AndroidInputState]] with fixed-size per-pointer arrays and a ring-buffer event queue.
   */

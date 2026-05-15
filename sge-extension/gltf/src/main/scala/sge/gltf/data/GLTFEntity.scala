@@ -15,7 +15,7 @@ package sge
 package gltf
 package data
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 abstract class GLTFEntity extends GLTFObject {
   var name: Nullable[String] = Nullable.empty

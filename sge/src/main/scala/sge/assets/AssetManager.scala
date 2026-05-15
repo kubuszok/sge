@@ -43,7 +43,9 @@ import sge.assets.loaders.{
 }
 import sge.graphics.g2d.PolygonRegionLoader
 import sge.graphics.g3d.loader.{ G3dBinaryModelLoader, G3dModelLoader, ObjLoader }
-import sge.utils.{ DynamicArray, Nullable, ObjectMap, ObjectSet, SgeError, TimeUtils }
+import lowlevel.Nullable
+import lowlevel.util.{ DynamicArray, ObjectMap, ObjectSet }
+import sge.utils.{ SgeError, TimeUtils }
 
 /** Loads and stores assets like textures, bitmapfonts, tile maps, sounds, music and so on.
   * @author

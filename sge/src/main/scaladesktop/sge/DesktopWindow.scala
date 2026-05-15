@@ -17,7 +17,7 @@
 package sge
 
 import sge.platform.{ GlOps, WindowingOps }
-import sge.utils.Nullable
+import lowlevel.Nullable
 import scala.collection.mutable.ArrayBuffer
 
 /** Represents a desktop window managed by the windowing system (SDL3/GLFW).

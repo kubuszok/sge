@@ -26,8 +26,9 @@ package graphics
 package glutils
 
 import sge.graphics.{ Color, PrimitiveMode }
-import sge.math.{ MathUtils, Matrix4, Vector2, Vector3 }
-import sge.utils.Nullable
+import lowlevel.math.MathUtils
+import sge.math.{ Matrix4, Vector2, Vector3 }
+import lowlevel.Nullable
 import sge.Sge
 import scala.annotation.publicInBinary
 import scala.util.boundary

@@ -37,7 +37,9 @@ import scala.util.boundary.break
 import sge.graphics.{ Camera, Mesh, PrimitiveMode, VertexAttributes }
 import sge.graphics.g3d.model.MeshPart
 import sge.graphics.g3d.utils.{ MeshBuilder, RenderableSorter }
-import sge.utils.{ DynamicArray, Nullable, Pool, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.{ Pool, SgeError }
 
 /** ModelCache tries to combine multiple render calls into a single render call by merging them where possible. Can be used for multiple type of models (e.g. varying vertex attributes or materials),
   * the ModelCache will combine where possible. Can be used dynamically (e.g. every frame) or statically (e.g. to combine part of scenery). Be aware that any combined vertices are directly

@@ -15,7 +15,8 @@
  */
 package sge
 
-import sge.utils.{ Clipboard, Nullable }
+import lowlevel.Nullable
+import sge.utils.Clipboard
 import org.scalajs.dom
 
 /** Browser clipboard implementation. Reading from the system clipboard is not supported due to browser security restrictions — paste only works within the application. Writing uses the Navigator

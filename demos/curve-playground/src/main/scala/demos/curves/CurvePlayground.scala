@@ -14,7 +14,8 @@ import sge.math.{
   Bezier, Bresenham2, CatmullRomSpline, ConvexHull, DelaunayTriangulator,
   EarClippingTriangulator, GeometryUtils, Interpolation, MathUtils, Vector2
 }
-import sge.utils.{DynamicArray, ScreenUtils}
+import lowlevel.util.DynamicArray
+import sge.utils.ScreenUtils
 import sge.utils.viewport.FitViewport
 import demos.shared.DemoScene
 

@@ -39,7 +39,8 @@ import scala.util.boundary
 import scala.util.boundary.break
 
 import sge.graphics.GL20
-import sge.utils.{ BufferUtils, Nullable, SgeError }
+import lowlevel.Nullable
+import sge.utils.{ BufferUtils, SgeError }
 
 /** Class that you assign a range of texture units and binds textures for you within that range. It does some basic usage tracking to avoid unnecessary bind calls.
   * @author

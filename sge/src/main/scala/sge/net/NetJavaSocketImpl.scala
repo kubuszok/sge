@@ -25,7 +25,7 @@ package net
 
 import java.net.{ InetSocketAddress, Socket => JSocket }
 import java.io.{ InputStream, OutputStream }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Socket implementation using java.net.Socket.
   *

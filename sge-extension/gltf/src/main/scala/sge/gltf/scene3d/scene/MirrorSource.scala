@@ -25,7 +25,7 @@ import sge.graphics.{ Camera, ClearMask, Pixmap, Texture }
 import sge.graphics.g3d.Environment
 import sge.graphics.glutils.FrameBuffer
 import sge.math.{ Plane, Vector3 }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class MirrorSource(using Sge) extends AutoCloseable {
 

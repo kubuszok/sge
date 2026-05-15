@@ -27,6 +27,8 @@
 package sge
 package math
 
+import lowlevel.math.MathUtils
+
 /** A convenient 2D circle class.
   * @author
   *   mzechner (original implementation)

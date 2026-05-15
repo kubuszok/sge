@@ -22,7 +22,8 @@ import sge.graphics.Texture
 import sge.graphics.g2d.{ NinePatch, TextureRegion }
 import sge.scenes.scene2d.ui.Image
 import sge.scenes.scene2d.utils.{ Drawable, NinePatchDrawable, TextureRegionDrawable }
-import sge.utils.{ Align, Nullable, Scaling }
+import lowlevel.Nullable
+import sge.utils.{ Align, Scaling }
 
 /** Compatible with [[Image]]. Does not provide additional features.
   * @author

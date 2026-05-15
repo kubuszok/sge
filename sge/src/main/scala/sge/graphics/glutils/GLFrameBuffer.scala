@@ -26,6 +26,8 @@ package sge
 package graphics
 package glutils
 
+import sge.utils.createRef
+
 import java.nio.{ Buffer, ByteBuffer, ByteOrder, IntBuffer }
 import scala.collection.mutable
 
@@ -36,7 +38,9 @@ import sge.graphics.GL30
 import sge.graphics.GLTexture
 import sge.graphics.Pixmap
 import sge.Sge
-import sge.utils.{ BufferUtils, DynamicArray, MkArray, Nullable }
+import lowlevel.{ MkArray, Nullable }
+import lowlevel.util.DynamicArray
+import sge.utils.BufferUtils
 
 import scala.annotation.publicInBinary
 
@@ -54,7 +58,7 @@ import scala.annotation.publicInBinary
 abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
 
   /** the color buffer texture * */
-  protected val _textureAttachments: DynamicArray[T] = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
+  protected val _textureAttachments: DynamicArray[T] = DynamicArray.createRef[T]()
 
   /** the framebuffer handle * */
   protected var framebufferHandle: Int = scala.compiletime.uninitialized
@@ -612,7 +616,7 @@ object GLFrameBuffer {
     Sge().graphics.gl20.glBindFramebuffer(GL20.GL_FRAMEBUFFER, defaultFramebufferHandle)
 
   private def addManagedFrameBuffer(app: Application, frameBuffer: GLFrameBuffer[?]): Unit = {
-    val managedResources = buffers.getOrElse(app, DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[GLFrameBuffer[?]]], 16, true))
+    val managedResources = buffers.getOrElse(app, DynamicArray.createRef[GLFrameBuffer[?]]())
     managedResources.add(frameBuffer)
     buffers.put(app, managedResources)
   }

@@ -26,7 +26,8 @@ package graphics
 package g3d
 package utils
 
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 /** Responsible for sorting [[Renderable]] lists by whatever criteria (material, distance to camera, etc.)
   * @author

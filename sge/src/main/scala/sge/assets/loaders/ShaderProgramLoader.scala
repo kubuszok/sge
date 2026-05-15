@@ -18,7 +18,8 @@ package loaders
 
 import sge.files.FileHandle
 import sge.graphics.glutils.ShaderProgram
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 /** {@link AssetLoader} for {@link ShaderProgram} instances loaded from text files. If the file suffix is ".vert", it is assumed to be a vertex shader, and a fragment shader is found using the same
   * file name with a ".frag" suffix. And vice versa if the file suffix is ".frag". These default suffixes can be changed in the ShaderProgramLoader constructor. <p> For all other file suffixes, the

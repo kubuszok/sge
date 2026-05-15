@@ -29,7 +29,7 @@ import sge.graphics.VertexAttributes
 import sge.graphics.VertexAttribute
 
 import sge.utils.BufferUtils
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.utils.SgeError
 import sge.Sge
 

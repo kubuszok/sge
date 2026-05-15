@@ -32,7 +32,7 @@ package steer
 package behaviors
 
 import sge.math.{ Epsilon, Vector }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 import scala.compiletime.uninitialized
 

@@ -32,7 +32,7 @@ package btree
 package decorator
 
 import sge.ai.btree.utils.BehaviorTreeLibraryManager
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** An `Include` decorator grafts a subtree. When the subtree is grafted depends on the value of the `lazy` attribute: at clone-time if is `false`, at run-time if is `true`.
   *

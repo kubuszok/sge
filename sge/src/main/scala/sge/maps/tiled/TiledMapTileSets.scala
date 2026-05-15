@@ -29,7 +29,8 @@ package tiled
 
 import scala.util.boundary
 import scala.util.boundary.break
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 /** @brief Collection of {@link TiledMapTileSet} */
 class TiledMapTileSets extends Iterable[TiledMapTileSet] {

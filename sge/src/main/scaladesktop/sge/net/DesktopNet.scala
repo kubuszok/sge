@@ -30,7 +30,7 @@ class DesktopNet(app: Application) extends sge.Net {
   override val httpClient: SgeHttpClient = SgeHttpClient()
 
   override def newServerSocket(protocol: Net.Protocol, hostname: String, port: Int, hints: ServerSocketHints): ServerSocket =
-    NetJavaServerSocketImpl(protocol, sge.utils.Nullable(hostname), port, hints)
+    NetJavaServerSocketImpl(protocol, lowlevel.Nullable(hostname), port, hints)
 
   override def newServerSocket(protocol: Net.Protocol, port: Int, hints: ServerSocketHints): ServerSocket =
     NetJavaServerSocketImpl(protocol, port, hints)

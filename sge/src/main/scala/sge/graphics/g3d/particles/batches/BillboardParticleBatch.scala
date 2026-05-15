@@ -66,11 +66,11 @@ import sge.graphics.g3d.particles.ResourceData
 import sge.graphics.g3d.particles.renderers.BillboardControllerRenderData
 import sge.graphics.g3d.shaders.DefaultShader
 import sge.graphics.glutils.ShaderProgram
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.math.Matrix3
 import sge.math.Vector3
-import sge.utils.DynamicArray
-import sge.utils.Nullable
+import lowlevel.util.DynamicArray
+import lowlevel.Nullable
 import sge.utils.Pool
 
 /** This class is used to render billboard particles.

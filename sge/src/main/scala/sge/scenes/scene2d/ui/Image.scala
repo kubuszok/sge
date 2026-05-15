@@ -29,7 +29,8 @@ package ui
 import sge.graphics.g2d.{ Batch, NinePatch, TextureRegion }
 import sge.graphics.Texture
 import sge.scenes.scene2d.utils.{ Drawable, NinePatchDrawable, TextureRegionDrawable, TransformDrawable }
-import sge.utils.{ Align, Nullable, Scaling }
+import lowlevel.Nullable
+import sge.utils.{ Align, Scaling }
 
 /** Displays a {@link Drawable}, scaled various way within the widgets bounds. The preferred size is the min size of the drawable. Only when using a {@link TextureRegionDrawable} will the actor's
   * scale, rotation, and origin be used when drawing.

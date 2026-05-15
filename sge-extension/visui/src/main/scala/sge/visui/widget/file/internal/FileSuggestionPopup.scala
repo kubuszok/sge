@@ -25,7 +25,7 @@ import scala.language.implicitConversions
 import sge.files.FileHandle
 import sge.scenes.scene2d.{ Actor, Stage }
 import sge.scenes.scene2d.utils.ChangeListener
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 import sge.visui.widget.VisTextField
 
 /** @author Kotcrab */

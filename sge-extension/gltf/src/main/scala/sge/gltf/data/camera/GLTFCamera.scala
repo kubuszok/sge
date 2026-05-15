@@ -16,7 +16,7 @@ package gltf
 package data
 package camera
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFCamera extends GLTFEntity {
   var `type`:       Nullable[String]           = Nullable.empty

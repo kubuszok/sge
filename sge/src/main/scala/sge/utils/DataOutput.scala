@@ -24,6 +24,8 @@
 package sge
 package utils
 
+import lowlevel.Nullable
+
 import java.io.{ DataOutputStream, IOException, OutputStream }
 import scala.util.boundary
 

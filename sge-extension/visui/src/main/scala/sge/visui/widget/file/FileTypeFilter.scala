@@ -20,7 +20,7 @@ package widget
 package file
 
 import sge.files.FileHandle
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** FileTypeFilter is used to limit [[FileChooser]] selection only to specified set of extensions. User can use file chooser's select box to select that extension or all types (if it is allowed).
   *

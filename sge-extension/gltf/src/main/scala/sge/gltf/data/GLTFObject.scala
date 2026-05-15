@@ -15,7 +15,7 @@ package sge
 package gltf
 package data
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 abstract class GLTFObject {
   var extensions: Nullable[GLTFExtensions] = Nullable.empty

@@ -16,7 +16,7 @@ package sge
 package files
 
 import java.io.File
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A [[FileHandle]] backed by `java.io.File` for desktop and headless environments.
   *

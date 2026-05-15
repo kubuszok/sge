@@ -20,7 +20,7 @@ package widget
 
 import sge.scenes.scene2d.Actor
 import sge.scenes.scene2d.ui.ScrollPane
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Compatible with [[ScrollPane]]. Does not provide additional features.
   * @author

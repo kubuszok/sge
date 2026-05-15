@@ -26,7 +26,9 @@
 package sge
 package math
 
-import sge.utils.DynamicArray
+import lowlevel.math.MathUtils
+
+import lowlevel.util.DynamicArray
 
 /** Implementation of the Bezier curve.
   * @author

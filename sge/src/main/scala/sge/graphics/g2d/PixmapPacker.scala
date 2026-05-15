@@ -42,7 +42,9 @@ import sge.graphics.Texture
 import sge.graphics.g2d.{ TextureAtlas, TextureRegion }
 import sge.graphics.Texture.TextureFilter
 import sge.graphics.glutils.PixmapTextureData
-import sge.utils.{ DynamicArray, Nullable, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.SgeError
 import scala.collection.mutable.Map as MutableMap
 import scala.compiletime.uninitialized
 import scala.language.implicitConversions

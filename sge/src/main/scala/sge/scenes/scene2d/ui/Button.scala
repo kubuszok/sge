@@ -30,7 +30,7 @@ package ui
 
 import sge.graphics.g2d.Batch
 import sge.scenes.scene2d.utils.{ ChangeListener, ClickListener, Disableable, Drawable }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A button is a {@link Table} with a checked state and additional {@link ButtonStyle style} fields for pressed, unpressed, and checked. Each time a button is clicked, the checked state is toggled.
   * Being a table, a button can contain any other actors.<br> <br> The button's padding is set to the background drawable's padding when the background changes, overwriting any padding set manually.

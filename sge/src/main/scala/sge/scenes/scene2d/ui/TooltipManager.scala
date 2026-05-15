@@ -28,7 +28,9 @@ package ui
 
 import sge.math.Interpolation
 import sge.scenes.scene2d.actions.Actions
-import sge.utils.{ DynamicArray, Nullable, Seconds, Timer }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.{ Seconds, Timer }
 
 /** Keeps track of an application's tooltips.
   * @author

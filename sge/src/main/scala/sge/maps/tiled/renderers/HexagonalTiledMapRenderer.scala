@@ -37,7 +37,7 @@ package renderers
 import sge.Sge
 import sge.graphics.g2d.{ Batch, SpriteBatch }
 import sge.maps.tiled.tiles.AnimatedTiledMapTile
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, ownsBatch: Boolean)(using Sge) extends BatchTiledMapRenderer(map, unitScale, batch, ownsBatch) {
 

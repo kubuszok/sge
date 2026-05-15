@@ -2,7 +2,7 @@ package sge
 package ai
 package utils
 
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 
 class ArithmeticUtilsSuite extends munit.FunSuite {
 

@@ -32,7 +32,7 @@ package steer
 
 import sge.ai.utils.Location
 import sge.math.Vector
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A `SteeringBehavior` calculates the linear and/or angular accelerations to be applied to its owner.
   *

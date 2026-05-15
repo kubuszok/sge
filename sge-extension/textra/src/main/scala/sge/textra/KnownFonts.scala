@@ -40,7 +40,7 @@ import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.graphics.g2d.{ BitmapFont, TextureAtlas }
 import sge.graphics.glutils.ShaderProgram
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Preconfigured static Font instances, with any important metric adjustments already applied. This uses a singleton to ensure each font exists at most once.
   *

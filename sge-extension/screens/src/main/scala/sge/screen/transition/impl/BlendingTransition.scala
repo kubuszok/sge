@@ -19,7 +19,8 @@ package impl
 
 import sge.graphics.g2d.{ SpriteBatch, TextureRegion }
 import sge.math.Interpolation
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** A transition that blends two screens together over a certain time interval. Can be reused.
   *

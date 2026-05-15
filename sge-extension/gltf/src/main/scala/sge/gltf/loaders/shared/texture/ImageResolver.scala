@@ -21,7 +21,7 @@ import scala.collection.mutable.ArrayBuffer
 import sge.graphics.Pixmap
 import sge.gltf.data.texture.GLTFImage
 import sge.gltf.loaders.shared.data.DataFileResolver
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class ImageResolver(private val dataFileResolver: DataFileResolver) extends AutoCloseable {
 

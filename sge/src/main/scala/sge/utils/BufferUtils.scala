@@ -24,6 +24,8 @@
 package sge
 package utils
 
+import lowlevel.util.DynamicArray
+
 import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder

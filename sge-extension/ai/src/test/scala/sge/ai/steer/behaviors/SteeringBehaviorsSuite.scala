@@ -7,7 +7,7 @@ import sge.ai.DefaultTimepiece
 import sge.ai.Timepiece
 import sge.ai.steer.{ SimpleLocation, SimpleSteerable }
 import sge.math.Vector2
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class SteeringBehaviorsSuite extends munit.FunSuite {
 

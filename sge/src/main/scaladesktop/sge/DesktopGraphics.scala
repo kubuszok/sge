@@ -20,7 +20,8 @@ import sge.graphics.{ Cursor, GL20, GL30, GL31, GL32, Pixmap }
 import sge.graphics.Cursor.SystemCursor
 import sge.graphics.glutils.{ GLVersion, HdpiMode }
 import sge.platform.WindowingOps
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** Desktop implementation of [[Graphics]]. Manages the GL context, frame timing, display mode queries, and cursor.
   *

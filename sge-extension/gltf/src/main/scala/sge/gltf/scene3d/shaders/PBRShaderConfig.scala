@@ -18,7 +18,7 @@ package scene3d
 package shaders
 
 import sge.graphics.g3d.shaders.DefaultShader
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class PBRShaderConfig extends DefaultShader.Config {
 

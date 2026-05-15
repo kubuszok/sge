@@ -25,7 +25,7 @@ package sge
 package utils
 
 import java.io.{ DataInputStream, IOException, InputStream }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Extends {@link DataInputStream} with additional convenience methods.
   * @author

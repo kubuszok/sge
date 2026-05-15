@@ -18,7 +18,7 @@ package transition
 package impl
 
 import sge.math.Interpolation
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A transition that is using shader code conforming to the ''GL Transition Specification v1''. This allows using the shaders provided at [[https://gl-transitions.com/gallery gl-transitions.com]]
   * without having to adapt their code.

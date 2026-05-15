@@ -31,7 +31,7 @@ package ai
 package btree
 package decorator
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** An `Invert` decorator will succeed if the wrapped task fails and will fail if the wrapped task succeeds.
   *

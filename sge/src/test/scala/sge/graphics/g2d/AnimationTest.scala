@@ -6,7 +6,7 @@ package sge
 package graphics
 package g2d
 
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 class AnimationTest extends munit.FunSuite {
 

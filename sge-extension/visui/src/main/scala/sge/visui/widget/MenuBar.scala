@@ -20,7 +20,8 @@ package widget
 
 import sge.scenes.scene2d.ui.Table
 import sge.scenes.scene2d.utils.Drawable
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 import sge.visui.VisUI
 
 /** Bar with expandable menus available after pressing button, usually displayed on top of the stage.

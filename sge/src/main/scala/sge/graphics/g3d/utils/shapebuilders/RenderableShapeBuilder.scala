@@ -31,7 +31,9 @@ import sge.graphics.{ Color, PrimitiveMode }
 import sge.graphics.VertexAttributes.Usage
 import sge.graphics.g3d.{ Renderable, RenderableProvider }
 import sge.graphics.g3d.utils.MeshPartBuilder
-import sge.utils.{ DynamicArray, Nullable, Pool }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.Pool
 
 /** RenderableShapeBuilder builds various properties of a renderable.
   * @author

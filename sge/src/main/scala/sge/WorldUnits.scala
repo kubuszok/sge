@@ -27,7 +27,7 @@ object WorldUnits {
   inline def apply(value: Float): WorldUnits = value
   val zero:                       WorldUnits = 0f
 
-  given utils.MkArray[WorldUnits] = utils.MkArray.mkFloat.asInstanceOf[utils.MkArray[WorldUnits]]
+  given lowlevel.MkArray[WorldUnits] = lowlevel.MkArray.mkFloat.asInstanceOf[lowlevel.MkArray[WorldUnits]]
 
   extension (wu: WorldUnits) {
     inline def toFloat:  Float  = wu

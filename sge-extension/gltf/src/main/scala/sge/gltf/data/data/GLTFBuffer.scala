@@ -16,7 +16,7 @@ package gltf
 package data
 package data
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFBuffer extends GLTFEntity {
   // "uri": "data:application/octet-stream;base64,uoV6P5Ff/z2imSc+KG

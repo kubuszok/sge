@@ -26,7 +26,7 @@ package sge
 package graphics
 package g3d
 
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** Returns a list of [[Renderable]] instances to be rendered by a ModelBatch.
   * @author

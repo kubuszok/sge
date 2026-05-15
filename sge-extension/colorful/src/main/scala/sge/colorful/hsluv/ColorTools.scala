@@ -23,7 +23,7 @@ import scala.util.boundary.break
 
 import sge.colorful.{ FloatColors, TrigTools }
 import sge.graphics.Color
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 
 /** Contains code for manipulating colors as `int` and packed `float` values in the HSLuv color space. See [[https://www.hsluv.org/ HSLuv's website]] for more info.
   *

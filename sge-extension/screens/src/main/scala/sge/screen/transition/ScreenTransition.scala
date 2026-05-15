@@ -18,7 +18,8 @@ package transition
 
 import sge.graphics.Color
 import sge.graphics.g2d.TextureRegion
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** A transition effect between two screens for use with a {@link ScreenManager}.
   *

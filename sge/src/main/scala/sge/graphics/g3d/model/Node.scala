@@ -40,7 +40,9 @@ import scala.util.boundary.break
 
 import sge.math.{ Matrix4, Quaternion, Vector3 }
 import sge.math.collision.BoundingBox
-import sge.utils.{ DynamicArray, Nullable, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.SgeError
 
 /** A node is part of a hierarchy of Nodes in a {@link Model}. A Node encodes a transform relative to its parents. A Node can have child nodes. Optionally a node can specify a {@link MeshPart} and a
   * {@link Material} to be applied to the mesh part.

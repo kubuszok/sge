@@ -23,7 +23,8 @@ import scala.scalajs.js
 import sge.graphics.{ Cursor, GL20, GL30, GL31, GL32, Pixmap, WebGL20 }
 import sge.graphics.Cursor.SystemCursor
 import sge.graphics.glutils.GLVersion
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** Browser Graphics implementation using an HTML Canvas and WebGL.
   *

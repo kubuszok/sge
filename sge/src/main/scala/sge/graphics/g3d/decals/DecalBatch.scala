@@ -42,8 +42,8 @@ import sge.graphics.{ Mesh, PrimitiveMode }
 import sge.graphics.VertexAttribute
 import sge.graphics.VertexAttributes
 import sge.graphics.glutils.ShaderProgram
-import sge.utils.DynamicArray
-import sge.utils.Nullable
+import lowlevel.util.DynamicArray
+import lowlevel.Nullable
 import sge.utils.Pool
 
 /** <p> Renderer for {@link Decal} objects. </p> <p> New objects are added using {@link DecalBatch#add(Decal)}, there is no limit on how many decals can be added.<br/> Once all the decals have been

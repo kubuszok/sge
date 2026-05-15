@@ -26,7 +26,7 @@ package graphics
 package g3d
 package decals
 
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** Handles a single group's pre and post render arrangements. Can be plugged into {@link PluggableGroupStrategy} to build modular {@link GroupStrategy GroupStrategies}.
   */

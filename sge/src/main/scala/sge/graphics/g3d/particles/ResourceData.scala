@@ -36,10 +36,10 @@ import scala.reflect.ClassTag
 
 import sge.assets.AssetDescriptor
 import sge.assets.AssetManager
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 import sge.utils.Json
-import sge.utils.Nullable
-import sge.utils.ObjectMap
+import lowlevel.Nullable
+import lowlevel.util.ObjectMap
 import sge.utils.SgeError
 
 /** This class handles the assets and configurations required by a given resource when de/serialized. It's handy when a given object or one of its members requires some assets to be loaded to work

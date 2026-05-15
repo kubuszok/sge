@@ -27,7 +27,8 @@ package glutils
 
 import sge.graphics.VertexAttributes
 import sge.graphics.VertexAttribute
-import sge.utils.{ BufferUtils, Nullable, SgeError }
+import lowlevel.Nullable
+import sge.utils.{ BufferUtils, SgeError }
 import sge.Sge
 
 import java.nio.Buffer

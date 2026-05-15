@@ -22,7 +22,7 @@
  */
 package sge
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** This interface encapsulates the creation and management of audio resources. It allows you to get direct access to the audio hardware via the {@link AudioDevice} and {@link AudioRecorder}
   * interfaces, create sound effects via the {@link Sound} interface and play music streams via the {@link Music} interface.

@@ -18,7 +18,8 @@ package sge
 package colorful
 package hsluv
 
-import sge.math.{ Interpolation, MathUtils }
+import lowlevel.math.MathUtils
+import sge.math.Interpolation
 
 import scala.collection.mutable.ArrayBuffer
 

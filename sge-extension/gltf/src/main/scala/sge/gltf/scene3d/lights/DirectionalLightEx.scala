@@ -20,7 +20,7 @@ package lights
 import sge.graphics.Color
 import sge.graphics.g3d.environment.DirectionalLight
 import sge.math.Vector3
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class DirectionalLightEx extends DirectionalLight {
 

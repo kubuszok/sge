@@ -5,6 +5,7 @@
 package sge
 package utils
 
+import lowlevel.Nullable
 import java.util.Locale
 
 private[utils] object TextFormatterPlatform {

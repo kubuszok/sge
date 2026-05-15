@@ -8,7 +8,7 @@ import sge.gltf.data.data.GLTFAccessor
 import sge.gltf.loaders.exceptions.GLTFIllegalException
 import sge.gltf.loaders.shared.animation.Interpolation
 import sge.math.{ Quaternion, Vector3 }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFTypesSuite extends munit.FunSuite {
 

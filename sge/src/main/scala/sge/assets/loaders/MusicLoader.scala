@@ -18,7 +18,9 @@ package loaders
 
 import sge.files.FileHandle
 import sge.audio.Music
-import sge.utils.{ DynamicArray, Nullable, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.SgeError
 
 /** {@link AssetLoader} for {@link Music} instances. The Music instance is loaded synchronously.
   * @author

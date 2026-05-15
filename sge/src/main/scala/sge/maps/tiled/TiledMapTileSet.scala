@@ -29,7 +29,7 @@ package tiled
 
 import scala.collection.mutable
 import sge.maps.MapProperties
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** @brief Set of {@link TiledMapTile} instances used to compose a TiledMapLayer */
 class TiledMapTileSet extends Iterable[TiledMapTile] {

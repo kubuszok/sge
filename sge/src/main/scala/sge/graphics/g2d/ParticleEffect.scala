@@ -37,7 +37,9 @@ import sge.graphics.Texture
 import sge.math.collision.BoundingBox
 import sge.graphics.g2d.Sprite
 import sge.graphics.g2d.Batch
-import sge.utils.{ DynamicArray, Nullable, Seconds, SgeError, StreamUtils }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.{ Seconds, SgeError, StreamUtils }
 
 import scala.language.implicitConversions
 import scala.util.boundary

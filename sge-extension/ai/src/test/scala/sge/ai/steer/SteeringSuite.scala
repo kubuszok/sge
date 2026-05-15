@@ -5,7 +5,7 @@ package steer
 import sge.ai.steer.behaviors.{ Arrive, Flee, Seek }
 import sge.ai.utils.Location
 import sge.math.Vector2
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A simple 2D steerable implementation for testing steering behaviors. */
 class SimpleSteerable(

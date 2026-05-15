@@ -27,7 +27,8 @@ package graphics
 package g2d
 
 import sge.math.*
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 /** Renders polygon filled with a repeating TextureRegion with specified density Without causing an additional flush or render call
   *

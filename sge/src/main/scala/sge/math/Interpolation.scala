@@ -30,6 +30,8 @@
 package sge
 package math
 
+import lowlevel.math.MathUtils
+
 /** Takes a linear value in the range of 0-1 and outputs a (usually) non-linear, interpolated value.
   * @author
   *   Nathan Sweet (original implementation)

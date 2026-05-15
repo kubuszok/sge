@@ -19,7 +19,8 @@ package visui
 
 import sge.files.FileHandle
 import sge.scenes.scene2d.ui.Skin
-import sge.utils.{ Align, Log, Nullable }
+import lowlevel.Nullable
+import sge.utils.{ Align, Log }
 
 /** Allows to easily load VisUI skin and change default title alignment and I18N bundles. Contains static field with VisUI version.
   * @author

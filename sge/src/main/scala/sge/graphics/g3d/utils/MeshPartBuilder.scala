@@ -37,7 +37,8 @@ import sge.graphics.{ Color, Mesh, PrimitiveMode, VertexAttributes }
 import sge.graphics.g2d.TextureRegion
 import sge.graphics.g3d.model.MeshPart
 import sge.math.{ Matrix4, Vector2, Vector3 }
-import sge.utils.{ Nullable, Pool }
+import lowlevel.Nullable
+import sge.utils.Pool
 
 trait MeshPartBuilder {
 

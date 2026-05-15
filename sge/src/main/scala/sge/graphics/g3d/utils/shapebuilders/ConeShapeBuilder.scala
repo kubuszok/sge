@@ -27,8 +27,8 @@ package utils
 package shapebuilders
 
 import sge.graphics.g3d.utils.MeshPartBuilder
-import sge.math.MathUtils
-import sge.utils.Nullable
+import lowlevel.math.MathUtils
+import lowlevel.Nullable
 
 /** Helper class with static methods to build cone shapes using {@link MeshPartBuilder}.
   * @author

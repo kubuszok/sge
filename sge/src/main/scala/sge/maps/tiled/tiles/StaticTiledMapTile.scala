@@ -32,7 +32,7 @@ package tiles
 
 import sge.graphics.g2d.TextureRegion
 import sge.maps.{ MapObjects, MapProperties }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** @brief Represents a non changing {@link TiledMapTile} (can be cached) */
 class StaticTiledMapTile(private var _textureRegion: TextureRegion) extends TiledMapTile {

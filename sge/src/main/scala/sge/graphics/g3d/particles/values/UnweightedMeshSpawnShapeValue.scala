@@ -33,8 +33,10 @@ package values
 
 import sge.graphics.{ Mesh, VertexAttributes }
 import sge.graphics.g3d.Model
-import sge.math.{ MathUtils, Vector3 }
-import sge.utils.{ Nullable, SgeError }
+import lowlevel.math.MathUtils
+import sge.math.Vector3
+import lowlevel.Nullable
+import sge.utils.SgeError
 
 /** Encapsulate the formulas to spawn a particle on a mesh shape.
   * @author

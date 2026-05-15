@@ -17,7 +17,7 @@
 package sge
 package textra
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Container representing a token, parsed parameters and its position in text. */
 class TokenEntry(

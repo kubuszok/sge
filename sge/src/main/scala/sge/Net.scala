@@ -24,7 +24,7 @@
 package sge
 
 import sge.net._
-import sge.utils.Nullable
+import lowlevel.Nullable
 import java.io.InputStream
 import java.util.{ List, Map }
 

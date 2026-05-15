@@ -29,7 +29,10 @@ package scenes
 package scene2d
 
 import sge.Input.{ Button, Key }
-import sge.utils.{ DynamicArray, Nullable, Pool, PoolManager, Scaling, Seconds }
+import lowlevel.Nullable
+import lowlevel.leanView
+import lowlevel.util.DynamicArray
+import sge.utils.{ Pool, PoolManager, Scaling, Seconds }
 import scala.annotation.nowarn
 
 import sge.graphics.{ Camera, Color, EnableCap, OrthographicCamera }
@@ -210,9 +213,7 @@ class Stage(private var _viewport: Viewport, val batch: Batch, private val ownsB
     */
   def act(delta: Seconds): Unit = {
     // Update over actors. Done in act() because actors may change position, which can fire enter/exit without an input event.
-    var pointer = 0
-    while (pointer < pointerOverActors.length) {
-      val overLast = pointerOverActors(pointer)
+    pointerOverActors.leanView.zipWithIndex.foreach { (overLast, pointer) =>
       if (pointerTouched(pointer)) {
         // Update the over actor for the pointer.
         pointerOverActors(pointer) = fireEnterAndExit(overLast, pointerScreenX(pointer), pointerScreenY(pointer), pointer)
@@ -221,7 +222,6 @@ class Stage(private var _viewport: Viewport, val batch: Batch, private val ownsB
         pointerOverActors(pointer) = Nullable.empty
         overLast.foreach(a => fireExit(a, pointerScreenX(pointer), pointerScreenY(pointer), pointer))
       }
-      pointer += 1
     }
 
     // Update over actor for the mouse on the desktop.
@@ -332,15 +332,12 @@ class Stage(private var _viewport: Viewport, val batch: Batch, private val ownsB
       event.pointer = pointer
 
       val snapshot = touchFocuses.toArray
-      var i        = 0
-      while (i < snapshot.length) {
-        val focus = snapshot(i)
+      snapshot.leanView.foreach { focus =>
         if (focus.pointer == pointer && touchFocuses.contains(focus)) {
           event.target = focus.target
           event.listenerActor = focus.listenerActor
           if (focus.listener.get.handle(event)) event.handle()
         }
-        i += 1
       }
 
       val handled = event.isHandled
@@ -370,9 +367,7 @@ class Stage(private var _viewport: Viewport, val batch: Batch, private val ownsB
       event.button = button
 
       val snapshot = touchFocuses.toArray
-      var i        = 0
-      while (i < snapshot.length) {
-        val focus = snapshot(i)
+      snapshot.leanView.foreach { focus =>
         if (focus.pointer == pointer && focus.button == button) {
           val idx = touchFocuses.indexOf(focus)
           if (idx >= 0) {
@@ -383,7 +378,6 @@ class Stage(private var _viewport: Viewport, val batch: Batch, private val ownsB
             pools.free(focus)
           }
         }
-        i += 1
       }
 
       val handled = event.isHandled
@@ -525,9 +519,7 @@ class Stage(private var _viewport: Viewport, val batch: Batch, private val ownsB
     // same focus twice.
     var event: Nullable[InputEvent] = Nullable.empty
     val snapshot = touchFocuses.toArray
-    var i        = 0
-    while (i < snapshot.length) {
-      val focus = snapshot(i)
+    snapshot.leanView.foreach { focus =>
       if (focus.listenerActor.exists(_ eq listenerActor)) {
         val idx = touchFocuses.indexOf(focus)
         if (idx >= 0) {
@@ -552,7 +544,6 @@ class Stage(private var _viewport: Viewport, val batch: Batch, private val ownsB
           // Cannot return TouchFocus to pool, as it may still be in use (eg if cancelTouchFocus is called from touchDragged).
         }
       }
-      i += 1
     }
 
     event.foreach(pools.free(_))
@@ -578,9 +569,7 @@ class Stage(private var _viewport: Viewport, val batch: Batch, private val ownsB
     // Cancel all current touch focuses except for the specified listener, allowing for concurrent modification, and never
     // cancel the same focus twice.
     val snapshot = touchFocuses.toArray
-    var i        = 0
-    while (i < snapshot.length) {
-      val focus       = snapshot(i)
+    snapshot.leanView.foreach { focus =>
       val isException = focus.listener.exists(fl => exceptListener.exists(_ eq fl)) && focus.listenerActor.exists(fla => exceptActor.exists(_ eq fla))
       if (!isException) {
         val idx = touchFocuses.indexOf(focus)
@@ -594,7 +583,6 @@ class Stage(private var _viewport: Viewport, val batch: Batch, private val ownsB
           // Cannot return TouchFocus to pool, as it may still be in use (eg if cancelTouchFocus is called from touchDragged).
         }
       }
-      i += 1
     }
 
     pools.free(event)
@@ -645,15 +633,13 @@ class Stage(private var _viewport: Viewport, val batch: Batch, private val ownsB
   /** Called just before an actor is removed from a group. <p> The default implementation fires an {@link InputEvent.Type#exit} event if a pointer had entered the actor.
     */
   protected[scene2d] def actorRemoved(actor: Actor): Unit = {
-    var pointer = 0
-    while (pointer < pointerOverActors.length) {
-      pointerOverActors(pointer).foreach { overActor =>
+    pointerOverActors.leanView.zipWithIndex.foreach { (overActorN, pointer) =>
+      overActorN.foreach { overActor =>
         if (actor eq overActor) {
           pointerOverActors(pointer) = Nullable.empty
           fireExit(actor, pointerScreenX(pointer), pointerScreenY(pointer), pointer)
         }
       }
-      pointer += 1
     }
 
     mouseOverActor.foreach { moa =>

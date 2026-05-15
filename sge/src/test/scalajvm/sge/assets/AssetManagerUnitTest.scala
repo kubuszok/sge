@@ -10,7 +10,8 @@ package assets
 import munit.FunSuite
 import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
 import sge.files.{ FileHandle, FileType }
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 class AssetManagerUnitTest extends FunSuite {
 

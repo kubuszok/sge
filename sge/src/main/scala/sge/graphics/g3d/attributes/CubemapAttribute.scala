@@ -31,7 +31,8 @@ package attributes
 
 import sge.graphics.Cubemap
 import sge.graphics.g3d.utils.TextureDescriptor
-import sge.utils.{ Nullable, SgeError }
+import lowlevel.Nullable
+import sge.utils.SgeError
 
 class CubemapAttribute(
   `type`:                 Long,

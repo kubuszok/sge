@@ -27,13 +27,19 @@ package sge
 package scenes
 package scene2d
 
-import sge.utils.{ Align, DynamicArray, MkArray, Nullable, PoolManager, Seconds }
+import sge.utils.createRef
+
+import lowlevel.{ MkArray, Nullable }
+import lowlevel.leanView
+import lowlevel.util.DynamicArray
+import sge.utils.{ Align, PoolManager, Seconds }
 
 import sge.graphics.Color
 import sge.graphics.g2d.Batch
 import sge.graphics.g2d.GlyphLayout
 import sge.graphics.glutils.ShapeRenderer
-import sge.math.{ MathUtils, Rectangle, Vector2 }
+import lowlevel.math.MathUtils
+import sge.math.{ Rectangle, Vector2 }
 import sge.scenes.scene2d.utils.ScissorStack
 
 /** 2D scene graph node. An actor has a position, rectangular size, origin, scale, rotation, Z index, and color. The position corresponds to the unrotated, unscaled bottom left corner of the actor.
@@ -207,10 +213,8 @@ class Actor()(using Sge) {
     try {
       if (capture) _iteratingCaptureListeners += 1 else _iteratingListeners += 1
       val snapshot = listenersToNotify.toArray
-      var i        = 0
-      while (i < snapshot.length) {
-        if (snapshot(i).handle(event)) event.handle()
-        i += 1
+      snapshot.leanView.foreach { listener =>
+        if (listener.handle(event)) event.handle()
       }
       if (capture) {
         _iteratingCaptureListeners -= 1
@@ -920,7 +924,7 @@ object Actor {
   val POOLS: PoolManager = PoolManager()
 
   POOLS.addPool[Rectangle](() => Rectangle())
-  POOLS.addPool[DynamicArray[?]](() => DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[Any]], 16, true))
+  POOLS.addPool[DynamicArray[?]](() => DynamicArray.createRef[Any]())
   POOLS.addPool[GlyphLayout](() => GlyphLayout())
   POOLS.addPool[utils.ChangeListener.ChangeEvent](() => utils.ChangeListener.ChangeEvent())
 }

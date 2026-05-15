@@ -17,7 +17,7 @@
 package sge
 package textra
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 enum InternalToken(val tokenName: String, val category: TokenCategory) extends java.lang.Enum[InternalToken] {
   case WAIT extends InternalToken("WAIT", TokenCategory.WAIT)

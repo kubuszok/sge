@@ -26,7 +26,7 @@ import sge.graphics.g3d.utils.TextureDescriptor
 import sge.graphics.glutils.FrameBuffer
 import sge.math.{ Matrix4, Vector3 }
 import sge.math.collision.BoundingBox
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class DirectionalShadowLight(
   shadowMapWidth:       Int,

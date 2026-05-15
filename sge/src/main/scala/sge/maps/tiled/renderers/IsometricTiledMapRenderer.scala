@@ -33,7 +33,7 @@ package renderers
 import sge.Sge
 import sge.graphics.g2d.{ Batch, SpriteBatch, TextureRegion }
 import sge.math.{ Matrix4, Vector2, Vector3 }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class IsometricTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, ownsBatch: Boolean)(using Sge) extends BatchTiledMapRenderer(map, unitScale, batch, ownsBatch) {
 

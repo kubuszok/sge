@@ -32,7 +32,7 @@ import sge.graphics.g3d.utils.MeshPartBuilder
 import sge.graphics.g3d.utils.MeshPartBuilder.VertexInfo
 import sge.math.{ Matrix4, Vector3 }
 import sge.math.collision.BoundingBox
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Helper class with static methods to build box shapes using {@link MeshPartBuilder}.
   * @author

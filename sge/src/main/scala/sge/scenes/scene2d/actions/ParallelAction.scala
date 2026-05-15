@@ -28,7 +28,9 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.{ DynamicArray, Nullable, Seconds }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.Seconds
 
 /** Executes a number of actions at the same time.
   * @author

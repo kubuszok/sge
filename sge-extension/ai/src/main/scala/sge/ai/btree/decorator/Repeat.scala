@@ -33,7 +33,7 @@ package decorator
 
 import sge.ai.utils.random.ConstantIntegerDistribution
 import sge.ai.utils.random.IntegerDistribution
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A `Repeat` decorator will repeat the wrapped task a certain number of times, possibly infinite. This task always succeeds when reaches the specified number of repetitions.
   *

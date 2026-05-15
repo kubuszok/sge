@@ -28,7 +28,7 @@ import sge.graphics.g2d.Batch
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener, Stage, Touchable }
 import sge.scenes.scene2d.ui.{ Cell, Table }
 import sge.scenes.scene2d.utils.{ ChangeListener, Drawable }
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.{ Sizes, VisUI }
 import sge.visui.util.ActorUtils
 

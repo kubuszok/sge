@@ -25,7 +25,8 @@ package sge
 package textra
 
 import sge.graphics.g2d.Batch
-import sge.utils.{ Align, Nullable }
+import lowlevel.Nullable
+import sge.utils.Align
 
 /** A checkbox is a button that contains an image indicating the checked or unchecked state and a {@link TextraLabel}.
   *

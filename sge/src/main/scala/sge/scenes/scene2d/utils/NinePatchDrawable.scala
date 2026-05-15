@@ -28,7 +28,7 @@ package utils
 
 import sge.graphics.Color
 import sge.graphics.g2d.{ Batch, NinePatch }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Drawable for a {@link NinePatch}. <p> The drawable sizes are set when the ninepatch is set, but they are separate values. Eg, {@link Drawable#getLeftWidth()} could be set to more than
   * {@link NinePatch#getLeftWidth()} in order to provide more space on the left than actually exists in the ninepatch. <p> The min size is set to the ninepatch total size by default. It could be set

@@ -23,7 +23,8 @@ package ui
 import sge.graphics.Color
 import sge.graphics.g2d.{ Batch, BitmapFont }
 import sge.scenes.scene2d.utils.Drawable
-import sge.utils.{ Align, Nullable, Scaling }
+import lowlevel.Nullable
+import sge.utils.{ Align, Scaling }
 
 /** A checkbox is a button that contains an image indicating the checked or unchecked state and a label.
   * @author

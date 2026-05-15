@@ -26,7 +26,10 @@ package scenes
 package scene2d
 package ui
 
-import sge.utils.{ DynamicArray, MkArray, Nullable }
+import sge.utils.createRef
+
+import lowlevel.{ MkArray, Nullable }
+import lowlevel.util.DynamicArray
 
 /** Manages a group of buttons to enforce a minimum and maximum number of checked buttons. This enables "radio button" functionality and more. A button may only be in one group at a time. <p> The
   * {@link #canCheck(Button, boolean)} method can be overridden to control if a button check or uncheck is allowed.
@@ -35,8 +38,8 @@ import sge.utils.{ DynamicArray, MkArray, Nullable }
   */
 class ButtonGroup[T <: Button]() {
 
-  val buttons:             DynamicArray[T] = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
-  val allChecked:          DynamicArray[T] = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
+  val buttons:             DynamicArray[T] = DynamicArray.createRef[T]()
+  val allChecked:          DynamicArray[T] = DynamicArray.createRef[T]()
   var minCheckCount:       Int             = 1
   var maxCheckCount:       Int             = 1
   var uncheckLast:         Boolean         = true

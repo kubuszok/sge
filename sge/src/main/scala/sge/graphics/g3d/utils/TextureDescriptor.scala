@@ -30,7 +30,7 @@ package utils
 import scala.util.boundary
 import scala.util.boundary.break
 import sge.graphics.Texture.{ TextureFilter, TextureWrap }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class TextureDescriptor[T <: GLTexture]() extends Ordered[TextureDescriptor[T]] {
 

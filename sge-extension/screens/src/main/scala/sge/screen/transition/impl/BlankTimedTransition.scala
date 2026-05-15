@@ -19,7 +19,8 @@ package impl
 
 import sge.graphics.g2d.TextureRegion
 import sge.math.Interpolation
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** A blank screen transition going on for a given duration. Can be reused.
   *

@@ -22,8 +22,8 @@ import scala.language.implicitConversions
 import sge.math.Vector2
 import sge.scenes.scene2d.{ Actor, Touchable }
 import sge.scenes.scene2d.ui.{ Container, HorizontalGroup, VerticalGroup, WidgetGroup }
-import sge.utils.DynamicArray
-import sge.utils.Nullable
+import lowlevel.util.DynamicArray
+import lowlevel.Nullable
 import sge.visui.widget.Draggable
 import sge.visui.widget.Draggable.DragListener
 

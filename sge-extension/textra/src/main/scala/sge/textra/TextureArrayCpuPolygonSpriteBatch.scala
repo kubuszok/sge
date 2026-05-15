@@ -41,8 +41,10 @@ package textra
 import sge.graphics.Texture
 import sge.graphics.g2d.{ PolygonRegion, TextureRegion }
 import sge.graphics.glutils.ShaderProgram
-import sge.math.{ Affine2, MathUtils, Matrix4 }
-import sge.utils.{ Nullable, SgeError }
+import lowlevel.math.MathUtils
+import sge.math.{ Affine2, Matrix4 }
+import lowlevel.Nullable
+import sge.utils.SgeError
 
 /** TextureArrayCpuPolygonSpriteBatch behaves like a SpriteBatch with the polygon drawing features of a PolygonSpriteBatch, the transformation matrix optimizations of a CpuSpriteBatch, and
   * optimizations for Batches that switch between Textures frequently. This can be useful when you need any of: PolygonSpriteBatch methods for drawing PolygonSprites, scene2d Groups with transform

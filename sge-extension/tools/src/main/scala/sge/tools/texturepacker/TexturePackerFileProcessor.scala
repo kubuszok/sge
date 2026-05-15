@@ -30,7 +30,7 @@ import sge.utils.given
 import sge.graphics.Pixmap.Format
 import sge.graphics.Texture.{ TextureFilter, TextureWrap }
 import sge.tools.texturepacker.TexturePacker.{ ProgressListener, Resampling, Settings }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 import java.io.{ File, FileInputStream, IOException }
 import java.util.regex.{ Matcher, Pattern }

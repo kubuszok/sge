@@ -30,8 +30,8 @@ package g3d
 package attributes
 
 import sge.graphics.g3d.environment.SpotLight
-import sge.utils.DynamicArray
-import sge.utils.Nullable
+import lowlevel.util.DynamicArray
+import lowlevel.Nullable
 
 /** An [[Attribute]] which can be used to send a [[DynamicArray]] of [[SpotLight]] instances to the Shader. The lights are stored by reference, the [[copy]] or
   * [[SpotLightsAttribute(SpotLightsAttribute)]] method will not create new lights.

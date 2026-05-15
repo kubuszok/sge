@@ -38,8 +38,10 @@ import scala.util.boundary.break
 
 import sge.files.FileHandle
 import sge.graphics.g2d.{ BitmapFont, BitmapFontData, TextureRegion }
-import sge.math.MathUtils
-import sge.utils.{ DynamicArray, Json, Nullable, given_JsonCodec_Json }
+import lowlevel.math.MathUtils
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.{ Json, given_JsonCodec_Json }
 
 /** A utility class for loading BitmapFont instances from Structured JSON files (which use .json, .dat, .ubj, .json.lzma, or .ubj.lzma as their file extension). Font instances can already be loaded
   * using some of the constructors on Font.

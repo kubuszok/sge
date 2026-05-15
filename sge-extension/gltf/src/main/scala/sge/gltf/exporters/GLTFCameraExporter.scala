@@ -22,8 +22,9 @@ import sge.graphics.g3d.model.Node
 import sge.gltf.data.camera.{ GLTFCamera, GLTFOrthographic, GLTFPerspective }
 import sge.gltf.data.scene.GLTFNode
 import sge.gltf.loaders.exceptions.{ GLTFRuntimeException, GLTFUnsupportedException }
-import sge.math.MathUtils
-import sge.utils.{ Nullable, ObjectMap }
+import lowlevel.math.MathUtils
+import lowlevel.Nullable
+import lowlevel.util.ObjectMap
 
 private[exporters] class GLTFCameraExporter(private val base: GLTFExporter) {
 

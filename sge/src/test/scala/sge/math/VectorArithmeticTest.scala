@@ -5,6 +5,8 @@
 package sge
 package math
 
+import lowlevel.math.MathUtils
+
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
 

@@ -32,7 +32,8 @@ package values
 import scala.util.boundary
 import scala.util.boundary.break
 
-import sge.math.{ MathUtils, Vector3 }
+import lowlevel.math.MathUtils
+import sge.math.Vector3
 
 /** Encapsulate the formulas to spawn a particle on a ellipse shape.
   * @author

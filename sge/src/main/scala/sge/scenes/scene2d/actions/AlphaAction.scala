@@ -27,7 +27,7 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.graphics.Color
 
 /** Sets the alpha for an actor's color (or a specified color), from the current alpha to the new alpha. Note this action transitions from the alpha at the time the action starts to the specified

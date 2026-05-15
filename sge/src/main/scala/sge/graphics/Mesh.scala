@@ -48,9 +48,10 @@ import sge.math.Matrix4
 import sge.math.Vector2
 import sge.math.Vector3
 import sge.math.collision.BoundingBox
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 import sge.utils.SgeError
-import sge.utils.Nullable
+import lowlevel.Nullable
+import lowlevel.leanView
 import scala.util.boundary
 
 /** <p> A Mesh holds vertices composed of attributes specified by a {@link VertexAttributes} instance. The vertices are held either in VRAM in form of vertex buffer objects or in RAM in form of vertex
@@ -1090,18 +1091,19 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     usage.foreach { usageArr =>
       var size = 0
       var as   = 0
-      for (i <- usageArr.indices)
-        getVertexAttribute(usageArr(i)).foreach { a =>
+      usageArr.leanView.foreach { u =>
+        getVertexAttribute(u).foreach { a =>
           size += a.numComponents
           as += 1
         }
+      }
       if (size > 0) {
         attrs = new Array[VertexAttribute](as)
         checks = new Array[Short](size)
         var idx = -1
         var ai  = -1
-        for (i <- usageArr.indices)
-          getVertexAttribute(usageArr(i)).foreach { a =>
+        usageArr.leanView.foreach { u =>
+          getVertexAttribute(u).foreach { a =>
             for (j <- 0 until a.numComponents) {
               idx += 1
               checks(idx) = (a.offset + j).toShort
@@ -1110,6 +1112,7 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
             attrs(ai) = a.copy()
             newVertexSize += a.numComponents
           }
+        }
       }
     }
     if (checks == null.asInstanceOf[Array[Short]]) { // @nowarn — null check for local temp
@@ -1148,8 +1151,9 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
             indices(i) = newIndex
           } else {
             val idx = size * newVertexSize
-            for (j <- checks.indices)
-              tmp(idx + j) = verts(idx1 + checks(j))
+            checks.leanView.zipWithIndex.foreach { (check, j) =>
+              tmp(idx + j) = verts(idx1 + check)
+            }
             indices(i) = size.toShort
             size += 1
           }

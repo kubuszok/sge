@@ -19,7 +19,7 @@ package attributes
 
 import sge.graphics.Color
 import sge.graphics.g3d.Attribute
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 
 class PBRVolumeAttribute(
   var thicknessFactor: Float,

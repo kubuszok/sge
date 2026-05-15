@@ -19,7 +19,7 @@ package scene
 
 import scala.collection.mutable.HashMap
 import sge.graphics.g3d.model.Node
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class NodeResolver {
 

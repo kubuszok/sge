@@ -33,7 +33,8 @@ package utils
 import sge.Input.{ Button, Key }
 import sge.graphics.Camera
 import sge.input.GestureDetector
-import sge.math.{ MathUtils, Vector2, Vector3 }
+import lowlevel.math.MathUtils
+import sge.math.{ Vector2, Vector3 }
 
 class CameraInputController protected (
   val gestureListener: CameraInputController.CameraGestureListener,

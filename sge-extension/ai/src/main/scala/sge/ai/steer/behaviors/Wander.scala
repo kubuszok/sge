@@ -32,7 +32,8 @@ package steer
 package behaviors
 
 import sge.ai.Timepiece
-import sge.math.{ MathUtils, Vector }
+import lowlevel.math.MathUtils
+import sge.math.Vector
 
 /** `Wander` behavior is designed to produce a steering acceleration that will give the impression of a random walk through the agent's environment.
   *

@@ -19,7 +19,8 @@ package impl
 
 import sge.graphics.g2d.{ SpriteBatch, TextureRegion }
 import sge.math.Interpolation
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** A transition where the new screen is sliding in, while the last screen is sliding out. Thus, the new screen is pushing the last screen out, so to speak. Can be reused.
   *

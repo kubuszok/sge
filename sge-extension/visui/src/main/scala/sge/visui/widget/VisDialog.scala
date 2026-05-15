@@ -28,7 +28,8 @@ import sge.scenes.scene2d.actions.Actions
 import sge.scenes.scene2d.ui.{ Button, Label, Skin, Table }
 import sge.scenes.scene2d.ui.Window.WindowStyle
 import sge.scenes.scene2d.utils.{ ChangeListener, FocusListener }
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** Displays a dialog, which is a modal window containing a content table with a button table underneath it.
   *

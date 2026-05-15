@@ -21,7 +21,7 @@ package value
 
 import sge.scenes.scene2d.Actor
 import sge.scenes.scene2d.ui.{ Table, Value => SceneValue, Widget }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Value that returns widget preferred width if it's visible. If widget is invisible then returns 0. This can be only added to classes extending [[Widget]] or [[Table]], if you try to add it to any
   * other class you will get [[IllegalStateException]] during runtime.

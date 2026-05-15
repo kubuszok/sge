@@ -26,7 +26,8 @@ package sge
 package maps
 package tiled
 
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 /** @brief
   *   Represents a tiled map, adds the concept of tiles and tilesets.

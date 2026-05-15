@@ -29,7 +29,8 @@ import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.graphics.Texture.TextureFilter
 import sge.graphics.glutils.ShaderProgram
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 /** Renders bitmap fonts using distance field textures, see the <a href="https://libgdx.com/wiki/graphics/2d/fonts/distance-field-fonts">Distance Field Fonts wiki article</a> for usage. Initialize the
   * SpriteBatch with the {@link #createDistanceFieldShader()} shader. <p> Attention: The batch is flushed before and after each string is rendered.

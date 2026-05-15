@@ -26,7 +26,8 @@ import sge.files.FileHandle
 import sge.scenes.scene2d.{ Actor, Stage }
 import sge.scenes.scene2d.actions.Actions
 import sge.scenes.scene2d.utils.ChangeListener
-import sge.utils.{ DynamicArray, Seconds }
+import lowlevel.util.DynamicArray
+import sge.utils.Seconds
 import sge.visui.widget.VisTextField
 
 /** @author Kotcrab */

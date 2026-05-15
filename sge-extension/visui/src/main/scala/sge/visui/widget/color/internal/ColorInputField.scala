@@ -23,7 +23,7 @@ package internal
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener }
 import sge.scenes.scene2d.ui.TextField
 import sge.scenes.scene2d.utils.{ ChangeListener, FocusListener, UIUtils }
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.util.InputValidator
 import sge.visui.widget.VisValidatableTextField
 

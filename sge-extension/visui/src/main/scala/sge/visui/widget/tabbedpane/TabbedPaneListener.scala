@@ -19,7 +19,7 @@ package visui
 package widget
 package tabbedpane
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Listener used to get events from [[TabbedPane]].
   * @author

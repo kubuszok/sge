@@ -45,7 +45,9 @@ import sge.graphics.g3d.model.data._
 import sge.graphics.g3d.utils.{ TextureDescriptor, TextureProvider }
 import sge.math.{ Matrix4, Quaternion, Vector3 }
 import sge.math.collision.BoundingBox
-import sge.utils.{ ArrayMap, BufferUtils, DynamicArray, Nullable, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.{ ArrayMap, DynamicArray }
+import sge.utils.{ BufferUtils, SgeError }
 
 /** A model represents a 3D assets. It stores a hierarchy of nodes. A node has a transform and optionally a graphical part in form of a {@link MeshPart} and {@link Material}. Mesh parts reference
   * subsets of vertices in one of the meshes of the model. Animations can be applied to nodes, to modify their transform (translation, rotation, scale) over time. </p>

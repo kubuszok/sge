@@ -1,8 +1,10 @@
 package sge
 package math
 
+import lowlevel.math.MathUtils
+
 import sge.math.collision.{ BoundingBox, Ray }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class IntersectorTest extends munit.FunSuite {
 

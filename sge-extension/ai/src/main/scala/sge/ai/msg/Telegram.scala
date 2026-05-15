@@ -32,7 +32,7 @@ package sge
 package ai
 package msg
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.utils.Pool
 
 /** A Telegram is the container of a message. The [[MessageDispatcher]] manages telegram life-cycle.

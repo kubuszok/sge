@@ -23,6 +23,8 @@
 package sge
 package math
 
+import lowlevel.math.MathUtils
+
 import scala.util.boundary
 import scala.util.boundary.break
 

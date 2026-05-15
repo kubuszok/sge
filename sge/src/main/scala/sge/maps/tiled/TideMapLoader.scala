@@ -39,7 +39,9 @@ import sge.graphics.Texture
 import sge.graphics.g2d.TextureRegion
 import sge.maps.tiled.TiledMapTileLayer.Cell
 import sge.maps.tiled.tiles.{ AnimatedTiledMapTile, StaticTiledMapTile }
-import sge.utils.{ DynamicArray, Nullable, XmlReader }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.XmlReader
 
 import java.io.IOException
 import scala.collection.mutable

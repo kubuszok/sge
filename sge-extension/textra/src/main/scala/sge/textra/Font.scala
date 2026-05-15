@@ -46,7 +46,8 @@ import scala.util.boundary.break
 
 import sge.graphics.Color
 import sge.textra.utils.{ CaseInsensitiveIntMap, StringUtils }
-import sge.utils.{ Json, Nullable, given_JsonCodec_Json }
+import lowlevel.Nullable
+import sge.utils.{ Json, given_JsonCodec_Json }
 
 /** A replacement for libGDX's BitmapFont class, supporting additional markup to allow styling text with various effects. This includes the commonly-requested "faux bold" and oblique mode using one
   * font image; you don't need a bold and italic/oblique image separate from the book face. This also supports underline, strikethrough, subscript/superscript (and "midscript," for a height between
@@ -585,7 +586,7 @@ class Font {
               }
               g += 1
             }
-            if (!sge.math.MathUtils.isZero(sumWidth) && line.glyphs.size > 1) {
+            if (!lowlevel.math.MathUtils.isZero(sumWidth) && line.glyphs.size > 1) {
               var lastIndex = line.glyphs.size - 1
               var glyph     = line.glyphs(lastIndex)
               var skipPer   = true
@@ -2235,8 +2236,8 @@ class Font {
     val bv         = block.v
     val bu2        = bu + ipw
     val bv2        = bv - iph
-    val sn         = sge.math.MathUtils.sinDeg(rotation)
-    val cs         = sge.math.MathUtils.cosDeg(rotation)
+    val sn         = lowlevel.math.MathUtils.sinDeg(rotation)
+    val cs         = lowlevel.math.MathUtils.cosDeg(rotation)
 
     var b = 0
     while (b < sequence.length) {
@@ -2327,8 +2328,8 @@ class Font {
       val bv     = block.v
       val bu2    = bu + ipw
       val bv2    = bv + iph
-      val sn     = sge.math.MathUtils.sinDeg(rotation)
-      val cs     = sge.math.MathUtils.cosDeg(rotation)
+      val sn     = lowlevel.math.MathUtils.sinDeg(rotation)
+      val cs     = lowlevel.math.MathUtils.cosDeg(rotation)
 
       val color = utils.ColorUtils.multiplyAlpha(
         if (mode == Font.ERROR) PACKED_ERROR_COLOR
@@ -2455,8 +2456,8 @@ class Font {
     var glyph   = glyphIn
     val sizingX = sizingXIn
     var sizingY = sizingYIn
-    val sin     = sge.math.MathUtils.sinDeg(rotation)
-    val cos     = sge.math.MathUtils.cosDeg(rotation)
+    val sin     = lowlevel.math.MathUtils.sinDeg(rotation)
+    val cos     = lowlevel.math.MathUtils.cosDeg(rotation)
 
     var font: Font = null
     family.foreach { fam => font = fam.connected((glyph >>> 16 & 15).toInt) }
@@ -3078,8 +3079,8 @@ class Font {
     if (layout == null || layout.countGlyphs == 0) 0f // @nowarn — null check matches original
     else {
       var drawn = 0f
-      val sn    = sge.math.MathUtils.sinDeg(rotation)
-      val cs    = sge.math.MathUtils.cosDeg(rotation)
+      val sn    = lowlevel.math.MathUtils.sinDeg(rotation)
+      val cs    = lowlevel.math.MathUtils.cosDeg(rotation)
       val lines = layout.lineCount
       var baseX = xIn
       var baseY = yIn

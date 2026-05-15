@@ -16,7 +16,7 @@ package gltf
 package data
 package texture
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFImage extends GLTFEntity {
   var uri:        Nullable[String] = Nullable.empty

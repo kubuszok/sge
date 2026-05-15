@@ -25,7 +25,7 @@ package ecs
 package systems
 
 import sge.ecs.utils.ImmutableArray
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A simple [[EntitySystem]] that iterates over each entity and calls [[processEntity]] for each entity every time the EntitySystem is updated. This is really just a convenience class as most systems
   * iterate over a list of entities.

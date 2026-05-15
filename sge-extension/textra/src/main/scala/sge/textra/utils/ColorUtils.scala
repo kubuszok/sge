@@ -31,8 +31,9 @@ import java.util.regex.Pattern
 import scala.util.boundary
 import scala.util.boundary.break
 import sge.graphics.{ Color, Colors }
-import sge.math.MathUtils
-import sge.utils.{ DynamicArray, NumberUtils }
+import lowlevel.math.MathUtils
+import lowlevel.util.DynamicArray
+import sge.utils.NumberUtils
 
 /** A few static methods for commonly-used color handling tasks. This has methods to convert from HSLA colors to RGBA and back again, for hue-changing effects mainly. It also has
   * [[lerpColors(Int,Int,Float):Int]] to blend RGBA colors, and [[multiplyAlpha(Int,Float):Int]] to alter only the alpha channel on an RGBA or HSLA int color.

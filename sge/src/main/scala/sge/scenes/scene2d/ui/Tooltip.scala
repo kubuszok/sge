@@ -29,7 +29,8 @@ package ui
 import sge.math.Vector2
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener, Touchable }
 import sge.Input.Button
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** A listener that shows a tooltip actor when the mouse is over another actor.
   * @author

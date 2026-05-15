@@ -29,7 +29,7 @@ package environment
 import scala.language.implicitConversions
 
 import sge.math.Vector3
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class DirectionalLight extends BaseLight[DirectionalLight] {
   val direction: Vector3 = Vector3()

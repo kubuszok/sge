@@ -41,13 +41,14 @@ import scala.util.boundary.break
 import sge.Sge
 import sge.assets.AssetManager
 import sge.graphics.g3d.particles.ParallelArray.FloatChannel
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 import sge.graphics.g3d.particles.emitters.Emitter
 import sge.graphics.g3d.particles.influencers.Influencer
 import sge.graphics.g3d.particles.renderers.ParticleControllerRenderer
 import sge.math.{ Matrix4, Quaternion, Vector3 }
 import sge.math.collision.BoundingBox
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** Base class of all the particle controllers. Encapsulate the generic structure of a controller and methods to update the particles simulation.
   * @author

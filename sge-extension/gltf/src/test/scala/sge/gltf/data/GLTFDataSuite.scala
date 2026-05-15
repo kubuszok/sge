@@ -5,7 +5,7 @@ package data
 import scala.collection.mutable.ArrayBuffer
 import sge.gltf.data.geometry.GLTFMesh
 import sge.gltf.data.scene.{ GLTFNode, GLTFScene }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFDataSuite extends munit.FunSuite {
 

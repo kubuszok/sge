@@ -28,9 +28,11 @@ package scene2d
 package ui
 
 import sge.graphics.g2d.Batch
-import sge.math.{ Interpolation, MathUtils }
+import lowlevel.math.MathUtils
+import sge.math.Interpolation
 import sge.scenes.scene2d.utils.{ ChangeListener, Disableable, Drawable }
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** A progress bar is a widget that visually displays the progress of some activity or a value within given range. The progress bar has a range (min, max) and a stepping between each value it
   * represents. The percentage of completeness typically starts out as an empty progress bar and gradually becomes filled in as the task or variable value progresses. <p> {@link ChangeEvent} is fired

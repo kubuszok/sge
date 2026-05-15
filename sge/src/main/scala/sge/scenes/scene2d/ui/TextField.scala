@@ -33,10 +33,13 @@ import scala.util.boundary
 import sge.Input.{ Button, Key }
 import sge.graphics.Color
 import sge.graphics.g2d.{ Batch, BitmapFont, GlyphLayout }
-import sge.math.{ MathUtils, Vector2 }
+import lowlevel.math.MathUtils
+import sge.math.Vector2
 import sge.scenes.scene2d.{ Actor, Group, InputEvent, InputListener }
 import sge.scenes.scene2d.utils.{ ChangeListener, ClickListener, Disableable, Drawable, UIUtils }
-import sge.utils.{ Align, Clipboard, DynamicArray, Nullable, Seconds, Timer }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.{ Align, Clipboard, Seconds, Timer }
 
 /** A single-line text input field. <p> The preferred height of a text field is the height of the {@link TextFieldStyle#font} and {@link TextFieldStyle#background}. The preferred width of a text field
   * is 150, a relatively arbitrary size. <p> The text field will copy the currently selected text when ctrl+c is pressed, and paste any text in the clipboard when ctrl+v is pressed. Clipboard

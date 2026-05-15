@@ -33,6 +33,8 @@
 package sge
 package math
 
+import lowlevel.math.MathUtils
+
 /** A 3x3 <a href="http://en.wikipedia.org/wiki/Row-major_order#Column-major_order">column major</a> matrix; useful for 2D transforms.
   *
   * @author

@@ -43,7 +43,9 @@ import sge.graphics.g3d.model.{ MeshPart, Node, NodePart }
 import sge.graphics.g3d.utils.shapebuilders._
 import sge.math.Vector3
 import sge.Sge
-import sge.utils.{ DynamicArray, Nullable, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.SgeError
 
 /** Helper class to create {@link Model}s from code. To start building use the {@link #begin()} method, when finished building use the {@link #end()} method. The end method returns the model just
   * build. Building cannot be nested, only one model (per ModelBuilder) can be build at the time. The same ModelBuilder can be used to build multiple models sequential. Use the {@link #node()} method

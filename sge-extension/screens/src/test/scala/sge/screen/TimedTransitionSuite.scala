@@ -4,7 +4,8 @@ package screen
 import sge.graphics.g2d.TextureRegion
 import sge.math.Interpolation
 import sge.screen.transition.TimedTransition
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 class TimedTransitionSuite extends munit.FunSuite {
 

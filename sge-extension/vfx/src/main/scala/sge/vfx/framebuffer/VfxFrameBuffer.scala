@@ -20,7 +20,7 @@ import sge.graphics.glutils.{ FrameBuffer, ShapeRenderer }
 import sge.graphics.{ GL20, OrthographicCamera, Pixmap, Texture }
 import sge.math.Matrix4
 import sge.vfx.gl.{ VfxGLUtils, VfxGlViewport }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 import scala.collection.mutable.ArrayBuffer
 

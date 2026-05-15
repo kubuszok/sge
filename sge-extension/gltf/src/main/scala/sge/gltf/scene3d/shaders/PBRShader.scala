@@ -29,7 +29,8 @@ import sge.graphics.g3d.environment.DirectionalLight
 import sge.graphics.g3d.shaders.{ BaseShader, DefaultShader }
 import sge.graphics.glutils.ShaderProgram
 import sge.math.{ Matrix3, Vector2, Vector3 }
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 /** Helper to set float/int uniform values since SGE BaseShader.set only supports typed (Vector3, Color, etc.) */
 private[shaders] object PBRShaderUtils {
@@ -203,11 +204,11 @@ class PBRShader(
       }
 
     if (u_texCoord0Transform != UniformLocation.notFound) {
-      PBRCommon.setTextureTransform(textureTransform, sge.utils.Nullable(transformTexture(0)))
+      PBRCommon.setTextureTransform(textureTransform, lowlevel.Nullable(transformTexture(0)))
       program.foreach(_.setUniformMatrix(u_texCoord0Transform, textureTransform))
     }
     if (u_texCoord1Transform != UniformLocation.notFound) {
-      PBRCommon.setTextureTransform(textureTransform, sge.utils.Nullable(transformTexture(1)))
+      PBRCommon.setTextureTransform(textureTransform, lowlevel.Nullable(transformTexture(1)))
       program.foreach(_.setUniformMatrix(u_texCoord1Transform, textureTransform))
     }
   }

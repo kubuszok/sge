@@ -25,7 +25,8 @@ import sge.gltf.data.scene.{ GLTFNode, GLTFSkin }
 import sge.gltf.loaders.exceptions.GLTFIllegalException
 import sge.gltf.loaders.shared.data.DataResolver
 import sge.math.Matrix4
-import sge.utils.{ ArrayMap, DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.{ ArrayMap, DynamicArray }
 
 class SkinLoader {
 

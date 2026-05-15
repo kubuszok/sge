@@ -25,8 +25,8 @@ package ecs
 package utils
 
 import scala.collection.mutable.ArrayBuffer
-import sge.math.MathUtils
-import sge.utils.Nullable
+import lowlevel.math.MathUtils
+import lowlevel.Nullable
 
 /** Read-only wrapper around a mutable [[ArrayBuffer]]. This is a live view -- changes to the backing buffer are visible through this wrapper.
   *

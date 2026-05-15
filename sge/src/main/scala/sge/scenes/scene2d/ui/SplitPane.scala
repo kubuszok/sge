@@ -31,7 +31,8 @@ import sge.math.{ Rectangle, Vector2 }
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener }
 import sge.scenes.scene2d.utils.{ Drawable, Layout, ScissorStack }
 import sge.Input.Button
-import sge.utils.{ Nullable, SgeError }
+import lowlevel.Nullable
+import sge.utils.SgeError
 
 /** A container that contains two widgets and is divided either horizontally or vertically. The user may resize the widgets. The child widgets are always sized to fill their side of the SplitPane. <p>
   * Minimum and maximum split amounts can be set to limit the motion of the resizing handle. The handle position is also prevented from shrinking the children below their minimum sizes. If these

@@ -17,8 +17,9 @@
 package sge
 package textra
 
-import sge.math.{ Interpolation, MathUtils }
-import sge.utils.Nullable
+import lowlevel.math.MathUtils
+import sge.math.Interpolation
+import lowlevel.Nullable
 
 /** Abstract text effect. */
 abstract class Effect(protected val label: TypingLabel) {

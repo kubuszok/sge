@@ -19,7 +19,7 @@ package visui
 package widget
 package tabbedpane
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Empty implementation of [[TabbedPaneListener]].
   * @author

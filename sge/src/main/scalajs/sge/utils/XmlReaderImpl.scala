@@ -4,6 +4,7 @@
 package sge
 package utils
 
+import lowlevel.Nullable
 import org.scalajs.dom.{ DOMParser, Element as DomElement, MIMEType }
 
 private[utils] object XmlReaderImpl {

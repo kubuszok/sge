@@ -38,7 +38,7 @@ package sge
 package ai
 package pfa
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.utils.TimeUtils
 
 import scala.util.boundary, boundary.break

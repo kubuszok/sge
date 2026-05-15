@@ -13,7 +13,8 @@ import scala.collection.mutable.ArrayBuffer
 import sge.graphics.Color
 import sge.graphics.g2d.TextureRegion
 import sge.screen.transition.ScreenTransition
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 class ScreenManagerSuite extends munit.FunSuite {
 

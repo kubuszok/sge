@@ -17,7 +17,7 @@ package sge
 package controllers
 
 import scala.collection.mutable.ArrayBuffer
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Abstract base for platform-specific controller manager implementations. Tracks connected controllers and the most recently used controller.
   *

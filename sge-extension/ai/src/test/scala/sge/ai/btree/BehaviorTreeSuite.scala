@@ -6,7 +6,8 @@ import sge.ai.btree.branch.{ Selector, Sequence }
 import sge.ai.btree.branch.Parallel
 import sge.ai.btree.decorator.{ Invert, Repeat }
 import sge.ai.utils.random.ConstantIntegerDistribution
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 // ── Test leaf tasks ──────────────────────────────────────────────────────
 

@@ -26,7 +26,10 @@ package sge
 package scenes
 package scene2d
 
-import sge.utils.{ DynamicArray, Nullable, Seconds }
+import lowlevel.Nullable
+import lowlevel.leanView
+import lowlevel.util.DynamicArray
+import sge.utils.Seconds
 
 import sge.graphics.g2d.Batch
 import sge.graphics.glutils.ShapeRenderer
@@ -52,10 +55,8 @@ class Group()(using Sge) extends Actor() with Cullable {
   override def act(delta: Seconds): Unit = {
     super.act(delta)
     val snapshot = children.toArray
-    var i        = 0
-    while (i < snapshot.length) {
-      snapshot(i).act(delta)
-      i += 1
+    snapshot.leanView.foreach { child =>
+      child.act(delta)
     }
   }
 
@@ -75,15 +76,11 @@ class Group()(using Sge) extends Actor() with Cullable {
   protected def drawChildren(batch: Batch, parentAlpha: Float): Unit = {
     val alpha    = parentAlpha * this.color.a
     val snapshot = children.toArray
-    val n        = snapshot.length
     _cullingArea.fold {
       // No culling, draw all children.
       if (transform) {
-        var i = 0
-        while (i < n) {
-          val child = snapshot(i)
+        snapshot.leanView.foreach { child =>
           if (child.visible) child.draw(batch, alpha)
-          i += 1
         }
       } else {
         // No transform for this group, offset each child.
@@ -91,9 +88,7 @@ class Group()(using Sge) extends Actor() with Cullable {
         val offsetY = y
         x = 0
         y = 0
-        var i = 0
-        while (i < n) {
-          val child = snapshot(i)
+        snapshot.leanView.foreach { child =>
           if (child.visible) {
             val cx = child.x
             val cy = child.y
@@ -103,7 +98,6 @@ class Group()(using Sge) extends Actor() with Cullable {
             child.x = cx
             child.y = cy
           }
-          i += 1
         }
         x = offsetX
         y = offsetY
@@ -115,16 +109,13 @@ class Group()(using Sge) extends Actor() with Cullable {
       val cullBottom = ca.y
       val cullTop    = cullBottom + ca.height
       if (transform) {
-        var i = 0
-        while (i < n) {
-          val child = snapshot(i)
+        snapshot.leanView.foreach { child =>
           if (child.visible) {
             val cx = child.x
             val cy = child.y
             if (cx <= cullRight && cy <= cullTop && cx + child.width >= cullLeft && cy + child.height >= cullBottom)
               child.draw(batch, alpha)
           }
-          i += 1
         }
       } else {
         // No transform for this group, offset each child.
@@ -132,9 +123,7 @@ class Group()(using Sge) extends Actor() with Cullable {
         val offsetY = y
         x = 0
         y = 0
-        var i = 0
-        while (i < n) {
-          val child = snapshot(i)
+        snapshot.leanView.foreach { child =>
           if (child.visible) {
             val cx = child.x
             val cy = child.y
@@ -146,7 +135,6 @@ class Group()(using Sge) extends Actor() with Cullable {
               child.y = cy
             }
           }
-          i += 1
         }
         x = offsetX
         y = offsetY
@@ -169,15 +157,11 @@ class Group()(using Sge) extends Actor() with Cullable {
     */
   protected def drawDebugChildren(shapes: ShapeRenderer): Unit = {
     val snapshot = children.toArray
-    val n        = snapshot.length
     // No culling, draw all children.
     if (transform) {
-      var i = 0
-      while (i < n) {
-        val child = snapshot(i)
+      snapshot.leanView.foreach { child =>
         if (child.visible && (child.isDebug || child.isInstanceOf[Group]))
           child.drawDebug(shapes)
-        i += 1
       }
       shapes.flush()
     } else {
@@ -186,9 +170,7 @@ class Group()(using Sge) extends Actor() with Cullable {
       val offsetY = y
       x = 0
       y = 0
-      var i = 0
-      while (i < n) {
-        val child = snapshot(i)
+      snapshot.leanView.foreach { child =>
         if (child.visible && (child.isDebug || child.isInstanceOf[Group])) {
           val cx = child.x
           val cy = child.y
@@ -198,7 +180,6 @@ class Group()(using Sge) extends Actor() with Cullable {
           child.x = cx
           child.y = cy
         }
-        i += 1
       }
       x = offsetX
       y = offsetY
@@ -381,15 +362,12 @@ class Group()(using Sge) extends Actor() with Cullable {
   /** Removes all actors from this group. */
   def clearChildren(unfocus: Boolean = true): Unit = {
     val snapshot = children.toArray
-    var i        = 0
-    while (i < snapshot.length) {
-      val child = snapshot(i)
+    snapshot.leanView.foreach { child =>
       if (unfocus) {
         stage.foreach(_.unfocus(child))
       }
       child.setStage(Nullable.empty)
       child.setParent(Nullable.empty)
-      i += 1
     }
     children.clear()
     childrenChanged()
@@ -519,21 +497,18 @@ class Group()(using Sge) extends Actor() with Cullable {
     buffer.append('\n')
 
     val snapshot = children.toArray
-    var i        = 0
-    while (i < snapshot.length) {
+    snapshot.leanView.foreach { actor =>
       var ii = 0
       while (ii < indent) {
         buffer.append("|  ")
         ii += 1
       }
-      val actor = snapshot(i)
       actor match {
         case group: Group => group.toString(buffer, indent + 1)
         case _ =>
           buffer.append(actor)
           buffer.append('\n')
       }
-      i += 1
     }
   }
 }

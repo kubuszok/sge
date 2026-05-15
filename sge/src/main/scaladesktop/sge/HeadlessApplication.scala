@@ -19,7 +19,9 @@ package sge
 import sge.files.{ DesktopFiles, DesktopPreferences }
 import sge.net.DesktopNet
 import sge.noop.{ NoopAudio, NoopGraphics, NoopInput }
-import sge.utils.{ DynamicArray, Nanos, Nullable, ObjectMap, TimeUtils }
+import lowlevel.Nullable
+import lowlevel.util.{ DynamicArray, ObjectMap }
+import sge.utils.{ Nanos, TimeUtils }
 import scala.util.boundary
 import scala.util.boundary.break
 

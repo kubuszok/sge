@@ -29,7 +29,7 @@ import java.io.DataOutputStream
 import java.net.Socket
 import sge.Input.{ Button, Key }
 import sge.InputProcessor
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 object RemoteSender {
   final val KEY_DOWN  = 0

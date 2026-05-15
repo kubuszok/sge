@@ -25,8 +25,9 @@ package math
 
 import sge.math.collision._
 import sge.math.Frustum
-import sge.utils.{ Nullable, Pool }
-import sge.utils.DynamicArray
+import lowlevel.Nullable
+import sge.utils.Pool
+import lowlevel.util.DynamicArray
 import scala.collection.mutable.Set
 
 /** A static Octree implementation.

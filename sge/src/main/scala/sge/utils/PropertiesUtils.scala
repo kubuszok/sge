@@ -23,6 +23,8 @@
 package sge
 package utils
 
+import lowlevel.util.ObjectMap
+
 import java.io.{ BufferedReader, Reader, Writer }
 import java.util.Date
 

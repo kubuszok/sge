@@ -25,7 +25,7 @@ package sge
 package graphics
 package profiling
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Listener for GL errors detected by {@link GLProfiler} .
   *

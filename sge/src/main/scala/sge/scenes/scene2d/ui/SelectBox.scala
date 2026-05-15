@@ -27,6 +27,8 @@ package scenes
 package scene2d
 package ui
 
+import sge.utils.createRef
+
 import sge.graphics.Color
 import sge.graphics.g2d.{ Batch, BitmapFont, GlyphLayout }
 import sge.math.{ Interpolation, Vector2 }
@@ -34,7 +36,9 @@ import sge.scenes.scene2d.{ Actor, InputEvent, InputListener, Stage, Touchable }
 import sge.scenes.scene2d.actions.Actions
 import sge.scenes.scene2d.utils.{ ArraySelection, ClickListener, Disableable, Drawable }
 import sge.Input.{ Button, Key }
-import sge.utils.{ Align, DynamicArray, MkArray, Nullable, Seconds }
+import lowlevel.{ MkArray, Nullable }
+import lowlevel.util.DynamicArray
+import sge.utils.{ Align, Seconds }
 
 /** A select box (aka a drop-down list) allows a user to choose one of a number of values from a list. When inactive, the selected value is displayed. When activated, it shows the list of values that
   * may be selected. <p> {@link ChangeEvent} is fired when the selectbox selection changes. <p> The preferred size of the select box is determined by the maximum text bounds of the items and the size
@@ -49,7 +53,7 @@ class SelectBox[T](initialStyle: SelectBox.SelectBoxStyle)(using Sge) extends Wi
   import SelectBox._
 
   private var _style:         SelectBoxStyle         = scala.compiletime.uninitialized
-  val items:                  DynamicArray[T]        = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
+  val items:                  DynamicArray[T]        = DynamicArray.createRef[T]()
   var scrollPane:             SelectBoxScrollPane[T] = scala.compiletime.uninitialized
   private var _prefWidth:     Float                  = 0f
   private var _prefHeight:    Float                  = 0f

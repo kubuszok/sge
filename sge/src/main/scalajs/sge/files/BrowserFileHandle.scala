@@ -20,7 +20,7 @@ package files
 
 import java.io.{ BufferedInputStream, ByteArrayInputStream, File, InputStream, Reader }
 import java.io.InputStreamReader
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Browser implementation of [[FileHandle]]. Reads from the [[BrowserAssetLoader]]'s in-memory cache. Write operations are not supported and will throw.
   *

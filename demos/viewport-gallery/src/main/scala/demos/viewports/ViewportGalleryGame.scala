@@ -14,7 +14,7 @@ import sge.graphics.OrthographicCamera
 import sge.graphics.glutils.HdpiUtils
 import sge.graphics.glutils.ShapeRenderer
 import sge.graphics.glutils.ShapeRenderer.ShapeType
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.utils.ScreenUtils
 import sge.utils.Scaling
 import sge.utils.viewport.ExtendViewport

@@ -50,7 +50,9 @@ import sge.graphics.glutils.{ FrameBuffer, FrameBufferCubemap, ShaderProgram, Sh
 import sge.graphics.glutils.ShapeRenderer.ShapeType
 import sge.graphics.Pixmap
 import sge.math.{ Matrix4, Vector3 }
-import sge.utils.{ DynamicArray, Nullable, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.SgeError
 
 class IBLBuilder private (using sge: Sge) extends AutoCloseable {
 

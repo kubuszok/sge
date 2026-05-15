@@ -5,7 +5,7 @@
 package sge
 package maps
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class MapPropertiesTest extends munit.FunSuite {
 

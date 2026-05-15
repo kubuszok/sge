@@ -26,10 +26,13 @@
 package sge
 package maps
 
+import sge.utils.createRef
+
 import scala.util.boundary
 import scala.util.boundary.break
 import scala.reflect.ClassTag
-import sge.utils.{ DynamicArray, MkArray, Nullable }
+import lowlevel.{ MkArray, Nullable }
+import lowlevel.util.DynamicArray
 
 /** @brief Collection of MapObject instances */
 class MapObjects extends Iterable[MapObject] {
@@ -89,7 +92,7 @@ class MapObjects extends Iterable[MapObject] {
     *   array filled with all the objects in the collection matching type
     */
   def byType[T <: MapObject](using tag: ClassTag[T]): DynamicArray[T] =
-    getByType(DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true))
+    getByType(DynamicArray.createRef[T]())
 
   /** @param fill
     *   collection to put the returned objects in

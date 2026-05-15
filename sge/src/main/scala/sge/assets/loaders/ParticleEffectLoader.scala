@@ -17,7 +17,8 @@ package loaders
 
 import sge.files.FileHandle
 import sge.graphics.g2d.{ ParticleEffect, TextureAtlas }
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 /** {@link AssetLoader} to load {@link ParticleEffect} instances. Passing a {@link ParticleEffectParameter} to {@link AssetManager#load(String, Class, AssetLoaderParameters)} allows to specify an
   * atlas file or an image directory to be used for the effect's images. Per default images are loaded from the directory in which the effect file is found.

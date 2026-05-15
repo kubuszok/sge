@@ -19,7 +19,8 @@ package colorful
 package rgb
 
 import sge.colorful.FloatColors
-import sge.math.{ Interpolation, MathUtils }
+import lowlevel.math.MathUtils
+import sge.math.Interpolation
 
 import scala.collection.mutable.ArrayBuffer
 

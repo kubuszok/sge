@@ -23,7 +23,8 @@ import sge.graphics.g3d.utils.{ DefaultTextureBinder, RenderContext }
 import sge.graphics.glutils.ShaderProgram
 import sge.math.Interpolation
 import sge.screen.utils.QuadMeshGenerator
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 import sge.utils.viewport.{ ScreenViewport, Viewport }
 
 /** A transition that is using a shader to render the two transitioning screens. Can be reused.

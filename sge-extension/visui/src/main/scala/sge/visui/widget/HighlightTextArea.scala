@@ -23,7 +23,8 @@ import scala.util.boundary
 import sge.graphics.Color
 import sge.graphics.g2d.{ Batch, BitmapFont, GlyphLayout }
 import sge.scenes.scene2d.ui.ScrollPane
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 import sge.visui.util.highlight.{ BaseHighlighter, Highlight }
 
 /** Text area implementation supporting highlighting words and scrolling in both X and Y directions.

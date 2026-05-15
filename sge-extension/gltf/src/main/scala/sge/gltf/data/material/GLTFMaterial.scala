@@ -17,7 +17,7 @@ package data
 package material
 
 import sge.gltf.data.texture.{ GLTFNormalTextureInfo, GLTFOcclusionTextureInfo, GLTFTextureInfo }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFMaterial extends GLTFEntity {
   var emissiveFactor: Nullable[Array[Float]] = Nullable.empty

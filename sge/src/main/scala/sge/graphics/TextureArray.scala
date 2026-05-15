@@ -26,12 +26,13 @@ package sge
 package graphics
 
 import sge.files.FileHandle
-import sge.utils.{ Nullable, SgeError }
+import lowlevel.Nullable
+import sge.utils.SgeError
 import scala.annotation.nowarn
 import sge.graphics.Pixmap.Format
 
 import scala.collection.mutable
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** Open GLES wrapper for TextureArray
   * @author

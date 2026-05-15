@@ -30,7 +30,9 @@ package g3d
 import scala.util.boundary
 import scala.util.boundary.break
 
-import sge.utils.{ DynamicArray, Nullable, SgeError }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.SgeError
 
 /** Extend this class to implement a material attribute. Register the attribute type by statically calling the [[Attribute.register]] method, whose return value should be used to instantiate the
   * attribute. A class can implement multiple types

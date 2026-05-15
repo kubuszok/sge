@@ -26,7 +26,7 @@ package tools
 package texturepacker
 
 import sge.tools.texturepacker.TexturePacker.{ Alias, Rect, Resampling, Settings }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 import java.awt.{ Graphics2D, Image, RenderingHints }
 import java.awt.image.{ BufferedImage, WritableRaster }

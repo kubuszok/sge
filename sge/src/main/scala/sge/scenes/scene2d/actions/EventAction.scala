@@ -26,7 +26,8 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** Waits for an event to be fired by the target actor, then executes.
   * @author

@@ -24,7 +24,7 @@ import sge.graphics.Texture
 import sge.graphics.g2d.Batch
 import sge.graphics.glutils.ShaderProgram
 import sge.scenes.scene2d.ui.Image
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** @author Kotcrab */
 class GridSubImage(gridShader: ShaderProgram, whiteTexture: Texture, gridSize: Float) {

@@ -25,7 +25,7 @@ package sge
 package textra
 
 import sge.graphics.Color
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A tooltip that shows a TextraLabel. */
 class TextraTooltip(

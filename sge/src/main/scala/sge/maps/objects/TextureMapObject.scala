@@ -26,7 +26,7 @@ package maps
 package objects
 
 import sge.graphics.g2d.TextureRegion
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** @brief Represents a map object containing a texture (region) */
 class TextureMapObject(initialRegion: Nullable[TextureRegion] = Nullable.empty) extends MapObject {

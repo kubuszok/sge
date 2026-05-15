@@ -33,8 +33,8 @@ package graphics
 package g3d
 package particles
 
-import sge.utils.DynamicArray
-import sge.utils.Nullable
+import lowlevel.util.DynamicArray
+import lowlevel.Nullable
 import sge.utils.SgeError
 
 /** This class represents an group of elements like an array, but the properties of the elements are stored as separate arrays. These arrays are called [[Channel]] and are represented by

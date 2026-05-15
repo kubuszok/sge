@@ -15,7 +15,8 @@ package sge
 package textra
 package effects
 
-import sge.math.{ Interpolation, MathUtils }
+import lowlevel.math.MathUtils
+import sge.math.Interpolation
 import scala.collection.mutable.HashMap
 
 /** Moves the text vertically easing it into the final position. Doesn't repeat itself. */

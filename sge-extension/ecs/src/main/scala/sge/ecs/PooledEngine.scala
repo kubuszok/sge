@@ -29,7 +29,7 @@ package ecs
 
 import scala.collection.mutable.HashMap
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.utils.Pool
 
 /** Supports [[Entity]] and [[Component]] pooling. This improves performance in environments where creating/deleting entities is frequent as it greatly reduces memory allocation.

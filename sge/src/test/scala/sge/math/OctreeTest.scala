@@ -31,7 +31,7 @@ class OctreeTest extends munit.FunSuite {
           // semantics are: return distance on hit, Float.POSITIVE_INFINITY on miss.
           // The original test's rayCast path is not exercised so the inversion
           // was harmless there. We use the correct (non-inverted) logic.
-          if (Intersector.intersectRayBounds(ray, geometry, sge.utils.Nullable(tmp)))
+          if (Intersector.intersectRayBounds(ray, geometry, lowlevel.Nullable(tmp)))
             tmp.distanceSq(ray.origin)
           else
             Float.PositiveInfinity

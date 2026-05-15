@@ -25,7 +25,7 @@ package ecs
 package systems
 
 import sge.ecs.utils.ImmutableArray
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A simple [[EntitySystem]] that processes a [[Family]] of entities not once per frame, but after a given interval. Entity processing logic should be placed in [[processEntity]].
   *

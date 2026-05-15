@@ -32,7 +32,7 @@ package renderers
 import sge.graphics.g3d.particles.ParticleController
 import sge.graphics.g3d.particles.ParticleControllerComponent
 import sge.graphics.g3d.particles.batches.ParticleBatch
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** It's a {@link ParticleControllerComponent} which determines how the particles are rendered. It's the base class of every particle renderer.
   * @author

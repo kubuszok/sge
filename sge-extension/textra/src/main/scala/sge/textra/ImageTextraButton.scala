@@ -29,7 +29,8 @@ import scala.util.boundary.break
 
 import sge.graphics.Color
 import sge.graphics.g2d.Batch
-import sge.utils.{ Align, Nullable }
+import lowlevel.Nullable
+import sge.utils.Align
 
 /** A button with a child Image and TextraLabel. */
 class ImageTextraButton(

@@ -2,7 +2,7 @@ package sge
 package ecs
 
 import sge.ecs.signals.{ Listener, Signal }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class EntitySuite extends munit.FunSuite {
 

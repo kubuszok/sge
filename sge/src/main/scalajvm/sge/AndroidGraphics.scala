@@ -19,7 +19,8 @@ import sge.graphics.Cursor.SystemCursor
 import sge.graphics.glutils.GLVersion
 import sge.graphics.{ AndroidGL20Adapter, AndroidGL30Adapter }
 import sge.platform.android._
-import sge.utils.{ Nullable, Seconds }
+import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** An implementation of [[Graphics]] for Android.
   *

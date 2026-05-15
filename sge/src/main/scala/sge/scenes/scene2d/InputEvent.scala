@@ -27,7 +27,7 @@ package scenes
 package scene2d
 
 import sge.Input.{ Button, Key }
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.math.Vector2
 
 /** Event for actor input: touch, mouse, touch/mouse actor enter/exit, mouse scroll, and keyboard events.

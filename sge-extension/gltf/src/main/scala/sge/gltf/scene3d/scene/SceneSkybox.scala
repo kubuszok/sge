@@ -28,7 +28,9 @@ import sge.graphics.g3d.utils.{ DefaultShaderProvider, ModelBuilder, ShaderProvi
 import sge.graphics.glutils.ShaderProgram
 import sge.graphics.VertexAttributes
 import sge.math.Matrix4
-import sge.utils.{ DynamicArray, Nullable, Pool }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
+import sge.utils.Pool
 
 class SceneSkybox(using sge: Sge) extends RenderableProvider with Updatable with AutoCloseable {
 

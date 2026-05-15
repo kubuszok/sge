@@ -13,10 +13,10 @@ import sge.utils.Seconds
 import sge.graphics.{Color, OrthographicCamera, Pixmap, Texture}
 import sge.graphics.g2d.{SpriteBatch, TextureRegion}
 import sge.maps.tiled.{TiledMap, TiledMapTileLayer, TiledMapTileSet}
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.maps.tiled.tiles.StaticTiledMapTile
 import sge.maps.tiled.renderers.OrthogonalTiledMapRenderer
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.utils.ScreenUtils
 import sge.utils.viewport.FitViewport
 import demos.shared.DemoScene

@@ -15,7 +15,7 @@
  */
 package sge
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Configuration for browser (Scala.js) applications.
   *

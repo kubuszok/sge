@@ -51,7 +51,8 @@ import sge.graphics.g3d.Material
 import sge.graphics.g3d.model.data._
 import sge.graphics.glutils.ShaderProgram
 import sge.math.{ Quaternion, Vector3 }
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 /** {@link ModelLoader} to load Wavefront OBJ files. Only intended for testing basic models/meshes and educational usage. The Wavefront specification is NOT fully implemented, only a subset of the
   * specification is supported. Especially the {@link Material} ({@link Attributes}), e.g. the color or texture applied, might not or not correctly be loaded. </p>

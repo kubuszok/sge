@@ -22,7 +22,7 @@
 package sge
 package graphics
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
 import java.io.DataInputStream

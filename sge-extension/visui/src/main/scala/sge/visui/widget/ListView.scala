@@ -22,7 +22,7 @@ import scala.language.implicitConversions
 
 import sge.graphics.g2d.Batch
 import sge.scenes.scene2d.Actor
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.visui.VisUI
 import sge.visui.util.adapter.ListAdapter
 

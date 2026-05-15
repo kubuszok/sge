@@ -15,7 +15,7 @@ package sge
 package gltf
 package data
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFAsset extends GLTFObject {
   var generator:  Nullable[String] = Nullable.empty

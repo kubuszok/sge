@@ -17,7 +17,7 @@ package data
 package material
 
 import sge.gltf.data.texture.GLTFTextureInfo
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class GLTFpbrMetallicRoughness extends GLTFObject {
   var baseColorFactor:          Nullable[Array[Float]]    = Nullable.empty

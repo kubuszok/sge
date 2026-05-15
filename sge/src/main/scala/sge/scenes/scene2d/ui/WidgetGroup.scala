@@ -22,7 +22,7 @@ package ui
 
 import sge.graphics.g2d.Batch
 import sge.scenes.scene2d.utils.Layout
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A {@link Group} that participates in layout and provides a minimum, preferred, and maximum size.
   *

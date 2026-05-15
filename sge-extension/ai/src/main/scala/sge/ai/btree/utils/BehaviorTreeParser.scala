@@ -44,9 +44,9 @@ import java.io.Reader
 import scala.collection.mutable
 
 import sge.files.FileHandle
-import sge.utils.DynamicArray
-import sge.utils.Nullable
-import sge.utils.ObjectSet
+import lowlevel.util.DynamicArray
+import lowlevel.Nullable
+import lowlevel.util.ObjectSet
 import sge.utils.SgeError
 
 /** A [[BehaviorTree]] parser.

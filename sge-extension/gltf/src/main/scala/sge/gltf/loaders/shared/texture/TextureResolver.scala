@@ -26,7 +26,7 @@ import sge.graphics.g3d.utils.TextureDescriptor
 import sge.gltf.data.texture.{ GLTFSampler, GLTFTexture, GLTFTextureInfo }
 import sge.gltf.loaders.exceptions.GLTFRuntimeException
 import sge.gltf.loaders.shared.GLTFTypes
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class TextureResolver extends AutoCloseable {
 

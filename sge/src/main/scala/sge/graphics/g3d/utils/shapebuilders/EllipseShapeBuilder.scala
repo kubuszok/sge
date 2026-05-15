@@ -29,8 +29,10 @@ package shapebuilders
 
 import sge.graphics.PrimitiveMode
 import sge.graphics.g3d.utils.MeshPartBuilder
-import sge.math.{ MathUtils, Vector3 }
-import sge.utils.{ Nullable, SgeError }
+import lowlevel.math.MathUtils
+import sge.math.Vector3
+import lowlevel.Nullable
+import sge.utils.SgeError
 
 /** Helper class with static methods to build ellipse shapes using {@link MeshPartBuilder}.
   * @author

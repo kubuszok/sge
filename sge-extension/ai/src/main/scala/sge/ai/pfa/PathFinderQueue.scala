@@ -36,7 +36,7 @@ import sge.ai.msg.Telegram
 import sge.ai.msg.Telegraph
 import sge.ai.Timepiece
 import sge.ai.utils.CircularBuffer
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.utils.TimeUtils
 
 import scala.util.boundary, boundary.break

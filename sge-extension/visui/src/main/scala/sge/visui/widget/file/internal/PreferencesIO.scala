@@ -21,7 +21,8 @@ package file
 package internal
 
 import sge.files.FileHandle
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 
 /** @author Kotcrab */
 class PreferencesIO(prefsName: String)(using Sge) {

@@ -19,11 +19,13 @@ package visui
 package widget
 
 import sge.graphics.g2d.Batch
-import sge.math.{ MathUtils, Rectangle, Vector2 }
+import lowlevel.math.MathUtils
+import sge.math.{ Rectangle, Vector2 }
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener, Touchable }
 import sge.scenes.scene2d.ui.WidgetGroup
 import sge.scenes.scene2d.utils.{ Drawable, Layout, ScissorStack }
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 import sge.visui.{ FocusManager, VisUI }
 import sge.visui.widget.internal.SplitPaneCursorManager
 

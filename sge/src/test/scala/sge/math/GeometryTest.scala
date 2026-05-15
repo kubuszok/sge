@@ -2,6 +2,8 @@
 package sge
 package math
 
+import lowlevel.math.MathUtils
+
 import sge.math.collision.Ray
 
 class GeometryTest extends munit.FunSuite {

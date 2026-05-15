@@ -10,7 +10,8 @@ package regression
 import sge.graphics.{ PerspectiveCamera, VertexAttributes }
 import sge.graphics.g3d.{ Material, Model, ModelBatch, ModelInstance }
 import sge.graphics.g3d.utils.ModelBuilder
-import sge.utils.{ Nullable, ScreenUtils }
+import lowlevel.Nullable
+import sge.utils.ScreenUtils
 
 /** Creates a procedural box via ModelBuilder, renders with ModelBatch, and checks for GL errors. */
 object Model3DScene extends RegressionScene {

@@ -4,7 +4,7 @@ package scenes
 package scene2d
 
 import sge.Input.{ Button, Key }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Tests for InputEvent: property access, type enum, reset, isTouchFocusCancel. */
 class InputEventTest extends munit.FunSuite {

@@ -34,9 +34,12 @@ package scenes
 package scene2d
 package utils
 
+import sge.utils.createRef
+
 import scala.collection.mutable.LinkedHashSet
 import sge.Sge
-import sge.utils.{ DynamicArray, MkArray, Nullable }
+import lowlevel.{ MkArray, Nullable }
+import lowlevel.util.DynamicArray
 
 /** Manages selected objects. Optionally fires a {@link ChangeEvent} on an actor. Selection changes can be vetoed via {@link ChangeEvent#cancel()}.
   * @author
@@ -259,7 +262,7 @@ class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
   override def iterator: Iterator[T] = selected.iterator
 
   def toArray: DynamicArray[T] = {
-    val result = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
+    val result = DynamicArray.createRef[T]()
     selected.foreach(result.add)
     result
   }

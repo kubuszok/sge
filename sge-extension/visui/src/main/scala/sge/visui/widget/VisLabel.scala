@@ -20,7 +20,8 @@ package widget
 
 import sge.graphics.Color
 import sge.scenes.scene2d.ui.Label
-import sge.utils.{ Align, Nullable }
+import lowlevel.Nullable
+import sge.utils.Align
 
 /** Compatible with [[Label]]. Does not provide additional features.
   * @author

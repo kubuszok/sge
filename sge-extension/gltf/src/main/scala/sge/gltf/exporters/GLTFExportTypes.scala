@@ -19,7 +19,7 @@ import scala.annotation.targetName
 import sge.graphics.Color
 import sge.graphics.g3d.attributes.ColorAttribute
 import sge.math.{ Quaternion, Vector3 }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 private[exporters] object GLTFExportTypes {
 

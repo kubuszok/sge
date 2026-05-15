@@ -20,7 +20,7 @@ package sge
 package audio
 
 import sge.platform.AudioOps
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 import scala.annotation.nowarn
 import scala.collection.mutable.ArrayBuffer

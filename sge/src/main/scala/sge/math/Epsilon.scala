@@ -18,6 +18,8 @@
 package sge
 package math
 
+import lowlevel.MkArray
+
 opaque type Epsilon = Float
 object Epsilon {
   @scala.annotation.targetName("summon")
@@ -25,7 +27,7 @@ object Epsilon {
 
   inline def apply(value: Float): Epsilon = value
 
-  given utils.MkArray[Epsilon] = utils.MkArray.mkFloat.asInstanceOf[utils.MkArray[Epsilon]]
+  given lowlevel.MkArray[Epsilon] = lowlevel.MkArray.mkFloat.asInstanceOf[lowlevel.MkArray[Epsilon]]
 
   extension (epsilon: Epsilon) {
     inline def toFloat: Float = epsilon

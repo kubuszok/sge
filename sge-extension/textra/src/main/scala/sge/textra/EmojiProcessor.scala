@@ -49,7 +49,7 @@ package sge
 package textra
 
 import java.util.regex.Pattern
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Allows getting a replacement function that can replace any "correct Unicode" emoji sequences with the single PUA-char representation used by a Font to represent most emoji.
   *

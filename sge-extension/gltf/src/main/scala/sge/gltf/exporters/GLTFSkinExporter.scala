@@ -24,7 +24,7 @@ import sge.math.Matrix4
 import sge.gltf.data.data.GLTFAccessor
 import sge.gltf.data.scene.{ GLTFNode, GLTFSkin }
 import sge.gltf.loaders.shared.GLTFTypes
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 private[exporters] class GLTFSkinExporter(private val base: GLTFExporter) {
 

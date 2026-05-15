@@ -15,7 +15,8 @@
  */
 package sge
 
-import sge.utils.{ Clipboard, Nullable }
+import lowlevel.Nullable
+import sge.utils.Clipboard
 
 /** Desktop clipboard implementation that delegates to windowing system functions.
   *

@@ -25,7 +25,7 @@ import sge.gltf.scene3d.lights.DirectionalShadowLight
 import sge.graphics.Camera
 import sge.math.{ Matrix4, Vector3 }
 import sge.math.collision.BoundingBox
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 class CascadeShadowMap(protected val cascadeCount: Int)(using Sge) extends AutoCloseable {
 

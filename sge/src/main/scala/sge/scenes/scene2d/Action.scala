@@ -26,7 +26,8 @@ package sge
 package scenes
 package scene2d
 
-import sge.utils.{ Nullable, Pool, Seconds }
+import lowlevel.Nullable
+import sge.utils.{ Pool, Seconds }
 
 /** Actions attach to an {@link Actor} and perform some task, often over time.
   * @author

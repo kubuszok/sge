@@ -69,6 +69,7 @@ def collectClassFiles(classDir: File): Seq[(File, String)] =
 val versions = new {
   val scala = SgePlugin.scalaVersion
 
+  val lls       = "cc2f33b307d0601953599940c594ccf3d83707d8-SNAPSHOT"
   val kindlings = "0.1.2"
   val sttp      = "4.0.22"
   val xml       = "2.3.0"
@@ -98,6 +99,8 @@ val sge = (projectMatrix in file("sge"))
     name := "sge",
     resolvers += mavenCentralSnapshots,
     libraryDependencies ++= Seq(
+      "com.kubuszok" %%% "lls" % versions.lls,
+      "com.kubuszok" %%% "kindlings-fast-show-pretty" % versions.kindlings,
       "com.kubuszok" %%% "kindlings-jsoniter-derivation" % versions.kindlings,
       "com.kubuszok" %%% "kindlings-jsoniter-json" % versions.kindlings,
       "com.kubuszok" %%% "kindlings-ubjson-derivation" % versions.kindlings,

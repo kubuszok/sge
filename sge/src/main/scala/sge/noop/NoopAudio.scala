@@ -30,7 +30,7 @@
 package sge
 package noop
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** A no-op [[sge.Audio]] implementation for headless/testing use. Returns noop instances for all audio resource factory methods.
   */

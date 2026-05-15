@@ -35,8 +35,8 @@ package sge
 package ai
 package msg
 
-import sge.utils.Nullable
-import sge.utils.DynamicArray
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 import sge.utils.Pool
 import scala.collection.mutable.HashMap
 

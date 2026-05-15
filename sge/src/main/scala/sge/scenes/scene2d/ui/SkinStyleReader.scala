@@ -24,7 +24,7 @@ import sge.graphics.Color
 import sge.graphics.g2d.BitmapFont
 import sge.scenes.scene2d.utils.Drawable
 import sge.utils.Json
-import sge.utils.Nullable
+import lowlevel.Nullable
 import sge.utils.SgeError
 
 /** Type class for reading widget style objects from skin JSON without reflection.

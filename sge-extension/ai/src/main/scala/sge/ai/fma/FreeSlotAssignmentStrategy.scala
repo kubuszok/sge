@@ -31,7 +31,7 @@ package ai
 package fma
 
 import sge.math.Vector
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 
 /** `FreeSlotAssignmentStrategy` is the simplest implementation of [[SlotAssignmentStrategy]]. It simply goes through each assignment in the list and assigns sequential slot numbers. The number of
   * slots is just the length of the list.

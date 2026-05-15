@@ -45,7 +45,8 @@ import sge.graphics.g3d.shaders.{ BaseShader, DefaultShader }
 import sge.graphics.g3d.utils.RenderContext
 import sge.graphics.glutils.ShaderProgram
 import sge.math.{ Matrix4, Vector3 }
-import sge.utils.{ Nullable, SgeError }
+import lowlevel.Nullable
+import sge.utils.SgeError
 
 /** This is a custom shader to render the particles. Usually is not required, because the {@link DefaultShader} will be used instead. This shader will be used when dealing with billboards using GPU
   * mode or point sprites.

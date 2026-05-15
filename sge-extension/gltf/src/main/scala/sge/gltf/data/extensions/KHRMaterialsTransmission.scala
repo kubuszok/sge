@@ -17,7 +17,7 @@ package data
 package extensions
 
 import sge.gltf.data.texture.GLTFTextureInfo
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** [[sge.gltf.data.material.GLTFMaterial]] extension. See https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_transmission/README.md
   */

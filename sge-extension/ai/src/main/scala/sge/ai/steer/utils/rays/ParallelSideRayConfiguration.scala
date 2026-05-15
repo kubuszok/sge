@@ -33,7 +33,8 @@ package utils
 package rays
 
 import sge.ai.utils.Ray
-import sge.math.{ MathUtils, Vector }
+import lowlevel.math.MathUtils
+import sge.math.Vector
 
 /** A `ParallelSideRayConfiguration` uses two rays parallel to the direction of motion. The rays have the same length and opposite side offset.
   *

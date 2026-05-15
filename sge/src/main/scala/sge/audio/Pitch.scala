@@ -16,10 +16,12 @@
 package sge
 package audio
 
+import lowlevel.MkArray
+
 opaque type Pitch = Float
 object Pitch {
 
-  given utils.MkArray[Pitch] = utils.MkArray.mkFloat.asInstanceOf[utils.MkArray[Pitch]]
+  given lowlevel.MkArray[Pitch] = lowlevel.MkArray.mkFloat.asInstanceOf[lowlevel.MkArray[Pitch]]
 
   def parse(value: Float): Either[String, Pitch] =
     if (value < 0.5 || value > 2.0) Left(s"Pitch must be between 0.5 and 2.0, got $value")

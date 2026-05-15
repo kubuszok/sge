@@ -31,10 +31,10 @@ import sge.graphics.Mesh.VertexDataType
 import sge.graphics.VertexAttributes.Usage
 import sge.graphics.glutils.ShaderProgram
 import sge.math.Affine2
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.math.Matrix4
 import sge.graphics.{ Color, GL20, VertexAttribute }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 import scala.annotation.publicInBinary
 import scala.compiletime.uninitialized

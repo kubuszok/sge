@@ -25,7 +25,8 @@ import sge.scenes.scene2d.{ Actor, InputEvent, InputListener }
 import sge.scenes.scene2d.actions.Actions
 import sge.scenes.scene2d.ui.Cell
 import sge.scenes.scene2d.utils.Drawable
-import sge.utils.{ Align, Nullable, Seconds, Timer }
+import lowlevel.Nullable
+import sge.utils.{ Align, Seconds, Timer }
 import sge.visui.VisUI
 import sge.visui.util.ActorUtils
 

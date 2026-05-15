@@ -24,7 +24,8 @@ import sge.files.FileHandle
 import sge.scenes.scene2d.Actor
 import scala.collection.mutable
 
-import sge.utils.{ DynamicArray, Nullable }
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 import sge.visui.layout.GridGroup
 import sge.visui.util.adapter.ArrayAdapter
 import sge.visui.widget.VisTable

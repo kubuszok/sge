@@ -29,7 +29,7 @@ package graphics
 package g2d
 
 import scala.collection.mutable.{ Map as MutableMap, Set as MutableSet }
-import sge.utils.DynamicArray
+import lowlevel.util.DynamicArray
 import scala.util.boundary
 import scala.language.implicitConversions
 import sge.Sge
@@ -38,7 +38,8 @@ import sge.graphics.Texture
 import sge.graphics.Pixmap.Format
 import sge.graphics.Texture.{ TextureFilter, TextureWrap }
 import sge.graphics.g2d.{ NinePatch, Sprite, TextureRegion }
-import sge.utils.{ Nullable, SgeError, StreamUtils }
+import lowlevel.Nullable
+import sge.utils.{ SgeError, StreamUtils }
 
 /** Loads images from texture atlases created by TexturePacker.<br> <br> A TextureAtlas must be disposed to free up the resources consumed by the backing textures.
   * @author

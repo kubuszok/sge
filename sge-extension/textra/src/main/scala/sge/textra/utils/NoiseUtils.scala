@@ -18,7 +18,7 @@ package sge
 package textra
 package utils
 
-import sge.math.MathUtils
+import lowlevel.math.MathUtils
 import sge.utils.NumberUtils
 
 /** Some 1D noise methods to be used when an effect needs smooth but random changes. */

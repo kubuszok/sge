@@ -24,6 +24,8 @@
 package sge
 package utils
 
+import lowlevel.Nullable
+
 import java.io.ByteArrayOutputStream
 import java.io.Closeable
 import java.io.InputStream

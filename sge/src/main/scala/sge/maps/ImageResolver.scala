@@ -30,7 +30,7 @@ import scala.collection.mutable
 import sge.assets.AssetManager
 import sge.graphics.Texture
 import sge.graphics.g2d.{ TextureAtlas, TextureRegion }
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 /** Resolves an image by a string, wrapper around a Map or AssetManager to load maps either directly or via AssetManager.
   * @author

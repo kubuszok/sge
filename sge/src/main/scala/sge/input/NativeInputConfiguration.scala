@@ -26,7 +26,7 @@
 package sge
 package input
 
-import sge.utils.Nullable
+import lowlevel.Nullable
 
 class NativeInputConfiguration {
 
