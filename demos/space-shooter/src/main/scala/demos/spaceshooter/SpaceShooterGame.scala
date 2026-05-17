@@ -10,7 +10,7 @@ import sge.graphics.Color
 import sge.graphics.glutils.ShapeRenderer
 import lowlevel.math.MathUtils
 import sge.math.{FloatCounter, WindowedMean}
-import lowlevel.util.{DynamicArray, ObjectSet, Sort}
+import lowlevel.util.{DynamicArray, ObjectSet}
 import sge.utils.{Poolable, Pool, ScreenUtils}
 import sge.utils.viewport.FitViewport
 
@@ -250,7 +250,7 @@ object SpaceShooterGame extends demos.shared.DemoScene {
 
     // Sort enemies back-to-front for rendering
     if (enemies.size > 1) {
-      Sort.sort(enemies, enemyOrdering)
+      enemies.sort(enemyOrdering)
     }
 
     // Update stars

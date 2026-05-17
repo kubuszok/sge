@@ -1,32 +1,29 @@
 import _root_.multiarch.sbt.Platform
 import _root_.sge.sbt.{SgeNativeLibs, SgePlugin}
+import sbtwelcome.UsefulTask
 
 // Reload sbt when build files change (avoids stale --client sessions).
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 // Format on compile during local development, skip on CI.
-lazy val isCI = sys.env.get("CI").contains("true")
 ThisBuild / packageDoc / publishArtifact := false
-ThisBuild / scalafmtOnCompile := !isCI
 
 // Version from git tags: tagged commits get clean versions (e.g. "0.1.0"),
 // untagged commits get SNAPSHOT versions (e.g. "0.1.0-SNAPSHOT").
 // When a vX.Y.Z tag exists, git describe produces that version directly.
-git.useGitDescribe       := true
-git.uncommittedSignifier := Some("SNAPSHOT")
 // Sonatype ignores isSnapshot setting and only looks at -SNAPSHOT suffix in version:
 //   https://central.sonatype.org/publish/publish-maven/#performing-a-snapshot-deployment
 // meanwhile sbt-git used to set up SNAPSHOT if there were uncommitted changes:
 //   https://github.com/sbt/sbt-git/issues/164
 // (now this suffix is empty by default) so we need to fix it manually.
-git.gitUncommittedChanges := git.gitCurrentTags.value.isEmpty
 // I don't want any 0.1.0 crap, every commit that is not tag, gets last-tag-SHA-SNAPSHOT version like god intended.
 //git.formattedShaVersion  := git.gitHeadCommit.value.map(_ => s"${git.baseVersion.value}-SNAPSHOT")
 
 // Used to publish snapshots to Maven Central.
-val mavenCentralSnapshots = "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots"
 
 val publishSettings = Seq(
+  projectType := ProjectType.ScalaLibrary,
+  packageDoc / publishArtifact := false,
   organization := "com.kubuszok",
   homepage := Some(url("https://github.com/kubuszok/sge")),
   organizationHomepage := Some(url("https://kubuszok.com")),
@@ -60,7 +57,7 @@ val publishSettings = Seq(
 )
 
 val noPublishSettings =
-  Seq(publish / skip := true, publishArtifact := false)
+  Seq(projectType := ProjectType.NonPublished)
 
 /** Collect all files from a class directory as (File, relative-path) pairs for JAR mappings. */
 def collectClassFiles(classDir: File): Seq[(File, String)] =
@@ -69,7 +66,7 @@ def collectClassFiles(classDir: File): Seq[(File, String)] =
 val versions = new {
   val scala = SgePlugin.scalaVersion
 
-  val lls       = "82b19cbb0f15b3f9e2493b4412bd09541474440f-SNAPSHOT"
+  val lls       = "0.1.0"
   val kindlings = "0.1.2"
   val sttp      = "4.0.22"
   val xml       = "2.3.0"
@@ -97,7 +94,7 @@ val sge = (projectMatrix in file("sge"))
   .settings(publishSettings *)
   .settings(
     name := "sge",
-    resolvers += mavenCentralSnapshots,
+    resolvers += Resolver.mavenLocal,
     libraryDependencies ++= Seq(
       "com.kubuszok" %%% "lls" % versions.lls,
       "com.kubuszok" %%% "kindlings-fast-show-pretty" % versions.kindlings,
@@ -272,7 +269,7 @@ lazy val `sge-jvm-platform-api` = (project in file("sge-jvm-platform/api"))
     scalacOptions ++= Seq("-release", "17"),
     // PanamaProvider type alias references multiarch-panama-api
     libraryDependencies += "com.kubuszok" %% "multiarch-panama-api" % "0.2.0",
-    resolvers += mavenCentralSnapshots
+    resolvers += Resolver.mavenLocal
   )
 
 // SGE convention: downloaded Android SDK lives under sge-deps/
@@ -286,7 +283,6 @@ lazy val `sge-jvm-platform-android` = (project in file("sge-jvm-platform/android
   .settings(noPublishSettings *)
   .settings(
     scalaVersion := versions.scala,
-    publish / skip := true,
     // Target JDK 17 bytecode (Android ART)
     scalacOptions ++= Seq("-release", "17"),
     // src/main/scala-android/ only compiled when android.jar is present.
@@ -321,7 +317,7 @@ lazy val `sge-tools` = (project in file("sge-extension/tools"))
   .settings(
     name := "sge-extension-tools",
     scalaVersion := versions.scala,
-    resolvers += mavenCentralSnapshots,
+    resolvers += Resolver.mavenLocal,
     Compile / mainClass := Some("sge.tools.texturepacker.TexturePacker"),
     libraryDependencies ++= Seq(
       "org.scalameta" %% "munit" % versions.munit % Test
@@ -351,7 +347,7 @@ val `sge-freetype` = (projectMatrix in file("sge-extension/freetype"))
   .jvmPlatform(
     scalaVersions = Seq(versions.scala),
     settings = SgePlugin.jvmSettings(projectDir = "sge-extension/freetype") ++ Seq(
-      resolvers += mavenCentralSnapshots,
+      resolvers += Resolver.mavenLocal,
       Compile / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
         apiDirs.map(Attributed.blank)
@@ -389,7 +385,7 @@ val `sge-freetype` = (projectMatrix in file("sge-extension/freetype"))
     scalaVersions = Seq(versions.scala),
     settings = SgePlugin.nativeSettings(projectDir = "sge-extension/freetype") ++
       _root_.multiarch.sbt.NativeProviderPlugin.projectSettings ++ Seq(
-      resolvers += mavenCentralSnapshots,
+      resolvers += Resolver.mavenLocal,
       libraryDependencies += "com.kubuszok" % "sn-provider-sge-freetype" % versions.nativeComponents
     )
   )
@@ -411,7 +407,7 @@ val `sge-physics` = (projectMatrix in file("sge-extension/physics"))
   .jvmPlatform(
     scalaVersions = Seq(versions.scala),
     settings = SgePlugin.jvmSettings(projectDir = "sge-extension/physics") ++ Seq(
-      resolvers += mavenCentralSnapshots,
+      resolvers += Resolver.mavenLocal,
       libraryDependencies += "com.kubuszok" % "pnm-provider-sge-physics-desktop" % versions.nativeComponents,
       Compile / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
@@ -454,7 +450,7 @@ val `sge-physics` = (projectMatrix in file("sge-extension/physics"))
     scalaVersions = Seq(versions.scala),
     settings = SgePlugin.nativeSettings(projectDir = "sge-extension/physics") ++
       _root_.multiarch.sbt.NativeProviderPlugin.projectSettings ++ Seq(
-      resolvers += mavenCentralSnapshots,
+      resolvers += Resolver.mavenLocal,
       libraryDependencies += "com.kubuszok" % "sn-provider-sge-physics" % versions.nativeComponents
     )
   )
@@ -475,7 +471,7 @@ val `sge-physics3d` = (projectMatrix in file("sge-extension/physics3d"))
   .jvmPlatform(
     scalaVersions = Seq(versions.scala),
     settings = SgePlugin.jvmSettings(projectDir = "sge-extension/physics3d") ++ Seq(
-      resolvers += mavenCentralSnapshots,
+      resolvers += Resolver.mavenLocal,
       libraryDependencies += "com.kubuszok" % "pnm-provider-sge-physics3d-desktop" % versions.nativeComponents,
       Compile / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
@@ -518,7 +514,7 @@ val `sge-physics3d` = (projectMatrix in file("sge-extension/physics3d"))
     scalaVersions = Seq(versions.scala),
     settings = SgePlugin.nativeSettings(projectDir = "sge-extension/physics3d") ++
       _root_.multiarch.sbt.NativeProviderPlugin.projectSettings ++ Seq(
-      resolvers += mavenCentralSnapshots,
+      resolvers += Resolver.mavenLocal,
       libraryDependencies += "com.kubuszok" % "sn-provider-sge-physics3d" % versions.nativeComponents
     )
   )
@@ -989,7 +985,7 @@ lazy val `sge-it-jvm-platform` = (project in file("sge-test/it-jvm-platform"))
     scalaVersion := versions.scala,
     libraryDependencies += "org.scalameta" %% "munit" % versions.munit % Test,
     libraryDependencies += "com.kubuszok" %% "multiarch-panama-jdk" % "0.2.0",
-    resolvers += mavenCentralSnapshots,
+    resolvers += Resolver.mavenLocal,
     testFrameworks += new TestFramework("munit.Framework")
   )
   .dependsOn(`sge-jvm-platform-api`, `sge-jvm-platform-android`)
@@ -1073,7 +1069,7 @@ ThisBuild / writeDemoVersion := {
 
 // ── Root project — git-based versioning ──────────────────────────────
 lazy val root = (project in file("."))
-  .enablePlugins(GitVersioning)
+  .enablePlugins(KubuszokRootPlugin)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
   // Core library
@@ -1103,6 +1099,25 @@ lazy val root = (project in file("."))
   .aggregate(`sge-it-browser`)
   .aggregate(`sge-it-android`)
   .aggregate(`sge-it-native-ffi`)
+  .settings(
+    logo :=
+      s"""SGE ${version.value} for Scala ${SgePlugin.scalaVersion} x (JVM, Scala.js, Scala Native)
+         |
+         |This build uses sbt-projectmatrix:
+         | - Scala JVM adds no suffix to a project name seen in build.sbt
+         | - Scala.js adds the "JS" suffix to a project name seen in build.sbt
+         | - Scala Native adds the "Native" suffix to a project name seen in build.sbt
+         |""".stripMargin,
+    usefulTasks := Seq(
+      UsefulTask("test-jvm", "Run all JVM unit tests").noAlias,
+      UsefulTask("test-js", "Run all Scala.js unit tests").noAlias,
+      UsefulTask("test-native", "Run all Scala Native unit tests").noAlias,
+      UsefulTask("compile", "Compile everything").noAlias,
+      UsefulTask("publishLocal", "Publish all modules locally").noAlias,
+      UsefulTask("ci-release", "Publish snapshot or release (based on git tags)").noAlias,
+      UsefulTask("scalafmtAll", "Format all sources").noAlias
+    )
+  )
 
 // ── Test aggregation aliases ─────────────────────────────────────────
 // Run all unit tests for a given platform (core + all extensions).

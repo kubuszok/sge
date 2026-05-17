@@ -12,8 +12,9 @@ import sge.graphics.Color
 import sge.graphics.glutils.ShapeRenderer
 import sge.math.{
   Bezier, Bresenham2, CatmullRomSpline, ConvexHull, DelaunayTriangulator,
-  EarClippingTriangulator, GeometryUtils, Interpolation, MathUtils, Vector2
+  EarClippingTriangulator, GeometryUtils, Interpolation, Vector2
 }
+import lowlevel.math.MathUtils
 import lowlevel.util.DynamicArray
 import sge.utils.ScreenUtils
 import sge.utils.viewport.FitViewport

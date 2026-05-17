@@ -35,6 +35,8 @@ import sge.math.Vector2
 import sge.scenes.scene2d.*
 import sge.scenes.scene2d.ui.*
 import sge.scenes.scene2d.utils.*
+import lowlevel.Nullable
+import lowlevel.util.DynamicArray
 import sge.utils.*
 import sge.visui.{ FocusManager, Focusable, Sizes, VisUI }
 import sge.visui.layout.GridGroup

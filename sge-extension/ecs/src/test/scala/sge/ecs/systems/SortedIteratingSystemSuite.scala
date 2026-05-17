@@ -2,8 +2,6 @@ package sge
 package ecs
 package systems
 
-import lowlevel.util.Sort
-
 import scala.collection.mutable
 
 class SortedIteratingSystemSuite extends munit.FunSuite {

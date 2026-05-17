@@ -161,30 +161,25 @@ object FormValidator {
     var relativeToFile:       Nullable[File]         = Nullable.empty
     var errorIfRelativeEmpty: Boolean                = false
 
-    def this(relativeToField: Nullable[VisTextField], errorMsg: String)(using Sge) = {
-      this(errorMsg)
-      this.relativeTo = relativeToField
+    private def setRelativeTo(source: Nullable[VisTextField | File]): Unit = source.foreach {
+      case f: VisTextField => this.relativeTo = Nullable(f)
+      case f: File         => this.relativeToFile = Nullable(f)
     }
 
-    def this(relativeToField: Nullable[VisTextField], errorMsg: String, mustNotExist: Boolean)(using Sge) = {
+    def this(relativeToSource: Nullable[VisTextField | File], errorMsg: String)(using Sge) = {
+      this(errorMsg)
+      this.setRelativeTo(relativeToSource)
+    }
+
+    def this(relativeToSource: Nullable[VisTextField | File], errorMsg: String, mustNotExist: Boolean)(using Sge) = {
       this(errorMsg, mustNotExist)
-      this.relativeTo = relativeToField
+      this.setRelativeTo(relativeToSource)
     }
 
     def this(relativeToField: Nullable[VisTextField], errorMsg: String, mustNotExist: Boolean, errorIfRelativeEmpty: Boolean)(using Sge) = {
       this(errorMsg, mustNotExist)
       this.relativeTo = relativeToField
       this.errorIfRelativeEmpty = errorIfRelativeEmpty
-    }
-
-    def this(relativeToFile: Nullable[File], errorMsg: String)(using Sge) = {
-      this(errorMsg)
-      this.relativeToFile = relativeToFile
-    }
-
-    def this(relativeToFile: Nullable[File], errorMsg: String, mustNotExist: Boolean)(using Sge) = {
-      this(errorMsg, mustNotExist)
-      this.relativeToFile = relativeToFile
     }
 
     override protected def validate(input: String): Boolean =

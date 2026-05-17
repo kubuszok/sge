@@ -39,7 +39,8 @@ val shared = (projectMatrix in file("shared"))
   .settings(
     name           := "sge-demos-shared",
     organization   := "com.kubuszok",
-    publish / skip := true
+    publish / skip := true,
+    libraryDependencies += "com.kubuszok" %%% "lls" % "0.1.0"
   )
   .jvmPlatform()
   .jsPlatform()

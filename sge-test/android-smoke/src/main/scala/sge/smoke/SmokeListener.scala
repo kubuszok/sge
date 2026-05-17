@@ -312,7 +312,7 @@ class SmokeListener()(using sge: Sge) extends ApplicationListener {
     try {
       val clipboard = sge.application.clipboard
       val testText  = s"sge-it-${System.nanoTime()}"
-      clipboard.contents = utils.Nullable(testText)
+      clipboard.contents = Nullable(testText)
       val readBack = clipboard.contents
       if (readBack.isDefined && readBack.get == testText) {
         logCheck("CLIPBOARD", passed = true, "Clipboard write/read OK")
