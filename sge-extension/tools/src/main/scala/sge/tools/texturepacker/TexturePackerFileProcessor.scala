@@ -33,7 +33,7 @@ import sge.tools.texturepacker.TexturePacker.{ ProgressListener, Resampling, Set
 import lowlevel.Nullable
 
 import java.io.{ File, FileInputStream, IOException }
-import java.util.regex.{ Matcher, Pattern }
+import java.util.regex.Pattern
 import scala.collection.mutable.{ ArrayBuffer, HashMap }
 import scala.util.boundary
 import scala.util.boundary.break
@@ -239,8 +239,7 @@ class TexturePackerFileProcessor(
       }
       deleteProcessor.setRecursive(false)
 
-      val packFile           = new File(rootSettings.getScaledPackFileName(packFileName, i))
-      val scaledPackFileName = packFile.getName()
+      val packFile = new File(rootSettings.getScaledPackFileName(packFileName, i))
 
       var prefix   = packFile.getName()
       val dotIndex = prefix.lastIndexOf('.')
