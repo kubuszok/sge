@@ -29,7 +29,7 @@ import sge.files.{ FileHandle, FileType }
 import sge.graphics.g2d.TextureAtlas.TextureAtlasData
 import lowlevel.Nullable
 
-import java.awt.{ Color, Graphics2D }
+import java.awt.Color
 import java.awt.geom.AffineTransform
 import java.awt.image.{ AffineTransformOp, BufferedImage }
 import java.io.{ File, IOException }

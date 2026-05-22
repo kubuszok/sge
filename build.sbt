@@ -1,29 +1,124 @@
 import _root_.multiarch.sbt.Platform
 import _root_.sge.sbt.{SgeNativeLibs, SgePlugin}
 import sbtwelcome.UsefulTask
+import commandmatrix.extra.*
+import kubuszok.sbt._
+import kubuszok.sbt.KubuszokPlugin.autoImport._
 
-// Reload sbt when build files change (avoids stale --client sessions).
-Global / onChangedBuildSource := ReloadOnSourceChanges
+// Versions
 
-// Format on compile during local development, skip on CI.
-ThisBuild / packageDoc / publishArtifact := false
+val versions = new {
+  // Versions we are publishing for.
+  val scala3 = SgePlugin.scalaVersion
 
-// Version from git tags: tagged commits get clean versions (e.g. "0.1.0"),
-// untagged commits get SNAPSHOT versions (e.g. "0.1.0-SNAPSHOT").
-// When a vX.Y.Z tag exists, git describe produces that version directly.
-// Sonatype ignores isSnapshot setting and only looks at -SNAPSHOT suffix in version:
-//   https://central.sonatype.org/publish/publish-maven/#performing-a-snapshot-deployment
-// meanwhile sbt-git used to set up SNAPSHOT if there were uncommitted changes:
-//   https://github.com/sbt/sbt-git/issues/164
-// (now this suffix is empty by default) so we need to fix it manually.
-// I don't want any 0.1.0 crap, every commit that is not tag, gets last-tag-SHA-SNAPSHOT version like god intended.
-//git.formattedShaVersion  := git.gitHeadCommit.value.map(_ => s"${git.baseVersion.value}-SNAPSHOT")
+  // Which versions should be cross-compiled for publishing.
+  val scalas = List(scala3)
+  val platforms = List(VirtualAxis.jvm, VirtualAxis.js, VirtualAxis.native)
 
-// Used to publish snapshots to Maven Central.
+  // Dependencies
+  val gears            = "0.2.0"
+  val kindlings        = "0.1.2"
+  val lls              = "0.1.0"
+  val scribe           = "3.17.0"
+  val scalajsDom       = "2.8.1"
+  val scalaSaxParser   = "0.1.0"
+  val scalaJavaTime    = "2.6.0"
+  val scalaJavaLocales = "1.5.4"
+  val sttp             = "4.0.22"
+  val xml              = "2.3.0"
+
+  // Tests
+  val munit           = "1.2.3"
+  val munitScalacheck = "1.2.0"
+
+  // Native component providers (from sge-native-providers repo)
+  val multiarch        = "0.2.0"
+  val nativeComponents = "0.1.2"
+  val curlProvider     = multiarch
+}
+
+val dev = new DevProperties(
+  scala213 = None,
+  scala3 = Some(versions.scala3),
+  platforms = versions.platforms
+)
+
+lazy val al = new Aliases(
+  published = Seq(
+    sge,
+    `sge-ai`,
+    `sge-anim8`,
+    `sge-colorful`,
+    `sge-controllers`,
+    `sge-ecs`,
+    `sge-freetype`,
+    `sge-gltf`,
+    `sge-graphs`,
+    `sge-jbump`,
+    `sge-noise`,
+    `sge-physics`,
+    `sge-physics3d`,
+    `sge-screens`,
+    `sge-textra`,
+    `sge-tools`,
+    `sge-vfx`,
+    `sge-visui`
+  ),
+  testOnly = Seq(
+    regressionTest
+  ),
+  compileOnly = Seq(
+    `sge-jvm-platform-api`,
+    `sge-jvm-platform-android`,
+    `sge-android-smoke`,
+    `sge-it-desktop`,
+    `sge-it-jvm-platform`,
+    `sge-it-browser`,
+    `sge-it-android`,
+    `sge-it-native-ffi`
+  )
+)
+
+def commonSettings(
+  projectDir: String = "sge",
+  rustLibPath: Option[String] = None
+) = Seq(
+  MatrixAction.ForAll.Configure(
+    _.settings(SgePlugin.commonSettings *).settings(
+      libraryDependencies ++= Seq(
+        "org.scalameta"     %%% "munit"             % versions.munit % Test,
+        "org.scalameta"     %%% "munit-scalacheck"  % versions.munitScalacheck % Test
+      ),
+      resolvers += Resolver.mavenLocal,
+      testFrameworks += new TestFramework("munit.Framework")
+    )
+  ),
+  MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(
+    Compile / unmanagedSourceDirectories ++= {
+      val desktopDir = (ThisBuild / baseDirectory).value / projectDir / "src" / "main" / "scaladesktop"
+      if (desktopDir.exists()) Seq(desktopDir) else Seq.empty
+    },
+    fork := true,
+    javaOptions ++= {
+      val rustLib = rustLibPath.getOrElse {
+        ((ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release").getAbsolutePath
+      }
+      val macFlags = if (sys.props("os.name").toLowerCase.contains("mac"))
+        Seq("-XstartOnFirstThread") else Seq.empty
+      Seq(s"-Djava.library.path=$rustLib", "--enable-native-access=ALL-UNNAMED") ++ macFlags
+    },
+    Test / fork := true,
+    Test / javaOptions ++= (javaOptions).value
+  )),
+  MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
+    Compile / unmanagedSourceDirectories ++= {
+      val desktopDir = (ThisBuild / baseDirectory).value / projectDir / "src" / "main" / "scaladesktop"
+      if (desktopDir.exists()) Seq(desktopDir) else Seq.empty
+    }
+  ))
+)
 
 val publishSettings = Seq(
-  projectType := ProjectType.ScalaLibrary,
-  packageDoc / publishArtifact := false,
   organization := "com.kubuszok",
   homepage := Some(url("https://github.com/kubuszok/sge")),
   organizationHomepage := Some(url("https://kubuszok.com")),
@@ -44,57 +139,109 @@ val publishSettings = Seq(
       <url>https://github.com/kubuszok/sge/issues</url>
     </issueManagement>
   ),
-  publishTo := {
-    if (isSnapshot.value) Some(mavenCentralSnapshots)
-    else localStaging.value
-  },
-  publishMavenStyle := true,
-  Test / publishArtifact := false,
-  pomIncludeRepository := { _ =>
-    false
-  },
-  versionScheme := Some("early-semver")
+  projectType := ProjectType.ScalaLibrary,
 )
 
 val noPublishSettings =
   Seq(projectType := ProjectType.NonPublished)
 
+val mimaSettings = Seq(
+  mimaPreviousArtifacts := Set(),
+  mimaFailOnNoPrevious := false,
+  packageDoc / publishArtifact := false
+)
+
 /** Collect all files from a class directory as (File, relative-path) pairs for JAR mappings. */
 def collectClassFiles(classDir: File): Seq[(File, String)] =
   Path.allSubpaths(classDir).toSeq
 
-val versions = new {
-  val scala = SgePlugin.scalaVersion
+val nativeProviderSettings = MatrixAction.ForPlatforms(VirtualAxis.native).Configure(
+  _.settings(_root_.multiarch.sbt.NativeProviderPlugin.projectSettings)
+)
 
-  val lls       = "0.1.0"
-  val kindlings = "0.1.2"
-  val sttp      = "4.0.22"
-  val xml       = "2.3.0"
-  val scribe    = "3.17.0"
-  val scalajsDom = "2.8.1"
-  val gears      = "0.2.0"
+val jvmPlatformApiClasspath = MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(
+  Compile / unmanagedClasspath ++= {
+    val apiDirs = (`sge-jvm-platform-api`.jvm(versions.scala3) / Compile / products).value
+    apiDirs.map(Attributed.blank)
+  }
+))
 
-  val panamaPort = "v0.1.0"
-
-  val scalaSaxParser   = "0.1.0"
-  val scalaJavaTime    = "2.6.0"
-  val scalaJavaLocales = "1.5.4"
-
-  val munit           = "1.2.3"
-  val munitScalacheck = "1.2.0"
-
-  // Native component providers (from sge-native-providers repo)
-  val nativeComponents = "0.1.2"
-  val curlProvider     = "0.1.1"
-}
+// Core library
 
 val sge = (projectMatrix in file("sge"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
-  .settings(SgePlugin.commonSettings *)
-  .settings(publishSettings *)
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, versions.platforms)((commonSettings() ++ dev.only1VersionInIDE ++ Seq(
+    nativeProviderSettings,
+    MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(
+      (SgeNativeLibs.validationSettings ++ Seq(
+        libraryDependencies += "ch.epfl.lamp" %% "gears" % versions.gears,
+        libraryDependencies += "com.kubuszok" %% "multiarch-core" % versions.multiarch,
+        libraryDependencies += "com.kubuszok" %% "multiarch-panama-jdk" % versions.multiarch,
+        Compile / unmanagedClasspath ++= {
+          val apiDirs     = (`sge-jvm-platform-api`.jvm(versions.scala3) / Compile / products).value
+          val androidDirs = (`sge-jvm-platform-android`.jvm(versions.scala3) / Compile / products).value
+          (apiDirs ++ androidDirs).map(Attributed.blank)
+        },
+        Test / unmanagedClasspath ++= {
+          val apiDirs     = (`sge-jvm-platform-api`.jvm(versions.scala3) / Compile / products).value
+          val androidDirs = (`sge-jvm-platform-android`.jvm(versions.scala3) / Compile / products).value
+          (apiDirs ++ androidDirs).map(Attributed.blank)
+        },
+        Compile / packageBin / mappings ++= {
+          val apiDirs     = (`sge-jvm-platform-api`.jvm(versions.scala3) / Compile / products).value
+          val androidDirs = (`sge-jvm-platform-android`.jvm(versions.scala3) / Compile / products).value
+          (apiDirs ++ androidDirs).flatMap(collectClassFiles)
+        },
+        Compile / packageBin / mappings ++= {
+          val crossDir   = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "cross"
+          val releaseDir = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release"
+          val sharedLibExts = Set(".so", ".dylib", ".dll")
+          def isSharedLib(name: String) = sharedLibExts.exists(name.endsWith)
+          def isCoreLib(name: String) = isSharedLib(name) && !name.contains("sge_freetype") && !name.contains("sge_physics")
+          val crossMappings = Platform.desktop.flatMap { platform =>
+            val dir = crossDir / platform.classifier
+            if (dir.exists()) IO.listFiles(dir).filter(f => f.isFile && isCoreLib(f.getName))
+              .map(f => f -> s"native/${platform.classifier}/${f.getName}")
+              .toSeq
+            else Seq.empty
+          }
+          val hostMappings =
+            if (crossMappings.nonEmpty) Seq.empty
+            else if (releaseDir.exists()) {
+              val host = Platform.host
+              IO.listFiles(releaseDir).filter(f => f.isFile && isCoreLib(f.getName))
+                .map(f => f -> s"native/${host.classifier}/${f.getName}")
+                .toSeq
+            } else Seq.empty
+          val androidMappings = Seq(
+            ("aarch64-linux-android",    "android-aarch64"),
+            ("armv7-linux-androideabi",  "android-armv7"),
+            ("x86_64-linux-android",     "android-x86_64")
+          ).flatMap { case (rustTarget, classifier) =>
+            val dir = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / rustTarget / "release"
+            if (dir.exists()) IO.listFiles(dir).filter(f => f.isFile && isCoreLib(f.getName))
+              .map(f => f -> s"native/$classifier/${f.getName}")
+              .toSeq
+            else Seq.empty
+          }
+          crossMappings ++ hostMappings ++ androidMappings
+        }
+      )) *
+    )),
+    MatrixAction.ForPlatforms(VirtualAxis.js).Configure(_.settings(
+      libraryDependencies += "org.scala-js" %%% "scalajs-dom" % versions.scalajsDom
+    )),
+    MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
+      libraryDependencies ++= Seq(
+        "com.kubuszok" % "sn-provider-sge"  % versions.nativeComponents,
+        "com.kubuszok" % "sn-provider-curl" % versions.curlProvider
+      )
+    ))
+  )) *)
+  .settings(publishSettings)
+  .settings(mimaSettings)
   .settings(
     name := "sge",
-    resolvers += Resolver.mavenLocal,
     libraryDependencies ++= Seq(
       "com.kubuszok" %%% "lls" % versions.lls,
       "com.kubuszok" %%% "kindlings-fast-show-pretty" % versions.kindlings,
@@ -102,151 +249,31 @@ val sge = (projectMatrix in file("sge"))
       "com.kubuszok" %%% "kindlings-jsoniter-json" % versions.kindlings,
       "com.kubuszok" %%% "kindlings-ubjson-derivation" % versions.kindlings,
       "com.softwaremill.sttp.client4" %%% "core" % versions.sttp,
+      // TODO: replace by kindlings-xml ?
       "org.scala-lang.modules" %%% "scala-xml" % versions.xml,
       "com.kubuszok" %%% "scala-sax-parser" % versions.scalaSaxParser,
       "com.outr" %%% "scribe" % versions.scribe,
       "io.github.cquiroz" %%% "scala-java-time" % versions.scalaJavaTime,
-      "io.github.cquiroz" %%% "scala-java-locales" % versions.scalaJavaLocales,
-      "org.scalameta" %%% "munit" % versions.munit % Test,
-      "org.scalameta" %%% "munit-scalacheck" % versions.munitScalacheck % Test
-    ),
-    testFrameworks += new TestFramework("munit.Framework")
-  )
-  .jvmPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings() ++ SgeNativeLibs.validationSettings ++ Seq(
-      libraryDependencies += "ch.epfl.lamp" %% "gears" % versions.gears,
-      // multiarch-core for NativeLibLoader (runtime shared library loading)
-      libraryDependencies += "com.kubuszok" %% "multiarch-core" % "0.2.0",
-      // multiarch-panama-jdk for PanamaProvider abstraction (JdkPanama + PanamaPortProvider)
-      libraryDependencies += "com.kubuszok" %% "multiarch-panama-jdk" % "0.2.0",
-      // SGE-specific JVM platform modules on classpath (Android ops interfaces + impls).
-      // No dependsOn — avoids transitive dep for consumers.
-      Compile / unmanagedClasspath ++= {
-        val apiDirs     = (`sge-jvm-platform-api` / Compile / products).value
-        val androidDirs = (`sge-jvm-platform-android` / Compile / products).value
-        (apiDirs ++ androidDirs).map(Attributed.blank)
-      },
-      // Also on test classpath (forked JVM doesn't inherit Compile / unmanagedClasspath)
-      Test / unmanagedClasspath ++= {
-        val apiDirs     = (`sge-jvm-platform-api` / Compile / products).value
-        val androidDirs = (`sge-jvm-platform-android` / Compile / products).value
-        (apiDirs ++ androidDirs).map(Attributed.blank)
-      },
-      // Merge SGE-specific platform modules' class files into sge's JVM JAR
-      Compile / packageBin / mappings ++= {
-        val apiDirs     = (`sge-jvm-platform-api` / Compile / products).value
-        val androidDirs = (`sge-jvm-platform-android` / Compile / products).value
-        (apiDirs ++ androidDirs).flatMap(collectClassFiles)
-      },
-      // Bundle core + ANGLE native shared libraries for all platforms into the JAR.
-      // Extension libs (sge_freetype, sge_physics) are bundled by their respective extension JARs.
-      Compile / packageBin / mappings ++= {
-        val crossDir   = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "cross"
-        val releaseDir = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release"
-        val sharedLibExts = Set(".so", ".dylib", ".dll")
-        def isSharedLib(name: String) = sharedLibExts.exists(name.endsWith)
-        // Only bundle core + ANGLE shared libs in the sge JAR (exclude extension libs)
-        def isCoreLib(name: String) = isSharedLib(name) && !name.contains("sge_freetype") && !name.contains("sge_physics")
-        // Cross-compiled: all 6 platforms from target/cross/<platform>/
-        val crossMappings = Platform.desktop.flatMap { platform =>
-          val dir = crossDir / platform.classifier
-          if (dir.exists()) IO.listFiles(dir).filter(f => f.isFile && isCoreLib(f.getName))
-            .map(f => f -> s"native/${platform.classifier}/${f.getName}")
-            .toSeq
-          else Seq.empty
-        }
-        // Fallback: host platform only from target/release/ (local dev)
-        val hostMappings =
-          if (crossMappings.nonEmpty) Seq.empty
-          else if (releaseDir.exists()) {
-            val host = Platform.host
-            IO.listFiles(releaseDir).filter(f => f.isFile && isCoreLib(f.getName))
-              .map(f => f -> s"native/${host.classifier}/${f.getName}")
-              .toSeq
-          } else Seq.empty
-        // Android: native libs from target/<rustTarget>/release/
-        val androidMappings = Seq(
-          ("aarch64-linux-android",    "android-aarch64"),
-          ("armv7-linux-androideabi",  "android-armv7"),
-          ("x86_64-linux-android",     "android-x86_64")
-        ).flatMap { case (rustTarget, classifier) =>
-          val dir = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / rustTarget / "release"
-          if (dir.exists()) IO.listFiles(dir).filter(f => f.isFile && isCoreLib(f.getName))
-            .map(f => f -> s"native/$classifier/${f.getName}")
-            .toSeq
-          else Seq.empty
-        }
-        crossMappings ++ hostMappings ++ androidMappings
-      }
-    )
-  )
-  .jsPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jsSettings ++ Seq(
-      libraryDependencies += "org.scala-js" %%% "scalajs-dom" % versions.scalajsDom
-    )
-  )
-  .nativePlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings() ++ _root_.multiarch.sbt.NativeProviderPlugin.projectSettings ++ Seq(
-      // Native library providers (fat JARs with sn-provider.json manifests)
-      // sn-provider-sge transitively pulls sn-provider-sge-angle
-      libraryDependencies ++= Seq(
-        "com.kubuszok" % "sn-provider-sge"  % versions.nativeComponents,
-        "com.kubuszok" % "sn-provider-curl" % versions.curlProvider
-      )
+      "io.github.cquiroz" %%% "scala-java-locales" % versions.scalaJavaLocales
     )
   )
 
 val regressionTest = (projectMatrix in file("sge-test/regression"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
-  .settings(SgePlugin.commonSettings *)
-  .settings(SgePlugin.relaxedSettings *)
-  .settings(publishSettings *)
-  .settings(noPublishSettings *)
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, versions.platforms)((commonSettings("sge-test/regression") ++ dev.only1VersionInIDE ++ Seq(
+    nativeProviderSettings,
+    MatrixAction.ForAll.Configure(_.settings(SgePlugin.relaxedSettings *)),
+    MatrixAction.ForPlatforms(VirtualAxis.js).Configure(_.settings(
+      scalaJSUseMainModuleInitializer := true
+    ))
+  )) *)
+  .settings(noPublishSettings)
+  .settings(mimaSettings)
   .settings(
     name := "sge-test-regression",
-    // Generate minimal test assets at compile time (PNG + text) so we can
-    // exercise the full AssetManager → FileHandle → Texture pipeline.
-    Compile / resourceGenerators += Def.task {
-      val dir = (Compile / resourceManaged).value / "regression"
-      IO.createDirectory(dir)
-      // Generate a 4×4 red PNG via ImageIO (guaranteed valid across all platforms)
-      val pngFile = dir / "test-texture.png"
-      if (!pngFile.exists()) {
-        val img = new java.awt.image.BufferedImage(4, 4, java.awt.image.BufferedImage.TYPE_INT_RGB)
-        val g   = img.createGraphics()
-        g.setColor(java.awt.Color.RED)
-        g.fillRect(0, 0, 4, 4)
-        g.dispose()
-        javax.imageio.ImageIO.write(img, "PNG", pngFile)
-      }
-      // Simple text file for FileHandle read test
-      val txtFile = dir / "test-data.txt"
-      IO.write(txtFile, "SGE_REGRESSION_TEST_DATA")
-      // Asset manifest for browser preloading (BrowserAssetLoader reads assets.txt)
-      val manifestFile = (Compile / resourceManaged).value / "assets.txt"
-      IO.write(manifestFile, "regression/test-texture.png\nregression/test-data.txt\n")
-      Seq(pngFile, txtFile, manifestFile)
-    }.taskValue
+    Compile / resourceGenerators += TestAssets.regressionAssets.taskValue
   )
   .dependsOn(sge)
-  .jvmPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings(projectDir = "sge-test/regression")
-  )
-  .jsPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jsSettings ++ Seq(
-      scalaJSUseMainModuleInitializer := true
-    )
-  )
-  .nativePlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-test/regression") ++
-      _root_.multiarch.sbt.NativeProviderPlugin.projectSettings
-  )
 
 // ── JVM Platform modules ──────────────────────────────────────────────
 //
@@ -260,16 +287,14 @@ val regressionTest = (projectMatrix in file("sge-test/regression"))
 // These modules are not published. Their class files are merged into sge's JVM JAR
 // at package time (see sge jvmPlatform settings).
 
-lazy val `sge-jvm-platform-api` = (project in file("sge-jvm-platform/api"))
-  .settings(publishSettings *)
-  .settings(noPublishSettings *)
+val `sge-jvm-platform-api` = (projectMatrix in file("sge-jvm-platform/api"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, List(VirtualAxis.jvm))((commonSettings("sge-jvm-platform/api") ++ dev.only1VersionInIDE) *)
+  .settings(noPublishSettings)
+  .settings(mimaSettings)
   .settings(
-    scalaVersion := versions.scala,
-    // Target JDK 17 bytecode — no java.lang.foreign or android.* references
     scalacOptions ++= Seq("-release", "17"),
-    // PanamaProvider type alias references multiarch-panama-api
-    libraryDependencies += "com.kubuszok" %% "multiarch-panama-api" % "0.2.0",
-    resolvers += Resolver.mavenLocal
+    libraryDependencies += "com.kubuszok" %% "multiarch-panama-api" % "0.2.0"
   )
 
 // SGE convention: downloaded Android SDK lives under sge-deps/
@@ -278,14 +303,19 @@ lazy val hasAndroidSdk: Boolean      = _root_.multiarch.sbt.AndroidSdk
   .findSdkRoot(sgeAndroidSdkCacheDir)
   .exists(r => _root_.multiarch.sbt.AndroidSdk.androidJar(r).exists())
 
-lazy val `sge-jvm-platform-android` = (project in file("sge-jvm-platform/android"))
-  .settings(publishSettings *)
-  .settings(noPublishSettings *)
+val `sge-jvm-platform-android` = (projectMatrix in file("sge-jvm-platform/android"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, List(VirtualAxis.jvm))((commonSettings("sge-jvm-platform/android") ++ dev.only1VersionInIDE ++ Seq(
+    MatrixAction.ForAll.Configure(_.settings(
+      (SgePlugin.relaxedSettings ++ Seq(
+        scalacOptions += "-Wconf:cat=deprecation:s"
+      )) *
+    ))
+  )) *)
+  .settings(noPublishSettings)
+  .settings(mimaSettings)
   .settings(
-    scalaVersion := versions.scala,
-    // Target JDK 17 bytecode (Android ART)
     scalacOptions ++= Seq("-release", "17"),
-    // src/main/scala-android/ only compiled when android.jar is present.
     Compile / unmanagedJars ++= {
       val base     = (ThisBuild / baseDirectory).value
       val cacheDir = base / "sge-deps" / "android-sdk"
@@ -296,7 +326,7 @@ lazy val `sge-jvm-platform-android` = (project in file("sge-jvm-platform/android
     },
     Compile / unmanagedSourceDirectories ++= {
       if (hasAndroidSdk)
-        Seq(baseDirectory.value / "src" / "main" / "scala-android")
+        Seq((ThisBuild / baseDirectory).value / "sge-jvm-platform" / "android" / "src" / "main" / "scala-android")
       else Seq.empty
     }
   )
@@ -304,55 +334,62 @@ lazy val `sge-jvm-platform-android` = (project in file("sge-jvm-platform/android
 
 // ── Extension modules ─────────────────────────────────────────────────
 //
-// sge-tools    — JVM-only build tools (TexturePacker)
-// sge-freetype — Cross-platform FreeType font rasterization
-// sge-physics  — Cross-platform 2D physics via Rapier2D
-//
-// These are published separately from sge-core. They depend on sge.
+// Published separately from sge-core. They depend on sge.
 
-lazy val `sge-tools` = (project in file("sge-extension/tools"))
-  .settings(SgePlugin.commonSettings *)
-  .settings(SgePlugin.relaxedSettings *)
-  .settings(publishSettings *)
-  .settings(
-    name := "sge-extension-tools",
-    scalaVersion := versions.scala,
-    resolvers += Resolver.mavenLocal,
-    Compile / mainClass := Some("sge.tools.texturepacker.TexturePacker"),
-    libraryDependencies ++= Seq(
-      "org.scalameta" %% "munit" % versions.munit % Test
-    ),
-    testFrameworks += new TestFramework("munit.Framework"),
-    // sge-tools needs sge JVM classes on its classpath
-    Compile / unmanagedClasspath ++= {
-      val apiDirs     = (`sge-jvm-platform-api` / Compile / products).value
+val `sge-ai` = (projectMatrix in file("sge-extension/ai"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, versions.platforms)((commonSettings("sge-extension/ai") ++ dev.only1VersionInIDE) *)
+  .settings(publishSettings)
+  .settings(mimaSettings)
+  .settings(name := "sge-extension-ai")
+  .dependsOn(sge)
 
-      val androidDirs = (`sge-jvm-platform-android` / Compile / products).value
-      (apiDirs ++ androidDirs).map(Attributed.blank)
-    }
-  )
-  .dependsOn(sge.jvm(versions.scala))
+val `sge-anim8` = (projectMatrix in file("sge-extension/anim8"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, versions.platforms)((commonSettings("sge-extension/anim8") ++ dev.only1VersionInIDE) *)
+  .settings(publishSettings)
+  .settings(mimaSettings)
+  .settings(name := "sge-extension-anim8")
+  .dependsOn(sge)
+
+val `sge-colorful` = (projectMatrix in file("sge-extension/colorful"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, versions.platforms)((commonSettings("sge-extension/colorful") ++ dev.only1VersionInIDE ++ Seq(jvmPlatformApiClasspath)) *)
+  .settings(publishSettings)
+  .settings(mimaSettings)
+  .settings(name := "sge-extension-colorful")
+  .dependsOn(sge)
+
+val `sge-controllers` = (projectMatrix in file("sge-extension/controllers"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, versions.platforms)((commonSettings("sge-extension/controllers") ++ dev.only1VersionInIDE ++ Seq(
+    jvmPlatformApiClasspath,
+    MatrixAction.ForPlatforms(VirtualAxis.js).Configure(_.settings(
+      Compile / unmanagedSourceDirectories += (ThisBuild / baseDirectory).value / "sge-extension" / "controllers" / "src" / "main" / "scala-js"
+    )),
+    MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
+      Compile / unmanagedSourceDirectories += (ThisBuild / baseDirectory).value / "sge-extension" / "controllers" / "src" / "main" / "scalanative"
+    ))
+  )) *)
+  .settings(publishSettings)
+  .settings(mimaSettings)
+  .settings(name := "sge-extension-controllers")
+  .dependsOn(sge)
+
+val `sge-ecs` = (projectMatrix in file("sge-extension/ecs"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, versions.platforms)((commonSettings("sge-extension/ecs") ++ dev.only1VersionInIDE) *)
+  .settings(publishSettings)
+  .settings(mimaSettings)
+  .settings(name := "sge-extension-ecs")
+  .dependsOn(sge)
 
 val `sge-freetype` = (projectMatrix in file("sge-extension/freetype"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
-  .settings(SgePlugin.commonSettings *)
-  .settings(publishSettings *)
-  .settings(
-    name := "sge-extension-freetype",
-    libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit" % versions.munit % Test
-    ),
-    testFrameworks += new TestFramework("munit.Framework")
-  )
-  .jvmPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/freetype") ++ Seq(
-      resolvers += Resolver.mavenLocal,
-      Compile / unmanagedClasspath ++= {
-        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        apiDirs.map(Attributed.blank)
-      },
-      // Bundle sge_freetype shared libs into the extension JAR
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, versions.platforms)((commonSettings("sge-extension/freetype") ++ dev.only1VersionInIDE ++ Seq(
+    nativeProviderSettings,
+    jvmPlatformApiClasspath,
+    MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(
       Compile / packageBin / mappings ++= {
         val crossDir   = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "cross"
         val releaseDir = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release"
@@ -375,49 +412,67 @@ val `sge-freetype` = (projectMatrix in file("sge-extension/freetype"))
           } else Seq.empty
         crossMappings ++ hostMappings
       }
-    )
-  )
-  .jsPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jsSettings
-  )
-  .nativePlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/freetype") ++
-      _root_.multiarch.sbt.NativeProviderPlugin.projectSettings ++ Seq(
-      resolvers += Resolver.mavenLocal,
+    )),
+    MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
       libraryDependencies += "com.kubuszok" % "sn-provider-sge-freetype" % versions.nativeComponents
+    ))
+  )) *)
+  .settings(publishSettings)
+  .settings(mimaSettings)
+  .settings(name := "sge-extension-freetype")
+  .dependsOn(sge)
+
+val `sge-gltf` = (projectMatrix in file("sge-extension/gltf"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, versions.platforms)((commonSettings("sge-extension/gltf") ++ dev.only1VersionInIDE ++ Seq(
+    MatrixAction.ForAll.Configure(_.settings(SgePlugin.relaxedSettings *)),
+    jvmPlatformApiClasspath
+  )) *)
+  .settings(publishSettings)
+  .settings(mimaSettings)
+  .settings(
+    name := "sge-extension-gltf",
+    scalacOptions ++= Seq(
+      "-language:implicitConversions",
+      "-Wconf:msg=Implicit parameters should be provided:s",
+      "-Wconf:msg=Non local returns:s",
+      "-Wconf:msg=Unreachable case:s"
     )
   )
   .dependsOn(sge)
 
+val `sge-graphs` = (projectMatrix in file("sge-extension/graphs"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, versions.platforms)((commonSettings("sge-extension/graphs") ++ dev.only1VersionInIDE) *)
+  .settings(publishSettings)
+  .settings(mimaSettings)
+  .settings(name := "sge-extension-graphs")
+
+val `sge-jbump` = (projectMatrix in file("sge-extension/jbump"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, versions.platforms)((commonSettings("sge-extension/jbump") ++ dev.only1VersionInIDE) *)
+  .settings(publishSettings)
+  .settings(mimaSettings)
+  .settings(name := "sge-extension-jbump")
+
+val `sge-noise` = (projectMatrix in file("sge-extension/noise"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, versions.platforms)((commonSettings("sge-extension/noise") ++ dev.only1VersionInIDE) *)
+  .settings(publishSettings)
+  .settings(mimaSettings)
+  .settings(name := "sge-extension-noise")
+
 val `sge-physics` = (projectMatrix in file("sge-extension/physics"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
-  .settings(SgePlugin.commonSettings *)
-  .settings(publishSettings *)
-  .settings(
-    name := "sge-extension-physics",
-    organization := "com.kubuszok",
-    libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit" % versions.munit % Test
-    ),
-    testFrameworks += new TestFramework("munit.Framework")
-  )
-  .dependsOn(sge)
-  .jvmPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/physics") ++ Seq(
-      resolvers += Resolver.mavenLocal,
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, versions.platforms)((commonSettings("sge-extension/physics") ++ dev.only1VersionInIDE ++ Seq(
+    nativeProviderSettings,
+    jvmPlatformApiClasspath,
+    MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(Seq(
       libraryDependencies += "com.kubuszok" % "pnm-provider-sge-physics-desktop" % versions.nativeComponents,
-      Compile / unmanagedClasspath ++= {
-        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        apiDirs.map(Attributed.blank)
-      },
       Test / unmanagedClasspath ++= {
-        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
+        val apiDirs = (`sge-jvm-platform-api`.jvm(versions.scala3) / Compile / products).value
         apiDirs.map(Attributed.blank)
       },
-      // Bundle sge_physics shared libs into the extension JAR
       Compile / packageBin / mappings ++= {
         val crossDir   = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "cross"
         val releaseDir = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release"
@@ -440,48 +495,27 @@ val `sge-physics` = (projectMatrix in file("sge-extension/physics"))
           } else Seq.empty
         crossMappings ++ hostMappings
       }
-    )
-  )
-  .jsPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jsSettings
-  )
-  .nativePlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/physics") ++
-      _root_.multiarch.sbt.NativeProviderPlugin.projectSettings ++ Seq(
-      resolvers += Resolver.mavenLocal,
+    ) *)),
+    MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
       libraryDependencies += "com.kubuszok" % "sn-provider-sge-physics" % versions.nativeComponents
-    )
-  )
+    ))
+  )) *)
+  .settings(publishSettings)
+  .settings(mimaSettings)
+  .settings(name := "sge-extension-physics")
+  .dependsOn(sge)
 
 val `sge-physics3d` = (projectMatrix in file("sge-extension/physics3d"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
-  .settings(SgePlugin.commonSettings *)
-  .settings(publishSettings *)
-  .settings(
-    name := "sge-extension-physics3d",
-    organization := "com.kubuszok",
-    libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit" % versions.munit % Test
-    ),
-    testFrameworks += new TestFramework("munit.Framework")
-  )
-  .dependsOn(sge)
-  .jvmPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/physics3d") ++ Seq(
-      resolvers += Resolver.mavenLocal,
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, versions.platforms)((commonSettings("sge-extension/physics3d") ++ dev.only1VersionInIDE ++ Seq(
+    nativeProviderSettings,
+    jvmPlatformApiClasspath,
+    MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(Seq(
       libraryDependencies += "com.kubuszok" % "pnm-provider-sge-physics3d-desktop" % versions.nativeComponents,
-      Compile / unmanagedClasspath ++= {
-        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        apiDirs.map(Attributed.blank)
-      },
       Test / unmanagedClasspath ++= {
-        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
+        val apiDirs = (`sge-jvm-platform-api`.jvm(versions.scala3) / Compile / products).value
         apiDirs.map(Attributed.blank)
       },
-      // Bundle sge_physics3d shared libs into the extension JAR
       Compile / packageBin / mappings ++= {
         val crossDir   = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "cross"
         val releaseDir = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release"
@@ -504,381 +538,67 @@ val `sge-physics3d` = (projectMatrix in file("sge-extension/physics3d"))
           } else Seq.empty
         crossMappings ++ hostMappings
       }
-    )
-  )
-  .jsPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jsSettings
-  )
-  .nativePlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/physics3d") ++
-      _root_.multiarch.sbt.NativeProviderPlugin.projectSettings ++ Seq(
-      resolvers += Resolver.mavenLocal,
+    ) *)),
+    MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
       libraryDependencies += "com.kubuszok" % "sn-provider-sge-physics3d" % versions.nativeComponents
-    )
-  )
-
-val `sge-ai` = (projectMatrix in file("sge-extension/ai"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
-  .settings(SgePlugin.commonSettings *)
-  .settings(publishSettings *)
-  .settings(
-    name := "sge-extension-ai",
-    organization := "com.kubuszok",
-    libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit" % versions.munit % Test
-    ),
-    testFrameworks += new TestFramework("munit.Framework")
-  )
+    ))
+  )) *)
+  .settings(publishSettings)
+  .settings(mimaSettings)
+  .settings(name := "sge-extension-physics3d")
   .dependsOn(sge)
-  .jvmPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/ai")
-  )
-  .jsPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jsSettings
-  )
-  .nativePlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/ai")
-  )
-
-val `sge-ecs` = (projectMatrix in file("sge-extension/ecs"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
-  .settings(SgePlugin.commonSettings *)
-  .settings(publishSettings *)
-  .settings(
-    name := "sge-extension-ecs",
-    organization := "com.kubuszok",
-    libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit" % versions.munit % Test
-    ),
-    testFrameworks += new TestFramework("munit.Framework")
-  )
-  .dependsOn(sge)
-  .jvmPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/ecs")
-  )
-  .jsPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jsSettings
-  )
-  .nativePlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/ecs")
-  )
-
-val `sge-controllers` = (projectMatrix in file("sge-extension/controllers"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
-  .settings(SgePlugin.commonSettings *)
-  .settings(publishSettings *)
-  .settings(
-    name := "sge-extension-controllers",
-    organization := "com.kubuszok",
-    libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit" % versions.munit % Test
-    ),
-    testFrameworks += new TestFramework("munit.Framework")
-  )
-  .dependsOn(sge)
-  .jvmPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/controllers") ++ Seq(
-      Compile / unmanagedClasspath ++= {
-        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        apiDirs.map(Attributed.blank)
-      }
-    )
-  )
-  .jsPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jsSettings ++ Seq(
-      Compile / unmanagedSourceDirectories += (ThisBuild / baseDirectory).value / "sge-extension" / "controllers" / "src" / "main" / "scala-js"
-    )
-  )
-  .nativePlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/controllers") ++ Seq(
-      Compile / unmanagedSourceDirectories += (ThisBuild / baseDirectory).value / "sge-extension" / "controllers" / "src" / "main" / "scalanative"
-    )
-  )
-
-val `sge-gltf` = (projectMatrix in file("sge-extension/gltf"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
-  .settings(SgePlugin.commonSettings *)
-  .settings(SgePlugin.relaxedSettings *)
-  .settings(publishSettings *)
-  .settings(
-    // Relax warnings for in-progress gltf port:
-    //   - implicit conversions (Nullable A→Nullable[A] auto-wrapping)
-    //   - implicit parameters clause style (Ordering.comparatorToOrdering)
-    //   - non-local returns (TODO: convert to boundary/break)
-    //   - unreachable case patterns (null handling)
-    scalacOptions ++= Seq(
-      "-language:implicitConversions",
-      "-Wconf:msg=Implicit parameters should be provided:s",
-      "-Wconf:msg=Non local returns:s",
-      "-Wconf:msg=Unreachable case:s"
-    )
-  )
-  .settings(
-    name := "sge-extension-gltf",
-    organization := "com.kubuszok",
-    libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit" % versions.munit % Test
-    ),
-    testFrameworks += new TestFramework("munit.Framework")
-  )
-  .dependsOn(sge)
-  .jvmPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/gltf") ++ Seq(
-      Compile / unmanagedClasspath ++= {
-        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        apiDirs.map(Attributed.blank)
-      }
-    )
-  )
-  .jsPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jsSettings
-  )
-  .nativePlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/gltf")
-  )
-
-val `sge-vfx` = (projectMatrix in file("sge-extension/vfx"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
-  .settings(SgePlugin.commonSettings *)
-  .settings(publishSettings *)
-  .settings(
-    name := "sge-extension-vfx",
-    organization := "com.kubuszok",
-    libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit" % versions.munit % Test
-    ),
-    testFrameworks += new TestFramework("munit.Framework")
-  )
-  .dependsOn(sge)
-  .jvmPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/vfx") ++ Seq(
-      Compile / unmanagedClasspath ++= {
-        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        apiDirs.map(Attributed.blank)
-      }
-    )
-  )
-  .jsPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jsSettings
-  )
-  .nativePlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/vfx")
-  )
-
-val `sge-textra` = (projectMatrix in file("sge-extension/textra"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
-  .settings(SgePlugin.commonSettings *)
-  .settings(publishSettings *)
-  .settings(
-    name := "sge-extension-textra",
-    organization := "com.kubuszok",
-    libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit" % versions.munit % Test
-    ),
-    testFrameworks += new TestFramework("munit.Framework")
-  )
-  .dependsOn(sge)
-  .jvmPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/textra") ++ Seq(
-      Compile / unmanagedClasspath ++= {
-        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        apiDirs.map(Attributed.blank)
-      }
-    )
-  )
-  .jsPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jsSettings
-  )
-  .nativePlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/textra")
-  )
-
-val `sge-colorful` = (projectMatrix in file("sge-extension/colorful"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
-  .settings(SgePlugin.commonSettings *)
-  .settings(publishSettings *)
-  .settings(
-    name := "sge-extension-colorful",
-    organization := "com.kubuszok",
-    libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit" % versions.munit % Test
-    ),
-    testFrameworks += new TestFramework("munit.Framework")
-  )
-  .dependsOn(sge)
-  .jvmPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/colorful") ++ Seq(
-      Compile / unmanagedClasspath ++= {
-        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        apiDirs.map(Attributed.blank)
-      }
-    )
-  )
-  .jsPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jsSettings
-  )
-  .nativePlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/colorful")
-  )
-
-val `sge-visui` = (projectMatrix in file("sge-extension/visui"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
-  .settings(SgePlugin.commonSettings *)
-  .settings(publishSettings *)
-  .settings(
-    name := "sge-extension-visui",
-    organization := "com.kubuszok",
-    libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit" % versions.munit % Test
-    ),
-    testFrameworks += new TestFramework("munit.Framework")
-  )
-  .dependsOn(sge)
-  .jvmPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/visui") ++ Seq(
-      Compile / unmanagedClasspath ++= {
-        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        apiDirs.map(Attributed.blank)
-      }
-    )
-  )
-  .jsPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jsSettings
-  )
-  .nativePlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/visui")
-  )
 
 val `sge-screens` = (projectMatrix in file("sge-extension/screens"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
-  .settings(SgePlugin.commonSettings *)
-  .settings(publishSettings *)
-  .settings(
-    name := "sge-extension-screens",
-    organization := "com.kubuszok",
-    libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit" % versions.munit % Test
-    ),
-    testFrameworks += new TestFramework("munit.Framework")
-  )
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, versions.platforms)((commonSettings("sge-extension/screens") ++ dev.only1VersionInIDE ++ Seq(jvmPlatformApiClasspath)) *)
+  .settings(publishSettings)
+  .settings(mimaSettings)
+  .settings(name := "sge-extension-screens")
   .dependsOn(sge)
-  .jvmPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/screens") ++ Seq(
+
+val `sge-textra` = (projectMatrix in file("sge-extension/textra"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, versions.platforms)((commonSettings("sge-extension/textra") ++ dev.only1VersionInIDE ++ Seq(jvmPlatformApiClasspath)) *)
+  .settings(publishSettings)
+  .settings(mimaSettings)
+  .settings(name := "sge-extension-textra")
+  .dependsOn(sge)
+
+val `sge-tools` = (projectMatrix in file("sge-extension/tools"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, List(VirtualAxis.jvm))((commonSettings("sge-extension/tools") ++ dev.only1VersionInIDE ++ Seq(
+    MatrixAction.ForAll.Configure(_.settings(SgePlugin.relaxedSettings *)),
+    MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(
       Compile / unmanagedClasspath ++= {
-        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
-        apiDirs.map(Attributed.blank)
+        val apiDirs     = (`sge-jvm-platform-api`.jvm(versions.scala3) / Compile / products).value
+        val androidDirs = (`sge-jvm-platform-android`.jvm(versions.scala3) / Compile / products).value
+        (apiDirs ++ androidDirs).map(Attributed.blank)
       }
-    )
-  )
-  .jsPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jsSettings
-  )
-  .nativePlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/screens")
-  )
-
-val `sge-anim8` = (projectMatrix in file("sge-extension/anim8"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
-  .settings(SgePlugin.commonSettings *)
-  .settings(publishSettings *)
+    ))
+  )) *)
+  .settings(publishSettings)
+  .settings(mimaSettings)
   .settings(
-    name := "sge-extension-anim8",
-    organization := "com.kubuszok",
-    libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit" % versions.munit % Test
-    ),
-    testFrameworks += new TestFramework("munit.Framework")
+    name := "sge-extension-tools",
+    Compile / mainClass := Some("sge.tools.texturepacker.TexturePacker")
   )
   .dependsOn(sge)
-  .jvmPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/anim8")
-  )
-  .jsPlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jsSettings
-  )
-  .nativePlatform(
-    scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/anim8")
-  )
 
-val `sge-noise` = (projectMatrix in file("sge-extension/noise"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
-  .settings(SgePlugin.commonSettings *)
-  .settings(publishSettings *)
-  .settings(
-    name := "sge-extension-noise",
-    organization := "com.kubuszok",
-    libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit" % versions.munit % Test
-    ),
-    testFrameworks += new TestFramework("munit.Framework")
-  )
-  .jvmPlatform(scalaVersions = Seq(versions.scala), settings = SgePlugin.jvmSettings(projectDir = "sge-extension/noise"))
-  .jsPlatform(scalaVersions = Seq(versions.scala), settings = SgePlugin.jsSettings)
-  .nativePlatform(scalaVersions = Seq(versions.scala), settings = SgePlugin.nativeSettings(projectDir = "sge-extension/noise"))
+val `sge-vfx` = (projectMatrix in file("sge-extension/vfx"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, versions.platforms)((commonSettings("sge-extension/vfx") ++ dev.only1VersionInIDE ++ Seq(jvmPlatformApiClasspath)) *)
+  .settings(publishSettings)
+  .settings(mimaSettings)
+  .settings(name := "sge-extension-vfx")
+  .dependsOn(sge)
 
-val `sge-graphs` = (projectMatrix in file("sge-extension/graphs"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
-  .settings(SgePlugin.commonSettings *)
-  .settings(publishSettings *)
-  .settings(
-    name := "sge-extension-graphs",
-    organization := "com.kubuszok",
-    libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit" % versions.munit % Test
-    ),
-    testFrameworks += new TestFramework("munit.Framework")
-  )
-  .jvmPlatform(scalaVersions = Seq(versions.scala), settings = SgePlugin.jvmSettings(projectDir = "sge-extension/graphs"))
-  .jsPlatform(scalaVersions = Seq(versions.scala), settings = SgePlugin.jsSettings)
-  .nativePlatform(scalaVersions = Seq(versions.scala), settings = SgePlugin.nativeSettings(projectDir = "sge-extension/graphs"))
-
-val `sge-jbump` = (projectMatrix in file("sge-extension/jbump"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
-  .settings(SgePlugin.commonSettings *)
-  .settings(publishSettings *)
-  .settings(
-    name := "sge-extension-jbump",
-    organization := "com.kubuszok",
-    libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit" % versions.munit % Test
-    ),
-    testFrameworks += new TestFramework("munit.Framework")
-  )
-  .jvmPlatform(scalaVersions = Seq(versions.scala), settings = SgePlugin.jvmSettings(projectDir = "sge-extension/jbump"))
-  .jsPlatform(scalaVersions = Seq(versions.scala), settings = SgePlugin.jsSettings)
-  .nativePlatform(scalaVersions = Seq(versions.scala), settings = SgePlugin.nativeSettings(projectDir = "sge-extension/jbump"))
+val `sge-visui` = (projectMatrix in file("sge-extension/visui"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, versions.platforms)((commonSettings("sge-extension/visui") ++ dev.only1VersionInIDE ++ Seq(jvmPlatformApiClasspath)) *)
+  .settings(publishSettings)
+  .settings(mimaSettings)
+  .settings(name := "sge-extension-visui")
+  .dependsOn(sge)
 
 // ── Android smoke test APK ────────────────────────────────────────────
 //
@@ -889,31 +609,33 @@ val `sge-jbump` = (projectMatrix in file("sge-extension/jbump"))
 // Build: sbt 'sge-android-smoke/androidSign'
 // Prerequisites: Android SDK (auto-downloaded by the sbt androidSdkRoot task on first invocation)
 
-lazy val `sge-android-smoke` = (project in file("sge-test/android-smoke"))
-  .settings(SgePlugin.commonSettings *)
+val `sge-android-smoke` = (projectMatrix in file("sge-test/android-smoke"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, List(VirtualAxis.jvm))((commonSettings("sge-test/android-smoke") ++ dev.only1VersionInIDE ++ Seq(
+    MatrixAction.ForAll.Configure(_.settings(SgePlugin.relaxedSettings *)),
+    MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(
+      Compile / unmanagedClasspath ++= {
+        val apiDirs     = (`sge-jvm-platform-api`.jvm(versions.scala3) / Compile / products).value
+        val androidDirs = (`sge-jvm-platform-android`.jvm(versions.scala3) / Compile / products).value
+        (apiDirs ++ androidDirs).map(Attributed.blank)
+      }
+    ))
+  )) *)
   .settings(_root_.multiarch.sbt.AndroidBuild.taskSettings *)
   .settings(
     _root_.multiarch.sbt.AndroidBuild.androidSdkCacheDir := (ThisBuild / baseDirectory).value / "sge-deps" / "android-sdk"
   )
-  .settings(publishSettings *)
-  .settings(noPublishSettings *)
+  .settings(noPublishSettings)
+  .settings(mimaSettings)
   .settings(
     name := "sge-test-android-smoke",
-    // Conditional android sources
     Compile / unmanagedSourceDirectories ++= {
       if (hasAndroidSdk)
-        Seq(baseDirectory.value / "src" / "main" / "scala-android")
+        Seq((ThisBuild / baseDirectory).value / "sge-test" / "android-smoke" / "src" / "main" / "scala-android")
       else Seq.empty
-    },
-    // Also add sge's JVM platform modules to classpath
-    Compile / unmanagedClasspath ++= {
-      val apiDirs     = (`sge-jvm-platform-api` / Compile / products).value
-
-      val androidDirs = (`sge-jvm-platform-android` / Compile / products).value
-      (apiDirs ++ androidDirs).map(Attributed.blank)
     }
   )
-  .dependsOn(sge.jvm(versions.scala))
+  .dependsOn(sge)
 
 // ── Integration tests ─────────────────────────────────────────────────
 //
@@ -934,59 +656,48 @@ lazy val `sge-android-smoke` = (project in file("sge-test/android-smoke"))
 // Prerequisites: native libs from sge-native-providers provider JARs (auto-resolved by sbt)
 //
 // Run: sbt --client 'sge-it-desktop/test'  or  re-scale runner desktop-it
-lazy val `sge-it-desktop` = (project in file("sge-test/it-desktop"))
-  .settings(publishSettings *)
-  .settings(noPublishSettings *)
+val `sge-it-desktop` = (projectMatrix in file("sge-test/it-desktop"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, List(VirtualAxis.jvm))((commonSettings("sge-test/it-desktop") ++ dev.only1VersionInIDE ++ Seq(
+    MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(Seq(
+      resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
+      libraryDependencies ++= Seq(
+        "com.outr"     %% "scribe" % versions.scribe,
+        "com.kubuszok" % "pnm-provider-sge-desktop"          % versions.nativeComponents % Test,
+        "com.kubuszok" % "pnm-provider-sge-freetype-desktop" % versions.nativeComponents % Test,
+        "com.kubuszok" % "pnm-provider-sge-physics-desktop"  % versions.nativeComponents % Test
+      ),
+      Compile / unmanagedClasspath ++= {
+        val apiDirs     = (`sge-jvm-platform-api`.jvm(versions.scala3) / Compile / products).value
+        val androidDirs = (`sge-jvm-platform-android`.jvm(versions.scala3) / Compile / products).value
+        (apiDirs ++ androidDirs).map(Attributed.blank)
+      },
+      Test / unmanagedClasspath ++= {
+        val apiDirs     = (`sge-jvm-platform-api`.jvm(versions.scala3) / Compile / products).value
+        val androidDirs = (`sge-jvm-platform-android`.jvm(versions.scala3) / Compile / products).value
+        (apiDirs ++ androidDirs).map(Attributed.blank)
+      },
+      // Don't pass -XstartOnFirstThread — the test launches a subprocess with that flag
+      Test / javaOptions := {
+        val rustLib = ((ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release").getAbsolutePath
+        Seq(s"-Djava.library.path=$rustLib", "--enable-native-access=ALL-UNNAMED")
+      }
+    ) *)),
+    MatrixAction.ForAll.Configure(_.settings(SgePlugin.relaxedSettings *))
+  )) *)
+  .settings(noPublishSettings)
+  .settings(mimaSettings)
+  .dependsOn(sge, `sge-freetype`, `sge-physics`)
+
+val `sge-it-jvm-platform` = (projectMatrix in file("sge-test/it-jvm-platform"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, List(VirtualAxis.jvm))((commonSettings("sge-test/it-jvm-platform") ++ dev.only1VersionInIDE ++ Seq(
+    MatrixAction.ForAll.Configure(_.settings(SgePlugin.relaxedSettings *))
+  )) *)
+  .settings(noPublishSettings)
+  .settings(mimaSettings)
   .settings(
-    scalaVersion := versions.scala,
-    resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
-    libraryDependencies ++= Seq(
-      "org.scalameta" %% "munit"  % versions.munit % Test,
-      "com.outr"      %% "scribe" % versions.scribe,
-      // Panama provider JARs — multiarch-core extracts native libs from these at runtime
-      "com.kubuszok" % "pnm-provider-sge-desktop"          % versions.nativeComponents % Test,
-      "com.kubuszok" % "pnm-provider-sge-freetype-desktop" % versions.nativeComponents % Test,
-      "com.kubuszok" % "pnm-provider-sge-physics-desktop"  % versions.nativeComponents % Test
-    ),
-    testFrameworks += new TestFramework("munit.Framework"),
-    // Need JVM platform modules on classpath
-    Compile / unmanagedClasspath ++= {
-      val apiDirs     = (`sge-jvm-platform-api` / Compile / products).value
-
-      val androidDirs = (`sge-jvm-platform-android` / Compile / products).value
-      (apiDirs ++ androidDirs).map(Attributed.blank)
-    },
-    Test / unmanagedClasspath ++= {
-      val apiDirs     = (`sge-jvm-platform-api` / Compile / products).value
-
-      val androidDirs = (`sge-jvm-platform-android` / Compile / products).value
-      (apiDirs ++ androidDirs).map(Attributed.blank)
-    },
-    Test / fork := true,
-    Test / javaOptions ++= {
-      // Native libs are built externally in sge-native-providers and distributed as provider JARs.
-      // CI extracts provider JARs to sge-deps/native-components/target/release/ for linking/testing.
-      // ANGLE (EGL, GLESv2) is also packaged into the same provider JARs and extracted there.
-      val rustLib = ((ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release").getAbsolutePath
-      // Note: -XstartOnFirstThread is NOT passed here — the munit test launches
-      // the harness as a subprocess with that flag so GLFW runs on thread 0.
-      Seq(
-        s"-Djava.library.path=$rustLib",
-        "--enable-native-access=ALL-UNNAMED"
-      )
-    }
-  )
-  .dependsOn(sge.jvm(versions.scala), `sge-freetype`.jvm(versions.scala), `sge-physics`.jvm(versions.scala))
-
-lazy val `sge-it-jvm-platform` = (project in file("sge-test/it-jvm-platform"))
-  .settings(publishSettings *)
-  .settings(noPublishSettings *)
-  .settings(
-    scalaVersion := versions.scala,
-    libraryDependencies += "org.scalameta" %% "munit" % versions.munit % Test,
-    libraryDependencies += "com.kubuszok" %% "multiarch-panama-jdk" % "0.2.0",
-    resolvers += Resolver.mavenLocal,
-    testFrameworks += new TestFramework("munit.Framework")
+    libraryDependencies += "com.kubuszok" %% "multiarch-panama-jdk" % "0.2.0"
   )
   .dependsOn(`sge-jvm-platform-api`, `sge-jvm-platform-android`)
 
@@ -999,22 +710,19 @@ lazy val `sge-it-jvm-platform` = (project in file("sge-test/it-jvm-platform"))
 // the browser binary. Playwright Java auto-manages the driver.
 //
 // Run: sbt --client 'sge-it-browser/test'  or  re-scale runner browser-it
-lazy val `sge-it-browser` = (project in file("sge-test/it-browser"))
-  .settings(publishSettings *)
-  .settings(noPublishSettings *)
+val `sge-it-browser` = (projectMatrix in file("sge-test/it-browser"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, List(VirtualAxis.jvm))((commonSettings("sge-test/it-browser") ++ dev.only1VersionInIDE ++ Seq(
+    MatrixAction.ForAll.Configure(_.settings(SgePlugin.relaxedSettings *))
+  )) *)
+  .settings(noPublishSettings)
+  .settings(mimaSettings)
   .settings(
-    scalaVersion := versions.scala,
-    // Playwright builds its own JS test harness and loads it in a real browser.
-    libraryDependencies ++= Seq(
-      "org.scalameta"           %% "munit"      % versions.munit % Test,
-      "com.microsoft.playwright" % "playwright"  % "1.49.0"      % Test
-    ),
-    testFrameworks += new TestFramework("munit.Framework"),
-    // The test needs the fastLinkJS output from sge. We make it a resource generator
-    // so it's available on the test classpath.
+    Test / baseDirectory := (ThisBuild / baseDirectory).value,
+    libraryDependencies += "com.microsoft.playwright" % "playwright" % "1.49.0" % Test,
     Test / resourceGenerators += Def.task {
-      val jsDir = (sge.js(versions.scala) / Compile / fullClasspath).value
-      Seq.empty[File] // resources come from sgeJS classpath, not generated
+      val jsDir = (sge.js(versions.scala3) / Compile / fullClasspath).value
+      Seq.empty[File]
     }.taskValue
   )
 
@@ -1030,13 +738,15 @@ lazy val `sge-it-browser` = (project in file("sge-test/it-browser"))
 //   3. Create + start AVD via android-emulator-runner GitHub Action (or local AVD manager)
 //
 // Run: sbt --client 'sge-it-android/test'  or  re-scale runner android-it
-lazy val `sge-it-android` = (project in file("sge-test/it-android"))
-  .settings(publishSettings *)
-  .settings(noPublishSettings *)
+val `sge-it-android` = (projectMatrix in file("sge-test/it-android"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, List(VirtualAxis.jvm))((commonSettings("sge-test/it-android") ++ dev.only1VersionInIDE ++ Seq(
+    MatrixAction.ForAll.Configure(_.settings(SgePlugin.relaxedSettings *))
+  )) *)
+  .settings(noPublishSettings)
+  .settings(mimaSettings)
   .settings(
-    scalaVersion := versions.scala,
-    libraryDependencies += "org.scalameta" %% "munit" % versions.munit % Test,
-    testFrameworks += new TestFramework("munit.Framework")
+    Test / baseDirectory := (ThisBuild / baseDirectory).value
   )
 
 // Native FFI wiring validation — Scala Native executable that exercises every
@@ -1045,15 +755,15 @@ lazy val `sge-it-android` = (project in file("sge-test/it-android"))
 // Catches runtime SIGSEGVs from wrong parameter types or buffer offset bugs.
 //
 // Run: sbt --client 'sge-it-native-ffi/run'  or  re-scale runner native-ffi-it
-lazy val `sge-it-native-ffi` = (project in file("sge-test/it-native-ffi"))
-  .enablePlugins(ScalaNativePlugin)
-  .settings(publishSettings *)
-  .settings(noPublishSettings *)
-  .dependsOn(sge.native(versions.scala))
-  .settings(
-    scalaVersion := versions.scala
-  )
-  .settings(_root_.multiarch.sbt.NativeProviderPlugin.projectSettings *)
+val `sge-it-native-ffi` = (projectMatrix in file("sge-test/it-native-ffi"))
+  .defaultAxes(VirtualAxis.native, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, List(VirtualAxis.native))((commonSettings("sge-test/it-native-ffi") ++ dev.only1VersionInIDE ++ Seq(
+    MatrixAction.ForAll.Configure(_.settings(SgePlugin.relaxedSettings *)),
+    nativeProviderSettings
+  )) *)
+  .settings(noPublishSettings)
+  .settings(mimaSettings)
+  .dependsOn(sge)
 
 // Write published version to demos/.sge-version so the demos sub-build
 // resolves the same version without depending on sbt-git or env vars.
@@ -1070,118 +780,58 @@ ThisBuild / writeDemoVersion := {
 // ── Root project — git-based versioning ──────────────────────────────
 lazy val root = (project in file("."))
   .enablePlugins(KubuszokRootPlugin)
-  .settings(publishSettings *)
-  .settings(noPublishSettings *)
   // Core library
   .aggregate(sge.projectRefs *)
-  .aggregate(regressionTest.projectRefs *)
+  // JVM platform modules (merged into sge JAR)
+  .aggregate(`sge-jvm-platform-api`.projectRefs *)
+  .aggregate(`sge-jvm-platform-android`.projectRefs *)
   // Extensions
-  .aggregate(`sge-tools`)
-  .aggregate(`sge-freetype`.projectRefs *)
-  .aggregate(`sge-physics`.projectRefs *)
-  .aggregate(`sge-physics3d`.projectRefs *)
   .aggregate(`sge-ai`.projectRefs *)
-  .aggregate(`sge-ecs`.projectRefs *)
-  .aggregate(`sge-controllers`.projectRefs *)
-  .aggregate(`sge-gltf`.projectRefs *)
-  .aggregate(`sge-vfx`.projectRefs *)
-  .aggregate(`sge-textra`.projectRefs *)
-  .aggregate(`sge-colorful`.projectRefs *)
-  .aggregate(`sge-visui`.projectRefs *)
-  .aggregate(`sge-screens`.projectRefs *)
   .aggregate(`sge-anim8`.projectRefs *)
-  .aggregate(`sge-noise`.projectRefs *)
+  .aggregate(`sge-colorful`.projectRefs *)
+  .aggregate(`sge-controllers`.projectRefs *)
+  .aggregate(`sge-ecs`.projectRefs *)
+  .aggregate(`sge-freetype`.projectRefs *)
+  .aggregate(`sge-gltf`.projectRefs *)
   .aggregate(`sge-graphs`.projectRefs *)
   .aggregate(`sge-jbump`.projectRefs *)
+  .aggregate(`sge-noise`.projectRefs *)
+  .aggregate(`sge-physics`.projectRefs *)
+  .aggregate(`sge-physics3d`.projectRefs *)
+  .aggregate(`sge-screens`.projectRefs *)
+  .aggregate(`sge-textra`.projectRefs *)
+  .aggregate(`sge-tools`.projectRefs *)
+  .aggregate(`sge-vfx`.projectRefs *)
+  .aggregate(`sge-visui`.projectRefs *)
+  // Tests
+  .aggregate(regressionTest.projectRefs *)
+  .aggregate(`sge-android-smoke`.projectRefs *)
   // Integration tests
-  .aggregate(`sge-it-desktop`)
-  .aggregate(`sge-it-jvm-platform`)
-  .aggregate(`sge-it-browser`)
-  .aggregate(`sge-it-android`)
-  .aggregate(`sge-it-native-ffi`)
+  .aggregate(`sge-it-desktop`.projectRefs *)
+  .aggregate(`sge-it-jvm-platform`.projectRefs *)
+  .aggregate(`sge-it-browser`.projectRefs *)
+  .aggregate(`sge-it-android`.projectRefs *)
+  .aggregate(`sge-it-native-ffi`.projectRefs *)
   .settings(
+    name := "sge-root",
     logo :=
-      s"""SGE ${version.value} for Scala ${SgePlugin.scalaVersion} x (JVM, Scala.js, Scala Native)
+      s"""SGE ${version.value} for Scala ${versions.scala3} x (Scala JVM, Scala.js $scalaJSVersion, Scala Native $nativeVersion)
          |
          |This build uses sbt-projectmatrix:
          | - Scala JVM adds no suffix to a project name seen in build.sbt
          | - Scala.js adds the "JS" suffix to a project name seen in build.sbt
          | - Scala Native adds the "Native" suffix to a project name seen in build.sbt
+         |
+         |When working with IntelliJ or Scala Metals, edit dev.properties to control which platform you're currently working with.
+         |
+         |Library depends on artifacts developed in:
+         | - https://github.com/kubuszok/lls
+         | - https://github.com/kubuszok/sge-native-providers
+         |When working with them, it might be necessary to create PRs and test the SNAPSHOTs published before merging all changes.
          |""".stripMargin,
-    usefulTasks := Seq(
-      UsefulTask("test-jvm", "Run all JVM unit tests").noAlias,
-      UsefulTask("test-js", "Run all Scala.js unit tests").noAlias,
-      UsefulTask("test-native", "Run all Scala Native unit tests").noAlias,
-      UsefulTask("compile", "Compile everything").noAlias,
-      UsefulTask("publishLocal", "Publish all modules locally").noAlias,
-      UsefulTask("ci-release", "Publish snapshot or release (based on git tags)").noAlias,
+    usefulTasks := al.usefulTasks(extra = Seq(
       UsefulTask("scalafmtAll", "Format all sources").noAlias
-    )
+    ))
   )
-
-// ── Test aggregation aliases ─────────────────────────────────────────
-// Run all unit tests for a given platform (core + all extensions).
-
-addCommandAlias("test-jvm",
-  List(
-    // Core library
-    "sge/test",
-    // Extensions
-    "sge-ai/test", "sge-ecs/test", "sge-controllers/test",
-    "sge-gltf/test", "sge-vfx/test", "sge-textra/test",
-    "sge-colorful/test", "sge-visui/test", "sge-screens/test",
-    "sge-anim8/test", "sge-noise/test", "sge-graphs/test",
-    "sge-jbump/test", "sge-physics/test", "sge-physics3d/test",
-    "sge-freetype/test", "sge-tools/test",
-    // Regression tests
-    "regressionTest/test"
-  ).mkString("; ")
-)
-
-addCommandAlias("test-js",
-  List(
-    // Core library
-    "sgeJS/test",
-    // Extensions
-    "sge-aiJS/test", "sge-ecsJS/test", "sge-controllersJS/test",
-    "sge-gltfJS/test", "sge-vfxJS/test", "sge-textraJS/test",
-    "sge-colorfulJS/test", "sge-visuiJS/test", "sge-screensJS/test",
-    "sge-anim8JS/test", "sge-noiseJS/test", "sge-graphsJS/test",
-    "sge-jbumpJS/test", "sge-physicsJS/test", "sge-physics3dJS/test",
-    "sge-freetypeJS/test",
-    // Regression tests
-    "regressionTestJS/test"
-  ).mkString("; ")
-)
-
-addCommandAlias("test-native",
-  List(
-    // Core library
-    "sgeNative/test",
-    // Extensions
-    "sge-aiNative/test", "sge-ecsNative/test", "sge-controllersNative/test",
-    "sge-gltfNative/test", "sge-vfxNative/test", "sge-textraNative/test",
-    "sge-colorfulNative/test", "sge-visuiNative/test", "sge-screensNative/test",
-    "sge-anim8Native/test", "sge-noiseNative/test", "sge-graphsNative/test",
-    "sge-jbumpNative/test", "sge-physicsNative/test", "sge-physics3dNative/test",
-    "sge-freetypeNative/test",
-    // Regression tests
-    "regressionTestNative/test"
-  ).mkString("; ")
-)
-
-// ── Coverage alias (JVM-only) ────────────────────────────────────────
-// Scala 3 coverage instrumentation is incompatible with JS/Native runtimes
-// (java.io.FileWriter references). Only run on JVM projects via test-jvm.
-// Strips -Werror to avoid false-positive warnings from instrumented code.
-
-addCommandAlias("test-coverage",
-  List(
-    "coverage",
-    """set ThisBuild / scalacOptions -= "-Werror"""",
-    "test-jvm",
-    "coverageReport",
-    "coverageAggregate",
-    "coverageOff"
-  ).mkString("; ")
-)
+  .settings(noPublishSettings)
+  .settings(mimaSettings)
