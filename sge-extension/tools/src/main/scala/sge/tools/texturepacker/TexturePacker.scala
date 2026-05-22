@@ -35,7 +35,7 @@ import lowlevel.Nullable
 import java.awt.{ Color, Graphics2D, RenderingHints }
 import java.awt.image.BufferedImage
 import java.io.{ File, FileOutputStream, IOException, OutputStreamWriter, Writer }
-import javax.imageio.{ IIOImage, ImageIO, ImageWriteParam, ImageWriter }
+import javax.imageio.{ IIOImage, ImageIO, ImageWriteParam }
 import javax.imageio.stream.ImageOutputStream
 import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary
@@ -1070,9 +1070,8 @@ object TexturePacker {
   }
 
   def main(args: Array[String]): Unit = {
-    var settings: Nullable[Settings] = Nullable.empty
-    var input:    Nullable[String]   = Nullable.empty
-    var output:   Nullable[String]   = Nullable.empty
+    var input:  Nullable[String] = Nullable.empty
+    var output: Nullable[String] = Nullable.empty
     var packFileName = "pack.atlas"
 
     args.length match {
@@ -1099,7 +1098,8 @@ object TexturePacker {
       val inputFile = new File(input.get)
       output = Nullable(new File(inputFile.getParentFile(), inputFile.getName() + "-packed").getAbsolutePath())
     }
-    val s = settings.getOrElse(Settings())
+    // TODO: parse settings from args(3) when 4 args provided
+    val s = Settings()
 
     process(s, input.get, output.get, packFileName)
   }

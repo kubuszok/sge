@@ -10,17 +10,20 @@ SGE is a cross-platform 2D/3D game engine written in Scala 3, ported from
 | **Native** (Scala Native) | GLFW + Rust FFI via C ABI | OpenGL ES via ANGLE |
 | **Android** | Android SDK + PanamaPort FFM | OpenGL ES (native) |
 
-## Status
+## Modules
+
+`sge` is the core module, porting the original [LibGDX](https://github.com/libgdx/libgdx) **1.14.0** (`4b4d2c4fd`) to Scala 3.
 
 ### Core library
 
 - **539 / 605** core library files converted from Java to Scala 3
 - **124 / 152** backend files done (desktop, browser, headless, Android; iOS deferred)
 - **534+ files audited** against original LibGDX sources
+
+It is additionally tested with:
+
 - **11 demo applications** build and run on all 4 platforms
 - All 11 demos produce signed Android APKs
-
-Ported from [LibGDX](https://github.com/libgdx/libgdx) **1.14.0** (`4b4d2c4fd`).
 
 ### Extensions
 

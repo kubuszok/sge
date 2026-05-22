@@ -33,7 +33,7 @@ import java.awt.image.{ BufferedImage, WritableRaster }
 import java.io.{ File, IOException }
 import java.math.BigInteger
 import java.security.{ MessageDigest, NoSuchAlgorithmException }
-import java.util.regex.{ Matcher, Pattern }
+import java.util.regex.Pattern
 import javax.imageio.ImageIO
 import scala.collection.mutable.{ ArrayBuffer, HashMap }
 import scala.util.boundary

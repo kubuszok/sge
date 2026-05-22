@@ -33,8 +33,8 @@ import sbt.internal.ProjectMatrix
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 219
- * Covenant-baseline-methods: NativeCrossAxis,SgePlugin,androidDex,androidInstall,androidPackage,androidSign,autoImport,base,commonSettings,coreDep,desktopDir,desktopSharedDir,fromProps,globalSettings,jsPlatform,jsSettings,jvmPlatform,jvmRuntimeOpts,jvmSettings,macFlags,nativePlatform,nativeSettings,projectSettings,relaxedSettings,releaseAll,releaseAppName,releaseCacheDir,releaseJlinkModules,releaseMacOsBundleId,releaseMacOsIcon,releaseNativeLibDirs,releasePackage,releasePlatform,releaseRoastVersion,releaseTargets,releaseUseZgc,releaseVmArgs,requires,rustLib,scalaVersion,sgeNativeLibDir,sgeNativeLibLocalDir,sgePackageBrowser,sgePackageNative,sgeRelease,sgeVersion,trigger,withCrossNative
+ * Covenant-baseline-loc: 181
+ * Covenant-baseline-methods: NativeCrossAxis,SgePlugin,androidDex,androidInstall,androidPackage,androidSign,autoImport,commonSettings,coreDep,fromProps,globalSettings,jsPlatform,jvmPlatform,nativePlatform,projectSettings,relaxedSettings,releaseAll,releaseAppName,releaseCacheDir,releaseJlinkModules,releaseMacOsBundleId,releaseMacOsIcon,releaseNativeLibDirs,releasePackage,releasePlatform,releaseRoastVersion,releaseTargets,releaseUseZgc,releaseVmArgs,requires,scalaVersion,sgeNativeLibDir,sgeNativeLibLocalDir,sgePackageBrowser,sgePackageNative,sgeRelease,sgeVersion,trigger,withCrossNative
  * Covenant-source-reference: SGE-original
  * Covenant-verified: 2026-04-19
   */
@@ -188,42 +188,4 @@ object SgePlugin extends AutoPlugin {
       JvmPackaging.releaseNativeLibDirs := Seq(sgeNativeLibDir.value)
     )
 
-  // ── Source-inclusion helpers (for root build.sbt) ───────────────────
-
-  /** JVM platform settings: fork, Panama native access, scaladesktop source dir. */
-  def jvmSettings(projectDir: String = "sge", rustLibPath: Option[String] = None): Seq[Setting[_]] = Seq(
-    Compile / unmanagedSourceDirectories ++= desktopSharedDir(projectDir).value,
-    fork := true,
-    javaOptions ++= jvmRuntimeOpts(rustLibPath).value,
-    Test / fork := true,
-    Test / javaOptions ++= jvmRuntimeOpts(rustLibPath).value
-  )
-
-  /** Scala.js platform settings. Currently empty — scalajs-dom comes transitively from sge. */
-  val jsSettings: Seq[Setting[_]] = Seq.empty
-
-  /** Scala Native platform settings: scaladesktop source dir. */
-  def nativeSettings(projectDir: String = "sge", rustLibPath: Option[String] = None): Seq[Setting[_]] = Seq(
-    Compile / unmanagedSourceDirectories ++= desktopSharedDir(projectDir).value
-  )
-
-  // ── Internal ────────────────────────────────────────────────────────
-
-  private def desktopSharedDir(projectDir: String): Def.Initialize[Seq[File]] = Def.setting {
-    val base = (ThisBuild / baseDirectory).value
-    val desktopDir = base / projectDir / "src" / "main" / "scaladesktop"
-    if (desktopDir.exists()) Seq(desktopDir) else Seq.empty
-  }
-
-  private def jvmRuntimeOpts(rustLibPath: Option[String]): Def.Initialize[Seq[String]] = Def.setting {
-    val rustLib = rustLibPath.getOrElse {
-      ((ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release").getAbsolutePath
-    }
-    val macFlags = if (sys.props("os.name").toLowerCase.contains("mac"))
-      Seq("-XstartOnFirstThread") else Seq.empty
-    Seq(
-      s"-Djava.library.path=$rustLib",
-      "--enable-native-access=ALL-UNNAMED"
-    ) ++ macFlags
-  }
 }

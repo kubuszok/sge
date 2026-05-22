@@ -8,6 +8,7 @@ project/*
 !project/plugins.sbt
 !project/build.properties
 !project/build.sbt
+!project/TestAssets.scala
 target/
 .sbt/
 
