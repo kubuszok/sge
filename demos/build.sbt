@@ -48,12 +48,14 @@ val shared = (projectMatrix in file("shared"))
 
 // ── Demo projects ───────────────────────────────────────────────────
 
-def demo(dir: String, sbtName: String, pkg: String, title: String)(matrix: ProjectMatrix): ProjectMatrix =
+def demo(dir: String, sbtName: String, pkg: String, title: String,
+         extensions: Set[sge.sbt.SgeExtension] = Set.empty)(matrix: ProjectMatrix): ProjectMatrix =
   matrix
     .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(SgePlugin.scalaVersion))
     .enablePlugins(SgePlugin)
     .settings(name := sbtName, organization := "com.kubuszok", publish / skip := true,
-      JvmPackaging.releaseAppName := title)
+      JvmPackaging.releaseAppName := title,
+      sgeExtensions := extensions)
     .dependsOn(shared)
     .jvmPlatform(demoDistSettings ++ Seq(Compile / mainClass := Some(s"demos.$pkg.DesktopMain")))
     .jsPlatform()
@@ -62,7 +64,8 @@ def demo(dir: String, sbtName: String, pkg: String, title: String)(matrix: Proje
 
 val pong             = demo("pong",              "sge-demo-pong",         "pong",         "SGE Pong")(projectMatrix in file("pong"))
 val spaceShooter     = demo("space-shooter",     "sge-demo-spaceshooter", "spaceshooter", "SGE Space Shooter")(projectMatrix in file("space-shooter"))
-val tileWorld        = demo("tile-world",        "sge-demo-tileworld",    "tileworld",    "SGE Tile World")(projectMatrix in file("tile-world"))
+val tileWorld        = demo("tile-world",        "sge-demo-tileworld",    "tileworld",    "SGE Tile World",
+  extensions = Set(sge.sbt.SgeExtension.Noise))(projectMatrix in file("tile-world"))
 val hexTactics       = demo("hex-tactics",       "sge-demo-hextactics",   "hextactics",   "SGE Hex Tactics")(projectMatrix in file("hex-tactics"))
 val curvePlayground  = demo("curve-playground",  "sge-demo-curves",       "curves",       "SGE Curves")(projectMatrix in file("curve-playground"))
 val shaderLab        = demo("shader-lab",        "sge-demo-shaders",      "shaders",      "SGE Shader Lab")(projectMatrix in file("shader-lab"))

@@ -43,7 +43,10 @@ object SgeDesktopJvmPlatform extends AutoPlugin {
 
   override def projectSettings: Seq[Setting[_]] = jvmRuntime ++
     SgePackaging.jvmSettings ++ SgePackaging.distSettings ++ Seq(
-    libraryDependencies += "com.kubuszok" % s"sge_${scalaBinaryVersion.value}" % SgePlugin.sgeVersion
+    libraryDependencies += "com.kubuszok" % s"sge_${scalaBinaryVersion.value}" % SgePlugin.sgeVersion,
+    libraryDependencies ++= SgeExtension.jvmDeps(
+      SgePlugin.autoImport.sgeExtensions.value, scalaBinaryVersion.value, SgePlugin.sgeVersion
+    )
   )
 
   /** JVM platform settings: fork for Panama FFM, library path, scaladesktop source dir. */
@@ -84,6 +87,9 @@ object SgeBrowserPlatform extends AutoPlugin {
 
   override def projectSettings: Seq[Setting[_]] = SgePackaging.browserSettings ++ Seq(
     libraryDependencies += "com.kubuszok" % s"sge_sjs1_${scalaBinaryVersion.value}" % SgePlugin.sgeVersion,
+    libraryDependencies ++= SgeExtension.jsDeps(
+      SgePlugin.autoImport.sgeExtensions.value, scalaBinaryVersion.value, SgePlugin.sgeVersion
+    ),
     scalaJSUseMainModuleInitializer := true,
     SgePackaging.sgeJsOutputDir := {
       val _ = (Compile / fullLinkJS).value
@@ -118,6 +124,9 @@ object SgeDesktopNativePlatform extends AutoPlugin {
     NativeProviderPlugin.projectSettings ++
     SgePackaging.nativeSettings ++ Seq(
     libraryDependencies += "com.kubuszok" % s"sge_native0.5_${scalaBinaryVersion.value}" % SgePlugin.sgeVersion,
+    libraryDependencies ++= SgeExtension.nativeDeps(
+      SgePlugin.autoImport.sgeExtensions.value, scalaBinaryVersion.value, SgePlugin.sgeVersion
+    ),
     NativeExtractSettings.nativeLibSourceDir := SgePlugin.autoImport.sgeNativeLibLocalDir.value,
     SgePackaging.sgeNativeBinary := (Compile / nativeLink).value
   )
@@ -136,6 +145,9 @@ object SgeAndroidPlatform extends AutoPlugin {
   override def requires = SgePlugin && AndroidPlugin
 
   override def projectSettings: Seq[Setting[_]] = Seq(
-    AndroidPlugin.autoImport.androidSdkCacheDir := (ThisBuild / baseDirectory).value / "sge-deps" / "android-sdk"
+    AndroidPlugin.autoImport.androidSdkCacheDir := (ThisBuild / baseDirectory).value / "sge-deps" / "android-sdk",
+    libraryDependencies ++= SgeExtension.jvmDeps(
+      SgePlugin.autoImport.sgeExtensions.value, scalaBinaryVersion.value, SgePlugin.sgeVersion
+    )
   )
 }

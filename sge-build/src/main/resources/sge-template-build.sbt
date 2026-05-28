@@ -11,8 +11,10 @@ lazy val game = (projectMatrix in file("game"))
   .settings(
     name := "my-sge-game",
     organization := "com.example",
+    // Uncomment to add extensions:
+    // sgeExtensions := Set(SgeExtension.Noise, SgeExtension.FreeType),
     testFrameworks += new TestFramework("munit.Framework")
   )
-  .jvmPlatform(scalaVersions = Seq(SgePlugin.scalaVersion))
-  .jsPlatform(scalaVersions = Seq(SgePlugin.scalaVersion))
-  .nativePlatform(scalaVersions = Seq(SgePlugin.scalaVersion))
+  .jvmPlatform()
+  .jsPlatform()
+  .nativePlatform()

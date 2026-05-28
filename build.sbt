@@ -177,6 +177,7 @@ val sge = (projectMatrix in file("sge"))
         libraryDependencies += "ch.epfl.lamp" %% "gears" % versions.gears,
         libraryDependencies += "com.kubuszok" %% "multiarch-core" % versions.multiarch,
         libraryDependencies += "com.kubuszok" %% "multiarch-panama-jdk" % versions.multiarch,
+        libraryDependencies += "com.kubuszok" %  "pnm-provider-sge-desktop" % versions.nativeComponents,
         Compile / unmanagedClasspath ++= {
           val apiDirs     = (`sge-jvm-platform-api`.jvm(versions.scala3) / Compile / products).value
           val androidDirs = (`sge-jvm-platform-android`.jvm(versions.scala3) / Compile / products).value
@@ -390,6 +391,7 @@ val `sge-freetype` = (projectMatrix in file("sge-extension/freetype"))
     nativeProviderSettings,
     jvmPlatformApiClasspath,
     MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(
+      libraryDependencies += "com.kubuszok" % "pnm-provider-sge-freetype-desktop" % versions.nativeComponents,
       Compile / packageBin / mappings ++= {
         val crossDir   = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "cross"
         val releaseDir = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release"
@@ -661,12 +663,7 @@ val `sge-it-desktop` = (projectMatrix in file("sge-test/it-desktop"))
   .someVariations(versions.scalas, List(VirtualAxis.jvm))((commonSettings("sge-test/it-desktop") ++ dev.only1VersionInIDE ++ Seq(
     MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(Seq(
       resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
-      libraryDependencies ++= Seq(
-        "com.outr"     %% "scribe" % versions.scribe,
-        "com.kubuszok" % "pnm-provider-sge-desktop"          % versions.nativeComponents % Test,
-        "com.kubuszok" % "pnm-provider-sge-freetype-desktop" % versions.nativeComponents % Test,
-        "com.kubuszok" % "pnm-provider-sge-physics-desktop"  % versions.nativeComponents % Test
-      ),
+      libraryDependencies += "com.outr" %% "scribe" % versions.scribe,
       Compile / unmanagedClasspath ++= {
         val apiDirs     = (`sge-jvm-platform-api`.jvm(versions.scala3) / Compile / products).value
         val androidDirs = (`sge-jvm-platform-android`.jvm(versions.scala3) / Compile / products).value

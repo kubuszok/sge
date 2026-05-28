@@ -19,6 +19,8 @@ import sge.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import lowlevel.math.MathUtils
 import sge.utils.ScreenUtils
 import sge.utils.viewport.FitViewport
+import sge.noise.Grid
+import sge.noise.generator.noise.NoiseGenerator
 import demos.shared.DemoScene
 
 /** Tile type IDs used for both the tileset and collision checks. */
@@ -112,19 +114,22 @@ class TileWorldGame extends DemoScene {
     layer = TiledMapTileLayer(MapW, MapH, TileSize, TileSize)
     layer.name = "ground"
 
+    // Generate terrain using noise — layered octaves for natural-looking landscape
+    val grid = new Grid(MapW, MapH)
+    NoiseGenerator.generate(grid, 8, 1f)
+    NoiseGenerator.generate(grid, 4, 0.5f)
+    NoiseGenerator.generate(grid, 2, 0.25f)
+
     for (x <- 0 until MapW; y <- 0 until MapH) {
       val tileId =
         if (x == 0 || x == MapW - 1 || y == 0 || y == MapH - 1) {
           TileType.Water
-        } else if ((x >= 5 && x <= 7 && y >= 3 && y <= 5) ||
-                   (x >= 12 && x <= 14 && y >= 9 && y <= 11)) {
-          TileType.Sand
-        } else if (x == 10 && y >= 4 && y <= 10) {
-          TileType.Stone
-        } else if (y == 7 && x >= 3 && x <= 16) {
-          TileType.Stone
         } else {
-          TileType.Grass
+          val value = grid.get(x, y)
+          if (value < 0.3f) TileType.Water
+          else if (value < 0.55f) TileType.Sand
+          else if (value > 1.3f) TileType.Stone
+          else TileType.Grass
         }
 
       tileIds(x)(y) = tileId

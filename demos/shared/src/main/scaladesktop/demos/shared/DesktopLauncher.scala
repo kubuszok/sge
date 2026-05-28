@@ -28,9 +28,10 @@ object DesktopLauncher {
     */
   def launch(scene: DemoScene, title: String, width: Int = 800, height: Int = 600): Unit = {
     val config = DesktopApplicationConfig()
-    config.title        = title
-    config.windowWidth  = width
-    config.windowHeight = height
+    config.title          = title
+    config.windowWidth    = width
+    config.windowHeight   = height
+    config.foregroundFPS  = 60
     val app: Sge ?=> ApplicationListener = new SingleSceneApp(scene)
     DesktopApplicationFactory(app, config)
   }

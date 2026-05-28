@@ -44,6 +44,12 @@ object SgePlugin extends AutoPlugin {
   override def requires = plugins.JvmPlugin
 
   object autoImport {
+    val sgeExtensions = settingKey[Set[SgeExtension]](
+      "SGE extensions to include as dependencies. " +
+        "Example: sgeExtensions := Set(SgeExtension.Noise, SgeExtension.FreeType)"
+    )
+    val SgeExtension = sge.sbt.SgeExtension
+
     val sgeNativeLibLocalDir = settingKey[Option[File]](
       "Local directory containing native libraries (bypasses JAR extraction). " +
         "Set at ThisBuild scope for development builds. " +
@@ -181,6 +187,7 @@ object SgePlugin extends AutoPlugin {
 
   override def projectSettings: Seq[Setting[_]] =
     commonSettings ++ relaxedSettings ++ Seq(
+      sgeExtensions := Set.empty,
       JvmPackaging.releaseAppName := name.value,
       sgeNativeLibDir := sgeNativeLibLocalDir.value.getOrElse(
         target.value / "sge-native-libs" / Platform.host.classifier
