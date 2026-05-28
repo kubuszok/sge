@@ -10,7 +10,7 @@ import sge.utils.Seconds
 import sge.assets.AssetManager
 import sge.assets.loaders.FileHandleResolver
 import sge.audio.{Sound, SoundId, Volume}
-import sge.graphics.{ClearMask, Color, CompareFunc, CullFace, EnableCap, PerspectiveCamera, StencilOp, Texture}
+import sge.graphics.{Color, CompareFunc, EnableCap, PerspectiveCamera, Texture}
 import sge.graphics.g3d.attributes.IntAttribute
 import sge.graphics.g3d.{Environment, Model, ModelBatch, ModelInstance}
 import sge.graphics.g3d.environment.DirectionalLight
@@ -175,13 +175,13 @@ object AssetShowcaseGame extends DemoScene {
     // Cube from .g3dj (JSON)
     cubeModel = assetManager.get[Model](CubeModelPath).get
     cubeInstance = ModelInstance(cubeModel)
-    cubeInstance.transform.setToTranslation(-1.5f, 0f, 0f)
+    cubeInstance.transform.setToTranslation(-2f, 0f, 0f)
     disableCulling(cubeInstance)
 
     // Octahedron from .g3db (UBJSON)
     octahedronModel = assetManager.get[Model](OctahedronModelPath).get
     octahedronInstance = ModelInstance(octahedronModel)
-    octahedronInstance.transform.setToTranslation(1.5f, 0f, 0f)
+    octahedronInstance.transform.setToTranslation(2f, 0.5f, 0f)
     disableCulling(octahedronInstance)
 
     toneSound = assetManager.get[Sound](TonePath).get
@@ -308,9 +308,6 @@ object AssetShowcaseGame extends DemoScene {
     renderTitleBar(w, h, "2D Textures (AssetManager + TextureLoader)")
   }
 
-  /** Disable back-face culling on all materials so both front+back faces render
-    * (needed for the stencil volume test).
-    */
   private def disableCulling(instance: ModelInstance): Unit = {
     var mi = 0
     while (mi < instance.materials.size) {
@@ -322,56 +319,36 @@ object AssetShowcaseGame extends DemoScene {
   private def render3DSection(dt: Float, w: Float, h: Float)(using Sge): Unit = {
     val gl = Sge().graphics.gl
 
-    // Rotate both models around their own Y axis, then translate apart
     modelAngle += 45f * dt
+
+    // Rotate models on their own Y axes
     cubeInstance.transform.setToRotation(0f, 1f, 0f, modelAngle)
     cubeInstance.transform.setTranslation(-2f, 0f, 0f)
     octahedronInstance.transform.setToRotation(0f, 1f, 0f, modelAngle)
     octahedronInstance.transform.setTranslation(2f, 0.5f, 0f)
 
-    // Update camera aspect ratio
+    // Orbit camera around the origin
+    val camRad    = modelAngle * 0.5f * (Math.PI.toFloat / 180f)
+    val camDist   = 8f
+    val camHeight = 4f
+    camera3d.position.set(
+      Math.cos(camRad.toDouble).toFloat * camDist,
+      camHeight,
+      Math.sin(camRad.toDouble).toFloat * camDist
+    )
+    camera3d.lookAt(0f, 0.5f, 0f)
     camera3d.viewportWidth = WorldUnits(w)
     camera3d.viewportHeight = WorldUnits(h)
     camera3d.update()
 
-    // --- Convex volume stencil test ---
-    // Determines which grid pixels are inside vs outside each model's volume.
-    // Front faces closer than grid → incr stencil; back faces closer → decr.
-    // Stencil != 0 means grid is inside the volume.
-
-    // Step 1: Render grid to depth buffer only (no color)
-    gl.glColorMask(false, false, false, false)
     gl.glEnable(EnableCap.DepthTest)
     gl.glDepthFunc(CompareFunc.Lequal)
-    gl.glDepthMask(true)
+
+    // Draw grid floor
     shapeRenderer.setProjectionMatrix(camera3d.combined)
     drawGrid()
-    gl.glColorMask(true, true, true, true)
 
-    // Step 2: Render both models (both faces) to stencil — mark inside-volume pixels
-    gl.glEnable(EnableCap.StencilTest)
-    gl.glClear(ClearMask.StencilBufferBit)
-    gl.glStencilMask(0xff)
-    gl.glStencilFunc(CompareFunc.Always, 0, 0xff)
-    gl.glStencilOpSeparate(CullFace.Front, StencilOp.Keep, StencilOp.Keep, StencilOp.IncrWrap)
-    gl.glStencilOpSeparate(CullFace.Back, StencilOp.Keep, StencilOp.Keep, StencilOp.DecrWrap)
-    gl.glColorMask(false, false, false, false)
-    modelBatch.rendering(camera3d) {
-      modelBatch.render(cubeInstance, environment)
-      modelBatch.render(octahedronInstance, environment)
-    }
-    gl.glColorMask(true, true, true, true)
-
-    // Step 3: Clear depth and render grid where stencil == 0 (outside volumes)
-    gl.glClear(ClearMask.DepthBufferBit)
-    gl.glStencilFunc(CompareFunc.Equal, 0, 0xff)
-    gl.glStencilMask(0x00)
-    gl.glEnable(EnableCap.DepthTest)
-    gl.glDepthFunc(CompareFunc.Lequal)
-    drawGrid()
-
-    // Step 4: Render both models with color (on top of grid)
-    gl.glDisable(EnableCap.StencilTest)
+    // Draw models on top of grid (depth test handles occlusion)
     modelBatch.rendering(camera3d) {
       modelBatch.render(cubeInstance, environment)
       modelBatch.render(octahedronInstance, environment)
