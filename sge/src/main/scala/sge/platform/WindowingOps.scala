@@ -77,6 +77,13 @@ private[sge] trait WindowingOps {
     */
   def updateNativeLayerScale(windowHandle: Long): Unit = ()
 
+  /** Begin a native transaction that suppresses layer animations (macOS CATransaction). Must be paired with [[commitTransaction]]. No-op on other platforms.
+    */
+  def beginNoAnimationTransaction(): Unit = ()
+
+  /** Commit a native transaction started by [[beginNoAnimationTransaction]]. No-op on other platforms. */
+  def commitTransaction(): Unit = ()
+
   /** Returns true if the window has been requested to close. */
   def windowShouldClose(windowHandle: Long): Boolean
 

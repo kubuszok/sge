@@ -94,8 +94,9 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
   private lazy val hGetPlatform    = h("glfwGetPlatform", FunctionDescriptor.of(I))
   private lazy val hSetWinIcon     = h("glfwSetWindowIcon", FunctionDescriptor.ofVoid(P, I, P))
 
-  // Cached CALayer address for updating contentsScale on display changes (macOS only)
-  private var cachedLayerAddress: Long = 0L
+  // Cached CALayer address — set once per window at creation, reused by updateNativeLayerScale.
+  // Map from GLFW window handle → CALayer address (macOS only).
+  private val cachedLayerAddresses: java.util.HashMap[Long, Long] = new java.util.HashMap()
 
   // Platform-native window handle getters (from glfw3native.h)
   private lazy val hGetCocoaWindow: Option[MethodHandle] = {
@@ -124,6 +125,18 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
   // objc_msgSend variant for sending a CGFloat (double on 64-bit) argument — used for setContentsScale:
   private lazy val hObjcMsgSendDouble: MethodHandle =
     linker.downcallHandle(objcLookup.find("objc_msgSend").orElseThrow(), FunctionDescriptor.ofVoid(P, P, JAVA_DOUBLE))
+  // objc_msgSend variant returning NSUInteger (long on 64-bit) — used for [NSArray count]
+  private lazy val hObjcMsgSendCount: MethodHandle =
+    linker.downcallHandle(objcLookup.find("objc_msgSend").orElseThrow(), FunctionDescriptor.of(JAVA_LONG, P, P))
+  // objc_msgSend variant taking NSUInteger and returning pointer — used for [NSArray objectAtIndex:]
+  private lazy val hObjcMsgSendIndex: MethodHandle =
+    linker.downcallHandle(objcLookup.find("objc_msgSend").orElseThrow(), FunctionDescriptor.of(P, P, P, JAVA_LONG))
+  // objc_getClass — look up an Objective-C class by name
+  private lazy val hObjcGetClass: MethodHandle =
+    linker.downcallHandle(objcLookup.find("objc_getClass").orElseThrow(), FunctionDescriptor.of(P, P))
+  // objc_msgSend variant for void class methods (no extra args) — used for [CATransaction begin/commit]
+  private lazy val hObjcMsgSendVoid: MethodHandle =
+    linker.downcallHandle(objcLookup.find("objc_msgSend").orElseThrow(), FunctionDescriptor.ofVoid(P, P))
   private lazy val hGetX11Window: Option[MethodHandle] = {
     val opt = lib.find("glfwGetX11Window")
     if (opt.isPresent) Some(linker.downcallHandle(opt.get(), FunctionDescriptor.of(JAVA_LONG, P))) else None
@@ -250,8 +263,9 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
         val selSetContentsScale = hSelRegisterName.invoke(arena.allocateFrom("setContentsScale:")).asInstanceOf[MemorySegment]
         hObjcMsgSendDouble.invoke(layer, selSetContentsScale, scale)
 
-        cachedLayerAddress = layer.address()
-        cachedLayerAddress
+        val addr = layer.address()
+        cachedLayerAddresses.put(windowHandle, addr)
+        addr
       } finally arena.close()
     } else if (currentPlatform == WindowingOps.GLFW_PLATFORM_X11) {
       hGetX11Window
@@ -270,16 +284,61 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
     }
   }
 
-  override def updateNativeLayerScale(windowHandle: Long): Unit =
-    if (cachedLayerAddress != 0L && platform == WindowingOps.GLFW_PLATFORM_COCOA) {
-      val (fbW, _)  = getFramebufferSize(windowHandle)
-      val (winW, _) = getWindowSize(windowHandle)
-      val scale     = if (winW > 0) fbW.toDouble / winW.toDouble else 1.0
-      val arena     = Arena.ofConfined()
+  override def beginNoAnimationTransaction(): Unit =
+    if (platform == WindowingOps.GLFW_PLATFORM_COCOA) {
+      val arena = Arena.ofConfined()
       try {
-        val sel = hSelRegisterName.invoke(arena.allocateFrom("setContentsScale:")).asInstanceOf[MemorySegment]
-        hObjcMsgSendDouble.invoke(MemorySegment.ofAddress(cachedLayerAddress), sel, scale)
+        val caTransaction        = hObjcGetClass.invoke(arena.allocateFrom("CATransaction")).asInstanceOf[MemorySegment]
+        val selBegin             = hSelRegisterName.invoke(arena.allocateFrom("begin")).asInstanceOf[MemorySegment]
+        val selSetDisableActions = hSelRegisterName.invoke(arena.allocateFrom("setDisableActions:")).asInstanceOf[MemorySegment]
+        hObjcMsgSendVoid.invoke(caTransaction, selBegin)
+        hObjcMsgSendBool.invoke(caTransaction, selSetDisableActions, 1)
       } finally arena.close()
+    }
+
+  override def commitTransaction(): Unit =
+    if (platform == WindowingOps.GLFW_PLATFORM_COCOA) {
+      val arena = Arena.ofConfined()
+      try {
+        val caTransaction = hObjcGetClass.invoke(arena.allocateFrom("CATransaction")).asInstanceOf[MemorySegment]
+        val selCommit     = hSelRegisterName.invoke(arena.allocateFrom("commit")).asInstanceOf[MemorySegment]
+        hObjcMsgSendVoid.invoke(caTransaction, selCommit)
+      } finally arena.close()
+    }
+
+  override def updateNativeLayerScale(windowHandle: Long): Unit =
+    if (platform == WindowingOps.GLFW_PLATFORM_COCOA) {
+      hGetCocoaWindow.foreach { mh =>
+        val nsWindow  = mh.invoke(ptr(windowHandle)).asInstanceOf[MemorySegment]
+        val (fbW, _)  = getFramebufferSize(windowHandle)
+        val (winW, _) = getWindowSize(windowHandle)
+        val scale     = if (winW > 0) fbW.toDouble / winW.toDouble else 1.0
+        val arena     = Arena.ofConfined()
+        try {
+          val selContentView = hSelRegisterName.invoke(arena.allocateFrom("contentView")).asInstanceOf[MemorySegment]
+          val contentView    = hObjcMsgSend.invoke(nsWindow, selContentView).asInstanceOf[MemorySegment]
+          val selLayer       = hSelRegisterName.invoke(arena.allocateFrom("layer")).asInstanceOf[MemorySegment]
+          val layer          = hObjcMsgSend.invoke(contentView, selLayer).asInstanceOf[MemorySegment]
+          val selScale       = hSelRegisterName.invoke(arena.allocateFrom("setContentsScale:")).asInstanceOf[MemorySegment]
+          hObjcMsgSendDouble.invoke(layer, selScale, scale)
+          // ANGLE's Metal backend creates a CAMetalLayer sublayer whose contentsScale
+          // must also be updated — it only reads the parent's scale at creation time.
+          val selSublayers = hSelRegisterName.invoke(arena.allocateFrom("sublayers")).asInstanceOf[MemorySegment]
+          val sublayers    = hObjcMsgSend.invoke(layer, selSublayers).asInstanceOf[MemorySegment]
+          if (sublayers.address() != 0L) {
+            val selCount         = hSelRegisterName.invoke(arena.allocateFrom("count")).asInstanceOf[MemorySegment]
+            val count            = hObjcMsgSendCount.invoke(sublayers, selCount).asInstanceOf[Long]
+            val selObjectAtIndex = hSelRegisterName.invoke(arena.allocateFrom("objectAtIndex:")).asInstanceOf[MemorySegment]
+            var i                = 0L
+            while (i < count) {
+              val sublayer = hObjcMsgSendIndex.invoke(sublayers, selObjectAtIndex, i).asInstanceOf[MemorySegment]
+              hObjcMsgSendDouble.invoke(sublayer, selScale, scale)
+              i += 1
+            }
+          }
+          cachedLayerAddresses.put(windowHandle, layer.address())
+        } finally arena.close()
+      }
     }
 
   // ─── Window properties ─────────────────────────────────────────────────

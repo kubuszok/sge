@@ -93,10 +93,14 @@ class DesktopGraphics private[sge] (
   }
 
   private val onFramebufferResize: (Long, Int, Int) => Unit = { (_, _, _) =>
+    val oldBbW = _backBufferWidth
+    val oldBbH = _backBufferHeight
     updateFramebufferInfo()
-    // Update CALayer contentsScale when moving between displays with different DPI
+    // Suppress Core Animation implicit animations for the entire resize cycle —
+    // without this, ANGLE's CAMetalLayer smoothly animates to the new size.
+    windowing.beginNoAnimationTransaction()
     windowing.updateNativeLayerScale(window.windowHandle)
-    if (window.isListenerInitialized()) {
+    if (window.isListenerInitialized() && (_backBufferWidth != oldBbW || _backBufferHeight != oldBbH)) {
       window.makeCurrent()
       _gl20.glViewport(Pixels.zero, Pixels.zero, Pixels(_backBufferWidth), Pixels(_backBufferHeight))
       window.listener.resize(width, height)
@@ -104,6 +108,7 @@ class DesktopGraphics private[sge] (
       window.listener.render()
       sge.platform.PlatformOps.gl.swapEglBuffers(window.eglContext)
     }
+    windowing.commitTransaction()
   }
 
   // ─── Frame info ───────────────────────────────────────────────────────
