@@ -7,17 +7,12 @@ import sbt.Keys._
 
 /** SGE-specific native library validation and settings.
   *
-  * Library extraction, JAR scanning, and linker flag merging are handled by
-  * `NativeProviderPlugin` from `sbt-multiarch-scala`. This object provides:
+  * Library extraction, JAR scanning, and linker flag merging are handled by `NativeProviderPlugin` from `sbt-multiarch-scala`. This object provides:
   *   - JVM JAR validation (ensuring native shared libs are present before packaging)
   *   - The `sgeNativeLibDir` key for local development overrides
- *
- * Covenant: full-port
- * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 91
- * Covenant-baseline-methods: SgeNativeLibs,sgeValidateNativeLibs,validationSettings
- * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+  *
+  * Covenant: full-port Covenant-baseline-spec-pass: 0 Covenant-baseline-loc: 91 Covenant-baseline-methods: SgeNativeLibs,sgeValidateNativeLibs,validationSettings Covenant-source-reference:
+  * SGE-original Covenant-verified: 2026-04-19
   */
 object SgeNativeLibs {
 
@@ -27,8 +22,7 @@ object SgeNativeLibs {
     "Validate native shared libraries are present for JVM JAR packaging"
   )
 
-  /** Validation settings for the sge JVM axis. Checks that native shared libraries
-    * are present in the `packageBin` mappings before packaging.
+  /** Validation settings for the sge JVM axis. Checks that native shared libraries are present in the `packageBin` mappings before packaging.
     */
   lazy val validationSettings: Seq[Setting[_]] = Seq(
     sgeValidateNativeLibs := {

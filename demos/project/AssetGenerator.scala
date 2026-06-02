@@ -3,8 +3,7 @@ import sbt.Keys._
 
 /** Procedural asset generation for the asset-showcase demo.
   *
-  * Generates PNG textures and WAV audio files at compile time so the demo
-  * can exercise AssetManager without shipping binary blobs in the repo.
+  * Generates PNG textures and WAV audio files at compile time so the demo can exercise AssetManager without shipping binary blobs in the repo.
   */
 object AssetGenerator {
 
@@ -32,13 +31,13 @@ object AssetGenerator {
     if (!file.exists()) {
       val size     = 64
       val cellSize = size / 8
-      val img = new java.awt.image.BufferedImage(size, size, java.awt.image.BufferedImage.TYPE_INT_ARGB)
-      var y = 0
+      val img      = new java.awt.image.BufferedImage(size, size, java.awt.image.BufferedImage.TYPE_INT_ARGB)
+      var y        = 0
       while (y < size) {
         var x = 0
         while (x < size) {
           val light = ((x / cellSize) + (y / cellSize)) % 2 == 0
-          img.setRGB(x, y, if (light) 0xFF4488CC else 0xFF224466)
+          img.setRGB(x, y, if (light) 0xff4488cc else 0xff224466)
           x += 1
         }
         y += 1
@@ -52,15 +51,15 @@ object AssetGenerator {
   private def gradient(file: File): File = {
     if (!file.exists()) {
       val size = 64
-      val img = new java.awt.image.BufferedImage(size, size, java.awt.image.BufferedImage.TYPE_INT_ARGB)
-      var y = 0
+      val img  = new java.awt.image.BufferedImage(size, size, java.awt.image.BufferedImage.TYPE_INT_ARGB)
+      var y    = 0
       while (y < size) {
         val t   = y.toFloat / (size - 1).toFloat
-        val r   = (0.1f + 0.2f * t)
-        val g   = (0.3f + 0.4f * t)
-        val b   = (0.6f + 0.3f * t)
-        val rgb = 0xFF000000 | ((r * 255).toInt << 16) | ((g * 255).toInt << 8) | (b * 255).toInt
-        var x = 0
+        val r   = 0.1f + 0.2f * t
+        val g   = 0.3f + 0.4f * t
+        val b   = 0.6f + 0.3f * t
+        val rgb = 0xff000000 | ((r * 255).toInt << 16) | ((g * 255).toInt << 8) | (b * 255).toInt
+        var x   = 0
         while (x < size) {
           img.setRGB(x, y, rgb)
           x += 1

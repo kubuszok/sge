@@ -7,29 +7,24 @@ import sbt.Keys._
 
 /** SGE-specific application packaging.
   *
-  * JVM packaging (simple + distribution modes) is delegated to
-  * [[multiarch.sbt.JvmPackaging]] from sbt-multiarch-scala.
-  * This object provides SGE-specific browser (Scala.js) and native (Scala Native) packaging.
+  * JVM packaging (simple + distribution modes) is delegated to [[multiarch.sbt.JvmPackaging]] from sbt-multiarch-scala. This object provides SGE-specific browser (Scala.js) and native (Scala Native)
+  * packaging.
   *
-  * === JVM packaging (via JvmPackaging) ===
+  * ===JVM packaging (via JvmPackaging)===
   *
-  * '''Simple mode''' (`releasePackage`) — directory with launcher scripts + system JDK.
-  * '''Distribution mode''' (`releasePlatform`, `releaseAll`) — self-contained archives with jlinked JRE.
+  * '''Simple mode''' (`releasePackage`) — directory with launcher scripts + system JDK. '''Distribution mode''' (`releasePlatform`, `releaseAll`) — self-contained archives with jlinked JRE.
   *
-  * === Browser packaging ===
+  * ===Browser packaging===
   *
   * `sgePackageBrowser` — packages Scala.js output as a browser-ready directory with HTML.
   *
-  * === Native packaging ===
+  * ===Native packaging===
   *
   * `sgePackageNative` — packages Scala Native executable into a distributable directory.
- *
- * Covenant: full-port
- * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 307
- * Covenant-baseline-methods: NativeLibExts,SgePackaging,_,appName,archive,assetsDir,binary,browserSettings,cmd,codesignAdHoc,createTarGzArchive,createZipArchive,dest,dirName,dirs,distSettings,entries,exeName,exit,generateAssetManifestTask,generateHtml,hasNativeLibs,hostIsMac,html,isWindows,jsDir,jvmSettings,log,manifest,mimeType,n,nativeDir,nativeSettings,out,outDir,outFile,output,packageBrowserTask,packageNativeTask,parentDir,platform,proc,resDirs,sgeBrowserTitle,sgeGenerateAssetManifest,sgeJsOutputDir,sgeNativeBinary,sgePackageBrowser,sgePackageNative,sgeRelease,title
- * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+  *
+  * Covenant: full-port Covenant-baseline-spec-pass: 0 Covenant-baseline-loc: 307 Covenant-baseline-methods:
+  * NativeLibExts,SgePackaging,_,appName,archive,assetsDir,binary,browserSettings,cmd,codesignAdHoc,createTarGzArchive,createZipArchive,dest,dirName,dirs,distSettings,entries,exeName,exit,generateAssetManifestTask,generateHtml,hasNativeLibs,hostIsMac,html,isWindows,jsDir,jvmSettings,log,manifest,mimeType,n,nativeDir,nativeSettings,out,outDir,outFile,output,packageBrowserTask,packageNativeTask,parentDir,platform,proc,resDirs,sgeBrowserTitle,sgeGenerateAssetManifest,sgeJsOutputDir,sgeNativeBinary,sgePackageBrowser,sgePackageNative,sgeRelease,title
+  * Covenant-source-reference: SGE-original Covenant-verified: 2026-04-19
   */
 object SgePackaging {
 
@@ -47,8 +42,7 @@ object SgePackaging {
   val sgeBrowserTitle          = settingKey[String]("HTML page title for the browser package")
   val sgeGenerateAssetManifest = taskKey[File]("Generate assets.txt manifest from project resources")
 
-  /** The fullLinkJS output directory must be provided by the caller, since
-    * sbt-scalajs types are not on this plugin's classpath. Wire it in build.sbt:
+  /** The fullLinkJS output directory must be provided by the caller, since sbt-scalajs types are not on this plugin's classpath. Wire it in build.sbt:
     * {{{
     * SgePackaging.sgeJsOutputDir := (Compile / fullLinkJS / scalaJSLinkerOutputDirectory).value
     * }}}
@@ -57,10 +51,10 @@ object SgePackaging {
 
   private val generateAssetManifestTask: Def.Initialize[Task[File]] = Def.task {
     // Trigger resource generators first so generated files (e.g. test textures, audio) are present
-    val _          = (Compile / managedResources).value
-    val log        = streams.value.log
-    val resDirs    = (Compile / unmanagedResourceDirectories).value ++ (Compile / managedResourceDirectories).value
-    val outFile    = (Compile / resourceManaged).value / "assets.txt"
+    val _       = (Compile / managedResources).value
+    val log     = streams.value.log
+    val resDirs = (Compile / unmanagedResourceDirectories).value ++ (Compile / managedResourceDirectories).value
+    val outFile = (Compile / resourceManaged).value / "assets.txt"
 
     val entries = scala.collection.mutable.ArrayBuffer[String]()
     val dirs    = scala.collection.mutable.Set[String]()
@@ -72,13 +66,17 @@ object SgePackaging {
           val rel  = baseDir.relativize(f.toPath).toString.replace('\\', '/')
           val size = f.length()
           val ext  = f.getName.toLowerCase match {
-            case n if n.endsWith(".png") || n.endsWith(".jpg") || n.endsWith(".jpeg") ||
-              n.endsWith(".gif") || n.endsWith(".bmp") || n.endsWith(".webp") => "i"
+            case n
+                if n.endsWith(".png") || n.endsWith(".jpg") || n.endsWith(".jpeg") ||
+                  n.endsWith(".gif") || n.endsWith(".bmp") || n.endsWith(".webp") =>
+              "i"
             case n if n.endsWith(".wav") || n.endsWith(".ogg") || n.endsWith(".mp3") => "a"
-            case n if n.endsWith(".json") || n.endsWith(".g3dj") || n.endsWith(".atlas") ||
-              n.endsWith(".fnt") || n.endsWith(".txt") || n.endsWith(".xml") ||
-              n.endsWith(".glsl") || n.endsWith(".vert") || n.endsWith(".frag") ||
-              n.endsWith(".tmj") || n.endsWith(".tsj") || n.endsWith(".skin") => "t"
+            case n
+                if n.endsWith(".json") || n.endsWith(".g3dj") || n.endsWith(".atlas") ||
+                  n.endsWith(".fnt") || n.endsWith(".txt") || n.endsWith(".xml") ||
+                  n.endsWith(".glsl") || n.endsWith(".vert") || n.endsWith(".frag") ||
+                  n.endsWith(".tmj") || n.endsWith(".tsj") || n.endsWith(".skin") =>
+              "t"
             case _ => "b" // binary fallback (g3db, etc.)
           }
           val mime = mimeType(f.getName)
@@ -140,7 +138,7 @@ object SgePackaging {
       val baseDir = base.toPath
       (base ** "*").get.foreach { f =>
         if (f.isFile) {
-          val rel       = baseDir.relativize(f.toPath).toString.replace('\\', '/')
+          val rel        = baseDir.relativize(f.toPath).toString.replace('\\', '/')
           val targetFile = assetsDir / rel
           IO.createDirectory(targetFile.getParentFile)
           IO.copyFile(f, targetFile)
@@ -185,21 +183,19 @@ object SgePackaging {
        |</html>
        |""".stripMargin
 
-  /** Browser packaging settings. Apply to JS platform projects.
-    * Requires the caller to wire `sgeJsOutputDir` to `fullLinkJS / scalaJSLinkerOutputDirectory`.
+  /** Browser packaging settings. Apply to JS platform projects. Requires the caller to wire `sgeJsOutputDir` to `fullLinkJS / scalaJSLinkerOutputDirectory`.
     */
   lazy val browserSettings: Seq[Setting[_]] = Seq(
-    sgeBrowserTitle          := JvmPackaging.releaseAppName.value,
+    sgeBrowserTitle := JvmPackaging.releaseAppName.value,
     sgeGenerateAssetManifest := generateAssetManifestTask.value,
-    sgePackageBrowser        := packageBrowserTask.value
+    sgePackageBrowser := packageBrowserTask.value
   )
 
   // ── Scala Native packaging ─────────────────────────────────────────
 
   val sgePackageNative = taskKey[File]("Package Scala Native executable into a distributable directory")
 
-  /** The nativeLink output file must be provided by the caller, since
-    * sbt-scala-native types are not on this plugin's classpath. Wire it in build.sbt:
+  /** The nativeLink output file must be provided by the caller, since sbt-scala-native types are not on this plugin's classpath. Wire it in build.sbt:
     * {{{
     * SgePackaging.sgeNativeBinary := (Compile / nativeLink).value
     * }}}
@@ -228,10 +224,10 @@ object SgePackaging {
     if (hostIsMac) codesignAdHoc(dest, log)
 
     // Copy native shared libraries (if any)
-    val nativeDir = outDir / "lib"
+    val nativeDir     = outDir / "lib"
     var hasNativeLibs = false
     for {
-      dir  <- JvmPackaging.releaseNativeLibDirs.value if dir.exists()
+      dir <- JvmPackaging.releaseNativeLibDirs.value if dir.exists()
       file <- IO.listFiles(dir) if NativeLibExts.exists(file.getName.endsWith)
     } {
       if (!hasNativeLibs) { IO.createDirectory(nativeDir); hasNativeLibs = true }
@@ -239,8 +235,8 @@ object SgePackaging {
     }
 
     // Create archive
-    val platform  = Platform.host
-    val archive   = if (isWindows) {
+    val platform = Platform.host
+    val archive  = if (isWindows) {
       createZipArchive(outDir, target.value / "sge-native" / s"$appName-native-${platform.classifier}.zip", log)
     } else {
       createTarGzArchive(outDir, target.value / "sge-native" / s"$appName-native-${platform.classifier}.tar.gz", log)
@@ -250,8 +246,7 @@ object SgePackaging {
     archive
   }
 
-  /** Scala Native packaging settings. Apply to Native platform projects.
-    * Requires the caller to wire `sgeNativeBinary` to `Compile / nativeLink`.
+  /** Scala Native packaging settings. Apply to Native platform projects. Requires the caller to wire `sgeNativeBinary` to `Compile / nativeLink`.
     */
   lazy val nativeSettings: Seq[Setting[_]] = Seq(
     sgePackageNative := packageNativeTask.value
@@ -259,14 +254,12 @@ object SgePackaging {
 
   // ── Helpers ────────────────────────────────────────────────────────
 
-  /** Ad-hoc sign a file with `codesign --force --sign -`.  Only meaningful on macOS.
-    * Non-fatal: logs a warning on failure instead of throwing.
+  /** Ad-hoc sign a file with `codesign --force --sign -`. Only meaningful on macOS. Non-fatal: logs a warning on failure instead of throwing.
     */
   private def codesignAdHoc(file: File, log: sbt.util.Logger): Unit = {
-    val proc = new ProcessBuilder("codesign", "--force", "--sign", "-", file.getAbsolutePath)
-      .redirectErrorStream(true).start()
+    val proc   = new ProcessBuilder("codesign", "--force", "--sign", "-", file.getAbsolutePath).redirectErrorStream(true).start()
     val output = new String(proc.getInputStream.readAllBytes())
-    val exit = proc.waitFor()
+    val exit   = proc.waitFor()
     if (exit != 0) log.warn(s"[sge] Ad-hoc signing failed for ${file.getName}: $output")
     else log.info(s"[sge] Ad-hoc signed: ${file.getName}")
   }
@@ -279,11 +272,9 @@ object SgePackaging {
   private def createTarGzArchive(sourceDir: File, archiveFile: File, log: sbt.util.Logger): File = {
     val parentDir = sourceDir.getParentFile
     val dirName   = sourceDir.getName
-    val cmd = Seq("tar", "czf", archiveFile.getAbsolutePath, "-C", parentDir.getAbsolutePath, dirName)
-    val proc = new ProcessBuilder(cmd: _*)
-      .redirectErrorStream(true)
-      .start()
-    val exit = proc.waitFor()
+    val cmd       = Seq("tar", "czf", archiveFile.getAbsolutePath, "-C", parentDir.getAbsolutePath, dirName)
+    val proc      = new ProcessBuilder(cmd: _*).redirectErrorStream(true).start()
+    val exit      = proc.waitFor()
     if (exit != 0) {
       val output = new String(proc.getInputStream.readAllBytes())
       throw new RuntimeException(s"tar archive creation failed (exit $exit): $output")

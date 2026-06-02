@@ -41,18 +41,18 @@ object NetChatGame extends DemoScene {
   private val CardW   = 560f
 
   // State
-  private var shapeRenderer: ShapeRenderer = uninitialized
-  private var viewport: ScreenViewport     = uninitialized
-  private var xmlReader: XmlReader         = uninitialized
-  private var formatter: TextFormatter     = uninitialized
+  private var shapeRenderer: ShapeRenderer  = uninitialized
+  private var viewport:      ScreenViewport = uninitialized
+  private var xmlReader:     XmlReader      = uninitialized
+  private var formatter:     TextFormatter  = uninitialized
 
-  private var xmlIndex: Int                     = 0
-  private var parsedElementCount: Int           = 0
-  private var parsedTreeDepth: Int              = 0
-  private var parsedRootName: String            = ""
-  private var clipboardHasContent: Boolean      = false
-  private var formattedValue: Float             = 42.5f
-  private var startMillis: Millis               = Millis.zero
+  private var xmlIndex:            Int     = 0
+  private var parsedElementCount:  Int     = 0
+  private var parsedTreeDepth:     Int     = 0
+  private var parsedRootName:      String  = ""
+  private var clipboardHasContent: Boolean = false
+  private var formattedValue:      Float   = 42.5f
+  private var startMillis:         Millis  = Millis.zero
 
   override def init()(using sge.Sge): Unit = {
     shapeRenderer = ShapeRenderer()
@@ -88,8 +88,8 @@ object NetChatGame extends DemoScene {
     }
 
     // Time values
-    val nowMillis = TimeUtils.millis()
-    val elapsed = nowMillis - startMillis
+    val nowMillis   = TimeUtils.millis()
+    val elapsed     = nowMillis - startMillis
     val elapsedLong = elapsed.toLong
 
     // Formatted number — oscillate for visual interest
@@ -101,7 +101,7 @@ object NetChatGame extends DemoScene {
     shapeRenderer.setProjectionMatrix(viewport.camera.combined)
 
     val screenH = sge.Sge().graphics.height.toFloat
-    val baseY = screenH - 30f
+    val baseY   = screenH - 30f
 
     // Card 1: XML parsing results
     drawCard(baseY, 0)
@@ -113,13 +113,11 @@ object NetChatGame extends DemoScene {
     drawCard(baseY, 3)
   }
 
-  override def resize(width: sge.Pixels, height: sge.Pixels)(using sge.Sge): Unit = {
+  override def resize(width: sge.Pixels, height: sge.Pixels)(using sge.Sge): Unit =
     viewport.update(width, height, true)
-  }
 
-  override def dispose()(using sge.Sge): Unit = {
+  override def dispose()(using sge.Sge): Unit =
     shapeRenderer.close()
-  }
 
   // --- Card rendering ---
 
@@ -154,7 +152,7 @@ object NetChatGame extends DemoScene {
 
     // Element count as colored blocks (one block per element)
     val blockSize = 14f
-    var i = 0
+    var i         = 0
     while (i < parsedElementCount && i < 20) {
       val depth = MathUtils.clamp(i.toFloat / parsedElementCount.toFloat, 0f, 1f)
       shapeRenderer.setColor(Color(0.3f + depth * 0.5f, 0.7f - depth * 0.3f, 0.9f, 1f))
@@ -168,7 +166,7 @@ object NetChatGame extends DemoScene {
     var d = 0
     while (d < parsedTreeDepth) {
       val indent = d * 30f
-      val barW = CardW - 80f - indent
+      val barW   = CardW - 80f - indent
       shapeRenderer.setColor(Color(0.25f + d * 0.12f, 0.35f + d * 0.08f, 0.5f, 0.8f))
       shapeRenderer.rectangle(CardX + 20f + indent, y + 10f + d * 14f, barW, 10f)
       d += 1
@@ -193,23 +191,23 @@ object NetChatGame extends DemoScene {
     shapeRenderer.rectangle(CardX + 10f, y + CardH - 25f, 50f, 15f)
 
     // Millis counter as a growing bar (wraps every 10 seconds)
-    val nowMillis = TimeUtils.millis()
-    val elapsed = nowMillis - startMillis
+    val nowMillis   = TimeUtils.millis()
+    val elapsed     = nowMillis - startMillis
     val elapsedLong = elapsed.toLong
-    val barFrac = (elapsedLong % 10000L) / 10000.0f
-    val barW = (CardW - 80f) * barFrac
+    val barFrac     = (elapsedLong % 10000L) / 10000.0f
+    val barW        = (CardW - 80f) * barFrac
     shapeRenderer.setColor(Color(0.3f, 0.9f, 0.4f, 1f))
     shapeRenderer.rectangle(CardX + 70f, y + CardH - 30f, barW, 12f)
 
     // Nanos indicator — fast-moving small rect
     val nanoFrac = (TimeUtils.nanoTime().toLong % 1000000000L) / 1000000000.0f
-    val nanoX = CardX + 70f + (CardW - 100f) * nanoFrac
+    val nanoX    = CardX + 70f + (CardW - 100f) * nanoFrac
     shapeRenderer.setColor(Color.YELLOW)
     shapeRenderer.rectangle(nanoX, y + 20f, 6f, 30f)
 
     // Seconds elapsed as tick marks
     val secs = MathUtils.clamp((elapsedLong / 1000L).toInt, 0, 30)
-    var t = 0
+    var t    = 0
     while (t < secs) {
       shapeRenderer.setColor(Color(0.5f, 0.7f, 0.5f, 0.6f))
       shapeRenderer.rectangle(CardX + 70f + t * 16f, y + 55f, 3f, 10f)
@@ -247,7 +245,7 @@ object NetChatGame extends DemoScene {
 
     // Formatted value as bar width proportional to value (0-100 range)
     val barW = (CardW - 100f) * MathUtils.clamp(formattedValue / 100f, 0f, 1f)
-    val hue = formattedValue / 100f
+    val hue  = formattedValue / 100f
     shapeRenderer.setColor(Color(0.9f * hue, 0.3f + 0.5f * (1f - hue), 0.4f, 1f))
     shapeRenderer.rectangle(CardX + 70f, y + 35f, barW, 20f)
 
@@ -263,7 +261,7 @@ object NetChatGame extends DemoScene {
     // Use formatter to compute a display string length as block count
     val formatted = formatter.format("{0}", java.lang.Float.valueOf(formattedValue))
     val charCount = MathUtils.clamp(formatted.length, 0, 15)
-    var ci = 0
+    var ci        = 0
     while (ci < charCount) {
       shapeRenderer.setColor(Color(0.8f, 0.5f, 0.3f, 1f))
       shapeRenderer.rectangle(CardX + 70f + ci * 10f, y + 70f, 7f, 10f)
@@ -282,7 +280,7 @@ object NetChatGame extends DemoScene {
 
   private def countElements(elem: XmlReader.Element): Int = {
     var count = 1
-    var i = 0
+    var i     = 0
     while (i < elem.childCount) {
       count += countElements(elem.getChild(i))
       i += 1
@@ -292,7 +290,7 @@ object NetChatGame extends DemoScene {
 
   private def measureDepth(elem: XmlReader.Element): Int = {
     var maxChildDepth = 0
-    var i = 0
+    var i             = 0
     while (i < elem.childCount) {
       val d = measureDepth(elem.getChild(i))
       if (d > maxChildDepth) maxChildDepth = d

@@ -6,7 +6,7 @@ package demos.hextactics
 
 import scala.compiletime.uninitialized
 
-import sge.{Input, Pixels, Sge, WorldUnits}
+import sge.{ Input, Pixels, Sge, WorldUnits }
 import sge.utils.Seconds
 import sge.graphics.Color
 import sge.graphics.glutils.ShapeRenderer
@@ -29,11 +29,11 @@ object HexTacticsGame extends DemoScene {
   override def name: String = "Hex Tactics"
 
   // Grid size
-  private val Cols = 8
-  private val Rows = 6
+  private val Cols    = 8
+  private val Rows    = 6
   private val HexSize = 32f
-  private val HexW = HexSize * 2f
-  private val HexH = HexSize * scala.math.sqrt(3.0).toFloat
+  private val HexW    = HexSize * 2f
+  private val HexH    = HexSize * scala.math.sqrt(3.0).toFloat
 
   // World dimensions — enough to fit the grid with margin
   private val W = (Cols * HexW * 0.75f) + HexW + 40f
@@ -44,15 +44,15 @@ object HexTacticsGame extends DemoScene {
 
   // State
   private var shapeRenderer: ShapeRenderer = uninitialized
-  private var viewport: FitViewport = uninitialized
+  private var viewport:      FitViewport   = uninitialized
 
-  private var terrain: ArrayMap[Int, String] = uninitialized
-  private var units: OrderedMap[String, HexUnit] = uninitialized
-  private var hexCenters: ObjectMap[Int, Vector2] = uninitialized
+  private var terrain:    ArrayMap[Int, String]       = uninitialized
+  private var units:      OrderedMap[String, HexUnit] = uninitialized
+  private var hexCenters: ObjectMap[Int, Vector2]     = uninitialized
 
-  private var selectedHex: Int = -1       // encoded col*100+row, -1 = none
-  private var selectedUnit: String = ""   // empty = none
-  private var currentTurn: Int = 0        // index into orderedKeys
+  private var selectedHex:  Int    = -1 // encoded col*100+row, -1 = none
+  private var selectedUnit: String = "" // empty = none
+  private var currentTurn:  Int    = 0 // index into orderedKeys
 
   override def init()(using Sge): Unit = {
     shapeRenderer = ShapeRenderer()
@@ -91,7 +91,7 @@ object HexTacticsGame extends DemoScene {
     if (Sge().input.justTouched()) {
       val touch = Vector3(Sge().input.x.toFloat, Sge().input.y.toFloat, 0f)
       viewport.camera.unproject(touch)
-      val hex = pixelToHex(touch.x, touch.y)
+      val hex      = pixelToHex(touch.x, touch.y)
       val clickKey = hex._1 * 100 + hex._2
       if (hex._1 >= 0 && hex._1 < Cols && hex._2 >= 0 && hex._2 < Rows) {
         val clickedUnitName = findUnitAt(hex._1, hex._2)
@@ -134,7 +134,7 @@ object HexTacticsGame extends DemoScene {
         var r = 0
         while (r < Rows) {
           val center = getHexCenter(c, r)
-          val key = c * 100 + r
+          val key    = c * 100 + r
           val t: Nullable[String] = terrain.get(key)
           val terrainType = t.getOrElse("plains")
           setTerrainColor(terrainType)
@@ -146,23 +146,32 @@ object HexTacticsGame extends DemoScene {
               // Tree: dark green triangle
               shapeRenderer.setColor(ForestMarker)
               shapeRenderer.triangle(
-                center.x, center.y + HexSize * 0.35f,
-                center.x - HexSize * 0.2f, center.y - HexSize * 0.1f,
-                center.x + HexSize * 0.2f, center.y - HexSize * 0.1f
+                center.x,
+                center.y + HexSize * 0.35f,
+                center.x - HexSize * 0.2f,
+                center.y - HexSize * 0.1f,
+                center.x + HexSize * 0.2f,
+                center.y - HexSize * 0.1f
               )
             case "mountain" =>
               // Peak: dark brown triangle with lighter tip
               shapeRenderer.setColor(MtPeak)
               shapeRenderer.triangle(
-                center.x, center.y + HexSize * 0.4f,
-                center.x - HexSize * 0.25f, center.y - HexSize * 0.15f,
-                center.x + HexSize * 0.25f, center.y - HexSize * 0.15f
+                center.x,
+                center.y + HexSize * 0.4f,
+                center.x - HexSize * 0.25f,
+                center.y - HexSize * 0.15f,
+                center.x + HexSize * 0.25f,
+                center.y - HexSize * 0.15f
               )
               shapeRenderer.setColor(MtTip)
               shapeRenderer.triangle(
-                center.x, center.y + HexSize * 0.4f,
-                center.x - HexSize * 0.1f, center.y + HexSize * 0.2f,
-                center.x + HexSize * 0.1f, center.y + HexSize * 0.2f
+                center.x,
+                center.y + HexSize * 0.4f,
+                center.x - HexSize * 0.1f,
+                center.y + HexSize * 0.2f,
+                center.x + HexSize * 0.1f,
+                center.y + HexSize * 0.2f
               )
             case "water" =>
               // Wave lines (two small rectangles)
@@ -177,7 +186,7 @@ object HexTacticsGame extends DemoScene {
           if (uName.nonEmpty) {
             val nu: Nullable[HexUnit] = units.get(uName)
             if (nu.isDefined) {
-              val u = nu.get
+              val u         = nu.get
               val teamColor = if (u.team == 0) Color.RED else Color.BLUE
               // Draw unit marker (small filled circle area via triangles)
               shapeRenderer.setColor(teamColor)
@@ -213,7 +222,7 @@ object HexTacticsGame extends DemoScene {
         var r = 0
         while (r < Rows) {
           val center = getHexCenter(c, r)
-          val key = c * 100 + r
+          val key    = c * 100 + r
           if (key == selectedHex) {
             shapeRenderer.setColor(Color.YELLOW)
           } else {
@@ -227,13 +236,11 @@ object HexTacticsGame extends DemoScene {
     }
   }
 
-  override def resize(width: Pixels, height: Pixels)(using Sge): Unit = {
+  override def resize(width: Pixels, height: Pixels)(using Sge): Unit =
     viewport.update(width, height, true)
-  }
 
-  override def dispose()(using Sge): Unit = {
+  override def dispose()(using Sge): Unit =
     shapeRenderer.close()
-  }
 
   // --- Hex coordinate helpers ---
 
@@ -249,25 +256,25 @@ object HexTacticsGame extends DemoScene {
   }
 
   private def computeHexCenter(col: Int, row: Int): Vector2 = {
-    val x = 40f + col * HexW * 0.75f + HexSize
+    val x       = 40f + col * HexW * 0.75f + HexSize
     val yOffset = if (col % 2 == 0) 0f else HexH * 0.5f
-    val y = 40f + row * HexH + HexH * 0.5f + yOffset
+    val y       = 40f + row * HexH + HexH * 0.5f + yOffset
     Vector2(x, y)
   }
 
   private def pixelToHex(px: Float, py: Float): (Int, Int) = {
     // Brute-force nearest hex center
-    var bestCol = -1
-    var bestRow = -1
+    var bestCol  = -1
+    var bestRow  = -1
     var bestDist = Float.MaxValue
-    var c = 0
+    var c        = 0
     while (c < Cols) {
       var r = 0
       while (r < Rows) {
         val center = getHexCenter(c, r)
-        val dx = px - center.x
-        val dy = py - center.y
-        val dist = dx * dx + dy * dy
+        val dx     = px - center.x
+        val dy     = py - center.y
+        val dist   = dx * dx + dy * dy
         if (dist < bestDist) {
           bestDist = dist
           bestCol = c
@@ -285,7 +292,7 @@ object HexTacticsGame extends DemoScene {
   private def isAdjacent(c1: Int, r1: Int, c2: Int, r2: Int): Boolean = {
     val center1 = getHexCenter(c1, r1)
     val center2 = getHexCenter(c2, r2)
-    val dist = center1.distance(center2)
+    val dist    = center1.distance(center2)
     dist < HexH * 1.2f && !(c1 == c2 && r1 == r2)
   }
 
@@ -326,14 +333,14 @@ object HexTacticsGame extends DemoScene {
   // --- Terrain and units ---
 
   // Pre-allocated terrain colors — must use setColor(Color) overload, not setColor(r,g,b,a)
-  private val PlainsCol   = Color(0.55f, 0.82f, 0.35f, 1f)
-  private val ForestCol   = Color(0.18f, 0.45f, 0.12f, 1f)
-  private val MountainCol = Color(0.55f, 0.50f, 0.45f, 1f)
-  private val WaterCol    = Color(0.15f, 0.35f, 0.80f, 1f)
-  private val ForestMarker   = Color(0.1f, 0.35f, 0.1f, 1f)
-  private val MtPeak         = Color(0.35f, 0.30f, 0.25f, 1f)
-  private val MtTip          = Color(0.75f, 0.70f, 0.65f, 1f)
-  private val WaveCol        = Color(0.4f, 0.6f, 0.95f, 1f)
+  private val PlainsCol    = Color(0.55f, 0.82f, 0.35f, 1f)
+  private val ForestCol    = Color(0.18f, 0.45f, 0.12f, 1f)
+  private val MountainCol  = Color(0.55f, 0.50f, 0.45f, 1f)
+  private val WaterCol     = Color(0.15f, 0.35f, 0.80f, 1f)
+  private val ForestMarker = Color(0.1f, 0.35f, 0.1f, 1f)
+  private val MtPeak       = Color(0.35f, 0.30f, 0.25f, 1f)
+  private val MtTip        = Color(0.75f, 0.70f, 0.65f, 1f)
+  private val WaveCol      = Color(0.4f, 0.6f, 0.95f, 1f)
 
   private def setTerrainColor(t: String): Unit = t match {
     case "plains"   => shapeRenderer.setColor(PlainsCol)
@@ -350,9 +357,9 @@ object HexTacticsGame extends DemoScene {
     while (c < Cols) {
       var r = 0
       while (r < Rows) {
-        val key = c * 100 + r
+        val key  = c * 100 + r
         val roll = MathUtils.random()
-        val t =
+        val t    =
           if (roll < 0.40f) "plains"
           else if (roll < 0.65f) "forest"
           else if (roll < 0.80f) "mountain"

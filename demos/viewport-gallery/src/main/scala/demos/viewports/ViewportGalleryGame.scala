@@ -6,7 +6,7 @@ package demos.viewports
 
 import scala.compiletime.uninitialized
 
-import sge.{Pixels, Sge, WorldUnits}
+import sge.{ Pixels, Sge, WorldUnits }
 import sge.utils.Seconds
 import sge.graphics.Color
 import sge.graphics.EnableCap
@@ -40,9 +40,9 @@ object ViewportGalleryGame extends DemoScene {
   private val Cols = 3
   private val Rows = 2
 
-  private var shapeRenderer: ShapeRenderer = uninitialized
-  private var viewports: Array[Viewport]   = uninitialized
-  private var elapsed: Float               = 0f
+  private var shapeRenderer: ShapeRenderer   = uninitialized
+  private var viewports:     Array[Viewport] = uninitialized
+  private var elapsed:       Float           = 0f
 
   override def init()(using Sge): Unit = {
     shapeRenderer = ShapeRenderer()
@@ -60,9 +60,9 @@ object ViewportGalleryGame extends DemoScene {
   override def render(dt: Seconds)(using Sge): Unit = {
     elapsed += dt.toFloat
 
-    val gl  = Sge().graphics.gl
-    val sw  = Sge().graphics.width.toInt
-    val sh  = Sge().graphics.height.toInt
+    val gl    = Sge().graphics.gl
+    val sw    = Sge().graphics.width.toInt
+    val sh    = Sge().graphics.height.toInt
     val cellW = sw / Cols
     val cellH = sh / Rows
 
@@ -120,9 +120,8 @@ object ViewportGalleryGame extends DemoScene {
     // Viewports are updated each frame in render(), so nothing extra needed here.
   }
 
-  override def dispose()(using Sge): Unit = {
+  override def dispose()(using Sge): Unit =
     shapeRenderer.close()
-  }
 
   // --- Test pattern ---
 
@@ -131,7 +130,7 @@ object ViewportGalleryGame extends DemoScene {
     val hh = wh / 2f
 
     // Subtle hue animation
-    val hue = (elapsed * 30f) % 360f
+    val hue     = (elapsed * 30f) % 360f
     val bgColor = DemoUtils.hsvToColor(hue, 0.15f, 0.25f)
 
     // Background fill
@@ -144,7 +143,7 @@ object ViewportGalleryGame extends DemoScene {
     shapeRenderer.drawing(ShapeType.Line) {
       shapeRenderer.setColor(Color(0.4f, 0.4f, 0.4f, 1f))
       val gridStep = 25f
-      var gx = -hw
+      var gx       = -hw
       while (gx <= hw) {
         shapeRenderer.line(gx, -hh, gx, hh)
         gx += gridStep
@@ -167,7 +166,7 @@ object ViewportGalleryGame extends DemoScene {
 
     // Center circle (animated radius)
     val baseRadius = scala.math.min(ww, wh) * 0.15f
-    val pulse = 1f + 0.1f * MathUtils.sin(elapsed * 3f)
+    val pulse      = 1f + 0.1f * MathUtils.sin(elapsed * 3f)
     shapeRenderer.drawing(ShapeType.Filled) {
       val circleColor = DemoUtils.hsvToColor((hue + 180f) % 360f, 0.7f, 0.9f)
       shapeRenderer.setColor(circleColor)
@@ -178,18 +177,18 @@ object ViewportGalleryGame extends DemoScene {
     val ms = 8f // marker size
     shapeRenderer.drawing(ShapeType.Filled) {
       shapeRenderer.setColor(Color.RED)
-      shapeRenderer.rectangle(-hw, hh - ms, ms, ms)        // top-left
+      shapeRenderer.rectangle(-hw, hh - ms, ms, ms) // top-left
       shapeRenderer.setColor(Color.GREEN)
-      shapeRenderer.rectangle(hw - ms, hh - ms, ms, ms)    // top-right
+      shapeRenderer.rectangle(hw - ms, hh - ms, ms, ms) // top-right
       shapeRenderer.setColor(Color.BLUE)
-      shapeRenderer.rectangle(-hw, -hh, ms, ms)             // bottom-left
+      shapeRenderer.rectangle(-hw, -hh, ms, ms) // bottom-left
       shapeRenderer.setColor(Color.YELLOW)
-      shapeRenderer.rectangle(hw - ms, -hh, ms, ms)         // bottom-right
+      shapeRenderer.rectangle(hw - ms, -hh, ms, ms) // bottom-right
     }
   }
 
   /** Return a distinct label color for each viewport slot. */
-  private def labelColor(index: Int): Color = {
+  private def labelColor(index: Int): Color =
     index match {
       case 0 => Color.CYAN
       case 1 => Color.GREEN
@@ -198,5 +197,4 @@ object ViewportGalleryGame extends DemoScene {
       case 4 => Color.BLUE
       case _ => Color.WHITE
     }
-  }
 }

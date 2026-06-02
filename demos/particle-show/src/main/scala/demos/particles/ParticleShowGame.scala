@@ -6,16 +6,16 @@ package demos.particles
 
 import scala.compiletime.uninitialized
 
-import sge.{Input, Pixels, Sge, WorldUnits}
+import sge.{ Input, Pixels, Sge, WorldUnits }
 import sge.utils.Seconds
-import sge.graphics.{Color, Pixmap, Texture}
+import sge.graphics.{ Color, Pixmap, Texture }
 import sge.graphics.g2d.SpriteBatch
 import sge.graphics.glutils.ShapeRenderer
 import sge.graphics.glutils.ShapeRenderer.ShapeType
 import lowlevel.math.MathUtils
 import lowlevel.Nullable
 import lowlevel.util.DynamicArray
-import sge.utils.{Pool, Poolable, ScreenUtils}
+import sge.utils.{ Pool, Poolable, ScreenUtils }
 import sge.utils.viewport.FitViewport
 import demos.shared.DemoScene
 
@@ -24,8 +24,8 @@ object ParticleShowGame extends DemoScene {
 
   override def name: String = "Particle Show"
 
-  private val W = 800f
-  private val H = 600f
+  private val W            = 800f
+  private val H            = 600f
   private val MaxParticles = 2000
 
   // --- Particle definition ---
@@ -51,7 +51,7 @@ object ParticleShowGame extends DemoScene {
     }
   }
 
-  private val pool: Pool.Default[Particle] = Pool.Default[Particle](() => Particle(), 256)
+  private val pool:   Pool.Default[Particle] = Pool.Default[Particle](() => Particle(), 256)
   private val active: DynamicArray[Particle] = DynamicArray[Particle]()
 
   // Emitter modes
@@ -61,7 +61,7 @@ object ParticleShowGame extends DemoScene {
   private var mode: Int = ModeExplosion
 
   // Auto-spawn timer
-  private var spawnTimer: Float = 0f
+  private var spawnTimer:    Float = 0f
   private val SpawnInterval: Float = 0.08f
 
   // Resources
@@ -116,7 +116,7 @@ object ParticleShowGame extends DemoScene {
     batch.rendering {
       var i = 0
       while (i < active.size) {
-        val p = active(i)
+        val p     = active(i)
         val alpha = scala.math.max(0f, 1f - p.life / p.maxLife)
         batch.setColor(p.r, p.g, p.b, alpha)
         batch.draw(whiteTexture, p.x - p.size * 0.5f, p.y - p.size * 0.5f, p.size, p.size)
@@ -135,9 +135,8 @@ object ParticleShowGame extends DemoScene {
     }
   }
 
-  override def resize(width: Pixels, height: Pixels)(using Sge): Unit = {
+  override def resize(width: Pixels, height: Pixels)(using Sge): Unit =
     viewport.update(width, height, true)
-  }
 
   override def dispose()(using Sge): Unit = {
     batch.close()
@@ -149,7 +148,7 @@ object ParticleShowGame extends DemoScene {
 
   private def updateParticles(dt: Float): Unit = {
     val gravity = -300f
-    var i = 0
+    var i       = 0
     while (i < active.size) {
       val p = active(i)
       p.life += dt
@@ -167,7 +166,7 @@ object ParticleShowGame extends DemoScene {
 
   private def spawnBurst(cx: Float, cy: Float): Unit = {
     val count = MathUtils.random(20, 40)
-    var i = 0
+    var i     = 0
     while (i < count && active.size < MaxParticles) {
       val p = pool.obtain()
       p.x = cx
@@ -195,14 +194,14 @@ object ParticleShowGame extends DemoScene {
     }
   }
 
-  private def autoSpawn(): Unit = {
+  private def autoSpawn(): Unit =
     mode match {
       case ModeExplosion =>
         spawnBurst(MathUtils.random(100f, W - 100f), MathUtils.random(100f, H - 100f))
       case ModeFountain =>
         spawnBurst(W * 0.5f, 40f)
       case ModeRain =>
-        var i = 0
+        var i     = 0
         val count = MathUtils.random(3, 8)
         while (i < count && active.size < MaxParticles) {
           val p = pool.obtain()
@@ -219,7 +218,6 @@ object ParticleShowGame extends DemoScene {
         }
       case _ => ()
     }
-  }
 
   private def assignWarmColor(p: Particle): Unit = {
     val pick = MathUtils.random(0f, 1f)

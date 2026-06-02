@@ -6,13 +6,13 @@ package demos.pong
 
 import scala.compiletime.uninitialized
 
-import sge.{Input, Pixels, Sge, WorldUnits}
+import sge.{ Input, Pixels, Sge, WorldUnits }
 import sge.utils.Seconds
 import sge.graphics.Color
 import sge.graphics.glutils.ShapeRenderer
 import sge.graphics.glutils.ShapeRenderer.ShapeType
 import lowlevel.math.MathUtils
-import sge.math.{Interpolation, Vector2}
+import sge.math.{ Interpolation, Vector2 }
 import sge.utils.ScreenUtils
 import sge.utils.viewport.FitViewport
 import demos.shared.DemoScene
@@ -40,15 +40,15 @@ object PongGame extends DemoScene {
 
   // State
   private var shapeRenderer: ShapeRenderer = uninitialized
-  private var viewport: FitViewport        = uninitialized
+  private var viewport:      FitViewport   = uninitialized
   private val touchWorld = Vector2()
 
-  private var leftY  = 0f
-  private var rightY = 0f
-  private var ballX  = 0f
-  private var ballY  = 0f
-  private var ballDx = 0f
-  private var ballDy = 0f
+  private var leftY   = 0f
+  private var rightY  = 0f
+  private var ballX   = 0f
+  private var ballY   = 0f
+  private var ballDx  = 0f
+  private var ballDy  = 0f
   private var ballSpd = 0f
   private var scoreL  = 0
   private var scoreR  = 0
@@ -102,8 +102,10 @@ object PongGame extends DemoScene {
 
     // Left paddle collision
     val lPadX = PaddleGap
-    if (ballDx < 0f && ballX <= lPadX + PaddleW && ballX + BallSize >= lPadX &&
-      ballY + BallSize >= leftY && ballY <= leftY + PaddleH) {
+    if (
+      ballDx < 0f && ballX <= lPadX + PaddleW && ballX + BallSize >= lPadX &&
+      ballY + BallSize >= leftY && ballY <= leftY + PaddleH
+    ) {
       ballDx = scala.math.abs(ballDx)
       ballX = lPadX + PaddleW
       speedUp()
@@ -111,8 +113,10 @@ object PongGame extends DemoScene {
 
     // Right paddle collision
     val rPadX = W - PaddleGap - PaddleW
-    if (ballDx > 0f && ballX + BallSize >= rPadX && ballX <= rPadX + PaddleW &&
-      ballY + BallSize >= rightY && ballY <= rightY + PaddleH) {
+    if (
+      ballDx > 0f && ballX + BallSize >= rPadX && ballX <= rPadX + PaddleW &&
+      ballY + BallSize >= rightY && ballY <= rightY + PaddleH
+    ) {
       ballDx = -scala.math.abs(ballDx)
       ballX = rPadX - BallSize
       speedUp()
@@ -151,13 +155,11 @@ object PongGame extends DemoScene {
     }
   }
 
-  override def resize(width: Pixels, height: Pixels)(using Sge): Unit = {
+  override def resize(width: Pixels, height: Pixels)(using Sge): Unit =
     viewport.update(width, height, true)
-  }
 
-  override def dispose()(using Sge): Unit = {
+  override def dispose()(using Sge): Unit =
     shapeRenderer.close()
-  }
 
   // --- Helpers ---
 
@@ -166,7 +168,7 @@ object PongGame extends DemoScene {
     ballY = H / 2f - BallSize / 2f
     ballSpd = InitBallSpd
     val angle = MathUtils.random(-0.4f, 0.4f)
-    val dir = if (MathUtils.random() > 0.5f) 1f else -1f
+    val dir   = if (MathUtils.random() > 0.5f) 1f else -1f
     ballDx = dir * MathUtils.cos(angle)
     ballDy = MathUtils.sin(angle)
   }
@@ -177,15 +179,14 @@ object PongGame extends DemoScene {
     ballSpd = MathUtils.clamp(ballSpd, InitBallSpd, MaxBallSpd)
   }
 
-  /** Draw a single digit (0-9) using 7-segment style filled rectangles.
-    * Origin is top-left of the digit cell (40 wide x 50 tall).
+  /** Draw a single digit (0-9) using 7-segment style filled rectangles. Origin is top-left of the digit cell (40 wide x 50 tall).
     */
   private def drawDigit(ox: Float, oy: Float, value: Int, color: Color): Unit = {
     shapeRenderer.setColor(color)
     val d  = value % 10
-    val sw = 20f  // segment width
-    val sh = 4f   // segment thickness
-    val sl = 20f  // segment length (vertical)
+    val sw = 20f // segment width
+    val sh = 4f // segment thickness
+    val sl = 20f // segment length (vertical)
 
     // Segment encoding: bits = top, top-right, bot-right, bottom, bot-left, top-left, middle
     //                          6     5          4          3       2         1         0

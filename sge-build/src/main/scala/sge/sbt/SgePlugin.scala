@@ -6,8 +6,7 @@ import sbt._
 import sbt.Keys._
 import sbt.internal.ProjectMatrix
 
-/** Base SGE project plugin. Provides Scala 3 compiler settings, native lib directory
-  * handling, and common keys. Enable on a projectMatrix or Project:
+/** Base SGE project plugin. Provides Scala 3 compiler settings, native lib directory handling, and common keys. Enable on a projectMatrix or Project:
   * {{{
   * val game = (projectMatrix in file("game"))
   *   .enablePlugins(SgePlugin)
@@ -23,20 +22,16 @@ import sbt.internal.ProjectMatrix
   *   - [[SgeDesktopNativePlatform]] — when SgePlugin + ScalaNativePlugin are enabled
   *   - [[SgeAndroidPlatform]] — when SgePlugin + AndroidPlugin are enabled
   *
-  * For local development, set `ThisBuild / sgeNativeLibLocalDir` to point at
-  * the Rust build output directory (bypasses JAR extraction):
+  * For local development, set `ThisBuild / sgeNativeLibLocalDir` to point at the Rust build output directory (bypasses JAR extraction):
   * {{{
   * ThisBuild / SgePlugin.autoImport.sgeNativeLibLocalDir := Some(
   *   (ThisBuild / baseDirectory).value / "native-components" / "target" / "release"
   * )
   * }}}
- *
- * Covenant: full-port
- * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 181
- * Covenant-baseline-methods: NativeCrossAxis,SgePlugin,androidDex,androidInstall,androidPackage,androidSign,autoImport,commonSettings,coreDep,fromProps,globalSettings,jsPlatform,jvmPlatform,nativePlatform,projectSettings,relaxedSettings,releaseAll,releaseAppName,releaseCacheDir,releaseJlinkModules,releaseMacOsBundleId,releaseMacOsIcon,releaseNativeLibDirs,releasePackage,releasePlatform,releaseRoastVersion,releaseTargets,releaseUseZgc,releaseVmArgs,requires,scalaVersion,sgeNativeLibDir,sgeNativeLibLocalDir,sgePackageBrowser,sgePackageNative,sgeRelease,sgeVersion,trigger,withCrossNative
- * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+  *
+  * Covenant: full-port Covenant-baseline-spec-pass: 0 Covenant-baseline-loc: 181 Covenant-baseline-methods:
+  * NativeCrossAxis,SgePlugin,androidDex,androidInstall,androidPackage,androidSign,autoImport,commonSettings,coreDep,fromProps,globalSettings,jsPlatform,jvmPlatform,nativePlatform,projectSettings,relaxedSettings,releaseAll,releaseAppName,releaseCacheDir,releaseJlinkModules,releaseMacOsBundleId,releaseMacOsIcon,releaseNativeLibDirs,releasePackage,releasePlatform,releaseRoastVersion,releaseTargets,releaseUseZgc,releaseVmArgs,requires,scalaVersion,sgeNativeLibDir,sgeNativeLibLocalDir,sgePackageBrowser,sgePackageNative,sgeRelease,sgeVersion,trigger,withCrossNative
+  * Covenant-source-reference: SGE-original Covenant-verified: 2026-04-19
   */
 object SgePlugin extends AutoPlugin {
 
@@ -89,15 +84,15 @@ object SgePlugin extends AutoPlugin {
     // ── ProjectMatrix extensions ─────────────────────────────────────
 
     /** Re-export of multiarch-scala's [[multiarch.sbt.NativeCrossAxis]]. */
-    val NativeCrossAxis  = multiarch.sbt.NativeCrossAxis
+    val NativeCrossAxis = multiarch.sbt.NativeCrossAxis
     type NativeCrossAxis = multiarch.sbt.NativeCrossAxis
 
     /** Extension methods for [[ProjectMatrix]] that apply SGE defaults.
       *
-      * Delegates to [[multiarch.sbt.ProjectMatrixOps.Ops.withCrossNative]] for
-      * cross-native axis generation, passing [[SgePlugin.scalaVersion]] as the default.
+      * Delegates to [[multiarch.sbt.ProjectMatrixOps.Ops.withCrossNative]] for cross-native axis generation, passing [[SgePlugin.scalaVersion]] as the default.
       */
     implicit class SgeProjectMatrixOps(val matrix: ProjectMatrix) extends AnyVal {
+
       /** `.jvmPlatform` with `scalaVersions` defaulted to [[SgePlugin.scalaVersion]]. */
       def jvmPlatform(settings: Seq[Setting[_]] = Seq.empty): ProjectMatrix =
         matrix.jvmPlatform(scalaVersions = Seq(SgePlugin.scalaVersion), settings = settings)
@@ -110,11 +105,9 @@ object SgePlugin extends AutoPlugin {
       def nativePlatform(settings: Seq[Setting[_]] = Seq.empty): ProjectMatrix =
         matrix.nativePlatform(scalaVersions = Seq(SgePlugin.scalaVersion), settings = settings)
 
-      /** Add cross-native compilation axes for all non-host desktop platforms.
-        * Requires `zig` to be installed. Skipped silently if zig is unavailable.
+      /** Add cross-native compilation axes for all non-host desktop platforms. Requires `zig` to be installed. Skipped silently if zig is unavailable.
         *
-        * Delegates to [[multiarch.sbt.ProjectMatrixOps.Ops.withCrossNative]] using
-        * [[SgePlugin.scalaVersion]] as the default Scala version for the subprojects.
+        * Delegates to [[multiarch.sbt.ProjectMatrixOps.Ops.withCrossNative]] using [[SgePlugin.scalaVersion]] as the default Scala version for the subprojects.
         */
       def withCrossNative: ProjectMatrix =
         new MultiArchProjectMatrixOps.Ops(matrix).withCrossNative(SgePlugin.scalaVersion)
@@ -124,18 +117,19 @@ object SgePlugin extends AutoPlugin {
 
   // ── Version ─────────────────────────────────────────────────────────
 
-  /** SGE version this plugin was built with. Use for library dependencies:
-    * {{{ libraryDependencies += "com.kubuszok" %%% "sge" % SgePlugin.sgeVersion }}}
+  /** SGE version this plugin was built with. Use for library dependencies: {{{libraryDependencies += "com.kubuszok" %%% "sge" % SgePlugin.sgeVersion}}}
     *
-    * Resolved at load time from the plugin JAR's properties, or from the
-    * `.sge-version` file when running from source inclusion.
+    * Resolved at load time from the plugin JAR's properties, or from the `.sge-version` file when running from source inclusion.
     */
   val sgeVersion: String = {
-    val fromProps = Option(getClass.getResourceAsStream("/sge-build.properties")).map { is =>
-      val p = new java.util.Properties()
-      try p.load(is) finally is.close()
-      p.getProperty("sge.version", "")
-    }.filter(_.nonEmpty)
+    val fromProps = Option(getClass.getResourceAsStream("/sge-build.properties"))
+      .map { is =>
+        val p = new java.util.Properties()
+        try p.load(is)
+        finally is.close()
+        p.getProperty("sge.version", "")
+      }
+      .filter(_.nonEmpty)
     fromProps.getOrElse {
       val f = new java.io.File(".sge-version")
       if (f.exists()) scala.io.Source.fromFile(f).mkString.trim

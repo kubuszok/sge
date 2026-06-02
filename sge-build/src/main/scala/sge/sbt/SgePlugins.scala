@@ -13,19 +13,14 @@ import sbtprojectmatrix.ProjectMatrixKeys.projectMatrixBaseDirectory
 
 /** JVM desktop platform plugin. Auto-triggers when [[SgePlugin]] is enabled.
   *
-  * Provides JVM runtime config (fork for Panama FFM, java.library.path),
-  * scaladesktop source directory discovery, and JVM packaging (simple + distribution).
+  * Provides JVM runtime config (fork for Panama FFM, java.library.path), scaladesktop source directory discovery, and JVM packaging (simple + distribution).
   *
-  * Since JvmPlugin is always present in sbt, this plugin triggers for all projects
-  * with SgePlugin enabled. JVM-specific settings (fork, javaOptions) are harmless on
-  * JS/Native axis projects and get overridden by their respective plugins.
- *
- * Covenant: full-port
- * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 134
- * Covenant-baseline-methods: SgeAndroidPlatform,SgeBrowserPlatform,SgeDesktopJvmPlatform,SgeDesktopNativePlatform,autoImport,jvmRuntime,projectSettings,releaseCacheDir,releaseJlinkModules,releaseRoastVersion,releaseTargets,releaseUseZgc,releaseVmArgs,requires,sgeBrowserTitle,sgeJsOutputDir,trigger
- * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+  * Since JvmPlugin is always present in sbt, this plugin triggers for all projects with SgePlugin enabled. JVM-specific settings (fork, javaOptions) are harmless on JS/Native axis projects and get
+  * overridden by their respective plugins.
+  *
+  * Covenant: full-port Covenant-baseline-spec-pass: 0 Covenant-baseline-loc: 134 Covenant-baseline-methods:
+  * SgeAndroidPlatform,SgeBrowserPlatform,SgeDesktopJvmPlatform,SgeDesktopNativePlatform,autoImport,jvmRuntime,projectSettings,releaseCacheDir,releaseJlinkModules,releaseRoastVersion,releaseTargets,releaseUseZgc,releaseVmArgs,requires,sgeBrowserTitle,sgeJsOutputDir,trigger
+  * Covenant-source-reference: SGE-original Covenant-verified: 2026-04-19
   */
 object SgeDesktopJvmPlatform extends AutoPlugin {
 
@@ -33,21 +28,23 @@ object SgeDesktopJvmPlatform extends AutoPlugin {
   override def requires = SgePlugin
 
   object autoImport {
-    val releaseTargets       = JvmPackaging.releaseTargets
-    val releaseJlinkModules  = JvmPackaging.releaseJlinkModules
-    val releaseRoastVersion  = JvmPackaging.releaseRoastVersion
-    val releaseVmArgs        = JvmPackaging.releaseVmArgs
-    val releaseUseZgc        = JvmPackaging.releaseUseZgc
-    val releaseCacheDir      = JvmPackaging.releaseCacheDir
+    val releaseTargets      = JvmPackaging.releaseTargets
+    val releaseJlinkModules = JvmPackaging.releaseJlinkModules
+    val releaseRoastVersion = JvmPackaging.releaseRoastVersion
+    val releaseVmArgs       = JvmPackaging.releaseVmArgs
+    val releaseUseZgc       = JvmPackaging.releaseUseZgc
+    val releaseCacheDir     = JvmPackaging.releaseCacheDir
   }
 
   override def projectSettings: Seq[Setting[_]] = jvmRuntime ++
     SgePackaging.jvmSettings ++ SgePackaging.distSettings ++ Seq(
-    libraryDependencies += "com.kubuszok" % s"sge_${scalaBinaryVersion.value}" % SgePlugin.sgeVersion,
-    libraryDependencies ++= SgeExtension.jvmDeps(
-      SgePlugin.autoImport.sgeExtensions.value, scalaBinaryVersion.value, SgePlugin.sgeVersion
+      libraryDependencies += "com.kubuszok" % s"sge_${scalaBinaryVersion.value}" % SgePlugin.sgeVersion,
+      libraryDependencies ++= SgeExtension.jvmDeps(
+        SgePlugin.autoImport.sgeExtensions.value,
+        scalaBinaryVersion.value,
+        SgePlugin.sgeVersion
+      )
     )
-  )
 
   /** JVM platform settings: fork for Panama FFM, library path, scaladesktop source dir. */
   private lazy val jvmRuntime: Seq[Setting[_]] = Seq(
@@ -57,23 +54,24 @@ object SgeDesktopJvmPlatform extends AutoPlugin {
     },
     fork := true,
     javaOptions ++= {
-      val libDir = SgePlugin.autoImport.sgeNativeLibDir.value.getAbsolutePath
-      val macFlags = if (Platform.host.isMac)
-        Seq("-XstartOnFirstThread") else Seq.empty
+      val libDir   = SgePlugin.autoImport.sgeNativeLibDir.value.getAbsolutePath
+      val macFlags =
+        if (Platform.host.isMac)
+          Seq("-XstartOnFirstThread")
+        else Seq.empty
       Seq(
         s"-Djava.library.path=$libDir",
         "--enable-native-access=ALL-UNNAMED"
       ) ++ macFlags
     },
     Test / fork := true,
-    Test / javaOptions ++= (javaOptions).value
+    Test / javaOptions ++= javaOptions.value
   )
 }
 
 /** Browser platform plugin. Auto-triggers when [[SgePlugin]] and `ScalaJSPlugin` are enabled.
   *
-  * Provides Scala.js browser packaging: fullLinkJS wiring, asset manifest generation,
-  * and HTML index page creation.
+  * Provides Scala.js browser packaging: fullLinkJS wiring, asset manifest generation, and HTML index page creation.
   */
 object SgeBrowserPlatform extends AutoPlugin {
 
@@ -88,7 +86,9 @@ object SgeBrowserPlatform extends AutoPlugin {
   override def projectSettings: Seq[Setting[_]] = SgePackaging.browserSettings ++ Seq(
     libraryDependencies += "com.kubuszok" % s"sge_sjs1_${scalaBinaryVersion.value}" % SgePlugin.sgeVersion,
     libraryDependencies ++= SgeExtension.jsDeps(
-      SgePlugin.autoImport.sgeExtensions.value, scalaBinaryVersion.value, SgePlugin.sgeVersion
+      SgePlugin.autoImport.sgeExtensions.value,
+      scalaBinaryVersion.value,
+      SgePlugin.sgeVersion
     ),
     scalaJSUseMainModuleInitializer := true,
     SgePackaging.sgeJsOutputDir := {
@@ -98,20 +98,16 @@ object SgeBrowserPlatform extends AutoPlugin {
     // Override JVM defaults from SgeDesktopJvmPlatform (which auto-triggers on all SgePlugin projects).
     // JS projects don't use desktop-shared sources, forking, or JVM options.
     fork := false,
-    Compile / unmanagedSourceDirectories := {
-      (Compile / unmanagedSourceDirectories).value.filterNot(_.getPath.endsWith("scaladesktop"))
-    },
-    Test / unmanagedSourceDirectories := {
+    Compile / unmanagedSourceDirectories :=
+      (Compile / unmanagedSourceDirectories).value.filterNot(_.getPath.endsWith("scaladesktop")),
+    Test / unmanagedSourceDirectories :=
       (Test / unmanagedSourceDirectories).value.filterNot(_.getPath.endsWith("scaladesktop"))
-    }
   )
 }
 
-/** Native desktop platform plugin. Auto-triggers when [[SgePlugin]] and `ScalaNativePlugin`
-  * are enabled.
+/** Native desktop platform plugin. Auto-triggers when [[SgePlugin]] and `ScalaNativePlugin` are enabled.
   *
-  * Provides NativeProviderPlugin integration (library extraction + linker flags),
-  * scaladesktop source directory discovery, and native packaging.
+  * Provides NativeProviderPlugin integration (library extraction + linker flags), scaladesktop source directory discovery, and native packaging.
   */
 object SgeDesktopNativePlatform extends AutoPlugin {
 
@@ -122,22 +118,22 @@ object SgeDesktopNativePlatform extends AutoPlugin {
   // on all SgePlugin projects). No need to add it again here.
   override def projectSettings: Seq[Setting[_]] =
     NativeProviderPlugin.projectSettings ++
-    SgePackaging.nativeSettings ++ Seq(
-    libraryDependencies += "com.kubuszok" % s"sge_native0.5_${scalaBinaryVersion.value}" % SgePlugin.sgeVersion,
-    libraryDependencies ++= SgeExtension.nativeDeps(
-      SgePlugin.autoImport.sgeExtensions.value, scalaBinaryVersion.value, SgePlugin.sgeVersion
-    ),
-    NativeExtractSettings.nativeLibSourceDir := SgePlugin.autoImport.sgeNativeLibLocalDir.value,
-    SgePackaging.sgeNativeBinary := (Compile / nativeLink).value
-  )
+      SgePackaging.nativeSettings ++ Seq(
+        libraryDependencies += "com.kubuszok" % s"sge_native0.5_${scalaBinaryVersion.value}" % SgePlugin.sgeVersion,
+        libraryDependencies ++= SgeExtension.nativeDeps(
+          SgePlugin.autoImport.sgeExtensions.value,
+          scalaBinaryVersion.value,
+          SgePlugin.sgeVersion
+        ),
+        NativeExtractSettings.nativeLibSourceDir := SgePlugin.autoImport.sgeNativeLibLocalDir.value,
+        SgePackaging.sgeNativeBinary := (Compile / nativeLink).value
+      )
 }
 
-/** SGE-specific Android platform plugin. Auto-triggers when [[SgePlugin]] and
-  * [[multiarch.sbt.AndroidPlugin]] are both enabled.
+/** SGE-specific Android platform plugin. Auto-triggers when [[SgePlugin]] and [[multiarch.sbt.AndroidPlugin]] are both enabled.
   *
-  * Overrides the default `androidSdkCacheDir` to `<baseDirectory>/sge-deps/android-sdk`
-  * so CI workflows that pre-populate that path keep working. Provides a hook for
-  * future SGE-specific Android customizations on top of the generic Android build.
+  * Overrides the default `androidSdkCacheDir` to `<baseDirectory>/sge-deps/android-sdk` so CI workflows that pre-populate that path keep working. Provides a hook for future SGE-specific Android
+  * customizations on top of the generic Android build.
   */
 object SgeAndroidPlatform extends AutoPlugin {
 
@@ -147,7 +143,9 @@ object SgeAndroidPlatform extends AutoPlugin {
   override def projectSettings: Seq[Setting[_]] = Seq(
     AndroidPlugin.autoImport.androidSdkCacheDir := (ThisBuild / baseDirectory).value / "sge-deps" / "android-sdk",
     libraryDependencies ++= SgeExtension.jvmDeps(
-      SgePlugin.autoImport.sgeExtensions.value, scalaBinaryVersion.value, SgePlugin.sgeVersion
+      SgePlugin.autoImport.sgeExtensions.value,
+      scalaBinaryVersion.value,
+      SgePlugin.sgeVersion
     )
   )
 }

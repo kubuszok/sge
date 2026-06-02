@@ -6,15 +6,15 @@ package demos.viewer3d
 
 import scala.compiletime.uninitialized
 
-import sge.{Input, Pixels, Sge, WorldUnits}
+import sge.{ Input, Pixels, Sge, WorldUnits }
 import sge.utils.Seconds
-import sge.graphics.{Color, EnableCap, PerspectiveCamera, Pixmap, Texture}
+import sge.graphics.{ Color, EnableCap, PerspectiveCamera, Pixmap, Texture }
 import sge.graphics.VertexAttributes.Usage
 import sge.graphics.g2d.TextureRegion
-import sge.graphics.g3d.{Environment, Material, Model, ModelBatch, ModelInstance}
+import sge.graphics.g3d.{ Environment, Material, Model, ModelBatch, ModelInstance }
 import sge.graphics.g3d.attributes.ColorAttribute
-import sge.graphics.g3d.decals.{CameraGroupStrategy, Decal, DecalBatch}
-import sge.graphics.g3d.environment.{DirectionalLight, PointLight}
+import sge.graphics.g3d.decals.{ CameraGroupStrategy, Decal, DecalBatch }
+import sge.graphics.g3d.environment.{ DirectionalLight, PointLight }
 import sge.graphics.g3d.utils.ModelBuilder
 import sge.graphics.glutils.ShapeRenderer
 import sge.graphics.glutils.ShapeRenderer.ShapeType
@@ -24,20 +24,19 @@ import lowlevel.Nullable
 import sge.utils.ScreenUtils
 import demos.shared.DemoScene
 
-/** 3D model viewer: five procedural shapes with directional + point lighting,
-  * orbiting camera, billboard decals, and a floor grid.
+/** 3D model viewer: five procedural shapes with directional + point lighting, orbiting camera, billboard decals, and a floor grid.
   */
 object Viewer3dGame extends DemoScene {
 
   override def name: String = "3D Viewer"
 
   // Resources
-  private var camera:       PerspectiveCamera       = uninitialized
-  private var modelBatch:   ModelBatch               = uninitialized
-  private var environment:  Environment              = uninitialized
-  private var shapeRenderer: ShapeRenderer           = uninitialized
-  private var decalBatch:   DecalBatch               = uninitialized
-  private var decalStrategy: CameraGroupStrategy     = uninitialized
+  private var camera:        PerspectiveCamera   = uninitialized
+  private var modelBatch:    ModelBatch          = uninitialized
+  private var environment:   Environment         = uninitialized
+  private var shapeRenderer: ShapeRenderer       = uninitialized
+  private var decalBatch:    DecalBatch          = uninitialized
+  private var decalStrategy: CameraGroupStrategy = uninitialized
 
   // Models (one per shape)
   private var boxModel:      Model = uninitialized
@@ -54,8 +53,8 @@ object Viewer3dGame extends DemoScene {
   private var capsuleInstance:  ModelInstance = uninitialized
 
   // Decals
-  private var decals:        Array[Decal]   = uninitialized
-  private var decalTexture:  Texture        = uninitialized
+  private var decals:       Array[Decal] = uninitialized
+  private var decalTexture: Texture      = uninitialized
 
   // Camera orbit state
   private var azimuth:    Float   = 45f
@@ -102,11 +101,11 @@ object Viewer3dGame extends DemoScene {
     val yellowMat = Material(ColorAttribute.createDiffuse(Color.YELLOW))
     val cyanMat   = Material(ColorAttribute.createDiffuse(Color.CYAN))
 
-    boxModel      = builder.createBox(2f, 2f, 2f, redMat, Attrs)
-    sphereModel   = builder.createSphere(2f, 2f, 2f, 20, 20, blueMat, Attrs)
+    boxModel = builder.createBox(2f, 2f, 2f, redMat, Attrs)
+    sphereModel = builder.createSphere(2f, 2f, 2f, 20, 20, blueMat, Attrs)
     cylinderModel = builder.createCylinder(1.5f, 2.5f, 1.5f, 20, greenMat, Attrs)
-    coneModel     = builder.createCone(2f, 2.5f, 2f, 20, yellowMat, Attrs)
-    capsuleModel  = builder.createCapsule(0.75f, 2.5f, 20, cyanMat, Attrs)
+    coneModel = builder.createCone(2f, 2.5f, 2f, 20, yellowMat, Attrs)
+    capsuleModel = builder.createCapsule(0.75f, 2.5f, 20, cyanMat, Attrs)
 
     // Instances positioned around the origin
     boxInstance = ModelInstance(boxModel)
@@ -197,7 +196,7 @@ object Viewer3dGame extends DemoScene {
     shapeRenderer.drawing(ShapeType.Line) {
       shapeRenderer.setColor(0.3f, 0.3f, 0.35f, 1f)
       val gridHalf = 10
-      var gi = -gridHalf
+      var gi       = -gridHalf
       while (gi <= gridHalf) {
         shapeRenderer.line(gi.toFloat, 0f, -gridHalf.toFloat, gi.toFloat, 0f, gridHalf.toFloat)
         shapeRenderer.line(-gridHalf.toFloat, 0f, gi.toFloat, gridHalf.toFloat, 0f, gi.toFloat)
@@ -216,8 +215,8 @@ object Viewer3dGame extends DemoScene {
 
     // Decals — billboards facing camera
     val camPos = camera.position
-    val up = Vector3(0f, 1f, 0f)
-    var di = 0
+    val up     = Vector3(0f, 1f, 0f)
+    var di     = 0
     while (di < decals.length) {
       decals(di).lookAt(camPos, up)
       decalBatch.add(decals(di))
@@ -248,9 +247,9 @@ object Viewer3dGame extends DemoScene {
   // --- Helpers ---
 
   private def updateCameraPosition(): Unit = {
-    val azRad  = azimuth * MathUtils.degreesToRadians
-    val elRad  = elevation * MathUtils.degreesToRadians
-    val cosEl  = MathUtils.cos(elRad)
+    val azRad = azimuth * MathUtils.degreesToRadians
+    val elRad = elevation * MathUtils.degreesToRadians
+    val cosEl = MathUtils.cos(elRad)
     camera.position.set(
       orbitDist * cosEl * MathUtils.cos(azRad),
       orbitDist * MathUtils.sin(elRad),

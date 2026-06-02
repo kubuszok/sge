@@ -4,12 +4,11 @@
  */
 package demos.shared
 
-import sge.{ApplicationListener, DesktopApplicationConfig, DesktopApplicationFactory, Sge}
+import sge.{ ApplicationListener, DesktopApplicationConfig, DesktopApplicationFactory, Sge }
 
 /** Creates a desktop window and runs a [[DemoScene]] until the user closes it.
   *
-  * Shared between JVM (Panama FFM) and Scala Native (@extern C FFI) platforms.
-  * The platform-specific `DesktopApplicationFactory` is resolved at link time.
+  * Shared between JVM (Panama FFM) and Scala Native (@extern C FFI) platforms. The platform-specific `DesktopApplicationFactory` is resolved at link time.
   */
 object DesktopLauncher {
 
@@ -28,10 +27,10 @@ object DesktopLauncher {
     */
   def launch(scene: DemoScene, title: String, width: Int = 800, height: Int = 600): Unit = {
     val config = DesktopApplicationConfig()
-    config.title          = title
-    config.windowWidth    = width
-    config.windowHeight   = height
-    config.foregroundFPS  = 60
+    config.title = title
+    config.windowWidth = width
+    config.windowHeight = height
+    config.foregroundFPS = 60
     val app: Sge ?=> ApplicationListener = new SingleSceneApp(scene)
     DesktopApplicationFactory(app, config)
   }

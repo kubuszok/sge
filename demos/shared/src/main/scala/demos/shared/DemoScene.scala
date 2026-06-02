@@ -4,13 +4,12 @@
  */
 package demos.shared
 
-import sge.{Pixels, Sge}
+import sge.{ Pixels, Sge }
 import sge.utils.Seconds
 
 /** A single demo scene that exercises specific SGE features.
   *
-  * Each scene has a lifecycle: `init` is called once when the scene becomes active, `render` is
-  * called every frame with the frame delta time, and `dispose` is called when the application exits.
+  * Each scene has a lifecycle: `init` is called once when the scene becomes active, `render` is called every frame with the frame delta time, and `dispose` is called when the application exits.
   * Scenes may also respond to window resizes via `resize`.
   */
 trait DemoScene {

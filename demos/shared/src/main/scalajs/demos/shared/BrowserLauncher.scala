@@ -4,7 +4,7 @@
  */
 package demos.shared
 
-import sge.{ApplicationListener, BrowserApplication, BrowserApplicationConfig, Sge}
+import sge.{ ApplicationListener, BrowserApplication, BrowserApplicationConfig, Sge }
 
 /** Creates a WebGL canvas and runs a [[DemoScene]] via requestAnimationFrame.
   *

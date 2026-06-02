@@ -8,8 +8,8 @@ package demos.shaders
 
 import scala.compiletime.uninitialized
 
-import sge.{Pixels, Sge}
-import sge.graphics.{ClearMask, Color, GL20, Mesh, Pixmap, PrimitiveMode, Texture, VertexAttribute, VertexAttributes}
+import sge.{ Pixels, Sge }
+import sge.graphics.{ ClearMask, Color, GL20, Mesh, Pixmap, PrimitiveMode, Texture, VertexAttribute, VertexAttributes }
 import sge.graphics.glutils.ShaderProgram
 import sge.graphics.profiling.GLProfiler
 import sge.graphics.glutils.ShapeRenderer
@@ -27,18 +27,18 @@ class ShaderLabGame extends DemoScene {
   private val TexSize     = 256
   private val NumEffects  = 3
 
-  private var checkerPixmap:  Pixmap          = uninitialized
-  private var checkerTexture: Texture         = uninitialized
-  private var mesh:           Mesh            = uninitialized
+  private var checkerPixmap:  Pixmap               = uninitialized
+  private var checkerTexture: Texture              = uninitialized
+  private var mesh:           Mesh                 = uninitialized
   private var shaders:        Array[ShaderProgram] = uninitialized
-  private var shapeRenderer:  ShapeRenderer   = uninitialized
-  private var viewport:       ScreenViewport  = uninitialized
-  private var profiler:       GLProfiler      = uninitialized
+  private var shapeRenderer:  ShapeRenderer        = uninitialized
+  private var viewport:       ScreenViewport       = uninitialized
+  private var profiler:       GLProfiler           = uninitialized
 
-  private var currentEffect:  Int     = 0
-  private var time:           Float   = 0f
-  private var tabWasPressed:  Boolean = false
-  private var touchWasDown:   Boolean = false
+  private var currentEffect: Int     = 0
+  private var time:          Float   = 0f
+  private var tabWasPressed: Boolean = false
+  private var touchWasDown:  Boolean = false
 
   private val effectColors = Array(
     Color(0.2f, 0.6f, 1.0f, 1f),
@@ -107,7 +107,10 @@ class ShaderLabGame extends DemoScene {
     checkerPixmap = Pixmap(TexSize, TexSize, Pixmap.Format.RGBA8888)
     val colorA = Color(0.9f, 0.4f, 0.1f, 1f)
     val colorB = Color(0.1f, 0.2f, 0.6f, 1f)
-    for (cy <- 0 until TexSize / CheckerSize; cx <- 0 until TexSize / CheckerSize) {
+    for {
+      cy <- 0 until TexSize / CheckerSize
+      cx <- 0 until TexSize / CheckerSize
+    } {
       val c = if ((cx + cy) % 2 == 0) colorA else colorB
       checkerPixmap.setColor(c)
       checkerPixmap.fillRectangle(cx * CheckerSize, cy * CheckerSize, CheckerSize, CheckerSize)
@@ -116,19 +119,20 @@ class ShaderLabGame extends DemoScene {
 
     // --- Fullscreen quad mesh (two triangles, position + texcoord) ---
     mesh = Mesh(
-      true, 4, 6
+      true,
+      4,
+      6
     )(
       VertexAttribute(VertexAttributes.Usage.Position, 2, "a_position"),
       VertexAttribute(VertexAttributes.Usage.TextureCoordinates, 2, "a_texCoord0")
     )
 
     // Vertices: x, y, u, v
-    mesh.setVertices(Array[Float](
-      -1f, -1f, 0f, 0f,
-       1f, -1f, 1f, 0f,
-       1f,  1f, 1f, 1f,
-      -1f,  1f, 0f, 1f
-    ))
+    mesh.setVertices(
+      Array[Float](
+        -1f, -1f, 0f, 0f, 1f, -1f, 1f, 0f, 1f, 1f, 1f, 1f, -1f, 1f, 0f, 1f
+      )
+    )
     mesh.setIndices(Array[Short](0, 1, 2, 2, 3, 0))
 
     // --- Compile shaders ---
@@ -137,11 +141,10 @@ class ShaderLabGame extends DemoScene {
       ShaderProgram(vertexSrc, fragmentGray),
       ShaderProgram(vertexSrc, fragmentInvert)
     )
-    for (s <- shaders) {
+    for (s <- shaders)
       if (!s.compiled) {
         System.err.println("Shader compilation failed: " + s.log)
       }
-    }
 
     // --- HUD / indicator ---
     shapeRenderer = ShapeRenderer()
@@ -222,14 +225,13 @@ class ShaderLabGame extends DemoScene {
     touchWasDown = touched
   }
 
-  override def resize(width: Pixels, height: Pixels)(using Sge): Unit = {
+  override def resize(width: Pixels, height: Pixels)(using Sge): Unit =
     viewport.update(width, height, true)
-  }
 
   override def dispose()(using Sge): Unit = {
     profiler.disable()
     shapeRenderer.close()
-    for (s <- shaders) { s.close() }
+    for (s <- shaders) s.close()
     mesh.close()
     checkerTexture.close()
     checkerPixmap.close()

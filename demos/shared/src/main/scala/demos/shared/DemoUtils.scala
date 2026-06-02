@@ -4,7 +4,7 @@
  */
 package demos.shared
 
-import sge.graphics.{Color, Pixmap}
+import sge.graphics.{ Color, Pixmap }
 
 object DemoUtils {
 
@@ -18,9 +18,9 @@ object DemoUtils {
     *   value/brightness (0–1)
     */
   def hsvToColor(h: Float, s: Float, v: Float): Color = {
-    val c = v * s
-    val x = c * (1f - scala.math.abs((h / 60f) % 2f - 1f).toFloat)
-    val m = v - c
+    val c         = v * s
+    val x         = c * (1f - scala.math.abs((h / 60f) % 2f - 1f).toFloat)
+    val m         = v - c
     val (r, g, b) =
       if (h < 60f) (c, x, 0f)
       else if (h < 120f) (x, c, 0f)

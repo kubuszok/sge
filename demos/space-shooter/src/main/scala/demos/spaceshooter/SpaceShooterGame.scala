@@ -4,14 +4,14 @@
  */
 package demos.spaceshooter
 
-import sge.{Input, Pixels, Sge, WorldUnits}
+import sge.{ Input, Pixels, Sge, WorldUnits }
 import sge.utils.Seconds
 import sge.graphics.Color
 import sge.graphics.glutils.ShapeRenderer
 import lowlevel.math.MathUtils
-import sge.math.{FloatCounter, WindowedMean}
-import lowlevel.util.{DynamicArray, ObjectSet}
-import sge.utils.{Poolable, Pool, ScreenUtils}
+import sge.math.{ FloatCounter, WindowedMean }
+import lowlevel.util.{ DynamicArray, ObjectSet }
+import sge.utils.{ Pool, Poolable, ScreenUtils }
 import sge.utils.viewport.FitViewport
 
 import scala.compiletime.uninitialized
@@ -31,8 +31,8 @@ object SpaceShooterGame extends demos.shared.DemoScene {
   // --- Inner data types ---
 
   final class Bullet {
-    var x: Float      = 0f
-    var y: Float      = 0f
+    var x:      Float   = 0f
+    var y:      Float   = 0f
     var active: Boolean = false
   }
   object Bullet {
@@ -46,9 +46,9 @@ object SpaceShooterGame extends demos.shared.DemoScene {
   }
 
   final class Enemy {
-    var x: Float     = 0f
-    var y: Float     = 0f
-    var hp: Int      = 1
+    var x:     Float = 0f
+    var y:     Float = 0f
+    var hp:    Int   = 1
     var speed: Float = 80f
   }
   object Enemy {
@@ -63,43 +63,42 @@ object SpaceShooterGame extends demos.shared.DemoScene {
   }
 
   final class Star {
-    var x: Float     = 0f
-    var y: Float     = 0f
+    var x:     Float = 0f
+    var y:     Float = 0f
     var speed: Float = 0f
   }
 
   // --- State ---
   private var shapeRenderer: ShapeRenderer = uninitialized
-  private var viewport: FitViewport        = uninitialized
+  private var viewport:      FitViewport   = uninitialized
 
   private var playerX: Float = 0f
   private var playerY: Float = 0f
-  private val PlayerSpeed    = 300f
-  private val PlayerW        = 30f
-  private val PlayerH        = 40f
-  private val BulletSpeed    = 500f
-  private val BulletW        = 4f
-  private val BulletH        = 12f
-  private val EnemySize      = 28f
-  private val FireCooldown   = 0.15f
+  private val PlayerSpeed  = 300f
+  private val PlayerW      = 30f
+  private val PlayerH      = 40f
+  private val BulletSpeed  = 500f
+  private val BulletW      = 4f
+  private val BulletH      = 12f
+  private val EnemySize    = 28f
+  private val FireCooldown = 0.15f
 
   private var fireCooldownTimer: Float = 0f
-  private var score: Int               = 0
-  private var spawnTimer: Float        = 0f
+  private var score:             Int   = 0
+  private var spawnTimer:        Float = 0f
 
-  private val bullets: DynamicArray[Bullet] = DynamicArray[Bullet]()
-  private val enemies: DynamicArray[Enemy]  = DynamicArray[Enemy]()
+  private val bullets:    DynamicArray[Bullet] = DynamicArray[Bullet]()
+  private val enemies:    DynamicArray[Enemy]  = DynamicArray[Enemy]()
   private var bulletPool: Pool.Default[Bullet] = uninitialized
-  private var enemyPool: Pool.Default[Enemy]   = uninitialized
+  private var enemyPool:  Pool.Default[Enemy]  = uninitialized
 
-  private val hitThisFrame: ObjectSet[Enemy] = ObjectSet[Enemy]()
-  private val killRate: WindowedMean         = WindowedMean(30)
-  private val scoreStats: FloatCounter       = FloatCounter(50)
-  private val stars: DynamicArray[Star]      = DynamicArray[Star]()
+  private val hitThisFrame: ObjectSet[Enemy]   = ObjectSet[Enemy]()
+  private val killRate:     WindowedMean       = WindowedMean(30)
+  private val scoreStats:   FloatCounter       = FloatCounter(50)
+  private val stars:        DynamicArray[Star] = DynamicArray[Star]()
 
   // Ordering for back-to-front enemy sort (higher Y = further away = rendered first)
-  private val enemyOrdering: Ordering[Enemy] = (a: Enemy, b: Enemy) =>
-    java.lang.Float.compare(b.y, a.y)
+  private val enemyOrdering: Ordering[Enemy] = (a: Enemy, b: Enemy) => java.lang.Float.compare(b.y, a.y)
 
   // --- Lifecycle ---
 
@@ -132,13 +131,11 @@ object SpaceShooterGame extends demos.shared.DemoScene {
     draw()
   }
 
-  override def resize(width: Pixels, height: Pixels)(using Sge): Unit = {
+  override def resize(width: Pixels, height: Pixels)(using Sge): Unit =
     viewport.update(width, height, true)
-  }
 
-  override def dispose()(using Sge): Unit = {
+  override def dispose()(using Sge): Unit =
     shapeRenderer.close()
-  }
 
   // --- Update ---
 
@@ -156,7 +153,7 @@ object SpaceShooterGame extends demos.shared.DemoScene {
     // Player movement — touch: move toward touch X position + auto-fire
     if (input.touched) {
       val touchWorldX = input.x.toFloat / Sge().graphics.width.toFloat * WorldW
-      val diff = touchWorldX - playerX
+      val diff        = touchWorldX - playerX
       if (scala.math.abs(diff) > 4f) {
         playerX += MathUtils.clamp(diff, -PlayerSpeed * dt, PlayerSpeed * dt)
       }
@@ -189,7 +186,7 @@ object SpaceShooterGame extends demos.shared.DemoScene {
     }
 
     // Spawn enemies — rate increases with kill rate
-    val meanKillRate = killRate.mean
+    val meanKillRate  = killRate.mean
     val spawnInterval = MathUtils.clamp(1.2f - meanKillRate * 0.15f, 0.25f, 1.2f)
     spawnTimer += dt
     if (spawnTimer >= spawnInterval) {
@@ -218,15 +215,15 @@ object SpaceShooterGame extends demos.shared.DemoScene {
     hitThisFrame.clear()
     i = bullets.size - 1
     while (i >= 0) {
-      val b = bullets(i)
-      var j = enemies.size - 1
+      val b              = bullets(i)
+      var j              = enemies.size - 1
       var bulletConsumed = false
       while (j >= 0 && !bulletConsumed) {
         val e = enemies(j)
         if (!hitThisFrame.contains(e)) {
-          val dx = b.x - e.x
-          val dy = b.y - e.y
-          val dist = dx * dx + dy * dy
+          val dx         = b.x - e.x
+          val dy         = b.y - e.y
+          val dist       = dx * dx + dy * dy
           val collisionR = EnemySize * 0.5f + BulletW
           if (dist < collisionR * collisionR) {
             hitThisFrame.add(e)
@@ -293,9 +290,12 @@ object SpaceShooterGame extends demos.shared.DemoScene {
       // Player (green triangle)
       shapeRenderer.setColor(Color.GREEN)
       shapeRenderer.triangle(
-        playerX - PlayerW / 2f, playerY - PlayerH / 2f,
-        playerX + PlayerW / 2f, playerY - PlayerH / 2f,
-        playerX, playerY + PlayerH / 2f
+        playerX - PlayerW / 2f,
+        playerY - PlayerH / 2f,
+        playerX + PlayerW / 2f,
+        playerY - PlayerH / 2f,
+        playerX,
+        playerY + PlayerH / 2f
       )
     }
 

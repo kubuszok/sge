@@ -6,14 +6,11 @@ package demos.curves
 
 import scala.compiletime.uninitialized
 
-import sge.{Input, Pixels, Sge, WorldUnits}
+import sge.{ Input, Pixels, Sge, WorldUnits }
 import sge.utils.Seconds
 import sge.graphics.Color
 import sge.graphics.glutils.ShapeRenderer
-import sge.math.{
-  Bezier, Bresenham2, CatmullRomSpline, ConvexHull, DelaunayTriangulator,
-  EarClippingTriangulator, GeometryUtils, Interpolation, Vector2
-}
+import sge.math.{ Bezier, Bresenham2, CatmullRomSpline, ConvexHull, DelaunayTriangulator, EarClippingTriangulator, GeometryUtils, Interpolation, Vector2 }
 import lowlevel.math.MathUtils
 import lowlevel.util.DynamicArray
 import sge.utils.ScreenUtils
@@ -22,9 +19,7 @@ import demos.shared.DemoScene
 
 /** Interactive math visualization playground.
   *
-  * Left half: draggable Bezier + CatmullRom curves.
-  * Right half: draggable ConvexHull, Delaunay, EarClipping geometry points.
-  * Bottom strip: interpolation easing curve gallery with draggable T-value.
+  * Left half: draggable Bezier + CatmullRom curves. Right half: draggable ConvexHull, Delaunay, EarClipping geometry points. Bottom strip: interpolation easing curve gallery with draggable T-value.
   * Also shows a Bresenham2 pixel-perfect diagonal line.
   */
 object CurvePlayground extends DemoScene {
@@ -36,26 +31,28 @@ object CurvePlayground extends DemoScene {
 
   // --- State ---
   private var shapeRenderer: ShapeRenderer = uninitialized
-  private var viewport: FitViewport        = uninitialized
+  private var viewport:      FitViewport   = uninitialized
 
   // Left half: control points for curves
   private val controlPoints: Array[Vector2] = Array(
-    Vector2(60f, 350f), Vector2(140f, 520f),
-    Vector2(260f, 200f), Vector2(360f, 450f)
+    Vector2(60f, 350f),
+    Vector2(140f, 520f),
+    Vector2(260f, 200f),
+    Vector2(360f, 450f)
   )
 
   // Drag state — unified for curve control points and geo points
-  private val DragNone     = -1
-  private val DragCurve    = 0  // dragging a curve control point
-  private val DragGeo      = 1  // dragging a geometry point
-  private var dragKind: Int     = DragNone
-  private var draggingIndex: Int = -1
-  private val touchWorld: Vector2 = Vector2(0f, 0f)
+  private val DragNone  = -1
+  private val DragCurve = 0 // dragging a curve control point
+  private val DragGeo   = 1 // dragging a geometry point
+  private var dragKind:      Int     = DragNone
+  private var draggingIndex: Int     = -1
+  private val touchWorld:    Vector2 = Vector2(0f, 0f)
 
   // Curve objects
-  private var bezier: Bezier[Vector2]               = uninitialized
-  private var catmullRom: CatmullRomSpline[Vector2]  = uninitialized
-  private val curveOut: Vector2 = Vector2(0f, 0f)
+  private var bezier:     Bezier[Vector2]           = uninitialized
+  private var catmullRom: CatmullRomSpline[Vector2] = uninitialized
+  private val curveOut:   Vector2                   = Vector2(0f, 0f)
 
   // Right half: scattered points for geometry tools (draggable)
   private val NumGeoPoints = 8
@@ -66,10 +63,10 @@ object CurvePlayground extends DemoScene {
   private val GeoOy = 150f
 
   // Geometry tool instances
-  private val convexHull: ConvexHull                       = ConvexHull()
-  private val delaunay: DelaunayTriangulator                = DelaunayTriangulator()
-  private val earClipper: EarClippingTriangulator           = EarClippingTriangulator()
-  private val bresenham: Bresenham2                         = Bresenham2()
+  private val convexHull: ConvexHull              = ConvexHull()
+  private val delaunay:   DelaunayTriangulator    = DelaunayTriangulator()
+  private val earClipper: EarClippingTriangulator = EarClippingTriangulator()
+  private val bresenham:  Bresenham2              = Bresenham2()
 
   // Interpolation gallery
   private val interpCurves: Array[(String, Interpolation, Color)] = Array(
@@ -84,15 +81,15 @@ object CurvePlayground extends DemoScene {
   )
 
   // Interpolation gallery T-value (draggable)
-  private var interpT: Float = 0.5f
+  private var interpT:         Float   = 0.5f
   private var draggingInterpT: Boolean = false
 
   // Interpolation gallery layout constants
-  private val InterpGraphW   = 80f
-  private val InterpGraphH   = 60f
-  private val InterpSpacing  = 10f
-  private val InterpStartX   = 15f
-  private val InterpStartY   = 10f
+  private val InterpGraphW  = 80f
+  private val InterpGraphH  = 60f
+  private val InterpSpacing = 10f
+  private val InterpStartX  = 15f
+  private val InterpStartY  = 10f
 
   // --- Lifecycle ---
 
@@ -113,13 +110,11 @@ object CurvePlayground extends DemoScene {
     draw()
   }
 
-  override def resize(width: Pixels, height: Pixels)(using Sge): Unit = {
+  override def resize(width: Pixels, height: Pixels)(using Sge): Unit =
     viewport.update(width, height, true)
-  }
 
-  override def dispose()(using Sge): Unit = {
+  override def dispose()(using Sge): Unit =
     shapeRenderer.close()
-  }
 
   // --- Input handling ---
 
@@ -148,7 +143,7 @@ object CurvePlayground extends DemoScene {
           // Try to grab a curve control point (left half)
           var bestDist = 30f * 30f
           var bestIdx  = -1
-          var i = 0
+          var i        = 0
           while (i < controlPoints.length) {
             val dx = touchWorld.x - controlPoints(i).x
             val dy = touchWorld.y - controlPoints(i).y
@@ -167,9 +162,9 @@ object CurvePlayground extends DemoScene {
           while (i < geoPoints.length - 1) {
             val worldX = geoPoints(i) + GeoOx
             val worldY = geoPoints(i + 1) + GeoOy
-            val dx = touchWorld.x - worldX
-            val dy = touchWorld.y - worldY
-            val d2 = dx * dx + dy * dy
+            val dx     = touchWorld.x - worldX
+            val dy     = touchWorld.y - worldY
+            val d2     = dx * dx + dy * dy
             if (d2 < bestGeoDist) {
               bestGeoDist = d2
               bestGeoIdx = i
@@ -285,8 +280,8 @@ object CurvePlayground extends DemoScene {
 
     // Compute convex hull
     val hullPoly = convexHull.computePolygon(geoPoints, false)
-    val hullArr = new Array[Float](hullPoly.size)
-    var i = 0
+    val hullArr  = new Array[Float](hullPoly.size)
+    var i        = 0
     while (i < hullPoly.size) {
       hullArr(i) = hullPoly(i)
       i += 1
@@ -298,8 +293,10 @@ object CurvePlayground extends DemoScene {
       i = 0
       while (i < hullArr.length - 2) {
         shapeRenderer.line(
-          hullArr(i) + ox, hullArr(i + 1) + oy,
-          hullArr(i + 2) + ox, hullArr(i + 3) + oy
+          hullArr(i) + ox,
+          hullArr(i + 1) + oy,
+          hullArr(i + 2) + ox,
+          hullArr(i + 3) + oy
         )
         i += 2
       }
@@ -312,8 +309,10 @@ object CurvePlayground extends DemoScene {
         val i0 = triIndices(i).toInt * 2
         val i1 = triIndices(i + 1).toInt * 2
         val i2 = triIndices(i + 2).toInt * 2
-        if (i0 >= 0 && i1 >= 0 && i2 >= 0 &&
-            i0 + 1 < geoPoints.length && i1 + 1 < geoPoints.length && i2 + 1 < geoPoints.length) {
+        if (
+          i0 >= 0 && i1 >= 0 && i2 >= 0 &&
+          i0 + 1 < geoPoints.length && i1 + 1 < geoPoints.length && i2 + 1 < geoPoints.length
+        ) {
           shapeRenderer.line(geoPoints(i0) + ox, geoPoints(i0 + 1) + oy, geoPoints(i1) + ox, geoPoints(i1 + 1) + oy)
           shapeRenderer.line(geoPoints(i1) + ox, geoPoints(i1 + 1) + oy, geoPoints(i2) + ox, geoPoints(i2 + 1) + oy)
           shapeRenderer.line(geoPoints(i2) + ox, geoPoints(i2 + 1) + oy, geoPoints(i0) + ox, geoPoints(i0 + 1) + oy)
@@ -367,17 +366,17 @@ object CurvePlayground extends DemoScene {
   }
 
   private def drawInterpolationGallery()(using Sge): Unit = {
-    val graphW   = InterpGraphW
-    val graphH   = InterpGraphH
-    val spacing  = InterpSpacing
-    val startX   = InterpStartX
-    val startY   = InterpStartY
-    val samples  = 50
+    val graphW  = InterpGraphW
+    val graphH  = InterpGraphH
+    val spacing = InterpSpacing
+    val startX  = InterpStartX
+    val startY  = InterpStartY
+    val samples = 50
 
     interpCurves.indices.foreach { idx =>
       val (_, interp, color) = interpCurves(idx)
-      val gx = startX + idx * (graphW + spacing)
-      val gy = startY
+      val gx                 = startX + idx * (graphW + spacing)
+      val gy                 = startY
 
       // Graph background outline
       shapeRenderer.drawing(ShapeRenderer.ShapeType.Line) {
@@ -393,8 +392,10 @@ object CurvePlayground extends DemoScene {
           val v0 = interp.apply(t0)
           val v1 = interp.apply(t1)
           shapeRenderer.line(
-            gx + t0 * graphW, gy + v0 * graphH,
-            gx + t1 * graphW, gy + v1 * graphH
+            gx + t0 * graphW,
+            gy + v0 * graphH,
+            gx + t1 * graphW,
+            gy + v1 * graphH
           )
           i += 1
         }
@@ -418,7 +419,7 @@ object CurvePlayground extends DemoScene {
     }
 
     // T-value scrub handle at bottom center of gallery
-    val totalW = interpCurves.length * (graphW + spacing) - spacing
+    val totalW  = interpCurves.length * (graphW + spacing) - spacing
     val handleX = startX + interpT * totalW
     val handleY = startY - 10f
     shapeRenderer.drawing(ShapeRenderer.ShapeType.Filled) {

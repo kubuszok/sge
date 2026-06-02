@@ -5,14 +5,14 @@
 package demos.assets
 
 import scala.compiletime.uninitialized
-import sge.{Input, Pixels, Sge, WorldUnits}
+import sge.{ Input, Pixels, Sge, WorldUnits }
 import sge.utils.Seconds
 import sge.assets.AssetManager
 import sge.assets.loaders.FileHandleResolver
-import sge.audio.{Sound, SoundId, Volume}
-import sge.graphics.{Color, CompareFunc, EnableCap, PerspectiveCamera, Texture}
+import sge.audio.{ Sound, SoundId, Volume }
+import sge.graphics.{ Color, CompareFunc, EnableCap, PerspectiveCamera, Texture }
 import sge.graphics.g3d.attributes.IntAttribute
-import sge.graphics.g3d.{Environment, Model, ModelBatch, ModelInstance}
+import sge.graphics.g3d.{ Environment, Model, ModelBatch, ModelInstance }
 import sge.graphics.g3d.environment.DirectionalLight
 import sge.graphics.g2d.SpriteBatch
 import sge.graphics.glutils.ShapeRenderer
@@ -21,70 +21,68 @@ import lowlevel.Nullable
 import sge.utils.ScreenUtils
 import demos.shared.DemoScene
 
-/** Asset loading showcase: demonstrates AssetManager loading of 2D textures,
-  * 3D models (.g3dj JSON + .g3db UBJSON), and audio (Music + Sound) with interactive controls.
+/** Asset loading showcase: demonstrates AssetManager loading of 2D textures, 3D models (.g3dj JSON + .g3db UBJSON), and audio (Music + Sound) with interactive controls.
   *
   * Controls:
   *   - Loading phase: assets load via AssetManager with progress bar
   *   - Tab: cycle between sections (2D Textures / 3D Model / Audio)
-  *   - Audio section: Up/Down adjust music volume, Space toggles music play/pause,
-  *     Enter plays click sound effect
+  *   - Audio section: Up/Down adjust music volume, Space toggles music play/pause, Enter plays click sound effect
   */
 object AssetShowcaseGame extends DemoScene {
 
   override def name: String = "Asset Showcase"
 
   // ── State machine ──────────────────────────────────────────────────
-  private val PhaseLoading = 0
+  private val PhaseLoading  = 0
   private val PhaseShowcase = 1
   private var phase: Int = PhaseLoading
 
   // ── Sections ───────────────────────────────────────────────────────
   private val SectionTextures = 0
-  private val Section3D = 1
-  private val SectionAudio = 2
-  private val SectionCount = 3
-  private var currentSection: Int = SectionTextures
-  private var tabWasDown: Boolean = false
+  private val Section3D       = 1
+  private val SectionAudio    = 2
+  private val SectionCount    = 3
+  private var currentSection: Int     = SectionTextures
+  private var tabWasDown:     Boolean = false
 
   // ── Asset Manager ──────────────────────────────────────────────────
   private var assetManager: AssetManager = uninitialized
 
   // ── Rendering ──────────────────────────────────────────────────────
   private var shapeRenderer: ShapeRenderer = uninitialized
-  private var spriteBatch: SpriteBatch = uninitialized
+  private var spriteBatch:   SpriteBatch   = uninitialized
 
   // ── 2D assets ──────────────────────────────────────────────────────
   private var checkerboardTex: Texture = uninitialized
-  private var gradientTex: Texture = uninitialized
+  private var gradientTex:     Texture = uninitialized
 
   // ── 3D assets ──────────────────────────────────────────────────────
-  private var camera3d: PerspectiveCamera = uninitialized
-  private var modelBatch: ModelBatch = uninitialized
-  private var environment: Environment = uninitialized
-  private var cubeModel: Model = uninitialized
-  private var cubeInstance: ModelInstance = uninitialized
-  private var octahedronModel: Model = uninitialized
-  private var octahedronInstance: ModelInstance = uninitialized
-  private var modelAngle: Float = 0f
+  private var camera3d:           PerspectiveCamera = uninitialized
+  private var modelBatch:         ModelBatch        = uninitialized
+  private var environment:        Environment       = uninitialized
+  private var cubeModel:          Model             = uninitialized
+  private var cubeInstance:       ModelInstance     = uninitialized
+  private var octahedronModel:    Model             = uninitialized
+  private var octahedronInstance: ModelInstance     = uninitialized
+  private var modelAngle:         Float             = 0f
 
   // ── Audio ──────────────────────────────────────────────────────────
-  private var toneSound: Sound = uninitialized
-  private var clickSound: Sound = uninitialized
-  private var toneSoundId: SoundId = SoundId(-1L)
-  private var musicVolume: Float = 0.5f
+  private var toneSound:    Sound   = uninitialized
+  private var clickSound:   Sound   = uninitialized
+  private var toneSoundId:  SoundId = SoundId(-1L)
+  private var musicVolume:  Float   = 0.5f
   private var musicPlaying: Boolean = false
   private var spaceWasDown: Boolean = false
   private var enterWasDown: Boolean = false
   private var touchWasDown: Boolean = false
 
   // ── Asset paths ────────────────────────────────────────────────────
-  private val CheckerboardPath = "textures/checkerboard.png"
-  private val GradientPath = "textures/gradient.png"
-  private val CubeModelPath = "models/cube.g3dj"
+  private val CheckerboardPath    = "textures/checkerboard.png"
+  private val GradientPath        = "textures/gradient.png"
+  private val CubeModelPath       = "models/cube.g3dj"
   private val OctahedronModelPath = "models/octahedron.g3db"
-  private val TonePath = "audio/tone.wav"
-  private val ClickPath = "audio/click.wav"
+  private val TonePath            = "audio/tone.wav"
+  private val ClickPath           = "audio/click.wav"
 
   override def init()(using Sge): Unit = {
     shapeRenderer = ShapeRenderer()
@@ -117,9 +115,10 @@ object AssetShowcaseGame extends DemoScene {
     phase = PhaseLoading
   }
 
-  override def render(dt: Seconds)(using Sge): Unit = {
+  override def render(dt: Seconds)(using Sge): Unit =
     // Guard: on Android, render() can be called before init() completes
-    if (assetManager == null) { ScreenUtils.clear(0f, 0f, 0f, 1f, true); () } else {
+    if (assetManager == null) { ScreenUtils.clear(0f, 0f, 0f, 1f, true); () }
+    else {
       val delta = dt.toFloat
       ScreenUtils.clear(0.12f, 0.12f, 0.18f, 1f, true)
 
@@ -130,12 +129,11 @@ object AssetShowcaseGame extends DemoScene {
         renderShowcase(delta)
       }
     }
-  }
 
   // ── Loading phase ──────────────────────────────────────────────────
 
   private def renderLoading(dt: Float)(using Sge): Unit = {
-    val done = assetManager.update()
+    val done     = assetManager.update()
     val progress = assetManager.progress
 
     val w = Sge().graphics.width.toFloat
@@ -207,7 +205,7 @@ object AssetShowcaseGame extends DemoScene {
     if (touched && !touchWasDown) {
       if (currentSection == SectionAudio) {
         // Audio section: left half = play/pause, right half = click sound
-        val touchX = input.x.toFloat
+        val touchX  = input.x.toFloat
         val screenW = Sge().graphics.width.toFloat
         if (touchX < screenW * 0.5f) {
           // Toggle play/pause
@@ -283,10 +281,10 @@ object AssetShowcaseGame extends DemoScene {
 
   private def renderTextureSection(w: Float, h: Float)(using Sge): Unit = {
     val texSize = scala.math.min(w, h) * 0.3f
-    val gap = 40f
-    val totalW = texSize * 2 + gap
-    val startX = (w - totalW) / 2f
-    val texY = (h - texSize) / 2f
+    val gap     = 40f
+    val totalW  = texSize * 2 + gap
+    val startX  = (w - totalW) / 2f
+    val texY    = (h - texSize) / 2f
 
     spriteBatch.rendering {
       // Checkerboard texture (left)
@@ -361,7 +359,7 @@ object AssetShowcaseGame extends DemoScene {
     renderTitleBar(w, h, "3D Models (.g3dj cube + .g3db octahedron)")
   }
 
-  private def drawGrid()(using Sge): Unit = {
+  private def drawGrid()(using Sge): Unit =
     shapeRenderer.drawing(ShapeType.Line) {
       shapeRenderer.setColor(0.5f, 0.5f, 0.55f, 1f)
       var gi = -20
@@ -372,7 +370,6 @@ object AssetShowcaseGame extends DemoScene {
         gi += 1
       }
     }
-  }
 
   private def renderAudioSection(w: Float, h: Float)(using Sge): Unit = {
     val cx = w / 2f
@@ -447,9 +444,9 @@ object AssetShowcaseGame extends DemoScene {
   private def renderSectionBar(w: Float, h: Float)(using Sge): Unit = {
     // Three dots at bottom indicating current section
     val dotRadius = 6f
-    val dotGap = 24f
-    val startX = w / 2f - dotGap
-    val dotY = 20f
+    val dotGap    = 24f
+    val startX    = w / 2f - dotGap
+    val dotY      = 20f
 
     shapeRenderer.drawing(ShapeType.Filled) {
       var i = 0

@@ -8,11 +8,11 @@ package demos.tileworld
 
 import scala.compiletime.uninitialized
 
-import sge.{Input, Pixels, Sge, WorldUnits}
+import sge.{ Input, Pixels, Sge, WorldUnits }
 import sge.utils.Seconds
-import sge.graphics.{Color, OrthographicCamera, Pixmap, Texture}
-import sge.graphics.g2d.{SpriteBatch, TextureRegion}
-import sge.maps.tiled.{TiledMap, TiledMapTileLayer, TiledMapTileSet}
+import sge.graphics.{ Color, OrthographicCamera, Pixmap, Texture }
+import sge.graphics.g2d.{ SpriteBatch, TextureRegion }
+import sge.maps.tiled.{ TiledMap, TiledMapTileLayer, TiledMapTileSet }
 import lowlevel.Nullable
 import sge.maps.tiled.tiles.StaticTiledMapTile
 import sge.maps.tiled.renderers.OrthogonalTiledMapRenderer
@@ -44,16 +44,16 @@ class TileWorldGame extends DemoScene {
   private val Speed    = 160f
   private val LerpRate = 8f
 
-  private var tilesetPixmap:  Pixmap                       = uninitialized
-  private var tilesetTexture: Texture                      = uninitialized
-  private var charPixmap:     Pixmap                       = uninitialized
-  private var charTexture:    Texture                      = uninitialized
-  private var tiledMap:       TiledMap                     = uninitialized
-  private var renderer:       OrthogonalTiledMapRenderer   = uninitialized
-  private var batch:          SpriteBatch                  = uninitialized
-  private var viewport:       FitViewport                  = uninitialized
-  private var camera:         OrthographicCamera           = uninitialized
-  private var layer:          TiledMapTileLayer            = uninitialized
+  private var tilesetPixmap:  Pixmap                     = uninitialized
+  private var tilesetTexture: Texture                    = uninitialized
+  private var charPixmap:     Pixmap                     = uninitialized
+  private var charTexture:    Texture                    = uninitialized
+  private var tiledMap:       TiledMap                   = uninitialized
+  private var renderer:       OrthogonalTiledMapRenderer = uninitialized
+  private var batch:          SpriteBatch                = uninitialized
+  private var viewport:       FitViewport                = uninitialized
+  private var camera:         OrthographicCamera         = uninitialized
+  private var layer:          TiledMapTileLayer          = uninitialized
 
   // Character position (center of sprite)
   private var charX: Float = WorldW / 2f
@@ -105,9 +105,8 @@ class TileWorldGame extends DemoScene {
 
     val tileSet = TiledMapTileSet()
     tileSet.name = "terrain"
-    for (i <- 0 until 4) {
+    for (i <- 0 until 4)
       tileSet.putTile(i, StaticTiledMapTile(regions(i)))
-    }
     tiledMap.tileSets.addTileSet(tileSet)
 
     // Build the tile layer with a pattern
@@ -120,7 +119,10 @@ class TileWorldGame extends DemoScene {
     NoiseGenerator.generate(grid, 4, 0.5f)
     NoiseGenerator.generate(grid, 2, 0.25f)
 
-    for (x <- 0 until MapW; y <- 0 until MapH) {
+    for {
+      x <- 0 until MapW
+      y <- 0 until MapH
+    } {
       val tileId =
         if (x == 0 || x == MapW - 1 || y == 0 || y == MapH - 1) {
           TileType.Water
@@ -209,9 +211,9 @@ class TileWorldGame extends DemoScene {
     if (input.touched) {
       val touchWorldX = input.x.toFloat / Sge().graphics.width.toFloat * WorldW
       val touchWorldY = (1f - input.y.toFloat / Sge().graphics.height.toFloat) * WorldH
-      val diffX = touchWorldX - charX
-      val diffY = touchWorldY - charY
-      val dist = scala.math.sqrt((diffX * diffX + diffY * diffY).toDouble).toFloat
+      val diffX       = touchWorldX - charX
+      val diffY       = touchWorldY - charY
+      val dist        = scala.math.sqrt((diffX * diffX + diffY * diffY).toDouble).toFloat
       if (dist > CharSize * 0.5f) {
         dx += (diffX / dist) * Speed * dt
         dy += (diffY / dist) * Speed * dt
@@ -256,9 +258,8 @@ class TileWorldGame extends DemoScene {
     camera.position.y = MathUtils.clamp(camera.position.y, halfH, WorldH - halfH)
   }
 
-  override def resize(width: Pixels, height: Pixels)(using Sge): Unit = {
+  override def resize(width: Pixels, height: Pixels)(using Sge): Unit =
     viewport.update(width, height, true)
-  }
 
   override def dispose()(using Sge): Unit = {
     renderer.close()
