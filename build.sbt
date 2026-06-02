@@ -24,7 +24,7 @@ val versions = new {
   val scalaSaxParser   = "0.1.0"
   val scalaJavaTime    = "2.6.0"
   val scalaJavaLocales = "1.5.4"
-  val sttp             = "4.0.22"
+  val sttp             = "4.0.25"
   val xml              = "2.3.0"
 
   // Tests
