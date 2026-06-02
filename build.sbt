@@ -28,7 +28,7 @@ val versions = new {
   val xml              = "2.3.0"
 
   // Tests
-  val munit           = "1.2.3"
+  val munit           = "1.2.4"
   val munitScalacheck = "1.2.0"
 
   // Native component providers (from sge-native-providers repo)
