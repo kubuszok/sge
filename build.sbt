@@ -16,7 +16,7 @@ val versions = new {
   val platforms = List(VirtualAxis.jvm, VirtualAxis.js, VirtualAxis.native)
 
   // Dependencies
-  val gears            = "0.2.0"
+  val gears            = "0.3.1"
   val kindlings        = "0.1.2"
   val lls              = "0.1.0"
   val scribe           = "3.17.0"
