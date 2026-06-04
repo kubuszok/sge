@@ -25,7 +25,7 @@ val versions = new {
   val scalaJavaTime    = "2.6.0"
   val scalaJavaLocales = "1.5.4"
   val sttp             = "4.0.25"
-  val xml              = "2.3.0"
+  val xml              = "2.4.0"
 
   // Tests
   val munit           = "1.2.4"
