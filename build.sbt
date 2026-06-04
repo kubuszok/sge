@@ -131,7 +131,7 @@ val publishSettings = Seq(
   ),
   startYear := Some(2026),
   developers := List(
-    Developer("MateuszKubuszok", "Mateusz Kubuszok", "", url("https://github.com/MateuszKubuszok"))
+    Developer("MateuszKubuszok", "Mateusz Kubuszok", "", url("https://kubuszok.com"))
   ),
   pomExtra := (
     <issueManagement>
