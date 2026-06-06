@@ -181,7 +181,7 @@ jobs:
         continue-on-error: true
         uses: codecov/codecov-action@v7
         with:
-          files: target/scala-3.8.3/scoverage-report/scoverage.xml
+          files: target/scala-3.8.4/scoverage-report/scoverage.xml
           flags: ${{ matrix.platform }}
           fail_ci_if_error: false
         env:
