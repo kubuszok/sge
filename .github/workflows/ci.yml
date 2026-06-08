@@ -108,7 +108,7 @@ jobs:
           jvm: ${{ env.JVM_VERSION }}
           apps: sbt
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -203,7 +203,7 @@ jobs:
           jvm: ${{ env.JVM_VERSION }}
           apps: sbt
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -643,7 +643,7 @@ jobs:
           jvm: ${{ env.JVM_VERSION }}
           apps: sbt
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
 
