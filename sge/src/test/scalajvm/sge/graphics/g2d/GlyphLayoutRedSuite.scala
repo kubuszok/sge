@@ -93,18 +93,20 @@ class GlyphLayoutRedSuite extends munit.FunSuite {
   /** CharSequence that throws after `maxCalls` charAt calls. Converts the documented infinite loop (ISS-488, leading newline) into a fast, deterministic failure on all platforms — a busy loop cannot
     * be interrupted on JS/Native, so a timeout is not an option. A correct layout of a 2-char string needs well under 100 charAt calls; 10000 is generous.
     */
-  private final class CountingCharSequence(underlying: String, maxCalls: Int) extends CharSequence {
+  final private class CountingCharSequence(underlying: String, maxCalls: Int) extends CharSequence {
     private var calls = 0
-    def length(): Int = underlying.length
+    def length():           Int  = underlying.length
     def charAt(index: Int): Char = {
       calls += 1
       if (calls > maxCalls) {
-        throw new IllegalStateException(s"charAt called more than $maxCalls times for a ${underlying.length}-char string: setText is stuck in an infinite loop (ISS-488)")
+        throw new IllegalStateException(
+          s"charAt called more than $maxCalls times for a ${underlying.length}-char string: setText is stuck in an infinite loop (ISS-488)"
+        )
       }
       underlying.charAt(index)
     }
     def subSequence(start: Int, end: Int): CharSequence = underlying.subSequence(start, end)
-    override def toString(): String = underlying
+    override def toString():               String       = underlying
   }
 
   // --- ISS-488: multi-line setText broken ------------------------------------
@@ -275,7 +277,11 @@ class GlyphLayoutRedSuite extends munit.FunSuite {
     val layout = layoutOf(makeFont(markupEnabled = false), "aa aa aa", targetWidth = 30f, wrap = true)
     for (i <- 0 until layout.runs.size) {
       val run = layout.runs(i)
-      assertEquals(run.xAdvances.size, run.glyphs.size + 1, s"run $i (\"${glyphString(run)}\"): xAdvances must have glyphs.size+1 entries (GlyphRun contract, Java lines 530-534)")
+      assertEquals(
+        run.xAdvances.size,
+        run.glyphs.size + 1,
+        s"run $i (\"${glyphString(run)}\"): xAdvances must have glyphs.size+1 entries (GlyphRun contract, Java lines 530-534)"
+      )
     }
     assertEquals(layout.runs.size, 3, "two wraps must produce three lines (Java lines 235-245)")
     for (i <- 0 until 3) assertEquals(glyphString(layout.runs(i)), "aa", s"run $i")
