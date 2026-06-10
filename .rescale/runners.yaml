@@ -94,6 +94,53 @@ runners:
       args: [--client, androidAll]
       cwd: demos
 
+  # ── Red-green resolve gate (ISS-487) ──────────────────────────────
+  # Mandatory gate for every bug issue: prove the named suite FAILS by
+  # assertion at <red-sha> (sbt exit nonzero AND munit failures summed
+  # >0), PASSES at <fix-sha> (sbt exit 0 AND 0 failures), and that the
+  # fix commit does not touch ANY test-scope file the red commit added.
+  # The suite is run by its EXACT resolved FQCN(s), never a `*glob*`.
+  # Additionally: a red phase that fails to compile is a FALSE RED
+  # (compile-error-red) and fails the gate; a red commit that touches
+  # main sources is rejected (red-touches-main).
+  #
+  # Invoke:
+  #   re-scale runner red-green --mode run -- <module> <suite> <red-sha> <fix-sha>
+  #
+  # The four positional args fill $1..$4 in the `run` mode block, which
+  # the wrapper writes to the mode-file; .rescale/scripts/red-green.sh
+  # reads (and deletes) that file on entry, then runs the phases in a
+  # throwaway git clone. Final stdout line is exactly `RED-GREEN: PASS`
+  # or `RED-GREEN: FAIL — <reason>`; exit 0 only on PASS.
+  #
+  # Permanent canary / probe set — re-run ALL of these on every audit of
+  # the script (module sge-noise, suite Iss487CanarySuite unless noted):
+  #   canary/iss487-pass         → RED-GREEN: PASS, exit 0
+  #   canary/iss487-tamper       → FAIL tamper, exit 1
+  #   canary/iss487-helpertamper → FAIL tamper, exit 1 (full-scope)
+  #   canary/iss487-falsered     → FAIL compile-error-red, exit 1
+  #   canary/iss487-maintouch    → FAIL red-touches-main, exit 1
+  #   probe/iss487-shadow        → FAIL, exit 1 (no glob masking)
+  #   probe/iss487-rename        → FAIL tamper, exit 1
+  red-green:
+    description: "Red-green resolve gate: suite fails at red-sha, passes at fix-sha, fix leaves the red test untouched"
+    invoke:
+      command: .rescale/scripts/red-green.sh
+      args: ["target/red-green-mode.tsv"]
+    mode-file:
+      path: target/red-green-mode.tsv
+      format: kv
+    modes:
+      run:
+        module: "$1"
+        suite:  "$2"
+        red:    "$3"
+        fix:    "$4"
+    output:
+      failure:
+        keep-lines-matching: ["RED-GREEN:", "compile-error-red", "TAMPER", "assertion", "[error]", "failed,"]
+        max-lines: 40
+
   # ── Convenience scanners ──────────────────────────────────────────
 
   shortcuts-extensions:
