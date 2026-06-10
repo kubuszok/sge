@@ -25,7 +25,7 @@
  * Covenant-baseline-loc: 276
  * Covenant-baseline-methods: Selection,_isDisabled,_lastSelected,actor,add,addAll,added,changed,choose,cleanup,clear,contains,disabled,disabled_,fireChangeEvent,first,i,isEmpty,items,iterator,lastSelected,multiple,n,notEmpty,old,programmaticChangeEvents,remove,removeAll,removed,required,result,revert,selected,set,setActor,setAll,size,snapshot,toArray,toString,toggle
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/Selection.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-11
  *
  * upstream-commit: a729bf1f0de099ebcc60562d72f008157677b559
  */
@@ -37,6 +37,7 @@ package utils
 import sge.utils.createRef
 
 import scala.collection.mutable.LinkedHashSet
+import scala.util.boundary, boundary.break
 import sge.Sge
 import lowlevel.{ MkArray, Nullable }
 import lowlevel.util.DynamicArray
@@ -65,31 +66,30 @@ class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
     if (_isDisabled) ()
     else {
       snapshot()
-      try {
-        if ((toggle || UIUtils.ctrl()) && selected.contains(item)) {
-          if (required && selected.size == 1) ()
-          else {
+      try
+        // boundary stands in for Java's `return` inside the try: break() skips the
+        // fire/changed block but, like a Java return-through-finally, still runs cleanup().
+        boundary[Unit] {
+          if ((toggle || UIUtils.ctrl()) && selected.contains(item)) {
+            if (required && selected.size == 1) break(())
             selected.remove(item)
             _lastSelected = Nullable.empty
-          }
-        } else {
-          var modified = false
-          if (!multiple || (!toggle && !UIUtils.ctrl())) {
-            if (selected.size == 1 && selected.contains(item)) ()
-            else {
+          } else {
+            var modified = false
+            if (!multiple || (!toggle && !UIUtils.ctrl())) {
+              if (selected.size == 1 && selected.contains(item)) break(())
               modified = selected.nonEmpty
               selected.clear()
             }
-          }
-          if (selected.add(item) || modified) {
+            if (!selected.add(item) && !modified) break(())
             _lastSelected = Nullable(item)
           }
+          if (fireChangeEvent())
+            revert()
+          else
+            changed()
         }
-        if (fireChangeEvent())
-          revert()
-        else
-          changed()
-      } finally cleanup()
+      finally cleanup()
     }
 
   def notEmpty: Boolean = selected.nonEmpty
