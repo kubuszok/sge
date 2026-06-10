@@ -42,9 +42,19 @@ jobs:
 
   # ─── re-scale enforce gate (covenant verify + shortcut budget) ──────
   #
-  # Non-blocking initially: validates that every file with a `Covenant: full-port`
+  # BLOCKING (ISS-483). Validates that every file with a `Covenant: full-port`
   # header still passes (no method dropped, no shortcut introduced) and that no
   # new shortcut markers leaked into covenanted files.
+  #
+  # The campaign starts with a large backlog of covenant/shortcut failures
+  # (193 file+kind pairs as of 2026-06-10) that is the open remediation work.
+  # Rather than block on the whole backlog (CI would be permanently red) or use
+  # a count gate (one new failure could hide behind one fixed file), the gate is
+  # a SET-BASED RATCHET: .rescale/scripts/covenant-gate.sh recomputes the live
+  # failing set and fails iff any live (file, kind) pair is absent from the
+  # committed baseline (.rescale/data/covenant-gate-baseline.tsv). Fixed files
+  # are reported as "shrink — update the baseline" but never fail the gate;
+  # baseline shrinks are applied manually by the orchestrator.
 
   enforce:
     name: re-scale enforce
@@ -75,15 +85,8 @@ jobs:
       - name: Print re-scale version
         run: re-scale version
 
-      - name: Verify covenants on covenanted files
-        continue-on-error: true
-        run: |
-          grep -rl 'Covenant:' --include='*.scala' . \
-            | xargs -I{} re-scale enforce verify --file {}
-
-      - name: Shortcut budget on covenanted files
-        continue-on-error: true
-        run: re-scale enforce shortcuts --covenanted
+      - name: Covenant + shortcut ratchet gate
+        run: .rescale/scripts/covenant-gate.sh
 
   # ─── Scala.js compile + test (pure Scala, no native dependencies) ───
 
