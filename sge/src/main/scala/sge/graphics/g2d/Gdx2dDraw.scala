@@ -18,7 +18,7 @@
  * Covenant-baseline-loc: 887
  * Covenant-baseline-methods: Gdx2dDraw,a,b,blend,blitBilinear,blitNearest,blitSameSize,boundY1a,boundY2a,bpp,bytesPerPixel,circlePoints,clear,col,colFormat,dbpp,ddFx,ddFy,drawCircle,drawLine,drawPixmap,drawRect,dstA,dstB,dstG,dstR,dx,dy,edgeAssign,edgeSwap,edges,f,fillCircle,fillRect,fillTriangle,g,getPixel,getRawPixel,getRawPixelAt,hline,i,lens,lu4,lu5,lu6,newPixelBuffer,offset,p,pixels,px,py,r,sbpp,setPixel,setRawPixel,setRawPixelAt,size,slope0,slope1,srcA,srcB,srcG,srcR,stepx,stepy,stride,sy,tmpEdge,tmpLen,toFormat,toRGBA8888,vline,x,x0,x1,x2,xRatio,y,y0,y1,y2,yRatio
  * Covenant-source-reference: gdx/jni/gdx2d/gdx2d.c
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-11
  *
  * upstream-commit: 5bf1a7587d009c9d24b370c932fdd7cde6e4beb9
  */
@@ -674,7 +674,9 @@ private[g2d] object Gdx2dDraw {
   ): Unit =
     if (srcW == dstW && srcH == dstH) {
       blitSameSize(srcBuf, srcWidth, srcHeight, srcFormat, dstBuf, dstWidth, dstHeight, dstFormat, dstBlend, srcX, srcY, dstX, dstY, srcW, srcH)
-    } else if (dstScale == GDX2D_SCALE_LINEAR) {
+    } else if (dstScale == GDX2D_SCALE_NEAREST) {
+      // gdx2d.c blit() (lines 940-941): scale == GDX2D_SCALE_NEAREST -> blit_linear,
+      // the fixed-point nearest-neighbour implementation (gdx2d.c 888-935).
       blitNearest(
         srcBuf,
         srcWidth,
@@ -695,6 +697,8 @@ private[g2d] object Gdx2dDraw {
         dstH
       )
     } else {
+      // gdx2d.c blit() (lines 942-943): scale == GDX2D_SCALE_BILINEAR (the
+      // GDX2D_SCALE_LINEAR rename here, value 1) -> blit_bilinear (gdx2d.c 807-886).
       blitBilinear(
         srcBuf,
         srcWidth,
