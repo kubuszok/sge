@@ -331,3 +331,7 @@ sge-extension/visui/src/main/scala/sge/visui/util/adapter/AbstractListAdapter.sc
 sge-extension/visui/src/main/scala/sge/visui/building/utilities/CellWidget.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
 sge-extension/ai/src/main/scala/sge/ai/fma/Formation.scala	shortcuts	TODO from original gdx-ai source, not an SGE gap	2026-04-29	dev
 sge-extension/ai/src/main/scala/sge/ai/fma/SoftRoleSlotAssignmentStrategy.scala	shortcuts	TODO from original gdx-ai source, not an SGE gap	2026-04-29	dev
+sge/src/test/scalajvm/sge/graphics/g2d/SpriteCacheRedSuite.scala	shortcuts	ISS-493 red-suite fixture: dummy TextureData.consumePixmap must throw if ever consumed (Custom-type texture data, never rendered); audited in fix/ISS-493-spritecache	2026-06-10	dev
+sge/src/test/scalanative/sge/graphics/g2d/SpriteCacheRedSuite.scala	shortcuts	ISS-493 red-suite fixture: dummy TextureData.consumePixmap must throw if ever consumed; native copy	2026-06-10	dev
+sge/src/test/scalajvm/sge/graphics/g2d/SpriteCacheRedefineRedSuite.scala	shortcuts	ISS-493 bounce red-suite fixture: same dummy TextureData pattern; audited	2026-06-10	dev
+sge/src/test/scalanative/sge/graphics/g2d/SpriteCacheRedefineRedSuite.scala	shortcuts	ISS-493 bounce red-suite fixture: same dummy TextureData pattern; native copy	2026-06-10	dev
