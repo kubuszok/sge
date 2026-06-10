@@ -4,16 +4,14 @@ on:
   push:
     branches: [master]
     tags: ["*"]
-  pull_request:
-    branches: [master]
 
-# Cancel in-progress runs for the same branch/PR
+# Cancel in-progress runs for the same branch/tag
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   JVM_VERSION: "zulu:25"
-  cancel-in-progress: true
 
 jobs:
   build-and-publish:
@@ -38,6 +36,17 @@ jobs:
       - name: Publish all projects
         run: sbt ci-release
         env:
+          # ISS-484: Kept in place pending a scope decision. The native-lib
+          # gate (SgeNativeLibs.sgeValidateNativeLibs) reads native/* mappings
+          # from on-disk sge-deps/native-components/target/{cross,release}/,
+          # which NO release or CI step populates here — the libs live inside
+          # the resolved pnm-provider-sge-* JARs, not those dirs. With the var
+          # removed the gate sys.errors ("No native shared libraries found in
+          # JAR mappings", SgeNativeLibs.scala:45) under CI=true, verified
+          # locally. Making the gate real requires a provider-JAR extraction
+          # step (build/CI change, out of this issue's scope) and a decision
+          # on which platforms a release must validate. Do not drop this line
+          # without that step in place.
           SGE_SKIP_NATIVE_VALIDATION: "true"
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
