@@ -59,7 +59,7 @@ class SpriteCacheRedSuite extends munit.FunSuite {
   /** Custom-type TextureData: Texture.load() goes straight to consumeCustomData (GLTexture.uploadImageData, Custom branch), never touching Pixmap/gdx2d. Unmanaged, so the texture is not registered
     * with the managed-textures map.
     */
-  private final class DummyTextureData extends TextureData {
+  final private class DummyTextureData extends TextureData {
     def dataType:                                 TextureData.TextureDataType = TextureData.TextureDataType.Custom
     def isPrepared:                               Boolean                     = true
     def prepare():                                Unit                        = ()
@@ -85,7 +85,7 @@ class SpriteCacheRedSuite extends munit.FunSuite {
   /** Records the float content of every GL_ARRAY_BUFFER glBufferData upload. VertexBufferObject.bind uploads exactly `_buffer.limit() * 4` bytes (VertexBufferObject.scala lines 177-178), so the
     * recorded length IS the mesh's current vertex extent in floats.
     */
-  private final class BufferDataRecordingGL20 extends GL20 {
+  final private class BufferDataRecordingGL20 extends GL20 {
     val arrayBufferUploads: scala.collection.mutable.ListBuffer[Array[Float]] = scala.collection.mutable.ListBuffer.empty
 
     private val underlying: GL20 = NoopGL20
