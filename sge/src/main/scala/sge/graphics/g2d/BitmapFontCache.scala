@@ -14,10 +14,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 503
+ * Covenant-baseline-loc: 516
  * Covenant-baseline-methods: BitmapFontCache,_color,_layouts,_pageCount,_x,_y,addGlyph,addText,addToCache,adjXAmount,adjYAmount,adjustedX,adjustedY,alphaBits,clear,color,color_,colors,colorsIndex,currentIdx,currentTint,draw,finalHeight,finalWidth,finalX,finalY,glyphCount,glyphIndex,height,i,idx,intBits,integerPositions,integerPositions_,lastColorFloatBits,layout,layouts,newColor,newIdx,newPageGlyphIndices,newPageVertices,newTint,nextColorGlyphIndex,oldAlpha,page,pageCount,pageGlyphIndices,pageGlyphIndicesLength,pageVertices,pageVerticesLocal,pooledLayouts,prev,regions,requireGlyphs,requirePageGlyphs,runCount,scaleX,scaleY,setAlphas,setColors,setPageCount,setPosition,setText,tempColor,tempGlyphCount,tempGlyphCountLocal,this,tint,translate,u,u2,v,v2,vertexCount,vertices,width,x,x2,y,y2
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/BitmapFontCache.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-10
  *
  * upstream-commit: a729bf1f0de099ebcc60562d72f008157677b559
  */
@@ -397,11 +397,12 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
     var glyphIndex          = 0
     var lastColorFloatBits  = 0f
     for (i <- 0 until runCount) {
-      val run    = layout.runs(i)
-      val glyphs = run.glyphs
-      val gx     = x + run.x
-      val gy     = y + run.y
-      var ii     = 0
+      val run       = layout.runs(i)
+      val glyphs    = run.glyphs
+      val xAdvances = run.xAdvances
+      var gx        = x + run.x
+      val gy        = y + run.y
+      var ii        = 0
       while (ii < glyphs.size) {
         if (glyphIndex == nextColorGlyphIndex) {
           colorsIndex += 1
@@ -409,14 +410,14 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
           colorsIndex += 1
           nextColorGlyphIndex = if (colorsIndex < colors.size) colors(colorsIndex) else -1
         }
-        // gx += xAdvances[ii]
+        gx += xAdvances(ii)
         addGlyph(glyphs(ii), gx, gy, lastColorFloatBits)
         glyphIndex += 1
         ii += 1
       }
     }
 
-    // currentTint = Color.WHITE_FLOAT_BITS // Cached glyphs have changed, reset the current tint.
+    currentTint = Color.WHITE_FLOAT_BITS // Cached glyphs have changed, reset the current tint.
   }
 
   private def addGlyph(glyph: BitmapFont.Glyph, x: Float, y: Float, color: Float): Unit = {
