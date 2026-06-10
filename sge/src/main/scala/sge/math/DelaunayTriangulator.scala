@@ -15,10 +15,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 367
- * Covenant-baseline-methods: COMPLETE,DelaunayTriangulator,EPSILON,INCOMPLETE,INSIDE,centroid,circumCircle,complete,computeTriangles,down,edges,i,lower,originalIndices,pointCount,quicksortPartition,quicksortStack,rsqr,sort,sortedPoints,stack,superTriangle,triangles,trim,up,upper,x,y
+ * Covenant-baseline-loc: 384
+ * Covenant-baseline-methods: COMPLETE,DelaunayTriangulator,EPSILON,INCOMPLETE,INSIDE,centroid,circumCircle,complete,computeTriangles,down,edges,i,lower,originalIndices,originalIndicesArray,pointCount,quicksortPartition,quicksortStack,rsqr,sort,sortedPoints,stack,superTriangle,triangles,trim,up,upper,x,y
  * Covenant-source-reference: com/badlogic/gdx/math/DelaunayTriangulator.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-10
  *
  * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
@@ -290,9 +290,16 @@ class DelaunayTriangulator {
       i = (i + 1).toShort
     }
 
-    var lower = 0
-    var upper = count - 1
-    val stack = quicksortStack
+    // Take the LIVE backing array once (Java DelaunayTriangulator.java:265
+    // `short[] originalIndicesArray = originalIndices.items;`). DynamicArray.items
+    // returns the shared _items storage, so the swaps performed by quicksortPartition
+    // (lines 312-314, 325-327) mutate originalIndices in place. Hoisting once matches
+    // Java: no more elements are added after ensureCapacity above, so the backing array
+    // is not re-allocated during the sort and a single fetch is correct.
+    val originalIndicesArray = originalIndices.items
+    var lower                = 0
+    var upper                = count - 1
+    val stack                = quicksortStack
     stack += lower
     stack += upper - 1
     while (stack.nonEmpty) {
@@ -301,7 +308,7 @@ class DelaunayTriangulator {
       if (upper <= lower) {
         // continue
       } else {
-        val i = quicksortPartition(values, lower, upper, originalIndices.toArray)
+        val i = quicksortPartition(values, lower, upper, originalIndicesArray)
         if (i - lower > upper - i) {
           stack += lower
           stack += i - 2

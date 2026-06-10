@@ -15,10 +15,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 333
- * Covenant-baseline-methods: ConvexHull,ccw,computeIndices,computePolygon,down,end,hull,i,index,indices,lower,offsetVar,originalIndices,p1x,p1y,p2x,p2y,pointCount,pointsArray,quicksortPartition,quicksortPartitionWithIndices,quicksortStack,size,sort,sortWithIndices,sortedPoints,stack,t,up,upper,x,y
+ * Covenant-baseline-loc: 355
+ * Covenant-baseline-methods: ConvexHull,ccw,computeIndices,computePolygon,down,end,hull,i,index,indices,lower,offsetVar,originalIndices,originalIndicesArray,p1x,p1y,p2x,p2y,pointCount,pointsArray,quicksortPartition,quicksortPartitionWithIndices,quicksortStack,size,sort,sortWithIndices,sortedPoints,stack,t,up,upper,x,y
  * Covenant-source-reference: com/badlogic/gdx/math/ConvexHull.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-10
  *
  * upstream-commit: 6c54cfa7a21337dde7f546007c0603fb4e975e80
  */
@@ -199,9 +199,14 @@ class ConvexHull {
       i = (i + 1).toShort
     }
 
-    var lower = 0
-    var upper = count - 1
-    val stack = quicksortStack
+    // Take the LIVE backing array once. Java's polygon-path sort (ConvexHull.java:169-191)
+    // does not track originalIndices, but the SGE port routes the swaps through it for a
+    // shared partition helper; pass the shared _items storage (not a fresh copy) so the
+    // helper's index swaps are not discarded, mirroring the indices path at ConvexHull.java:230.
+    val originalIndicesArray = originalIndices.items
+    var lower                = 0
+    var upper                = count - 1
+    val stack                = quicksortStack
     stack += lower
     stack += upper - 1
     while (stack.nonEmpty) {
@@ -210,7 +215,7 @@ class ConvexHull {
       if (upper <= lower) {
         // continue
       } else {
-        val i = quicksortPartition(values, lower, upper, originalIndices.toArray)
+        val i = quicksortPartition(values, lower, upper, originalIndicesArray)
         if (i - lower > upper - i) {
           stack += lower
           stack += i - 2
@@ -277,9 +282,16 @@ class ConvexHull {
       i = (i + 1).toShort
     }
 
-    var lower = 0
-    var upper = count - 1
-    val stack = quicksortStack
+    // Take the LIVE backing array once (Java ConvexHull.java:230
+    // `short[] originalIndicesArray = originalIndices.items;`). DynamicArray.items
+    // returns the shared _items storage, so the swaps performed by
+    // quicksortPartitionWithIndices (lines 284-286, 296-298) mutate originalIndices in
+    // place. Hoisting once matches Java: no more elements are added after ensureCapacity
+    // above, so the backing array is not re-allocated during the sort.
+    val originalIndicesArray = originalIndices.items
+    var lower                = 0
+    var upper                = count - 1
+    val stack                = quicksortStack
     stack += lower
     stack += upper - 1
     while (stack.nonEmpty) {
@@ -288,7 +300,7 @@ class ConvexHull {
       if (upper <= lower) {
         // continue
       } else {
-        val i = quicksortPartitionWithIndices(values, lower, upper, originalIndices.toArray, yDown)
+        val i = quicksortPartitionWithIndices(values, lower, upper, originalIndicesArray, yDown)
         if (i - lower > upper - i) {
           stack += lower
           stack += i - 2
