@@ -17,9 +17,9 @@
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 570
- * Covenant-baseline-methods: GlyphLayout,GlyphRun,adjustedTargetWidth,alignRuns,appendRun,buffer,calculateWidths,colorStack,colors,count,currentColor,down,droppedGlyphCount,first,firstEnd,fontData,getGlyphWidth,getLineOffset,glyphCount,glyphRunPool,glyphs,glyphs2,height,i,isLastRun,last,lastGlyph,lineRun,markupEnabled,maxWidth,nextColor,parseColorMarkup,reset,runEnded,runStart,runs,second,secondStart,setLastGlyphXAdvance,setText,this,toString,truncateRun,truncateWidth,width,wrapGlyphs,wrapOrTruncate,x,xAdvances,xAdvances2,y
+ * Covenant-baseline-methods: GlyphLayout,GlyphRun,adjustedTargetWidth,alignRuns,appendRun,buffer,calculateWidths,colorStack,colors,count,droppedGlyphCount,epsilon,first,firstEnd,getGlyphWidth,getLineOffset,glyphCount,glyphRunPool,glyphs,glyphs2,height,i,last,maxWidth,parseColorMarkup,reset,runs,second,secondStart,setLastGlyphXAdvance,setText,this,toString,truncateRun,truncateWidth,width,wrapGlyphs,x,xAdvances,xAdvances2,y
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/GlyphLayout.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-10
  *
  * upstream-commit: a729bf1f0de099ebcc60562d72f008157677b559
  */
@@ -36,7 +36,7 @@ import sge.utils.Pool.Poolable
 import scala.language.implicitConversions
 
 class GlyphLayout extends Poolable {
-  import GlyphLayout.glyphRunPool
+  import GlyphLayout.{ epsilon, glyphRunPool }
 
   val runs:       DynamicArray[GlyphRun] = DynamicArray[GlyphRun]()
   val colors:     DynamicArray[Int]      = DynamicArray[Int]()
@@ -66,198 +66,187 @@ class GlyphLayout extends Poolable {
     setText(font, str, 0, str.length(), color, targetWidth, halign, wrap, Nullable.empty[String])
 
   def setText(font: BitmapFont, str: CharSequence, start: Int, end: Int, color: Color, targetWidth: Float, halign: Int, wrap: Boolean, truncate: Nullable[String]): Unit = scala.util.boundary {
+    (methodDone: scala.util.boundary.Label[Unit]) ?=>
+      reset()
 
-    reset()
+      val fontData = font.data
+      if (start == end) { // Empty string.
+        height = fontData.capHeight
+        scala.util.boundary.break(())(using methodDone)
+      }
 
-    val fontData = font.data
-    if (start == end) { // Empty string.
-      height = fontData.capHeight
-      scala.util.boundary.break(())
-    }
+      // Avoid wrapping one line per character, which is very inefficient.
+      var adjustedTargetWidth = targetWidth
+      if (wrap) adjustedTargetWidth = Math.max(targetWidth, fontData.spaceXadvance * 3)
+      val wrapOrTruncate = wrap || truncate.isDefined
 
-    // Avoid wrapping one line per character, which is very inefficient.
-    var adjustedTargetWidth = targetWidth
-    if (wrap) adjustedTargetWidth = Math.max(targetWidth, fontData.spaceXadvance * 3)
-    val wrapOrTruncate = wrap || truncate.isDefined
+      var currentColor = color.toIntBits()
+      var nextColor    = currentColor
+      colors.add(0)
+      colors.add(currentColor)
+      val markupEnabled = fontData.markupEnabled
+      if (markupEnabled) colorStack.add(currentColor)
 
-    var currentColor = color.toIntBits()
-    var nextColor    = currentColor
-    colors.add(0)
-    colors.add(currentColor)
-    val markupEnabled = fontData.markupEnabled
+      var isLastRun = false
+      var y         = 0f
+      val down      = fontData.down
+      var lineRun:   Nullable[GlyphRun]         = Nullable.empty // Collects glyphs for the current line.
+      var lastGlyph: Nullable[BitmapFont.Glyph] = Nullable.empty // Last glyph of the previous run on the same line, used for kerning between runs.
+      var runStart = start
+      // Java reassigns the `start` parameter as it scans; `cursor` is that mutable position.
+      var cursor = start
+      // Java labels the run-scanning loop `outer:`; both its `break;` (Java line 142) and
+      // its `break outer;` (Java line 226) land at the post-loop layout code below, so the
+      // whole loop is wrapped in a boundary that yields to that code when broken.
+      scala.util.boundary { (outer: scala.util.boundary.Label[Unit]) ?=>
+        while (true) {
+          var runEnd: Int = 0
+          var newline = false
+          // Java's `continue outer;` (line 168) skips the rest of this iteration and rescans;
+          // wrapping the iteration body in a boundary lets the switch's default case `break(iter)`.
+          scala.util.boundary { (iter: scala.util.boundary.Label[Unit]) ?=>
+            if (cursor == end) { // End of text.
+              if (runStart == end) scala.util.boundary.break(())(using outer) // No run to process, we're done.
+              runEnd = end // Process the final run.
+              isLastRun = true
+            } else {
+              // Each run is delimited by newline or left square bracket.
+              // Java: switch (str.charAt(start++)) — read the char, then advance past it.
+              val ch = str.charAt(cursor)
+              cursor += 1
+              ch match {
+                case '\n' => // End of line.
+                  runEnd = cursor - 1
+                  newline = true
+                case '[' => // Possible color tag.
+                  var handled = false
+                  if (markupEnabled) {
+                    val length = parseColorMarkup(str, cursor, end)
+                    if (length >= 0) {
+                      runEnd = cursor - 1
+                      cursor += length + 1
+                      if (cursor == end)
+                        isLastRun = true // Color tag is the last element in the string.
+                      else
+                        nextColor = colorStack.last
+                      handled = true
+                    } else if (length == -2) {
+                      cursor += 1 // Skip first of "[[" escape sequence.
+                    }
+                  }
+                  // Fall through.
+                  if (!handled) scala.util.boundary.break(())(using iter)
+                case _ =>
+                  scala.util.boundary.break(())(using iter)
+              }
+            }
 
-    var isLastRun = false
-    var y         = 0f
-    val down      = fontData.down
-    var lineRun:   Nullable[GlyphRun]         = Nullable.empty // Collects glyphs for the current line.
-    var lastGlyph: Nullable[BitmapFont.Glyph] = Nullable.empty // Last glyph of the previous run on the same line, used for kerning between runs.
-    var runStart = start
-    var i        = start
+            scala.util.boundary { (runEnded: scala.util.boundary.Label[Unit]) ?=>
+              // Store the run that has ended.
+              val run = glyphRunPool.obtain()
+              run.x = 0
+              run.y = y
+              fontData.getGlyphs(run, str, runStart, runEnd, lastGlyph)
+              glyphCount += run.glyphs.size
 
-    var runEnded = false
-    while (!runEnded) {
-      var runEnd: Int = 0
-      var newline = false
-      if (i == end) { // End of text.
-        if (runStart == end) scala.util.boundary.break(()) // No run to process, we're done.
-        runEnd = end // Process the final run.
-        isLastRun = true
-      } else {
-        var delimFound = false
-        scala.util.boundary {
-          while (i < end)
-            // Each run is delimited by newline or left square bracket.
-            str.charAt(i) match {
-              case '\n' => // End of line.
-                runEnd = i
-                newline = true
-                delimFound = true
-                scala.util.boundary.break(())
-              case '[' => // Possible color tag.
-                if (markupEnabled) {
-                  val length = parseColorMarkup(str, i + 1, end)
-                  if (length >= 0) {
-                    runEnd = i
-                    i += length + 2
-                    if (i == end)
-                      isLastRun = true // Color tag is the last element in the string.
-                    else
-                      nextColor = colorStack.last
-                    delimFound = true
-                    scala.util.boundary.break(())
-                  } else if (length == -2) {
-                    i += 1 // Skip first of "[[" escape sequence.
+              if (nextColor != currentColor) { // Can only be different if markupEnabled.
+                if (colors(colors.size - 2) == glyphCount) {
+                  // Consecutive color changes, or after an empty run, or at the beginning of the string.
+                  colors(colors.size - 1) = nextColor
+                } else {
+                  colors.add(glyphCount)
+                  colors.add(nextColor)
+                }
+                currentColor = nextColor
+              }
+
+              if (run.glyphs.isEmpty) {
+                glyphRunPool.free(run)
+                if (lineRun.isEmpty) scala.util.boundary.break(())(using runEnded) // Otherwise wrap and truncate must still be processed for lineRun.
+              } else if (lineRun.isEmpty) {
+                lineRun = Nullable(run)
+                runs.add(run)
+              } else {
+                lineRun.get.appendRun(run)
+                glyphRunPool.free(run)
+              }
+
+              if (newline || isLastRun) {
+                setLastGlyphXAdvance(fontData, lineRun.get)
+                lastGlyph = Nullable.empty
+              } else
+                lastGlyph = Nullable(lineRun.get.glyphs.peek)
+
+              if (!wrapOrTruncate || lineRun.get.glyphs.isEmpty) scala.util.boundary.break(())(using runEnded) // No wrap or truncate, or no glyphs.
+
+              if (newline || isLastRun) {
+                // Wrap or truncate. First xadvance is the first glyph's X offset relative to the drawing position.
+                var runWidth = lineRun.get.xAdvances.first + lineRun.get.xAdvances(1) // At least the first glyph will fit.
+                var i        = 2
+                while (i < lineRun.get.xAdvances.size) {
+                  val glyph      = lineRun.get.glyphs(i - 1)
+                  val glyphWidth = getGlyphWidth(glyph, fontData)
+                  if (runWidth + glyphWidth - epsilon <= adjustedTargetWidth) {
+                    // Glyph fits.
+                    runWidth += lineRun.get.xAdvances.items(i)
+                    i += 1
+                  } else {
+                    if (truncate.isDefined) {
+                      // Truncate.
+                      truncateRun(fontData, lineRun.get, adjustedTargetWidth, truncate.get)
+                      scala.util.boundary.break(())(using outer)
+                    }
+
+                    // Wrap.
+                    var wrapIndex = fontData.getWrapIndex(lineRun.get.glyphs, i)
+                    if (
+                      (wrapIndex == 0 && lineRun.get.x == 0) // Require at least one glyph per line.
+                      || wrapIndex >= lineRun.get.glyphs.size
+                    ) { // Wrap at least the glyph that didn't fit.
+                      wrapIndex = i - 1
+                    }
+                    lineRun = wrapGlyphs(fontData, lineRun.get, wrapIndex)
+                    if (lineRun.isEmpty) scala.util.boundary.break(())(using runEnded) // All wrapped glyphs were whitespace.
+                    runs.add(lineRun.get)
+
+                    y += down
+                    lineRun.get.x = 0
+                    lineRun.get.y = y
+
+                    // Start the wrap loop again, another wrap might be necessary.
+                    runWidth = lineRun.get.xAdvances.first + lineRun.get.xAdvances(1) // At least the first glyph will fit.
+                    i = 1
+                    // Java's for-loop step `i++` then advances to 2; the while form applies it here.
+                    i += 1
                   }
                 }
-                if (!delimFound) i += 1
-              case _ =>
-                i += 1
+              }
             }
-        }
-        if (runEnd == 0 && !delimFound) {
-          // Continue to next iteration
-        }
-      }
 
-      if (runEnd > 0 || isLastRun) {
-        // Store the run that has ended.
-        val run = glyphRunPool.obtain()
-        run.x = 0
-        run.y = y
-        fontData.getGlyphs(run, str, runStart, runEnd, lastGlyph)
-        glyphCount += run.glyphs.size
+            if (newline) {
+              lineRun = Nullable.empty
+              lastGlyph = Nullable.empty
 
-        if (nextColor != currentColor) { // Can only be different if markupEnabled.
-          if (colors(colors.size - 2) == glyphCount) {
-            // Consecutive color changes, or after an empty run, or at the beginning of the string.
-            colors(colors.size - 1) = nextColor
-          } else {
-            colors.add(glyphCount)
-            colors.add(nextColor)
-          }
-          currentColor = nextColor
-        }
-
-        if (run.glyphs.isEmpty) {
-          glyphRunPool.free(run)
-          if (lineRun.isEmpty) {
-            runEnded = true // Otherwise wrap and truncate must still be processed for lineRun.
-          }
-        } else if (lineRun.isEmpty) {
-          lineRun = Nullable(run)
-          runs.add(run)
-        } else {
-          lineRun.get.appendRun(run)
-          glyphRunPool.free(run)
-        }
-
-        if (newline || isLastRun) {
-          setLastGlyphXAdvance(fontData, lineRun.get)
-          lastGlyph = Nullable.empty
-        } else {
-          val lr = lineRun.get
-          lastGlyph = if (lr.glyphs.nonEmpty) Nullable(lr.glyphs.last) else Nullable.empty
-        }
-
-        if (!wrapOrTruncate || lineRun.get.glyphs.isEmpty) {
-          runEnded = true // No wrap or truncate, or no glyphs.
-        }
-
-        if (!runEnded && (newline || isLastRun)) {
-          val lr = lineRun.get
-          // Wrap or truncate. First xadvance is the first glyph's X offset relative to the drawing position.
-          var runWidth = lr.xAdvances(0) + lr.xAdvances(1) // At least the first glyph will fit.
-          var ii       = 2
-          var wrapping = true
-          while (wrapping && ii < lr.xAdvances.size) {
-            val glyph      = lr.glyphs(ii - 1)
-            val glyphWidth = getGlyphWidth(glyph, fontData)
-            if (runWidth + glyphWidth - 0.0001f <= adjustedTargetWidth) {
-              // Glyph fits.
-              runWidth += lr.xAdvances(ii)
-              ii += 1
-            } else {
-              truncate.foreach { truncateStr =>
-                // Truncate.
-                truncateRun(fontData, lr, adjustedTargetWidth, truncateStr)
-                scala.util.boundary.break(())
-              }
-
-              // Wrap.
-              var wrapIndex = fontData.getWrapIndex(lr.glyphs, ii)
-              if (
-                (wrapIndex == 0 && lr.x == 0) // Require at least one glyph per line.
-                || wrapIndex >= lr.glyphs.size
-              ) { // Wrap at least the glyph that didn't fit.
-                wrapIndex = ii - 1
-              }
-              val wrappedLine = wrapGlyphs(fontData, lr, wrapIndex)
-              if (wrappedLine.isEmpty) {
-                lineRun = Nullable.empty // Reset sentinel — all wrapped glyphs were whitespace.
-                runEnded = true
-                wrapping = false // Prevent while-loop from accessing Nullable.empty lineRun.
-              } else {
-                val wl = wrappedLine.get
-                lineRun = wrappedLine
-                runs.add(wl)
-
+              // Next run will be on the next line.
+              if (runEnd == runStart) // Blank line.
+                y += down * fontData.blankLineScale
+              else
                 y += down
-                wl.x = 0
-                wl.y = y
-
-                // Start the wrap loop again, another wrap might be necessary.
-                runWidth = wl.xAdvances(0) + wl.xAdvances(1) // At least the first glyph will fit.
-                ii = 2
-              }
             }
+
+            runStart = cursor
           }
-          if (ii >= lineRun.get.xAdvances.size) wrapping = false
         }
-
-        if (newline) {
-          lineRun = Nullable.empty
-          lastGlyph = Nullable.empty
-
-          // Next run will be on the next line.
-          if (runEnd == runStart) // Blank line.
-            y += down * fontData.blankLineScale
-          else
-            y += down
-        }
-
-        runStart = i
-        if (isLastRun) runEnded = true
       }
-    }
 
-    height = fontData.capHeight + Math.abs(y)
+      height = fontData.capHeight + Math.abs(y)
 
-    calculateWidths(fontData)
+      calculateWidths(fontData)
 
-    alignRuns(adjustedTargetWidth, halign)
+      alignRuns(adjustedTargetWidth, halign)
 
-    // Clear the color stack.
-    if (markupEnabled) colorStack.clear()
+      // Clear the color stack.
+      if (markupEnabled) colorStack.clear()
   }
 
   private def calculateWidths(fontData: BitmapFontData): Unit = {
@@ -297,7 +286,7 @@ class GlyphLayout extends Poolable {
       }
     }
 
-  private def truncateRun(fontData: BitmapFontData, run: GlyphRun, targetWidth: Float, truncate: String): Unit = scala.util.boundary {
+  private def truncateRun(fontData: BitmapFontData, run: GlyphRun, targetWidth: Float, truncate: String): Unit = {
     val glyphCount = run.glyphs.size
 
     // Determine truncate string size.
@@ -316,11 +305,15 @@ class GlyphLayout extends Poolable {
     var count     = 0
     var width     = run.x
     val xAdvances = run.xAdvances
-    while (count < run.xAdvances.size) {
-      val xAdvance = xAdvances(count)
-      width += xAdvance
-      if (width > adjustedTargetWidth) scala.util.boundary.break(())
-      count += 1
+    // Java's `break` (line 331) exits only this loop, so it is scoped to a boundary here;
+    // the rest of the method still runs (ISS-489).
+    scala.util.boundary {
+      while (count < run.xAdvances.size) {
+        val xAdvance = xAdvances(count)
+        width += xAdvance
+        if (width > adjustedTargetWidth) scala.util.boundary.break(())
+        count += 1
+      }
     }
 
     if (count > 1) {
@@ -385,7 +378,9 @@ class GlyphLayout extends Poolable {
 
       val xAdvances1 = DynamicArray[Float]() // Starts empty.
       xAdvances1.addAll(xAdvances2.items, 0, firstEnd + 1)
-      xAdvances2.removeRange(1, secondStart) // Leave first entry to be overwritten by next line.
+      // libgdx FloatArray.removeRange(1, secondStart) is end-INCLUSIVE; lls removeRange is
+      // end-exclusive, so the end bound is +1 (ISS-491). Leave first entry to be overwritten by next line.
+      xAdvances2.removeRange(1, secondStart + 1)
       xAdvances2(0) = getLineOffset(glyphs2, fontData)
       first.xAdvances = xAdvances1
       s.xAdvances = xAdvances2
@@ -534,6 +529,7 @@ class GlyphLayout extends Poolable {
 
 object GlyphLayout {
   private[g2d] val glyphRunPool: Pool[GlyphRun] = Pool.Default[GlyphRun](() => GlyphRun())
+  private val epsilon:           Float          = 0.0001f
 }
 
 class GlyphRun extends Poolable {
