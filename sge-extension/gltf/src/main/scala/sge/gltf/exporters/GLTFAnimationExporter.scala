@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 230
  * Covenant-baseline-methods: ChannelExporter,GLTFAnimationExporter,a,channelExporterQuaternion,channelExporterVector3,channelExporterWeights,exportAnimation,exportAnimations,exportChannel,getOutput,i,mapInterpolation,numComponents,numElements,outputType,rotationInterpolation,scaleInterpolation,translationInterpolation
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/exporters/GLTFAnimationExporter.java
  * Covenant-verified: 2026-04-19
  */
 package sge

@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 111
  * Covenant-baseline-methods: BinaryDataFileResolver,bufferMap,getBuffer,getRoot,glModel,i,jsonData,length,load,loadInternal,magic,path,readBuffer,version
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/loaders/glb/BinaryDataFileResolver.java
  * Covenant-verified: 2026-04-19
  */
 package sge

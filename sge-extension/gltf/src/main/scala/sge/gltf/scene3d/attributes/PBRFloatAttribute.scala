@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 77
  * Covenant-baseline-methods: EmissiveIntensity,EmissiveIntensityAlias,IOR,IORAlias,Metallic,MetallicAlias,NormalScale,NormalScaleAlias,OcclusionStrength,OcclusionStrengthAlias,PBRFloatAttribute,Roughness,RoughnessAlias,ShadowBias,ShadowBiasAlias,SpecularFactor,SpecularFactorAlias,TransmissionFactor,TransmissionFactorAlias,copy,createEmissiveIntensity,createIOR,createMetallic,createNormalScale,createOcclusionStrength,createRoughness,createSpecularFactor,createTransmissionFactor
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/attributes/PBRFloatAttribute.java
  * Covenant-verified: 2026-04-19
  */
 package sge

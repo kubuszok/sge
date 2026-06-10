@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 45
  * Covenant-baseline-methods: MultipassEffectWrapper,close,passes,rebind,render,resize,update
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/effects/MultipassEffectWrapper.java
  * Covenant-verified: 2026-04-19
  */
 package sge

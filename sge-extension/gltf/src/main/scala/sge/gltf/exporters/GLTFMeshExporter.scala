@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 312
  * Covenant-baseline-methods: GLTFMeshExporter,attrIdx,boneJointsBuffers,boneWeightsBuffers,computeBounds,copyLayout,exportMesh,exportMeshPart,i,layouts,mapPrimitiveMode,mesh,numVertices,offset,primitive,stride,vertexAttrs,vertices
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/exporters/GLTFMeshExporter.java
  * Covenant-verified: 2026-04-19
  */
 package sge

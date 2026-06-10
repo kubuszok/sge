@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 28
  * Covenant-baseline-methods: EXT,KHRMaterialsPBRSpecularGlossiness,diffuseFactor,diffuseTexture,glossinessFactor,specularFactor,specularGlossinessTexture
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/data/extensions/KHRMaterialsPBRSpecularGlossiness.java
  * Covenant-verified: 2026-04-19
  */
 package sge

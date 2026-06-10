@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 159
  * Covenant-baseline-methods: Rect,dx,dy,nx,nx1,nx2,ny,ny1,ny2,p,q,r,rect_containsPoint,rect_getDiff,rect_getNearestCorner,rect_getSegmentIntersectionIndices,rect_getSquareDistance,rect_isIntersecting,set,this,ti1,ti2
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/dongbat/jbump/Rect.java
  * Covenant-verified: 2026-04-19
  */
 package sge

@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 54
  * Covenant-baseline-methods: SearchStep,_count,count,createPath,depth,distance,edge,ignore,ignoreFlag,node,prepare,previous,terminate,terminateFlag,vertex
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/algorithms/SearchStep.java
  * Covenant-verified: 2026-04-19
  */
 package sge

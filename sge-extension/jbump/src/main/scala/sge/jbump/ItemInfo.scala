@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 29
  * Covenant-baseline-methods: ItemInfo,weightComparator,x1,x2,y1,y2
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/dongbat/jbump/ItemInfo.java
  * Covenant-verified: 2026-04-19
  */
 package sge

@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 105
  * Covenant-baseline-methods: VignettingEffect,_centerX,_centerY,_intensity,_saturation,_saturationMul,_vignetteX,_vignetteY,centerX,centerY,intensity,intensity_,rebind,render,saturation,saturationMul,saturationMul_,saturation_,setCenter,setCoords,vignetteX,vignetteX_,vignetteY,vignetteY_
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/effects/VignettingEffect.java
  * Covenant-verified: 2026-04-19
  */
 package sge

@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 4
  * Covenant-baseline-loc: 115
  * Covenant-baseline-methods: Connection,DirectedConnection,UndirectedConnection,a,b,equals,fixed,hasEndpoints,hashCode,internalNodeA,internalNodeB,link,linked,nodeA,nodeB,set,setWeight,toString,weight,weightFn,weightFunction,weight_
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/Connection.java
  * Covenant-verified: 2026-04-19
  */
 package sge

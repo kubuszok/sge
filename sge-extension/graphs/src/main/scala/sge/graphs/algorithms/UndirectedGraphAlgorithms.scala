@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 23
  * Covenant-baseline-methods: UndirectedGraphAlgorithms,algorithm,findMinimumWeightSpanningTree
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/algorithms/UndirectedGraphAlgorithms.java
  * Covenant-verified: 2026-04-19
  */
 package sge

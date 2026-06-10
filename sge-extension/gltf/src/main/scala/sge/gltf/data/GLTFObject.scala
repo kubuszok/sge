@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 16
  * Covenant-baseline-methods: GLTFObject,extensions,extras
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/data/GLTFObject.java
  * Covenant-verified: 2026-04-19
  */
 package sge

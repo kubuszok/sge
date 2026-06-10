@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 15
  * Covenant-baseline-methods: Interpolation
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/loaders/shared/animation/Interpolation.java
  * Covenant-verified: 2026-04-19
  */
 package sge

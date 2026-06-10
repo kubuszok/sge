@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 28
  * Covenant-baseline-methods: EXT,KHRMaterialsIridescence,iridescenceFactor,iridescenceIor,iridescenceTexture,iridescenceThicknessMaximum,iridescenceThicknessMinimum,iridescenceThicknessTexture
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/data/extensions/KHRMaterialsIridescence.java
  * Covenant-verified: 2026-04-19
  */
 package sge

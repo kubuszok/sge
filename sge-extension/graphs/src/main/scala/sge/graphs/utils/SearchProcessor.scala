@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 16
  * Covenant-baseline-methods: SearchProcessor,accept
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/utils/SearchProcessor.java
  * Covenant-verified: 2026-04-19
  */
 package sge

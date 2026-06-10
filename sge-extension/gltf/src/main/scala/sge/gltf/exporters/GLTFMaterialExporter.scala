@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 274
  * Covenant-baseline-methods: GLTFMaterialExporter,defaultNullAttr,defaultNullBool,defaultNullColor,existing,exportMaterial,exportMaterials,ext,extEmissive,extIOR,extIridescence,extSpecular,extTransmission,extVolume,getTexture,i,imageIndex,mapMag,mapMin,mapWrap,normalTexture,occlusionTexture,pbr,rgb,s,sampler,source,t,texture,ti
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/exporters/GLTFMaterialExporter.java
  * Covenant-verified: 2026-04-19
  */
 package sge

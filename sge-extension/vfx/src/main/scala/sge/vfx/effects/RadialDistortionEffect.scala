@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 59
  * Covenant-baseline-methods: RadialDistortionEffect,_distortion,_zoom,distortion,distortion_,rebind,render,zoom,zoom_
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/effects/RadialDistortionEffect.java
  * Covenant-verified: 2026-04-19
  */
 package sge

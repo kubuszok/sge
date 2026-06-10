@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 54
  * Covenant-baseline-methods: DiffuseEnv,DiffuseEnvAlias,EnvironmentMap,PBRCubemapAttribute,SpecularEnv,SpecularEnvAlias,copy,createDiffuseEnv,createSpecularEnv,this
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/attributes/PBRCubemapAttribute.java
  * Covenant-verified: 2026-04-19
  */
 package sge

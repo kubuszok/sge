@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 91
  * Covenant-baseline-methods: EXT,GLTFLight,GLTFLightNode,GLTFLights,GLTFSpotLight,KHRLightsPunctual,TYPE_DIRECTIONAL,TYPE_POINT,TYPE_SPOT,color,innerConeAngle,intensity,light,lightType,lights,map,name,outerConeAngle,range,spot
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/data/extensions/KHRLightsPunctual.java
  * Covenant-verified: 2026-04-19
  */
 package sge

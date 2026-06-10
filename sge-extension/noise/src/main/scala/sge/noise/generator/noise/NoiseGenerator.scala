@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 195
  * Covenant-baseline-methods: DefaultNoiseAlgorithmProvider,NoiseAlgorithmProvider,NoiseGenerator,PI,_algorithmProvider,algorithmProvider,algorithmProvider_,bottomInterpolation,consume,factorialX,factorialY,finalInterpolation,gen,generate,getInstance,instance,interpolate,modifier,noise,noiseBottom,noiseBottomRight,noiseCenter,noiseRight,radius,regionX,regionY,seed,smoothNoise,topInterpolation
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/github/czyzby/noise4j/map/generator/noise/NoiseGenerator.java
  * Covenant-verified: 2026-04-19
  */
 package sge

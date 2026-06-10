@@ -15,7 +15,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 56
  * Covenant-baseline-methods: GLBAssetLoader,getDependencies,loadAsync,loadSync,sceneAsset,this,withData
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/loaders/glb/GLBAssetLoader.java
  * Covenant-verified: 2026-04-19
  */
 package sge

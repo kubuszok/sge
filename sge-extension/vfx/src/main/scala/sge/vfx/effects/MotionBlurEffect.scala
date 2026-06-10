@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 60
  * Covenant-baseline-methods: MotionBlurEffect,close,copyFilter,firstFrameRendered,localBuffer,mixFilter,prevFrame,rebind,render,resize
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/effects/MotionBlurEffect.java
  * Covenant-verified: 2026-04-19
  */
 package sge

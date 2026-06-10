@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 67
  * Covenant-baseline-methods: PBREmissiveShaderProvider,cfg,config,createConfig,createShader,hasAlpha,mat,maxUVIndex,sb,shader
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/shaders/PBREmissiveShaderProvider.java
  * Covenant-verified: 2026-04-19
  */
 package sge

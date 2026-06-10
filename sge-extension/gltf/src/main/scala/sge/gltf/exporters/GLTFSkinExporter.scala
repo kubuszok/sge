@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 71
  * Covenant-baseline-methods: GLTFSkinExporter,exportSkins,i
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/exporters/GLTFSkinExporter.java
  * Covenant-verified: 2026-04-19
  */
 package sge

@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 20
  * Covenant-baseline-methods: Algorithm,finish,isFinished,update
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/algorithms/Algorithm.java
  * Covenant-verified: 2026-04-19
  */
 package sge

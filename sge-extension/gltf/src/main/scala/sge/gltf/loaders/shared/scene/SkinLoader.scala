@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 105
  * Covenant-baseline-methods: SkinLoader,bonesCount,floatBuffer,getMaxBones,i,ibms,joints,load,maxBones
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/loaders/shared/scene/SkinLoader.java
  * Covenant-verified: 2026-04-19
  */
 package sge

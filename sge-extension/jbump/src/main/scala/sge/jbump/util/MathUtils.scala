@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 24
  * Covenant-baseline-methods: DELTA,MathUtils,nearest,sign
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/dongbat/jbump/util/MathUtils.java
  * Covenant-verified: 2026-04-19
  */
 package sge

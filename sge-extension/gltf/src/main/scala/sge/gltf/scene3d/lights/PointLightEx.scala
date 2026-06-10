@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 36
  * Covenant-baseline-methods: PointLightEx,range,set
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/lights/PointLightEx.java
  * Covenant-verified: 2026-04-19
  */
 package sge

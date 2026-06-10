@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 244
  * Covenant-baseline-methods: CellularAutomataGenerator,aliveChance,array,birthLimit,consume,count,countLivingNeighbors,deathLimit,gen,generate,getInstance,getTemporaryGrid,index,initiate,instance,isAlive,iterationIndex,iterationsAmount,length,livingNeighbors,marker,radius,random,setAlive,setDead,shouldBeBorn,shouldDie,spawnLivingCells,temporaryGrid,xOffset
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/github/czyzby/noise4j/map/generator/cellular/CellularAutomataGenerator.java
  * Covenant-verified: 2026-04-19
  */
 package sge

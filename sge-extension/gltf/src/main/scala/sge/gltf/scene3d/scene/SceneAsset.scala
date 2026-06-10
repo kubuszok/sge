@@ -11,7 +11,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 69
  * Covenant-baseline-methods: SceneAsset,animations,close,data,maxBones,meshes,pixmaps,scene,scenes,textures
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/scene/SceneAsset.java
  * Covenant-verified: 2026-04-19
  */
 package sge

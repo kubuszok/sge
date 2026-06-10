@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 52
  * Covenant-baseline-methods: EnvRotation,EnvRotationAlias,PBRMatrixAttribute,attr,compare,copy,createEnvRotation,matrix,set
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/attributes/PBRMatrixAttribute.java
  * Covenant-verified: 2026-04-19
  */
 package sge

@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 152
  * Covenant-baseline-methods: FacedMultiCubemapData,consumeCubemapData,data,getTextureData,gl,h,height,i,isComplete,isManaged,isPrepared,level,levels,nx,ny,nz,prepare,px,py,pz,result,this,w,width
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/utils/FacedMultiCubemapData.java
  * Covenant-verified: 2026-04-19
  */
 package sge

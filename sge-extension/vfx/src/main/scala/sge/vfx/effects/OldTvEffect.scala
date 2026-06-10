@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 65
  * Covenant-baseline-methods: OldTvEffect,_time,rebind,render,resize,resolution,time,time_,update
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/effects/OldTvEffect.java
  * Covenant-verified: 2026-04-19
  */
 package sge

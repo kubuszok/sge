@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 136
  * Covenant-baseline-methods: Grid,TraverseCallback,cb,cont,cr,cx,cx1,cx2,cy,cy1,cy2,dx,dy,grid_toCell,grid_toCellRect,grid_toCellRect_cxy,grid_toWorld,grid_traverse,grid_traverseRay,grid_traverse_c1,grid_traverse_c2,grid_traverse_initStep,grid_traverse_initStepX,grid_traverse_initStepY,onTraverse,stepX,stepY,tx,ty,v
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/dongbat/jbump/Grid.java
  * Covenant-verified: 2026-04-19
  */
 package sge

@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 88
  * Covenant-baseline-methods: MinimumWeightSpanningTree,doesEdgeCreateCycle,edgeQueue,find,finishAt,getSpanningTree,isFinished,pathCompressionFind,q,rootU,rootV,sorted,spanningTree,unionByRank,update
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/algorithms/MinimumWeightSpanningTree.java
  * Covenant-verified: 2026-04-19
  */
 package sge

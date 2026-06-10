@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 145
  * Covenant-baseline-methods: MeshSpliter,count,g,groups,i,lastGroup,lastVertices,maxGroup,maxIndex,primitiveIndices,remainingIndices,size,size16,split,stride,tmp,toProcess,vertexMaxSize
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/loaders/shared/geometry/MeshSpliter.java
  * Covenant-verified: 2026-04-19
  */
 package sge

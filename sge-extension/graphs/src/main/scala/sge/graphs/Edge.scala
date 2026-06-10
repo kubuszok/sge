@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 29
  * Covenant-baseline-methods: Edge,a,b,hasEndpoint,hasEndpoints,internalNodeA,internalNodeB,set,setWeight,weight,weightFunction,weight_
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/Edge.java
  * Covenant-verified: 2026-04-19
  */
 package sge

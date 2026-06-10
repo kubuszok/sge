@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 40
  * Covenant-baseline-methods: VfxRenderContext,_bufferHeight,_bufferWidth,bufferHeight,bufferPool,bufferRenderer,bufferWidth,close,rebind,resize,viewportMesh
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/VfxRenderContext.java
  * Covenant-verified: 2026-04-19
  */
 package sge

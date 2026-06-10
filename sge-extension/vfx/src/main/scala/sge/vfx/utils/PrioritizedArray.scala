@@ -14,7 +14,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 72
  * Covenant-baseline-methods: Entry,PrioritizedArray,add,clear,contains,get,idx,items,iterator,remove,setPriority,size,sortItems,sorted,toString
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/utils/PrioritizedArray.java
  * Covenant-verified: 2026-04-19
  */
 package sge

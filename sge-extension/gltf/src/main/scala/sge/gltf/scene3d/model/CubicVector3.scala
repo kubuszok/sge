@@ -16,7 +16,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 28
  * Covenant-baseline-methods: CubicVector3
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/model/CubicVector3.java
  * Covenant-verified: 2026-04-19
  */
 package sge

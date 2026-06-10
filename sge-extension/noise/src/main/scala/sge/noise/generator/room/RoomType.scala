@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 209
  * Covenant-baseline-methods: CastleMinSize,CastleMinTower,CrossMinSize,DefaultRoomType,Interceptor,RoomType,carve,isValid
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/github/czyzby/noise4j/map/generator/room/RoomType.java
  * Covenant-verified: 2026-04-19
  */
 package sge

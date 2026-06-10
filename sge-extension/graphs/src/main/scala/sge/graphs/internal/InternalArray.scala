@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 187
  * Covenant-baseline-methods: InternalArray,_items,_size,add,addAll,arr,clear,contains,containsAll,cursor,ensureCapacity,get,hasNext,i,indexOf,isEmpty,item,items,iter,iterator,knownSize,modified,newItems,next,numNew,oldVal,removeAll,removeAt,removeIf,removeItem,resize,result,retainAll,set,size,strictResize,toArray
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/Array.java
  * Covenant-verified: 2026-04-19
  */
 package sge

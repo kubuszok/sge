@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 87
  * Covenant-baseline-methods: UniformBatcher,activateShader,begin,end,program,set
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/utils/UniformBatcher.java
  * Covenant-verified: 2026-04-19
  */
 package sge

@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 34
  * Covenant-baseline-methods: AlgorithmPath,apply,count,path,setByBacktracking,v
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/algorithms/AlgorithmPath.java
  * Covenant-verified: 2026-04-19
  */
 package sge

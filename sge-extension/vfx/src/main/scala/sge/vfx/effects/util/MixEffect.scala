@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 64
  * Covenant-baseline-methods: Method,MixEffect,_mixFactor,mixFactor,mixFactor_,rebind,render
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/effects/util/MixEffect.java
  * Covenant-verified: 2026-04-19
  */
 package sge

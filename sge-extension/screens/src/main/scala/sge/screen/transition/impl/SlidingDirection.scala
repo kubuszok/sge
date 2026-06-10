@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 30
  * Covenant-baseline-methods: SlidingDirection
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: de/eskalon/commons/screen/transition/impl/SlidingDirection.java
  * Covenant-verified: 2026-04-19
  */
 package sge

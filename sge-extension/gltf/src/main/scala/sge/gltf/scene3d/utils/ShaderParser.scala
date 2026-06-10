@@ -13,7 +13,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 47
  * Covenant-baseline-methods: ShaderParser,content,i,includeAfter,includeBefore,lines,parse,sb
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/utils/ShaderParser.java
  * Covenant-verified: 2026-04-19
  */
 package sge

@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 101
  * Covenant-baseline-methods: Algorithms,breadthFirstSearch,containsCycle,depthFirstSearch,dijkstraSearch,findMinimumDistance,findShortestPath,isConnected,newAStarSearch,node,requestRunID,runID,search,startNode,targetNode
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/algorithms/Algorithms.java
  * Covenant-verified: 2026-04-19
  */
 package sge

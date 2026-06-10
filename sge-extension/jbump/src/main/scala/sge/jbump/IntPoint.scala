@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 32
  * Covenant-baseline-methods: IntPoint,equals,hashCode,set,this,toString
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/dongbat/jbump/IntPoint.java
  * Covenant-verified: 2026-04-19
  */
 package sge

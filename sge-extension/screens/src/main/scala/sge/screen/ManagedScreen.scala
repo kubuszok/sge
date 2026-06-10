@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 96
  * Covenant-baseline-methods: ManagedScreen,_inputProcessors,addInputProcessor,clearColor,close,hide,inputProcessors,pause,render,resize,resume,show
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: de/eskalon/commons/screen/ManagedScreen.java
  * Covenant-verified: 2026-04-19
  */
 package sge

@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 66
  * Covenant-baseline-methods: BreadthFirstSearch,edgeIter,isFinished,outEdges,queue,step,update,v
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/algorithms/BreadthFirstSearch.java
  * Covenant-verified: 2026-04-19
  */
 package sge

@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 52
  * Covenant-baseline-methods: SlidingTransition,dir,render,slideLastScreen
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: de/eskalon/commons/screen/transition/SlidingTransition.java
  * Covenant-verified: 2026-04-19
  */
 package sge

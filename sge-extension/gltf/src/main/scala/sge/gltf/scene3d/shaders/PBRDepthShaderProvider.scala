@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 78
  * Covenant-baseline-methods: PBRDepthShaderProvider,config,createDefaultConfig,createShader,getDefaultFragmentShader,getDefaultVertexShader,j,morphTargetsPrefix,n,sb,vertexAttributes
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/shaders/PBRDepthShaderProvider.java
  * Covenant-verified: 2026-04-19
  */
 package sge

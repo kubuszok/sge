@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 77
  * Covenant-baseline-methods: DirectionalLightEx,baseColor,equals,intensity,set,updateColor
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/lights/DirectionalLightEx.java
  * Covenant-verified: 2026-04-19
  */
 package sge

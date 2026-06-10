@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 264
  * Covenant-baseline-methods: BlurType,Convolve1DEffect,Convolve2DEffect,GaussianBlurEffect,Tap,_amount,_passes,_type,amount,amount_,blurType,close,computeBlurWeightings,computeKernel,computeOffsets,convolve,hor,i,invHeight,invWidth,j,length,offsetsHor,offsetsVert,passes,passes_,rebind,render,resize,setType,sigma,sigmaRoot,size,this,total,twoSigmaSquare,update,vert,weights
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/effects/GaussianBlurEffect.java
  * Covenant-verified: 2026-04-19
  */
 package sge

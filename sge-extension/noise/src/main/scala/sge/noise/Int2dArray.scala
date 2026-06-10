@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 77
  * Covenant-baseline-methods: Int2dArray,array,get,index,isIndexValid,length,set,this,toIndex
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/github/czyzby/noise4j/array/Int2dArray.java
  * Covenant-verified: 2026-04-19
  */
 package sge

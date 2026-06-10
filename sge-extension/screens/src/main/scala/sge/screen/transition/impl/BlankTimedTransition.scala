@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 40
  * Covenant-baseline-methods: BlankTimedTransition,close,render,resize,this
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: de/eskalon/commons/screen/transition/impl/BlankTimedTransition.java
  * Covenant-verified: 2026-04-19
  */
 package sge

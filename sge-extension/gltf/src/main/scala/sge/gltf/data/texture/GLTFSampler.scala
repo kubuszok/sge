@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 19
  * Covenant-baseline-methods: GLTFSampler,magFilter,minFilter,wrapS,wrapT
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/data/texture/GLTFSampler.java
  * Covenant-verified: 2026-04-19
  */
 package sge

@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 127
  * Covenant-baseline-methods: SeparatedDataFileResolver,bufferMap,bytes,decodePath,getBuffer,getImageFile,getRoot,glModel,i,load,loadBuffers,path,pos,src
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/loaders/gltf/SeparatedDataFileResolver.java
  * Covenant-verified: 2026-04-19
  */
 package sge

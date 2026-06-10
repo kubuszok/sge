@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 35
  * Covenant-baseline-methods: VfxGlViewport,height,set,toString,width,x,y
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/gl/VfxGlViewport.java
  * Covenant-verified: 2026-04-19
  */
 package sge

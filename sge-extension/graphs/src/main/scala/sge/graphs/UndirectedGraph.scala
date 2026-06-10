@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 96
  * Covenant-baseline-methods: UndirectedGraph,_algorithms,addConnection,algorithms,apply,createNew,e,edge,existing,g,getConnection,getDegree,isDirected,node,obtainEdge,removeConnection
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/UndirectedGraph.java
  * Covenant-verified: 2026-04-19
  */
 package sge

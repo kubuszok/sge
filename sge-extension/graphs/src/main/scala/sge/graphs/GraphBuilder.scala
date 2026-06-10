@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 36
  * Covenant-baseline-methods: GraphBuilder,buildCompleteGraph,nodesA
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/GraphBuilder.java
  * Covenant-verified: 2026-04-19
  */
 package sge

@@ -12,7 +12,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 53
  * Covenant-baseline-methods: PBRHDRColorAttribute,Specular,SpecularAlias,b,compare,copy,g,r,set
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/attributes/PBRHDRColorAttribute.java
  * Covenant-verified: 2026-04-19
  */
 package sge

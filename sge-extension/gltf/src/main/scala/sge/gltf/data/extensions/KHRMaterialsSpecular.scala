@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 26
  * Covenant-baseline-methods: EXT,KHRMaterialsSpecular,specularColorFactor,specularColorTexture,specularFactor,specularTexture
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/data/extensions/KHRMaterialsSpecular.java
  * Covenant-verified: 2026-04-19
  */
 package sge

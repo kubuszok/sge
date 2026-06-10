@@ -11,7 +11,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 364
  * Covenant-baseline-methods: PBRShaderProvider,TAG,cfg,checkShaderCompilation,config,createDefault,createDefaultConfig,createDefaultDepth,createDefaultDepthConfig,createPrefixBase,createPrefixSRGB,createShader,defaultPrefix,env,getDefaultFragmentShader,getDefaultVertexShader,getShaderCount,isGL3,isLineOrPoint,j,mat,maxUVIndex,morphTargetsPrefix,n,numBoneInfluence,numColor,numMorphTarget,prefix,primitiveType,sb,shader,shaderLog,unlit,uvTextureTypes,vIdx,version,vertexAttributes
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/shaders/PBRShaderProvider.java
  * Covenant-verified: 2026-04-19
  */
 package sge

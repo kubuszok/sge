@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 49
  * Covenant-baseline-methods: ImageResolver,clear,close,get,getPixmaps,load,pixmaps
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/loaders/shared/texture/ImageResolver.java
  * Covenant-verified: 2026-04-19
  */
 package sge

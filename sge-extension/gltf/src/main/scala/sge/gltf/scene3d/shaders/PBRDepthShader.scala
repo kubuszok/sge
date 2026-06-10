@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 91
  * Covenant-baseline-methods: PBRDepthShader,bindMaterial,canRender,computeMorphTargetsMask,i,init,morphTargetsFlag,morphTargetsMask,n,render,u_morphTargets1,u_morphTargets2,u_texCoordTransform,vertexAttributes
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/shaders/PBRDepthShader.java
  * Covenant-verified: 2026-04-19
  */
 package sge

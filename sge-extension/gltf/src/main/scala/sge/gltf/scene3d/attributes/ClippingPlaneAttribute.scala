@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 44
  * Covenant-baseline-methods: ClippingPlaneAttribute,Type,TypeAlias,compare,copy,plane,this
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/attributes/ClippingPlaneAttribute.java
  * Covenant-verified: 2026-04-19
  */
 package sge

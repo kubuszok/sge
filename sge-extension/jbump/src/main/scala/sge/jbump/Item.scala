@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 27
  * Covenant-baseline-methods: Item,equals,hashCode,identityHash,this
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/dongbat/jbump/Item.java
  * Covenant-verified: 2026-04-19
  */
 package sge

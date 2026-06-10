@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 74
  * Covenant-baseline-methods: ScreenTransition,clearColor,close,hide,isDone,render,resize,show
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: de/eskalon/commons/screen/transition/ScreenTransition.java
  * Covenant-verified: 2026-04-19
  */
 package sge

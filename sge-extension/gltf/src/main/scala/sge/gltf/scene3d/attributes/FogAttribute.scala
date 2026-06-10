@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 53
  * Covenant-baseline-methods: FogAttribute,FogEquation,FogEquationAlias,compare,copy,createFog,set,value
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/attributes/FogAttribute.java
  * Covenant-verified: 2026-04-19
  */
 package sge

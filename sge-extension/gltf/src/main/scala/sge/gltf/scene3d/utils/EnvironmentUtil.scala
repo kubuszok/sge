@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 69
  * Covenant-baseline-methods: EnvironmentUtil,FACE_NAMES_FULL,FACE_NAMES_NEG_POS,FACE_NAMES_NP,count,createCubemap,cubemap,data,files,getLightCount,level
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/utils/EnvironmentUtil.java
  * Covenant-verified: 2026-04-19
  */
 package sge

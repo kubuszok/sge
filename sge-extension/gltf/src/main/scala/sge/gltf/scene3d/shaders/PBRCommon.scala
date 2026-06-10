@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 81
  * Covenant-baseline-methods: MAX_MORPH_TARGETS,PBRCommon,checkVertexAttributes,enableSeamlessCubemaps,getCapability,intBuffer,maxVertexAttribs,numVertexAttributes,setTextureTransform
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/shaders/PBRCommon.java
  * Covenant-verified: 2026-04-19
  */
 package sge

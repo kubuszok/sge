@@ -16,7 +16,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 184
  * Covenant-baseline-methods: GLTFAssetLoader,ManagedTextureResolver,dataFileResolver,deps,dfr,fetch,getDependencies,glModel,loadAsync,loadSync,loadTextures,loader,mtr,pixmaps,sceneAsset,textureDescriptorsMipMap,textureDescriptorsSimple,textureParameters,textureResolver,this,withData
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/loaders/gltf/GLTFAssetLoader.java
  * Covenant-verified: 2026-04-19
  */
 package sge

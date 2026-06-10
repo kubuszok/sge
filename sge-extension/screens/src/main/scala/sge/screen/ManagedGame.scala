@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 63
  * Covenant-baseline-methods: ManagedGame,create,dispose,inputMultiplexer,pause,render,resize,resume,screenManager
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: de/eskalon/commons/core/ManagedGame.java
  * Covenant-verified: 2026-04-19
  */
 package sge

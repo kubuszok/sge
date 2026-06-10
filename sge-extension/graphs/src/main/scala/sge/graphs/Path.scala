@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 90
  * Covenant-baseline-methods: Path,_emptyPath,_fixed,_length,add,addAll,checkFixed,clear,emptyPath,first,last,length,length_,removeAll,removeAt,removeIf,removeItem,retainAll,set,setFixed
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/Path.java
  * Covenant-verified: 2026-04-19
  */
 package sge

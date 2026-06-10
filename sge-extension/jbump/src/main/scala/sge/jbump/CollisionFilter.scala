@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 25
  * Covenant-baseline-methods: CollisionFilter,defaultFilter,filter
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/dongbat/jbump/CollisionFilter.java
  * Covenant-verified: 2026-04-19
  */
 package sge

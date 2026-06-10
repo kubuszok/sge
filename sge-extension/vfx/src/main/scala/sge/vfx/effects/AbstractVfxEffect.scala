@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 13
  * Covenant-baseline-methods: AbstractVfxEffect,disabled
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/effects/AbstractVfxEffect.java
  * Covenant-verified: 2026-04-19
  */
 package sge

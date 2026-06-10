@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 52
  * Covenant-baseline-methods: ChromaticAberrationEffect,_maxDistortion,maxDistortion,maxDistortion_,rebind,render
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/effects/ChromaticAberrationEffect.java
  * Covenant-verified: 2026-04-19
  */
 package sge

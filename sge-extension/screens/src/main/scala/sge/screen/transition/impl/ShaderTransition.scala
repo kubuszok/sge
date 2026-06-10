@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 95
  * Covenant-baseline-methods: ShaderTransition,close,currScreenLoc,getProgram,lastScreenLoc,program,progressLoc,projTransLoc,render,renderContext,resize,screenQuad,this,viewport
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: de/eskalon/commons/screen/transition/impl/ShaderTransition.java
  * Covenant-verified: 2026-04-19
  */
 package sge

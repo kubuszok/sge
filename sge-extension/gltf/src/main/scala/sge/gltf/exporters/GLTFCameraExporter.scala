@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 61
  * Covenant-baseline-methods: GLTFCameraExporter,exportCamera,exportCameras,glCamera
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/exporters/GLTFCameraExporter.java
  * Covenant-verified: 2026-04-19
  */
 package sge

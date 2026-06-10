@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 42
  * Covenant-baseline-methods: MaterialLoaderBase,defaultMaterial,get,getDefaultMaterial,loadMaterial,loadMaterials,materials,textureResolver
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/loaders/shared/material/MaterialLoaderBase.java
  * Covenant-verified: 2026-04-19
  */
 package sge

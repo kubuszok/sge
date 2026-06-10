@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 82
  * Covenant-baseline-methods: ZoomEffect,_originX,_originY,_zoom,originX,originY,ox,oy,rebind,render,setOrigin,zoom,zoom_
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/effects/ZoomEffect.java
  * Covenant-verified: 2026-04-19
  */
 package sge

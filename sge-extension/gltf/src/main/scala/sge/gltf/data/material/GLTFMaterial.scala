@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 28
  * Covenant-baseline-methods: GLTFMaterial,alphaCutoff,alphaMode,doubleSided,emissiveFactor,emissiveTexture,normalTexture,occlusionTexture,pbrMetallicRoughness
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/data/material/GLTFMaterial.java
  * Covenant-verified: 2026-04-19
  */
 package sge

@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 125
  * Covenant-baseline-methods: Node,addEdge,connection,connections,disconnect,distance,equals,estimate,getEdge,hashCode,heapIndex,heapValue,idHash,inDegree,inEdges,index,lastRunID,mapHash,neighbours,nextInBucket,nextInOrder,obj,objectHash,outDegree,outEdges,prev,prevInOrder,processed,removeEdge,resetAlgorithmAttribs,seen,to,toString
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/Node.java
  * Covenant-verified: 2026-04-19
  */
 package sge

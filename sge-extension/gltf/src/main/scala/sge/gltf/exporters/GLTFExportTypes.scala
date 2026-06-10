@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 45
  * Covenant-baseline-methods: GLTFExportTypes,rgb,rgba,toArray
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/exporters/GLTFExportTypes.java
  * Covenant-verified: 2026-04-19
  */
 package sge

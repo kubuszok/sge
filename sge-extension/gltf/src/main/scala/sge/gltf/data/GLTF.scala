@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 43
  * Covenant-baseline-methods: GLTF,accessors,animations,asset,bufferViews,buffers,cameras,extensionsRequired,extensionsUsed,images,materials,meshes,nodes,samplers,scene,scenes,skins,textures
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/data/GLTF.java
  * Covenant-verified: 2026-04-19
  */
 package sge

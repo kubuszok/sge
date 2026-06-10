@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 14
  * Covenant-baseline-methods: WeightFunction,getWeight
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/utils/WeightFunction.java
  * Covenant-verified: 2026-04-19
  */
 package sge

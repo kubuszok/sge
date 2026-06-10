@@ -12,7 +12,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 136
  * Covenant-baseline-methods: Hints,SceneRenderableSorter,b1,b2,camera,compare,compareIdentity,compareIdentityNullable,d1,d2,dst,getTranslation,h1,h2,result,sort,tmpV1,tmpV2
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/scene/SceneRenderableSorter.java
  * Covenant-verified: 2026-04-19
  */
 package sge

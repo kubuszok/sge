@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 160
  * Covenant-baseline-methods: Calculator,DefaultSeedBitLength,Generators,calculator,cos,getCalculator,getRandom,i,random,randomElement,randomIndex,randomInt,randomPercent,rng,rollSeed,setCalculator,setRandom,shuffle,sin
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/github/czyzby/noise4j/map/generator/util/Generators.java
  * Covenant-verified: 2026-04-19
  */
 package sge

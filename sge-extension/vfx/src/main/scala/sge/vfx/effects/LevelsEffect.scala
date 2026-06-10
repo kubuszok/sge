@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 79
  * Covenant-baseline-methods: LevelsEffect,_brightness,_contrast,_gamma,_hue,_saturation,brightness,brightness_,contrast,contrast_,gamma,gamma_,hue,hue_,rebind,render,saturation,saturation_
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/effects/LevelsEffect.java
  * Covenant-verified: 2026-04-19
  */
 package sge

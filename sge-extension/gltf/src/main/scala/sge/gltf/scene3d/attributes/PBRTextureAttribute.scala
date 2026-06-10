@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 183
  * Covenant-baseline-methods: BRDFLUTTexture,BRDFLUTTextureAlias,BaseColorTexture,BaseColorTextureAlias,EmissiveTexture,EmissiveTextureAlias,IridescenceTexture,IridescenceTextureAlias,IridescenceThicknessTexture,IridescenceThicknessTextureAlias,MetallicRoughnessTexture,MetallicRoughnessTextureAlias,NormalTexture,NormalTextureAlias,OcclusionTexture,OcclusionTextureAlias,PBRTextureAttribute,SpecularColorTexture,SpecularColorTextureAlias,SpecularFactorTexture,SpecularFactorTextureAlias,ThicknessTexture,ThicknessTextureAlias,TransmissionSourceTexture,TransmissionSourceTextureAlias,TransmissionTexture,TransmissionTextureAlias,compare,copy,createBRDFLookupTexture,createBaseColorTexture,createEmissiveTexture,createIridescenceTexture,createIridescenceThicknessTexture,createMetallicRoughnessTexture,createNormalTexture,createOcclusionTexture,createSpecularFactorTexture,createThicknessTexture,createTransmissionTexture,r,rotationUV,this
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/attributes/PBRTextureAttribute.java
  * Covenant-verified: 2026-04-19
  */
 package sge

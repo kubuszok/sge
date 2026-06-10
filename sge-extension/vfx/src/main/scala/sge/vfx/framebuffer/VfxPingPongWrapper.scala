@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 148
  * Covenant-baseline-methods: VfxPingPongWrapper,_capturing,begin,bufDst,bufSrc,bufferPool,capturing,cleanUpBuffers,dst,dstBuffer,dstTexture,end,gl,initialize,isInitialized,reset,src,srcBuffer,srcTexture,swap,this,tmp,wasCapturing
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/framebuffer/VfxPingPongWrapper.java
  * Covenant-verified: 2026-04-19
  */
 package sge

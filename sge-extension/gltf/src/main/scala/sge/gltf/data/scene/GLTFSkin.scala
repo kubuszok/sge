@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 19
  * Covenant-baseline-methods: GLTFSkin,inverseBindMatrices,joints,skeleton
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/data/scene/GLTFSkin.java
  * Covenant-verified: 2026-04-19
  */
 package sge

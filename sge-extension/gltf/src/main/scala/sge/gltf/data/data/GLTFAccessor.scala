@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 25
  * Covenant-baseline-methods: GLTFAccessor,bufferView,byteOffset,componentType,count,max,min,normalized,sparse
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/data/data/GLTFAccessor.java
  * Covenant-verified: 2026-04-19
  */
 package sge

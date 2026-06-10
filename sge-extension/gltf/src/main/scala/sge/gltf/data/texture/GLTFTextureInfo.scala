@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 17
  * Covenant-baseline-methods: GLTFTextureInfo,index,texCoord
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/data/texture/GLTFTextureInfo.java
  * Covenant-verified: 2026-04-19
  */
 package sge

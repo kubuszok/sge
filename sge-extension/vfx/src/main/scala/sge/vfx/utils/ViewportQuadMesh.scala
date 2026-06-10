@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 64
  * Covenant-baseline-methods: VERT_SIZE,ViewportQuadMesh,attrs,close,getMesh,m,mesh,render,v,verts
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/utils/ViewportQuadMesh.java
  * Covenant-verified: 2026-04-19
  */
 package sge

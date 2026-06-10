@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 196
  * Covenant-baseline-methods: MeshTangentSpaceGenerator,biNormal,computeNormalsImpl,computeTangentSpace,computeTangentsImpl,count,i,index,normal,normalOffset,posOffset,stride,tan1,tan2,tangent,tangentOffset,texCoordOffset,vab,vac,vertexCount,vu,vv
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/loaders/shared/geometry/MeshTangentSpaceGenerator.java
  * Covenant-verified: 2026-04-19
  */
 package sge

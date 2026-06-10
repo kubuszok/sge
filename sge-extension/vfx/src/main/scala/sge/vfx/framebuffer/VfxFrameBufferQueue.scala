@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 83
  * Covenant-baseline-methods: VfxFrameBufferQueue,buf,buffers,changeToNext,close,current,currentIdx,filterMag,filterMin,i,rebind,resize,setTextureParams,wrapU,wrapV
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/framebuffer/VfxFrameBufferQueue.java
  * Covenant-verified: 2026-04-19
  */
 package sge

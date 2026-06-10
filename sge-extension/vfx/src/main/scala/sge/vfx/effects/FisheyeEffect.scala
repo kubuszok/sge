@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 46
  * Covenant-baseline-methods: FisheyeEffect,rebind,render
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/effects/FisheyeEffect.java
  * Covenant-verified: 2026-04-19
  */
 package sge

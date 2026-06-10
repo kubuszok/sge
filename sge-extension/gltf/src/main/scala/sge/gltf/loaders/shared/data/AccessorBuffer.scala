@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 88
  * Covenant-baseline-methods: AccessorBuffer,accessor,buf,bufferView,byteOffset,byteOffsetValue,data,fromBufferView,fromZeros,getByteOffset,getByteStride,getData,prepareForReading,prepareForWriting,zeros
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/loaders/shared/data/AccessorBuffer.java
  * Covenant-verified: 2026-04-19
  */
 package sge

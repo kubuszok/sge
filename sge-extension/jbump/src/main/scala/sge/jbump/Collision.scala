@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 51
  * Covenant-baseline-methods: Collision,item,itemRect,move,normal,other,otherRect,overlaps,set,ti,touch
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/dongbat/jbump/Collision.java
  * Covenant-verified: 2026-04-19
  */
 package sge

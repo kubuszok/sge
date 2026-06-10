@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 111
  * Covenant-baseline-methods: TextureResolver,close,getTexture,getTextures,glSamplers,glTexture,glTextures,loadTextures,texture,textureDescriptor,textureMap,texturesMipmap,texturesSimple,useMipMaps
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/loaders/shared/texture/TextureResolver.java
  * Covenant-verified: 2026-04-19
  */
 package sge

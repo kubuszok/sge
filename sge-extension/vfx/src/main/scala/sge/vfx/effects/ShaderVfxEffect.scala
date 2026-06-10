@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 129
  * Covenant-baseline-methods: ShaderVfxEffect,TEXTURE_HANDLE0,TEXTURE_HANDLE1,TEXTURE_HANDLE2,TEXTURE_HANDLE3,TEXTURE_HANDLE4,TEXTURE_HANDLE5,TEXTURE_HANDLE6,TEXTURE_HANDLE7,close,manualBufferBind,rebind,renderShader,resize,setUniform,unbindProgram,update
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/effects/ShaderVfxEffect.java
  * Covenant-verified: 2026-04-19
  */
 package sge

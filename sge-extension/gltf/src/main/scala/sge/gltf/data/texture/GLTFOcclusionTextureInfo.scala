@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 14
  * Covenant-baseline-methods: GLTFOcclusionTextureInfo,strength
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/data/texture/GLTFOcclusionTextureInfo.java
  * Covenant-verified: 2026-04-19
  */
 package sge

@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 73
  * Covenant-baseline-methods: CycleDetector,_containsCycle,containsCycle,detectCycleDFS,edgeIter,findCycle,isFinished,nodeIter,outEdges,runID,update
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/algorithms/CycleDetector.java
  * Covenant-verified: 2026-04-19
  */
 package sge

@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 23
  * Covenant-baseline-methods: DefaultVfxGlExtension,boundFboHandle,tmpIntBuf
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/gl/DefaultVfxGlExtension.java
  * Covenant-verified: 2026-04-19
  */
 package sge

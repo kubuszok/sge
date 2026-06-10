@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 74
  * Covenant-baseline-methods: GenerationMode,Generator,generate,mode,mode_,modify
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/github/czyzby/noise4j/map/generator/Generator.java
  * Covenant-verified: 2026-04-19
  */
 package sge

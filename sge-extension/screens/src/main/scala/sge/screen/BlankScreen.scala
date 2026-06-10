@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 31
  * Covenant-baseline-methods: BlankScreen,close,render,resize
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: de/eskalon/commons/screen/BlankScreen.java
  * Covenant-verified: 2026-04-19
  */
 package sge

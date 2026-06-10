@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 21
  * Covenant-baseline-methods: PixmapBinaryLoaderHack,load
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/loaders/shared/texture/PixmapBinaryLoaderHack.java
  * Covenant-verified: 2026-04-19
  */
 package sge

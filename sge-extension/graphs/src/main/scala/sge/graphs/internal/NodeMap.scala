@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 368
  * Covenant-baseline-methods: MinTableLength,NodeMap,ResizeThreshold,addToList,bucketHead,checkLength,clear,contains,current,currentNode,cursor,edgeIter,edges,get,getIndex,getMiddle,hasNext,hash,hashcode,head,i,insertIntoList,insertIntoListAfter,insertIntoListBefore,mergeSort,next,nodeIterator,occupiedBuckets,previousNode,put,recursiveTopologicalSort,remove,removeFromList,size,sort,sortedMerge,table,tail,threshold,topologicalSort,vertexIterator
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/NodeMap.java
  * Covenant-verified: 2026-04-19
  */
 package sge

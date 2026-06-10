@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 69
  * Covenant-baseline-methods: VerticalSlicingTransition,i,render,sliceCount,sliceWidth,this
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: de/eskalon/commons/screen/transition/impl/VerticalSlicingTransition.java
  * Covenant-verified: 2026-04-19
  */
 package sge

@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 221
  * Covenant-baseline-methods: AnimationLoader,animMap,animation,animations,load,toSceneInterpolation
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/loaders/shared/animation/AnimationLoader.java
  * Covenant-verified: 2026-04-19
  */
 package sge

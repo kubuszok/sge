@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 35
  * Covenant-baseline-methods: VfxEffect,disabled,rebind,resize,update
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/effects/VfxEffect.java
  * Covenant-verified: 2026-04-19
  */
 package sge

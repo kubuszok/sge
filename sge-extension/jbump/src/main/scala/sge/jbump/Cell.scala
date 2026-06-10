@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 18
  * Covenant-baseline-methods: Cell,itemCount,items,x,y
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/dongbat/jbump/Cell.java
  * Covenant-verified: 2026-04-19
  */
 package sge

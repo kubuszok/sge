@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 41
  * Covenant-baseline-methods: AbstractGenerator,_mode,mode,mode_,modifyCell
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/github/czyzby/noise4j/map/generator/AbstractGenerator.java
  * Covenant-verified: 2026-04-19
  */
 package sge

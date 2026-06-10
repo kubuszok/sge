@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 319
  * Covenant-baseline-methods: GLTFExporter,GeneratorInfo,a,beginMultiScene,beginSingleScene,binManager,data,doExportScene,end,exportAsset,exportMesh,exportModel,exportNodes,exportScene,exportSceneModel,exportSceneModels,exportScenes,fileHandleName,getImageName,glNode,glScene,gltfMesh,i,indices,json,materialMapping,meshExporter,meshPart,nIdx,name,nodeMapping,obtainAccessor,obtainMesh,obtainNode,obtainScene,primitive,reset,root,scene,textureFileIndex,textureMapping,this,useExtension
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/exporters/GLTFExporter.java
  * Covenant-verified: 2026-04-19
  */
 package sge

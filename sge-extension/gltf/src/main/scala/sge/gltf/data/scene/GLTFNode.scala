@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 27
  * Covenant-baseline-methods: GLTFNode,camera,children,matrix,mesh,rotation,scale,skin,translation,weights
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/data/scene/GLTFNode.java
  * Covenant-verified: 2026-04-19
  */
 package sge

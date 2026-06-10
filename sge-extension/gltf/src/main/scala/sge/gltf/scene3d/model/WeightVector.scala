@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 91
  * Covenant-baseline-methods: WeightVector,count,cpy,get,i,lerp,mulAdd,sb,scl,set,this,toString,values
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/model/WeightVector.java
  * Covenant-verified: 2026-04-19
  */
 package sge

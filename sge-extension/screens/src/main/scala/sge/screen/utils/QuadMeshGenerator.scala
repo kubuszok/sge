@@ -10,6 +10,7 @@
  * Covenant-baseline-loc: 68
  * Covenant-baseline-methods: QuadMeshGenerator,createFullScreenQuad,mesh
  * Covenant-source-reference: SGE-original
+ * Covenant-source-pending: guacamole QuadMeshGenerator.java not vendored — ISS-578
  * Covenant-verified: 2026-04-19
  */
 package sge

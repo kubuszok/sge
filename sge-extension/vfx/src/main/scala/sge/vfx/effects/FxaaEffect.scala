@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 87
  * Covenant-baseline-methods: FxaaEffect,fxaaReduceMin,fxaaReduceMul,fxaaSpanMax,rebind,reduceMin_,reduceMul_,render,resize,spanMax_,this,viewportInverse
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/effects/FxaaEffect.java
  * Covenant-verified: 2026-04-19
  */
 package sge

@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 105
  * Covenant-baseline-methods: AStarSearch,end,getEnd,getPath,heap,isFinished,path,step,u,update
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/algorithms/AStarSearch.java
  * Covenant-verified: 2026-04-19
  */
 package sge

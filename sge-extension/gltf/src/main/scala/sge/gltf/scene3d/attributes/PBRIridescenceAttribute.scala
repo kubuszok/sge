@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 45
  * Covenant-baseline-methods: Alias,PBRIridescenceAttribute,Type,compare,copy,factor,ior,thicknessMax,thicknessMin,this
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/attributes/PBRIridescenceAttribute.java
  * Covenant-verified: 2026-04-19
  */
 package sge

@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 17
  * Covenant-baseline-methods: GLTFAnimationChannel,sampler,target
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/data/animation/GLTFAnimationChannel.java
  * Covenant-verified: 2026-04-19
  */
 package sge

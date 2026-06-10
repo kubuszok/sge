@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 244
  * Covenant-baseline-methods: AbstractRoomGenerator,Room,_maxRoomSize,_minRoomSize,addRoomType,addRoomTypes,carveRoom,fill,getRandomRoom,getRoomTypes,h,index,isBorder,maxRoomSize,maxRoomSize_,maxRoomsAmount,minRoomSize,minRoomSize_,normalizePosition,normalizeSize,overlaps,random,randomSize,roomTypes,size,toString,tolerance,w,x,y
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/github/czyzby/noise4j/map/generator/room/AbstractRoomGenerator.java
  * Covenant-verified: 2026-04-19
  */
 package sge

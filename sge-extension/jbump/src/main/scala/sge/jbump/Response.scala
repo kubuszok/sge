@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 154
  * Covenant-baseline-methods: Response,Result,bounce,cross,goalX,goalY,projectedCollisions,response,set,slide,touch
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/dongbat/jbump/Response.java
  * Covenant-verified: 2026-04-19
  */
 package sge

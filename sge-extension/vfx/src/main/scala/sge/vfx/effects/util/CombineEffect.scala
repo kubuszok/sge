@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 78
  * Covenant-baseline-methods: CombineEffect,rebind,render,s1i,s1s,s2i,s2s,source1Intensity,source1Intensity_,source1Saturation,source1Saturation_,source2Intensity,source2Intensity_,source2Saturation,source2Saturation_
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/effects/util/CombineEffect.java
  * Covenant-verified: 2026-04-19
  */
 package sge

@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 13
  * Covenant-baseline-methods: GLTFUnsupportedException
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/loaders/exceptions/GLTFUnsupportedException.java
  * Covenant-verified: 2026-04-19
  */
 package sge

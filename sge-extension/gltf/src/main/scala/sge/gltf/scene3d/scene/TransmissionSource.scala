@@ -12,7 +12,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 139
  * Covenant-baseline-methods: TransmissionSource,allRenderables,attribute,batch,begin,camera,close,createFrameBuffer,end,ensureFrameBufferSize,fbo,h,hasTransmission,height,i,initialCapacity,mat,max,newObject,render,renderablePool,selectedRenderables,setSize,shouldBeRendered,start,this,w,width
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/scene/TransmissionSource.java
  * Covenant-verified: 2026-04-19
  */
 package sge

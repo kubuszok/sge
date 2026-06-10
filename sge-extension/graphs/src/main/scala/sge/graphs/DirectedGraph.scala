@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 61
  * Covenant-baseline-methods: DirectedGraph,_algorithms,algorithms,apply,createNew,g,getInDegree,getInEdges,getOutDegree,node,obtainEdge,topologicalSort
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/DirectedGraph.java
  * Covenant-verified: 2026-04-19
  */
 package sge

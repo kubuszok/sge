@@ -11,7 +11,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 131
  * Covenant-baseline-methods: MirrorSource,begin,camera,clipScene,clippingPlane,close,createFrameBuffer,end,ensureFrameBufferSize,environment,fbo,h,height,mirrorAttribute,originalCameraDirection,originalCameraPosition,originalCameraUp,planeOrigin,planeToCamera,reflect,restoreCamera,set,setPlane,setSize,setupCamera,skyBox,texture,w,width
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/scene/MirrorSource.java
  * Covenant-verified: 2026-04-19
  */
 package sge

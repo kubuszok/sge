@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 64
  * Covenant-baseline-methods: GammaThresholdEffect,Type,_gamma,gamma,gamma_,rebind,render
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/effects/util/GammaThresholdEffect.java
  * Covenant-verified: 2026-04-19
  */
 package sge

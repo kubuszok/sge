@@ -13,7 +13,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 87
  * Covenant-baseline-methods: SpotLightEx,cosInnerAngle,cosOuterAngle,lightAngleOffset,lightAngleScale,range,set,setConeDeg,setConeRad,setDeg,setRad
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/lights/SpotLightEx.java
  * Covenant-verified: 2026-04-19
  */
 package sge

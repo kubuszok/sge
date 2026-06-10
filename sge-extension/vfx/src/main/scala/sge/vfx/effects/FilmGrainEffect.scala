@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 64
  * Covenant-baseline-methods: FilmGrainEffect,_noiseAmount,_seed,noiseAmount,noiseAmount_,rebind,render,seed,seed_,update
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/effects/FilmGrainEffect.java
  * Covenant-verified: 2026-04-19
  */
 package sge

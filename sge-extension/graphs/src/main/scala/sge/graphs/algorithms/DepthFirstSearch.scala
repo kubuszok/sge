@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 110
  * Covenant-baseline-methods: DepthFirstSearch,depthFirstSearch,edgeIter,i,isFinished,n,outEdges,queue,recursiveDepthFirstSearch,step,update,v
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: space/earlygrey/simplegraphs/algorithms/DepthFirstSearch.java
  * Covenant-verified: 2026-04-19
  */
 package sge

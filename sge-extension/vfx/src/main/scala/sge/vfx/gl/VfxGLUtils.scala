@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 92
  * Covenant-baseline-methods: VfxGLUtils,compileShader,enableGLQueryStates,getBoundFboHandle,getViewport,glExtension,initExtension,isGLEnabled,prependFrag,prependFragmentCode,prependVert,prependVertexCode,shader,srcFrag,srcVert,tmpIntBuf,tmpViewport
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/gl/VfxGLUtils.java
  * Covenant-verified: 2026-04-19
  */
 package sge

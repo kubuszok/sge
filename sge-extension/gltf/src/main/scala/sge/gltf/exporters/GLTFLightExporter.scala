@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 118
  * Covenant-baseline-methods: GLTFLightExporter,exportLights,intensityScale,map,scaledColor
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/exporters/GLTFLightExporter.java
  * Covenant-verified: 2026-04-19
  */
 package sge

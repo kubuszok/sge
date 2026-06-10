@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 87
  * Covenant-baseline-methods: LensFlareEffect,_color,_intensity,_lightPosition,_viewport,color,intensity,intensity_,lightPosition,rebind,render,resize,setColor,setLightPosition
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/effects/LensFlareEffect.java
  * Covenant-verified: 2026-04-19
  */
 package sge

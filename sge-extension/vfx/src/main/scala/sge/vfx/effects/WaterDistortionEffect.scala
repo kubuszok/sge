@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 74
  * Covenant-baseline-methods: WaterDistortionEffect,_time,amount,amount_,rebind,render,resize,speed,speed_,time,time_,update
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: com/crashinvaders/vfx/effects/WaterDistortionEffect.java
  * Covenant-verified: 2026-04-19
  */
 package sge

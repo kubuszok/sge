@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 104
  * Covenant-baseline-methods: FRAG_SHADER_POSTPEND,FRAG_SHADER_PREPEND,GLTransitionsShaderTransition,VERT_SHADER,this
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: de/eskalon/commons/screen/transition/impl/GLTransitionsShaderTransition.java
  * Covenant-verified: 2026-04-19
  */
 package sge

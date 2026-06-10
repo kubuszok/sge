@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 45
  * Covenant-baseline-methods: BlendingTransition,c,render,this
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: de/eskalon/commons/screen/transition/impl/BlendingTransition.java
  * Covenant-verified: 2026-04-19
  */
 package sge

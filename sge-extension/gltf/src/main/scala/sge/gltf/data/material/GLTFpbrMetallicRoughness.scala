@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 21
  * Covenant-baseline-methods: GLTFpbrMetallicRoughness,baseColorFactor,baseColorTexture,metallicFactor,metallicRoughnessTexture,roughnessFactor
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/data/material/GLTFpbrMetallicRoughness.java
  * Covenant-verified: 2026-04-19
  */
 package sge

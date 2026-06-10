@@ -8,7 +8,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 26
  * Covenant-baseline-methods: NodeResolver,get,nodeMap,put
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/loaders/shared/scene/NodeResolver.java
  * Covenant-verified: 2026-04-19
  */
 package sge

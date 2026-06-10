@@ -9,7 +9,7 @@
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 22
  * Covenant-baseline-methods: NormalTarget,PBRVertexAttributes,PositionTarget,TangentTarget,Usage
- * Covenant-source-reference: SGE-original
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/attributes/PBRVertexAttributes.java
  * Covenant-verified: 2026-04-19
  */
 package sge
