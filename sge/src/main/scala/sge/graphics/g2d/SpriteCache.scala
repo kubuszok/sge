@@ -17,10 +17,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 1036
+ * Covenant-baseline-loc: 1061
  * Covenant-baseline-methods: Cache,SpriteCache,_color,_colorPacked,_customShader,_drawing,_projectionMatrix,_transformMatrix,activeShader,add,beginCache,cache,cacheCount,caches,clear,close,color,color_,combinedMatrix,count,counts,createDefaultShader,currentCache,customShader,customShader_,draw,drawing,endCache,fragmentShader,fx,fx2,fy,fy2,i,indices,invTexHeight,invTexWidth,j,lastIndex,length,lengthVar,maxCount,maxIndices,maxVertices,mesh,offset,offsetVar,p1x,p1y,p2x,p2y,p3x,p3y,p4x,p4y,packedColor,packedColor_,projectionMatrix,projectionMatrix_,renderCalls,rendering,setColor,shader,tempVertices,textureCount,textures,this,totalRenderCalls,transformMatrix,transformMatrix_,u,u2,v,v2,vertexIndex,vertexShader,vertices,verticesPerImage,worldOriginX,worldOriginY,x1,x2,x3,x4,y1,y2,y3,y4
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/SpriteCache.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-10
  *
  * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */
@@ -235,8 +235,24 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using S
       for (i <- 0 until cache.textureCount)
         cnt(i) = counts(i)
 
-      // Upload vertices to mesh
-      mesh.setVertices(vertices, 0, vertexIndex)
+      // Redefining an existing cache patches the vertices in place at cache.offset
+      // (add() wrote them there because beginCache(cacheID) set vertexIndex =
+      // cache.offset) and must NOT shrink the mesh's vertex extent: every cache
+      // defined after this one keeps its data in the backing array. Java restores
+      // the full extent `position(0); limit(lastCache.offset + lastCache.maxCount)`
+      // (SpriteCache.java lines 230-233), so upload exactly that many floats.
+      val lastCache = caches(caches.size - 1)
+      // Java's `position(0); limit(lastCache.offset + lastCache.maxCount)`
+      // (SpriteCache.java lines 231/233) is PERSISTENT buffer state: the next
+      // beginCache() reads `verticesBuffer.limit()` (line 175) as the new
+      // cache's offset and compact() (line 177) moves the write position there.
+      // The port's analogue of that buffer state is vertexIndex (beginCache()
+      // takes the new cache's offset from vertexIndex, line 171), so restore it
+      // to the full extent instead of leaving it at the redefined cache's
+      // end (cache.offset + cacheCount); otherwise a subsequently defined cache
+      // would alias and overwrite the caches that follow the redefined one.
+      vertexIndex = lastCache.offset + lastCache.maxCount
+      mesh.setVertices(vertices, 0, lastCache.offset + lastCache.maxCount)
     }
 
     currentCache = Nullable.empty
@@ -871,7 +887,7 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using S
   /** Prepares the OpenGL state for SpriteCache rendering. */
   @publicInBinary private[sge] def begin(): Unit = {
     if (_drawing) throw new IllegalStateException("end must be called before begin.");
-    if (currentCache.isEmpty) throw new IllegalStateException("endCache must be called before begin");
+    if (currentCache.isDefined) throw new IllegalStateException("endCache must be called before begin");
     renderCalls = 0;
     combinedMatrix.set(_projectionMatrix).mul(_transformMatrix);
 
