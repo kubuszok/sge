@@ -22,8 +22,12 @@ Execute ONE iteration of the plan §5 protocol:
 3. Per issue, run the pipeline (worktree branch `fix/ISS-NNN-<slug>`):
    a. REPRODUCER — general-purpose agent, **`model: "fable"`**, prompt
       template in plan §5. It commits the red test as the branch's first
-      commit (red-sha) and reports the failure line. If it cannot make the
-      test fail, the issue may be stale — adjudicate, do not fix anyway.
+      commit (red-sha) and reports the failure line. The red test MUST be
+      committed as a scalafmt fixpoint (`re-scale build fmt` before the
+      commit) — otherwise a later format pass reflows the file and falsely
+      trips the red-commit-integrity diff (lesson imported from the SSG
+      campaign). If it cannot make the test fail, the issue may be stale —
+      adjudicate, do not fix anyway.
    b. IMPLEMENTER — `re-scale:port-implementer` for port issues, otherwise a
       general agent following `.claude/skills/fix-issue/SKILL.md`. ALWAYS
       **`model: "opus"`** (Opus 4.8; the override beats agent-definition
