@@ -334,8 +334,34 @@ jobs:
           jvm: ${{ env.JVM_VERSION }}
           apps: sbt
 
-      - name: Run Desktop integration tests
-        run: sbt 'sge-it-desktop/test'
+      # GLFW windowing + ANGLE GLES need a display and X11/GL runtime libs.
+      # xvfb provides a virtual display; the mesa/llvmpipe libs give software
+      # GL so ANGLE (libEGL/libGLESv2 from the provider JARs) can create a
+      # context headlessly on ubuntu-latest.
+      - name: Install virtual display + GL runtime libs
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            xvfb \
+            libgl1-mesa-dri \
+            libegl1 \
+            libgles2 \
+            libx11-6 libxext6 libxrandr2 libxinerama1 libxcursor1 libxi6 \
+            libxkbcommon0 libwayland-client0
+
+      - name: Run Desktop integration tests (under xvfb)
+        run: |
+          xvfb-run -a --server-args="-screen 0 1280x1024x24" \
+            sbt 'sge-it-desktop/test'
+        env:
+          # Hard-fail (do not assume-skip) if the display or native libs are
+          # unavailable — this job must never silently return to zero executed
+          # checks. See requireOrAssume in DesktopIntegrationTest (ISS-485).
+          SGE_CI_REQUIRE_DISPLAY: "1"
+          # Force software rendering so ANGLE/GLFW get a usable GL context with
+          # no GPU present on the runner.
+          LIBGL_ALWAYS_SOFTWARE: "true"
+          GALLIUM_DRIVER: "llvmpipe"
 
   # ─── JVM Platform IT tests (Panama, Android ops) ───────────────
 

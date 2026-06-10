@@ -674,11 +674,14 @@ val `sge-it-desktop` = (projectMatrix in file("sge-test/it-desktop"))
         val androidDirs = (`sge-jvm-platform-android`.jvm(versions.scala3) / Compile / products).value
         (apiDirs ++ androidDirs).map(Attributed.blank)
       },
-      // Don't pass -XstartOnFirstThread — the test launches a subprocess with that flag
-      Test / javaOptions := {
-        val rustLib = ((ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release").getAbsolutePath
-        Seq(s"-Djava.library.path=$rustLib", "--enable-native-access=ALL-UNNAMED")
-      }
+      // Native libs are resolved from the provider JARs on the (test) classpath
+      // by multiarch.core.NativeLibLoader at runtime — no java.library.path
+      // wiring (the old sge-deps/native-components/target/release dir is a local
+      // Rust build dir that CI never creates; pointing java.library.path at it
+      // made the headless symbol test assume-skip, see ISS-485).
+      // Don't pass -XstartOnFirstThread — the windowed test launches a
+      // subprocess with that flag.
+      Test / javaOptions := Seq("--enable-native-access=ALL-UNNAMED")
     ) *)),
     MatrixAction.ForAll.Configure(_.settings(SgePlugin.relaxedSettings *))
   )) *)
