@@ -13,10 +13,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 179
+ * Covenant-baseline-loc: 185
  * Covenant-baseline-methods: CAPACITY_RATIO_HI,CAPACITY_RATIO_LOW,DEFAULT_INITIAL_CAPACITY,PriorityQueue,_size,add,clear,get,growToSize,half,i,newCapacity,newQueue,oldCapacity,peek,poll,pos,queue,set,siftDown,siftUp,size,uniqueness
  * Covenant-source-reference: com/badlogic/gdx/ai/msg/PriorityQueue.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-11
  *
  * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
@@ -25,6 +25,7 @@ package ai
 package msg
 
 import lowlevel.Nullable
+import scala.util.boundary, boundary.break
 
 /** An unbounded priority queue based on a priority heap. The elements of the priority queue are ordered according to their natural ordering. A priority queue does not permit empty elements.
   *
@@ -143,27 +144,23 @@ class PriorityQueue[E <: Comparable[E]](initialCapacity: Int = PriorityQueue.DEF
   /** Inserts item x at position k, maintaining heap invariant by demoting x down the tree repeatedly until it is less than or equal to its children or is a leaf.
     */
   private def siftDown(k: Int, x: E): Unit = {
-    val half = _size >>> 1
     var pos  = k
-    while (pos < half) {
-      var child = (pos << 1) + 1
-      var c     = queue(child).asInstanceOf[E]
-      val right = child + 1
-      if (right < _size && c.compareTo(queue(right).asInstanceOf[E]) > 0) {
-        child = right
-        c = queue(right).asInstanceOf[E]
-      }
-      if (x.compareTo(c) <= 0) {
-        queue(pos) = x.asInstanceOf[AnyRef]
-        pos = half // signal done
-      } else {
+    val half = _size >>> 1 // loop while a non-leaf
+    boundary {
+      while (pos < half) {
+        var child = (pos << 1) + 1 // assume left child is least
+        var c     = queue(child).asInstanceOf[E]
+        val right = child + 1
+        if (right < _size && c.compareTo(queue(right).asInstanceOf[E]) > 0) {
+          child = right
+          c = queue(child).asInstanceOf[E]
+        }
+        if (x.compareTo(c) <= 0) break()
         queue(pos) = c.asInstanceOf[AnyRef]
         pos = child
       }
     }
-    if (pos < half) queue(pos) = x.asInstanceOf[AnyRef]
-    else if (pos == k || pos != half) ()
-    else queue(pos) = x.asInstanceOf[AnyRef] // loop didn't break early; write final position
+    queue(pos) = x.asInstanceOf[AnyRef]
   }
 
   /** Increases the capacity of the array. */
