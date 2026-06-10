@@ -13,22 +13,20 @@ import lowlevel.Nullable
   *   - `if (selected.size == 1 && selected.contains(item)) return;`
   *   - `if (!selected.add(item) && !modified) return;`
   *
-  * In the port these became no-op `()` branches, so control always falls through to
-  * `if (fireChangeEvent()) revert() else changed()` — every click on an already-selected
-  * item fires a spurious ChangeEvent and invokes changed() (which in ArraySelection/Tree
-  * resets shift-range anchors).
+  * In the port these became no-op `()` branches, so control always falls through to `if (fireChangeEvent()) revert() else changed()` — every click on an already-selected item fires a spurious
+  * ChangeEvent and invokes changed() (which in ArraySelection/Tree resets shift-range anchors).
   */
 class SelectionChooseRedSuite extends munit.FunSuite {
 
   /** Selection subclass instrumenting the protected changed() hook. */
-  private final class CountingSelection(using Sge) extends Selection[String] {
-    var changedCalls: Int = 0
+  final private class CountingSelection(using Sge) extends Selection[String] {
+    var changedCalls:                 Int  = 0
     override protected def changed(): Unit =
       changedCalls += 1
   }
 
   /** Input reporting all ctrl-ish keys (SYM for mac, CONTROL_LEFT/RIGHT elsewhere) as held, so UIUtils.ctrl() returns true on every platform. Everything else delegates to NoopInput. */
-  private final class CtrlHeldInput extends Input {
+  final private class CtrlHeldInput extends Input {
     private val delegate = new sge.noop.NoopInput
     export delegate.{ isKeyPressed as _, * }
     override def isKeyPressed(key: Input.Key): Boolean =
@@ -36,13 +34,13 @@ class SelectionChooseRedSuite extends munit.FunSuite {
   }
 
   /** Selection attached to an Actor whose ChangeListener counts ChangeEvents fired via actor.fire (matches the Java event path). */
-  private final class Harness(ctrlHeld: Boolean) {
+  final private class Harness(ctrlHeld: Boolean) {
     given sge: Sge =
       if (ctrlHeld) SgeTestFixture.testSge(input = new CtrlHeldInput)
       else SgeTestFixture.testSge()
-    val selection: CountingSelection = new CountingSelection
-    val actor:     Actor             = new Actor()
-    var changeEvents: Int = 0
+    val selection:    CountingSelection = new CountingSelection
+    val actor:        Actor             = new Actor()
+    var changeEvents: Int               = 0
     actor.addListener(new ChangeListener {
       override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit =
         changeEvents += 1

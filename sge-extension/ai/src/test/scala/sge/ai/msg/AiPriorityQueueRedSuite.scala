@@ -19,9 +19,8 @@ class Iss502RecordingTelegraph extends Telegraph {
   }
 }
 
-/** Red tests for ISS-502: PriorityQueue.siftDown dropped Java's unconditional post-loop `queue[k] = x` write-back
-  * (original: com/badlogic/gdx/ai/msg/PriorityQueue.java, siftDown) for a three-way conditional that is wrong in
-  * every path. Expected values below are pinned to the Java siftUp/siftDown semantics.
+/** Red tests for ISS-502: PriorityQueue.siftDown dropped Java's unconditional post-loop `queue[k] = x` write-back (original: com/badlogic/gdx/ai/msg/PriorityQueue.java, siftDown) for a three-way
+  * conditional that is wrong in every path. Expected values below are pinned to the Java siftUp/siftDown semantics.
   */
 class AiPriorityQueueRedSuite extends munit.FunSuite {
 

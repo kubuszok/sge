@@ -3,59 +3,48 @@ package math
 
 import lowlevel.util.DynamicArray
 
-/** Red tests for ISS-499: DelaunayTriangulator.sort (DelaunayTriangulator.scala:304) and
-  * ConvexHull.sort/sortWithIndices (ConvexHull.scala:213/:291) pass `originalIndices.toArray`
-  * into the quicksort partition. lls `DynamicArray.toArray` returns a FRESH COPY on every call
-  * (DynamicArray.scala:572 `mk.copyOfRange(_items, 0, _size)`), so every index swap performed
-  * inside the partition is discarded and `originalIndices` stays the identity permutation.
+/** Red tests for ISS-499: DelaunayTriangulator.sort (DelaunayTriangulator.scala:304) and ConvexHull.sort/sortWithIndices (ConvexHull.scala:213/:291) pass `originalIndices.toArray` into the quicksort
+  * partition. lls `DynamicArray.toArray` returns a FRESH COPY on every call (DynamicArray.scala:572 `mk.copyOfRange(_items, 0, _size)`), so every index swap performed inside the partition is
+  * discarded and `originalIndices` stays the identity permutation.
   *
   * The Java originals operate on the LIVE backing array instead:
-  *   - DelaunayTriangulator.java:265 `short[] originalIndicesArray = originalIndices.items;`
-  *     is taken once, line 278 passes it to `quicksortPartition`, whose swaps (lines 312-314,
-  *     325-327) mutate the shared array; lines 201-203 then map each triangle index through it:
-  *     `trianglesArray[i] = (short)(originalIndicesArray[trianglesArray[i] / 2] * 2);`
-  *   - ConvexHull.java:230 `short[] originalIndicesArray = originalIndices.items;`, line 243
-  *     passes it to `quicksortPartitionWithIndices` (swaps at lines 284-286, 296-298), and
-  *     lines 147-150 map each hull index: `indicesArray[i] = originalIndicesArray[indicesArray[i]];`
+  *   - DelaunayTriangulator.java:265 `short[] originalIndicesArray = originalIndices.items;` is taken once, line 278 passes it to `quicksortPartition`, whose swaps (lines 312-314, 325-327) mutate the
+  *     shared array; lines 201-203 then map each triangle index through it: `trianglesArray[i] = (short)(originalIndicesArray[trianglesArray[i] / 2] * 2);`
+  *   - ConvexHull.java:230 `short[] originalIndicesArray = originalIndices.items;`, line 243 passes it to `quicksortPartitionWithIndices` (swaps at lines 284-286, 296-298), and lines 147-150 map each
+  *     hull index: `indicesArray[i] = originalIndicesArray[indicesArray[i]];`
   *
-  * Consequence of the SGE bug: `computeTriangles(points, sorted = false)` and
-  * `computeIndices(points, ..., sorted = false, ...)` return indices that reference the
-  * INTERNALLY SORTED copy of the points, not the caller's input order. The existing
-  * DelaunayTriangulatorTest/ConvexHullTest suites only assert index sets/counts, which masks
-  * the wrong permutation. These tests dereference the returned indices into the ORIGINAL
-  * input array and assert the resulting coordinates, which fails while the bug is present.
+  * Consequence of the SGE bug: `computeTriangles(points, sorted = false)` and `computeIndices(points, ..., sorted = false, ...)` return indices that reference the INTERNALLY SORTED copy of the
+  * points, not the caller's input order. The existing DelaunayTriangulatorTest/ConvexHullTest suites only assert index sets/counts, which masks the wrong permutation. These tests dereference the
+  * returned indices into the ORIGINAL input array and assert the resulting coordinates, which fails while the bug is present.
   */
 class TriangulatorIndicesRedSuite extends munit.FunSuite {
 
-  /** Groups a triangle index list into a set of triangles, each triangle being the set of its
-    * vertex coordinates dereferenced from `points` (x,y pairs) via the returned indices.
+  /** Groups a triangle index list into a set of triangles, each triangle being the set of its vertex coordinates dereferenced from `points` (x,y pairs) via the returned indices.
     */
-  private def dereferencedTriangles(points: Array[Float], triangles: DynamicArray[Short]): Set[Set[(Float, Float)]] = {
+  private def dereferencedTriangles(points: Array[Float], triangles: DynamicArray[Short]): Set[Set[(Float, Float)]] =
     (0 until triangles.size by 3).map { i =>
       Set(i, i + 1, i + 2).map { j =>
         val p = triangles(j).toInt
         (points(p * 2), points(p * 2 + 1))
       }
     }.toSet
-  }
 
   /** Dereferences hull indices into `points` (x,y pairs), preserving the walk order. */
-  private def dereferencedHull(points: Array[Float], indices: DynamicArray[Int]): List[(Float, Float)] = {
+  private def dereferencedHull(points: Array[Float], indices: DynamicArray[Int]): List[(Float, Float)] =
     (0 until indices.size).map { i =>
       val p = indices(i)
       (points(p * 2), points(p * 2 + 1))
     }.toList
-  }
 
   // Shared geometry: triangle A-B-C with interior point D. The triangulation of a triangle
   // plus a single interior point is UNIQUE (the fan around the interior point), so the
   // expected output does not depend on any Delaunay tie-breaking:
   //   A = (0, 0), B = (10, 0), C = (5, 10), D = (4, 4)
   //   expected triangles (as vertex sets): {A,B,D}, {B,C,D}, {C,A,D}
-  private val dA = (0f, 0f)
-  private val dB = (10f, 0f)
-  private val dC = (5f, 10f)
-  private val dD = (4f, 4f)
+  private val dA          = (0f, 0f)
+  private val dB          = (10f, 0f)
+  private val dC          = (5f, 10f)
+  private val dD          = (4f, 4f)
   private val expectedFan = Set(Set(dA, dB, dD), Set(dB, dC, dD), Set(dC, dA, dD))
 
   test("ISS-499 red: DelaunayTriangulator.computeTriangles(sorted=false) indices reference the original input order") {
