@@ -16,7 +16,7 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 570
+ * Covenant-baseline-loc: 571
  * Covenant-baseline-methods: GlyphLayout,GlyphRun,adjustedTargetWidth,alignRuns,appendRun,buffer,calculateWidths,colorStack,colors,count,droppedGlyphCount,epsilon,first,firstEnd,getGlyphWidth,getLineOffset,glyphCount,glyphRunPool,glyphs,glyphs2,height,i,last,maxWidth,parseColorMarkup,reset,runs,second,secondStart,setLastGlyphXAdvance,setText,this,toString,truncateRun,truncateWidth,width,wrapGlyphs,x,xAdvances,xAdvances2,y
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/GlyphLayout.java
  * Covenant-verified: 2026-06-10
@@ -28,6 +28,7 @@ package graphics
 package g2d
 
 import sge.graphics.{ Color, Colors }
+import sge.utils.Align
 import lowlevel.Nullable
 import lowlevel.util.DynamicArray
 import sge.utils.Pool
@@ -60,7 +61,7 @@ class GlyphLayout extends Poolable {
   }
 
   def setText(font: BitmapFont, str: CharSequence): Unit =
-    setText(font, str, 0, str.length(), font.color, 0, 0, false, Nullable.empty[String]) // Align.left = 0
+    setText(font, str, 0, str.length(), font.color, 0, Align.left.toInt, false, Nullable.empty[String])
 
   def setText(font: BitmapFont, str: CharSequence, color: Color, targetWidth: Float, halign: Int, wrap: Boolean): Unit =
     setText(font, str, 0, str.length(), color, targetWidth, halign, wrap, Nullable.empty[String])
@@ -276,8 +277,8 @@ class GlyphLayout extends Poolable {
   }
 
   private def alignRuns(targetWidth: Float, halign: Int): Unit =
-    if ((halign & 1) == 0) { // Not left aligned, so must be center or right aligned. (Align.left = 1)
-      val center = (halign & 2) != 0 // Align.center = 2
+    if ((halign & Align.left.toInt) == 0) { // Not left aligned, so must be center or right aligned.
+      val center = (halign & Align.center.toInt) != 0
       var i      = 0
       while (i < runs.size) {
         val run = runs(i)
