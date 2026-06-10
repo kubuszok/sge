@@ -108,7 +108,10 @@ class BitmapFontCacheRedSuite extends munit.FunSuite {
     val x0 = glyphX(cache, 0) // = x + run.x + xAdvances[0] (Java lines 395, 401)
     assertEqualsFloat(glyphX(cache, 1), x0 + 10f, 0.0001f, "glyph 1 must advance by xAdvances[1]=10 from glyph 0 (Java line 401)")
     assertEqualsFloat(glyphX(cache, 2), x0 + 20f, 0.0001f, "glyph 2 must advance by xAdvances[1]+xAdvances[2]=20 from glyph 0 (Java line 401)")
-    assert(glyphX(cache, 0) < glyphX(cache, 1) && glyphX(cache, 1) < glyphX(cache, 2), "per-glyph x positions must be strictly increasing, not overlapping")
+    assert(
+      glyphX(cache, 0) < glyphX(cache, 1) && glyphX(cache, 1) < glyphX(cache, 2),
+      "per-glyph x positions must be strictly increasing, not overlapping"
+    )
   }
 
   // --- ISS-492 symptom 2: currentTint not reset after caching new glyphs ------
@@ -138,6 +141,10 @@ class BitmapFontCacheRedSuite extends munit.FunSuite {
     assertEquals(pageVerts(cache)(2), white, "precondition: re-cached glyphs start white again (Java lines 397-400)")
 
     cache.tint(Color.RED)
-    assertEquals(pageVerts(cache)(2), red, "tint(RED) after re-caching must recolor the new glyphs: addToCache resets currentTint to WHITE_FLOAT_BITS (Java line 406)")
+    assertEquals(
+      pageVerts(cache)(2),
+      red,
+      "tint(RED) after re-caching must recolor the new glyphs: addToCache resets currentTint to WHITE_FLOAT_BITS (Java line 406)"
+    )
   }
 }

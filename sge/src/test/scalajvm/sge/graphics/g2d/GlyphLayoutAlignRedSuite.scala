@@ -68,9 +68,9 @@ class GlyphLayoutAlignRedSuite extends munit.FunSuite {
     data.glyphs(page)(g.id & (BitmapFont.PAGE_SIZE - 1)) = g
   }
 
-  /** Font metrics used in every trace below: capHeight=10, down=-12, scaleX=1, padLeft=padRight=0, spaceXadvance=10. Glyphs 'a','b': xadvance=10, width=9 => getGlyphWidth (Java line 449) =
-    * (9+0)*1-0 = 9; first xAdvance (BitmapFontData.getGlyphs) = -xoffset*scaleX-padLeft = 0. For "ab": xAdvances = [0,10,9] (last entry set to glyph width 9 by setLastGlyphXAdvance, Java lines
-    * 441-445), so calculateWidths (Java lines 275-294) gives run.width = 0+10+9 = 19.
+  /** Font metrics used in every trace below: capHeight=10, down=-12, scaleX=1, padLeft=padRight=0, spaceXadvance=10. Glyphs 'a','b': xadvance=10, width=9 => getGlyphWidth (Java line 449) = (9+0)*1-0 =
+    * 9; first xAdvance (BitmapFontData.getGlyphs) = -xoffset*scaleX-padLeft = 0. For "ab": xAdvances = [0,10,9] (last entry set to glyph width 9 by setLastGlyphXAdvance, Java lines 441-445), so
+    * calculateWidths (Java lines 275-294) gives run.width = 0+10+9 = 19.
     */
   private def makeFont(): BitmapFont = {
     val data = new BitmapFontData()
@@ -101,7 +101,12 @@ class GlyphLayoutAlignRedSuite extends munit.FunSuite {
     val layout = layoutOf(makeFont(), Align.left)
     assertEquals(layout.runs.size, 1)
     assertEqualsFloat(layout.runs(0).width, 19f, 0.0001f, "fixture sanity: run.width = 0+10+9 (Java lines 275-294)")
-    assertEqualsFloat(layout.runs(0).x, 0f, 0.0001f, "Align.left must leave run.x untouched (Java line 298: (halign & Align.left) == 0 is false for left = 8)")
+    assertEqualsFloat(
+      layout.runs(0).x,
+      0f,
+      0.0001f,
+      "Align.left must leave run.x untouched (Java line 298: (halign & Align.left) == 0 is false for left = 8)"
+    )
   }
 
   test("ISS-581: setText with Align.center centers the run: run.x == (targetWidth - run.width) / 2") {
@@ -128,7 +133,12 @@ class GlyphLayoutAlignRedSuite extends munit.FunSuite {
     // only topRight exposes the bug.
     val layout = layoutOf(makeFont(), Align.topRight)
     assertEquals(layout.runs.size, 1)
-    assertEqualsFloat(layout.runs(0).x, 31f, 0.0001f, "Align.topRight must right-align the run (Java lines 298-303, right = 16, top bit ignored)")
+    assertEqualsFloat(
+      layout.runs(0).x,
+      31f,
+      0.0001f,
+      "Align.topRight must right-align the run (Java lines 298-303, right = 16, top bit ignored)"
+    )
     val layoutRight = layoutOf(makeFont(), Align.right)
     assertEqualsFloat(layoutRight.runs(0).x, 31f, 0.0001f, "Align.right must right-align the run (Java lines 298-303)")
   }
@@ -142,6 +152,11 @@ class GlyphLayoutAlignRedSuite extends munit.FunSuite {
     val layout = new GlyphLayout()
     layout.setText(makeFont(), "ab")
     assertEquals(layout.runs.size, 1)
-    assertEqualsFloat(layout.runs(0).x, 0f, 0.0001f, "setText(font, str) must behave as Align.left (Java line 95), not shift runs to -run.width")
+    assertEqualsFloat(
+      layout.runs(0).x,
+      0f,
+      0.0001f,
+      "setText(font, str) must behave as Align.left (Java line 95), not shift runs to -run.width"
+    )
   }
 }
