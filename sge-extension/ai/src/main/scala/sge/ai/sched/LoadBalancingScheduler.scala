@@ -15,13 +15,6 @@
  * Covenant-baseline-loc: 101
  * Covenant-baseline-methods: LoadBalancingScheduler,add,addWithAutomaticPhasing,frame,i,lastTime,numToRun,run,timeToRun
  * Covenant-source-reference: com/badlogic/gdx/ai/sched/LoadBalancingScheduler.java
- *   Renames: `com.badlogic.gdx.ai.sched` -> `sge.ai.sched`; `TimeUtils` -> `sge.utils.TimeUtils`
- *   Convention: split packages; `Nanos` opaque type for time values
- * Covenant: full-port
- * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 101
- * Covenant-baseline-methods: LoadBalancingScheduler,add,addWithAutomaticPhasing,frame,i,lastTime,numToRun,run,timeToRun
- * Covenant-verified: 2026-04-19
  * Covenant-verified: 2026-04-19
  *
  * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d

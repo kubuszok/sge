@@ -15,13 +15,6 @@
  * Covenant-baseline-loc: 102
  * Covenant-baseline-methods: SemaphoreGuard,copyTo,end,name,newInstance,reset,resetTask,run,semaphore,semaphoreAcquired,sg,start
  * Covenant-source-reference: com/badlogic/gdx/ai/btree/decorator/SemaphoreGuard.java
- *   Renames: `com.badlogic.gdx.ai.btree.decorator` -> `sge.ai.btree.decorator`
- *   Convention: split packages, Nullable instead of null
- * Covenant: full-port
- * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 102
- * Covenant-baseline-methods: SemaphoreGuard,copyTo,end,name,newInstance,reset,resetTask,run,semaphore,semaphoreAcquired,sg,start
- * Covenant-verified: 2026-04-19
  * Covenant-verified: 2026-04-19
  *
  * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d

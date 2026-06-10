@@ -6,8 +6,6 @@
  *
  * Covenant: partial-port
  * Covenant-source-reference: net/mgsx/gltf/loaders/shared/GLTFTypes.java
- * Covenant: partial-port
- * Covenant-verified: 2026-04-08
  * Covenant-verified: 2026-04-08
  *
  * Partial-port debt:

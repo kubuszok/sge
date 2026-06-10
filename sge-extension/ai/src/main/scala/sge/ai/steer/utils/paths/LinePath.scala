@@ -15,14 +15,6 @@
  * Covenant-baseline-loc: 288
  * Covenant-baseline-methods: LinePath,LinePathParam,Segment,_distance,ab,abLen2,begin,calculateDistance,calculatePointSegmentSquareDistance,calculateTargetPosition,createParam,createPath,cumulativeLength,curr,desiredSegment,distance,distance_,end,endPoint,found,getSegments,highExhausted,i,length,lengthOnPath,lowExhausted,nearestIndex,nearestPointOnCurrentSegment,nearestPointOnPath,nearestSegment,offset,pathLength,segmentIndex,segments,smallestDistance2,startIndex,startPoint,targetDistance,tmpB,tmpC
  * Covenant-source-reference: com/badlogic/gdx/ai/steer/utils/paths/LinePath.java
- *   Renames: `com.badlogic.gdx.ai.steer` -> `sge.ai.steer`; `Array` -> `DynamicArray`
- *   Convention: split packages
- * Covenant: full-port
- * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 288
- * Covenant-baseline-methods: LinePath,LinePathParam,Segment,_distance,ab,abLen2,begin,calculateDistance,calculatePointSegmentSquareDistance,calculateTargetPosition,createParam,createPath,cumulativeLength,curr,desiredSegment,distance,distance_,end,endPoint,found,getSegments,highExhausted,i,length,lengthOnPath,lowExhausted,nearestIndex,nearestPointOnCurrentSegment,nearestPointOnPath,nearestSegment,offset,pathLength,segmentIndex,segments,smallestDistance2,startIndex,startPoint,targetDistance,tmpB,tmpC
- * Covenant-verified: 2026-04-19
- * Improvements:
  * Covenant-verified: 2026-04-19
  *
  * Improvements:

@@ -15,13 +15,6 @@
  * Covenant-baseline-loc: 41
  * Covenant-baseline-methods: IndexedHierarchicalGraph,convertNodeBetweenLevels,getLevelCount,level,levelCount,setLevel
  * Covenant-source-reference: com/badlogic/gdx/ai/pfa/indexed/IndexedHierarchicalGraph.java
- *   Renames: `com.badlogic.gdx.ai.pfa.indexed` -> `sge.ai.pfa.indexed`
- *   Convention: split packages
- * Covenant: full-port
- * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 41
- * Covenant-baseline-methods: IndexedHierarchicalGraph,convertNodeBetweenLevels,getLevelCount,level,levelCount,setLevel
- * Covenant-verified: 2026-04-19
  * Covenant-verified: 2026-04-19
  *
  * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d

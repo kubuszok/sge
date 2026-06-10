@@ -6,12 +6,6 @@
  *
  * Covenant: partial-port
  * Covenant-source-reference: net/mgsx/gltf/scene3d/scene/SceneAsset.java
- * Covenant: partial-port
- * Covenant: partial-port
- * Covenant-verified: 2026-04-08
- * Covenant-verified: 2026-04-08
- * Covenant: partial-port
- * Covenant-verified: 2026-04-08
  * Covenant-verified: 2026-04-08
  *
  * Partial-port debt:

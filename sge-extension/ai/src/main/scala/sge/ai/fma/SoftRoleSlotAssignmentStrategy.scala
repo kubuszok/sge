@@ -15,13 +15,6 @@
  * Covenant-baseline-loc: 172
  * Covenant-baseline-methods: CostAndSlot,MemberAndSlots,SlotCostProvider,SoftRoleSlotAssignmentStrategy,assignmentEase,compareTo,costAndSlots,costThreshold,filledSlots,getCost,i,memberData,numberOfAssignments,slotCostProvider,updateSlotAssignments
  * Covenant-source-reference: com/badlogic/gdx/ai/fma/SoftRoleSlotAssignmentStrategy.java
- *   Renames: `com.badlogic.gdx.ai.fma` -> `sge.ai.fma`; `Array` -> `DynamicArray`; `BooleanArray` -> `Array[Boolean]`
- *   Convention: split packages; `continue LABEL` -> `boundary`/`break`
- * Covenant: full-port
- * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 172
- * Covenant-baseline-methods: CostAndSlot,MemberAndSlots,SlotCostProvider,SoftRoleSlotAssignmentStrategy,assignmentEase,compareTo,costAndSlots,costThreshold,filledSlots,getCost,i,memberData,numberOfAssignments,slotCostProvider,updateSlotAssignments
- * Covenant-verified: 2026-04-19
  * Covenant-verified: 2026-04-19
  *
  * Partial-port debt:

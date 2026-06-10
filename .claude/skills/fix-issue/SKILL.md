@@ -42,6 +42,10 @@ and find the id. Read the matching section of
 
 ## Prohibitions (violating any = your whole delivery is rejected)
 
+- Do NOT operate on the shared checkout at /Users/dev/Workspaces/GitHub/sge
+  — no branch switches, no commits, no worktree juggling there. ALL work
+  happens inside YOUR assigned worktree. (Three implementers have violated
+  this; the orchestrator diffs the shared checkout after every delivery.)
 - Do NOT modify the red test file in any way.
 - Do NOT run `re-scale db issues resolve` or edit anything under
   `.rescale/**`. Closing issues is not your call.

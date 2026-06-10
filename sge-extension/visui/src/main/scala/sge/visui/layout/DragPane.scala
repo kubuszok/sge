@@ -7,8 +7,6 @@
  *
  * Covenant: full-port
  * Covenant-source-reference: com/kotcrab/vis/ui/layout/DragPane.java
- * Covenant: full-port
- * Covenant-verified: 2026-04-11
  * Covenant-verified: 2026-04-11
  *
  * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220

@@ -6,8 +6,6 @@
  *
  * Covenant: partial-port
  * Covenant-source-reference: com/badlogic/gdx/controllers/desktop/support/JamepadController.java
- * Covenant: partial-port
- * Covenant-verified: 2026-04-08
  * Covenant-verified: 2026-04-08
  *
  * Partial-port debt:

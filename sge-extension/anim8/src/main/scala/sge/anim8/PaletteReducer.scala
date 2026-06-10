@@ -7,8 +7,6 @@
  *
  * Covenant: full-port
  * Covenant-source-reference: com/github/tommyettinger/anim8/PaletteReducer.java
- * Covenant: full-port
- * Covenant-verified: 2026-04-19
  * Covenant-verified: 2026-04-19
  *
  * upstream-commit: 38634cefd749a9a8af4534ca285c8e72437fe181

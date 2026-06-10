@@ -42,6 +42,10 @@
 #
 #   shortcuts --covenanted hits (a file with N hits) -> covenanted-shortcut
 #
+#   filesystem scan (ISS-486):
+#     a .scala file under the covenanted source roots whose canonical covenant
+#     marker line "* Covenant: " appears more than once -> dup-covenant-header
+#
 # Paths are stored repo-RELATIVE (re-scale emits absolute paths rooted at the
 # repo; CI checks out to a different absolute directory, so we strip the repo
 # root to keep the baseline portable).
@@ -396,6 +400,42 @@ compute_live_set() {
         ;;
     esac
   done
+
+  # --- dup-covenant-header (ISS-486) ---
+  # A double-stamping tool once applied the covenant / migration-notes block a
+  # second time inside file header comments, leaving the canonical covenant
+  # marker line ("* Covenant: ") duplicated (the dup_covenant_files ratchet
+  # metric in remediation-baseline.tsv). After the ISS-486 dedupe NO file carries
+  # more than one such marker, so this source contributes ZERO baseline rows; any
+  # future file whose header re-doubles the marker becomes a NEW (file, kind) pair
+  # not in the baseline and turns the gate red.
+  #
+  # Detection mirrors the committed ratchet command exactly: count occurrences of
+  # the canonical marker line "* Covenant: " per .scala file under the covenanted
+  # source roots; a count > 1 is a duplicate header. We scan the filesystem
+  # directly (no re-scale dependency) so the check is deterministic. The roots
+  # MUST exist — a missing root would silently yield zero dup rows (fail-open), so
+  # we exit 2 if any expected root is absent.
+  local dup_root
+  local dup_roots=("sge/src" "sge-extension" "sge-jvm-platform")
+  for dup_root in "${dup_roots[@]}"; do
+    if [ ! -d "$REPO_ROOT/$dup_root" ]; then
+      echo "covenant-gate: FAIL (exit 2) — dup-covenant-header scan root missing: $dup_root (cannot prove absence of duplicate covenant headers)." >&2
+      exit 2
+    fi
+  done
+  # `grep -rc <pat>` prints "<path>:<count>"; awk keeps files whose count > 1 and
+  # strips the trailing ":<count>" so only the repo-relative path remains. Run
+  # from REPO_ROOT so the emitted paths are already repo-relative.
+  local dup_path
+  while IFS= read -r dup_path; do
+    [ -n "$dup_path" ] || continue
+    printf '%s\t%s\n' "$dup_path" "dup-covenant-header"
+  done < <(
+    cd "$REPO_ROOT" &&
+      grep -rc -- '\* Covenant: ' --include='*.scala' "${dup_roots[@]}" 2>/dev/null |
+      awk -F: '$NF > 1 { sub(/:[0-9]+$/, "", $0); print }'
+  )
 }
 
 # Canonicalize a set: drop blank lines, then sort+dedup under the C locale so
@@ -427,7 +467,7 @@ if [ "$MODE" = "generate" ]; then
   {
     echo "# covenant-gate baseline (ISS-483) — set of (file, kind) pairs currently failing"
     echo "# columns: file<TAB>kind   (file is repo-relative)"
-    echo "# kinds: shortcut-drift | missing-header | methods-removed | verify-other | covenanted-shortcut"
+    echo "# kinds: shortcut-drift | missing-header | methods-removed | verify-other | covenanted-shortcut | dup-covenant-header"
     echo "# regenerate: .rescale/scripts/covenant-gate.sh --generate"
     printf '%s\n' "$LIVE"
   } > "$BASELINE"
