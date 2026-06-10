@@ -71,18 +71,16 @@ class PixmapIOPngRedSuite extends munit.FunSuite {
       val out = new ByteArrayOutputStream()
       png.write(out, pixmap)
       out.toByteArray()
-    } finally {
+    } finally
       png.close()
-    }
   }
 
   private def encodedPng(): Array[Byte] = {
     val pixmap = makePixmap()
-    try {
+    try
       writePng(pixmap)
-    } finally {
+    finally
       pixmap.close()
-    }
   }
 
   // --- Byte-level helpers ----------------------------------------------------
@@ -93,7 +91,7 @@ class PixmapIOPngRedSuite extends munit.FunSuite {
   private def typeTag(bytes: Array[Byte], offset: Int): String =
     new String(Array(bytes(offset), bytes(offset + 1), bytes(offset + 2), bytes(offset + 3)), "US-ASCII")
 
-  private final case class Chunk(tag: String, length: Int, dataOffset: Int, storedCrc: Int)
+  final private case class Chunk(tag: String, length: Int, dataOffset: Int, storedCrc: Int)
 
   /** Walks the chunk stream after the 8-byte signature. Fails the test with a precise message if any chunk header is structurally invalid (negative length or overrun). */
   private def walkChunks(bytes: Array[Byte]): List[Chunk] = {
@@ -211,8 +209,7 @@ class PixmapIOPngRedSuite extends munit.FunSuite {
       assertEquals(decoded.getPixel(Pixels(1), Pixels(0)), Red, "pixel (1,0)")
       assertEquals(decoded.getPixel(Pixels(0), Pixels(1)), Red, "pixel (0,1)")
       assertEquals(decoded.getPixel(Pixels(1), Pixels(1)), Green, "pixel (1,1)")
-    } finally {
+    } finally
       decoded.close()
-    }
   }
 }

@@ -96,34 +96,32 @@ class Gdx2dBlitRedSuite extends munit.FunSuite {
     val actual   = Array.tabulate(4)(j => dst.getPixel(Pixels(j), Pixels(0)))
     src.close()
     dst.close()
-    for (j <- 0 until 4) {
+    for (j <- 0 until 4)
       assertEquals(
         actual(j),
         expected(j),
         s"dst pixel $j: expected ${hex(expected(j))} (nearest-neighbour, C blit_linear), got ${hex(actual(j))} — " +
           "intermediate values mean the bilinear filter ran instead"
       )
-    }
   }
 
   test("ISS-495: NearestNeighbour scaled drawPixmap never produces blended colors") {
-    val src = makeSource()
-    val dst = scaleTo4x1(src, Filter.NearestNeighbour)
+    val src    = makeSource()
+    val dst    = scaleTo4x1(src, Filter.NearestNeighbour)
     val actual = Array.tabulate(4)(j => dst.getPixel(Pixels(j), Pixels(0)))
     src.close()
     dst.close()
-    for (j <- 0 until 4) {
+    for (j <- 0 until 4)
       assert(
         actual(j) == black || actual(j) == white,
         s"dst pixel $j: nearest-neighbour must output EXACTLY a source pixel (black ${hex(black)} or white ${hex(white)}), " +
           s"got blended ${hex(actual(j))}"
       )
-    }
   }
 
   test("ISS-495: BiLinear scaled drawPixmap blends interior pixels (C blit_bilinear, gdx2d.c 807-886)") {
-    val src = makeSource()
-    val dst = scaleTo4x1(src, Filter.BiLinear)
+    val src    = makeSource()
+    val dst    = scaleTo4x1(src, Filter.BiLinear)
     val actual = Array.tabulate(4)(j => dst.getPixel(Pixels(j), Pixels(0)))
     src.close()
     dst.close()
@@ -151,12 +149,11 @@ class Gdx2dBlitRedSuite extends munit.FunSuite {
     val actual   = Array.tabulate(4)(j => dst.getPixel(Pixels(j), Pixels(0)))
     src.close()
     dst.close()
-    for (j <- 0 until 4) {
+    for (j <- 0 until 4)
       assertEquals(
         actual(j),
         expected(j),
         s"dst pixel $j: expected ${hex(expected(j))} (C blit_bilinear), got ${hex(actual(j))}"
       )
-    }
   }
 }
