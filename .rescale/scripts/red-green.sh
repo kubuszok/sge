@@ -278,7 +278,7 @@ total_failed() {
   while IFS= read -r n; do
     [ -z "$n" ] && continue
     total=$(( total + n ))
-  done < <(grep -oE '[0-9]+ failed,' "$outfile" 2>/dev/null | grep -oE '^[0-9]+')
+  done < <(grep -aoE '[0-9]+ failed,' "$outfile" 2>/dev/null | grep -oE '^[0-9]+')
   printf '%s' "$total"
 }
 
@@ -296,8 +296,8 @@ total_failed() {
 #   * no-summary      → started but unparseable, or nonzero with 0 parsed
 classify() {
   local outfile="$1" rc="$2" failed
-  if ! grep -q 'Test run .* started' "$outfile" 2>/dev/null; then
-    if grep -qE 'Compilation failed|compileIncremental|\[E[0-9]+\]|error found' "$outfile" 2>/dev/null; then
+  if ! grep -aq 'Test run .* started' "$outfile" 2>/dev/null; then
+    if grep -aqE 'Compilation failed|compileIncremental|\[E[0-9]+\]|error found' "$outfile" 2>/dev/null; then
       echo "compile-error"
     else
       echo "no-summary"
@@ -323,8 +323,8 @@ classify() {
 print_failing_assertions() {
   local outfile="$1"
   echo "── failing assertion line(s) ──"
-  grep -nE 'munit|assert|FAILED|failed|==> X|values are not|expected|Caused by|Exception' "$outfile" \
-    | grep -vE 'Test run .* finished: 0 failed' \
+  grep -anE 'munit|assert|FAILED|failed|==> X|values are not|expected|Caused by|Exception' "$outfile" \
+    | grep -avE 'Test run .* finished: 0 failed' \
     | head -n 20
 }
 
@@ -338,7 +338,7 @@ echo "red phase classification: $RED_CLASS (sbt exit $RED_RC, failures summed: $
 case "$RED_CLASS" in
   compile-error)
     echo "── compile errors at red sha ──"
-    grep -nE '\[error\]' "$RED_OUT" | head -n 20
+    grep -anE '\[error\]' "$RED_OUT" | head -n 20
     echo "RED-GREEN: FAIL — compile-error-red: suite '$SUITE' did not compile at red sha $RED_FULL (FALSE RED, not a valid red phase)"
     exit 1
     ;;
@@ -383,7 +383,7 @@ case "$FIX_CLASS" in
     ;;
   compile-error)
     echo "── compile errors at fix sha ──"
-    grep -nE '\[error\]' "$FIX_OUT" | head -n 20
+    grep -anE '\[error\]' "$FIX_OUT" | head -n 20
     echo "RED-GREEN: FAIL — suite '$SUITE' did not compile at fix sha $FIX_FULL"
     exit 1
     ;;
