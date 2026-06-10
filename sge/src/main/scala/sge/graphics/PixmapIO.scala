@@ -12,10 +12,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 3
- * Covenant-baseline-loc: 351
- * Covenant-baseline-methods: BUFFER_SIZE,CIM,COLOR_ARGB,COMPRESSION_DEFLATE,ChunkBuffer,FILTER_NONE,IDAT,IEND,IHDR,INTERLACE_NONE,PAETH,PNG,PixmapIO,SIGNATURE,buffer,close,curLineBytes,deflater,endChunk,flipY,lastLineLen,lineOutBytes,prevLineBytes,read,readBuffer,readCIM,setCompression,setFlipY,toGdx2DPixmapFormat,write,writeBuffer,writeCIM,writePNG
+ * Covenant-baseline-loc: 357
+ * Covenant-baseline-methods: BUFFER_SIZE,CIM,COLOR_ARGB,COMPRESSION_DEFLATE,ChunkBuffer,FILTER_NONE,IDAT,IEND,IHDR,INTERLACE_NONE,PAETH,PNG,PixmapIO,SIGNATURE,buffer,close,curLineBytes,deflater,endChunk,flipY,fromInitialSize,lastLineLen,lineOutBytes,prevLineBytes,read,readBuffer,readCIM,setCompression,setFlipY,toGdx2DPixmapFormat,write,writeBuffer,writeCIM,writePNG
  * Covenant-source-reference: com/badlogic/gdx/graphics/PixmapIO.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-11
  *
  * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
@@ -195,7 +195,7 @@ object PixmapIO {
     private val INTERLACE_NONE:      Byte = 0
     private val PAETH:               Byte = 4
 
-    private val buffer:        ChunkBuffer = ChunkBuffer(initialBufferSize)
+    private val buffer:        ChunkBuffer = ChunkBuffer.fromInitialSize(initialBufferSize)
     private var deflater:      Deflater    = new Deflater()
     private var lineOutBytes:  Array[Byte] = scala.compiletime.uninitialized
     private var curLineBytes:  Array[Byte] = scala.compiletime.uninitialized
@@ -330,15 +330,14 @@ object PixmapIO {
     def close(): Unit =
       deflater.end();
 
-    private class ChunkBuffer(initialSize: Int)
-        extends DataOutputStream({
-          val buffer = new ByteArrayOutputStream(initialSize)
-          val crc    = new CRC32()
-          new CheckedOutputStream(buffer, crc)
-        }) {
-      private val buffer = new ByteArrayOutputStream(initialSize)
-      private val crc    = new CRC32()
-
+    // Java uses a private constructor chain (PixmapIO.java:329-337) so the
+    // CheckedOutputStream wrapped by DataOutputStream and the buffer/crc
+    // fields share ONE ByteArrayOutputStream and ONE CRC32. Scala cannot
+    // reference the constructor params in both `super(...)` and the field
+    // initializers, so the shared pair is built by the companion factory
+    // (`ChunkBuffer.fromInitialSize`) and threaded through the primary
+    // constructor — matching the Java `ChunkBuffer(ByteArrayOutputStream, CRC32)`.
+    private class ChunkBuffer(buffer: ByteArrayOutputStream, crc: CRC32) extends DataOutputStream(new CheckedOutputStream(buffer, crc)) {
       @throws[IOException]
       def endChunk(target: DataOutputStream): Unit = {
         flush()
@@ -348,6 +347,11 @@ object PixmapIO {
         buffer.reset()
         crc.reset()
       }
+    }
+
+    private object ChunkBuffer {
+      def fromInitialSize(initialSize: Int): ChunkBuffer =
+        new ChunkBuffer(new ByteArrayOutputStream(initialSize), new CRC32())
     }
   }
 }
