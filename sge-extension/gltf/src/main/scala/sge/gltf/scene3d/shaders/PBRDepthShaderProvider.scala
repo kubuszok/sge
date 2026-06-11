@@ -62,7 +62,7 @@ object PBRDepthShaderProvider {
 
   def getDefaultVertexShader()(using sge: Sge): String = {
     if (defaultVertexShader == null) { // @nowarn — null check for lazy init
-      defaultVertexShader = sge.files.classpath("net/mgsx/gltf/shaders/depth.vs.glsl").readString()
+      defaultVertexShader = sge.files.classpath("sge/gltf/shaders/depth.vs.glsl").readString()
     }
     defaultVertexShader
   }
@@ -71,7 +71,7 @@ object PBRDepthShaderProvider {
 
   def getDefaultFragmentShader()(using sge: Sge): String = {
     if (defaultFragmentShader == null) { // @nowarn — null check for lazy init
-      defaultFragmentShader = sge.files.classpath("net/mgsx/gltf/shaders/depth.fs.glsl").readString()
+      defaultFragmentShader = sge.files.classpath("sge/gltf/shaders/depth.fs.glsl").readString()
     }
     defaultFragmentShader
   }

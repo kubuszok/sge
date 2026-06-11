@@ -10,7 +10,7 @@
  * Covenant-baseline-loc: 201
  * Covenant-baseline-methods: SceneSkybox,SkyboxShader,SkyboxShaderProvider,basePathName,bindMaterial,close,createQuad,createShader,createShaderProvider,directionInverse,enableMipmaps,envRotationInverse,environment,getColor,getRenderables,init,lodBias,lodEnabled,ownShaderProvider,quad,quadModel,sb,set,setRotation,shaderConfig,shaderProvider,this,u_lod,update
  * Covenant-source-reference: net/mgsx/gltf/scene3d/scene/SceneSkybox.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-11
  */
 package sge
 package gltf
@@ -101,7 +101,7 @@ class SceneSkybox(using sge: Sge) extends RenderableProvider with Updatable with
     if (lodEnabled) sb.append("#define ENV_LOD\n")
 
     val shaderConfig = DefaultShader.Config()
-    val basePathName = "net/mgsx/gltf/shaders/skybox"
+    val basePathName = "sge/gltf/shaders/skybox"
     shaderConfig.vertexShader = Nullable(Sge().files.classpath(basePathName + ".vs.glsl").readString())
     shaderConfig.fragmentShader = Nullable(Sge().files.classpath(basePathName + ".fs.glsl").readString())
     ownShaderProvider = true

@@ -10,7 +10,7 @@
  * Covenant-baseline-loc: 67
  * Covenant-baseline-methods: PBREmissiveShaderProvider,cfg,config,createConfig,createShader,hasAlpha,mat,maxUVIndex,sb,shader
  * Covenant-source-reference: net/mgsx/gltf/scene3d/shaders/PBREmissiveShaderProvider.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-11
  */
 package sge
 package gltf
@@ -68,8 +68,13 @@ object PBREmissiveShaderProvider {
   def createConfig(maxBones: Int)(using sge: Sge): PBRShaderConfig = {
     val config = PBRShaderProvider.createDefaultConfig()
     config.numBones = maxBones
-    config.vertexShader = Nullable(sge.files.classpath("net/mgsx/gltf/shaders/gdx-pbr.vs.glsl").readString())
-    config.fragmentShader = Nullable(sge.files.classpath("net/mgsx/gltf/shaders/emissive-only.fs.glsl").readString())
+    // ISS-508: upstream PBREmissiveShaderProvider.java:79 references "net/mgsx/gltf/shaders/gdx-pbr.vs.glsl",
+    // but that file is a dangling pre-reorganization reference — it does not exist in gdx-gltf's own sources
+    // (the modern upstream vertex stage is pbr.vs.glsl). Per the orchestrator's adjudication, the bundle ships
+    // sge/gltf/shaders/gdx-pbr.vs.glsl as a byte-identical copy of sge/gltf/shaders/pbr/pbr.vs.glsl so the
+    // historical emissive vertex stage resolves. Remaining paths are re-pointed from net/mgsx/... to sge/gltf/...
+    config.vertexShader = Nullable(sge.files.classpath("sge/gltf/shaders/gdx-pbr.vs.glsl").readString())
+    config.fragmentShader = Nullable(sge.files.classpath("sge/gltf/shaders/emissive-only.fs.glsl").readString())
     config
   }
 }

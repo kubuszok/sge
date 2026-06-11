@@ -24,7 +24,7 @@
  *
  * Covenant: full-port
  * Covenant-source-reference: net/mgsx/gltf/scene3d/utils/IBLBuilder.java
- * Covenant-verified: 2026-04-18
+ * Covenant-verified: 2026-06-11
  *
  * upstream-commit: 683054a88382f71e8472abbc1c29931277c1cf22
  */
@@ -58,8 +58,8 @@ class IBLBuilder private (using sge: Sge) extends AutoCloseable {
   var renderGradient: Boolean = true
 
   private val sunShader: ShaderProgram = ShaderProgram(
-    sge.files.classpath("net/mgsx/gltf/shaders/ibl-sun.vs.glsl"),
-    sge.files.classpath("net/mgsx/gltf/shaders/ibl-sun.fs.glsl")
+    sge.files.classpath("sge/gltf/shaders/ibl-sun.vs.glsl"),
+    sge.files.classpath("sge/gltf/shaders/ibl-sun.fs.glsl")
   )
   if (!sunShader.compiled) throw SgeError.InvalidInput(sunShader.log)
 

@@ -305,7 +305,7 @@ object PBRShaderProvider {
 
   def getDefaultVertexShader()(using sge: Sge): String = {
     if (defaultVertexShader == null) { // @nowarn — null check for lazy init
-      defaultVertexShader = ShaderParser.parse(sge.files.classpath("net/mgsx/gltf/shaders/pbr/pbr.vs.glsl"))
+      defaultVertexShader = ShaderParser.parse(sge.files.classpath("sge/gltf/shaders/pbr/pbr.vs.glsl"))
     }
     defaultVertexShader
   }
@@ -314,7 +314,7 @@ object PBRShaderProvider {
 
   def getDefaultFragmentShader()(using sge: Sge): String = {
     if (defaultFragmentShader == null) { // @nowarn — null check for lazy init
-      defaultFragmentShader = ShaderParser.parse(sge.files.classpath("net/mgsx/gltf/shaders/pbr/pbr.fs.glsl"))
+      defaultFragmentShader = ShaderParser.parse(sge.files.classpath("sge/gltf/shaders/pbr/pbr.fs.glsl"))
     }
     defaultFragmentShader
   }
