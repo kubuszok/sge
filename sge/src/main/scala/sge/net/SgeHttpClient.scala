@@ -10,10 +10,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 173
- * Covenant-baseline-methods: NoopBackendFactory,PendingEntry,SgeHttpClient,apply,buildSttpRequest,cancel,close,entries,entry,freeRequest,future,isPending,listener,method,noop,obtainRequest,pending,r,requestPool,send,sttpRequest,toSttpMethod,uri
+ * Covenant-baseline-loc: 229
+ * Covenant-baseline-methods: NoopBackendFactory,PendingEntry,SgeHttpClient,apply,buildSttpRequest,cancel,claimFree,close,entries,entry,freeRequest,future,isPending,listener,method,noop,obtainRequest,pending,r,requestPool,send,sttpRequest,toSttpMethod,uri
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-11
  */
 package sge
 package net
@@ -43,10 +43,22 @@ final class SgeHttpClient private[sge] (backend: HttpBackendFactory, poolCapacit
   private val requestPool: Pool[SgeHttpRequest] =
     Pool.Default[SgeHttpRequest](() => SgeHttpRequest(), poolCapacity, poolMax)
 
+  // Single-ownership token for a request's pool lifecycle. `cancelled` suppresses
+  // the late onComplete callbacks (the analog of NetJavaImpl checking the listeners
+  // map before invoking handleHttpResponse — see NetJavaImpl.java:227-231). `freed`
+  // guards the SOLE requestPool.free(): in the original libgdx NetJavaImpl there is
+  // no pool, and removeFromConnectionsAndListeners (idempotent map remove) is the
+  // release operation that fires at most once per terminal action. Here the pool's
+  // contract is "the same object must not be freed multiple times" (Pool.scala:62),
+  // so exactly one of {cancel, close, onComplete} must perform the free. `freed`
+  // makes that release idempotent the way the map remove is idempotent upstream
+  // (ISS-505). The flag lives on the entry, NOT on Pool — Pool's no-double-free
+  // contract is left intact.
   final private class PendingEntry(
     val future:              Future[?],
     val listener:            Nullable[Net.HttpResponseListener],
-    @volatile var cancelled: Boolean = false
+    @volatile var cancelled: Boolean = false,
+    @volatile var freed:     Boolean = false
   )
 
   private val pending: mutable.Map[SgeHttpRequest, PendingEntry] = mutable.Map.empty
@@ -71,6 +83,9 @@ final class SgeHttpClient private[sge] (backend: HttpBackendFactory, poolCapacit
     }
 
     future.onComplete { result =>
+      // Mirror NetJavaImpl.java:227-231: only deliver the result if the request
+      // was not already cancelled (in the original, getFromListeners returns null
+      // once the request has been removed, so handleHttpResponse is skipped).
       if (!entry.cancelled) {
         result match {
           case Success(response) =>
@@ -79,11 +94,17 @@ final class SgeHttpClient private[sge] (backend: HttpBackendFactory, poolCapacit
             listener.foreach(_.failed(ex))
         }
       }
-      freeRequest(request)
+      // Sole free for the completion path: a no-op if cancel()/close() already
+      // claimed ownership of this entry (ISS-505 double-free fix).
+      freeRequest(request, entry)
     }
   }
 
   /** Cancels a pending request. Invokes `listener.cancelled()` and returns the request to the pool.
+    *
+    * Faithful to NetJavaImpl.cancelHttpRequest (NetJavaImpl.java:256-264): the cancellation only takes effect — `cancelled()` fires and the request is released — if the request is still pending (in
+    * the original, only if `getFromListeners(httpRequest) != null`). If the in-flight completion already removed and freed the request, `pending.remove` returns nothing here and cancel is a no-op,
+    * exactly as the upstream map remove makes the second cancel a no-op. The single free is guarded by [[claimFree]] so cancel and the future's onComplete never free the same request twice (ISS-505).
     */
   def cancel(request: SgeHttpRequest): Unit =
     pending
@@ -92,8 +113,14 @@ final class SgeHttpClient private[sge] (backend: HttpBackendFactory, poolCapacit
       }
       .foreach { entry =>
         entry.cancelled = true
+        // cancelled() fires exactly once: this entry was just removed from `pending`,
+        // so no other cancel() can re-enter here, and onComplete's path never calls
+        // cancelled(). Matches NetJavaImpl firing cancelled() once per live request.
         entry.listener.foreach(_.cancelled())
-        requestPool.free(request)
+        // Sole free for the cancel path — skipped if onComplete already claimed it
+        // (it cannot have, since we just held the only live mapping, but the guard
+        // keeps the discipline symmetric and survives reordered completions).
+        if (claimFree(entry)) requestPool.free(request)
       }
 
   /** Returns true if the given request is still pending. */
@@ -112,18 +139,39 @@ final class SgeHttpClient private[sge] (backend: HttpBackendFactory, poolCapacit
     for ((req, entry) <- entries) {
       entry.cancelled = true
       entry.listener.foreach(_.cancelled())
-      requestPool.free(req)
+      // Same single-ownership discipline as cancel(): each entry was just removed
+      // from `pending` by the snapshot-and-clear above, so a concurrent onComplete
+      // can no longer find it via freeRequest's remove; claimFree still guards the
+      // free so a completion already in flight for this entry frees at most once
+      // overall (ISS-505).
+      if (claimFree(entry)) requestPool.free(req)
     }
     requestPool.clear()
     backend.close()
   }
 
-  private def freeRequest(request: SgeHttpRequest): Unit = {
+  /** Frees `request` back to the pool after its in-flight future completes — the sole free for the completion path, skipped if cancel()/close() already claimed ownership of `entry` (ISS-505). The
+    * `pending.remove` mirrors NetJavaImpl.removeFromConnectionsAndListeners (NetJavaImpl.java:233): idempotent, so the entry may already be absent if it was cancelled.
+    */
+  private def freeRequest(request: SgeHttpRequest, entry: PendingEntry): Unit = {
     pending.synchronized {
       pending.remove(request)
     }
-    requestPool.free(request)
+    if (claimFree(entry)) requestPool.free(request)
   }
+
+  /** Atomically claims the right to perform the single `requestPool.free` for `entry`. Returns true to exactly one caller across the entry's whole lifecycle ({cancel, close, onComplete}); every
+    * subsequent caller gets false and must not free. Synchronizing on `pending` (the same monitor that guards entry insertion/removal) makes the check-and-set atomic without touching Pool, whose own
+    * no-double-free contract (Pool.scala:62) stays intact (ISS-505).
+    */
+  private def claimFree(entry: PendingEntry): Boolean =
+    pending.synchronized {
+      if (entry.freed) false
+      else {
+        entry.freed = true
+        true
+      }
+    }
 
   private def buildSttpRequest(req: SgeHttpRequest): SttpRequest[Either[String, String]] = {
     val uri    = SttpUri.unsafeParse(req.url)
