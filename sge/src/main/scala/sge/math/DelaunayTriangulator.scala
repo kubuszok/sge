@@ -15,10 +15,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 384
- * Covenant-baseline-methods: COMPLETE,DelaunayTriangulator,EPSILON,INCOMPLETE,INSIDE,centroid,circumCircle,complete,computeTriangles,down,edges,i,lower,originalIndices,originalIndicesArray,pointCount,quicksortPartition,quicksortStack,rsqr,sort,sortedPoints,stack,superTriangle,triangles,trim,up,upper,x,y
+ * Covenant-baseline-loc: 401
+ * Covenant-baseline-methods: COMPLETE,DelaunayTriangulator,EPSILON,INCOMPLETE,INSIDE,centroid,circumCircle,complete,computeTriangles,down,edges,i,lower,originalIndices,originalIndicesArray,pointCount,quicksortPartition,quicksortStack,sort,sortedPoints,stack,superTriangle,triangles,trim,up,upper,x,y
  * Covenant-source-reference: com/badlogic/gdx/math/DelaunayTriangulator.java
- * Covenant-verified: 2026-06-10
+ * Covenant-verified: 2026-06-11
  *
  * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
@@ -27,6 +27,8 @@ package math
 
 import lowlevel.Nullable
 import lowlevel.util.DynamicArray
+
+import scala.util.boundary
 
 /** Delaunay triangulation. Adapted from Paul Bourke's triangulate: http://paulbourke.net/papers/triangulate/
   * @author
@@ -243,42 +245,57 @@ class DelaunayTriangulator {
   /** Returns INSIDE if point xp,yp is inside the circumcircle made up of the points x1,y1, x2,y2, x3,y3. Returns COMPLETE if xp is to the right of the entire circumcircle. Otherwise returns
     * INCOMPLETE. Note: a point on the circumcircle edge is considered inside.
     */
-  private def circumCircle(xp: Float, yp: Float, x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float): Int = {
-    val (xc, yc, drsqr) = if (scala.math.abs(y1 - y2) < DelaunayTriangulator.EPSILON) {
-      val m2    = -(x3 - x2) / (y3 - y2)
-      val mx2   = (x2 + x3) / 2f
-      val my2   = (y2 + y3) / 2f
-      val xc    = (x1 + x2) / 2f
-      val yc    = m2 * (xc - mx2) + my2
-      val drsqr = (x2 - xc) * (x2 - xc) + (y2 - yc) * (y2 - yc)
-      (xc, yc, drsqr)
-    } else if (scala.math.abs(y2 - y3) < DelaunayTriangulator.EPSILON) {
-      val m1    = -(x2 - x1) / (y2 - y1)
-      val mx1   = (x1 + x2) / 2f
-      val my1   = (y1 + y2) / 2f
-      val xc    = (x2 + x3) / 2f
-      val yc    = m1 * (xc - mx1) + my1
-      val drsqr = (x2 - xc) * (x2 - xc) + (y2 - yc) * (y2 - yc)
-      (xc, yc, drsqr)
-    } else {
-      val m1    = -(x2 - x1) / (y2 - y1)
-      val m2    = -(x3 - x2) / (y3 - y2)
-      val mx1   = (x1 + x2) / 2f
-      val mx2   = (x2 + x3) / 2f
-      val my1   = (y1 + y2) / 2f
-      val my2   = (y2 + y3) / 2f
-      val xc    = (m1 * mx1 - m2 * mx2 + my2 - my1) / (m1 - m2)
-      val yc    = m1 * (xc - mx1) + my1
-      val drsqr = (x2 - xc) * (x2 - xc) + (y2 - yc) * (y2 - yc)
-      (xc, yc, drsqr)
+  private def circumCircle(xp: Float, yp: Float, x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float): Int =
+    boundary {
+      // Faithful port of DelaunayTriangulator.java:221-257. The y-difference branching, the
+      // degenerate-trio guard (line 226) and the X-distance-only COMPLETE predicate (line 256)
+      // are reproduced exactly; the port previously dropped the guard and used the full squared
+      // distance in the COMPLETE test (ISS-500 (a)+(b)).
+      val y1y2     = scala.math.abs(y1 - y2) // Java:223
+      val y2y3     = scala.math.abs(y2 - y3) // Java:224
+      val (xc, yc) =
+        if (y1y2 < DelaunayTriangulator.EPSILON) { // Java:225
+          // Java:226 — degenerate trio (all three vertices share a y within EPSILON): no
+          // circumcircle, bail out as INCOMPLETE. Restored here (was dropped by the port).
+          if (y2y3 < DelaunayTriangulator.EPSILON) boundary.break(DelaunayTriangulator.INCOMPLETE)
+          val m2  = -(x3 - x2) / (y3 - y2) // Java:227
+          val mx2 = (x2 + x3) / 2f // Java:228
+          val my2 = (y2 + y3) / 2f // Java:229
+          val xc  = (x2 + x1) / 2f // Java:230
+          val yc  = m2 * (xc - mx2) + my2 // Java:231
+          (xc, yc)
+        } else { // Java:232
+          val m1  = -(x2 - x1) / (y2 - y1) // Java:233
+          val mx1 = (x1 + x2) / 2f // Java:234
+          val my1 = (y1 + y2) / 2f // Java:235
+          if (y2y3 < DelaunayTriangulator.EPSILON) { // Java:236
+            val xc = (x3 + x2) / 2f // Java:237
+            val yc = m1 * (xc - mx1) + my1 // Java:238
+            (xc, yc)
+          } else { // Java:239
+            val m2  = -(x3 - x2) / (y3 - y2) // Java:240
+            val mx2 = (x2 + x3) / 2f // Java:241
+            val my2 = (y2 + y3) / 2f // Java:242
+            val xc  = (m1 * mx1 - m2 * mx2 + my2 - my1) / (m1 - m2) // Java:243
+            val yc  = m1 * (xc - mx1) + my1 // Java:244
+            (xc, yc)
+          }
+        }
+
+      var dx   = x2 - xc // Java:248
+      val dy0  = y2 - yc // Java:249
+      val rsqr = dx * dx + dy0 * dy0 // Java:250 — squared circumradius
+
+      dx = xp - xc // Java:252 — X-distance from the circumcenter
+      dx *= dx // Java:253 — X-distance squared (reused as `dx`)
+      val dy = yp - yc // Java:254
+      // Java:255 — a point on the circumcircle edge counts as inside.
+      if (dx + dy * dy - rsqr <= DelaunayTriangulator.EPSILON) boundary.break(DelaunayTriangulator.INSIDE)
+      // Java:256 — COMPLETE only when the X-distance squared alone exceeds the squared radius
+      // and the point is to the right of the circumcenter; sound because points are processed in
+      // ascending x. Must NOT use the full (xp-xc)^2+(yp-yc)^2 distance (ISS-500 (a)).
+      if (xp > xc && dx > rsqr) DelaunayTriangulator.COMPLETE else DelaunayTriangulator.INCOMPLETE
     }
-
-    val rsqr = (xp - xc) * (xp - xc) + (yp - yc) * (yp - yc)
-
-    if (rsqr - drsqr <= DelaunayTriangulator.EPSILON) DelaunayTriangulator.INSIDE
-    else if (xp > xc && rsqr > drsqr) DelaunayTriangulator.COMPLETE
-    else DelaunayTriangulator.INCOMPLETE
-  }
 
   private def sort(values: Array[Float], count: Int): Unit = {
     val pointCount = count / 2
