@@ -136,7 +136,9 @@ class DecalSortRebindRedSuite extends munit.FunSuite {
 
   // --- ISS-497 bounce 1: default sorter must follow camera rebinding ----------
 
-  test("ISS-497: default sorter must follow setCamera rebinding (Java lines 105-106 read the live field, lines 119-121 replace it)") {
+  test(
+    "ISS-497: default sorter must follow setCamera rebinding (Java lines 105-106 read the live field, lines 119-121 replace it)"
+  ) {
     // Java's anonymous Comparator reads CameraGroupStrategy.this.camera
     // (lines 105-106), so after setCamera(cam2) (lines 119-121) the
     // GROUP_BLEND sort in beforeGroup (lines 134-138) must be back-to-front
@@ -168,7 +170,11 @@ class DecalSortRebindRedSuite extends munit.FunSuite {
     // distances (30, 15, 10). This passes at fix-1 and pins the fixture.
     strategy.beforeGroup(blendGroup, contents)
     val cam1Distances = (0 until contents.size).map(i => cam1.position.distance(contents(i).position)).toList
-    assertEquals(cam1Distances, List(30f, 15f, 10f), "pre-rebind sanity: default sorter sorts GROUP_BLEND decals back-to-front against cam1 (Java line 107)")
+    assertEquals(
+      cam1Distances,
+      List(30f, 15f, 10f),
+      "pre-rebind sanity: default sorter sorts GROUP_BLEND decals back-to-front against cam1 (Java line 107)"
+    )
 
     // Rebind through the public setter (Java lines 119-121).
     val cam2 = behindCamera()
@@ -190,12 +196,17 @@ class DecalSortRebindRedSuite extends munit.FunSuite {
       List(30f, 25f, 10f),
       "after setCamera (Java lines 119-121) the default sorter must sort back-to-front against the NEW camera (Java lines 105-106 read the live field), not the construction-time one"
     )
-    assert(contents(0) eq near, "the decal farthest from cam2 (distance 30) must be rendered first after rebinding (Java lines 105-107)")
+    assert(
+      contents(0) eq near,
+      "the decal farthest from cam2 (distance 30) must be rendered first after rebinding (Java lines 105-107)"
+    )
     assert(contents(1) eq mid, "the decal at cam2 distance 25 must be rendered second after rebinding (Java lines 105-107)")
     assert(contents(2) eq far, "the decal nearest to cam2 (distance 10) must be rendered last after rebinding (Java lines 105-107)")
   }
 
-  test("ISS-497: default sorter must follow direct camera reassignment (the port's public var is the same live field Java lines 105-106 read)") {
+  test(
+    "ISS-497: default sorter must follow direct camera reassignment (the port's public var is the same live field Java lines 105-106 read)"
+  ) {
     // The port exposes the camera as a public `var camera: Camera` (the
     // no-logic setCamera/getCamera pair maps onto it), so
     // `strategy.camera = cam2` is the second public spelling of Java's
@@ -233,7 +244,13 @@ class DecalSortRebindRedSuite extends munit.FunSuite {
       List(30f, 10f),
       "after `strategy.camera = cam2` the default sorter must sort back-to-front against the NEW camera (Java lines 105-106 read the live field)"
     )
-    assert(contents(0) eq near, "the decal farthest from cam2 (distance 30) must be rendered first after reassignment (Java lines 105-107)")
-    assert(contents(1) eq far, "the decal nearest to cam2 (distance 10) must be rendered last after reassignment (Java lines 105-107)")
+    assert(
+      contents(0) eq near,
+      "the decal farthest from cam2 (distance 30) must be rendered first after reassignment (Java lines 105-107)"
+    )
+    assert(
+      contents(1) eq far,
+      "the decal nearest to cam2 (distance 10) must be rendered last after reassignment (Java lines 105-107)"
+    )
   }
 }

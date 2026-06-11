@@ -339,3 +339,7 @@ sge-extension/ai/src/test/scala/sge/ai/msg/AiPriorityQueueRedSuite.scala	shortcu
 sge/src/test/scalajvm/sge/graphics/g3d/loader/ObjLoaderFanRedSuite.scala	shortcuts	ISS-498 red-suite fixture: resolver must never be invoked (audited)	2026-06-11	dev
 sge/src/test/scalanative/sge/graphics/g3d/loader/ObjLoaderFanRedSuite.scala	shortcuts	ISS-498 red-suite fixture: native copy	2026-06-11	dev
 sge-extension/jbump/src/test/scala/sge/jbump/JbumpNullProjectRedSuite.scala	shortcuts	ISS-503 red-suite doc comment quotes ISS-595 null-cast code (audited, ISS-599a)	2026-06-11	dev
+sge/src/test/scalajvm/sge/graphics/g3d/decals/DecalSortRedSuite.scala	shortcuts	ISS-497 red-suite dummy TextureData fixture (audited)	2026-06-11	dev
+sge/src/test/scalajvm/sge/graphics/g3d/decals/DecalSortRebindRedSuite.scala	shortcuts	ISS-497 bounce red-suite fixture (audited)	2026-06-11	dev
+sge/src/test/scalanative/sge/graphics/g3d/decals/DecalSortRedSuite.scala	shortcuts	ISS-497 red-suite dummy TextureData fixture (audited)	2026-06-11	dev
+sge/src/test/scalanative/sge/graphics/g3d/decals/DecalSortRebindRedSuite.scala	shortcuts	ISS-497 bounce red-suite fixture (audited)	2026-06-11	dev
