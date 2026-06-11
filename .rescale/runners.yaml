@@ -104,14 +104,21 @@ runners:
   # (compile-error-red) and fails the gate; a red commit that touches
   # main sources is rejected (red-touches-main).
   #
-  # Invoke:
+  # Invoke (JVM, default):
   #   re-scale runner red-green --mode run -- <module> <suite> <red-sha> <fix-sha>
+  # Invoke (Scala Native, ISS-596):
+  #   re-scale runner red-green --mode run -- <module> <suite> <red-sha> <fix-sha> native
   #
-  # The four positional args fill $1..$4 in the `run` mode block, which
-  # the wrapper writes to the mode-file; .rescale/scripts/red-green.sh
+  # The four (or five) positional args fill $1..$5 in the `run` mode block,
+  # which the wrapper writes to the mode-file; .rescale/scripts/red-green.sh
   # reads (and deletes) that file on entry, then runs the phases in a
-  # throwaway git clone. Final stdout line is exactly `RED-GREEN: PASS`
-  # or `RED-GREEN: FAIL — <reason>`; exit 0 only on PASS.
+  # throwaway git clone. The optional 5th arg is the platform: jvm (default)
+  # or native. Native runs the projectMatrix variant `<module>Native/testOnly`
+  # and parses the Scala Native result dialect (no munit per-run lines; only
+  # the sbt `… Total N, Failed M, Errors E, Passed P` summary). Final stdout
+  # line is exactly `RED-GREEN: PASS` or `RED-GREEN: FAIL — <reason>`; exit 0
+  # only on PASS, exit 2 on an unparseable/truncated run (tool error), exit 1
+  # otherwise.
   #
   # Permanent canary / probe set — re-run ALL of these on every audit of
   # the script (module sge-noise, suite Iss487CanarySuite unless noted):
@@ -122,6 +129,24 @@ runners:
   #   canary/iss487-maintouch    → FAIL red-touches-main, exit 1
   #   probe/iss487-shadow        → FAIL, exit 1 (no glob masking)
   #   probe/iss487-rename        → FAIL tamper, exit 1
+  # ISS-596 Native set (suite Iss596CanarySuite, --platform native):
+  #   canary/iss596-native         → RED-GREEN: PASS, exit 0
+  #   canary/iss596-native-tamper  → FAIL tamper, exit 1
+  # ISS-596 bounce-1 ran-at-all-guard probe set (each branch ships a runner
+  # under sge-extension/noise/src/test/resources/iss596/; the `--classify`
+  # self-test entrypoint exercises the live classifier without a full clone):
+  #   probe/iss596-native-zerotest → vanished suite, `Total 0` rc=0 → exit 2
+  #                                  (fail-closed) at green AND red phase; plus
+  #                                  the bounce-2 SKIP fixture (Total 1, Passed
+  #                                  0, Skipped 1) → no-summary on native
+  #   probe/iss596-jvm-zerotest    → JVM mirror, incl. the adversarial
+  #                                  started-marker+Total0 case the explicit
+  #                                  executed-count guard catches; plus the
+  #                                  bounce-2 SKIP fixture (auditor's exact
+  #                                  `Total 1 … Passed 0, Skipped 1` rc=0) and
+  #                                  a finding-B forged-red fixture (failures>0
+  #                                  rc=0) → all no-summary (fail closed)
+  #   probe/iss596-native-trunc    → tool error, exit 2 (truncated output)
   red-green:
     description: "Red-green resolve gate: suite fails at red-sha, passes at fix-sha, fix leaves the red test untouched"
     invoke:
@@ -132,13 +157,18 @@ runners:
       format: kv
     modes:
       run:
-        module: "$1"
-        suite:  "$2"
-        red:    "$3"
-        fix:    "$4"
+        module:   "$1"
+        suite:    "$2"
+        red:      "$3"
+        fix:      "$4"
+        # Optional 5th arg (ISS-596): jvm (default) | native. Absent/empty
+        # ⇒ jvm, behavior-identical to the pre-ISS-596 JVM behavior except
+        # that a no-summary / vanished-suite run now exits 2 (ISS-596
+        # bounce 1 ran-at-all guard) instead of being mis-read as a pass.
+        platform: "$5"
     output:
       failure:
-        keep-lines-matching: ["RED-GREEN:", "compile-error-red", "TAMPER", "assertion", "[error]", "failed,"]
+        keep-lines-matching: ["RED-GREEN:", "compile-error-red", "TAMPER", "assertion", "[error]", "failed,", "Failed: Total"]
         max-lines: 40
 
   # ── Convenience scanners ──────────────────────────────────────────
