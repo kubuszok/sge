@@ -343,3 +343,10 @@ sge/src/test/scalajvm/sge/graphics/g3d/decals/DecalSortRedSuite.scala	shortcuts	
 sge/src/test/scalajvm/sge/graphics/g3d/decals/DecalSortRebindRedSuite.scala	shortcuts	ISS-497 bounce red-suite fixture (audited)	2026-06-11	dev
 sge/src/test/scalanative/sge/graphics/g3d/decals/DecalSortRedSuite.scala	shortcuts	ISS-497 red-suite dummy TextureData fixture (audited)	2026-06-11	dev
 sge/src/test/scalanative/sge/graphics/g3d/decals/DecalSortRebindRedSuite.scala	shortcuts	ISS-497 bounce red-suite fixture (audited)	2026-06-11	dev
+sge/src/test/scalajvm/sge/graphics/g2d/PolygonSpriteBatchRedSuite.scala	shortcuts	ISS-496 red-suite dummy TextureData fixture (audited)	2026-06-11	dev
+sge/src/test/scalanative/sge/graphics/g2d/PolygonSpriteBatchRedSuite.scala	shortcuts	ISS-496 red-suite fixture, native copy	2026-06-11	dev
+sge/src/test/scalajvm/sge/utils/TimerWakeupRedSuite.scala	shortcuts	ISS-504 red-suite PumpApplication fixture stubs + phase-comment FPs (audited)	2026-06-11	dev
+sge/src/test/scalajvm/sge/net/SgeHttpClientDoubleFreeRedSuite.scala	shortcuts	ISS-505 red-suite comment FPs: controllable stub backend doc (audited)	2026-06-11	dev
+sge/src/main/scala/sge/net/SgeHttpClient.scala	shortcuts	pending-comment FPs: pending = the pending-request map domain term, 10 sites audited individually (ISS-505 audit)	2026-06-11	dev
+sge/src/test/scalajvm/sge/maps/tiled/TmxTileIdsEofRedSuite.scala	shortcuts	ISS-506 red-suite minimal-comment FP: fixture doc (audited)	2026-06-11	dev
+sge/src/test/scalanative/sge/maps/tiled/TmxTileIdsEofRedSuite.scala	shortcuts	ISS-506 red-suite fixture doc, native copy	2026-06-11	dev
