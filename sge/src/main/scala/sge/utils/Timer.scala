@@ -10,23 +10,24 @@
  *   Idiom: split packages
  *   Fixes: LifecycleListener integration and postRunnable wiring implemented; getExecuteTimeMillis → executeTime
  *   Convention: opaque Seconds for delaySeconds/intervalSeconds params
- *   Idiom: background loop via TimerPlatformOps.runLoop — Gears async on JVM/Native, setTimeout on JS
+ *   Idiom: background loop via TimerPlatformOps.runLoop — daemon thread blocked in threadLock.wait/notifyAll on JVM/Native (faithful to TimerThread), setTimeout-with-reschedule on JS
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 336
- * Covenant-baseline-methods: Task,Timer,TimerThread,addPostedTask,cancel,clear,currentThread,currentWaitMillis,delay,dispose,disposeThread,executeTime,executeTimeMillis,files,i,instance,instances,intervalMillis,isEmpty,isScheduled,loopStep,pause,pauseTimeMillis,post,postTask,postedTasks,removePostedTask,repeatCount,reset,resume,run,runPostedTasks,runPostedTasksRunnable,runTasks,schedule,scheduleTask,start,stop,stopTimeMillis,tasks,thread,threadLock,update
+ * Covenant-baseline-loc: 369
+ * Covenant-baseline-methods: Task,Timer,TimerThread,addPostedTask,cancel,clear,currentThread,currentWaitMillis,delay,dispose,disposeThread,executeTime,executeTimeMillis,files,i,instance,instances,intervalMillis,isEmpty,isScheduled,loopHandle,loopStep,pause,pauseTimeMillis,post,postTask,postedTasks,removePostedTask,repeatCount,reset,resume,run,runPostedTasks,runPostedTasksRunnable,runTasks,schedule,scheduleTask,start,stop,stopTimeMillis,tasks,thread,threadLock,update,wakeUp
  * Covenant-source-reference: com/badlogic/gdx/utils/Timer.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-11
  *
  * upstream-commit: ff659249e292141692fb7b0b2b30c69ac38e5e0d
  */
 package sge
 package utils
 
+import lowlevel.Nullable
 import lowlevel.util.DynamicArray
 
 /** Executes tasks in the future on the main loop thread.
@@ -50,13 +51,13 @@ class Timer(using sge.Sge) {
     */
   def scheduleTask(task: Task, delaySeconds: Seconds = Seconds.zero, intervalSeconds: Seconds = Seconds.zero, repeatCount: Int = 0): Task = {
     threadLock.synchronized {
+      val currentThread = thread()
       this.synchronized {
         task.synchronized {
           if (task.timer.isDefined) throw new IllegalArgumentException("The same task may not be scheduled twice.")
           task.timer = Some(this)
           val timeMillis        = System.nanoTime() / 1000000
           var executeTimeMillis = timeMillis + delaySeconds.toMillis
-          val currentThread     = thread()
           if (currentThread.pauseTimeMillis > 0) executeTimeMillis -= timeMillis - currentThread.pauseTimeMillis
           task.executeTimeMillis = executeTimeMillis
           task.intervalMillis = intervalSeconds.toMillis
@@ -64,7 +65,9 @@ class Timer(using sge.Sge) {
           tasks.add(task)
         }
       }
-      threadLock.notifyAll()
+      // Wake the idle timer loop so the newly scheduled task fires promptly,
+      // mirroring `threadLock.notifyAll()` in the original (Timer.java:94).
+      currentThread.wakeUp()
     }
     task
   }
@@ -86,7 +89,8 @@ class Timer(using sge.Sge) {
           delay(System.nanoTime() / 1000000 - stopTimeMillis)
           stopTimeMillis = 0
         }
-        threadLock.notifyAll()
+        // Wake the idle loop, mirroring `threadLock.notifyAll()` (Timer.java:117).
+        currentThread.wakeUp()
       }
     }
 
@@ -251,9 +255,11 @@ object Timer {
 
   /** Manages the background loop for updating timers. Uses application events to pause, resume, and dispose the loop.
     *
-    * The background loop is driven by `TimerPlatformOps.runLoop`:
-    *   - JVM/Native: Gears `Async.blocking` + `AsyncOperations.sleep` (virtual threads on JVM, continuations on Native)
-    *   - JS: `setTimeout` callbacks on the event loop
+    * The background loop is driven by `TimerPlatformOps.runLoop`, which waits on `threadLock` between steps and is woken by [[wakeUp]], mirroring the original's `threadLock.wait(waitMillis)` /
+    * `threadLock.notifyAll()` design (Timer.java:307, 94, 117, 347, 354, 365):
+    *   - JVM/Native: a daemon thread blocked in `threadLock.wait(waitMillis)`; `wakeUp` calls `threadLock.notifyAll()` so a newly scheduled task fires promptly instead of after the 5s idle cap.
+    *   - JS: single-threaded `setTimeout` callbacks; `wakeUp` cancels the in-flight timeout and reschedules an immediate tick (there is no thread to notify on the event loop, so the observable
+    *     "schedule -> prompt wake" semantics are matched by rescheduling).
     *
     * @author
     *   Nathan Sweet
@@ -268,14 +274,27 @@ object Timer {
     private val runTasks = DynamicArray[Task]()
     private val runPostedTasksRunnable: Runnable = () => runPostedTasks()
 
+    // Handle to the background loop's wait primitive; assigned once the loop is
+    // launched. Until then `wakeUp()` is a no-op — matching the original, where
+    // the constructor's `resume()` notifyAll() runs before the thread waits.
+    private var loopHandle: Nullable[TimerPlatformOps.LoopHandle] = Nullable.empty
+
     sge.Sge().application.addLifecycleListener(this)
     resume()
 
-    // Launch the background timer loop via platform-specific mechanism.
-    TimerPlatformOps.runLoop(
-      step = () => loopStep(),
-      onDone = () => dispose()
+    // Launch the background timer loop via platform-specific mechanism. The loop
+    // waits on `threadLock` between steps; `wakeUp()` interrupts that wait.
+    loopHandle = Nullable(
+      TimerPlatformOps.runLoop(
+        lock = threadLock,
+        step = () => loopStep(),
+        onDone = () => dispose()
+      )
     )
+
+    /** Wakes the idle background loop so a newly scheduled / started / resumed task fires promptly. Mirrors `threadLock.notifyAll()` in the original. Must be called while holding `threadLock`.
+      */
+    def wakeUp(): Unit = loopHandle.foreach(_.wakeUp())
 
     /** Single step of the timer loop. Returns millis to sleep, or negative to exit. */
     private def loopStep(): Long = threadLock.synchronized {
@@ -325,11 +344,13 @@ object Timer {
         val delayMillis = System.nanoTime() / 1000000 - pauseTimeMillis
         instances.foreach(_.delay(delayMillis))
         pauseTimeMillis = 0
+        wakeUp() // Timer.java:347 — threadLock.notifyAll()
       }
 
     def pause(): Unit =
       threadLock.synchronized {
         pauseTimeMillis = System.nanoTime() / 1000000
+        wakeUp() // Timer.java:354 — threadLock.notifyAll()
       }
 
     def dispose(): Unit = { // OK to call multiple times.
@@ -339,6 +360,7 @@ object Timer {
         }
         if (currentThread.exists(_ == this)) currentThread = None
         instances.clear()
+        wakeUp() // Timer.java:365 — threadLock.notifyAll() (wakes the loop so it re-checks the exit condition)
       }
       sge.Sge().application.removeLifecycleListener(this)
     }
