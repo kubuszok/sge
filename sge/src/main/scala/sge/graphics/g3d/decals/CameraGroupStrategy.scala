@@ -11,8 +11,18 @@
  * - cameraSorter: Java uses camera.position.dst(o1.position) accessing protected field;
  *   Scala uses camera.position.distance(o1.position) using public getter — correct
  *   (dst renamed to distance in SGE Vector3)
- * - Default comparator: Java casts Math.signum to int; Scala converts .toInt then > 0:
- *   equivalent logic
+ * - Default comparator: Java sets the final `cameraSorter` field to an anonymous Comparator
+ *   whose compare reads CameraGroupStrategy.this.camera.position.dst(...) (lines 104-107) —
+ *   the LIVE field — so it tracks setCamera (lines 119-121). Returns
+ *   (int)Math.signum(dist2 - dist1): farther decals sort first (back-to-front), with the
+ *   signum-zero (equal-distance) case comparing equal. The Scala port realises this with a
+ *   defaultCameraSorter Ordering[Decal] (SAM) defined in the class body that reads the live
+ *   `camera` var at compare time; the no-comparator constructor passes Nullable.empty through
+ *   the primary constructor's Nullable[Ordering[Decal]] sentinel, which resolves to that
+ *   default. A secondary-constructor SAM cannot reference `this`, so it would have captured the
+ *   constructor parameter (frozen at construction) instead of the live field — fixed under
+ *   ISS-497 bounce 1 (the earlier note overclaimed "faithful": it captured the ctor parameter
+ *   and ignored later setCamera / direct `camera =` rebinding)
  * - arrayPool: Java Pool subclass -> Pool.Default lambda: correct
  * - arrayPool.freeAll(usedArrays) -> usedArrays.foreach(arrayPool.free): correct
  *   (DynamicArray not Iterable)
@@ -28,10 +38,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 167
- * Covenant-baseline-methods: CameraGroupStrategy,GROUP_BLEND,GROUP_OPAQUE,afterGroup,afterGroups,arrayPool,beforeGroup,beforeGroups,close,createDefaultShader,decideGroup,fragmentShader,getCamera,getGroupShader,materialGroups,setCamera,shader,this,usedArrays,vertexShader
+ * Covenant-baseline-loc: 204
+ * Covenant-baseline-methods: CameraGroupStrategy,GROUP_BLEND,GROUP_OPAQUE,afterGroup,afterGroups,arrayPool,beforeGroup,beforeGroups,cameraSorter,close,createDefaultShader,decideGroup,defaultCameraSorter,fragmentShader,getCamera,getGroupShader,materialGroups,setCamera,shader,this,usedArrays,vertexShader
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/decals/CameraGroupStrategy.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-11
  *
  * upstream-commit: 2729e989ca16f1dba2da7ef8b754fd6c6a9c0394
  */
@@ -56,7 +66,14 @@ import sge.utils.SgeError
   * <td>EV</td> </tr> <tr> <td>glDepthFunc</td> <td>GL_LESS | GL_LEQUAL</td> <td>EV</td> </tr> <tr> <td>GL_BLEND</td> <td>disabled</td> <td>EV | disabled</td> </tr> <tr> <td>glBlendFunc</td>
   * <td>*</td> <td>*</td> </tr> <tr> <td>GL_TEXTURE_2D</td> <td>*</td> <td>disabled</td> </tr> </table> </p>
   */
-class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(using Sge) extends GroupStrategy with AutoCloseable {
+// The primary constructor takes the sorter as a Nullable[Ordering[Decal]]: a present value is the
+// caller-supplied comparator (Java's two-arg constructor, lines 113-117); an empty value selects the
+// default sorter. Java sets the final `cameraSorter` field to an anonymous Comparator whose compare
+// reads `CameraGroupStrategy.this.camera` (lines 104-107) — the LIVE field, so it tracks setCamera
+// (lines 119-121). Scala cannot reference `this` from a secondary-constructor argument expression, so
+// the default sorter (defaultCameraSorter below) lives in the class body and reads the live `camera`
+// var at compare time, and the empty sentinel routes the no-comparator constructor to it.
+class CameraGroupStrategy(var camera: Camera, cameraSorterOrDefault: Nullable[Ordering[Decal]])(using Sge) extends GroupStrategy with AutoCloseable {
 
   private val arrayPool: Pool[DynamicArray[Decal]] = new Pool.Default[DynamicArray[Decal]](
     () => DynamicArray[Decal](),
@@ -65,19 +82,30 @@ class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(usi
   private val usedArrays:     DynamicArray[DynamicArray[Decal]]             = DynamicArray[DynamicArray[Decal]]()
   private val materialGroups: ObjectMap[DecalMaterial, DynamicArray[Decal]] = ObjectMap[DecalMaterial, DynamicArray[Decal]]()
 
+  /** Default decal comparator, equivalent to the anonymous Comparator Java builds in its single-argument constructor (lines 102-109). compare reads the LIVE `this.camera` field (Java lines 105-106),
+    * so the sort follows setCamera / a direct `camera =` reassignment (Java lines 119-121). Returns (int)Math.signum(dist2 - dist1) (Java line 107): farther decals sort first (back-to-front), with
+    * equal distances comparing equal via signum(0) == 0.
+    */
+  private val defaultCameraSorter: Ordering[Decal] =
+    (o1: Decal, o2: Decal) => {
+      val dist1 = camera.position.distance(o1.position)
+      val dist2 = camera.position.distance(o2.position)
+      Math.signum(dist2 - dist1).toInt
+    }
+
+  // Resolve the final sorter once, mirroring Java's final `cameraSorter` field: caller-supplied if present,
+  // otherwise the live-field-reading default above.
+  private val cameraSorter: Ordering[Decal] = cameraSorterOrDefault.getOrElse(defaultCameraSorter)
+
   private var shader: ShaderProgram = scala.compiletime.uninitialized
 
   createDefaultShader()
 
   def this(camera: Camera)(using Sge) =
-    this(
-      camera,
-      Ordering.fromLessThan[Decal] { (o1, o2) =>
-        val dist1 = camera.position.distance(o1.position)
-        val dist2 = camera.position.distance(o2.position)
-        Math.signum(dist2 - dist1).toInt > 0
-      }
-    )
+    this(camera, Nullable.empty[Ordering[Decal]])
+
+  def this(camera: Camera, sorter: Ordering[Decal])(using Sge) =
+    this(camera, Nullable(sorter))
 
   def setCamera(camera: Camera): Unit =
     this.camera = camera
