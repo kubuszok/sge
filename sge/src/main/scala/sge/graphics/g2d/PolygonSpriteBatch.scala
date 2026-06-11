@@ -16,9 +16,9 @@
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 1310
- * Covenant-baseline-methods: PolygonSpriteBatch,_blendDstFunc,_blendDstFuncAlpha,_blendSrcFunc,_blendSrcFuncAlpha,_color,_drawing,_projectionMatrix,_shader,_transformMatrix,activeShader,batch,blendDstFunc,blendDstFuncAlpha,blendSrcFunc,blendSrcFuncAlpha,blendingDisabled,blendingEnabled,close,color,colorPacked,color_,combinedMatrix,cos,currentOffset,customShader,disableBlending,draw,drawing,enableBlending,flush,fx,fx2,fy,fy2,gl,idx,invTexHeight,invTexWidth,lastTexture,maxTrianglesInBatch,mesh,ownsShader,p1x,p1y,p2x,p2y,p3x,p3y,p4x,p4y,packedColor,packedColor_,projectionMatrix,projectionMatrix_,regionTriangles,regionTrianglesLength,regionVertices,regionVerticesLength,remainingCount,renderCalls,sX,sY,setBlendFunction,setBlendFunctionSeparate,setColor,setupMatrices,shader,shader_,sin,startVertex,switchTexture,texture,textureCoords,textureRegion,this,ti,totalRenderCalls,transformMatrix,transformMatrix_,triangleCount,triangleIdx,triangleIndex,triangles,u,u1,u2,u3,u4,v,v1,v2,v3,v4,vertex,vertexDataType,vertexIdx,vertexIndex,vertices,worldOriginX,worldOriginY,x1,x2,x3,x4,y1,y2,y3,y4
+ * Covenant-baseline-methods: PolygonSpriteBatch,_blendDstFunc,_blendDstFuncAlpha,_blendSrcFunc,_blendSrcFuncAlpha,_color,_drawing,_projectionMatrix,_shader,_transformMatrix,activeShader,batch,blendDstFunc,blendDstFuncAlpha,blendSrcFunc,blendSrcFuncAlpha,blendingDisabled,blendingEnabled,close,color,colorPacked,color_,combinedMatrix,cos,currentOffset,customShader,disableBlending,draw,drawing,enableBlending,flush,fx,fx2,fy,fy2,gl,idx,invTexHeight,invTexWidth,lastTexture,maxTrianglesInBatch,mesh,n,ownsShader,p1x,p1y,p2x,p2y,p3x,p3y,p4x,p4y,packedColor,packedColor_,projectionMatrix,projectionMatrix_,regionTriangles,regionTrianglesLength,regionVertices,regionVerticesLength,remainingCount,renderCalls,sX,sY,setBlendFunction,setBlendFunctionSeparate,setColor,setupMatrices,shader,shader_,sin,startVertex,switchTexture,texture,textureCoords,textureRegion,this,totalRenderCalls,transformMatrix,transformMatrix_,triangleCount,triangleIdx,triangleIndex,triangles,u,u1,u2,u3,u4,v,v1,v2,v3,v4,vertex,vertexDataType,vertexIdx,vertexIndex,vertices,worldOriginX,worldOriginY,x1,x2,x3,x4,y1,y2,y3,y4
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/PolygonSpriteBatch.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-11
  *
  * upstream-commit: 5eadf1e3efbe30592d4d55905f36254e62ed2147
  */
@@ -756,26 +756,26 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
       switchTexture(texture)
       batch = scala.math.min(scala.math.min(count, vertices.length - (vertices.length % SPRITE_SIZE)), triangles.length / 6 * SPRITE_SIZE)
       triangleCount = batch / SPRITE_SIZE * 6
-    } else if (triangleIndex + triangleCount > triangles.length || vertexIndex + count > vertices.length) {
+    } else if (this.triangleIndex + triangleCount > triangles.length || this.vertexIndex + count > vertices.length) {
       flush()
       batch = scala.math.min(scala.math.min(count, vertices.length - (vertices.length % SPRITE_SIZE)), triangles.length / 6 * SPRITE_SIZE)
       triangleCount = batch / SPRITE_SIZE * 6
     } else
       batch = count
 
-    var vertexIdx   = this.vertexIndex
-    var vertex      = (vertexIdx / VERTEX_SIZE).toShort
-    var triangleIdx = this.triangleIndex
-    var ti          = triangleIdx
-    while (ti < triangleIdx + triangleCount) {
-      triangles(ti) = vertex
-      triangles(ti + 1) = (vertex + 1).toShort
-      triangles(ti + 2) = (vertex + 2).toShort
-      triangles(ti + 3) = (vertex + 2).toShort
-      triangles(ti + 4) = (vertex + 3).toShort
-      triangles(ti + 5) = vertex
+    var vertexIdx     = this.vertexIndex
+    var vertex        = (vertexIdx / VERTEX_SIZE).toShort
+    var triangleIndex = this.triangleIndex
+    val n             = triangleIndex + triangleCount
+    while (triangleIndex < n) {
+      triangles(triangleIndex) = vertex
+      triangles(triangleIndex + 1) = (vertex + 1).toShort
+      triangles(triangleIndex + 2) = (vertex + 2).toShort
+      triangles(triangleIndex + 3) = (vertex + 2).toShort
+      triangles(triangleIndex + 4) = (vertex + 3).toShort
+      triangles(triangleIndex + 5) = vertex
+      triangleIndex += 6
       vertex = (vertex + 4).toShort
-      ti += 6
     }
 
     var remainingCount = count
@@ -784,7 +784,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
       while (true) {
         Array.copy(spriteVertices, currentOffset, vertices, vertexIdx, batch)
         this.vertexIndex = vertexIdx + batch
-        this.triangleIndex = ti
+        this.triangleIndex = triangleIndex
         remainingCount -= batch
         if (remainingCount == 0) {
           break(())
@@ -794,7 +794,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
           vertexIdx = 0
           if (batch > remainingCount) {
             batch = scala.math.min(remainingCount, triangles.length / 6 * SPRITE_SIZE)
-            triangleIdx = batch / SPRITE_SIZE * 6
+            triangleIndex = batch / SPRITE_SIZE * 6
           }
         }
       }
