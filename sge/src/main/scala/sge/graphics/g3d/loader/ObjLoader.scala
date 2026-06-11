@@ -16,8 +16,12 @@
  * - No-arg constructor passes null to resolver (Java interop boundary); needs review
  * - Java Gdx.app.error -> Sge().application.error
  * - (using Sge) context parameter on class constructor
- * - Face parsing loop: Java `i--` decrement on line 148 (known Java bug) ->
- *   Scala uses `i += 1` increment (corrected behavior)
+ * - Face parsing loop (ObjLoader.java:148-168): Java's `for (int i = 1;
+ *   i < tokens.length - 2; i--)` with two inline `++i` nets +1 per iteration,
+ *   triangulating an n-gon as a fan anchored at tokens(1). Ported faithfully
+ *   as a clear `while` loop emitting (tokens(1), tokens(i+1), tokens(i+2)) with
+ *   a single `i += 1` (ISS-498: an earlier port advanced i by +3 per iteration,
+ *   dropping triangles of any face with more than 3 vertices)
  * TODO: test: decode a real .obj/.mtl file (Wavefront) end-to-end through ObjLoader
  * - loadModel(FileHandle, boolean) returns Nullable[Model] (matches Nullable pattern)
  * - Group.faces initial capacity differs: Java 200 vs Scala unspecified default
@@ -27,10 +31,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 487
+ * Covenant-baseline-loc: 523
  * Covenant-baseline-methods: Group,MtlLoader,ObjLoader,ObjLoaderParameters,ObjMaterial,activeGroup,addTexture,build,data,faces,firstChar,g,getIndex,getMaterial,group,groups,hasNorms,hasUVs,i,id,line,load,loadModel,loadModelData,logWarning,mat,materialName,materials,mtl,norms,numFaces,numGroups,parseColor,reader,reset,setActiveGroup,this,tokens,uvs,verts
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/loader/ObjLoader.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-11
  *
  * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */
@@ -132,7 +136,31 @@ class ObjLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoader[Obj
             } else if (firstChar == 'f') {
               var parts: Array[String] = Array.empty[String]
               val faces = activeGroup.faces
-              var i     = 1
+              // Triangle-fan triangulation of an n-gon face, anchored at the
+              // first face vertex (tokens(1)). This reproduces the exact output
+              // of the Java loop (ObjLoader.java:148-168):
+              //
+              //   for (int i = 1; i < tokens.length - 2; i--) {
+              //     parts = tokens[1].split("/");   // apex, ALWAYS tokens[1]
+              //     ... emit apex element ...
+              //     parts = tokens[++i].split("/"); // i -> i+1
+              //     ... emit element ...
+              //     parts = tokens[++i].split("/"); // i -> i+2
+              //     ... emit element ...
+              //     activeGroup.numFaces++;
+              //   }                                 // update clause i-- nets +1
+              //
+              // The Java `i--` in the update clause looks like a decrement bug
+              // but cancels two of the three increments from the two inline
+              // `++i`, so `i` advances by a NET +1 per iteration. With entry
+              // value i the body emits the fan triangle (tokens(1), tokens(i+1),
+              // tokens(i+2)); writing it with explicit i+1/i+2 and a single
+              // `i += 1` makes the net +1 semantics clear while emitting the
+              // identical vertex stream and index ramp. The apex element is
+              // re-emitted once per fan triangle (no dedup downstream). The
+              // `if (i == 1)` guards stay on the entry value of i, so hasNorms /
+              // hasUVs are still only latched on the first iteration.
+              var i = 1
               while (i < tokens.length - 2) {
                 parts = tokens(1).split("/")
                 faces.add(getIndex(parts(0), verts.size))
@@ -144,13 +172,11 @@ class ObjLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoader[Obj
                   if (i == 1) activeGroup.hasUVs = true
                   faces.add(getIndex(parts(1), uvs.size))
                 }
-                i += 1
-                parts = tokens(i).split("/")
+                parts = tokens(i + 1).split("/")
                 faces.add(getIndex(parts(0), verts.size))
                 if (parts.length > 2) faces += getIndex(parts(2), norms.size)
                 if (parts.length > 1 && parts(1).nonEmpty) faces += getIndex(parts(1), uvs.size)
-                i += 1
-                parts = tokens(i).split("/")
+                parts = tokens(i + 2).split("/")
                 faces.add(getIndex(parts(0), verts.size))
                 if (parts.length > 2) faces += getIndex(parts(2), norms.size)
                 if (parts.length > 1 && parts(1).nonEmpty) faces += getIndex(parts(1), uvs.size)
