@@ -336,3 +336,6 @@ sge/src/test/scalanative/sge/graphics/g2d/SpriteCacheRedSuite.scala	shortcuts	IS
 sge/src/test/scalajvm/sge/graphics/g2d/SpriteCacheRedefineRedSuite.scala	shortcuts	ISS-493 bounce red-suite fixture: same dummy TextureData pattern; audited	2026-06-10	dev
 sge/src/test/scalanative/sge/graphics/g2d/SpriteCacheRedefineRedSuite.scala	shortcuts	ISS-493 bounce red-suite fixture: same dummy TextureData pattern; native copy	2026-06-10	dev
 sge-extension/ai/src/test/scala/sge/ai/msg/AiPriorityQueueRedSuite.scala	shortcuts	ISS-502 red-suite drain helper uses var continue flag (flag-break-var); audited fixture, frozen red test	2026-06-10	dev
+sge/src/test/scalajvm/sge/graphics/g3d/loader/ObjLoaderFanRedSuite.scala	shortcuts	ISS-498 red-suite fixture: resolver must never be invoked (audited)	2026-06-11	dev
+sge/src/test/scalanative/sge/graphics/g3d/loader/ObjLoaderFanRedSuite.scala	shortcuts	ISS-498 red-suite fixture: native copy	2026-06-11	dev
+sge-extension/jbump/src/test/scala/sge/jbump/JbumpNullProjectRedSuite.scala	shortcuts	ISS-503 red-suite doc comment quotes ISS-595 null-cast code (audited, ISS-599a)	2026-06-11	dev

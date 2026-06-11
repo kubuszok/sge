@@ -23,8 +23,8 @@ import lowlevel.util.DynamicArray
   *
   * Geometry used below (caller order = index order; the triangulator sorts internally by ascending x and, since ISS-499 is fixed, returns caller-order indices):
   *   - A = (-10, 0), B = (-8, 6), C = (-6, -8): all on the circle x^2 + y^2 = 100, so triangle ABC has circumcenter (0, 0) and radius 10.
-  *   - P1 = (1, 15): full distance^2 to (0,0) is 1 + 225 = 226 > 100, but X-distance^2 is 1 < 100. Port: 1 > 0 && 226 > 100 -> COMPLETE (ABC permanently excluded). Java: dx = 1 - 0 = 1, dx*dx = 1,
-  *     1 > 100 is false -> INCOMPLETE (line 256), so ABC stays testable.
+  *   - P1 = (1, 15): full distance^2 to (0,0) is 1 + 225 = 226 > 100, but X-distance^2 is 1 < 100. Port: 1 > 0 && 226 > 100 -> COMPLETE (ABC permanently excluded). Java: dx = 1 - 0 = 1, dx*dx = 1, 1
+  *     > 100 is false -> INCOMPLETE (line 256), so ABC stays testable.
   *   - P2 = (5, 0): distance^2 = 25 < 100, strictly inside ABC's circumcircle. Processed last (largest x). Java removes ABC and re-triangulates; the buggy port skips the completed ABC, keeping a
   *     triangle whose circumcircle strictly contains an input point.
   *
@@ -38,10 +38,10 @@ import lowlevel.util.DynamicArray
   * The buggy port instead returns {A, B, C} (containing P2 in its circumcircle), {B, C, P2}, {B, P1, P2}.
   *
   * ISS-500 (b) — Java's degenerate-trio guard `if (y2y3 < EPSILON) return INCOMPLETE;` (DelaunayTriangulator.java:226, both |y1-y2| and |y2-y3| below EPSILON) is indeed missing from the port, but no
-  * observable failure could be constructed through the public computeTriangles API: the guard only fires for a mesh triangle whose three vertices are pairwise within 1e-6 in y, and under
-  * ascending-x insertion such a sliver's third (rightmost) vertex must lie inside a circumcircle through the other two, which for near-collinear points requires an already-degenerate circumcircle
-  * (center offset > x*dx/(2*1e-6)) that no sane mesh provides. Empirical probing (33 configurations, including exact x-tie near-duplicate clusters and sorted=true runs that bypass the internal sort)
-  * produced identical triangle SETS for the Java original and a port with only (a) fixed in every case, so this suite covers (a) only.
+  * observable failure could be constructed through the public computeTriangles API: the guard only fires for a mesh triangle whose three vertices are pairwise within 1e-6 in y, and under ascending-x
+  * insertion such a sliver's third (rightmost) vertex must lie inside a circumcircle through the other two, which for near-collinear points requires an already-degenerate circumcircle (center offset
+  * > x*dx/(2*1e-6)) that no sane mesh provides. Empirical probing (33 configurations, including exact x-tie near-duplicate clusters and sorted=true runs that bypass the internal sort) produced
+  * identical triangle SETS for the Java original and a port with only (a) fixed in every case, so this suite covers (a) only.
   *
   * Note: output triangle ORDER legitimately differs from Java — the Java fields are unordered gdx arrays (`new ShortArray(false, 16)`, removal swaps from the end) while the port's DynamicArray
   * removals shift. All assertions therefore compare triangle SETS, never sequences.
@@ -85,7 +85,7 @@ class CircumCircleRedSuite extends munit.FunSuite {
   private def assertDelaunayProperty(points: Array[Float], triangles: DynamicArray[Short]): Unit = {
     val inputPoints = (0 until points.length by 2).map(i => (points(i), points(i + 1)))
     (0 until triangles.size by 3).foreach { i =>
-      val verts          = List(i, i + 1, i + 2).map { j =>
+      val verts = List(i, i + 1, i + 2).map { j =>
         val p = triangles(j).toInt
         (points(p * 2), points(p * 2 + 1))
       }

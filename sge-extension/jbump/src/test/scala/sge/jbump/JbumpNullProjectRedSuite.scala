@@ -20,13 +20,13 @@ import scala.collection.mutable.ArrayBuffer
   *     `collisions.add(..., item, other, response)` (line 271).
   *   - Collisions.java:88-109 `add` stores the item via plain `items.add(item)` (line 107) — null items are stored fine.
   *   - RectHelper.java:40-122 `rect_detectCollision`: for itemRect (2.5,0,1,1) vs otherRect (3,0,1,1) with goal == position (dx=dy=0): diff = (-0.5,-1,2,2) (Rect.java:125-127), contains origin
-  *     (Rect.java:129-132) so overlaps=true; nearest corner = (-0.5,-1) (Rect.java:45-47), wi=0.5, hi=1, ti=-0.5 (RectHelper.java:63-65); zero-movement displacement branch
-  *     (RectHelper.java:89-102): px=-0.5, py forced to 0, normal=(-1,0), touch=(2.5-0.5, 0)=(2,0).
+  *     (Rect.java:129-132) so overlaps=true; nearest corner = (-0.5,-1) (Rect.java:45-47), wi=0.5, hi=1, ti=-0.5 (RectHelper.java:63-65); zero-movement displacement branch (RectHelper.java:89-102):
+  *     px=-0.5, py forced to 0, normal=(-1,0), touch=(2.5-0.5, 0)=(2,0).
   *   - Tunnel case for the non-null control: itemRect (0,0,1,1) → goal (5,0) vs otherRect (3,0,1,1): diff=(2,-1,2,2), segment (0,0)+(5,0)t hits x∈[2,4] at ti1=0.4, ti2=0.8, normal=(-1,0)
   *     (RectHelper.java:68-81), touch=(0+5*0.4, 0)=(2,0) (RectHelper.java:117-118).
   *
-  * The Scala port currently NPEs in Collisions.add (Collisions.scala:108-110 calls `.get` on the Nullable item) on the FIRST detected collision of any null-item projection, and World.scala:350
-  * passes `item.getOrElse(null.asInstanceOf[Item[?]])` into the filter.
+  * The Scala port currently NPEs in Collisions.add (Collisions.scala:108-110 calls `.get` on the Nullable item) on the FIRST detected collision of any null-item projection, and World.scala:350 passes
+  * `item.getOrElse(null.asInstanceOf[Item[?]])` into the filter.
   */
 class JbumpNullProjectRedSuite extends munit.FunSuite {
 
