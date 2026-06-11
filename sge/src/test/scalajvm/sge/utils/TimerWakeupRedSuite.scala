@@ -63,7 +63,7 @@ import scala.collection.mutable.ArrayBuffer
 class TimerWakeupRedSuite extends munit.FunSuite {
 
   /** Application whose postRunnable enqueues; the test thread pumps the queue, playing the role of the main loop thread. */
-  private final class PumpApplication extends Application {
+  final private class PumpApplication extends Application {
     private val queue = ArrayBuffer.empty[Runnable]
 
     def drainAndRun(): Unit = {
@@ -75,23 +75,23 @@ class TimerWakeupRedSuite extends munit.FunSuite {
       toRun.foreach(_.run())
     }
 
-    def applicationListener: ApplicationListener         = throw new UnsupportedOperationException
-    def graphics:            Graphics                    = throw new UnsupportedOperationException
-    def audio:               Audio                       = throw new UnsupportedOperationException
-    def input:               Input                       = throw new UnsupportedOperationException
-    def files:               Files                       = throw new UnsupportedOperationException
-    def net:                 Net                         = throw new UnsupportedOperationException
-    def applicationType:     Application.ApplicationType = Application.ApplicationType.HeadlessDesktop
-    def version:             Int                         = 0
-    def javaHeap:            Long                        = 0L
-    def nativeHeap:          Long                        = 0L
-    def getPreferences(name: String): Preferences = throw new UnsupportedOperationException
-    def clipboard: Clipboard = throw new UnsupportedOperationException
-    def postRunnable(runnable: Runnable): Unit = queue.synchronized {
+    def applicationListener:              ApplicationListener         = throw new UnsupportedOperationException
+    def graphics:                         Graphics                    = throw new UnsupportedOperationException
+    def audio:                            Audio                       = throw new UnsupportedOperationException
+    def input:                            Input                       = throw new UnsupportedOperationException
+    def files:                            Files                       = throw new UnsupportedOperationException
+    def net:                              Net                         = throw new UnsupportedOperationException
+    def applicationType:                  Application.ApplicationType = Application.ApplicationType.HeadlessDesktop
+    def version:                          Int                         = 0
+    def javaHeap:                         Long                        = 0L
+    def nativeHeap:                       Long                        = 0L
+    def getPreferences(name: String):     Preferences                 = throw new UnsupportedOperationException
+    def clipboard:                        Clipboard                   = throw new UnsupportedOperationException
+    def postRunnable(runnable: Runnable): Unit                        = queue.synchronized {
       queue += runnable
       ()
     }
-    def exit(): Unit = ()
+    def exit():                                               Unit = ()
     def addLifecycleListener(listener:    LifecycleListener): Unit = ()
     def removeLifecycleListener(listener: LifecycleListener): Unit = ()
   }
@@ -111,7 +111,7 @@ class TimerWakeupRedSuite extends munit.FunSuite {
 
   test("ISS-504 red: one-shot task scheduled while the loop idles fires ~0.1s later, not after the 5s idle cap") {
     Timer.disposeThread()
-    val app = new PumpApplication
+    val app   = new PumpApplication
     given Sge = SgeTestFixture.testSge(application = app)
     try {
       val timer = new Timer()
@@ -161,14 +161,13 @@ class TimerWakeupRedSuite extends munit.FunSuite {
         latencyMillis < 1500L,
         s"task scheduled with 0.1s delay fired after ${latencyMillis}ms (expected ~100ms, bound 1500ms) — lost wakeup"
       )
-    } finally {
+    } finally
       Timer.disposeThread()
-    }
   }
 
   test("control: consecutive firings of a repeating task honour the interval (loop machinery works)") {
     Timer.disposeThread()
-    val app = new PumpApplication
+    val app   = new PumpApplication
     given Sge = SgeTestFixture.testSge(application = app)
     try {
       val timer      = new Timer()
@@ -200,8 +199,7 @@ class TimerWakeupRedSuite extends munit.FunSuite {
         gapMillis < 1500L,
         s"control: inter-firing gap of a 0.2s-interval task was ${gapMillis}ms (expected ~200ms, bound 1500ms)"
       )
-    } finally {
+    } finally
       Timer.disposeThread()
-    }
   }
 }

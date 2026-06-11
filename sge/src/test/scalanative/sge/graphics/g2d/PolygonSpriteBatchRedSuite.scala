@@ -180,7 +180,9 @@ class PolygonSpriteBatchRedSuite extends munit.FunSuite {
 
   // --- ISS-496: final partial batch must flush the recomputed triangle count --
 
-  test("ISS-496: the final partial batch of a multi-batch draw must flush 6 indices, not the first batch's 12 (Java lines 778, 784-787)") {
+  test(
+    "ISS-496: the final partial batch of a multi-batch draw must flush 6 indices, not the first batch's 12 (Java lines 778, 784-787)"
+  ) {
     // count = 60 floats = 3 quads against a 2-quad (40-float) capacity:
     // iteration 1 flushes 2 full quads (12 indices); the final partial batch
     // uploads 1 quad (20 floats = 4 vertices) and Java recomputes
@@ -227,9 +229,9 @@ class PolygonSpriteBatchRedSuite extends munit.FunSuite {
     batch.end()
 
     assertEquals(recordingGL.drawElementsCalls.size, 2)
-    val (_, finalIndices)     = recordingGL.drawElementsCalls.last
-    val uploadedVertices      = 4 // 60 - 40 = 20 floats / VERTEX_SIZE(5) = 4 vertices in the final flush
-    val outOfRange: Seq[Int]  = finalIndices.filter(_ >= uploadedVertices)
+    val (_, finalIndices) = recordingGL.drawElementsCalls.last
+    val uploadedVertices  = 4 // 60 - 40 = 20 floats / VERTEX_SIZE(5) = 4 vertices in the final flush
+    val outOfRange: Seq[Int] = finalIndices.filter(_ >= uploadedVertices)
     assert(
       outOfRange.isEmpty,
       s"final partial flush drew indices $finalIndices but only uploaded $uploadedVertices vertices — out-of-range references: $outOfRange (Java lines 784-787 recompute prevents this)"
