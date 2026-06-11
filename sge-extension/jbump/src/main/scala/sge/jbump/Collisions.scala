@@ -6,10 +6,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 274
+ * Covenant-baseline-loc: 286
  * Covenant-baseline-methods: Collisions,_size,add,applyPermutation,boxed,clear,collision,get,h1s,h2s,i,isEmpty,items,keySort,moveXs,moveYs,normalXs,normalYs,order,others,overlaps,remove,reorder,size,sort,swapMap,tis,touchXs,touchYs,types,w1s,w2s,x1s,x2s,y1s,y2s
  * Covenant-source-reference: com/dongbat/jbump/Collisions.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-11
  */
 package sge
 package jbump
@@ -39,9 +39,12 @@ class Collisions {
   private val y2s      = ArrayBuffer.empty[Float]
   private val w2s      = ArrayBuffer.empty[Float]
   private val h2s      = ArrayBuffer.empty[Float]
-  val items:  ArrayBuffer[Item[?]]  = ArrayBuffer.empty
-  val others: ArrayBuffer[Item[?]]  = ArrayBuffer.empty
-  val types:  ArrayBuffer[Response] = ArrayBuffer.empty
+  // Java stores plain (possibly null) Item/Response references here (Collisions.java:50-52, 107-109);
+  // keep the element types Nullable so an absent (null) item/other/responseType is carried faithfully
+  // instead of NPEing when added (Collisions.java:107-109 does plain items.add(item) with no null check).
+  val items:  ArrayBuffer[Nullable[Item[?]]]  = ArrayBuffer.empty
+  val others: ArrayBuffer[Nullable[Item[?]]]  = ArrayBuffer.empty
+  val types:  ArrayBuffer[Nullable[Response]] = ArrayBuffer.empty
   private var _size = 0
 
   def add(col: Collision): Unit =
@@ -105,9 +108,11 @@ class Collisions {
     y2s += y2
     w2s += w2
     h2s += h2
-    items += item.get
-    others += other.get
-    types += responseType.get
+    // Store the references plainly, carrying null through (Collisions.java:107-109 stores the raw
+    // item/other/type — null items are stored fine); never .get here, that NPEs on absent items.
+    items += item
+    others += other
+    types += responseType
   }
 
   private val collision = Collision()
