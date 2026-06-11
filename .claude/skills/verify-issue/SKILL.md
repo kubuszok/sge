@@ -97,11 +97,14 @@ Platforms: <compile/test results per platform>
 Ratchet: <clean | regression detail>
 Sentence check: <every clause addressed | remaining clauses>
 Findings (if FAIL): numbered, each with file:line and what would convince you
-New issues to file: <out-of-scope discoveries with category/severity — you
-  may file these with re-scale db issues add>
+New issues to RECOMMEND: <out-of-scope discoveries with file/category/
+  severity/full description — do NOT run re-scale db issues add yourself;
+  the orchestrator files them (parallel auditors filing from different
+  checkouts caused ID collisions — iteration-12 lesson)>
 ```
 
-You may file NEW issues. You may NOT resolve issues, update baselines, or
+You RECOMMEND new issues in your report; you do NOT file them. You may NOT
+resolve issues, update baselines, or
 edit product code (your step-6 mutation must be fully reverted). If the
 implementer's report claimed a gate passed and your rerun disagrees, say so
 explicitly — that discrepancy is itself a finding and grounds for a
