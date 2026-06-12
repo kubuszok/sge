@@ -19,10 +19,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 172
+ * Covenant-baseline-loc: 193
  * Covenant-baseline-methods: ParticleEffectLoadParameter,ParticleEffectLoader,ParticleEffectSaveParameter,assets,batches,config,data,descriptors,effectData,file,getDependencies,items,jsonAst,loadAsync,loadSync,manager,prettyPrint,save,this
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/ParticleEffectLoader.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 9fb9353c99ae5b30b455262832c13a84c2736bd4
  */
@@ -142,6 +142,16 @@ class ParticleEffectLoader(resolver: FileHandleResolver)(using Sge) extends Asyn
     }
 
     val data = effectData.getOrElse(throw new RuntimeException("No ResourceData found for " + fileName))
+
+    // Restore the resource graph captured by ResourceData.fromJson. Java's read
+    // restores it inline (`resource = json.readValue("resource", null, jsonData)`,
+    // ResourceData.java line 232); the SGE port defers the (using Sge)-dependent
+    // ParticleEffect construction to here, where the context is available. After
+    // this, the rest of loadSync mirrors Java loadSync (lines 132-141).
+    if (data.resource.isEmpty)
+      data.resourceJson.foreach { resourceJson =>
+        data.resource = Nullable(ParticleEffectCodecs.decodeResource(resourceJson))
+      }
 
     data.resource.foreach { res =>
       res.load(manager, data)

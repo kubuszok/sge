@@ -37,10 +37,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 805
- * Covenant-baseline-methods: AlignMode,BillboardParticleBatch,CPU_ATTRIBUTES,CPU_COLOR_OFFSET,CPU_POSITION_OFFSET,CPU_UV_OFFSET,CPU_VERTEX_SIZE,Config,GPU_ATTRIBUTES,GPU_COLOR_OFFSET,GPU_POSITION_OFFSET,GPU_SIZE_ROTATION_OFFSET,GPU_UV_OFFSET,GPU_VERTEX_SIZE,MAX_PARTICLES_PER_MESH,MAX_VERTICES_PER_MESH,RenderablePool,TMP_M3,TMP_V1,TMP_V2,TMP_V3,TMP_V4,TMP_V5,TMP_V6,_blendingAttribute,_depthTestAttribute,_mode,_texture,_useGPU,addedVertexCount,alignMode,alignMode_,allocIndices,allocParticlesData,allocRenderable,allocRenderables,allocShader,begin,blendingAttribute,clearRenderablesPool,currentAttributes,currentVertexSize,data,directionUsage,fillVerticesGPU,fillVerticesToScreenCPU,fillVerticesToViewPointCPU,flush,free,getRenderables,getShader,i,indices,indicesCount,initRenderData,initialCapacity,load,look,max,meshCount,mode,newObject,newRenderable,putVertexCPU,putVertexGPU,renderable,renderablePool,renderables,right,s,save,setVertexData,shader,sizeAndRotationUsage,texture,texture_,this,tp,up,useGPU,useGPU_,v,vCount,vertex,vertices
+ * Covenant-baseline-loc: 907
+ * Covenant-baseline-methods: AlignMode,BillboardParticleBatch,CPU_ATTRIBUTES,CPU_COLOR_OFFSET,CPU_POSITION_OFFSET,CPU_UV_OFFSET,CPU_VERTEX_SIZE,Config,GPU_ATTRIBUTES,GPU_COLOR_OFFSET,GPU_POSITION_OFFSET,GPU_SIZE_ROTATION_OFFSET,GPU_UV_OFFSET,GPU_VERTEX_SIZE,MAX_PARTICLES_PER_MESH,MAX_VERTICES_PER_MESH,RenderablePool,TMP_M3,TMP_V1,TMP_V2,TMP_V3,TMP_V4,TMP_V5,TMP_V6,_blendingAttribute,_depthTestAttribute,_mode,_texture,_useGPU,addedVertexCount,alignMode,alignMode_,allocIndices,allocParticlesData,allocRenderable,allocRenderables,allocShader,begin,blendingAttribute,clearRenderablesPool,codec,currentAttributes,currentVertexSize,data,directionUsage,ensureCodecRegistered,fillVerticesGPU,fillVerticesToScreenCPU,fillVerticesToViewPointCPU,flush,free,getRenderables,getShader,i,indices,indicesCount,initRenderData,initialCapacity,load,look,max,meshCount,mode,newObject,newRenderable,putVertexCPU,putVertexGPU,registerConfigCodec,renderable,renderablePool,renderables,right,s,save,setVertexData,shader,sizeAndRotationUsage,texture,texture_,this,tp,up,useGPU,useGPU_,v,vCount,vertex,vertices
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/batches/BillboardParticleBatch.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */
@@ -102,6 +102,13 @@ class BillboardParticleBatch(
   protected var _depthTestAttribute: DepthTestAttribute =
     depthTestAttribute.getOrElse(DepthTestAttribute(GL20.GL_LEQUAL, false))
   var shader: Nullable[Shader] = Nullable.empty
+
+  // Register the Config SaveData codec before doing anything else: a batched
+  // load constructs a BillboardParticleBatch to obtain its batch, and the
+  // loader's LOAD path decodes the persisted Config "cfg" value with no Config
+  // ever constructed. Forcing the companion initializer here (auditor finding A)
+  // guarantees the codec is registered for that decode.
+  BillboardParticleBatch.ensureCodecRegistered()
 
   allocIndices()
   initRenderData()
@@ -793,6 +800,39 @@ object BillboardParticleBatch {
   private val MAX_PARTICLES_PER_MESH: Int = Short.MaxValue / 4
   private val MAX_VERTICES_PER_MESH:  Int = MAX_PARTICLES_PER_MESH * 4
 
+  /** Registers the [[Config]] SaveData codec under both the SGE class name and the legacy `com.badlogic.gdx` name. Runs exactly once from this companion object's initializer (below). The codec is
+    * thus in place independently of whether any [[Config]] has been constructed — registration is NOT contingent on Config construction (auditor finding A). This is the reflection-free analogue of
+    * LibGDX Json's reflective `Object` handling (Json.java lines 689-691: a plain non-`Serializable` object is written with a `class` tag and its fields inline).
+    */
+  private def registerConfigCodec(): Unit = {
+    ResourceData.registerValueCodec(classOf[Config], Config.codec)
+    // Legacy LibGDX class name: a Config serialized by upstream LibGDX/Flame
+    // carries the com.badlogic.gdx tag. Register the same codec under that
+    // name so such values decode too (the SGE class object does not exist
+    // under that name, so this is a name-keyed registration, not a Class).
+    ResourceData.registerValueCodec(
+      "com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch$Config",
+      Config.codec
+    )
+  }
+
+  // Companion-object initializer: registers the Config codec the first time
+  // anything forces `object BillboardParticleBatch` to initialize. A batched
+  // LOAD must construct a BillboardParticleBatch to obtain the batch it loads
+  // into, and `class BillboardParticleBatch`'s constructor calls
+  // `ensureCodecRegistered()` (which forces this initializer), so the codec is
+  // registered before the loader's context-free LOAD path
+  // (ParticleEffectLoader.getDependencies -> ResourceData.fromJson ->
+  // saveDataFromJson -> saveValueFromJson) decodes the persisted "cfg" value —
+  // even though no Config is ever constructed on that path.
+  registerConfigCodec()
+
+  /** Forces `object BillboardParticleBatch`'s initializer — and thus the [[registerConfigCodec]] call above — to run. Idempotent. Invoked from `class BillboardParticleBatch`'s constructor so that
+    * constructing any batch (which a batched load must do) registers the Config codec, with no dependency on a [[Config]] ever being constructed. Calling a member of this object (as this does) is
+    * what reliably triggers the module initializer; merely naming the nested [[Config]] / [[AlignMode]] types does not.
+    */
+  def ensureCodecRegistered(): Unit = ()
+
   private class RenderablePool(batch: BillboardParticleBatch)(using Sge) extends Pool[Renderable] {
     override protected val max:             Int = Int.MaxValue
     override protected val initialCapacity: Int = 16
@@ -805,7 +845,60 @@ object BillboardParticleBatch {
     var useGPU: Boolean,
     var mode:   AlignMode
   ) {
+
     def this() = this(false, AlignMode.Screen)
+  }
+
+  object Config {
+
+    // SaveData codec for Config. Java serializes the Config through LibGDX's
+    // reflective Json (BillboardParticleBatch.java save line 656:
+    // `data.save("cfg", new Config(useGPU, mode))`, restored by
+    // `(Config)data.load("cfg")` at line 665), which writes/reads its
+    // `useGPU` (boolean) and `mode` (AlignMode) fields. The SGE SaveData
+    // pipeline has no reflective Json, so the owning class registers a codec
+    // — the reflection-free analogue named in ResourceData's SaveValueCodec
+    // doc — that emits the same two fields.
+    //
+    // Registration is NOT contingent on constructing a Config: it runs from
+    // `object BillboardParticleBatch`'s own initializer (see
+    // BillboardParticleBatch.registerConfigCodec, forced below this companion).
+    // A load-only program never constructs a Config — the loader's LOAD path
+    // (ParticleEffectLoader.getDependencies -> ResourceData.fromJson ->
+    // saveDataFromJson -> saveValueFromJson) decodes the persisted "cfg" value
+    // before any Config exists — but it must reference the BillboardParticleBatch
+    // type to obtain the batch it loads the effect into, and that reference
+    // initializes the companion and hence registers the codec.
+    //
+    // Decode is registered under BOTH the SGE class name and the legacy
+    // com.badlogic.gdx name so that Config values authored by either the SGE
+    // save path or a genuine LibGDX/Flame .pfx survive the round-trip
+    // (mirroring ResourceData.classNameMap's dual-name resource support).
+    private[batches] val codec: ResourceData.SaveValueCodec = new ResourceData.SaveValueCodec {
+      override def encode(value: AnyRef): sge.utils.Json = {
+        val cfg = value.asInstanceOf[Config]
+        sge.utils.Json.obj(
+          "useGPU" -> sge.utils.Json.fromBoolean(cfg.useGPU),
+          "mode" -> sge.utils.Json.fromString(cfg.mode.toString)
+        )
+      }
+
+      override def decode(json: sge.utils.Json): AnyRef =
+        json match {
+          case sge.utils.Json.Obj(obj) =>
+            val useGPU = obj("useGPU") match {
+              case Some(sge.utils.Json.Bool(b)) => b
+              case _                            => false
+            }
+            val mode = obj("mode") match {
+              case Some(sge.utils.Json.Str(s)) => AlignMode.valueOf(s)
+              case _                           => AlignMode.Screen
+            }
+            new Config(useGPU, mode)
+          case _ =>
+            throw sge.utils.SgeError.InvalidInput("Malformed BillboardParticleBatch.Config SaveData value")
+        }
+    }
   }
 
   enum AlignMode {

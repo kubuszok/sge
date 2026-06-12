@@ -21,10 +21,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 2117
- * Covenant-baseline-methods: EffectReference,ParticleEffectCodecs,b,buf,bufferJsonValue,className,controllerIndices,decodeDynamicsModifier,decodeEmitter,decodeInfluencer,decodeRenderer,decodeSpawnShapeValue,decodeValue,effectFilename,emitterTypes,encodeValue,escapeJsonString,i,influencerTypes,modifierTypes,nullValue,readAngularFields,readBoolean,readDynamicsModifierFields,readEffectReference,readEffectReferences,readEmitterFields,readFields,readFloat,readFloatArray,readInt,readIntArray,readPolymorphicObject,readPrimitiveSpawnShapeValueFields,readRangedNumericValue,readRegionInfluencerFields,readScaledNumericValue,readSimpleInfluencerFields,readSpawnShapeValueFields,readStrengthFields,readString,readStringArray,rendererTypes,sb,spawnShapeTypes,writeAngularFields,writeDynamicsModifierFields,writeEffectReference,writeEffectReferences,writeEmitterFields,writeFloatArray,writeIntArray,writePrimitiveSpawnShapeValueFields,writeRangedNumericValue,writeRegionInfluencerFields,writeScaledNumericValue,writeSimpleInfluencerFields,writeSpawnShapeValueFields,writeStrengthFields,writeStringArray
- * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-baseline-loc: 2060
+ * Covenant-baseline-methods: EffectReference,ParticleEffectCodecs,buf,controllerIndices,decodeDynamicsModifier,decodeEmitter,decodeInfluencer,decodeRenderer,decodeResource,decodeSpawnShapeValue,decodeValue,effectFilename,emitterTypes,encodeResource,encodeValue,i,influencerTypes,jsonAstCodec,modifierTypes,nullValue,readAngularFields,readBoolean,readDynamicsModifierFields,readEffectReference,readEffectReferences,readEmitterFields,readFields,readFloat,readFloatArray,readFromArray,readInt,readIntArray,readPolymorphicObject,readPrimitiveSpawnShapeValueFields,readRangedNumericValue,readRegionInfluencerFields,readScaledNumericValue,readSimpleInfluencerFields,readSpawnShapeValueFields,readStrengthFields,readString,readStringArray,rendererTypes,spawnShapeTypes,writeAngularFields,writeDynamicsModifierFields,writeEffectReference,writeEffectReferences,writeEmitterFields,writeFloatArray,writeIntArray,writePrimitiveSpawnShapeValueFields,writeRangedNumericValue,writeRegionInfluencerFields,writeScaledNumericValue,writeSimpleInfluencerFields,writeSpawnShapeValueFields,writeStrengthFields,writeStringArray
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/ParticleControllerComponent.java
+ * Covenant-verified: 2026-06-12
  */
 package sge
 package graphics
@@ -36,13 +36,16 @@ import scala.reflect.ClassTag
 import scala.util.boundary
 import scala.util.boundary.break
 
-import com.github.plokhotnyuk.jsoniter_scala.core.{ JsonReader, JsonValueCodec, JsonWriter, readFromArray }
+import com.github.plokhotnyuk.jsoniter_scala.core.{ JsonReader, JsonValueCodec, JsonWriter, readFromArrayReentrant }
 
+import sge.Sge
 import sge.graphics.g3d.particles.emitters.{ Emitter, RegularEmitter }
 import sge.graphics.g3d.particles.influencers._
 import sge.graphics.g3d.particles.renderers._
 import sge.graphics.g3d.particles.values._
 import lowlevel.Nullable
+import sge.utils.{ Json, readFromString, writeToString }
+import sge.utils.given
 
 /** Transport structure for ParticleControllerInfluencer serialization. Maps a ParticleEffect asset filename to the indices of controllers within that effect.
   */
@@ -51,6 +54,16 @@ final case class EffectReference(effectFilename: String, controllerIndices: Arra
 /** Central registry of 3D particle JSON codecs. Import `ParticleEffectCodecs.given` to bring all codecs into scope.
   */
 object ParticleEffectCodecs {
+
+  /** jsoniter codec for the [[Json]] AST, used to emit/read type-tagged SaveData values (ISS-550) mid-stream. */
+  private val jsonAstCodec: JsonValueCodec[Json] = hearth.kindlings.jsoniterjson.codec.JsonCodec.jsonValueCodec
+
+  /** Decodes a byte slice with a fresh, non-pooled reader. The polymorphic codecs below re-parse a captured sub-object ([[readPolymorphicObject]]) while still inside an enclosing `decodeValue`;
+    * jsoniter's plain `readFromArray` draws its [[JsonReader]] from a thread-local pool, so a reentrant call would clobber the outer reader and desync the parse. `readFromArrayReentrant` allocates a
+    * fresh reader, making nested decoding safe — this is what makes the controller/effect graph round-trip at all (ISS-507).
+    */
+  private def readFromArray[A](bytes: Array[Byte])(using codec: JsonValueCodec[A]): A =
+    readFromArrayReentrant[A](bytes)(using codec)
 
   // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -132,145 +145,36 @@ object ParticleEffectCodecs {
     out.writeArrayEnd()
   }
 
-  /** Reads a polymorphic JSON object, extracts "class" field, and returns (className, bufferedBytes). The bufferedBytes can be re-parsed with the appropriate type-specific codec. This is necessary
+  /** Reads a polymorphic JSON object, extracts the "class" field, and returns (className, rawObjectBytes). The raw bytes can be re-parsed with the appropriate type-specific codec. This is necessary
     * because jsoniter-scala doesn't support rewinding the reader.
+    *
+    * Captures the object with jsoniter's [[JsonReader.readRawValAsBytes]], which slices out a complete, well-formed JSON value regardless of any trailing content in the surrounding stream. The
+    * previous hand-rolled buffering ([[bufferJsonValue]]) desynced the reader when a polymorphic object was nested inside a larger object (e.g. an emitter inside a controller), truncating the
+    * captured bytes — the latent defect that surfaced once these codecs were wired into ResourceData's load path (ISS-507). The class name is then read from the captured bytes via the Json AST.
     */
   private def readPolymorphicObject(in: JsonReader): (Nullable[String], Array[Byte]) = {
-    // We need to buffer the entire object to re-parse it
-    // jsoniter-scala provides no rewind, so we capture raw bytes
-    var className: Nullable[String] = Nullable.empty
-    val buf = ArrayBuffer[Byte]()
-
-    // Read opening brace
-    if (!in.isNextToken('{')) {
-      return (Nullable.empty, Array.emptyByteArray)
-    }
-    buf += '{'
-
-    if (!in.isNextToken('}')) {
-      in.rollbackToken()
-      var first = true
-      boundary {
-        while (true) {
-          if (!first) buf += ','
-          first = false
-          val key = in.readKeyAsString()
-          // Write key to buffer
-          buf += '"'
-          buf ++= key.getBytes("UTF-8")
-          buf += '"'
-          buf += ':'
-          if (key == "class") {
-            val value = in.readString(null)
-            className = Nullable(value)
-            buf += '"'
-            buf ++= value.getBytes("UTF-8")
-            buf += '"'
-          } else {
-            // Buffer the value - we need to capture arbitrary JSON
-            bufferJsonValue(in, buf)
-          }
-          if (!in.isNextToken(',')) break(())
-        }
-      }
-    }
-    buf += '}'
-
-    (className, buf.toArray)
-  }
-
-  /** Buffers a single JSON value (object, array, string, number, boolean, null) into the buffer. */
-  private def bufferJsonValue(in: JsonReader, buf: ArrayBuffer[Byte]): Unit = {
-    val b = in.nextToken()
+    // Peek: a polymorphic value must be an object; anything else has no class tag.
+    val token = in.nextToken()
     in.rollbackToken()
-    b match {
-      case '{' =>
-        // Object
-        buf += '{'
-        in.isNextToken('{') // consume
-        if (!in.isNextToken('}')) {
-          in.rollbackToken()
-          var first = true
-          boundary {
-            while (true) {
-              if (!first) buf += ','
-              first = false
-              val key = in.readKeyAsString()
-              buf += '"'
-              buf ++= key.getBytes("UTF-8")
-              buf += '"'
-              buf += ':'
-              bufferJsonValue(in, buf)
-              if (!in.isNextToken(',')) break(())
+    if (token != '{') {
+      in.skip()
+      (Nullable.empty, Array.emptyByteArray)
+    } else {
+      // readRawValAsBytes slices out the complete object (any nesting depth)
+      // without desyncing the outer reader. The class tag is then read from the
+      // captured bytes with the reentrancy-safe readFromArray wrapper above.
+      val bytes = in.readRawValAsBytes()
+      val className: Nullable[String] =
+        readFromArray[Json](bytes) match {
+          case Json.Obj(obj) =>
+            obj("class") match {
+              case Some(Json.Str(s)) => Nullable(s)
+              case _                 => Nullable.empty
             }
-          }
+          case _ => Nullable.empty
         }
-        buf += '}'
-      case '[' =>
-        // Array
-        buf += '['
-        in.isNextToken('[') // consume
-        if (!in.isNextToken(']')) {
-          in.rollbackToken()
-          var first = true
-          boundary {
-            while (true) {
-              if (!first) buf += ','
-              first = false
-              bufferJsonValue(in, buf)
-              if (!in.isNextToken(',')) break(())
-            }
-          }
-        }
-        buf += ']'
-      case '"' =>
-        // String
-        val s = in.readString(null)
-        buf += '"'
-        // Escape the string properly
-        buf ++= escapeJsonString(s).getBytes("UTF-8")
-        buf += '"'
-      case 't' | 'f' =>
-        // Boolean
-        val v = in.readBoolean()
-        buf ++= (if (v) "true" else "false").getBytes("UTF-8")
-      case 'n' =>
-        // null
-        in.readNullOrError(null, "expected null")
-        buf ++= "null".getBytes("UTF-8")
-      case _ =>
-        // Number
-        val num = in.readDouble()
-        // Check if it's an integer
-        if (num == num.toLong.toDouble && num >= Long.MinValue && num <= Long.MaxValue) {
-          buf ++= num.toLong.toString.getBytes("UTF-8")
-        } else {
-          buf ++= num.toString.getBytes("UTF-8")
-        }
+      (className, bytes)
     }
-  }
-
-  private def escapeJsonString(s: String): String = {
-    if (s == null) return ""
-    val sb = new StringBuilder
-    var i  = 0
-    while (i < s.length) {
-      val c = s.charAt(i)
-      c match {
-        case '"'  => sb.append("\\\"")
-        case '\\' => sb.append("\\\\")
-        case '\b' => sb.append("\\b")
-        case '\f' => sb.append("\\f")
-        case '\n' => sb.append("\\n")
-        case '\r' => sb.append("\\r")
-        case '\t' => sb.append("\\t")
-        case _    =>
-          if (c < ' ') sb.append(f"\\u${c.toInt}%04x")
-          else sb.append(c)
-      }
-      i += 1
-    }
-    sb.toString
   }
 
   /** Reads a JSON object calling fieldHandler for each key. Skips unknown fields. */
@@ -1860,6 +1764,69 @@ object ParticleEffectCodecs {
     override def nullValue: ParticleController = null
   }
 
+  // ── Resource (ParticleEffect) bridge to the sge.utils.Json AST (ISS-507) ──
+  //
+  // Java's ResourceData.write serializes the whole effect graph via
+  // `json.writeValue("resource", resource, null)` (ResourceData.java line 216),
+  // and ResourceData.read restores it via `json.readValue("resource", null, ...)`
+  // (line 232). The SGE port's ResourceData.toJson/fromJson operate on the
+  // sge.utils.Json AST, while every controller component above is serialized by
+  // jsoniter codecs. These two bridges connect the two: encodeResource turns a
+  // ParticleEffect into a Json AST node, decodeResource turns that node back into
+  // a ParticleEffect (using the (using Sge) context the loader provides).
+
+  /** Serializes a [[ParticleEffect]] resource to a [[Json]] AST node of the shape `{ "class": "<ParticleEffect class name>", "controllers": [ <controller>, ... ] }` — the same structure
+    * `resourceDataCodec` already emits for the `resource` field. Each controller is encoded by the existing [[particleControllerCodec]] (which handles its emitter, influencers and renderer).
+    */
+  def encodeResource(effect: ParticleEffect): Json = {
+    val controllerNodes = Vector.newBuilder[Json]
+    var i               = 0
+    while (i < effect.controllers.size) {
+      val controllerJson = writeToString[ParticleController](effect.controllers(i))(using particleControllerCodec)
+      controllerNodes += readFromString[Json](controllerJson)
+      i += 1
+    }
+    Json.obj(
+      "class" -> Json.fromString(effect.getClass.getName),
+      "controllers" -> Json.arr(controllerNodes.result()*)
+    )
+  }
+
+  /** Reconstructs a [[ParticleEffect]] from the [[Json]] AST node produced by [[encodeResource]] (or written by `resourceDataCodec`). The `(using Sge)` context is required to allocate the
+    * [[ParticleEffect]] and each [[ParticleController]] (mirroring why Java can do this inline at read time but the SGE port defers it to the Sge-aware loader). Each controller node is decoded by the
+    * existing [[particleControllerCodec]].
+    */
+  def decodeResource(json: Json)(using Sge): ParticleEffect = {
+    val effect = new ParticleEffect()
+    json match {
+      case Json.Obj(fields) =>
+        fields("controllers") match {
+          case Some(Json.Arr(controllerNodes)) =>
+            controllerNodes.foreach { node =>
+              // A codec whose nullValue yields a fresh, Sge-bound ParticleController so
+              // readFromString hands particleControllerCodec a non-null default to fill
+              // (it refuses a null default because construction needs the Sge context).
+              val contextualControllerCodec: JsonValueCodec[ParticleController] =
+                new JsonValueCodec[ParticleController] {
+                  override def decodeValue(in: JsonReader, default: ParticleController): ParticleController =
+                    particleControllerCodec.decodeValue(in, if (default != null) default else new ParticleController())
+
+                  override def encodeValue(x: ParticleController, out: JsonWriter): Unit =
+                    particleControllerCodec.encodeValue(x, out)
+
+                  override def nullValue: ParticleController = new ParticleController()
+                }
+              val controllerJson = writeToString[Json](node)
+              val controller     = readFromString[ParticleController](controllerJson)(using contextualControllerCodec)
+              effect.controllers.add(controller)
+            }
+          case _ => ()
+        }
+      case _ => ()
+    }
+    effect
+  }
+
   // ── ResourceData codecs (ISS-466) ───────────────────────────────────
   //
   // NOTE: ResourceData already has proper serialization via its own toJson/fromJson
@@ -1910,36 +1877,19 @@ object ParticleEffectCodecs {
       readFields(in, value) { (key, v, reader) =>
         key match {
           case "data" =>
-            // ObjectMap<String, Object> - we need to read it generically
+            // ObjectMap<String, Object>: each value is read as a Json AST node and
+            // restored with its exact runtime type by ResourceData.saveValueFromJson
+            // (the same type-tagged scheme ResourceData.toJson/fromJson use). This
+            // closes the toString hole that previously corrupted non-primitive
+            // values and lost the Int/Long distinction (ISS-550).
             if (reader.isNextToken('{')) {
               if (!reader.isNextToken('}')) {
                 reader.rollbackToken()
                 boundary {
                   while (true) {
-                    val mapKey = reader.readKeyAsString()
-                    // Read the value - we'll store it as raw JSON bytes for later processing
-                    val valueBuf = ArrayBuffer[Byte]()
-                    bufferJsonValue(reader, valueBuf)
-                    // For now, we can re-parse simple values
-                    val valueBytes = valueBuf.toArray
-                    val valueStr   = new String(valueBytes, "UTF-8")
-                    // Try to parse as common types
-                    val obj: AnyRef = valueStr match {
-                      case s if s.startsWith("\"") && s.endsWith("\"") =>
-                        s.substring(1, s.length - 1)
-                      case "true"  => java.lang.Boolean.TRUE
-                      case "false" => java.lang.Boolean.FALSE
-                      case "null"  => null
-                      case _       =>
-                        // Try number
-                        try
-                          if (valueStr.contains(".")) java.lang.Double.valueOf(valueStr)
-                          else java.lang.Long.valueOf(valueStr)
-                        catch {
-                          case _: NumberFormatException => valueStr
-                        }
-                    }
-                    v.data.put(mapKey, obj)
+                    val mapKey    = reader.readKeyAsString()
+                    val valueJson = readFromArray[Json](reader.readRawValAsBytes())
+                    v.data.put(mapKey, ResourceData.saveValueFromJson(valueJson))
                     if (!reader.isNextToken(',')) break(())
                   }
                 }
@@ -1961,16 +1911,10 @@ object ParticleEffectCodecs {
       out.writeObjectStart()
       x.data.foreachEntry { (key, value) =>
         out.writeKey(key)
-        value match {
-          case s: String            => out.writeVal(s)
-          case b: java.lang.Boolean => out.writeVal(b.booleanValue())
-          case i: java.lang.Integer => out.writeVal(i.intValue())
-          case l: java.lang.Long    => out.writeVal(l.longValue())
-          case f: java.lang.Float   => out.writeVal(f.floatValue())
-          case d: java.lang.Double  => out.writeVal(d.doubleValue())
-          case null  => out.writeNull()
-          case other => out.writeVal(other.toString)
-        }
+        // Encode each value through the type-preserving ResourceData.saveValueToJson
+        // AST scheme, then emit that node via the Json codec — no toString hole,
+        // exact runtime type round-trips (ISS-550).
+        jsonAstCodec.encodeValue(ResourceData.saveValueToJson(value), out)
       }
       out.writeObjectEnd()
       out.writeKey("indices")
@@ -2036,34 +1980,26 @@ object ParticleEffectCodecs {
             }
             true
           case "resource" =>
-            // Resource is polymorphic - read and store it
-            // Check for null first
+            // Resource is polymorphic - read and capture it.
+            // Check for null first.
             val b = reader.nextToken()
             reader.rollbackToken()
             if (b == 'n') {
               reader.readNullOrError(null, "expected null")
               // resource remains empty (Nullable.empty is the default)
             } else {
-              // Read as polymorphic object with class field
-              val (classNameOpt, _) = readPolymorphicObject(reader)
+              // Buffer the resource object and capture it as a Json AST node, the
+              // same representation ResourceData.fromJson stores in resourceJson.
+              // The (using Sge)-dependent ParticleEffect construction is deferred
+              // to the loader (ParticleEffectLoader.loadSync via decodeResource),
+              // exactly as the AST pipeline does. No reflection: ResourceData
+              // resolves class names through its cross-platform classNameMap
+              // (Class.forName is unavailable on Scala.js / Scala Native).
+              val (classNameOpt, bytes) = readPolymorphicObject(reader)
               classNameOpt.foreach { className =>
-                // For ParticleEffect, we need Sge context - store the buffered bytes
-                // The actual instantiation happens through ResourceData.fromJson pipeline
-                // which provides proper context. Here we just try to restore what we can.
-                if (className.endsWith("ParticleEffect") || className == classOf[ParticleEffect].getName) {
-                  // ParticleEffect requires Sge context - cannot instantiate here
-                  // The fromJson pipeline handles this properly. For codec interop,
-                  // we leave resource empty and expect caller to use fromJson.
-                } else {
-                  // For other types, try reflection-based instantiation
-                  try {
-                    val clazz    = Class.forName(className)
-                    val instance = clazz.getDeclaredConstructor().newInstance()
-                    v.resource = Nullable(instance.asInstanceOf[Any])
-                  } catch {
-                    case _: Exception => // Cannot instantiate, leave empty
-                  }
-                }
+                // Validate the class name resolves (guards against unknown types).
+                val _ = ResourceData.resolveClassName(className)
+                v.resourceJson = Nullable(readFromArray[Json](bytes))
               }
             }
             true
