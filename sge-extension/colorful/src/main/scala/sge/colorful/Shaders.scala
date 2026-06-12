@@ -3,20 +3,26 @@
  * Original authors: Tommy Ettinger
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: GdxRuntimeException -> IllegalArgumentException in the make* factories (colorful module convention, matches ColorfulBatch.createDefaultShader and core SpriteBatch); messages kept verbatim
+ *   Convention: blank lines inside the commented-out partialCodeHSLStretched experiments become bare `//` comment lines; the string constants themselves are character-identical to upstream
+ *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 1195
- * Covenant-baseline-methods: Shaders,fragmentShader,fragmentShaderCielab,fragmentShaderColorize,fragmentShaderColorizeOklab,fragmentShaderConfigurableContrast,fragmentShaderContrastUniform,fragmentShaderDayNight,fragmentShaderDoubleSaturation,fragmentShaderFlatLightness,fragmentShaderHSI,fragmentShaderHSL,fragmentShaderHSL4,fragmentShaderHSLA,fragmentShaderHSLA2,fragmentShaderHSLARoundTrip,fragmentShaderHSLC,fragmentShaderHSLC2,fragmentShaderHSLC3,fragmentShaderHSLP,fragmentShaderHigherContrast,fragmentShaderHigherContrastRGBA,fragmentShaderIPT,fragmentShaderIPT_HQ,fragmentShaderInvertedChroma,fragmentShaderInvertedLightness,fragmentShaderInvertedRGB,fragmentShaderLowerContrast,fragmentShaderLowerContrastRGBA,fragmentShaderMultiplyRGBA,fragmentShaderOklab,fragmentShaderPixelArt,fragmentShaderRGBA,fragmentShaderReplacement,fragmentShaderRotateHSL,fragmentShaderSwapWhite,fragmentShaderYCwCm,partialCodeHSL,partialHueRodrigues,vertexShader,vertexShaderDayNight,vertexShaderHSI,vertexShaderHSLC
+ * Covenant-baseline-loc: 1732
+ * Covenant-baseline-methods: Shaders,fragmentShader,fragmentShaderCielab,fragmentShaderColorize,fragmentShaderColorizeOklab,fragmentShaderConfigurableContrast,fragmentShaderContrastUniform,fragmentShaderDayNight,fragmentShaderDoubleSaturation,fragmentShaderFlatLightness,fragmentShaderHSI,fragmentShaderHSL,fragmentShaderHSL4,fragmentShaderHSLA,fragmentShaderHSLA2,fragmentShaderHSLARoundTrip,fragmentShaderHSLC,fragmentShaderHSLC2,fragmentShaderHSLC3,fragmentShaderHSLP,fragmentShaderHigherContrast,fragmentShaderHigherContrastRGBA,fragmentShaderIPT,fragmentShaderIPT_HQ,fragmentShaderInvertedChroma,fragmentShaderInvertedLightness,fragmentShaderInvertedRGB,fragmentShaderLowerContrast,fragmentShaderLowerContrastRGBA,fragmentShaderMultiplyRGBA,fragmentShaderOklab,fragmentShaderPixelArt,fragmentShaderRGBA,fragmentShaderReplacement,fragmentShaderRotateHSL,fragmentShaderSwapWhite,fragmentShaderYCwCm,partialCodeHSL,partialHueRodrigues,vertexShader,vertexShaderDayNight,vertexShaderHSI,vertexShaderHSLC,fragmentShaderHsluv,makeBatchHSLC,makeMultiplyRGBAShader,makeRGBABatch,makeRGBAShader,makeSaturatingBatch,makeSwappingBatch,makeYCwCmBatch,partialCodeHSLStretched,vertexShaderHsluv
  * Covenant-source-reference: com/github/tommyettinger/colorful/Shaders.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: e4a5fd960eef746ca5aa826063432fb79666d74f
  */
 package sge
 package colorful
 
+import lowlevel.Nullable
+import sge.graphics.g2d.SpriteBatch
 import sge.graphics.glutils.ShaderProgram
 
 /** Shader code to construct a [[ShaderProgram]] that can render the specialized colors produced by the rest of this library. The shader code is meant for use in a SpriteBatch; many of the shaders
@@ -1195,10 +1201,532 @@ object Shaders {
       "     gl_FragColor = tgt * v_color;\n" +
       "}"
 
-  // Note: The vertexShaderHsluv, fragmentShaderHsluv, partialCodeHSLStretched, and the various
-  // make*Batch() / make*Shader() factory methods from the original are intentionally omitted.
-  // The HSLuv vertex shader is extremely long (~170 lines of GLSL) and highly experimental.
-  // The factory methods create SpriteBatch/ShaderProgram instances, which in SGE are handled
-  // differently (via ColorfulBatch subclasses in each color space package). Users who need these
-  // specialized shaders can construct ShaderProgram instances directly from the string constants.
+  //// save the result as shader, and set it on your batch with
+  // ShaderProgram shader = makeRGBAShader();
+  // batch.setShader(shader)
+  /** A simple helper method that builds the simplest shader here; this shader allows tinting with light colors to lighten an image. You can assign the result to a SpriteBatch with its
+    * [[SpriteBatch.shader_=]] method.
+    *
+    * You can generate RGB colors using any of various methods in the `rgb` package, such as `com.github.tommyettinger.colorful.rgb.ColorTools#rgb(float, float, float, float)`.
+    *
+    * @return
+    *   a ShaderProgram that uses the RGBA shader [[fragmentShaderRGBA]]
+    */
+  def makeRGBAShader()(using Sge): ShaderProgram = {
+    val shader = new ShaderProgram(vertexShader, fragmentShaderRGBA)
+    if (!shader.compiled) {
+      throw new IllegalArgumentException("Couldn't compile shader: " + shader.log)
+    }
+    shader
+  }
+
+  /** A simple helper method that builds the simplest shader here; this shader allows tinting with light colors to lighten an image, and also smooths changes well. You can assign the result to a
+    * SpriteBatch with its [[SpriteBatch.shader_=]] method.
+    *
+    * You can generate RGB colors using any of various methods in the `rgb` package, such as `com.github.tommyettinger.colorful.rgb.ColorTools#rgb(float, float, float, float)`.
+    *
+    * This was called `makeGammaRGBAShader`, but because it doesn't currently do any gamma correction, naming it `makeMultiplyRGBAShader` seems more appropriate. [[makeRGBAShader]] is the additive
+    * counterpart.
+    *
+    * @return
+    *   a ShaderProgram that uses the RGBA shader [[fragmentShaderMultiplyRGBA]]
+    */
+  def makeMultiplyRGBAShader()(using Sge): ShaderProgram = {
+    val shader = new ShaderProgram(vertexShader, fragmentShaderMultiplyRGBA)
+    if (!shader.compiled) {
+      throw new IllegalArgumentException("Couldn't compile shader: " + shader.log)
+    }
+    shader
+  }
+
+  /** Prepares and returns a new SpriteBatch that uses [[vertexShader]] and [[fragmentShaderHigherContrastRGBA]] from this class, making it able to render RGBA colors from the libGDX or the rgb
+    * package. This also takes a `contrast` parameter, which modifies the contrast in the higher-contrast fragment shader; if greater than 1.0 it will make light colors lighter and dark colors darker,
+    * while if it is less than 1.0 it will make all but the darkest colors closer to the upper-middle-range of lightness. If you want to adjust contrast per-sprite, use a
+    * `com.github.tommyettinger.colorful.rgb.ColorfulBatch` (those can adjust colors in more ways); you can simply use `new ColorfulBatch()` to make one of those. Note that a SpriteBatch like this
+    * produces won't be able to render a `com.github.tommyettinger.colorful.rgb.ColorfulSprite`, but ColorfulBatch can. ColorfulBatch also will calculate contrast differently from the shader this
+    * uses. It also takes a contrast in its tweak value that is limited to a 0.0 to 1.0 range, rather than 0.0 on up here. One potential use for this method is to "deep-fry" a scene's image by using
+    * very high contrast (5.0 or higher).
+    *
+    * You can generate RGB colors using any of various methods in the `rgb` package, such as `com.github.tommyettinger.colorful.rgb.ColorTools#rgb(float, float, float, float)`.
+    *
+    * @param contrast
+    *   how much contrast should be emphasized; higher than 1.0 is more contrasting, and this should usually be between 0.1 and 5.0
+    * @return
+    *   a freshly allocated SpriteBatch that will also have a new ShaderProgram for rendering RGB with contrast
+    */
+  def makeRGBABatch(contrast: Float)(using Sge): SpriteBatch = {
+    val shader = new ShaderProgram(
+      vertexShader,
+      fragmentShaderHigherContrastRGBA.replace("   1.5   ", java.lang.Float.toString(java.lang.Math.max(contrast, 0.0f)))
+    )
+    if (!shader.compiled) {
+      throw new IllegalArgumentException("Couldn't compile shader: " + shader.log)
+    }
+    new SpriteBatch(1000, Nullable(shader))
+  }
+
+  /** Prepares and returns a new SpriteBatch that uses the default [[vertexShader]] and [[fragmentShaderYCwCm]] from this class, making it able to render YCwCm colors from the ycwcm package. It won't
+    * be a `ColorfulBatch` (those can adjust colors in more ways); you can simply use `new ColorfulBatch()` to make one of those. Note that a SpriteBatch like this produces won't be able to render a
+    * `ColorfulSprite`, but ColorfulBatch can.
+    *
+    * You can generate YCwCm colors using any of various methods in the `ycwcm` package, such as `com.github.tommyettinger.colorful.ycwcm.ColorTools#ycwcm(float, float, float, float)`.
+    *
+    * @return
+    *   a freshly allocated SpriteBatch that will also have a new ShaderProgram for rendering YCwCm
+    */
+  def makeYCwCmBatch()(using Sge): SpriteBatch = {
+    val shader = new ShaderProgram(vertexShader, fragmentShaderYCwCm)
+    if (!shader.compiled) {
+      throw new IllegalArgumentException("Couldn't compile shader: " + shader.log)
+    }
+    new SpriteBatch(1000, Nullable(shader))
+  }
+
+  /** Prepares and returns a new SpriteBatch that uses the default [[vertexShader]] and [[fragmentShaderYCwCm]] from this class, making it able to render YCwCm colors from the ycwcm package. This also
+    * takes a `contrast` parameter; if greater than 1.0 it will make light colors lighter and dark colors darker, while if it is less than 1.0 it will make all but the darkest colors closer to the
+    * upper-middle-range of lightness. If you want to adjust contrast per-sprite, use a `ColorfulBatch` (those can adjust colors in more ways); you can simply use `new ColorfulBatch()` to make one of
+    * those. Note that a SpriteBatch like this produces won't be able to render a `ColorfulSprite`, but ColorfulBatch can. ColorfulBatch also will calculate contrast differently from the shader this
+    * uses, including doing some work in the vertex shader (which may be faster). It also takes a contrast in its tweak value that is limited to a 0.0 to 1.0 range, rather than 0.1 to 2.0 here (this
+    * can technically tolerate 0.01 to 10.0, but those extremes aren't recommended).
+    *
+    * You can generate YCwCm colors using any of various methods in the `ycwcm` package, such as `com.github.tommyettinger.colorful.ycwcm.ColorTools#ycwcm(float, float, float, float)`.
+    *
+    * @param contrast
+    *   how much contrast should be emphasized; higher than 1.0 is more contrasting, and this should usually be between 0.1 and 2.0
+    * @return
+    *   a freshly allocated SpriteBatch that will also have a new ShaderProgram for rendering YCwCm
+    */
+  def makeYCwCmBatch(contrast: Float)(using Sge): SpriteBatch = {
+    val shader = new ShaderProgram(
+      vertexShader,
+      fragmentShaderHigherContrast.replace("   1.375   ", java.lang.Float.toString(java.lang.Math.min(java.lang.Math.max(contrast, 0.01f), 10.0f)))
+    )
+    if (!shader.compiled) {
+      throw new IllegalArgumentException("Couldn't compile shader: " + shader.log)
+    }
+    new SpriteBatch(1000, Nullable(shader))
+  }
+
+  /** Prepares and returns a new SpriteBatch that uses [[vertexShaderHSLC]] and [[fragmentShaderHSLC]] from this class, making it interpret the SpriteBatch's color, as set by
+    * `SpriteBatch#setColor(float, float, float, float)`, to be hue rotation, saturation change, lightness change, and contrast change. All of these are neutral when their value is 0.5f. Hue rotates
+    * clockwise or counterclockwise when it goes toward 0.0, and the other way when it goes toward 1.0; 0.0 and 1.0 both refer to the 180 degree rotation, but I don't know which goes which way (it
+    * also depends on how you visualize hue). Saturation becomes more grayscale as it goes towards 0.0, and more vivid as it goes towards 1.0. Lightness gets darker towards 0.0, lighter towards 1.0
+    * (any lightness above 0.5 will brighten the image, unlike the default shader and batch color). Contrast affects changes in lightness; low contrast makes all lightness closer to the mid-range,
+    * while high contrast makes even small changes in the mid-range of an image's color have stark lightness changes in the result. Note, this does not support changing an image's alpha with the batch
+    * color.
+    *
+    * You can generate HSLC colors using `FloatColors#rgb2hsl(float, float, float, float)`, using the last parameter to store contrast.
+    *
+    * @return
+    *   a freshly allocated SpriteBatch that will also have a new ShaderProgram for rendering HSLC
+    */
+  def makeBatchHSLC()(using Sge): SpriteBatch = {
+    val shader = new ShaderProgram(vertexShaderHSLC, fragmentShaderHSLC)
+    if (!shader.compiled) {
+      throw new IllegalArgumentException("Couldn't compile shader: " + shader.log)
+    }
+    new SpriteBatch(1000, Nullable(shader))
+  }
+
+  /** Adjusted-hue version of [[partialCodeHSL]], supplying HSL to-and-from RGB conversions with a smaller range of hue used for cyan and a larger range for orange. Not currently used. This is pretty
+    * much only meant so people reading the source code and trying different variations on HSL can see some of the attempts I made.
+    *
+    * Credit to Sam Hocevar, https://gamedev.stackexchange.com/a/59808 .
+    *
+    * EXPERIMENTAL. Meant more for reading and editing than serious usage.
+    */
+  val partialCodeHSLStretched: String =
+    "const float eps = 1.0e-3;\n" +
+      //// maybe not blue enough?
+//                    //Call this to go from the official HSL hue distribution (where blue is opposite yellow) to a
+//                    //different distribution that matches primary colors in painting (where purple is opposite yellow).
+//                    "float official2primaries(float hue) {\n" +
+//                    "    return  hue * (  1.630\n" +
+//                    "          + hue * (  5.937\n" +
+//                    "          + hue * (-38.485\n" +
+//                    "          + hue * ( 76.101\n" +
+//                    "          + hue * (-63.977\n" +
+//                    "          + hue *   19.794)))));\n" +
+//                    "}\n" +
+//                    //Call this to go to the official HSL hue distribution (where blue is opposite yellow) from a
+//                    //different distribution that matches primary colors in painting (where purple is opposite yellow).
+//                    "float primaries2official(float hue) {\n" +
+//                    "    return  hue * (  1.463\n" +
+//                    "          + hue * ( -9.834\n" +
+//                    "          + hue * ( 31.153\n" +
+//                    "          + hue * (-35.066\n" +
+//                    "          + hue *   13.284))));\n" +
+//                    "}\n" +
+      //// still weirdly high orange
+//                    "float official2primaries(float hue) {\n" +
+//                    "    return  hue * (  2.634\n" +
+//                    "          + hue * ( -4.703\n" +
+//                    "          + hue * (  3.659\n" +
+//                    "          + hue * (  0.829\n" +
+//                    "          + hue *   -1.419))));\n" +
+//                    "}\n" +
+//                    "float primaries2official(float hue) {\n" +
+//                    "    return  hue * (  1.163\n" +
+//                    "          + hue * ( -7.102\n" +
+//                    "          + hue * ( 22.709\n" +
+//                    "          + hue * (-25.502\n" +
+//                    "          + hue *    9.732))));\n" +
+//                    "}\n" +
+//                    "const float ROOT   = 16.0;\n" +
+//                    "const float SQUARE = ROOT * ROOT;\n" +
+      "float official2primaries(float hue) {\n" +
+//                    "    return (sqrt(hue * 0.9375 + 0.0625) - 0.25) * 1.333;\n" +
+//                    "    return asin(sqrt(hue * SQUARE) * (1.0 / ROOT)) * (2.0 * 3.14159274);\n" +
+//
+//                    "    return asin((sqrt(hue * 0.9375 + 0.0625) - 0.25) * 2.666 - 1.0) * 0.318309886 + 0.5;\n" +
+//
+//                    "    return sqrt(sin((hue - 0.5) * 3.14159274) * 0.5 + 0.5);\n" +
+//                    "    return pow(hue, 0.5625);\n" +
+//                    "    return sqrt(hue);\n" +
+      "    return (sqrt(hue + 0.050625) - 0.225) * 1.25;\n" +
+      "}\n" +
+      "float primaries2official(float hue) {\n" +
+//                    "    hue = sin((hue) * (0.5 * 3.14159274));\n" +
+//                    "    hue = (hue) * 0.75 + 0.25;\n" +
+//
+//                    "    hue = sin((hue - 0.5) * 3.14159274);\n" +
+//                    "    hue = (hue + 1.0) * 0.375 + 0.25;\n" +
+//                    "    return (hue * hue - 0.0625) * (1.0 / 0.9375);\n" +
+//
+//                    "    return asin(hue * hue * 2.0 - 1.0) * 0.318309886 + 0.5;\n" +
+//                    "    return pow(hue, 1.77777);\n" +
+      "    return pow(hue * 0.8 + 0.225, 2.0) - 0.050625;\n" +
+//                    "    return hue * hue;\n" +
+//
+//                    "    hue = sin((hue) * (0.5 * 3.14159274));\n" +
+//                    "    hue = hue * ROOT;\n" +
+//                    "    return (hue * hue) * (1.0 / SQUARE);\n" +
+//
+      "}\n" +
+      //// way too much orange?
+//                    //Call this to go from the official HSL hue distribution (where blue is opposite yellow) to a
+//                    //different distribution that matches primary colors in painting (where purple is opposite yellow).
+//                    "float official2primaries(float hue) {\n" +
+//                    "    return  hue * (  2.137\n" +
+//                    "          + hue * (  0.542\n" +
+//                    "          + hue * (-15.141\n" +
+//                    "          + hue * ( 30.120\n" +
+//                    "          + hue * (-22.541\n" +
+//                    "          + hue *    5.883)))));\n" +
+//                    "}\n" +
+//                    //Call this to go to the official HSL hue distribution (where blue is opposite yellow) from a
+//                    //different distribution that matches primary colors in painting (where purple is opposite yellow).
+//                    "float primaries2official(float hue) {\n" +
+//                    "    return  hue * (  0.677\n" +
+//                    "          + hue * ( -0.123\n" +
+//                    "          + hue * (-11.302\n" +
+//                    "          + hue * ( 46.767\n" +
+//                    "          + hue * (-58.493\n" +
+//                    "          + hue *   23.474)))));\n" +
+//                    "}\n" +
+      "vec4 rgb2hsl(vec4 c)\n" +
+      "{\n" +
+      "    const vec4 J = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);\n" +
+      "    vec4 p = mix(vec4(c.bg, J.wz), vec4(c.gb, J.xy), step(c.b, c.g));\n" +
+      "    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));\n" +
+      "\n" +
+      "    float d = q.x - min(q.w, q.y);\n" +
+      "    float l = q.x * (1.0 - 0.5 * d / (q.x + eps));\n" +
+      "    return vec4(official2primaries(abs(q.z + (q.w - q.y) / (6.0 * d + eps))), (q.x - l) / (min(l, 1.0 - l) + eps), l, c.a);\n" +
+      "}\n" +
+      "\n" +
+      "vec4 hsl2rgb(vec4 c)\n" +
+      "{\n" +
+      "    const vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);\n" +
+      "    vec3 p = abs(fract(primaries2official(c.x) + K.xyz) * 6.0 - K.www);\n" +
+      "    float v = (c.z + c.y * min(c.z, 1.0 - c.z));\n" +
+      "    return vec4(v * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), 2.0 * (1.0 - c.z / (v + eps))), c.w);\n" +
+      "}"
+
+  /** Prepares and returns a new SpriteBatch that uses [[vertexShader]] and [[fragmentShaderDoubleSaturation]] from this class, making it able to render RGBA colors from the libGDX or the rgb package.
+    * This also takes a `saturationMultiplier` parameter, which modifies the saturation in the fragment shader so it doesn't have to always double the saturation, and can change it by more or less. If
+    * greater than 1.0, saturationMultiplier will make colors more saturated/rich/vivid, while if it is less than 1.0 it will make all colors closer to gray. Using 0.0 will make all colors grayscale.
+    *
+    * You can generate RGB colors using any of various methods in the `rgb` package, such as `com.github.tommyettinger.colorful.rgb.ColorTools#rgb(float, float, float, float)`.
+    *
+    * @param saturationMultiplier
+    *   what to multiply the saturation by; 1.0 will have no change, 0.5 desaturates, 2.0 over-saturates
+    * @return
+    *   a freshly allocated SpriteBatch that will also have a new ShaderProgram for rendering RGB with contrast
+    */
+  def makeSaturatingBatch(saturationMultiplier: Float)(using Sge): SpriteBatch = {
+    val shader = new ShaderProgram(vertexShader, fragmentShaderDoubleSaturation.replace("  2.000  ", java.lang.Float.toString(saturationMultiplier)))
+    if (!shader.compiled) {
+      throw new IllegalArgumentException("Couldn't compile shader: " + shader.log)
+    }
+    new SpriteBatch(1000, Nullable(shader))
+  }
+
+  /** This is similar to the default vertex shader from libGDX, but also does some expensive setup work for HSLuv batch colors per-vertex instead of per-fragment. It is needed if you use
+    * [[fragmentShaderHsluv]].
+    */
+  val vertexShaderHsluv: String =
+    "attribute vec4 " + ShaderProgram.POSITION_ATTRIBUTE + ";\n"
+      + "attribute vec4 " + ShaderProgram.COLOR_ATTRIBUTE + ";\n"
+      + "attribute vec2 " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n"
+      + "uniform mat4 u_projTrans;\n"
+      + "varying vec4 v_color;\n"
+      + "varying vec2 v_texCoords;\n"
+      +
+      "const vec3 epsilon = vec3(0.0088564516790356308);\n" +
+      "const float kappa = 9.032962962;\n" +
+      "const mat3 m =" +
+      "         mat3(+3.240969941904521, -1.537383177570093, -0.498610760293000,\n" +
+      "              -0.969243636280870, +1.875967501507720, +0.041555057407175,\n" +
+      "              +0.055630079696993, -0.203976958888970, +1.056971514242878);\n" +
+      "float intersectLength (float sn, float cs, float line1, float line2) {\n" +
+      "    return line2 / (sn - line1 * cs);\n" +
+      "}\n" +
+      "float chromaLimit(float hue, float lightness) {\n" +
+      "        float sn = sin(hue);\n" +
+      "        float cs = cos(hue);\n" +
+      "        float sub1 = (lightness + 0.16) / 1.16;\n" +
+      "        sub1 *= sub1 * sub1;\n" +
+      "        float sub2 = sub1 > epsilon.x ? sub1 : lightness / kappa;\n" +
+      "        float mn = 1.0e20;\n" +
+      "        vec3 ms = m[0] * sub2;\n" +
+      "        float msy, top1, top2, bottom, length;\n" +
+      "        msy = ms.y;\n" +
+      "        top1 = 2845.17 * ms.x - 948.39 * ms.z;\n" +
+      "        top2 = (8384.22 * ms.z + 7698.60 * msy + 7317.18 * ms.x) * lightness;\n" +
+      "        bottom = (6322.60 * ms.z - 1264.52 * msy);\n" +
+      "        length = intersectLength(sn, cs, top1 / bottom, top2 / bottom);\n" +
+      "        if (length >= 0.) mn = min(mn, length);\n" +
+      "        msy -= 1.0;\n" +
+      "        top1 = 2845.17 * ms.x - 948.39 * ms.z;\n" +
+      "        top2 = (8384.22 * ms.z + 7698.60 * msy + 7317.18 * ms.x) * lightness;\n" +
+      "        bottom = (6322.60 * ms.z - 1264.52 * msy);\n" +
+      "        length = intersectLength(sn, cs, top1 / bottom, top2 / bottom);\n" +
+      "        if (length >= 0.) mn = min(mn, length);\n" +
+      "        ms = m[1] * sub2;\n" +
+      "        msy = ms.y;\n" +
+      "        top1 = 2845.17 * ms.x - 948.39 * ms.z;\n" +
+      "        top2 = (8384.22 * ms.z + 7698.60 * msy + 7317.18 * ms.x) * lightness;\n" +
+      "        bottom = (6322.60 * ms.z - 1264.52 * msy);\n" +
+      "        length = intersectLength(sn, cs, top1 / bottom, top2 / bottom);\n" +
+      "        if (length >= 0.) mn = min(mn, length);\n" +
+      "        msy -= 1.0;\n" +
+      "        top1 = 2845.17 * ms.x - 948.39 * ms.z;\n" +
+      "        top2 = (8384.22 * ms.z + 7698.60 * msy + 7317.18 * ms.x) * lightness;\n" +
+      "        bottom = (6322.60 * ms.z - 1264.52 * msy);\n" +
+      "        length = intersectLength(sn, cs, top1 / bottom, top2 / bottom);\n" +
+      "        if (length >= 0.) mn = min(mn, length);\n" +
+      "        ms = m[2] * sub2;\n" +
+      "        msy = ms.y;\n" +
+      "        top1 = 2845.17 * ms.x - 948.39 * ms.z;\n" +
+      "        top2 = (8384.22 * ms.z + 7698.60 * msy + 7317.18 * ms.x) * lightness;\n" +
+      "        bottom = (6322.60 * ms.z - 1264.52 * msy);\n" +
+      "        length = intersectLength(sn, cs, top1 / bottom, top2 / bottom);\n" +
+      "        if (length >= 0.) mn = min(mn, length);\n" +
+      "        msy -= 1.0;\n" +
+      "        top1 = 2845.17 * ms.x - 948.39 * ms.z;\n" +
+      "        top2 = (8384.22 * ms.z + 7698.60 * msy + 7317.18 * ms.x) * lightness;\n" +
+      "        bottom = (6322.60 * ms.z - 1264.52 * msy);\n" +
+      "        length = intersectLength(sn, cs, top1 / bottom, top2 / bottom);\n" +
+      "        if (length >= 0.) mn = min(mn, length);\n" +
+      "        return mn;\n" +
+      "}\n" +
+      "vec3 hsl2luv(vec3 c)\n" +
+      "{\n" +
+      "    float L = c.z;\n" +
+      "    float C = chromaLimit(c.x, L) * c.y;\n" +
+      "    float U = cos(c.x) * C;\n" +
+      "    float V = sin(c.x) * C;\n" +
+      "    return vec3(L, U, V);\n" +
+      "}\n"
+      + "void main()\n"
+      + "{\n"
+      + "   v_color = " + ShaderProgram.COLOR_ATTRIBUTE + ";\n"
+      + "   v_color.w = v_color.w * (255.0/254.0);\n"
+      + "   v_color.x *= 6.2831;\n"
+      + "   v_color.rgb = hsl2luv(v_color.rgb);\n"
+      + "   v_texCoords = " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n"
+      + "   gl_Position =  u_projTrans * " + ShaderProgram.POSITION_ATTRIBUTE + ";\n"
+      + "}\n"
+
+  /** Just like [[fragmentShaderOklab]], but uses the HSLuv color space instead of the Oklab one. This also gamma-corrects the inputs and outputs, though it uses subtly different math internally.
+    *
+    * You can generate HSLuv colors using any of various methods in the `hsluv` package, such as `com.github.tommyettinger.colorful.hsluv.ColorTools#hsluv(float, float, float, float)`.
+    *
+    * Meant for use with [[vertexShaderHsluv]].
+    */
+  var fragmentShaderHsluv: String =
+    "#ifdef GL_ES\n" +
+      "#define LOWP lowp\n" +
+      "precision mediump float;\n" +
+      "#else\n" +
+      "#define LOWP \n" +
+      "#endif\n" +
+      "varying vec2 v_texCoords;\n" +
+      "varying vec4 v_color;\n" +
+      "uniform sampler2D u_texture;\n" +
+      "const vec3 forward = vec3(1.0 / 3.0);\n" +
+      "const vec3 sRGBFrom = vec3(2.4);\n" +
+      "const vec3 sRGBThresholdFrom = vec3(0.04045);\n" +
+      "const vec3 sRGBTo = vec3(1.0 / 2.4);\n" +
+      "const vec3 sRGBThresholdTo = vec3(0.0031308);\n" +
+      "const vec3 epsilon = vec3(0.0088564516790356308);\n" +
+      "const float kappa = 9.032962962;\n" +
+      "const vec2 refUV = vec2(0.19783000664283681, 0.468319994938791);\n" +
+      "const mat3 m =" +
+      "         mat3(+3.240969941904521, -1.537383177570093, -0.498610760293000,\n" +
+      "              -0.969243636280870, +1.875967501507720, +0.041555057407175,\n" +
+      "              +0.055630079696993, -0.203976958888970, +1.056971514242878);\n" +
+      "const mat3 mInv =\n" +
+      "         mat3(0.41239079926595948 , 0.35758433938387796, 0.180480788401834290,\n" +
+      "              0.21263900587151036 , 0.71516867876775593, 0.072192315360733715,\n" +
+      "              0.019330818715591851, 0.11919477979462599, 0.950532152249660580);\n" +
+      "vec3 linear(vec3 t){ return mix(pow((t + 0.055) * (1.0 / 1.055), sRGBFrom), t * (1.0/12.92), step(t, sRGBThresholdFrom)); }\n" +
+      "vec3 sRGB(vec3 t){ return mix(1.055 * pow(t, sRGBTo) - 0.055, 12.92*t, step(t, sRGBThresholdTo)); }\n" +
+      "float xyzF(float t){ return mix(pow(t,1./3.), 7.787037 * t + 0.139731, step(t, epsilon.x)); }\n" +
+      "vec3 xyzF(vec3 t){ return mix(pow(t, forward), 7.787037 * t + 0.139731, step(t, epsilon)); }\n" +
+      "float xyzR(float t){ return mix(t*t*t , 0.1284185 * (t - 0.139731), step(t, 0.20689655)); }\n" +
+      "float intersectLength (float sn, float cs, float line1, float line2) {\n" +
+      "    return line2 / (sn - line1 * cs);\n" +
+      "}\n" +
+      "float chromaLimit(float hue, float lightness) {\n" +
+      "        float sn = sin(hue);\n" +
+      "        float cs = cos(hue);\n" +
+      "        float sub1 = (lightness + 0.16) / 1.16;\n" +
+      "        sub1 *= sub1 * sub1;\n" +
+      "        float sub2 = sub1 > epsilon.x ? sub1 : lightness / kappa;\n" +
+      "        float mn = 1.0e20;\n" +
+      "        vec3 ms = m[0] * sub2;\n" +
+      "        float msy, top1, top2, bottom, length;\n" +
+      "        msy = ms.y;\n" +
+      "        top1 = 2845.17 * ms.x - 948.39 * ms.z;\n" +
+      "        top2 = (8384.22 * ms.z + 7698.60 * msy + 7317.18 * ms.x) * lightness;\n" +
+      "        bottom = (6322.60 * ms.z - 1264.52 * msy);\n" +
+      "        length = intersectLength(sn, cs, top1 / bottom, top2 / bottom);\n" +
+      "        if (length >= 0.) mn = min(mn, length);\n" +
+      "        msy -= 1.0;\n" +
+      "        top1 = 2845.17 * ms.x - 948.39 * ms.z;\n" +
+      "        top2 = (8384.22 * ms.z + 7698.60 * msy + 7317.18 * ms.x) * lightness;\n" +
+      "        bottom = (6322.60 * ms.z - 1264.52 * msy);\n" +
+      "        length = intersectLength(sn, cs, top1 / bottom, top2 / bottom);\n" +
+      "        if (length >= 0.) mn = min(mn, length);\n" +
+      "        ms = m[1] * sub2;\n" +
+      "        msy = ms.y;\n" +
+      "        top1 = 2845.17 * ms.x - 948.39 * ms.z;\n" +
+      "        top2 = (8384.22 * ms.z + 7698.60 * msy + 7317.18 * ms.x) * lightness;\n" +
+      "        bottom = (6322.60 * ms.z - 1264.52 * msy);\n" +
+      "        length = intersectLength(sn, cs, top1 / bottom, top2 / bottom);\n" +
+      "        if (length >= 0.) mn = min(mn, length);\n" +
+      "        msy -= 1.0;\n" +
+      "        top1 = 2845.17 * ms.x - 948.39 * ms.z;\n" +
+      "        top2 = (8384.22 * ms.z + 7698.60 * msy + 7317.18 * ms.x) * lightness;\n" +
+      "        bottom = (6322.60 * ms.z - 1264.52 * msy);\n" +
+      "        length = intersectLength(sn, cs, top1 / bottom, top2 / bottom);\n" +
+      "        if (length >= 0.) mn = min(mn, length);\n" +
+      "        ms = m[2] * sub2;\n" +
+      "        msy = ms.y;\n" +
+      "        top1 = 2845.17 * ms.x - 948.39 * ms.z;\n" +
+      "        top2 = (8384.22 * ms.z + 7698.60 * msy + 7317.18 * ms.x) * lightness;\n" +
+      "        bottom = (6322.60 * ms.z - 1264.52 * msy);\n" +
+      "        length = intersectLength(sn, cs, top1 / bottom, top2 / bottom);\n" +
+      "        if (length >= 0.) mn = min(mn, length);\n" +
+      "        msy -= 1.0;\n" +
+      "        top1 = 2845.17 * ms.x - 948.39 * ms.z;\n" +
+      "        top2 = (8384.22 * ms.z + 7698.60 * msy + 7317.18 * ms.x) * lightness;\n" +
+      "        bottom = (6322.60 * ms.z - 1264.52 * msy);\n" +
+      "        length = intersectLength(sn, cs, top1 / bottom, top2 / bottom);\n" +
+      "        if (length >= 0.) mn = min(mn, length);\n" +
+      "        return mn;\n" +
+      "}\n" +
+      "vec3 rgb2luv(vec3 c)\n" +
+      "{\n" +
+      "    c *= mInv;" +
+      "    float L = max(0.,1.16*pow(c.y, 1.0 / 3.0) - 0.16);\n" +
+      "    vec2 uv;\n" +
+      "    if(L < 0.0001) uv = vec2(0.0);\n" +
+      "    else uv = 13. * L * (vec2(4., 9.) * c.xy / (c.x + 15. * c.y + 3. * c.z) - refUV);\n" +
+      "    return vec3(L, uv);\n" +
+      "}\n" +
+      "float forwardLight(float L) {\n" +
+      "        const float shape = 0.8528, turning = 0.1;\n" +
+      "        float d = turning - L;\n" +
+      "        return mix(\n" +
+      "          ((1. - turning) * (L - 1.)) / (1. - (L + shape * d)) + 1.,\n" +
+      "          (turning * L) / (1.0e-3 + (L + shape * d)),\n" +
+      "          step(0.0, d));\n" +
+      "}\n" +
+      "float reverseLight(float L) {\n" +
+      "        const float shape = 1.1726, turning = 0.1;\n" +
+      "        float d = turning - L;\n" +
+      "        return mix(\n" +
+      "          ((1. - turning) * (L - 1.)) / (1. - (L + shape * d)) + 1.,\n" +
+      "          (turning * L) / (1.0e-3 + (L + shape * d)),\n" +
+      "          step(0.0, d));\n" +
+      "}\n" +
+      "vec3 luv2rgb(vec3 c)\n" +
+      "{\n" +
+      "    float L = reverseLight(c.x);\n" +
+      "    float U = c.y;\n" +
+      "    float V = c.z;\n" +
+      "    float lim = chromaLimit(atan(V, U), L);\n" +
+      "    float len = length(vec2(U,V));\n" +
+      "    if(len > lim) {\n" +
+      "      lim /= len;\n" +
+      "      U *= lim;\n" +
+      "      V *= lim;\n" +
+      "    }\n" +
+      "    if (L <= 0.0001) {\n" +
+      "        return vec3(0.0);\n" +
+      "    } else if(L >= 0.9999) {\n" +
+      "        return vec3(1.0);\n" +
+      "    } else {\n" +
+      "      if (L <= 0.08) {\n" +
+      "        c.y = L / kappa;\n" +
+      "      } else {\n" +
+      "        c.y = (L + 0.16) / 1.16;\n" +
+      "        c.y *= c.y * c.y;\n" +
+      "      }\n" +
+      "    }\n" +
+      "    float iL = 1. / (13.0 * L);\n" +
+      "    float varU = U * iL + refUV.x;\n" +
+      "    float varV = V * iL + refUV.y;\n" +
+      "    c.x = 2.25 * varU * c.y / varV;\n" +
+      "    c.z = (3. / varV - 5.) * c.y - (c.x / 3.);\n" +
+      "    vec3 rgb = c * m;\n" +
+      "    return rgb;\n" +
+      "}\n" +
+      "void main()\n" +
+      "{\n" +
+      "  vec4 tgt = texture2D( u_texture, v_texCoords );\n" +
+      "  vec3 luv = rgb2luv(linear(tgt.rgb));\n" +
+      "  luv.x = forwardLight(clamp(luv.x + v_color.x - 0.5372549, 0.0, 1.0));\n" +
+      "  luv.yz = (luv.yz) + (v_color.yz);\n" +
+      "  gl_FragColor = vec4(sRGB(clamp(luv2rgb(luv), 0.0, 1.0)), v_color.a * tgt.a);\n" +
+      "}"
+
+  /** Prepares and returns a new SpriteBatch that uses [[vertexShader]] and [[fragmentShaderSwapWhite]] from this class, making it able to render RGBA colors from libGDX or the rgb package. This also
+    * takes red, green, and blue parameters, each between 0.0 and 1.0, which define the color that white will be replaced with.
+    *
+    * You can generate RGB colors using any of various methods in the `rgb` package, such as `com.github.tommyettinger.colorful.rgb.ColorTools#rgb(float, float, float, float)`, or just by using normal
+    * SpriteBatch and Color methods.
+    *
+    * @param red
+    *   between 0.0 and 1.0, the red value of the color to replace white with.
+    * @param green
+    *   between 0.0 and 1.0, the green value of the color to replace white with.
+    * @param blue
+    *   between 0.0 and 1.0, the blue value of the color to replace white with.
+    * @return
+    *   a freshly allocated SpriteBatch that will also have a new ShaderProgram for rendering RGB with contrast
+    */
+  def makeSwappingBatch(red: Float, green: Float, blue: Float)(using Sge): SpriteBatch = {
+    val shader = new ShaderProgram(
+      vertexShader,
+      fragmentShaderSwapWhite.replace("   1.00, 0.00, 0.00   ", red.toString + ", " + green.toString + ", " + blue.toString)
+    )
+    if (!shader.compiled) {
+      throw new IllegalArgumentException("Couldn't compile shader: " + shader.log)
+    }
+    new SpriteBatch(1000, Nullable(shader))
+  }
 }
