@@ -356,3 +356,5 @@ sge-extension/textra/src/test/scalajvm/sge/textra/TextraLzmaFontRedSuite.scala	s
 sge-extension/textra/src/test/scalanative/sge/textra/TextraLzmaFontRedSuite.scala	shortcuts	red-suite fixture: byte-identical native copy of the ISS-514 red suite (15 hits); precedent 99087560	2026-06-12	dev
 sge-extension/textra/src/test/scalajvm/sge/textra/TextraLzmaFontRedSuite.scala	stale-stubs	red-suite narrative comment quoting the fixed ISS-514 bug (line ~209), intentionally preserved red-test documentation	2026-06-12	dev
 sge-extension/textra/src/test/scalanative/sge/textra/TextraLzmaFontRedSuite.scala	stale-stubs	byte-identical native copy; same ISS-514 narrative comment	2026-06-12	dev
+sge/src/test/scalajvm/sge/graphics/g3d/particles/ParticleEffectIoRedSuite.scala	shortcuts	red-suite fixture: reproducer-authored stubs/comments pinning the ISS-507/550 bug (2 hits), never runtime code; precedent 99087560	2026-06-12	dev
+sge/src/test/scalanative/sge/graphics/g3d/particles/ParticleEffectIoRedSuite.scala	shortcuts	red-suite fixture: byte-identical native copy of the ISS-507/550 red suite (2 hits); precedent 99087560	2026-06-12	dev
