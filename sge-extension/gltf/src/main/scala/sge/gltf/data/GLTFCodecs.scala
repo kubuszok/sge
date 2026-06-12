@@ -33,8 +33,9 @@ import sge.gltf.data.geometry.{ GLTFMesh, GLTFMorphTarget, GLTFPrimitive }
 import sge.gltf.data.material.{ GLTFMaterial, GLTFpbrMetallicRoughness }
 import sge.gltf.data.scene.{ GLTFNode, GLTFScene, GLTFSkin }
 import sge.gltf.data.texture.{ GLTFImage, GLTFNormalTextureInfo, GLTFOcclusionTextureInfo, GLTFSampler, GLTFTexture, GLTFTextureInfo }
+import sge.gltf.loaders.exceptions.GLTFUnsupportedException
 import lowlevel.Nullable
-import sge.utils.{ Json, JsonCodec, given_JsonCodec_Json }
+import sge.utils.{ Json, JsonCodec, given_JsonCodec_Json, readFromString, writeToString }
 
 /** Central registry of GLTF JSON codecs. Import `GLTFCodecs.given` to bring all codecs into scope for `readFromString[GLTF](json)`.
   */
@@ -191,6 +192,96 @@ object GLTFCodecs {
     obj
   }
 
+  // ── Encode helpers ───────────────────────────────────────────────────
+  //
+  // Mirror the decode helpers above: each writes the field key + value only
+  // when the source field is present, following glTF JSON conventions
+  // (omit null / empty). Plain (non-Nullable) primitives are always written
+  // since they always carry a meaningful value the decoder reads back.
+
+  private def writeNullableInt(out: JsonWriter, key: String, value: Nullable[Int]): Unit =
+    if (Nullable.isDefined(value)) { out.writeKey(key); out.writeVal(value.get) }
+
+  private def writeNullableFloat(out: JsonWriter, key: String, value: Nullable[Float]): Unit =
+    if (Nullable.isDefined(value)) { out.writeKey(key); out.writeVal(value.get) }
+
+  private def writeNullableBoolean(out: JsonWriter, key: String, value: Nullable[Boolean]): Unit =
+    if (Nullable.isDefined(value)) { out.writeKey(key); out.writeVal(value.get) }
+
+  private def writeNullableString(out: JsonWriter, key: String, value: Nullable[String]): Unit =
+    if (Nullable.isDefined(value)) { out.writeKey(key); out.writeVal(value.get) }
+
+  private def writeFloatArray(out: JsonWriter, key: String, value: Array[Float]): Unit =
+    if (value != null) {
+      out.writeKey(key)
+      out.writeArrayStart()
+      var i = 0
+      while (i < value.length) { out.writeVal(value(i)); i += 1 }
+      out.writeArrayEnd()
+    }
+
+  private def writeNullableFloatArray(out: JsonWriter, key: String, value: Nullable[Array[Float]]): Unit =
+    if (Nullable.isDefined(value)) writeFloatArray(out, key, value.get)
+
+  private def writeNullableIntArray(out: JsonWriter, key: String, value: Nullable[ArrayBuffer[Int]]): Unit =
+    if (Nullable.isDefined(value)) {
+      val buf = value.get
+      out.writeKey(key)
+      out.writeArrayStart()
+      var i = 0
+      while (i < buf.size) { out.writeVal(buf(i)); i += 1 }
+      out.writeArrayEnd()
+    }
+
+  private def writeNullableStringArray(out: JsonWriter, key: String, value: Nullable[ArrayBuffer[String]]): Unit =
+    if (Nullable.isDefined(value)) {
+      val buf = value.get
+      out.writeKey(key)
+      out.writeArrayStart()
+      var i = 0
+      while (i < buf.size) { out.writeVal(buf(i)); i += 1 }
+      out.writeArrayEnd()
+    }
+
+  private def writeNullableStringIntMap(out: JsonWriter, key: String, value: Nullable[HashMap[String, Int]]): Unit =
+    if (Nullable.isDefined(value)) {
+      out.writeKey(key)
+      out.writeObjectStart()
+      value.get.foreach { case (k, v) => out.writeKey(k); out.writeVal(v) }
+      out.writeObjectEnd()
+    }
+
+  private def writeNullableObj[A](out: JsonWriter, key: String, value: Nullable[A])(using codec: JsonValueCodec[A]): Unit =
+    if (Nullable.isDefined(value)) { out.writeKey(key); codec.encodeValue(value.get, out) }
+
+  private def writeNullableArray[A](out: JsonWriter, key: String, value: Nullable[ArrayBuffer[A]])(using codec: JsonValueCodec[A]): Unit =
+    if (Nullable.isDefined(value)) {
+      val buf = value.get
+      out.writeKey(key)
+      out.writeArrayStart()
+      var i = 0
+      while (i < buf.size) { codec.encodeValue(buf(i), out); i += 1 }
+      out.writeArrayEnd()
+    }
+
+  /** Writes the GLTFObject common fields (extensions, extras). Mirrors [[readObjectField]]. */
+  private def writeObjectFields(out: JsonWriter, obj: GLTFObject)(using
+    extCodec:    JsonValueCodec[GLTFExtensions],
+    extrasCodec: JsonValueCodec[GLTFExtras]
+  ): Unit = {
+    writeNullableObj[GLTFExtensions](out, "extensions", obj.extensions)
+    writeNullableObj[GLTFExtras](out, "extras", obj.extras)
+  }
+
+  /** Writes the GLTFEntity common fields (name + GLTFObject fields). Mirrors [[readEntityField]]. */
+  private def writeEntityFields(out: JsonWriter, obj: GLTFEntity)(using
+    extCodec:    JsonValueCodec[GLTFExtensions],
+    extrasCodec: JsonValueCodec[GLTFExtras]
+  ): Unit = {
+    writeNullableString(out, "name", obj.name)
+    writeObjectFields(out, obj)
+  }
+
   // ── GLTFExtensions codec — typed dispatch for known extensions ───────
 
   given gltfExtensionsCodec(using jsonCodec: JsonValueCodec[Json]): JsonValueCodec[GLTFExtensions] = new JsonValueCodec[GLTFExtensions] {
@@ -214,17 +305,17 @@ object GLTFCodecs {
               case KHRTextureTransform.EXT               => ext.set(key, khrTextureTransformCodec.decodeValue(in, null.asInstanceOf[KHRTextureTransform]))
               case KHRLightsPunctual.EXT                 =>
                 // KHR_lights_punctual appears at root level (GLTFLights with "lights" array)
-                // and at node level (GLTFLightNode with "light" int). Both use same extension name.
-                // We probe the first key to determine which type, using raw JSON fallback.
+                // and at node level (GLTFLightNode with "light" int). Both use the same extension
+                // name, so the concrete type is only known at the GLTFExtensions.get call site.
+                // Faithful to net/mgsx/gltf/data/GLTFExtensions.java:23-36: store the raw JSON and
+                // parse it lazily into the REQUESTED type on get (GLTFLights at the root,
+                // GLTFLightNode at a node) via the decoders registered below.
                 val rawJson = jsonCodec.decodeValue(in, null.asInstanceOf[Json])
-                if (rawJson != null) {
-                  // Store raw JSON and let get[T] return it via cast — the caller knows which type to expect
-                  ext.set(key, rawJson.asInstanceOf[AnyRef])
-                }
+                if (rawJson != null) ext.setRaw(key, rawJson)
               case _ =>
                 // Unknown extension — store raw JSON for forward compatibility
                 val rawJson = jsonCodec.decodeValue(in, null.asInstanceOf[Json])
-                if (rawJson != null) ext.set(key, rawJson.asInstanceOf[AnyRef])
+                if (rawJson != null) ext.setRaw(key, rawJson)
             }
             continue = in.isNextToken(',')
           }
@@ -233,8 +324,56 @@ object GLTFCodecs {
       ext
     }
 
-    override def encodeValue(x: GLTFExtensions, out: JsonWriter): Unit =
-      out.writeNull()
+    override def encodeValue(x: GLTFExtensions, out: JsonWriter): Unit = {
+      // Mirrors net/mgsx/gltf/data/GLTFExtensions.java:16-21 (write): every extension entry is
+      // written under its extension-name key. Typed entries are dispatched to their codec by
+      // runtime type; raw entries (stored but never parsed, e.g. KHR_lights_punctual that was
+      // decoded but not consumed via get) are re-encoded directly from their JSON AST.
+      out.writeObjectStart()
+      val typedKeys = scala.collection.mutable.HashSet.empty[String]
+      x.typedEntries.foreach { case (key, value) =>
+        typedKeys += key
+        out.writeKey(key)
+        value match {
+          case v: KHRMaterialsEmissiveStrength      => khrEmissiveStrengthCodec.encodeValue(v, out)
+          case v: KHRMaterialsIOR                   => khrIORCodec.encodeValue(v, out)
+          case v: KHRMaterialsIridescence           => khrIridescenceCodec.encodeValue(v, out)
+          case v: KHRMaterialsPBRSpecularGlossiness => khrPBRSpecGlossCodec.encodeValue(v, out)
+          case v: KHRMaterialsSpecular              => khrSpecularCodec.encodeValue(v, out)
+          case v: KHRMaterialsTransmission          => khrTransmissionCodec.encodeValue(v, out)
+          case v: KHRMaterialsUnlit                 => khrUnlitCodec.encodeValue(v, out)
+          case v: KHRMaterialsVolume                => khrVolumeCodec.encodeValue(v, out)
+          case v: KHRTextureTransform               => khrTextureTransformCodec.encodeValue(v, out)
+          case v: KHRLightsPunctual.GLTFLights      => gltfLightsCodec.encodeValue(v, out)
+          case v: KHRLightsPunctual.GLTFLightNode   => gltfLightNodeCodec.encodeValue(v, out)
+          case v: Json                              => jsonCodec.encodeValue(v, out)
+          case other =>
+            // Java GLTFExtensions.write (16-21) delegates to json.writeValue, which reflects over any
+            // Object. This port cannot mirror reflection on Scala.js / Scala Native, so a typed entry
+            // set via GLTFExtensions.set with a type that has no registered encoder cannot be written.
+            // Fail loudly (never silently emit a null payload, which would corrupt the document and
+            // mislead glTF consumers) and name the remedy.
+            throw new GLTFUnsupportedException(
+              "Cannot encode GLTF extension \"" + key + "\": no registered encoder for type " +
+                other.getClass.getName +
+                ". This port is reflection-free (Scala.js / Scala Native have no runtime reflection), " +
+                "so each typed extension must have a JsonValueCodec wired into GLTFCodecs.gltfExtensionsCodec.encodeValue."
+            )
+        }
+      }
+      x.rawEntries.foreach { case (key, value) =>
+        // Skip any raw entry whose key was already emitted as a typed entry. GLTFExtensions.get drops
+        // the raw entry once it lazily parses it into a typed object, but a direct GLTFExtensions.set
+        // for an already-raw key can leave both populated; emitting both would produce a duplicate
+        // object key (RFC-8259-undefined, glTF-validator-rejected). Java keeps a single map, so the
+        // typed entry wins.
+        if (!typedKeys.contains(key)) {
+          out.writeKey(key)
+          jsonCodec.encodeValue(value, out)
+        }
+      }
+      out.writeObjectEnd()
+    }
 
     override def nullValue: GLTFExtensions = null.asInstanceOf[GLTFExtensions] // @nowarn — Nullable wraps this
   }
@@ -250,7 +389,10 @@ object GLTFCodecs {
     }
 
     override def encodeValue(x: GLTFExtras, out: JsonWriter): Unit =
-      out.writeNull()
+      // Re-encode the stored raw JSON AST (mirrors the original Serializable.write which writes the
+      // captured JsonValue back out). Empty extras encode as null.
+      if (Nullable.isDefined(x.value)) jsonCodec.encodeValue(x.value.get, out)
+      else out.writeNull()
 
     override def nullValue: GLTFExtras = null.asInstanceOf[GLTFExtras] // @nowarn — Nullable wraps this
   }
@@ -290,8 +432,14 @@ object GLTFCodecs {
           case _          => if (!readObjectField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFTextureInfo, out: JsonWriter): Unit            = out.writeNull()
-    override def nullValue:                                        GLTFTextureInfo = null.asInstanceOf[GLTFTextureInfo]
+    override def encodeValue(x: GLTFTextureInfo, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableInt(out, "index", x.index)
+      out.writeKey("texCoord"); out.writeVal(x.texCoord)
+      writeObjectFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFTextureInfo = null.asInstanceOf[GLTFTextureInfo]
   }
 
   given gltfNormalTextureInfoCodec: JsonValueCodec[GLTFNormalTextureInfo] = new JsonValueCodec[GLTFNormalTextureInfo] {
@@ -304,8 +452,15 @@ object GLTFCodecs {
           case _          => if (!readObjectField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFNormalTextureInfo, out: JsonWriter): Unit                  = out.writeNull()
-    override def nullValue:                                              GLTFNormalTextureInfo = null.asInstanceOf[GLTFNormalTextureInfo]
+    override def encodeValue(x: GLTFNormalTextureInfo, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableInt(out, "index", x.index)
+      out.writeKey("texCoord"); out.writeVal(x.texCoord)
+      out.writeKey("scale"); out.writeVal(x.scale)
+      writeObjectFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFNormalTextureInfo = null.asInstanceOf[GLTFNormalTextureInfo]
   }
 
   given gltfOcclusionTextureInfoCodec: JsonValueCodec[GLTFOcclusionTextureInfo] = new JsonValueCodec[GLTFOcclusionTextureInfo] {
@@ -318,8 +473,15 @@ object GLTFCodecs {
           case _          => if (!readObjectField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFOcclusionTextureInfo, out: JsonWriter): Unit                     = out.writeNull()
-    override def nullValue:                                                 GLTFOcclusionTextureInfo = null.asInstanceOf[GLTFOcclusionTextureInfo]
+    override def encodeValue(x: GLTFOcclusionTextureInfo, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableInt(out, "index", x.index)
+      out.writeKey("texCoord"); out.writeVal(x.texCoord)
+      out.writeKey("strength"); out.writeVal(x.strength)
+      writeObjectFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFOcclusionTextureInfo = null.asInstanceOf[GLTFOcclusionTextureInfo]
   }
 
   given gltfImageCodec: JsonValueCodec[GLTFImage] = new JsonValueCodec[GLTFImage] {
@@ -332,8 +494,15 @@ object GLTFCodecs {
           case _            => if (!readEntityField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFImage, out: JsonWriter): Unit      = out.writeNull()
-    override def nullValue:                                  GLTFImage = null.asInstanceOf[GLTFImage]
+    override def encodeValue(x: GLTFImage, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableString(out, "uri", x.uri)
+      writeNullableString(out, "mimeType", x.mimeType)
+      writeNullableInt(out, "bufferView", x.bufferView)
+      writeEntityFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFImage = null.asInstanceOf[GLTFImage]
   }
 
   given gltfSamplerCodec: JsonValueCodec[GLTFSampler] = new JsonValueCodec[GLTFSampler] {
@@ -347,8 +516,16 @@ object GLTFCodecs {
           case _           => if (!readEntityField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFSampler, out: JsonWriter): Unit        = out.writeNull()
-    override def nullValue:                                    GLTFSampler = null.asInstanceOf[GLTFSampler]
+    override def encodeValue(x: GLTFSampler, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableInt(out, "minFilter", x.minFilter)
+      writeNullableInt(out, "magFilter", x.magFilter)
+      writeNullableInt(out, "wrapS", x.wrapS)
+      writeNullableInt(out, "wrapT", x.wrapT)
+      writeEntityFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFSampler = null.asInstanceOf[GLTFSampler]
   }
 
   given gltfTextureCodec: JsonValueCodec[GLTFTexture] = new JsonValueCodec[GLTFTexture] {
@@ -360,8 +537,14 @@ object GLTFCodecs {
           case _         => if (!readEntityField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFTexture, out: JsonWriter): Unit        = out.writeNull()
-    override def nullValue:                                    GLTFTexture = null.asInstanceOf[GLTFTexture]
+    override def encodeValue(x: GLTFTexture, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableInt(out, "source", x.source)
+      writeNullableInt(out, "sampler", x.sampler)
+      writeEntityFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFTexture = null.asInstanceOf[GLTFTexture]
   }
 
   // ── data (accessor, buffer) ─────────────────────────────────────────
@@ -376,8 +559,15 @@ object GLTFCodecs {
           case _               => if (!readObjectField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFAccessorSparseIndices, out: JsonWriter): Unit                      = out.writeNull()
-    override def nullValue:                                                  GLTFAccessorSparseIndices = null.asInstanceOf[GLTFAccessorSparseIndices]
+    override def encodeValue(x: GLTFAccessorSparseIndices, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      out.writeKey("bufferView"); out.writeVal(x.bufferView)
+      out.writeKey("byteOffset"); out.writeVal(x.byteOffset)
+      out.writeKey("componentType"); out.writeVal(x.componentType)
+      writeObjectFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFAccessorSparseIndices = null.asInstanceOf[GLTFAccessorSparseIndices]
   }
 
   given gltfAccessorSparseValuesCodec: JsonValueCodec[GLTFAccessorSparseValues] = new JsonValueCodec[GLTFAccessorSparseValues] {
@@ -389,8 +579,14 @@ object GLTFCodecs {
           case _            => if (!readObjectField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFAccessorSparseValues, out: JsonWriter): Unit                     = out.writeNull()
-    override def nullValue:                                                 GLTFAccessorSparseValues = null.asInstanceOf[GLTFAccessorSparseValues]
+    override def encodeValue(x: GLTFAccessorSparseValues, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      out.writeKey("bufferView"); out.writeVal(x.bufferView)
+      out.writeKey("byteOffset"); out.writeVal(x.byteOffset)
+      writeObjectFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFAccessorSparseValues = null.asInstanceOf[GLTFAccessorSparseValues]
   }
 
   given gltfAccessorSparseCodec: JsonValueCodec[GLTFAccessorSparse] = new JsonValueCodec[GLTFAccessorSparse] {
@@ -403,8 +599,15 @@ object GLTFCodecs {
           case _         => if (!readObjectField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFAccessorSparse, out: JsonWriter): Unit               = out.writeNull()
-    override def nullValue:                                           GLTFAccessorSparse = null.asInstanceOf[GLTFAccessorSparse]
+    override def encodeValue(x: GLTFAccessorSparse, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      out.writeKey("count"); out.writeVal(x.count)
+      writeNullableObj[GLTFAccessorSparseIndices](out, "indices", x.indices)
+      writeNullableObj[GLTFAccessorSparseValues](out, "values", x.values)
+      writeObjectFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFAccessorSparse = null.asInstanceOf[GLTFAccessorSparse]
   }
 
   given gltfAccessorCodec: JsonValueCodec[GLTFAccessor] = new JsonValueCodec[GLTFAccessor] {
@@ -423,8 +626,21 @@ object GLTFCodecs {
           case _               => if (!readEntityField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFAccessor, out: JsonWriter): Unit         = out.writeNull()
-    override def nullValue:                                     GLTFAccessor = null.asInstanceOf[GLTFAccessor]
+    override def encodeValue(x: GLTFAccessor, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableInt(out, "bufferView", x.bufferView)
+      out.writeKey("normalized"); out.writeVal(x.normalized)
+      out.writeKey("byteOffset"); out.writeVal(x.byteOffset)
+      out.writeKey("componentType"); out.writeVal(x.componentType)
+      out.writeKey("count"); out.writeVal(x.count)
+      writeNullableString(out, "type", x.`type`)
+      writeNullableFloatArray(out, "min", x.min)
+      writeNullableFloatArray(out, "max", x.max)
+      writeNullableObj[GLTFAccessorSparse](out, "sparse", x.sparse)
+      writeEntityFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFAccessor = null.asInstanceOf[GLTFAccessor]
   }
 
   given gltfBufferCodec: JsonValueCodec[GLTFBuffer] = new JsonValueCodec[GLTFBuffer] {
@@ -436,8 +652,14 @@ object GLTFCodecs {
           case _            => if (!readEntityField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFBuffer, out: JsonWriter): Unit       = out.writeNull()
-    override def nullValue:                                   GLTFBuffer = null.asInstanceOf[GLTFBuffer]
+    override def encodeValue(x: GLTFBuffer, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableString(out, "uri", x.uri)
+      out.writeKey("byteLength"); out.writeVal(x.byteLength)
+      writeEntityFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFBuffer = null.asInstanceOf[GLTFBuffer]
   }
 
   given gltfBufferViewCodec: JsonValueCodec[GLTFBufferView] = new JsonValueCodec[GLTFBufferView] {
@@ -452,8 +674,17 @@ object GLTFCodecs {
           case _            => if (!readEntityField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFBufferView, out: JsonWriter): Unit           = out.writeNull()
-    override def nullValue:                                       GLTFBufferView = null.asInstanceOf[GLTFBufferView]
+    override def encodeValue(x: GLTFBufferView, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      out.writeKey("byteOffset"); out.writeVal(x.byteOffset)
+      out.writeKey("byteLength"); out.writeVal(x.byteLength)
+      writeNullableInt(out, "buffer", x.buffer)
+      writeNullableInt(out, "byteStride", x.byteStride)
+      writeNullableInt(out, "target", x.target)
+      writeEntityFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFBufferView = null.asInstanceOf[GLTFBufferView]
   }
 
   // ── material ────────────────────────────────────────────────────────
@@ -470,8 +701,17 @@ object GLTFCodecs {
           case _                          => if (!readObjectField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFpbrMetallicRoughness, out: JsonWriter): Unit                     = out.writeNull()
-    override def nullValue:                                                 GLTFpbrMetallicRoughness = null.asInstanceOf[GLTFpbrMetallicRoughness]
+    override def encodeValue(x: GLTFpbrMetallicRoughness, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableFloatArray(out, "baseColorFactor", x.baseColorFactor)
+      out.writeKey("metallicFactor"); out.writeVal(x.metallicFactor)
+      out.writeKey("roughnessFactor"); out.writeVal(x.roughnessFactor)
+      writeNullableObj[GLTFTextureInfo](out, "baseColorTexture", x.baseColorTexture)
+      writeNullableObj[GLTFTextureInfo](out, "metallicRoughnessTexture", x.metallicRoughnessTexture)
+      writeObjectFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFpbrMetallicRoughness = null.asInstanceOf[GLTFpbrMetallicRoughness]
   }
 
   given gltfMaterialCodec: JsonValueCodec[GLTFMaterial] = new JsonValueCodec[GLTFMaterial] {
@@ -489,8 +729,20 @@ object GLTFCodecs {
           case _                      => if (!readEntityField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFMaterial, out: JsonWriter): Unit         = out.writeNull()
-    override def nullValue:                                     GLTFMaterial = null.asInstanceOf[GLTFMaterial]
+    override def encodeValue(x: GLTFMaterial, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableFloatArray(out, "emissiveFactor", x.emissiveFactor)
+      writeNullableObj[GLTFNormalTextureInfo](out, "normalTexture", x.normalTexture)
+      writeNullableObj[GLTFOcclusionTextureInfo](out, "occlusionTexture", x.occlusionTexture)
+      writeNullableObj[GLTFTextureInfo](out, "emissiveTexture", x.emissiveTexture)
+      writeNullableString(out, "alphaMode", x.alphaMode)
+      writeNullableFloat(out, "alphaCutoff", x.alphaCutoff)
+      writeNullableBoolean(out, "doubleSided", x.doubleSided)
+      writeNullableObj[GLTFpbrMetallicRoughness](out, "pbrMetallicRoughness", x.pbrMetallicRoughness)
+      writeEntityFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFMaterial = null.asInstanceOf[GLTFMaterial]
   }
 
   // ── geometry ────────────────────────────────────────────────────────
@@ -507,8 +759,17 @@ object GLTFCodecs {
           case _            => if (!readObjectField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFPrimitive, out: JsonWriter): Unit          = out.writeNull()
-    override def nullValue:                                      GLTFPrimitive = null.asInstanceOf[GLTFPrimitive]
+    override def encodeValue(x: GLTFPrimitive, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableStringIntMap(out, "attributes", x.attributes)
+      writeNullableInt(out, "indices", x.indices)
+      writeNullableInt(out, "mode", x.mode)
+      writeNullableInt(out, "material", x.material)
+      writeNullableArray[GLTFMorphTarget](out, "targets", x.targets)
+      writeObjectFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFPrimitive = null.asInstanceOf[GLTFPrimitive]
   }
 
   given gltfMeshCodec: JsonValueCodec[GLTFMesh] = new JsonValueCodec[GLTFMesh] {
@@ -520,8 +781,14 @@ object GLTFCodecs {
           case _            => if (!readEntityField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFMesh, out: JsonWriter): Unit     = out.writeNull()
-    override def nullValue:                                 GLTFMesh = null.asInstanceOf[GLTFMesh]
+    override def encodeValue(x: GLTFMesh, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableArray[GLTFPrimitive](out, "primitives", x.primitives)
+      writeNullableFloatArray(out, "weights", x.weights)
+      writeEntityFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFMesh = null.asInstanceOf[GLTFMesh]
   }
 
   // ── camera ──────────────────────────────────────────────────────────
@@ -537,8 +804,16 @@ object GLTFCodecs {
           case _       => if (!readObjectField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFOrthographic, out: JsonWriter): Unit             = out.writeNull()
-    override def nullValue:                                         GLTFOrthographic = null.asInstanceOf[GLTFOrthographic]
+    override def encodeValue(x: GLTFOrthographic, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableFloat(out, "znear", x.znear)
+      writeNullableFloat(out, "zfar", x.zfar)
+      writeNullableFloat(out, "xmag", x.xmag)
+      writeNullableFloat(out, "ymag", x.ymag)
+      writeObjectFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFOrthographic = null.asInstanceOf[GLTFOrthographic]
   }
 
   given gltfPerspectiveCodec: JsonValueCodec[GLTFPerspective] = new JsonValueCodec[GLTFPerspective] {
@@ -552,8 +827,16 @@ object GLTFCodecs {
           case _             => if (!readObjectField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFPerspective, out: JsonWriter): Unit            = out.writeNull()
-    override def nullValue:                                        GLTFPerspective = null.asInstanceOf[GLTFPerspective]
+    override def encodeValue(x: GLTFPerspective, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      out.writeKey("yfov"); out.writeVal(x.yfov)
+      out.writeKey("znear"); out.writeVal(x.znear)
+      writeNullableFloat(out, "aspectRatio", x.aspectRatio)
+      writeNullableFloat(out, "zfar", x.zfar)
+      writeObjectFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFPerspective = null.asInstanceOf[GLTFPerspective]
   }
 
   given gltfCameraCodec: JsonValueCodec[GLTFCamera] = new JsonValueCodec[GLTFCamera] {
@@ -566,8 +849,15 @@ object GLTFCodecs {
           case _              => if (!readEntityField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFCamera, out: JsonWriter): Unit       = out.writeNull()
-    override def nullValue:                                   GLTFCamera = null.asInstanceOf[GLTFCamera]
+    override def encodeValue(x: GLTFCamera, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableString(out, "type", x.`type`)
+      writeNullableObj[GLTFPerspective](out, "perspective", x.perspective)
+      writeNullableObj[GLTFOrthographic](out, "orthographic", x.orthographic)
+      writeEntityFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFCamera = null.asInstanceOf[GLTFCamera]
   }
 
   // ── animation ───────────────────────────────────────────────────────
@@ -581,8 +871,14 @@ object GLTFCodecs {
           case _      => if (!readObjectField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFAnimationTarget, out: JsonWriter): Unit                = out.writeNull()
-    override def nullValue:                                            GLTFAnimationTarget = null.asInstanceOf[GLTFAnimationTarget]
+    override def encodeValue(x: GLTFAnimationTarget, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableInt(out, "node", x.node)
+      writeNullableString(out, "path", x.path)
+      writeObjectFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFAnimationTarget = null.asInstanceOf[GLTFAnimationTarget]
   }
 
   given gltfAnimationSamplerCodec: JsonValueCodec[GLTFAnimationSampler] = new JsonValueCodec[GLTFAnimationSampler] {
@@ -595,8 +891,15 @@ object GLTFCodecs {
           case _               => if (!readObjectField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFAnimationSampler, out: JsonWriter): Unit                 = out.writeNull()
-    override def nullValue:                                             GLTFAnimationSampler = null.asInstanceOf[GLTFAnimationSampler]
+    override def encodeValue(x: GLTFAnimationSampler, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableInt(out, "input", x.input)
+      writeNullableInt(out, "output", x.output)
+      writeNullableString(out, "interpolation", x.interpolation)
+      writeObjectFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFAnimationSampler = null.asInstanceOf[GLTFAnimationSampler]
   }
 
   given gltfAnimationChannelCodec: JsonValueCodec[GLTFAnimationChannel] = new JsonValueCodec[GLTFAnimationChannel] {
@@ -608,8 +911,14 @@ object GLTFCodecs {
           case _         => if (!readObjectField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFAnimationChannel, out: JsonWriter): Unit                 = out.writeNull()
-    override def nullValue:                                             GLTFAnimationChannel = null.asInstanceOf[GLTFAnimationChannel]
+    override def encodeValue(x: GLTFAnimationChannel, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableInt(out, "sampler", x.sampler)
+      writeNullableObj[GLTFAnimationTarget](out, "target", x.target)
+      writeObjectFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFAnimationChannel = null.asInstanceOf[GLTFAnimationChannel]
   }
 
   given gltfAnimationCodec: JsonValueCodec[GLTFAnimation] = new JsonValueCodec[GLTFAnimation] {
@@ -621,8 +930,14 @@ object GLTFCodecs {
           case _          => if (!readEntityField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFAnimation, out: JsonWriter): Unit          = out.writeNull()
-    override def nullValue:                                      GLTFAnimation = null.asInstanceOf[GLTFAnimation]
+    override def encodeValue(x: GLTFAnimation, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableArray[GLTFAnimationChannel](out, "channels", x.channels)
+      writeNullableArray[GLTFAnimationSampler](out, "samplers", x.samplers)
+      writeEntityFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFAnimation = null.asInstanceOf[GLTFAnimation]
   }
 
   // ── scene ───────────────────────────────────────────────────────────
@@ -643,8 +958,21 @@ object GLTFCodecs {
           case _             => if (!readEntityField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFNode, out: JsonWriter): Unit     = out.writeNull()
-    override def nullValue:                                 GLTFNode = null.asInstanceOf[GLTFNode]
+    override def encodeValue(x: GLTFNode, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableIntArray(out, "children", x.children)
+      writeNullableFloatArray(out, "matrix", x.matrix)
+      writeNullableFloatArray(out, "translation", x.translation)
+      writeNullableFloatArray(out, "rotation", x.rotation)
+      writeNullableFloatArray(out, "scale", x.scale)
+      writeNullableInt(out, "mesh", x.mesh)
+      writeNullableInt(out, "camera", x.camera)
+      writeNullableInt(out, "skin", x.skin)
+      writeNullableFloatArray(out, "weights", x.weights)
+      writeEntityFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFNode = null.asInstanceOf[GLTFNode]
   }
 
   given gltfSceneCodec: JsonValueCodec[GLTFScene] = new JsonValueCodec[GLTFScene] {
@@ -655,8 +983,13 @@ object GLTFCodecs {
           case _       => if (!readEntityField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFScene, out: JsonWriter): Unit      = out.writeNull()
-    override def nullValue:                                  GLTFScene = null.asInstanceOf[GLTFScene]
+    override def encodeValue(x: GLTFScene, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableIntArray(out, "nodes", x.nodes)
+      writeEntityFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFScene = null.asInstanceOf[GLTFScene]
   }
 
   given gltfSkinCodec: JsonValueCodec[GLTFSkin] = new JsonValueCodec[GLTFSkin] {
@@ -669,8 +1002,15 @@ object GLTFCodecs {
           case _                     => if (!readEntityField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFSkin, out: JsonWriter): Unit     = out.writeNull()
-    override def nullValue:                                 GLTFSkin = null.asInstanceOf[GLTFSkin]
+    override def encodeValue(x: GLTFSkin, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableInt(out, "inverseBindMatrices", x.inverseBindMatrices)
+      writeNullableIntArray(out, "joints", x.joints)
+      writeNullableInt(out, "skeleton", x.skeleton)
+      writeEntityFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFSkin = null.asInstanceOf[GLTFSkin]
   }
 
   // ── KHR extensions ──────────────────────────────────────────────────
@@ -684,8 +1024,13 @@ object GLTFCodecs {
           case _                => in.skip()
         }
       }
-    override def encodeValue(x: KHRLightsPunctual.GLTFSpotLight, out: JsonWriter): Unit                            = out.writeNull()
-    override def nullValue:                                                        KHRLightsPunctual.GLTFSpotLight = null.asInstanceOf[KHRLightsPunctual.GLTFSpotLight]
+    override def encodeValue(x: KHRLightsPunctual.GLTFSpotLight, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      out.writeKey("innerConeAngle"); out.writeVal(x.innerConeAngle)
+      out.writeKey("outerConeAngle"); out.writeVal(x.outerConeAngle)
+      out.writeObjectEnd()
+    }
+    override def nullValue: KHRLightsPunctual.GLTFSpotLight = null.asInstanceOf[KHRLightsPunctual.GLTFSpotLight]
   }
 
   given gltfLightCodec: JsonValueCodec[KHRLightsPunctual.GLTFLight] = new JsonValueCodec[KHRLightsPunctual.GLTFLight] {
@@ -701,8 +1046,18 @@ object GLTFCodecs {
           case _           => if (!readObjectField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: KHRLightsPunctual.GLTFLight, out: JsonWriter): Unit                        = out.writeNull()
-    override def nullValue:                                                    KHRLightsPunctual.GLTFLight = null.asInstanceOf[KHRLightsPunctual.GLTFLight]
+    override def encodeValue(x: KHRLightsPunctual.GLTFLight, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      out.writeKey("name"); out.writeVal(x.name)
+      writeFloatArray(out, "color", x.color)
+      out.writeKey("intensity"); out.writeVal(x.intensity)
+      writeNullableString(out, "type", x.`type`)
+      writeNullableFloat(out, "range", x.range)
+      writeNullableObj[KHRLightsPunctual.GLTFSpotLight](out, "spot", x.spot)
+      writeObjectFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: KHRLightsPunctual.GLTFLight = null.asInstanceOf[KHRLightsPunctual.GLTFLight]
   }
 
   given gltfLightsCodec: JsonValueCodec[KHRLightsPunctual.GLTFLights] = new JsonValueCodec[KHRLightsPunctual.GLTFLights] {
@@ -713,8 +1068,12 @@ object GLTFCodecs {
           case _        => in.skip()
         }
       }
-    override def encodeValue(x: KHRLightsPunctual.GLTFLights, out: JsonWriter): Unit                         = out.writeNull()
-    override def nullValue:                                                     KHRLightsPunctual.GLTFLights = null.asInstanceOf[KHRLightsPunctual.GLTFLights]
+    override def encodeValue(x: KHRLightsPunctual.GLTFLights, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableArray[KHRLightsPunctual.GLTFLight](out, "lights", x.lights)
+      out.writeObjectEnd()
+    }
+    override def nullValue: KHRLightsPunctual.GLTFLights = null.asInstanceOf[KHRLightsPunctual.GLTFLights]
   }
 
   given gltfLightNodeCodec: JsonValueCodec[KHRLightsPunctual.GLTFLightNode] = new JsonValueCodec[KHRLightsPunctual.GLTFLightNode] {
@@ -725,8 +1084,12 @@ object GLTFCodecs {
           case _       => in.skip()
         }
       }
-    override def encodeValue(x: KHRLightsPunctual.GLTFLightNode, out: JsonWriter): Unit                            = out.writeNull()
-    override def nullValue:                                                        KHRLightsPunctual.GLTFLightNode = null.asInstanceOf[KHRLightsPunctual.GLTFLightNode]
+    override def encodeValue(x: KHRLightsPunctual.GLTFLightNode, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableInt(out, "light", x.light)
+      out.writeObjectEnd()
+    }
+    override def nullValue: KHRLightsPunctual.GLTFLightNode = null.asInstanceOf[KHRLightsPunctual.GLTFLightNode]
   }
 
   given khrEmissiveStrengthCodec: JsonValueCodec[KHRMaterialsEmissiveStrength] = new JsonValueCodec[KHRMaterialsEmissiveStrength] {
@@ -734,8 +1097,12 @@ object GLTFCodecs {
       readFields(in, if (default != null) default else new KHRMaterialsEmissiveStrength()) { (key, obj, in) =>
         key match { case "emissiveStrength" => obj.emissiveStrength = in.readFloat(); case _ => in.skip() }
       }
-    override def encodeValue(x: KHRMaterialsEmissiveStrength, out: JsonWriter): Unit                         = out.writeNull()
-    override def nullValue:                                                     KHRMaterialsEmissiveStrength = null.asInstanceOf[KHRMaterialsEmissiveStrength]
+    override def encodeValue(x: KHRMaterialsEmissiveStrength, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      out.writeKey("emissiveStrength"); out.writeVal(x.emissiveStrength)
+      out.writeObjectEnd()
+    }
+    override def nullValue: KHRMaterialsEmissiveStrength = null.asInstanceOf[KHRMaterialsEmissiveStrength]
   }
 
   given khrIORCodec: JsonValueCodec[KHRMaterialsIOR] = new JsonValueCodec[KHRMaterialsIOR] {
@@ -743,8 +1110,12 @@ object GLTFCodecs {
       readFields(in, if (default != null) default else new KHRMaterialsIOR()) { (key, obj, in) =>
         key match { case "ior" => obj.ior = in.readFloat(); case _ => in.skip() }
       }
-    override def encodeValue(x: KHRMaterialsIOR, out: JsonWriter): Unit            = out.writeNull()
-    override def nullValue:                                        KHRMaterialsIOR = null.asInstanceOf[KHRMaterialsIOR]
+    override def encodeValue(x: KHRMaterialsIOR, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      out.writeKey("ior"); out.writeVal(x.ior)
+      out.writeObjectEnd()
+    }
+    override def nullValue: KHRMaterialsIOR = null.asInstanceOf[KHRMaterialsIOR]
   }
 
   given khrIridescenceCodec: JsonValueCodec[KHRMaterialsIridescence] = new JsonValueCodec[KHRMaterialsIridescence] {
@@ -760,8 +1131,17 @@ object GLTFCodecs {
           case _                             => in.skip()
         }
       }
-    override def encodeValue(x: KHRMaterialsIridescence, out: JsonWriter): Unit                    = out.writeNull()
-    override def nullValue:                                                KHRMaterialsIridescence = null.asInstanceOf[KHRMaterialsIridescence]
+    override def encodeValue(x: KHRMaterialsIridescence, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      out.writeKey("iridescenceFactor"); out.writeVal(x.iridescenceFactor)
+      writeNullableObj[GLTFTextureInfo](out, "iridescenceTexture", x.iridescenceTexture)
+      out.writeKey("iridescenceIor"); out.writeVal(x.iridescenceIor)
+      out.writeKey("iridescenceThicknessMinimum"); out.writeVal(x.iridescenceThicknessMinimum)
+      out.writeKey("iridescenceThicknessMaximum"); out.writeVal(x.iridescenceThicknessMaximum)
+      writeNullableObj[GLTFTextureInfo](out, "iridescenceThicknessTexture", x.iridescenceThicknessTexture)
+      out.writeObjectEnd()
+    }
+    override def nullValue: KHRMaterialsIridescence = null.asInstanceOf[KHRMaterialsIridescence]
   }
 
   given khrPBRSpecGlossCodec: JsonValueCodec[KHRMaterialsPBRSpecularGlossiness] = new JsonValueCodec[KHRMaterialsPBRSpecularGlossiness] {
@@ -776,8 +1156,16 @@ object GLTFCodecs {
           case _                           => in.skip()
         }
       }
-    override def encodeValue(x: KHRMaterialsPBRSpecularGlossiness, out: JsonWriter): Unit                              = out.writeNull()
-    override def nullValue:                                                          KHRMaterialsPBRSpecularGlossiness = null.asInstanceOf[KHRMaterialsPBRSpecularGlossiness]
+    override def encodeValue(x: KHRMaterialsPBRSpecularGlossiness, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableFloatArray(out, "diffuseFactor", x.diffuseFactor)
+      writeNullableFloatArray(out, "specularFactor", x.specularFactor)
+      out.writeKey("glossinessFactor"); out.writeVal(x.glossinessFactor)
+      writeNullableObj[GLTFTextureInfo](out, "diffuseTexture", x.diffuseTexture)
+      writeNullableObj[GLTFTextureInfo](out, "specularGlossinessTexture", x.specularGlossinessTexture)
+      out.writeObjectEnd()
+    }
+    override def nullValue: KHRMaterialsPBRSpecularGlossiness = null.asInstanceOf[KHRMaterialsPBRSpecularGlossiness]
   }
 
   given khrSpecularCodec: JsonValueCodec[KHRMaterialsSpecular] = new JsonValueCodec[KHRMaterialsSpecular] {
@@ -791,8 +1179,15 @@ object GLTFCodecs {
           case _                      => in.skip()
         }
       }
-    override def encodeValue(x: KHRMaterialsSpecular, out: JsonWriter): Unit                 = out.writeNull()
-    override def nullValue:                                             KHRMaterialsSpecular = null.asInstanceOf[KHRMaterialsSpecular]
+    override def encodeValue(x: KHRMaterialsSpecular, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      out.writeKey("specularFactor"); out.writeVal(x.specularFactor)
+      writeNullableObj[GLTFTextureInfo](out, "specularTexture", x.specularTexture)
+      writeFloatArray(out, "specularColorFactor", x.specularColorFactor)
+      writeNullableObj[GLTFTextureInfo](out, "specularColorTexture", x.specularColorTexture)
+      out.writeObjectEnd()
+    }
+    override def nullValue: KHRMaterialsSpecular = null.asInstanceOf[KHRMaterialsSpecular]
   }
 
   given khrTransmissionCodec: JsonValueCodec[KHRMaterialsTransmission] = new JsonValueCodec[KHRMaterialsTransmission] {
@@ -804,8 +1199,13 @@ object GLTFCodecs {
           case _                     => in.skip()
         }
       }
-    override def encodeValue(x: KHRMaterialsTransmission, out: JsonWriter): Unit                     = out.writeNull()
-    override def nullValue:                                                 KHRMaterialsTransmission = null.asInstanceOf[KHRMaterialsTransmission]
+    override def encodeValue(x: KHRMaterialsTransmission, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      out.writeKey("transmissionFactor"); out.writeVal(x.transmissionFactor)
+      writeNullableObj[GLTFTextureInfo](out, "transmissionTexture", x.transmissionTexture)
+      out.writeObjectEnd()
+    }
+    override def nullValue: KHRMaterialsTransmission = null.asInstanceOf[KHRMaterialsTransmission]
   }
 
   given khrUnlitCodec: JsonValueCodec[KHRMaterialsUnlit] = new JsonValueCodec[KHRMaterialsUnlit] {
@@ -815,8 +1215,12 @@ object GLTFCodecs {
       else in.readNullOrTokenError(null.asInstanceOf[KHRMaterialsUnlit], '{')
       if (default != null) default else new KHRMaterialsUnlit()
     }
-    override def encodeValue(x: KHRMaterialsUnlit, out: JsonWriter): Unit              = out.writeNull()
-    override def nullValue:                                          KHRMaterialsUnlit = null.asInstanceOf[KHRMaterialsUnlit]
+    override def encodeValue(x: KHRMaterialsUnlit, out: JsonWriter): Unit = {
+      // KHR_materials_unlit is an empty object {}
+      out.writeObjectStart()
+      out.writeObjectEnd()
+    }
+    override def nullValue: KHRMaterialsUnlit = null.asInstanceOf[KHRMaterialsUnlit]
   }
 
   given khrVolumeCodec: JsonValueCodec[KHRMaterialsVolume] = new JsonValueCodec[KHRMaterialsVolume] {
@@ -830,8 +1234,15 @@ object GLTFCodecs {
           case _                     => in.skip()
         }
       }
-    override def encodeValue(x: KHRMaterialsVolume, out: JsonWriter): Unit               = out.writeNull()
-    override def nullValue:                                           KHRMaterialsVolume = null.asInstanceOf[KHRMaterialsVolume]
+    override def encodeValue(x: KHRMaterialsVolume, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      out.writeKey("thicknessFactor"); out.writeVal(x.thicknessFactor)
+      writeNullableObj[GLTFTextureInfo](out, "thicknessTexture", x.thicknessTexture)
+      writeNullableFloat(out, "attenuationDistance", x.attenuationDistance)
+      writeFloatArray(out, "attenuationColor", x.attenuationColor)
+      out.writeObjectEnd()
+    }
+    override def nullValue: KHRMaterialsVolume = null.asInstanceOf[KHRMaterialsVolume]
   }
 
   given khrTextureTransformCodec: JsonValueCodec[KHRTextureTransform] = new JsonValueCodec[KHRTextureTransform] {
@@ -845,8 +1256,15 @@ object GLTFCodecs {
           case _          => in.skip()
         }
       }
-    override def encodeValue(x: KHRTextureTransform, out: JsonWriter): Unit                = out.writeNull()
-    override def nullValue:                                            KHRTextureTransform = null.asInstanceOf[KHRTextureTransform]
+    override def encodeValue(x: KHRTextureTransform, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeFloatArray(out, "offset", x.offset)
+      out.writeKey("rotation"); out.writeVal(x.rotation)
+      writeFloatArray(out, "scale", x.scale)
+      writeNullableInt(out, "texCoord", x.texCoord)
+      out.writeObjectEnd()
+    }
+    override def nullValue: KHRTextureTransform = null.asInstanceOf[KHRTextureTransform]
   }
 
   // ── root ────────────────────────────────────────────────────────────
@@ -862,8 +1280,16 @@ object GLTFCodecs {
           case _            => if (!readObjectField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTFAsset, out: JsonWriter): Unit      = out.writeNull()
-    override def nullValue:                                  GLTFAsset = null.asInstanceOf[GLTFAsset]
+    override def encodeValue(x: GLTFAsset, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableString(out, "generator", x.generator)
+      writeNullableString(out, "version", x.version)
+      writeNullableString(out, "copyright", x.copyright)
+      writeNullableString(out, "minVersion", x.minVersion)
+      writeObjectFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTFAsset = null.asInstanceOf[GLTFAsset]
   }
 
   given gltfCodec: JsonValueCodec[GLTF] = new JsonValueCodec[GLTF] {
@@ -890,7 +1316,45 @@ object GLTFCodecs {
           case _                    => if (!readObjectField(key, obj, in)) in.skip()
         }
       }
-    override def encodeValue(x: GLTF, out: JsonWriter): Unit = out.writeNull()
-    override def nullValue:                             GLTF = null.asInstanceOf[GLTF]
+    override def encodeValue(x: GLTF, out: JsonWriter): Unit = {
+      out.writeObjectStart()
+      writeNullableObj[GLTFAsset](out, "asset", x.asset)
+      out.writeKey("scene"); out.writeVal(x.scene)
+      writeNullableArray[GLTFScene](out, "scenes", x.scenes)
+      writeNullableArray[GLTFNode](out, "nodes", x.nodes)
+      writeNullableArray[GLTFCamera](out, "cameras", x.cameras)
+      writeNullableArray[GLTFMesh](out, "meshes", x.meshes)
+      writeNullableArray[GLTFImage](out, "images", x.images)
+      writeNullableArray[GLTFSampler](out, "samplers", x.samplers)
+      writeNullableArray[GLTFTexture](out, "textures", x.textures)
+      writeNullableArray[GLTFAnimation](out, "animations", x.animations)
+      writeNullableArray[GLTFSkin](out, "skins", x.skins)
+      writeNullableArray[GLTFAccessor](out, "accessors", x.accessors)
+      writeNullableArray[GLTFMaterial](out, "materials", x.materials)
+      writeNullableArray[GLTFBufferView](out, "bufferViews", x.bufferViews)
+      writeNullableArray[GLTFBuffer](out, "buffers", x.buffers)
+      writeNullableStringArray(out, "extensionsUsed", x.extensionsUsed)
+      writeNullableStringArray(out, "extensionsRequired", x.extensionsRequired)
+      writeObjectFields(out, x)
+      out.writeObjectEnd()
+    }
+    override def nullValue: GLTF = null.asInstanceOf[GLTF]
   }
+
+  // ── Lazy-parse decoder registry for GLTFExtensions.get ───────────────
+  //
+  // KHR_lights_punctual is stored as a raw JSON AST at decode time because the
+  // same extension name yields GLTFLights at the GLTF root and GLTFLightNode at
+  // a node. These decoders let GLTFExtensions.get lazily parse the stored raw
+  // AST into the REQUESTED type, mirroring net/mgsx/gltf/data/GLTFExtensions.java:32
+  // (json.readValue(type, value.get(ext))) without runtime reflection so the same
+  // code runs on Scala.js and Scala Native.
+  GLTFExtensions.registerDecoder(classOf[KHRLightsPunctual.GLTFLights], decodeFromJson(_)(using gltfLightsCodec))
+  GLTFExtensions.registerDecoder(classOf[KHRLightsPunctual.GLTFLightNode], decodeFromJson(_)(using gltfLightNodeCodec))
+
+  /** Decodes a raw [[Json]] AST into a typed value `A` by re-serialising the AST and re-reading it through the given codec. Platform-neutral (no reflection); used by the [[GLTFExtensions]] lazy-parse
+    * registry above.
+    */
+  private def decodeFromJson[A](raw: Json)(using codec: JsonValueCodec[A]): A =
+    readFromString[A](writeToString[Json](raw))(using codec)
 }
