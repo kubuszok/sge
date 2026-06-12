@@ -14,7 +14,7 @@
  * Covenant-baseline-loc: 131
  * Covenant-baseline-methods: ModelInstanceHack,animation,copyAnimation,getRenderable,i,this
  * Covenant-source-reference: net/mgsx/gltf/scene3d/model/ModelInstanceHack.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  */
 package sge
 package gltf
@@ -28,13 +28,22 @@ import sge.math.{ Quaternion, Vector3 }
 import lowlevel.Nullable
 import lowlevel.util.DynamicArray
 
-class ModelInstanceHack(model: Model) extends ModelInstance(model) {
+// ModelInstanceHack.java:25-31 — the primary ctor (Model) forwards `super(model)`
+// (whole-model copy, via the base `null`-ids path); the (Model, String...) ctor
+// forwards `super(model, rootNodeIds)`. The base ModelInstance routes a non-empty
+// id set through copyNodesById, keeping only the named root nodes. Here the SGE
+// primary ctor takes the `Nullable[Seq[String]]` ids and extends the matching base
+// ctor directly, so both Java overloads land on the correct base path.
+class ModelInstanceHack(model: Model, rootNodeIds: Nullable[Seq[String]]) extends ModelInstance(model, rootNodeIds) {
 
-  def this(model: Model, rootNodeIds: String*) = {
-    this(model)
-    // Re-initialize with rootNodeIds if provided
-    // The base ModelInstance constructor handles this via varargs
-  }
+  // ModelInstanceHack.java:25-27 — `public ModelInstanceHack(Model model){ super(model); }`
+  def this(model: Model) =
+    this(model, Nullable.empty)
+
+  // ModelInstanceHack.java:29-31 — `public ModelInstanceHack(Model model, String... rootNodeIds){ super(model, rootNodeIds); }`
+  // Forward the ids to the base ModelInstance, which copies only the named root nodes.
+  def this(model: Model, rootNodeIds: String*) =
+    this(model, Nullable(rootNodeIds))
 
   override def copyAnimation(anim: Animation, shareKeyframes: Boolean): Unit = {
     val animation = Animation()
