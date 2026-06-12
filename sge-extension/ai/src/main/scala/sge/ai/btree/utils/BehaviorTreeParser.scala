@@ -18,10 +18,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 605
- * Covenant-baseline-methods: AttrInfo,BehaviorTreeParser,DebugHigh,DebugLow,DebugNone,DefaultBehaviorTreeReader,ImportStatement,RootStatement,StackedTask,Statement,Subtree,SubtreeStatement,TaskMeta,TaskRegistry,TreeTaskStatement,_indent,addImport,attribute,bt,btParser,btReader,checkMinChildren,checkRequiredAttributes,checkStatement,classes,clear,contains,createBehaviorTree,createStackedTask,createTask,currentDepth,currentTree,currentTreeStartIndent,debugLevel,defaultImports,distributionAdapters,empty,encounteredAttributes,endLine,endStatement,enter,exit,getCurrentTask,getImport,getMeta,getParser,getPrevTask,guardChain,i,init,initCurrentTree,inited,isGuard,isRootTree,isSubtreeRef,nextIndent,openTask,parse,popAndCheckMinChildren,prevTask,printTree,referenceCount,registerTask,root,rootTask,rootTaskInstance,setParser,stack,stackedTaskException,startLine,startStatement,statement,statementName,step,subtreeName,subtreeRootTaskInstance,subtrees,switchToNewTree,taskFactories,taskMetadata,taskRegistry,this,throwAttributeNameException,throwAttributeTypeException,updateCurrentTask,userImports
+ * Covenant-baseline-loc: 859
+ * Covenant-baseline-methods: AttrInfo,BehaviorTreeParser,DebugHigh,DebugLow,DebugNone,DefaultBehaviorTreeReader,ImportStatement,RootStatement,StackedTask,Statement,Subtree,SubtreeStatement,TaskMeta,TaskRegistry,TreeTaskStatement,_indent,addImport,attribute,branchMeta,bt,btParser,btReader,checkMinChildren,checkRequiredAttributes,checkStatement,classes,clear,contains,createBehaviorTree,createStackedTask,createTask,currentDepth,currentTree,currentTreeStartIndent,debugLevel,decoratorMeta,defaultImports,distributionAdapters,empty,encounteredAttributes,endLine,endStatement,enter,exit,getCurrentTask,getImport,getMeta,getParser,getPrevTask,guardChain,i,init,initCurrentTree,inited,isGuard,isRootTree,isSubtreeRef,leafMeta,nextIndent,openTask,parse,popAndCheckMinChildren,prevTask,printTree,referenceCount,registerBuiltins,registerDefaults,registerTask,root,rootTask,rootTaskInstance,setParser,stack,stackedTaskException,startLine,startStatement,statement,statementName,step,subtreeName,subtreeRootTaskInstance,subtrees,switchToNewTree,taskFactories,taskMetadata,taskRegistry,this,throwAttributeNameException,throwAttributeTypeException,toBooleanValue,toDistributionValue,toEnumValue,toStringValue,updateCurrentTask,userImports
  * Covenant-source-reference: com/badlogic/gdx/ai/btree/utils/BehaviorTreeParser.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
@@ -35,6 +35,11 @@ import java.io.Reader
 
 import scala.collection.mutable
 
+import sge.ai.DefaultTimepiece
+import sge.ai.btree.branch.{ DynamicGuardSelector, Parallel, RandomSelector, RandomSequence, Selector, Sequence }
+import sge.ai.btree.decorator.{ AlwaysFail, AlwaysSucceed, Include, Invert, Random => RandomDecorator, Repeat, SemaphoreGuard, UntilFail, UntilSuccess }
+import sge.ai.btree.leaf.{ Failure => FailureLeaf, Success => SuccessLeaf, Wait }
+import sge.ai.utils.random.{ Distribution, FloatDistribution, IntegerDistribution }
 import sge.files.FileHandle
 import lowlevel.util.DynamicArray
 import lowlevel.Nullable
@@ -169,25 +174,40 @@ object BehaviorTreeParser {
   }
 
   /** Metadata about a single task attribute.
+    *
+    * The setter receives the parser's [[DistributionAdapters]] so that it can replicate the Java reflection-based `castValue` coercion (`BehaviorTreeParser.java:411-458`): a `Number` value for a
+    * `Distribution`-typed field is turned into a constant distribution via `distributionAdapters.toDistribution("constant," + n, type)`, a `String` value for a `Distribution`-typed field is parsed
+    * via `distributionAdapters.toDistribution(stringValue, type)`, and a `String` value for an enum-typed field is matched case-insensitively against the enum constants.
+    *
     * @param fieldName
     *   the internal field name
     * @param setter
-    *   function to set the attribute value on a task instance
+    *   function to set the attribute value on a task instance, given the parser's distribution adapters
     * @param required
     *   whether this attribute is required
     */
   final case class AttrInfo(
     fieldName: String,
-    setter:    (Task[?], Any) => Unit,
+    setter:    (Task[?], Any, DistributionAdapters) => Unit,
     required:  Boolean = false
   )
 
   // ── Task Registry ───────────────────────────────────────────────────
 
-  /** A registry of task factories and metadata, replacing ClassReflection-based instantiation. */
+  /** A registry of task factories and metadata, replacing ClassReflection-based instantiation.
+    *
+    * Newly constructed registries are pre-populated with every built-in task that the Java reader resolved via reflection from its `DEFAULT_IMPORTS` table (`BehaviorTreeParser.java:161-189`):
+    * selector, sequence, parallel, randomSelector, randomSequence, repeat, alwaysFail, alwaysSucceed, invert, include, semaphoreGuard, untilFail, untilSuccess, wait, success, failure,
+    * dynamicGuardSelector and random. The factories supply the constructor arguments the reflection-based `ClassReflection.newInstance` obtained from the no-arg constructors, and each built-in is
+    * registered together with the [[TaskMeta]] derived from its `@TaskConstraint`/`@TaskAttribute` annotations so that the standard attributes (`times`, `seconds`, `policy`, `orientation`, `subtree`,
+    * `lazy`, `name`, `success`) work out of the box.
+    */
   class TaskRegistry {
     private val taskFactories = mutable.HashMap[String, () => Task[?]]()
     private val taskMetadata  = mutable.HashMap[String, TaskMeta]()
+
+    // Pre-register the built-in tasks so that a stock gdx-ai tree parses without any manual registration.
+    registerDefaults()
 
     /** Register a task with an alias, factory function, and optional metadata. */
     def registerTask(alias: String, factory: () => Task[?], meta: TaskMeta = TaskMeta.empty): Unit = {
@@ -205,6 +225,10 @@ object BehaviorTreeParser {
 
     /** Returns true if the alias is registered. */
     def contains(alias: String): Boolean = taskFactories.contains(alias)
+
+    /** Pre-registers all built-in tasks keyed by the fully qualified class name that [[defaultImports]] resolves to. */
+    private def registerDefaults(): Unit =
+      BehaviorTreeParser.registerBuiltins(this)
   }
 
   // ── Default imports (built-in task aliases) ─────────────────────────
@@ -231,6 +255,227 @@ object BehaviorTreeParser {
       "wait" -> "sge.ai.btree.leaf.Wait"
     )
     classes.toMap
+  }
+
+  // ── Built-in attribute value coercion (castValue) ───────────────────
+  //
+  // The Java parser coerces serialized attribute values to the task field's type in `castValue`
+  // (BehaviorTreeParser.java:411-458). The reflection-free SGE port replicates that coercion in the
+  // attribute setters below: the reader hands over `java.lang.Long`/`java.lang.Double` for numbers,
+  // `java.lang.Boolean` for booleans and `String` for strings (BehaviorTreeReader.scala:179-205).
+
+  /** Coerces a serialized attribute value to a [[Distribution]] of the given concrete type, mirroring the Java `castValue` Number/String branches (`BehaviorTreeParser.java:428-432` and `442-445`).
+    *
+    *   - a `Number` (`java.lang.Long`/`java.lang.Double`) becomes a constant distribution via `distributionAdapters.toDistribution("constant," + numberValue, distributionType)`
+    *   - a `String` is parsed via `distributionAdapters.toDistribution(stringValue, distributionType)`
+    *
+    * @throws SgeError.InvalidInput
+    *   if the value is neither a number nor a string.
+    */
+  private def toDistributionValue[T <: Distribution](
+    value:                Any,
+    distributionType:     Class[T],
+    distributionAdapters: DistributionAdapters
+  ): T =
+    value match {
+      case n: java.lang.Number => distributionAdapters.toDistribution("constant," + n, distributionType)
+      case s: String           => distributionAdapters.toDistribution(s, distributionType)
+      case other =>
+        throw SgeError.InvalidInput(
+          s"attribute value '$other' must be a number or a distribution string"
+        )
+    }
+
+  /** Coerces a serialized `String` attribute value to one of the given Scala enum constants, matching the name case-insensitively (mirrors the Java `castValue` enum branch
+    * `BehaviorTreeParser.java:446-454`).
+    *
+    * @throws SgeError.InvalidInput
+    *   if the value is not a string or does not match any constant.
+    */
+  private def toEnumValue[T <: scala.reflect.Enum](value: Any, constants: Array[T]): T =
+    value match {
+      case s: String =>
+        var i      = 0
+        val n      = constants.length
+        var result = Nullable.empty[T]
+        while (i < n && result.isEmpty) {
+          val e = constants(i)
+          if (e.toString.equalsIgnoreCase(s)) result = Nullable(e)
+          i += 1
+        }
+        result.getOrElse(throw SgeError.InvalidInput(s"Invalid enum constant '$s'"))
+      case other =>
+        throw SgeError.InvalidInput(s"attribute value '$other' must be a string matching an enum constant")
+    }
+
+  /** Coerces a serialized attribute value to a `String`, mirroring the Java `castValue` String branch (`BehaviorTreeParser.java:437-438`).
+    */
+  private def toStringValue(value: Any): String =
+    value match {
+      case s: String => s
+      case other => throw SgeError.InvalidInput(s"attribute value '$other' must be of type String")
+    }
+
+  /** Coerces a serialized attribute value to a `Boolean`, mirroring the Java `castValue` Boolean branch (`BehaviorTreeParser.java:433-434`).
+    */
+  private def toBooleanValue(value: Any): Boolean =
+    value match {
+      case b: java.lang.Boolean => b.booleanValue()
+      case other => throw SgeError.InvalidInput(s"attribute value '$other' must be of type boolean")
+    }
+
+  // ── Built-in task registration ──────────────────────────────────────
+
+  /** Registers every built-in task (and its [[TaskMeta]]) into the given registry, keyed by the fully qualified class name that [[defaultImports]] resolves the alias to. The `@TaskConstraint` min/max
+    * children values are resolved through the original `@Inherited` annotation hierarchy: `Task`(0,MAX), `LeafTask`(0,0), `BranchTask`(1,MAX), `Decorator`(1,1), `Include`(0,0), `Random`(0,1).
+    */
+  private def registerBuiltins(registry: TaskRegistry): Unit = {
+    // BranchTask subclasses: minChildren = 1, maxChildren = MAX (BranchTask @TaskConstraint(minChildren = 1)).
+    val branchMeta = TaskMeta(minChildren = 1, maxChildren = Int.MaxValue)
+
+    // Decorator subclasses: minChildren = 1, maxChildren = 1 (Decorator @TaskConstraint(minChildren = 1, maxChildren = 1)).
+    val decoratorMeta = TaskMeta(minChildren = 1, maxChildren = 1)
+
+    // LeafTask subclasses: minChildren = 0, maxChildren = 0 (LeafTask @TaskConstraint(minChildren = 0, maxChildren = 0)).
+    val leafMeta = TaskMeta(minChildren = 0, maxChildren = 0)
+
+    // ── branch ──
+    registry.registerTask("sge.ai.btree.branch.Selector", () => new Selector[Any](), branchMeta)
+    registry.registerTask("sge.ai.btree.branch.Sequence", () => new Sequence[Any](), branchMeta)
+    registry.registerTask("sge.ai.btree.branch.RandomSelector", () => new RandomSelector[Any](), branchMeta)
+    registry.registerTask("sge.ai.btree.branch.RandomSequence", () => new RandomSequence[Any](), branchMeta)
+    registry.registerTask("sge.ai.btree.branch.DynamicGuardSelector", () => new DynamicGuardSelector[Any](), branchMeta)
+    registry.registerTask(
+      "sge.ai.btree.branch.Parallel",
+      () => new Parallel[Any](),
+      branchMeta.copy(
+        attributes = Map(
+          // @TaskAttribute public Policy policy;
+          "policy" -> AttrInfo(
+            "policy",
+            (task, value, _) => task.asInstanceOf[Parallel[Any]].policy = toEnumValue(value, Parallel.Policy.values)
+          ),
+          // @TaskAttribute public Orchestrator orchestrator;
+          "orchestrator" -> AttrInfo(
+            "orchestrator",
+            (task, value, _) => task.asInstanceOf[Parallel[Any]].orchestrator = toEnumValue(value, Parallel.Orchestrator.values)
+          )
+        )
+      )
+    )
+
+    // ── decorator ──
+    registry.registerTask(
+      "sge.ai.btree.decorator.AlwaysFail",
+      () => new AlwaysFail[Any](Nullable.empty[Task[Any]]),
+      decoratorMeta
+    )
+    registry.registerTask(
+      "sge.ai.btree.decorator.AlwaysSucceed",
+      () => new AlwaysSucceed[Any](Nullable.empty[Task[Any]]),
+      decoratorMeta
+    )
+    registry.registerTask(
+      "sge.ai.btree.decorator.Invert",
+      () => new Invert[Any](Nullable.empty[Task[Any]]),
+      decoratorMeta
+    )
+    registry.registerTask(
+      "sge.ai.btree.decorator.UntilFail",
+      () => new UntilFail[Any](Nullable.empty[Task[Any]]),
+      decoratorMeta
+    )
+    registry.registerTask(
+      "sge.ai.btree.decorator.UntilSuccess",
+      () => new UntilSuccess[Any](Nullable.empty[Task[Any]]),
+      decoratorMeta
+    )
+    registry.registerTask(
+      "sge.ai.btree.decorator.Repeat",
+      () => new Repeat[Any](child = Nullable.empty[Task[Any]]),
+      decoratorMeta.copy(
+        attributes = Map(
+          // @TaskAttribute public IntegerDistribution times;
+          "times" -> AttrInfo(
+            "times",
+            (task, value, adapters) => task.asInstanceOf[Repeat[Any]].times = toDistributionValue(value, classOf[IntegerDistribution], adapters)
+          )
+        )
+      )
+    )
+    registry.registerTask(
+      "sge.ai.btree.decorator.SemaphoreGuard",
+      () => new SemaphoreGuard[Any](child = Nullable.empty[Task[Any]]),
+      decoratorMeta.copy(
+        attributes = Map(
+          // @TaskAttribute(required = true) public String name;
+          "name" -> AttrInfo(
+            "name",
+            (task, value, _) => task.asInstanceOf[SemaphoreGuard[Any]].name = Nullable(toStringValue(value)),
+            required = true
+          )
+        )
+      )
+    )
+    registry.registerTask(
+      "sge.ai.btree.decorator.Random",
+      () => new RandomDecorator[Any](child = Nullable.empty[Task[Any]]),
+      // Random @TaskConstraint(minChildren = 0, maxChildren = 1)
+      TaskMeta(
+        minChildren = 0,
+        maxChildren = 1,
+        attributes = Map(
+          // @TaskAttribute public FloatDistribution success;
+          "success" -> AttrInfo(
+            "success",
+            (task, value, adapters) => task.asInstanceOf[RandomDecorator[Any]].successDistribution = toDistributionValue(value, classOf[FloatDistribution], adapters)
+          )
+        )
+      )
+    )
+    registry.registerTask(
+      "sge.ai.btree.decorator.Include",
+      () => new Include[Any](),
+      // Include @TaskConstraint(minChildren = 0, maxChildren = 0)
+      TaskMeta(
+        minChildren = 0,
+        maxChildren = 0,
+        attributes = Map(
+          // @TaskAttribute(required = true) public String subtree;
+          "subtree" -> AttrInfo(
+            "subtree",
+            (task, value, _) => task.asInstanceOf[Include[Any]].subtree = Nullable(toStringValue(value)),
+            required = true
+          ),
+          // @TaskAttribute public boolean lazy;
+          "lazy" -> AttrInfo(
+            "lazy",
+            (task, value, _) => task.asInstanceOf[Include[Any]].isLazy = toBooleanValue(value)
+          )
+        )
+      )
+    )
+
+    // ── leaf ──
+    registry.registerTask("sge.ai.btree.leaf.Success", () => new SuccessLeaf[Any](), leafMeta)
+    registry.registerTask("sge.ai.btree.leaf.Failure", () => new FailureLeaf[Any](), leafMeta)
+    registry.registerTask(
+      // Wait requires a Timepiece; gdx-ai's no-arg Wait() reads GdxAI.getTimepiece(), which defaults to a
+      // new DefaultTimepiece() (GdxAI.java:46). We mirror that default here so a stock tree parses without
+      // wiring an explicit Timepiece.
+      "sge.ai.btree.leaf.Wait",
+      () => new Wait[Any](timepiece = new DefaultTimepiece()),
+      leafMeta.copy(
+        attributes = Map(
+          // @TaskAttribute(required = true) public FloatDistribution seconds;
+          "seconds" -> AttrInfo(
+            "seconds",
+            (task, value, adapters) => task.asInstanceOf[Wait[Any]].seconds = toDistributionValue(value, classOf[FloatDistribution], adapters),
+            required = true
+          )
+        )
+      )
+    )
   }
 
   // ── Stacked task ────────────────────────────────────────────────────
@@ -339,7 +584,7 @@ object BehaviorTreeParser {
         case Some(ai) =>
           val isNew = reader.encounteredAttributes.add(name)
           if (!isNew) throw reader.stackedTaskException(stackedTask, s"attribute '$name' specified more than once")
-          ai.setter(stackedTask.task, value)
+          ai.setter(stackedTask.task, value, reader.getParser.distributionAdapters)
           true
       }
     }

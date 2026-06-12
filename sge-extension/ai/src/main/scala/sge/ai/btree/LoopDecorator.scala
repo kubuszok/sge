@@ -12,10 +12,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 66
+ * Covenant-baseline-loc: 78
  * Covenant-baseline-methods: LoopDecorator,childRunning,condition,loop,reset,run
  * Covenant-source-reference: com/badlogic/gdx/ai/btree/LoopDecorator.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
@@ -34,8 +34,11 @@ import lowlevel.Nullable
   *   davebaol (original implementation)
   */
 abstract class LoopDecorator[E](
-  child: Nullable[Task[E]] = Nullable.empty
-) extends Decorator[E](child) {
+  // Named distinctly from the inherited `Decorator.child` field so that references to `child` in this class's
+  // method bodies (e.g. `run`) resolve to the mutable inherited field that `addChild` updates, rather than being
+  // captured as a shadowing constructor-parameter field that would never see children added by the parser.
+  initialChild: Nullable[Task[E]] = Nullable.empty
+) extends Decorator[E](initialChild) {
 
   /** Whether the `run()` method must keep looping or not. */
   protected var loop: Boolean = false

@@ -54,7 +54,7 @@ class BehaviorTreeParserSuite extends munit.FunSuite {
       BehaviorTreeParser.TaskMeta(
         attributes = Map(
           "value" -> BehaviorTreeParser.AttrInfo("value",
-                                                 (_, _) => {
+                                                 (_, _, _) => {
                                                    // Accept the value (we just verify parsing works)
                                                  }
           )
