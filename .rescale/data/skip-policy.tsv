@@ -78,7 +78,7 @@ sge/src/main/scala/sge/utils/TimSort.scala	shortcuts	pending-comment: 'pending r
 sge/src/main/scala/sge/Graphics.scala	verify	Doc comment 'best-effort attempt' describes vSync behavior, original LibGDX Javadoc	2026-04-19	dev
 sge/src/main/scala/sge/Net.scala	verify	Doc comment 'best effort' describes browser URI launch behavior, original LibGDX Javadoc	2026-04-19	dev
 sge-extension/textra/src/main/scala/sge/textra/Font.scala	shortcuts	Java interop: getOrElse(null) for shader reference comparison (ne/eq)	2026-04-19	dev
-sge-extension/textra/src/main/scala/sge/textra/BitmapFontSupport.scala	shortcuts	UBJSON and LZMA font loading depend on infrastructure not yet ported to SGE	2026-04-19	dev
+sge-extension/textra/src/main/scala/sge/textra/BitmapFontSupport.scala	shortcuts	UBJSON font loading needs a UBJsonReader->Json AST bridge SGE lacks (ISS-617); LZMA half wired by ISS-514 (56566c3d); remaining hit is pre-existing flag-break-var line 424 (LZB loop)	2026-04-19	dev
 sge/src/main/scala/sge/utils/I18nBundle.scala	shortcuts	scala-unimpl: '???' appears as string literal in missing-key fallback ('???key???'), matching LibGDX original exactly; placeholder-comment: 'placeholder' is Scaladoc describing the debug(placeholder) method parameter	2026-04-19	dev
 sge/src/main/scala/sge/graphics/Mesh.scala	shortcuts	TODO at line 398 preserved from original Mesh.java:382; null-casts at lines 1096-1179 are local-var initialization in copy() method matching Java original pattern (assigned-before-use, null-checked)	2026-04-19	dev
 sge/src/main/scala/sge/maps/tiled/BaseTiledMapLoader.scala	shortcuts	return-comment@91: comment describing color conversion, not a return statement	2026-04-19	dev
@@ -352,3 +352,7 @@ sge/src/test/scalajvm/sge/maps/tiled/TmxTileIdsEofRedSuite.scala	shortcuts	ISS-5
 sge/src/test/scalanative/sge/maps/tiled/TmxTileIdsEofRedSuite.scala	shortcuts	ISS-506 red-suite fixture doc, native copy	2026-06-11	dev
 sge-extension/gltf/src/test/scalajvm/sge/gltf/GltfShaderResourcesRedSuite.scala	shortcuts	ISS-508 red-suite headless Application/GL fixture stubs + null-casts (audited)	2026-06-11	dev
 sge-extension/ai/src/test/scala/sge/ai/btree/utils/BtreeParserOutOfBoxRedSuite.scala	shortcuts	red-suite fixture: UnsupportedOperationException in dummy-leaf newInstance stubs (x2), never invoked at runtime; ISS-517 red test, precedent 55ec6c5a/9c24a51e	2026-06-12	dev
+sge-extension/textra/src/test/scalajvm/sge/textra/TextraLzmaFontRedSuite.scala	shortcuts	red-suite fixture: reproducer-authored comments/stubs describing the ISS-514 bug (15 hits), never runtime code; precedent 99087560	2026-06-12	dev
+sge-extension/textra/src/test/scalanative/sge/textra/TextraLzmaFontRedSuite.scala	shortcuts	red-suite fixture: byte-identical native copy of the ISS-514 red suite (15 hits); precedent 99087560	2026-06-12	dev
+sge-extension/textra/src/test/scalajvm/sge/textra/TextraLzmaFontRedSuite.scala	stale-stubs	red-suite narrative comment quoting the fixed ISS-514 bug (line ~209), intentionally preserved red-test documentation	2026-06-12	dev
+sge-extension/textra/src/test/scalanative/sge/textra/TextraLzmaFontRedSuite.scala	stale-stubs	byte-identical native copy; same ISS-514 narrative comment	2026-06-12	dev
