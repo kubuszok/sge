@@ -17,7 +17,7 @@ class SgeHttpResponseTest extends FunSuite {
   }
 
   private def makeResponse(
-    body:    Either[String, String],
+    body:    Array[Byte],
     code:    Int,
     headers: Seq[SttpHeader] = Seq.empty
   ): SgeHttpResponse = {
@@ -32,34 +32,36 @@ class SgeHttpResponseTest extends FunSuite {
     new SgeHttpResponse(sttpResponse)
   }
 
+  private def utf8(s: String): Array[Byte] = s.getBytes("UTF-8")
+
   test("getStatus returns correct HttpStatus") {
-    val resp = makeResponse(Right("ok"), 200)
+    val resp = makeResponse(utf8("ok"), 200)
     assertEquals(resp.status.statusCode, 200)
   }
 
   test("getStatus for error code") {
-    val resp = makeResponse(Left("not found"), 404)
+    val resp = makeResponse(utf8("not found"), 404)
     assertEquals(resp.status.statusCode, 404)
   }
 
   test("getResultAsString returns body on success") {
-    val resp = makeResponse(Right("hello world"), 200)
+    val resp = makeResponse(utf8("hello world"), 200)
     assertEquals(resp.resultAsString, "hello world")
   }
 
   test("getResultAsString returns error body on failure") {
-    val resp = makeResponse(Left("error message"), 500)
+    val resp = makeResponse(utf8("error message"), 500)
     assertEquals(resp.resultAsString, "error message")
   }
 
   test("getResult returns UTF-8 bytes") {
-    val resp  = makeResponse(Right("abc"), 200)
+    val resp  = makeResponse(utf8("abc"), 200)
     val bytes = resp.result
     assertEquals(new String(bytes, "UTF-8"), "abc")
   }
 
   test("getResultAsStream is readable") {
-    val resp   = makeResponse(Right("stream data"), 200)
+    val resp   = makeResponse(utf8("stream data"), 200)
     val stream = resp.resultAsStream
     val bytes  = stream.readAllBytes()
     assertEquals(new String(bytes, "UTF-8"), "stream data")
@@ -67,7 +69,7 @@ class SgeHttpResponseTest extends FunSuite {
 
   test("getHeader returns value when present") {
     val resp = makeResponse(
-      Right(""),
+      utf8(""),
       200,
       Seq(SttpHeader("Content-Type", "application/json"))
     )
@@ -75,13 +77,13 @@ class SgeHttpResponseTest extends FunSuite {
   }
 
   test("getHeader returns empty when absent") {
-    val resp = makeResponse(Right(""), 200)
+    val resp = makeResponse(utf8(""), 200)
     assert(resp.getHeader("X-Missing").isEmpty)
   }
 
   test("getHeaders groups multiple values for same header") {
     val resp = makeResponse(
-      Right(""),
+      utf8(""),
       200,
       Seq(
         SttpHeader("Set-Cookie", "a=1"),

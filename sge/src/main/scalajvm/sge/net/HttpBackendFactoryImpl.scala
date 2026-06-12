@@ -21,7 +21,7 @@ private[net] object HttpBackendFactoryImpl extends HttpBackendFactory {
 
   private val backend = DefaultFutureBackend()
 
-  override def send(request: SttpRequest[Either[String, String]]): Future[SttpResponse[Either[String, String]]] =
+  override def send(request: SttpRequest[Array[Byte]]): Future[SttpResponse[Array[Byte]]] =
     backend.send(request)
 
   override def close(): Unit =

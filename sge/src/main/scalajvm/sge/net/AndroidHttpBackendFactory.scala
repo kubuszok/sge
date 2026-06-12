@@ -13,7 +13,6 @@ package net
 
 import java.io.{ ByteArrayOutputStream, OutputStream }
 import java.net.{ HttpURLConnection, URL }
-import java.nio.charset.StandardCharsets
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.jdk.CollectionConverters.*
 
@@ -24,7 +23,7 @@ private[net] object AndroidHttpBackendFactory extends HttpBackendFactory {
 
   private given ExecutionContext = ExecutionContext.global
 
-  override def send(request: SttpRequest[Either[String, String]]): Future[SttpResponse[Either[String, String]]] =
+  override def send(request: SttpRequest[Array[Byte]]): Future[SttpResponse[Array[Byte]]] =
     Future {
       @scala.annotation.nowarn("msg=deprecated") // URL(String) deprecated in JDK 20+ but required for Android
       val url  = new URL(request.uri.toString())
@@ -54,14 +53,17 @@ private[net] object AndroidHttpBackendFactory extends HttpBackendFactory {
           case _ => ()
         }
 
-        // Read response
+        // Read response — raw bytes on both success and error paths, mirroring
+        // NetJavaImpl.getResult() copying the connection InputStream straight into
+        // a byte[] with no charset (NetJavaImpl.java:62-78). Decoding to a String
+        // here would corrupt binary downloads (ISS-521).
         val statusCode = conn.getResponseCode
         val statusText = Option(conn.getResponseMessage).getOrElse("")
         val stream     = if (statusCode >= 400) conn.getErrorStream else conn.getInputStream
 
-        val body: Either[String, String] =
+        val body: Array[Byte] =
           if (stream == null) {
-            if (statusCode >= 400) Left("") else Right("")
+            Array.emptyByteArray
           } else {
             try {
               val baos   = new ByteArrayOutputStream()
@@ -71,8 +73,7 @@ private[net] object AndroidHttpBackendFactory extends HttpBackendFactory {
                 baos.write(buffer, 0, n)
                 n = stream.read(buffer)
               }
-              val text = baos.toString(StandardCharsets.UTF_8.name())
-              if (statusCode >= 400) Left(text) else Right(text)
+              baos.toByteArray
             } finally stream.close()
           }
 

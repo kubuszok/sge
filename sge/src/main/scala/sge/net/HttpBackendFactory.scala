@@ -10,10 +10,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 27
+ * Covenant-baseline-loc: 35
  * Covenant-baseline-methods: HttpBackendFactory,close,send
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  */
 package sge
 package net
@@ -25,9 +25,10 @@ import scala.concurrent.Future
   */
 private[net] trait HttpBackendFactory {
 
-  /** Sends an sttp request and returns a Future of the response. The body is decoded as a String on both success and error paths.
+  /** Sends an sttp request and returns a Future of the response. The body is the raw response bytes on both success and error paths (sttp `asByteArrayAlways`), mirroring NetJavaImpl.getResult() which
+    * copies the raw connection stream with no charset (NetJavaImpl.java:62-78); the String view is decoded from those bytes downstream in [[SgeHttpResponse]] (ISS-521).
     */
-  def send(request: SttpRequest[Either[String, String]]): Future[SttpResponse[Either[String, String]]]
+  def send(request: SttpRequest[Array[Byte]]): Future[SttpResponse[Array[Byte]]]
 
   /** Closes the underlying sttp backend and releases resources. */
   def close(): Unit

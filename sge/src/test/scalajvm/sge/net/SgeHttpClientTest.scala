@@ -20,13 +20,13 @@ class SgeHttpClientTest extends FunSuite {
 
   /** A mock backend that captures sent requests and allows completing them manually. */
   private class MockBackendFactory extends HttpBackendFactory {
-    @volatile var lastRequest: SttpRequest[Either[String, String]]           = scala.compiletime.uninitialized
-    @volatile var lastPromise: Promise[SttpResponse[Either[String, String]]] = scala.compiletime.uninitialized
-    @volatile var closed:      Boolean                                       = false
+    @volatile var lastRequest: SttpRequest[Array[Byte]]           = scala.compiletime.uninitialized
+    @volatile var lastPromise: Promise[SttpResponse[Array[Byte]]] = scala.compiletime.uninitialized
+    @volatile var closed:      Boolean                            = false
 
-    override def send(request: SttpRequest[Either[String, String]]): Future[SttpResponse[Either[String, String]]] = {
+    override def send(request: SttpRequest[Array[Byte]]): Future[SttpResponse[Array[Byte]]] = {
       lastRequest = request
-      val p = Promise[SttpResponse[Either[String, String]]]()
+      val p = Promise[SttpResponse[Array[Byte]]]()
       lastPromise = p
       p.future
     }
@@ -35,7 +35,7 @@ class SgeHttpClientTest extends FunSuite {
       closed = true
 
     def completeWith(body: String, code: Int): Unit =
-      lastPromise.success(SttpResponse(Right(body), SttpStatusCode(code), "", Nil, Nil, dummyRequestMetadata))
+      lastPromise.success(SttpResponse(body.getBytes("UTF-8"), SttpStatusCode(code), "", Nil, Nil, dummyRequestMetadata))
   }
 
   test("obtainRequest returns fresh request with defaults") {

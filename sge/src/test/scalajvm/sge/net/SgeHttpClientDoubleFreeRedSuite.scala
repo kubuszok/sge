@@ -30,10 +30,10 @@ class SgeHttpClientDoubleFreeRedSuite extends FunSuite {
 
   /** A controllable stub backend: every send() gets its own Promise that the test completes manually, and the dispatched sttp request is recorded for inspection. */
   private class ControllableBackendFactory extends HttpBackendFactory {
-    private val sent = mutable.ArrayBuffer.empty[(SttpRequest[Either[String, String]], Promise[SttpResponse[Either[String, String]]])]
+    private val sent = mutable.ArrayBuffer.empty[(SttpRequest[Array[Byte]], Promise[SttpResponse[Array[Byte]]])]
 
-    override def send(request: SttpRequest[Either[String, String]]): Future[SttpResponse[Either[String, String]]] = {
-      val p = Promise[SttpResponse[Either[String, String]]]()
+    override def send(request: SttpRequest[Array[Byte]]): Future[SttpResponse[Array[Byte]]] = {
+      val p = Promise[SttpResponse[Array[Byte]]]()
       sent.synchronized {
         sent += ((request, p))
       }
@@ -57,7 +57,7 @@ class SgeHttpClientDoubleFreeRedSuite extends FunSuite {
       val p = sent.synchronized {
         sent(idx)._2
       }
-      p.success(SttpResponse(Right(body), SttpStatusCode(code), "", Nil, Nil, dummyRequestMetadata))
+      p.success(SttpResponse(body.getBytes("UTF-8"), SttpStatusCode(code), "", Nil, Nil, dummyRequestMetadata))
       val latch = new CountDownLatch(1)
       p.future.onComplete(_ => latch.countDown())(using ExecutionContext.global)
       assert(latch.await(5, TimeUnit.SECONDS), "backend future callbacks did not run in time")

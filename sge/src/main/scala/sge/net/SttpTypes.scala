@@ -10,10 +10,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 29
- * Covenant-baseline-methods: SttpHeader,SttpMethod,SttpResponse,SttpStatusCode,SttpUri,sttpBasicRequest
+ * Covenant-baseline-loc: 41
+ * Covenant-baseline-methods: SttpHeader,SttpMethod,SttpResponse,SttpStatusCode,SttpUri,sttpAsByteArrayAlways,sttpBasicRequest
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  */
 package sge
 package net
@@ -23,6 +23,11 @@ private[sge] type SttpResponse[T] = sttp.client4.Response[T]
 private[sge] val SttpResponse: sttp.client4.Response.type = sttp.client4.Response
 private[sge] type SttpRequest[T] = sttp.client4.Request[T]
 private[sge] inline def sttpBasicRequest = sttp.client4.basicRequest
+// Raw-bytes response description used on both success and error paths — the
+// LibGDX getResult() contract (NetJavaImpl.java:62-78 reads the connection
+// stream into a byte[] with no charset), keeping binary downloads byte-exact
+// instead of round-tripping through a UTF-8 String (ISS-521).
+private[sge] inline def sttpAsByteArrayAlways = sttp.client4.asByteArrayAlways
 
 // sttp model types
 private[sge] type SttpMethod = sttp.model.Method

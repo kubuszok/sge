@@ -10,10 +10,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 229
+ * Covenant-baseline-loc: 241
  * Covenant-baseline-methods: NoopBackendFactory,PendingEntry,SgeHttpClient,apply,buildSttpRequest,cancel,claimFree,close,entries,entry,freeRequest,future,isPending,listener,method,noop,obtainRequest,pending,r,requestPool,send,sttpRequest,toSttpMethod,uri
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-06-11
+ * Covenant-verified: 2026-06-12
  */
 package sge
 package net
@@ -105,6 +105,13 @@ final class SgeHttpClient private[sge] (backend: HttpBackendFactory, poolCapacit
     * Faithful to NetJavaImpl.cancelHttpRequest (NetJavaImpl.java:256-264): the cancellation only takes effect — `cancelled()` fires and the request is released — if the request is still pending (in
     * the original, only if `getFromListeners(httpRequest) != null`). If the in-flight completion already removed and freed the request, `pending.remove` returns nothing here and cancel is a no-op,
     * exactly as the upstream map remove makes the second cancel a no-op. The single free is guarded by [[claimFree]] so cancel and the future's onComplete never free the same request twice (ISS-505).
+    *
+    * In-flight transport abort is NOT performed, and this matches the upstream contract: NetJavaImpl.cancelHttpRequest only removes the request from its listeners/connections maps so the eventual
+    * result is dropped — it never interrupts the worker thread or closes the live connection (NetJavaImpl.java:256-264). It is additionally not expressible through the sttp4 backend abstraction this
+    * client is built on: `Backend.send` returns a plain effect (`scala.concurrent.Future` on JVM/JS/Android, a `Future` wrapping the sync curl backend on Native) and surfaces no cancellation handle —
+    * `scala.concurrent.Future` has no cancel, and sttp4's per-platform backends (java.net.http.HttpClient, Fetch, curl) do not expose their cancelers through `send`. Real abort would require
+    * redesigning `HttpBackendFactory` around a cancelable effect type on every platform, which is out of scope here. So, like upstream, cancel detaches the listener and frees the slot; the network
+    * call runs to completion in the background and its result is discarded (the `cancelled` flag in [[send]]'s onComplete suppresses delivery).
     */
   def cancel(request: SgeHttpRequest): Unit =
     pending
@@ -173,11 +180,16 @@ final class SgeHttpClient private[sge] (backend: HttpBackendFactory, poolCapacit
       }
     }
 
-  private def buildSttpRequest(req: SgeHttpRequest): SttpRequest[Either[String, String]] = {
+  private def buildSttpRequest(req: SgeHttpRequest): SttpRequest[Array[Byte]] = {
     val uri    = SttpUri.unsafeParse(req.url)
     val method = toSttpMethod(req.method)
 
-    var r = sttpBasicRequest.method(method, uri).followRedirects(req.followRedirects)
+    // Describe the response as raw bytes (success AND error paths) rather than a
+    // UTF-8 String. This is the LibGDX getResult() contract: NetJavaImpl.java:62-78
+    // copies the connection InputStream straight into a byte[] with no charset, so
+    // binary downloads (and the result stream) stay byte-exact (ISS-521). The String
+    // view is decoded from these bytes in SgeHttpResponse, never the reverse.
+    var r = sttpBasicRequest.response(sttpAsByteArrayAlways).method(method, uri).followRedirects(req.followRedirects)
 
     // Set timeout
     if (req.timeoutMs > 0) {
@@ -222,7 +234,7 @@ object SgeHttpClient {
     new SgeHttpClient(NoopBackendFactory, 4, 16)
 
   private object NoopBackendFactory extends HttpBackendFactory {
-    override def send(request: SttpRequest[Either[String, String]]): Future[SttpResponse[Either[String, String]]] =
+    override def send(request: SttpRequest[Array[Byte]]): Future[SttpResponse[Array[Byte]]] =
       Future.failed(new UnsupportedOperationException("noop HTTP backend"))
     override def close(): Unit = ()
   }
