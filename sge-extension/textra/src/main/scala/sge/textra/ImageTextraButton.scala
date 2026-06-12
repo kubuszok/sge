@@ -14,10 +14,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 188
+ * Covenant-baseline-loc: 198
  * Covenant-baseline-methods: ImageTextraButton,_hasKeyboardFocus,_imageDrawable,_isChecked,_isDisabled,_isOver,_isPressed,_style,c,className,dotIndex,draw,focused,getFontColor,getImage,getImageDrawable,getImageDrawableCurrent,getLabel,getStyle,getText,hasKeyboardFocus,hasKeyboardFocus_,isChecked,isChecked_,isDisabled,isDisabled_,isOver,isOver_,isPressed,isPressed_,label,name,newLabel,setChecked,setLabel,setStyle,setText,skipToTheEnd,this,toString,updateImage
  * Covenant-source-reference: com/github/tommyettinger/textra/ImageTextraButton.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
@@ -37,7 +37,7 @@ class ImageTextraButton(
   text:            Nullable[String],
   style:           Styles.ImageTextButtonStyle,
   replacementFont: Font
-) {
+)(using Sge) {
 
   private var _style: Styles.ImageTextButtonStyle = style
   private var label:  TextraLabel                 = newLabel(
@@ -57,7 +57,7 @@ class ImageTextraButton(
   private var _isDisabled:       Boolean = false
   private var _hasKeyboardFocus: Boolean = false
 
-  def this(text: Nullable[String], style: Styles.ImageTextButtonStyle) =
+  def this(text: Nullable[String], style: Styles.ImageTextButtonStyle)(using Sge) =
     this(text, style, Nullable.fold(style.font)(new Font())(f => new Font(f)))
 
   protected def newLabel(text: String, style: Styles.LabelStyle): TextraLabel =

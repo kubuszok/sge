@@ -14,10 +14,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 128
+ * Covenant-baseline-loc: 137
  * Covenant-baseline-methods: ContainerProxy,TextraTooltip,_label,background,getActor,getContainer,l,ls,maxWidth,newLabel,setBackground,setStyle,skipToTheEnd,this,width,wrapWidth
  * Covenant-source-reference: com/github/tommyettinger/textra/TextraTooltip.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
@@ -32,7 +32,7 @@ class TextraTooltip(
   text:            Nullable[String],
   style:           Styles.TextTooltipStyle,
   replacementFont: Font
-) {
+)(using Sge) {
 
   private val _label: TextraLabel = {
     val ls = Nullable.fold(style.label)(new Styles.LabelStyle())(identity)
@@ -48,7 +48,7 @@ class TextraTooltip(
   /** The wrap width from the style, controlling the container width. */
   var wrapWidth: Float = style.wrapWidth
 
-  def this(text: Nullable[String], style: Styles.TextTooltipStyle) =
+  def this(text: Nullable[String], style: Styles.TextTooltipStyle)(using Sge) =
     this(
       text,
       style,

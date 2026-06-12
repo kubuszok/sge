@@ -19,10 +19,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 456
+ * Covenant-baseline-loc: 465
  * Covenant-baseline-methods: ButtonTable,ContentTable,FocusListenerMarker,IgnoreTouchDownMarker,TextraDialog,_skin,_visible,actions,add,addAction,addCaptureListener,addListener,binding,btn,button,buttonTable,cancel,cancelHide,captureListeners,clearActions,contentTable,contentY,defaults_space,draw,entries,focusListener,getButtonTable,getContentTable,handleButtonClick,handleKeyDown,hide,ignoreTouchDown,initialize,isVisible,key,keyBindings,labels,listeners,newLabel,newTypingLabel,previousKeyboardFocus,previousScrollFocus,remove,removeCaptureListener,removeListener,result,s,setObject,setStage,show,text,this,typing,values
  * Covenant-source-reference: com/github/tommyettinger/textra/TextraDialog.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
@@ -42,7 +42,7 @@ import lowlevel.Nullable
   * @author
   *   Nathan Sweet
   */
-class TextraDialog(title: String, style: Styles.WindowStyle, replacementFont: Font) extends TextraWindow(title, style, replacementFont) {
+class TextraDialog(title: String, style: Styles.WindowStyle, replacementFont: Font)(using Sge) extends TextraWindow(title, style, replacementFont) {
 
   // Content and button containers (standalone equivalent of scene2d Table)
   val contentTable: TextraDialog.ContentTable = new TextraDialog.ContentTable()
@@ -75,25 +75,25 @@ class TextraDialog(title: String, style: Styles.WindowStyle, replacementFont: Fo
   // Key bindings for keyboard shortcuts
   private val keyBindings: mutable.ArrayBuffer[(Int, Nullable[AnyRef])] = mutable.ArrayBuffer.empty
 
-  def this(title: String, style: Styles.WindowStyle) =
+  def this(title: String, style: Styles.WindowStyle)(using Sge) =
     this(title, style, Nullable.fold(style.titleFont)(new Font())(identity))
 
-  def this(title: String, skin: Skin) = {
+  def this(title: String, skin: Skin)(using Sge) = {
     this(title, skin.get(classOf[Styles.WindowStyle]))
     this._skin = Nullable(skin)
   }
 
-  def this(title: String, skin: Skin, windowStyleName: String) = {
+  def this(title: String, skin: Skin, windowStyleName: String)(using Sge) = {
     this(title, skin.get(windowStyleName, classOf[Styles.WindowStyle]))
     this._skin = Nullable(skin)
   }
 
-  def this(title: String, skin: Skin, replacementFont: Font) = {
+  def this(title: String, skin: Skin, replacementFont: Font)(using Sge) = {
     this(title, skin.get(classOf[Styles.WindowStyle]), replacementFont)
     this._skin = Nullable(skin)
   }
 
-  def this(title: String, skin: Skin, windowStyleName: String, replacementFont: Font) = {
+  def this(title: String, skin: Skin, windowStyleName: String, replacementFont: Font)(using Sge) = {
     this(title, skin.get(windowStyleName, classOf[Styles.WindowStyle]), replacementFont)
     this._skin = Nullable(skin)
   }

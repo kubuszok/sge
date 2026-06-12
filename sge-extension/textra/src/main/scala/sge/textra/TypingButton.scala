@@ -12,10 +12,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 31
+ * Covenant-baseline-loc: 40
  * Covenant-baseline-methods: TypingButton,newLabel,this
  * Covenant-source-reference: com/github/tommyettinger/textra/TypingButton.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
@@ -27,9 +27,9 @@ import lowlevel.Nullable
 
 /** A button with a child {@link TypingLabel} to display text.
   */
-class TypingButton(text: Nullable[String], style: Styles.TextButtonStyle, replacementFont: Font) extends TextraButton(text, style, replacementFont) {
+class TypingButton(text: Nullable[String], style: Styles.TextButtonStyle, replacementFont: Font)(using Sge) extends TextraButton(text, style, replacementFont) {
 
-  def this(text: Nullable[String], style: Styles.TextButtonStyle) =
+  def this(text: Nullable[String], style: Styles.TextButtonStyle)(using Sge) =
     this(text, style, Nullable.fold(style.font)(new Font())(f => new Font(f)))
 
   override protected def newLabel(text: String, style: Styles.LabelStyle): TypingLabel =

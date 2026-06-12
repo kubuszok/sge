@@ -15,10 +15,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 91
+ * Covenant-baseline-loc: 101
  * Covenant-baseline-methods: TypingTooltip,container,enter,getTypingLabel,newLabel,setStyle,this,wrap
  * Covenant-source-reference: com/github/tommyettinger/textra/TypingTooltip.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
@@ -37,12 +37,13 @@ class TypingTooltip(
   text:            Nullable[String],
   style:           Styles.TextTooltipStyle,
   replacementFont: Font
-) extends TextraTooltip(text, style, replacementFont) {
+)(using Sge)
+    extends TextraTooltip(text, style, replacementFont) {
 
   // Restart the typing animation after construction (matches original constructor behavior)
   getTypingLabel.restart()
 
-  def this(text: Nullable[String], style: Styles.TextTooltipStyle) =
+  def this(text: Nullable[String], style: Styles.TextTooltipStyle)(using Sge) =
     this(
       text,
       style,

@@ -20,10 +20,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 430
+ * Covenant-baseline-loc: 439
  * Covenant-baseline-methods: TypingDialog,_skin,_visible,actions,addAction,addCaptureListener,addListener,binding,btn,button,buttonTable,cancel,cancelHide,captureListeners,clearActions,contentTable,contentY,draw,focusListener,getButtonTable,getContentTable,handleButtonClick,handleKeyDown,hide,ignoreTouchDown,initialize,isVisible,key,keyBindings,listeners,newLabel,newTypingLabel,previousKeyboardFocus,previousScrollFocus,remove,removeCaptureListener,removeListener,result,s,setObject,setStage,show,text,this,typing,values
  * Covenant-source-reference: com/github/tommyettinger/textra/TypingDialog.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
@@ -44,7 +44,7 @@ import lowlevel.Nullable
   * @author
   *   Nathan Sweet
   */
-class TypingDialog(title: String, style: Styles.WindowStyle, replacementFont: Font) extends TypingWindow(title, style, replacementFont) {
+class TypingDialog(title: String, style: Styles.WindowStyle, replacementFont: Font)(using Sge) extends TypingWindow(title, style, replacementFont) {
 
   // Content and button containers (standalone equivalent of scene2d Table)
   val contentTable: TextraDialog.ContentTable = new TextraDialog.ContentTable()
@@ -77,25 +77,25 @@ class TypingDialog(title: String, style: Styles.WindowStyle, replacementFont: Fo
   // Key bindings for keyboard shortcuts
   private val keyBindings: mutable.ArrayBuffer[(Int, Nullable[AnyRef])] = mutable.ArrayBuffer.empty
 
-  def this(title: String, style: Styles.WindowStyle) =
+  def this(title: String, style: Styles.WindowStyle)(using Sge) =
     this(title, style, Nullable.fold(style.titleFont)(new Font())(identity))
 
-  def this(title: String, skin: Skin) = {
+  def this(title: String, skin: Skin)(using Sge) = {
     this(title, skin.get(classOf[Styles.WindowStyle]))
     this._skin = Nullable(skin)
   }
 
-  def this(title: String, skin: Skin, windowStyleName: String) = {
+  def this(title: String, skin: Skin, windowStyleName: String)(using Sge) = {
     this(title, skin.get(windowStyleName, classOf[Styles.WindowStyle]))
     this._skin = Nullable(skin)
   }
 
-  def this(title: String, skin: Skin, replacementFont: Font) = {
+  def this(title: String, skin: Skin, replacementFont: Font)(using Sge) = {
     this(title, skin.get(classOf[Styles.WindowStyle]), replacementFont)
     this._skin = Nullable(skin)
   }
 
-  def this(title: String, skin: Skin, windowStyleName: String, replacementFont: Font) = {
+  def this(title: String, skin: Skin, windowStyleName: String, replacementFont: Font)(using Sge) = {
     this(title, skin.get(windowStyleName, classOf[Styles.WindowStyle]), replacementFont)
     this._skin = Nullable(skin)
   }

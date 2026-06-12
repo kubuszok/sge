@@ -14,10 +14,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 187
+ * Covenant-baseline-loc: 197
  * Covenant-baseline-methods: TextraButton,_hasKeyboardFocus,_height,_isChecked,_isDisabled,_isOver,_isPressed,_style,_width,c,draw,focused,getFontColor,getHeight,getName,getPrefHeight,getPrefWidth,getStyle,getText,getTextraLabel,getTextraLabelCell,getWidth,hasKeyboardFocus,hasKeyboardFocus_,isChecked,isChecked_,isDisabled,isDisabled_,isOver,isOver_,isPressed,isPressed_,label,name,newLabel,setChecked,setSize,setStyle,setText,setTextraLabel,skipToTheEnd,this,toString,useIntegerPositions
  * Covenant-source-reference: com/github/tommyettinger/textra/TextraButton.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
@@ -36,7 +36,7 @@ import sge.utils.Align
   * @author
   *   Nathan Sweet
   */
-class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replacementFont: Font) {
+class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replacementFont: Font)(using Sge) {
 
   private var label: TextraLabel = newLabel(
     Nullable.fold(text)("")(identity),
@@ -67,7 +67,7 @@ class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replac
   _width = getPrefWidth
   _height = getPrefHeight
 
-  def this(text: Nullable[String], style: Styles.TextButtonStyle) =
+  def this(text: Nullable[String], style: Styles.TextButtonStyle)(using Sge) =
     this(text, style, Nullable.fold(style.font)(new Font())(f => new Font(f)))
 
   protected def newLabel(text: String, style: Styles.LabelStyle): TextraLabel =

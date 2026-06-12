@@ -19,10 +19,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 1500
+ * Covenant-baseline-loc: 1530
  * Covenant-baseline-methods: BACKSPACE,BULLET,CARRIAGE_RETURN,DELETE,DefaultOnscreenKeyboard,DigitsOnlyFilter,KeyRepeatTask,LetterOnlyFilter,NEWLINE,OnscreenKeyboard,TAB,TextFieldClickListener,TextFieldFilter,TextFieldListener,TextraField,WordOnlyFilter,_blinkTimer,_color,_hasKeyboardFocus,_height,_parent,_stage,_tapCount,_width,_x,_y,acceptChar,act,active,appendText,ascendantsVisible,background,bgLeftWidth,blinkEnabled,blinkTime,calculateOffsets,calculateXAdvancesFromLayout,cancel,changeText,charOffset,checkFocusTraversal,clearMessage,clearSelection,clicked,clipboard,color,continueCursor,copy,createInputListener,currentBest,cursor,cursorOn,cursorPatch,cut,delete,disabled,distance,draw,drawCursor,end,endX,filter,findNextTextField,focusTraversal,focused,font,fontColor,fontOffset,from,getAlignment,getBackgroundDrawable,getBlinkTime,getClipboard,getClipboardContents,getColor,getCursor,getCursorPosition,getDefaultInputListener,getHeight,getMaxLength,getMessageText,getOnscreenKeyboard,getParent,getPasswordCharacter,getPrefHeight,getPrefWidth,getProgrammaticChangeEvents,getSelection,getSelectionEnd,getSelectionStart,getStage,getStyle,getText,getTextFieldFilter,getTextY,getWidth,getX,getY,glyphCount,glyphPositions,goEnd,goHome,handleClick,handleKeyDown,handleKeyTyped,handleKeyUp,handleTouchDown,handleTouchDragged,hasKeyboardFocus,height,i,index,initialize,inputListener,insert,isCtrlPressed,isCursorBlinking,isDisabled,isPasswordMode,isShiftPressed,isSpaceCharacter,isWordCharacter,keyDown,keyRepeatInitialTime,keyRepeatTask,keyRepeatTime,keyTyped,keyUp,keyboard,keycode,label,lastChangeTime,lb,left,len,limit,lineHeight,listener,maxLength,maxOffset,messageText,minHeight,moveCursor,moveCursorVertically,n,newText,next,onlyFontChars,passwordCharacter,passwordMode,paste,positionChanged,programmaticChangeEvents,renderOffset,rf,right,s,schedule,scheduleKeyRepeatTask,selectAll,setAlignment,setBlinkTime,setClipboard,setClipboardContents,setColor,setCursor,setCursorBlinking,setCursorFromPosition,setCursorPosition,setDisabled,setFocusTraversal,setHeight,setKeyboardFocus,setMaxLength,setMessageText,setOnlyFontChars,setOnscreenKeyboard,setParent,setPasswordCharacter,setPasswordMode,setPosition,setProgrammaticChangeEvents,setSelection,setSize,setStage,setStyle,setText,setTextFieldFilter,setTextFieldListener,setWidth,setX,setY,show,showingMessage,sizeChanged,start,startX,style,tapCount,text,textHAlign,textOffset,textY,this,timer,topAndBottom,touchDown,touchDragged,touchUp,undoText,updateDisplayText,updateSelectionAfterMove,visibleTextEnd,visibleTextStart,visibleWidth,wasFocused,width,width2,withinMaxLength,wordUnderCursor,writeEnters,x,y
  * Covenant-source-reference: com/github/tommyettinger/textra/TextraField.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
@@ -59,7 +59,7 @@ import sge.utils.{ Align, Clipboard }
   * @author
   *   Tommy Ettinger
   */
-class TextraField {
+class TextraField(using Sge) {
 
   /** Used as the default char to replace content when passwordMode is on. */
   val BULLET: Char = 8226.toChar // u2022, or bullet
@@ -107,6 +107,14 @@ class TextraField {
   // Clipboard -- connected via initialize() or manually
   protected var clipboard: Nullable[Clipboard] = Nullable.empty
 
+  // Emoji replacer. Upstream stores a RegExodus Replacer built from EmojiProcessor.getReplacer(label.font)
+  // when label.font.nameLookup != null (TextraField.java:143,216-217), and applies it via
+  // emojiReplacer.replace(content) in paste() (TextraField.java:565) and setMessageText() (TextraField.java:710).
+  // The port's equivalent facility is EmojiProcessor.replaceEmoji(text, font); this flag records the same
+  // "label.font.nameLookup != null" precondition initialize() checks, so paste()/setMessageText() can gate
+  // the replacement exactly as upstream gates on emojiReplacer != null.
+  protected var emojiReplacer: Boolean = false
+
   // On-screen keyboard
   protected var keyboard: Nullable[OnscreenKeyboard] = Nullable.empty
 
@@ -139,7 +147,7 @@ class TextraField {
 
   // --- Constructors ---
 
-  def this(text: Nullable[String], style: Styles.TextFieldStyle) = {
+  def this(text: Nullable[String], style: Styles.TextFieldStyle)(using Sge) = {
     this()
     val s = new Styles.TextFieldStyle(style)
     Nullable.foreach(s.font) { f =>
@@ -167,7 +175,7 @@ class TextraField {
     updateDisplayText()
   }
 
-  def this(text: Nullable[String], style: Styles.TextFieldStyle, replacementFont: Font) = {
+  def this(text: Nullable[String], style: Styles.TextFieldStyle, replacementFont: Font)(using Sge) = {
     this()
     this.style = Nullable(style)
     val rf = new Font(replacementFont)
@@ -189,9 +197,15 @@ class TextraField {
     updateDisplayText()
   }
 
-  protected def initialize(): Unit =
-    // Emoji replacer requires EmojiProcessor integration (deferred).
+  protected def initialize(): Unit = {
+    // Upstream TextraField.java:216-217: build the emoji replacer when the font carries a nameLookup.
+    // The port records the precondition; the actual replacement runs through EmojiProcessor.replaceEmoji
+    // in paste()/setMessageText().
+    if (label.getFont.nameLookup.isDefined) emojiReplacer = true
+    // Upstream TextraField.java:218: clipboard = Gdx.app.getClipboard().
+    clipboard = Nullable(Sge().application.clipboard)
     inputListener = Nullable(createInputListener())
+  }
 
   /** Creates the input listener for this text field. Override to provide a custom listener. */
   protected def createInputListener(): TextFieldClickListener =
@@ -668,7 +682,9 @@ class TextraField {
     }
 
   protected def paste(content: Nullable[String], fireChangeEvent: Boolean): Unit =
-    Nullable.foreach(content) { c =>
+    Nullable.foreach(content) { content0 =>
+      // Upstream TextraField.java:565: if(emojiReplacer != null) content = emojiReplacer.replace(content).
+      val c          = if (emojiReplacer) EmojiProcessor.replaceEmoji(content0, label.getFont) else content0
       val sb         = new StringBuilder()
       var textLength = label.length()
       if (label.hasSelection) textLength -= Math.abs(cursor - label.selectionStart)
@@ -1014,7 +1030,10 @@ class TextraField {
   // --- Message text ---
 
   def setMessageText(messageText: Nullable[String]): Unit =
-    this.messageText = messageText
+    // Upstream TextraField.java:710: if(messageText != null && emojiReplacer != null) messageText = emojiReplacer.replace(messageText).
+    this.messageText =
+      if (emojiReplacer) messageText.map(EmojiProcessor.replaceEmoji(_, label.getFont))
+      else messageText
 
   def getMessageText: Nullable[String] = messageText
 

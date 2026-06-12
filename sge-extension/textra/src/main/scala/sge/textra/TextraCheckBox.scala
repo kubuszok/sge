@@ -14,10 +14,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 107
+ * Covenant-baseline-loc: 118
  * Covenant-baseline-methods: TextraCheckBox,_checkStyle,_imageCell,_imageDrawable,checkbox,draw,getImage,getImageCell,getStyle,lbl,newImage,setStyle,this
  * Covenant-source-reference: com/github/tommyettinger/textra/TextraCheckBox.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
@@ -37,7 +37,8 @@ class TextraCheckBox(
   text:            Nullable[String],
   style:           Styles.CheckBoxStyle,
   replacementFont: Font
-) extends TextraButton(text, style, replacementFont) {
+)(using Sge)
+    extends TextraButton(text, style, replacementFont) {
 
   private var _checkStyle: Styles.CheckBoxStyle = style
 
@@ -57,7 +58,7 @@ class TextraCheckBox(
     // In the original, clearChildren() + add(image) + add(label) + pack() builds the layout.
   }
 
-  def this(text: Nullable[String], style: Styles.CheckBoxStyle) =
+  def this(text: Nullable[String], style: Styles.CheckBoxStyle)(using Sge) =
     this(text, style, Nullable.fold(style.font)(new Font())(f => new Font(f)))
 
   /** Creates the initial image drawable for the checkbox. The original creates a scene2d Image(null, Scaling.none); in standalone mode, this returns Nullable.empty as the initial drawable state.

@@ -15,10 +15,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 552
+ * Covenant-baseline-loc: 562
  * Covenant-baseline-methods: InternalListener,MOVE,TextraWindow,TitleTable,_alpha,_color,_height,_isModal,_isMovable,_isResizable,_keepWithinStage,_maxHeight,_maxWidth,_minHeight,_minWidth,_padBottom,_padLeft,_padRight,_padTop,_resizeBorder,_style,_width,_x,_y,color,dragging,draw,drawBackground,drawStageBackground,drawTitleTable,edge,font,getBackground,getColor,getHeight,getMaxHeight,getMaxWidth,getMinHeight,getMinWidth,getPadBottom,getPadLeft,getPadRight,getPadTop,getPrefWidth,getResizeBorder,getRight,getStyle,getTitleLabel,getTitleTable,getTop,getWidth,getX,getY,hit,internalListener,invalidateHierarchy,isDragging,isModal,isMovable,isResizable,keepWithinStage,keyDown,keyTyped,keyUp,label,lastX,lastY,mouseMoved,newLabel,pack,padLeft2,padTop2,pw,scrolled,self,setBackground,setBounds,setColor,setHeight,setKeepWithinStage,setMaxHeight,setMaxWidth,setMinHeight,setMinWidth,setModal,setMovable,setPadBottom,setPadLeft,setPadRight,setPadTop,setPosition,setResizable,setResizeBorder,setSize,setStyle,setWidth,setX,setY,skipToTheEnd,startX,startY,this,titleLabel,titleTable,toFront,touchDown,touchDragged,touchUp,updateEdge,x,y
  * Covenant-source-reference: com/github/tommyettinger/textra/TextraWindow.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
@@ -38,7 +38,7 @@ import sge.utils.Align
   * @author
   *   Nathan Sweet
   */
-class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Font, scaleTitleFont: Boolean) {
+class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Font, scaleTitleFont: Boolean)(using Sge) {
 
   require(title != null, "title cannot be null.")
   require(replacementFont != null, "replacementFont cannot be null.")
@@ -80,16 +80,16 @@ class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
   // --- Constructors ---
   // Ordered so each secondary constructor calls either the primary or a previously-defined secondary.
 
-  def this(title: String, style: Styles.WindowStyle, replacementFont: Font) =
+  def this(title: String, style: Styles.WindowStyle, replacementFont: Font)(using Sge) =
     this(title, style, replacementFont, false)
 
-  def this(title: String, style: Styles.WindowStyle, scaleTitleFont: Boolean) =
+  def this(title: String, style: Styles.WindowStyle, scaleTitleFont: Boolean)(using Sge) =
     this(title, style, Nullable.fold(style.titleFont)(new Font())(identity), scaleTitleFont)
 
-  def this(title: String, style: Styles.WindowStyle) =
+  def this(title: String, style: Styles.WindowStyle)(using Sge) =
     this(title, style, Nullable.fold(style.titleFont)(new Font())(identity), false)
 
-  def this(title: String, skin: Skin) =
+  def this(title: String, skin: Skin)(using Sge) =
     this(
       title,
       skin.get(classOf[Styles.WindowStyle]),
@@ -97,7 +97,7 @@ class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
       false
     )
 
-  def this(title: String, skin: Skin, scaleTitleFont: Boolean) =
+  def this(title: String, skin: Skin, scaleTitleFont: Boolean)(using Sge) =
     this(
       title,
       skin.get(classOf[Styles.WindowStyle]),
@@ -105,7 +105,7 @@ class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
       scaleTitleFont
     )
 
-  def this(title: String, skin: Skin, styleName: String) =
+  def this(title: String, skin: Skin, styleName: String)(using Sge) =
     this(
       title,
       skin.get(styleName, classOf[Styles.WindowStyle]),
@@ -113,7 +113,7 @@ class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
       false
     )
 
-  def this(title: String, skin: Skin, styleName: String, scaleTitleFont: Boolean) =
+  def this(title: String, skin: Skin, styleName: String, scaleTitleFont: Boolean)(using Sge) =
     this(
       title,
       skin.get(styleName, classOf[Styles.WindowStyle]),
@@ -121,16 +121,16 @@ class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
       scaleTitleFont
     )
 
-  def this(title: String, skin: Skin, replacementFont: Font) =
+  def this(title: String, skin: Skin, replacementFont: Font)(using Sge) =
     this(title, skin.get(classOf[Styles.WindowStyle]), replacementFont, false)
 
-  def this(title: String, skin: Skin, replacementFont: Font, scaleTitleFont: Boolean) =
+  def this(title: String, skin: Skin, replacementFont: Font, scaleTitleFont: Boolean)(using Sge) =
     this(title, skin.get(classOf[Styles.WindowStyle]), replacementFont, scaleTitleFont)
 
-  def this(title: String, skin: Skin, styleName: String, replacementFont: Font) =
+  def this(title: String, skin: Skin, styleName: String, replacementFont: Font)(using Sge) =
     this(title, skin.get(styleName, classOf[Styles.WindowStyle]), replacementFont, false)
 
-  def this(title: String, skin: Skin, styleName: String, replacementFont: Font, scaleTitleFont: Boolean) =
+  def this(title: String, skin: Skin, styleName: String, replacementFont: Font, scaleTitleFont: Boolean)(using Sge) =
     this(title, skin.get(styleName, classOf[Styles.WindowStyle]), replacementFont, scaleTitleFont)
 
   // --- Init ---

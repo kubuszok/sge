@@ -38,7 +38,13 @@ import lowlevel.Nullable
 /** A scene2d.ui Widget that displays text using a Font rather than a libGDX BitmapFont. This supports being laid out in a Table. This permits square-bracket tag markup from Font. It does not support
   * the curly-brace token markup that its subclass TypingLabel does, nor does this handle input in the way TypingLabel can.
   */
-class TextraLabel {
+class TextraLabel(using Sge) {
+
+  /** The per-application [[Sge]] context this label was constructed with. Upstream resolves application globals (`Gdx.net`, `Gdx.app`) directly at use time; SGE has no globals, so the context is
+    * threaded through the constructor and captured here. Effects produced from markup that need the application — currently only `{LINK}`, which opens a URL via `Sge.net.openURI` (mirroring
+    * upstream's global `Gdx.net.openURI` in LinkEffect.java:58) — read it. Visible to `sge.textra.effects` (qualified-private to the `textra` package).
+    */
+  private[textra] val sgeContext: Sge = summon[Sge]
 
   var layout:         Layout = new Layout()
   protected var font: Font   = new Font()
@@ -93,7 +99,7 @@ class TextraLabel {
   }
 
   /** Creates a TextraLabel that uses the default font with white color. */
-  def this(dummy: Unit) = {
+  def this(dummy: Unit)(using Sge) = {
     this()
     layout = new Layout()
     font = new Font()
@@ -103,7 +109,7 @@ class TextraLabel {
   }
 
   /** Creates a TextraLabel with the given text and using the given style. */
-  def this(text: String, style: Styles.LabelStyle) = {
+  def this(text: String, style: Styles.LabelStyle)(using Sge) = {
     this()
     this.font = Nullable.fold(style.font)(new Font())(identity)
     this.layout = new Layout()
@@ -115,7 +121,7 @@ class TextraLabel {
   }
 
   /** Creates a TextraLabel with the given text and style, using a replacement font. */
-  def this(text: String, style: Styles.LabelStyle, replacementFont: Font) = {
+  def this(text: String, style: Styles.LabelStyle, replacementFont: Font)(using Sge) = {
     this()
     this.font = replacementFont
     this.layout = new Layout()
@@ -127,7 +133,7 @@ class TextraLabel {
   }
 
   /** Creates a TextraLabel with the given text and font. */
-  def this(text: String, font: Font) = {
+  def this(text: String, font: Font)(using Sge) = {
     this()
     this.font = font
     this.layout = new Layout()
@@ -138,7 +144,7 @@ class TextraLabel {
   }
 
   /** Creates a TextraLabel with the given text, font, and default color. */
-  def this(text: String, font: Font, color: Color) = {
+  def this(text: String, font: Font, color: Color)(using Sge) = {
     this()
     this.font = font
     this.layout = new Layout()
@@ -150,7 +156,7 @@ class TextraLabel {
   }
 
   /** Creates a TextraLabel with the given text, font, color, and justification. */
-  def this(text: String, font: Font, color: Color, justify: Justify) = {
+  def this(text: String, font: Font, color: Color, justify: Justify)(using Sge) = {
     this()
     this.font = font
     this.layout = new Layout()

@@ -13,10 +13,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 41
+ * Covenant-baseline-loc: 50
  * Covenant-baseline-methods: TypingSelectBox,label,newLabel,this
  * Covenant-source-reference: com/github/tommyettinger/textra/TypingSelectBox.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
@@ -35,11 +35,11 @@ import sge.utils.Align
   * @author
   *   Nathan Sweet
   */
-class TypingSelectBox(style: Styles.SelectBoxStyle) extends TextraSelectBox(style) {
+class TypingSelectBox(style: Styles.SelectBoxStyle)(using Sge) extends TextraSelectBox(style) {
 
-  def this(skin: Skin) = this(skin.get(classOf[Styles.SelectBoxStyle]))
+  def this(skin: Skin)(using Sge) = this(skin.get(classOf[Styles.SelectBoxStyle]))
 
-  def this(skin: Skin, styleName: String) = this(skin.get(styleName, classOf[Styles.SelectBoxStyle]))
+  def this(skin: Skin, styleName: String)(using Sge) = this(skin.get(styleName, classOf[Styles.SelectBoxStyle]))
 
   override protected def newLabel(markupText: String, font: Font, color: Color): TextraLabel = {
     val label = new TypingLabel(markupText, font, color)

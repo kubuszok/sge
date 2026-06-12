@@ -13,10 +13,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 88
+ * Covenant-baseline-loc: 97
  * Covenant-baseline-methods: TypingWindow,newLabel,this
  * Covenant-source-reference: com/github/tommyettinger/textra/TypingWindow.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
@@ -34,18 +34,18 @@ import lowlevel.Nullable
   * @author
   *   Nathan Sweet
   */
-class TypingWindow(title: String, style: Styles.WindowStyle, replacementFont: Font, scaleTitleFont: Boolean) extends TextraWindow(title, style, replacementFont, scaleTitleFont) {
+class TypingWindow(title: String, style: Styles.WindowStyle, replacementFont: Font, scaleTitleFont: Boolean)(using Sge) extends TextraWindow(title, style, replacementFont, scaleTitleFont) {
 
-  def this(title: String, style: Styles.WindowStyle, replacementFont: Font) =
+  def this(title: String, style: Styles.WindowStyle, replacementFont: Font)(using Sge) =
     this(title, style, replacementFont, false)
 
-  def this(title: String, style: Styles.WindowStyle, scaleTitleFont: Boolean) =
+  def this(title: String, style: Styles.WindowStyle, scaleTitleFont: Boolean)(using Sge) =
     this(title, style, Nullable.fold(style.titleFont)(new Font())(identity), scaleTitleFont)
 
-  def this(title: String, style: Styles.WindowStyle) =
+  def this(title: String, style: Styles.WindowStyle)(using Sge) =
     this(title, style, Nullable.fold(style.titleFont)(new Font())(identity), false)
 
-  def this(title: String, skin: Skin) =
+  def this(title: String, skin: Skin)(using Sge) =
     this(
       title,
       skin.get(classOf[Styles.WindowStyle]),
@@ -53,7 +53,7 @@ class TypingWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
       false
     )
 
-  def this(title: String, skin: Skin, scaleTitleFont: Boolean) =
+  def this(title: String, skin: Skin, scaleTitleFont: Boolean)(using Sge) =
     this(
       title,
       skin.get(classOf[Styles.WindowStyle]),
@@ -61,7 +61,7 @@ class TypingWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
       scaleTitleFont
     )
 
-  def this(title: String, skin: Skin, styleName: String) =
+  def this(title: String, skin: Skin, styleName: String)(using Sge) =
     this(
       title,
       skin.get(styleName, classOf[Styles.WindowStyle]),
@@ -69,7 +69,7 @@ class TypingWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
       false
     )
 
-  def this(title: String, skin: Skin, styleName: String, scaleTitleFont: Boolean) =
+  def this(title: String, skin: Skin, styleName: String, scaleTitleFont: Boolean)(using Sge) =
     this(
       title,
       skin.get(styleName, classOf[Styles.WindowStyle]),
@@ -77,16 +77,16 @@ class TypingWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
       scaleTitleFont
     )
 
-  def this(title: String, skin: Skin, replacementFont: Font) =
+  def this(title: String, skin: Skin, replacementFont: Font)(using Sge) =
     this(title, skin.get(classOf[Styles.WindowStyle]), replacementFont, false)
 
-  def this(title: String, skin: Skin, replacementFont: Font, scaleTitleFont: Boolean) =
+  def this(title: String, skin: Skin, replacementFont: Font, scaleTitleFont: Boolean)(using Sge) =
     this(title, skin.get(classOf[Styles.WindowStyle]), replacementFont, scaleTitleFont)
 
-  def this(title: String, skin: Skin, styleName: String, replacementFont: Font) =
+  def this(title: String, skin: Skin, styleName: String, replacementFont: Font)(using Sge) =
     this(title, skin.get(styleName, classOf[Styles.WindowStyle]), replacementFont, false)
 
-  def this(title: String, skin: Skin, styleName: String, replacementFont: Font, scaleTitleFont: Boolean) =
+  def this(title: String, skin: Skin, styleName: String, replacementFont: Font, scaleTitleFont: Boolean)(using Sge) =
     this(title, skin.get(styleName, classOf[Styles.WindowStyle]), replacementFont, scaleTitleFont)
 
   override protected def newLabel(text: String, style: Styles.LabelStyle): TextraLabel =

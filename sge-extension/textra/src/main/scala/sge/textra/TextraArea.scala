@@ -13,10 +13,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 172
+ * Covenant-baseline-loc: 182
  * Covenant-baseline-methods: TextraArea,drawCursor,getPrefHeight,getTextY,layoutHeight,lineHeight,linesHeight,moveCursorVertically,rf,s,textY,this
  * Covenant-source-reference: com/github/tommyettinger/textra/TextraArea.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
@@ -36,7 +36,7 @@ import sge.utils.Align
   * If you have to use Font but don't need multiple lines, TextraField should work. If you do need multiple-line input, you can use a libGDX BitmapFont with a scene2d.ui TextField. If you don't need
   * input, just selectable text, you can make a TypingLabel selectable with TypingLabel.setSelectable(boolean).
   */
-class TextraArea(initialText: Nullable[String], areaStyle: Styles.TextFieldStyle) extends TextraField {
+class TextraArea(initialText: Nullable[String], areaStyle: Styles.TextFieldStyle)(using Sge) extends TextraField {
 
   // --- Initialization ---
   {
@@ -67,7 +67,7 @@ class TextraArea(initialText: Nullable[String], areaStyle: Styles.TextFieldStyle
     updateDisplayText()
   }
 
-  def this(initialText: Nullable[String], areaStyle: Styles.TextFieldStyle, replacementFont: Font) = {
+  def this(initialText: Nullable[String], areaStyle: Styles.TextFieldStyle, replacementFont: Font)(using Sge) = {
     this(initialText, areaStyle)
     setStyle(areaStyle)
     val rf = new Font(replacementFont)

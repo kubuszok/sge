@@ -48,7 +48,7 @@ import lowlevel.Nullable
 /** An extension of TextraLabel that progressively shows the text as if it was being typed in real time, and allows the use of tokens in the format: {TOKEN=PARAMETER;ANOTHER_PARAMETER;MORE}. These
   * tokens can add various effects to spans of text.
   */
-class TypingLabel extends TextraLabel {
+class TypingLabel(using Sge) extends TextraLabel {
 
   // --- Collections ---
   private val variables: scala.collection.mutable.HashMap[String, String] = scala.collection.mutable.HashMap.empty
@@ -134,7 +134,7 @@ class TypingLabel extends TextraLabel {
   // --- Constructors ---
 
   /** Creates a TypingLabel with the given text and style. */
-  def this(text: String, style: Styles.LabelStyle) = {
+  def this(text: String, style: Styles.LabelStyle)(using Sge) = {
     this()
     this.font = Nullable.fold(style.font)(new Font())(identity)
     this.layout = new Layout()
@@ -148,7 +148,7 @@ class TypingLabel extends TextraLabel {
   }
 
   /** Creates a TypingLabel with the given text, style, and replacement font. */
-  def this(text: String, style: Styles.LabelStyle, replacementFont: Font) = {
+  def this(text: String, style: Styles.LabelStyle, replacementFont: Font)(using Sge) = {
     this()
     this.font = replacementFont
     this.layout = new Layout()
@@ -162,7 +162,7 @@ class TypingLabel extends TextraLabel {
   }
 
   /** Creates a TypingLabel with the given text and font. */
-  def this(text: String, font: Font) = {
+  def this(text: String, font: Font)(using Sge) = {
     this()
     this.font = font
     this.layout = new Layout()
@@ -173,7 +173,7 @@ class TypingLabel extends TextraLabel {
   }
 
   /** Creates a TypingLabel with the given text, font, and default color. */
-  def this(text: String, font: Font, color: Color) = {
+  def this(text: String, font: Font, color: Color)(using Sge) = {
     this()
     this.font = font
     this.layout = new Layout()

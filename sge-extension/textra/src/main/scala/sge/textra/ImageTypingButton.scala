@@ -11,10 +11,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 33
+ * Covenant-baseline-loc: 43
  * Covenant-baseline-methods: ImageTypingButton,newLabel,this
  * Covenant-source-reference: com/github/tommyettinger/textra/ImageTypingButton.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
@@ -29,9 +29,10 @@ class ImageTypingButton(
   text:            Nullable[String],
   style:           Styles.ImageTextButtonStyle,
   replacementFont: Font
-) extends ImageTextraButton(text, style, replacementFont) {
+)(using Sge)
+    extends ImageTextraButton(text, style, replacementFont) {
 
-  def this(text: Nullable[String], style: Styles.ImageTextButtonStyle) =
+  def this(text: Nullable[String], style: Styles.ImageTextButtonStyle)(using Sge) =
     this(text, style, Nullable.fold(style.font)(new Font())(f => new Font(f)))
 
   override protected def newLabel(text: String, style: Styles.LabelStyle): TextraLabel =
