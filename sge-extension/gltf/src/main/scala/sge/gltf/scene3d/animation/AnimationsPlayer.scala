@@ -7,10 +7,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 89
+ * Covenant-baseline-loc: 97
  * Covenant-baseline-methods: AnimationsPlayer,addAnimation,addAnimations,c,clearAnimations,controllers,dt,i,loopAll,n,playAll,removeAnimation,stopAll,update
  * Covenant-source-reference: net/mgsx/gltf/scene3d/animation/AnimationsPlayer.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  */
 package sge
 package gltf

@@ -7,10 +7,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 171
- * Covenant-baseline-methods: Scene,_animations,animationController,animations,cameras,copy,count,createCamera,createLight,getCamera,getDirectionalLightCount,getLight,getRenderables,initFromSceneModel,lights,modelInstance,result,syncCameras,syncLights,this,transform,update
+ * Covenant-baseline-loc: 183
+ * Covenant-baseline-methods: Scene,animationController,animations,animationsPlayerArg,cameras,copy,count,createCamera,createLight,getCamera,getDirectionalLightCount,getLight,getRenderables,initFromSceneModel,lights,modelInstance,result,syncCameras,syncLights,this,transform,update
  * Covenant-source-reference: net/mgsx/gltf/scene3d/scene/Scene.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  */
 package sge
 package gltf
@@ -32,24 +32,30 @@ import lowlevel.util.{ DynamicArray, ObjectMap }
 import sge.utils.{ Pool, SgeError }
 
 class Scene(
-  var modelInstance:       ModelInstance,
-  var animationController: AnimationController,
-  val lights:              ObjectMap[Node, BaseLight[?]],
-  val cameras:             ObjectMap[Node, Camera],
-  val animations:          AnimationsPlayer
+  var modelInstance:               ModelInstance,
+  var animationController:         AnimationController,
+  val lights:                      ObjectMap[Node, BaseLight[?]],
+  val cameras:                     ObjectMap[Node, Camera],
+  private val animationsPlayerArg: Nullable[AnimationsPlayer]
 ) extends RenderableProvider
     with Updatable {
 
-  def this(modelInstance: ModelInstance, animated: Boolean) = {
+  // Scene.java:37 `public final AnimationsPlayer animations;` — Scene.java:133
+  // the funnel ctor assigns `animations = new AnimationsPlayer(this)`, so every
+  // ctor path yields a non-null player. In Scala the 5-arg ctor is primary, so a
+  // caller-supplied player is honored here and otherwise defaults to a fresh one
+  // bound to `this` (referencing `this` in the class body is safe — the field has
+  // already been initialized; mirrors the GLTFExporter/CascadeShadowMap idiom).
+  val animations: AnimationsPlayer = animationsPlayerArg.getOrElse(AnimationsPlayer(this))
+
+  def this(modelInstance: ModelInstance, animated: Boolean) =
     this(
       modelInstance,
       if (animated) AnimationControllerHack(modelInstance) else null, // @nowarn — null when not animated
       ObjectMap[Node, BaseLight[?]](),
       ObjectMap[Node, Camera](),
-      null // @nowarn — initialized below
+      Nullable.empty // Scene.java:133 — default `new AnimationsPlayer(this)`, built in the class body
     )
-    // Re-assign animations (can't reference `this` in super constructor)
-  }
 
   def this(modelInstance: ModelInstance) =
     this(modelInstance, modelInstance.animations.size > 0)
@@ -69,9 +75,6 @@ class Scene(
     this(ModelInstanceHack(sceneModel.model, rootNodeIds*))
     initFromSceneModel(sceneModel)
   }
-
-  // Lazy-init animations player
-  private lazy val _animations: AnimationsPlayer = AnimationsPlayer(this)
 
   private def initFromSceneModel(sceneModel: SceneModel)(using Sge): Unit = {
     sceneModel.cameras.foreachEntry { (key, value) =>
@@ -122,7 +125,7 @@ class Scene(
     }
 
   override def update(camera: Camera, delta: Float): Unit = {
-    _animations.update(delta)
+    animations.update(delta) // Scene.java:141 — drive the public field
     syncCameras()
     syncLights()
   }
