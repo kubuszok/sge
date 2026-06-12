@@ -11,9 +11,10 @@
  *     JsonReader/JsonValue → sge.utils.Json (jsoniter-scala AST),
  *     GdxRuntimeException → RuntimeException
  *   Convention: Utility class for loading BitmapFont from Structured JSON Fonts.
- *     .json and .dat (LZB) formats fully supported. .ubj (UBJSON) and .lzma
- *     throw at runtime until UBJsonReader→Json AST bridge and Lzma decompression
- *     are ported (neither dependency exists in SGE core yet).
+ *     .json, .dat (LZB) and .json.lzma (LZMA, via the ported LzmaUtils codec in
+ *     this package) formats fully supported. .ubj and .ubj.lzma (UBJSON) report a
+ *     documented unsupported-format error, because SGE has no UBJsonReader→Json
+ *     AST bridge (only typed UBJsonCodec[T] derivation exists).
  *   Idiom: LZB decompression algorithm preserved for cross-platform use.
  *     boundary/break replaces return. Nullable replaces null.
  *   Merged with: decompressFromBytes is private in Java original but kept private
@@ -21,10 +22,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 486
+ * Covenant-baseline-loc: 517
  * Covenant-baseline-methods: BitmapFontSupport,JsonFontData,bits,c,cc,data,decompressFromBytes,dictSize,dictionary,done,emptyJsonArr,emptyJsonObj,enlargeIn,entry,i,index,jsonArr,jsonInt,jsonIntOr,jsonNum,jsonNumOr,jsonObj,length,load,loadStructuredJson,maxpower,numBits,position,power,regionArr,res,resb,resetValue,this,value,w
  * Covenant-source-reference: com/github/tommyettinger/textra/BitmapFontSupport.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
@@ -140,11 +141,30 @@ object BitmapFontSupport {
           } else if ("dat".equalsIgnoreCase(ext)) {
             jsonObj(sge.utils.readFromString[Json](decompressFromBytes(jsonFont.readBytes())))
           } else if ("ubj".equalsIgnoreCase(ext)) {
-            // UBJSON: requires UBJsonReader → Json AST bridge (not yet available in SGE)
-            throw new RuntimeException("UBJSON (.ubj) font loading is not yet supported: " + jsonFont.path)
+            // UBJSON: SGE has no UBJsonReader → Json AST bridge (only typed UBJsonCodec[T] derivation exists),
+            // so a .ubj payload cannot be parsed. Fail loudly instead of feeding binary to the JSON reader.
+            throw new RuntimeException(
+              "UBJSON font loading (.ubj) is not supported by SGE: " + jsonFont.path +
+                " — re-export the font as an uncompressed .json (or .json.lzma) Structured JSON file, or use the .fnt loader."
+            )
           } else if ("lzma".equalsIgnoreCase(ext)) {
-            // LZMA: requires sge.utils.compression.Lzma (not yet ported from LibGDX)
-            throw new RuntimeException("LZMA-compressed font loading is not yet supported: " + jsonFont.path)
+            // Upstream BitmapFontSupport.java JsonFontData.load (lines 150-169): decompress the standalone .lzma
+            // container with Lzma.decompress, then dispatch on the inner extension. LzmaUtils (same package) is
+            // the ported codec.
+            val decompressed = LzmaUtils.decompressBytes(jsonFont)
+            val nm           = jsonFont.name
+            if (nm.length > 10 && ".json.lzma".equalsIgnoreCase(nm.substring(nm.length - 10))) {
+              jsonObj(sge.utils.readFromString[Json](new String(decompressed, java.nio.charset.StandardCharsets.UTF_8)))
+            } else if (nm.length > 9 && ".ubj.lzma".equalsIgnoreCase(nm.substring(nm.length - 9))) {
+              // UBJSON: see the .ubj note above; no UBJsonReader → Json AST bridge in SGE.
+              throw new RuntimeException(
+                "UBJSON font loading (.ubj.lzma) is not supported by SGE: " + jsonFont.path +
+                  " — re-export the font as an uncompressed .json (or .json.lzma) Structured JSON file, or use the .fnt loader."
+              )
+            } else {
+              // Mirrors upstream's "Unsupported file type inside compressed file" branch.
+              throw new RuntimeException("Unsupported file type inside compressed file: " + jsonFont.path)
+            }
           } else {
             throw new RuntimeException("Not a .json, .dat, .ubj, .json.lzma, or .ubj.lzma font file: " + jsonFont.path)
           }

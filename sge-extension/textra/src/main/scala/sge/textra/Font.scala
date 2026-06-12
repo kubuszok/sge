@@ -24,10 +24,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 4241
- * Covenant-baseline-methods: ALTERNATE_MODES_MASK,BLACK_OUTLINE,BLUE_OUTLINE,BOLD,COLOR_MASK,CONTEXT,DROP_SHADOW,DistanceFieldType,ERROR,Font,FontFamily,GlyphRegion,HALO,JOSTLE,MIDSCRIPT,NEON,NOTE,OBLIQUE,PACKED_BLACK,PACKED_BLUE,PACKED_CONTEXT_COLOR,PACKED_ERROR_COLOR,PACKED_HALO_COLOR,PACKED_NOTE_COLOR,PACKED_RED,PACKED_SHADOW_COLOR,PACKED_SUGGEST_COLOR,PACKED_WARN_COLOR,PACKED_WHITE,PACKED_YELLOW,RED_OUTLINE,SHINY,SMALL_CAPS,STRIKETHROUGH,SUBSCRIPT,SUGGEST,SUPERSCRIPT,TexturelessAtlasRegion,TexturelessRegion,UNDERLINE,WARN,WHITE_OUTLINE,YELLOW_OUTLINE,a,actualCrispness,addAtlas,addImage,addSpacingGlyph,adjustCellWidth,adjustLineHeight,altMode,app,applyChar,applyColor,applyMode,applyStyle,atlas,atlasLookup,b,baseColor,baseline,batchAlpha,batchAlpha1_5,batchAlpha2,batchAlpha3,batchColor,batchShader,block,boldStrength,boxDrawingBreadth,breakChars,bu,bu2,bv,bv2,c,calculateSize,calculateXAdvances,canUseTextures,capitalize,capsLock,cellHeight,cellWidth,centerX,centerY,changedW,clearPaddingForBitmapFont,clearStatic,close,color,colorLookup,columns,connected,cos,cs,current,currentHeight,data,debugString,defaultValue,descent,dfType,dispose,distanceField,distanceFieldCrispness,drawBlockSequence,drawBlocks,drawColor,drawFancyLine,drawGlyph,drawGlyphs,drawMarkupText,drawText,drawVertices,dropShadowOffsetX,dropShadowOffsetY,earlier,ellipsis,emptyJsonArr,emptyJsonObj,enableShader,enableSquareBrackets,extractChar,extractColor,extractMode,extractStyle,family,fancyX,fancyY,files,finalizeFontCommon,finalizeJsonFont,fitCell,flip,flipX,flipY,fnt,fntHandle,font,fontAliases,fontIndex,fontShader,fsx,fsy,get,getBoldStrength,getBoxDrawingBreadth,getColorLookup,getCrispness,getDescent,getDistanceField,getFamily,getFancyLineX,getFancyLineY,getInlineImageOffsetX,getInlineImageOffsetY,getInlineImageStretch,getInlineImageXAdvance,getJsonExtension,getName,getObliqueStrength,getOutlineStrength,getStoredState,getStrikethroughX,getStrikethroughY,getUnderlineX,getUnderlineY,gi,glowStrength,glyph,glyphCount,glyphs,h,halfHeight,halfWidth,handleEllipsis,handleIntegerPosition,handleLineWrap,heightAdjust,i,idx,initial,inlineImageOffsetX,inlineImageOffsetY,inlineImageStretch,inlineImageXAdvance,insertZeroWidthSpacesInCJK,integerPosition,iph,ipw,isMono,iw,ix,iy,j,jsonArr,jsonInt,jsonIntOr,jsonNum,jsonNumOr,jsonObj,jsonStr,jsonStrOr,jsonStr_,justify,kern,kernArr,kerning,kerningPair,l,lc,len,ln,loadFNT,loadFromBitmapFont,loadJSON,loadSad,lowerCase,make,mapping,markup,markupGlyph,max,maxDimension,minWidth,missingId,modes,msdfFragmentShader,multiplyCrispness,n,name,nameLookup,namesByCC,namesByCharCode,nl,oCenterX,oCenterY,obliqueStrength,offsetX,offsetY,offsetYBm,omitCurlyBraces,originalCellHeight,originalCellWidth,originalScaleX,originalScaleY,osx,osy,outlineStrength,ox,oxc,oy,oyAdj,oyc,p0x,p0y,p1x,p1y,p2x,p2y,padding,paddingForBitmapFont,pages,parent,parents,parseModeFlags,pauseDistanceFieldShader,pre,previousWasLetter,regH,regenerateLayout,regionHeight,regionHeight_,regionWidth,regionWidth_,regionX,regionX_,regionY,regionY_,regions,removeStoredState,resizeDistanceField,resizeDistanceFields,resumeDistanceFieldShader,root,rotation,rows,scale,scaleCorrection,scaleHeightTo,scaleTo,scaleVal,scaleX,scaleXLocal,scaleY,scaleYLocal,scaledHeight,sclX,script,sdfBlackOutlineFragmentShader,sdfBlackOutlineFragmentShaderUsingDerivatives,sdfFragmentShader,sdfFragmentShaderUsingDerivatives,secondaryColor,setBoldStrength,setBoxDrawingBreadth,setColorLookup,setCrispness,setDescent,setDistanceField,setFamily,setFancyLinePosition,setInlineImageMetrics,setInlineImageStretch,setLineMetrics,setName,setObliqueStrength,setOutlineStrength,setPaddingForBitmapFont,setQuadVertices,setRegion,setRegionBounds,setSharing,setStrikethroughMetrics,setStrikethroughPosition,setTextureFilter,setUnderlineMetrics,setUnderlinePosition,shader,sharing,sin,size,sizingX,sizingY,smoothingValues,sn,solidBlock,solidBlockGR,space,spaceChars,squashed,start,storeState,storedStates,strikeBreadth,strikeLength,strikeX,strikeY,targetWidth,tex,this,tlHeight,tlWidth,tlX,tlY,toString,tr,trrh,u,u2,underBreadth,underLength,underX,underY,useIntegerPositions,v,v2,vertexShader,vertices,w,widthAdjust,wsx,x,x0,xAdjust,xAdvance,xOutline,xPx,xShift,xac,xc,y,y0,yAdjust,yGrid,yOutline,yPx,yShift,yt,zwSpace
+ * Covenant-baseline-loc: 4276
+ * Covenant-baseline-methods: ALTERNATE_MODES_MASK,BLACK_OUTLINE,BLUE_OUTLINE,BOLD,COLOR_MASK,CONTEXT,DROP_SHADOW,DistanceFieldType,ERROR,Font,FontFamily,GlyphRegion,HALO,JOSTLE,MIDSCRIPT,NEON,NOTE,OBLIQUE,PACKED_BLACK,PACKED_BLUE,PACKED_CONTEXT_COLOR,PACKED_ERROR_COLOR,PACKED_HALO_COLOR,PACKED_NOTE_COLOR,PACKED_RED,PACKED_SHADOW_COLOR,PACKED_SUGGEST_COLOR,PACKED_WARN_COLOR,PACKED_WHITE,PACKED_YELLOW,RED_OUTLINE,SHINY,SMALL_CAPS,STRIKETHROUGH,SUBSCRIPT,SUGGEST,SUPERSCRIPT,TexturelessAtlasRegion,TexturelessRegion,UNDERLINE,WARN,WHITE_OUTLINE,YELLOW_OUTLINE,a,actualCrispness,addAtlas,addImage,addSpacingGlyph,adjustCellWidth,adjustLineHeight,altMode,app,applyChar,applyColor,applyMode,applyStyle,atlas,atlasLookup,b,baseColor,baseline,batchAlpha,batchAlpha1_5,batchAlpha2,batchAlpha3,batchColor,batchShader,block,boldStrength,boxDrawingBreadth,breakChars,bu,bu2,bv,bv2,c,calculateSize,calculateXAdvances,canUseTextures,capitalize,capsLock,cellHeight,cellWidth,centerX,centerY,changedW,clearPaddingForBitmapFont,clearStatic,close,color,colorLookup,columns,connected,cos,cs,current,currentHeight,data,debugString,defaultValue,descent,dfType,dispose,distanceField,distanceFieldCrispness,drawBlockSequence,drawBlocks,drawColor,drawFancyLine,drawGlyph,drawGlyphs,drawMarkupText,drawText,drawVertices,dropShadowOffsetX,dropShadowOffsetY,earlier,ellipsis,emptyJsonArr,emptyJsonObj,enableShader,enableSquareBrackets,ext,extractChar,extractColor,extractMode,extractStyle,family,fancyX,fancyY,files,finalizeFontCommon,finalizeJsonFont,fitCell,flip,flipX,flipY,fnt,fntHandle,font,fontAliases,fontIndex,fontShader,fsx,fsy,get,getBoldStrength,getBoxDrawingBreadth,getColorLookup,getCrispness,getDescent,getDistanceField,getFamily,getFancyLineX,getFancyLineY,getInlineImageOffsetX,getInlineImageOffsetY,getInlineImageStretch,getInlineImageXAdvance,getJsonExtension,getName,getObliqueStrength,getOutlineStrength,getStoredState,getStrikethroughX,getStrikethroughY,getUnderlineX,getUnderlineY,gi,glowStrength,glyph,glyphCount,glyphs,h,halfHeight,halfWidth,handleEllipsis,handleIntegerPosition,handleLineWrap,heightAdjust,i,idx,initial,inlineImageOffsetX,inlineImageOffsetY,inlineImageStretch,inlineImageXAdvance,insertZeroWidthSpacesInCJK,integerPosition,iph,ipw,isMono,iw,ix,iy,j,jsonArr,jsonInt,jsonIntOr,jsonNum,jsonNumOr,jsonObj,jsonStr,jsonStrOr,jsonStr_,justify,kern,kernArr,kerning,kerningPair,l,lc,len,ln,loadFNT,loadFromBitmapFont,loadJSON,loadSad,lowerCase,make,mapping,markup,markupGlyph,max,maxDimension,minWidth,missingId,modes,msdfFragmentShader,multiplyCrispness,n,name,nameLookup,namesByCC,namesByCharCode,nl,oCenterX,oCenterY,obliqueStrength,offsetX,offsetY,offsetYBm,omitCurlyBraces,originalCellHeight,originalCellWidth,originalScaleX,originalScaleY,osx,osy,outlineStrength,ox,oxc,oy,oyAdj,oyc,p0x,p0y,p1x,p1y,p2x,p2y,padding,paddingForBitmapFont,pages,parent,parents,parseModeFlags,pauseDistanceFieldShader,pre,previousWasLetter,regH,regenerateLayout,regionHeight,regionHeight_,regionWidth,regionWidth_,regionX,regionX_,regionY,regionY_,regions,removeStoredState,resizeDistanceField,resizeDistanceFields,resumeDistanceFieldShader,root,rotation,rows,scale,scaleCorrection,scaleHeightTo,scaleTo,scaleVal,scaleX,scaleXLocal,scaleY,scaleYLocal,scaledHeight,sclX,script,sdfBlackOutlineFragmentShader,sdfBlackOutlineFragmentShaderUsingDerivatives,sdfFragmentShader,sdfFragmentShaderUsingDerivatives,secondaryColor,setBoldStrength,setBoxDrawingBreadth,setColorLookup,setCrispness,setDescent,setDistanceField,setFamily,setFancyLinePosition,setInlineImageMetrics,setInlineImageStretch,setLineMetrics,setName,setObliqueStrength,setOutlineStrength,setPaddingForBitmapFont,setQuadVertices,setRegion,setRegionBounds,setSharing,setStrikethroughMetrics,setStrikethroughPosition,setTextureFilter,setUnderlineMetrics,setUnderlinePosition,shader,sharing,sin,size,sizingX,sizingY,smoothingValues,sn,solidBlock,solidBlockGR,space,spaceChars,squashed,start,storeState,storedStates,strikeBreadth,strikeLength,strikeX,strikeY,targetWidth,tex,this,tlHeight,tlWidth,tlX,tlY,toString,tr,trrh,u,u2,underBreadth,underLength,underX,underY,useIntegerPositions,v,v2,vertexShader,vertices,w,widthAdjust,wsx,x,x0,xAdjust,xAdvance,xOutline,xPx,xShift,xac,xc,y,y0,yAdjust,yGrid,yOutline,yPx,yShift,yt,zwSpace
  * Covenant-source-reference: com/github/tommyettinger/textra/Font.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * Partial-port debt:
  *   - drawGlyph advanced effects: drop shadow, outlines, HALO, NEON, SHINY (need ColorUtils helpers)
@@ -47,7 +47,7 @@ import scala.util.boundary.break
 import sge.graphics.Color
 import sge.textra.utils.{ CaseInsensitiveIntMap, StringUtils }
 import lowlevel.Nullable
-import sge.utils.{ Json, given_JsonCodec_Json }
+import sge.utils.{ Json, SgeError, given_JsonCodec_Json }
 
 /** A replacement for libGDX's BitmapFont class, supporting additional markup to allow styling text with various effects. This includes the commonly-requested "faux bold" and oblique mode using one
   * font image; you don't need a bold and italic/oblique image separate from the book face. This also supports underline, strikethrough, subscript/superscript (and "midscript," for a height between
@@ -3347,16 +3347,44 @@ class Font {
     isMono = minWidth == cellWidth && kerning.isEmpty
   }
 
-  /** Loads a Structured JSON font file (from msdf-atlas-gen or fontwriter). Supports .json, .dat (LZB compressed) formats.
+  /** Loads a Structured JSON font file (from msdf-atlas-gen or fontwriter). Supports `.json`, `.json.lzma` (LZMA compressed), and `.dat` (LZB compressed) formats. The `.ubj`/`.ubj.lzma` (UBJSON)
+    * formats are recognized but reported as unsupported, because SGE has no UBJSON → JSON AST bridge (see the documented error below).
     */
   private[textra] def loadJSON(jsonHandle: sge.files.FileHandle, textureRegion: sge.graphics.g2d.TextureRegion, xAdj: Float, yAdj: Float, wAdj: Float, hAdj: Float, makeGridGlyphs: Boolean): Unit = {
     parents.clear()
     parents += textureRegion
     xAdjust = xAdj; yAdjust = yAdj; widthAdjust = wAdj; heightAdjust = hAdj
 
+    val ext     = jsonHandle.extension
     val jsonStr =
-      if (jsonHandle.extension == "dat") utils.LZBDecompression.decompressFromBytes(jsonHandle.readBytes())
-      else jsonHandle.readString(Nullable("UTF-8"))
+      if ("lzma".equalsIgnoreCase(ext)) {
+        // Upstream Font.java loadJSON (lines 3218-3237): decompress the standalone .lzma container with
+        // Lzma.decompress, then dispatch on the inner extension. LzmaUtils (same package) is the ported codec.
+        val decompressed = sge.textra.LzmaUtils.decompressBytes(jsonHandle)
+        val nm           = jsonHandle.name
+        if (nm.length > 10 && ".json.lzma".equalsIgnoreCase(nm.substring(nm.length - 10)))
+          new String(decompressed, java.nio.charset.StandardCharsets.UTF_8)
+        else if (nm.length > 9 && ".ubj.lzma".equalsIgnoreCase(nm.substring(nm.length - 9)))
+          // UBJSON: SGE has no UBJsonReader → Json AST bridge (only typed UBJsonCodec[T] derivation exists),
+          // so a .ubj.lzma payload cannot be parsed. Fail loudly instead of feeding binary to the JSON reader.
+          throw SgeError.InvalidInput(
+            "UBJSON font loading (.ubj.lzma) is not supported by SGE: " + jsonHandle.path +
+              " — re-export the font as an uncompressed .json (or .json.lzma) Structured JSON file, or use the .fnt loader."
+          )
+        else
+          // Mirrors upstream's "Unsupported file type inside compressed file" branch.
+          throw SgeError.InvalidInput("Unsupported file type inside compressed file: " + jsonHandle.path)
+      } else if ("ubj".equalsIgnoreCase(ext)) {
+        // UBJSON: see the .ubj.lzma note above; no UBJsonReader → Json AST bridge in SGE.
+        throw SgeError.InvalidInput(
+          "UBJSON font loading (.ubj) is not supported by SGE: " + jsonHandle.path +
+            " — re-export the font as an uncompressed .json (or .json.lzma) Structured JSON file, or use the .fnt loader."
+        )
+      } else if ("dat".equalsIgnoreCase(ext)) {
+        utils.LZBDecompression.decompressFromBytes(jsonHandle.readBytes())
+      } else {
+        jsonHandle.readString(Nullable("UTF-8"))
+      }
 
     val fnt  = sge.utils.readFromString[Json](jsonStr)
     val root = jsonObj(fnt)

@@ -15,20 +15,20 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 2580
- * Covenant-baseline-methods: BinTree,BitTreeDecoder,BitTreeEncoder,CrcTable,Decoder2,Encoder2,InWindow,LenDecoder,LenEncoder,LenPriceTableEncoder,LiteralDecoder,LiteralEncoder,Lzma,LzmaBase,LzmaDecoder,LzmaEncoder,LzmaUtils,Optimal,OutWindow,RangeDecoder,RangeEncoder,additionalOffset,alignPriceCount,alignPrices,backRes,backward,baseInit,blockSize,buffer,bufferBase,bufferOffset,cache,cacheSize,code,codeOneBlock,compress,copyBlock,create,createMatchFinder,cutValue,cyclicBufferPos,cyclicBufferSize,decode,decodeBit,decodeDirectBits,decodeNormal,decodeWithMatchByte,decompress,dictionarySize,dictionarySizeCheck,dictionarySizePrev,distTableSize,distancesPrices,encode,encodeDirectBits,encodeMatched,fillAlignPrices,fillDistancesPrices,finished,flush,flushData,flushStream,gFastPos,getByte,getDecoder,getIndexByte,getLenToPosState,getMatchLen,getMatches,getNumAvailableBytes,getOptimum,getPosLenPrice,getPosSlot,getPosSlot2,getPrice,getPrice0,getPrice1,getProcessedSizeAdd,getPureRepPrice,getRepLen1Price,getRepPrice,getSubCoder,hash,hashArray,hashMask,hashSizeSum,i,inStream,init,initBitModels,initEncoder,is,isFinished,isMatch,isMatchDecoders,isRep,isRep0Long,isRep0LongDecoders,isRepDecoders,isRepG0,isRepG0Decoders,isRepG1,isRepG1Decoders,isRepG2,isRepG2Decoders,isShortRep,kAlignMask,kAlignTableSize,kBT2HashSize,kBitModelTotal,kDefaultDictionaryLogSize,kDicLogSizeMin,kEmptyHashValue,kEndPosModelIndex,kFixHashSize,kHash2Size,kHash3Offset,kHash3Size,kIfinityPrice,kMatchMaxLen,kMatchMinLen,kMaxValForNormalize,kMinMatchCheck,kNumAlignBits,kNumBitModelTotalBits,kNumBitPriceShiftBits,kNumFastBytesDefault,kNumFullDistances,kNumHashDirectBytes,kNumHighLenBits,kNumLenSymbols,kNumLenToPosStates,kNumLenToPosStatesBits,kNumLitContextBitsMax,kNumLitPosStatesBitsEncodingMax,kNumLowLenBits,kNumLowLenSymbols,kNumMidLenBits,kNumMidLenSymbols,kNumMoveBits,kNumMoveReducingBits,kNumOpts,kNumPosModels,kNumPosSlotBits,kNumPosStatesBitsEncodingMax,kNumPosStatesBitsMax,kNumPosStatesEncodingMax,kNumPosStatesMax,kNumRepDistances,kNumStates,kStartMaxLen,kStartPosModelIndex,kTopMask,keepSizeAfter,keepSizeBefore,lenDecoder,lenEncoder,literalDecoder,literalEncoder,longestMatchLength,longestMatchWasFound,low,makeAsChar,makeAsShortRep,matchDistances,matchFinder,matchFinderType,matchMaxLen,matchPriceCount,models,moveBlock,movePos,needReleaseMFStream,normalize,normalizeLinks,nowPos64,numDistancePairs,numFastBytes,numFastBytesPrev,numLiteralContextBits,numLiteralPosStateBits,optimum,optimumCurrentIndex,optimumEndIndex,os,outWindow,pointerToLastSafePosition,pos,posAlignDecoder,posAlignEncoder,posDecoders,posEncoders,posLimit,posSlotDecoder,posSlotEncoder,posSlotPrices,posStateBits,posStateMask,position,previousByte,probPrices,processedInSize,processedOutSize,putByte,range,rangeDecoder,rangeEnc,readBlock,readMatchDistances,reduceOffsets,releaseMFStream,releaseStream,releaseStreams,repDistances,repLenDecoder,repLens,repMatchLenEncoder,reps,reverseDecode,reverseEncode,reverseGetPrice,setAlgorithm,setDecoderProperties,setDictionarySize,setEndMarkerMode,setLcLpPb,setMatchFinder,setNumFastBytes,setPrices,setStream,setStreams,setTableSize,setType,shiftLow,skip,son,state,stateInit,stateIsCharState,stateUpdateChar,stateUpdateMatch,stateUpdateRep,stateUpdateShortRep,stream,streamEndWasReached,streamPos,table,tempPrices,updateTable,updateTables,windowSize,writeCoderProperties,writeEndMark,writeEndMarker
+ * Covenant-baseline-loc: 2616
+ * Covenant-baseline-methods: BinTree,BitTreeDecoder,BitTreeEncoder,CrcTable,Decoder2,Encoder2,InWindow,LenDecoder,LenEncoder,LenPriceTableEncoder,LiteralDecoder,LiteralEncoder,Lzma,LzmaBase,LzmaDecoder,LzmaEncoder,LzmaUtils,Optimal,OutWindow,RangeDecoder,RangeEncoder,additionalOffset,alignPriceCount,alignPrices,backRes,backward,baseInit,blockSize,buffer,bufferBase,bufferOffset,cache,cacheSize,code,codeOneBlock,compress,copyBlock,create,createMatchFinder,cutValue,cyclicBufferPos,cyclicBufferSize,decode,decodeBit,decodeDirectBits,decodeNormal,decodeWithMatchByte,decompress,decompressBytes,dictionarySize,dictionarySizeCheck,dictionarySizePrev,distTableSize,distancesPrices,encode,encodeDirectBits,encodeMatched,fillAlignPrices,fillDistancesPrices,finished,flush,flushData,flushStream,gFastPos,getByte,getDecoder,getIndexByte,getLenToPosState,getMatchLen,getMatches,getNumAvailableBytes,getOptimum,getPosLenPrice,getPosSlot,getPosSlot2,getPrice,getPrice0,getPrice1,getProcessedSizeAdd,getPureRepPrice,getRepLen1Price,getRepPrice,getSubCoder,hash,hashArray,hashMask,hashSizeSum,i,inStream,init,initBitModels,initEncoder,is,isFinished,isMatch,isMatchDecoders,isRep,isRep0Long,isRep0LongDecoders,isRepDecoders,isRepG0,isRepG0Decoders,isRepG1,isRepG1Decoders,isRepG2,isRepG2Decoders,isShortRep,kAlignMask,kAlignTableSize,kBT2HashSize,kBitModelTotal,kDefaultDictionaryLogSize,kDicLogSizeMin,kEmptyHashValue,kEndPosModelIndex,kFixHashSize,kHash2Size,kHash3Offset,kHash3Size,kIfinityPrice,kMatchMaxLen,kMatchMinLen,kMaxValForNormalize,kMinMatchCheck,kNumAlignBits,kNumBitModelTotalBits,kNumBitPriceShiftBits,kNumFastBytesDefault,kNumFullDistances,kNumHashDirectBytes,kNumHighLenBits,kNumLenSymbols,kNumLenToPosStates,kNumLenToPosStatesBits,kNumLitContextBitsMax,kNumLitPosStatesBitsEncodingMax,kNumLowLenBits,kNumLowLenSymbols,kNumMidLenBits,kNumMidLenSymbols,kNumMoveBits,kNumMoveReducingBits,kNumOpts,kNumPosModels,kNumPosSlotBits,kNumPosStatesBitsEncodingMax,kNumPosStatesBitsMax,kNumPosStatesEncodingMax,kNumPosStatesMax,kNumRepDistances,kNumStates,kStartMaxLen,kStartPosModelIndex,kTopMask,keepSizeAfter,keepSizeBefore,lenDecoder,lenEncoder,literalDecoder,literalEncoder,longestMatchLength,longestMatchWasFound,low,makeAsChar,makeAsShortRep,matchDistances,matchFinder,matchFinderType,matchMaxLen,matchPriceCount,models,moveBlock,movePos,needReleaseMFStream,normalize,normalizeLinks,nowPos64,numDistancePairs,numFastBytes,numFastBytesPrev,numLiteralContextBits,numLiteralPosStateBits,optimum,optimumCurrentIndex,optimumEndIndex,os,outWindow,pointerToLastSafePosition,pos,posAlignDecoder,posAlignEncoder,posDecoders,posEncoders,posLimit,posSlotDecoder,posSlotEncoder,posSlotPrices,posStateBits,posStateMask,position,previousByte,probPrices,processedInSize,processedOutSize,putByte,range,rangeDecoder,rangeEnc,readBlock,readMatchDistances,reduceOffsets,releaseMFStream,releaseStream,releaseStreams,repDistances,repLenDecoder,repLens,repMatchLenEncoder,reps,reverseDecode,reverseEncode,reverseGetPrice,setAlgorithm,setDecoderProperties,setDictionarySize,setEndMarkerMode,setLcLpPb,setMatchFinder,setNumFastBytes,setPrices,setStream,setStreams,setTableSize,setType,shiftLow,skip,son,state,stateInit,stateIsCharState,stateUpdateChar,stateUpdateMatch,stateUpdateRep,stateUpdateShortRep,stream,streamEndWasReached,streamPos,table,tempPrices,updateTable,updateTables,windowSize,writeCoderProperties,writeEndMark,writeEndMarker
  * Covenant-source-reference: com/github/tommyettinger/textra/utils/LzmaUtils.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
 package textra
 
-import java.io.{ BufferedInputStream, InputStream, OutputStream }
+import java.io.{ BufferedInputStream, ByteArrayOutputStream, InputStream, OutputStream }
 
 import sge.files.FileHandle
-import sge.utils.SgeError
+import sge.utils.{ SgeError, StreamUtils }
 
 /** Simple static utilities to make using LZMA compression easier. This simply handles opening and closing compressed and decompressed files without needing to catch IOException. If something goes
   * wrong, this will throw an unchecked exception, an SgeError, with more information than the original IOException would have.
@@ -62,6 +62,33 @@ object LzmaUtils {
       if (os != null)
         try os.close()
         catch { case _: Exception => () } // @nowarn — Java stream interop
+    }
+  }
+
+  /** Given an {@code input} FileHandle compressed with the standalone LZMA container, decompresses it fully into memory and returns the decompressed bytes. This is the in-memory analogue of
+    * [[decompress]] used by callers that need the raw bytes rather than a FileHandle sink (e.g. Font.loadJSON / BitmapFontSupport.JsonFontData, which mirror textratypist's
+    * {@code Lzma.decompress(bais, baos)} followed by reading {@code baos}).
+    * @param input
+    *   the LZMA-compressed FileHandle to read; typically the file extension ends in ".lzma"
+    * @return
+    *   the decompressed bytes
+    */
+  def decompressBytes(input: FileHandle): Array[Byte] = {
+    var is: BufferedInputStream = null.asInstanceOf[BufferedInputStream] // @nowarn — Java stream interop
+    val os = new ByteArrayOutputStream(4096)
+    try {
+      is = input.read(4096)
+      Lzma.decompress(is, os)
+      os.toByteArray
+    } catch {
+      case e: Exception =>
+        System.out.println(
+          "Decompression failed! " + input + " could not be decompressed because of the IOException: " + e.getMessage
+        )
+        throw SgeError.InvalidInput("Decompression failed! " + input + " could not be decompressed", Some(e))
+    } finally {
+      StreamUtils.closeQuietly(is)
+      StreamUtils.closeQuietly(os)
     }
   }
 
