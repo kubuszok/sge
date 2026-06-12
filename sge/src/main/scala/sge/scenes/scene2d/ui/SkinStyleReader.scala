@@ -10,10 +10,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 708
- * Covenant-baseline-methods: SkinStyleReader,copyFrom,create,registry,resolveColor,resolveFloat,resolveNullableColor,resolveNullableDrawable,resolveNullableFont,resolveStyle,setField,withColor,withDrawable,withFont,withStyle
- * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-baseline-loc: 740
+ * Covenant-baseline-methods: SkinStyleReader,copyFrom,create,lookup,register,registry,resolveColor,resolveFloat,resolveNullableColor,resolveNullableDrawable,resolveNullableFont,resolveStyle,setField,withColor,withDrawable,withFont,withStyle
+ * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Skin.java
+ * Covenant-verified: 2026-06-12
  */
 package sge
 package scenes
@@ -712,4 +712,29 @@ object SkinStyleReader {
     classOf[Tree.TreeStyle] -> treeStyleReader,
     classOf[Window.WindowStyle] -> windowStyleReader
   )
+
+  // ---------------------------------------------------------------------------
+  // Extension registration seam (ISS-515)
+  // ---------------------------------------------------------------------------
+  //
+  // Companion of the [[Skin]] extension seam: an out-of-tree module (e.g. VisUI)
+  // registers readers for its own style classes here, before constructing a
+  // Skin, so that [[Skin.readStyleObject]] can dispatch to them. The built-in
+  // [[registry]] is consulted first; extension readers fill the gap reflection
+  // used to cover in the original libGDX Skin. Step toward the general closed-
+  // registry mechanism tracked by ISS-534.
+
+  @volatile private var extensionReaders: Map[Class[?], SkinStyleReader[?]] = Map.empty
+
+  /** Registers readers for additional style classes (e.g. VisUI widget styles). Must be called before constructing the [[Skin]] that parses those styles. Built-in readers take precedence.
+    *
+    * @see
+    *   ISS-534 for the general closed-registry mechanism this is a step toward.
+    */
+  def register(readers: Map[Class[?], SkinStyleReader[?]]): Unit =
+    extensionReaders = extensionReaders ++ readers
+
+  /** Looks up the reader for a style class, consulting the built-in [[registry]] first, then extension-registered readers ([[register]]). */
+  def lookup(tpe: Class[?]): Option[SkinStyleReader[?]] =
+    registry.get(tpe).orElse(extensionReaders.get(tpe))
 }

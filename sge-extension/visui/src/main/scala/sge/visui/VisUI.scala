@@ -7,10 +7,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 133
+ * Covenant-baseline-loc: 150
  * Covenant-baseline-methods: SkinScale,TARGET_SGE_VERSION,VisUI,_defaultTitleAlign,_scale,_sgeInstance,_skin,_skipSgeVersionCheck,checkBeforeLoad,defaultTitleAlign,defaultTitleAlign_,dispose,getDefaultTitleAlign,getSizes,getSizesName,getSkin,getSkinFile,isLoaded,load,setDefaultTitleAlign,setSkipSgeVersionCheck,sgeInstance
  * Covenant-source-reference: com/kotcrab/vis/ui/VisUI.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
@@ -80,6 +80,13 @@ object VisUI {
   }
 
   private def checkBeforeLoad()(using Sge): Unit = {
+    // Register VisUI's skin JSON class tags and style readers with the core Skin
+    // before any skin is parsed. The upstream VisUI relies on libGDX Skin's
+    // reflection to resolve its FQCN-keyed style sections (com.kotcrab.vis.ui.Sizes,
+    // VisTextButton$VisTextButtonStyle, ...); the SGE Skin uses an explicit,
+    // reflection-free registry, so VisUI must contribute its mappings here. This
+    // is the seam added for ISS-515 (general mechanism tracked by ISS-534).
+    VisUISkinReaders.register()
     if (_skin.isDefined) throw new IllegalStateException("VisUI cannot be loaded twice")
     if (!_skipSgeVersionCheck && Version.VERSION != TARGET_SGE_VERSION) {
       Log.warn(

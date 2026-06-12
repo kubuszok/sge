@@ -59,14 +59,9 @@ class GlyphLayoutAlignRedSuite extends munit.FunSuite {
     g
   }
 
-  /** Registers a glyph by writing the page array directly. BitmapFontData.setGlyph cannot be used here: data.glyphs pages are zero-length (not null) arrays, so its `Nullable(page).isEmpty` check
-    * never allocates a page and indexing throws ArrayIndexOutOfBoundsException — an unrelated pre-existing bug this suite must not depend on.
-    */
-  private def registerGlyph(data: BitmapFontData, g: BitmapFont.Glyph): Unit = {
-    val page = g.id / BitmapFont.PAGE_SIZE
-    if (data.glyphs(page).length == 0) data.glyphs(page) = new Array[BitmapFont.Glyph](BitmapFont.PAGE_SIZE)
-    data.glyphs(page)(g.id & (BitmapFont.PAGE_SIZE - 1)) = g
-  }
+  /** Registers a glyph via the public BitmapFontData.setGlyph API (ISS-579 fixed: glyph pages start null and are allocated lazily, matching libGDX). */
+  private def registerGlyph(data: BitmapFontData, g: BitmapFont.Glyph): Unit =
+    data.setGlyph(g.id, g)
 
   /** Font metrics used in every trace below: capHeight=10, down=-12, scaleX=1, padLeft=padRight=0, spaceXadvance=10. Glyphs 'a','b': xadvance=10, width=9 => getGlyphWidth (Java line 449) = (9+0)*1-0 =
     * 9; first xAdvance (BitmapFontData.getGlyphs) = -xoffset*scaleX-padLeft = 0. For "ab": xAdvances = [0,10,9] (last entry set to glyph width 9 by setLastGlyphXAdvance, Java lines 441-445), so

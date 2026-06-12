@@ -18,10 +18,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 710
+ * Covenant-baseline-loc: 730
  * Covenant-baseline-methods: BitmapFont,BitmapFontData,Glyph,LOG2_PAGE_SIZE,PAGES,PAGE_SIZE,ascent,blankLineScale,breakChars,cache,capChars,capHeight,ch,close,color,color_,currentLastGlyph,cursorX,descent,down,draw,firstGlyph,fixedWidth,flipped,fontData,getGlyph,getGlyphs,getImagePath,getKerning,getWrapIndex,glyphs,glyphsArray,hasGlyph,height,i,id,imagePaths,indexOf,integerPositions,integerPositions_,invTexHeight,invTexWidth,isBreakChar,isWhitespace,kerning,layout,lineHeight,load,loadRegions,markupEnabled,markupEnabledLocal,max,maxAdvance,missingGlyph,n,name,newFontCache,offsetX,offsetY,ownsTexture,padBottom,padLeft,padRight,padTop,page,reader,region,regionHeight,regionWidth,regions,scale,scaleX,scaleXLocal,scaleY,setFixedWidthGlyphs,setGlyph,setGlyphRegion,setKerning,setLineHeight,setScale,spaceXadvance,srcX,srcY,texture,this,toString,u,u2,v,v2,width,x,x2,xAdvances,xChars,xHeight,xadvance,xoffset,y,y2,yoffset
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/BitmapFont.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: 146c7a9152b1c9348907b440c606c5828d412389
  */
@@ -236,7 +236,11 @@ object BitmapFont {
       }
 
     def setKerning(ch: Int, value: Int): Unit = {
-      if (kerning.isEmpty) kerning = Nullable(Array.ofDim[Byte](PAGES, 0))
+      // libGDX: `new byte[PAGES][]` — PAGES null rows, allocated lazily below. The
+      // prior Array.ofDim[Byte](PAGES, 0) pre-filled each row with a length-0
+      // (non-null) array, so the isEmpty check skipped allocation and the assignment
+      // wrote out of bounds (AIOOBE) for any font with a kernings section.
+      if (kerning.isEmpty) kerning = Nullable(new Array[Array[Byte]](PAGES))
       kerning.foreach { k =>
         var page = k(ch >>> LOG2_PAGE_SIZE)
         if (Nullable(page).isEmpty) {
@@ -269,7 +273,12 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
   var markupEnabled:  Boolean                 = false
   var cursorX:        Float                   = 0f
 
-  val glyphs:       Array[Array[BitmapFont.Glyph]] = Array.ofDim[BitmapFont.Glyph](BitmapFont.PAGES, 0)
+  // libGDX: `new Glyph[PAGES][]` — a PAGES-length array whose rows start null and
+  // are allocated lazily in setGlyph. Array.ofDim(PAGES, 0) was wrong: it pre-filled
+  // each row with a length-0 (non-null) array, so setGlyph never allocated and wrote
+  // out of bounds (AIOOBE) when parsing a real .fnt. New Array[Row](PAGES) leaves
+  // every row null, matching the original.
+  val glyphs:       Array[Array[BitmapFont.Glyph]] = new Array[Array[BitmapFont.Glyph]](BitmapFont.PAGES)
   var missingGlyph: Nullable[BitmapFont.Glyph]     = Nullable.empty
 
   var spaceXadvance: Float = 0f

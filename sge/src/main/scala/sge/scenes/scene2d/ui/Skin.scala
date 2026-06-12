@@ -14,10 +14,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 747
- * Covenant-baseline-methods: Skin,TintedDrawable,_atlas,_scale,add,addRegions,addType,atlas,atlasFile,classTagMap,close,color,colorJson,drawable,drawableName,existing,find,flip,fontFile,get,getAll,getBoolField,getColor,getDrawable,getField,getFloatField,getFont,getJsonClassTags,getPatch,getRegion,getRegions,getSprite,getStringField,getTiledDrawable,has,i,load,markupEnabled,n,name,newDrawable,newRegion,obj,optional,path,readBitmapFont,readColor,readNamedObjects,readStyleObject,readTintedDrawable,readValue,reader,region,regionName,regions,remove,resolveClass,resource,resources,result,scale,scaledSize,setEnabled,setScale,style,styleParentTypes,tex,texture,this,tiled,typeResources,useIntPositions
+ * Covenant-baseline-loc: 799
+ * Covenant-baseline-methods: Skin,TintedDrawable,_atlas,_scale,add,addRegions,addType,atlas,atlasFile,classTagMap,close,color,colorJson,drawable,drawableName,existing,find,flip,fontFile,get,getAll,getBoolField,getColor,getDrawable,getField,getFloatField,getFont,getJsonClassTags,getPatch,getRegion,getRegions,getSprite,getStringField,getTiledDrawable,has,i,load,markupEnabled,name,newDrawable,newRegion,obj,optional,parentTypesOf,path,readBitmapFont,readColor,readNamedObjects,readStyleObject,readTintedDrawable,readValue,reader,region,regionName,regions,registerJsonClassTags,remove,resolveClass,resource,resources,result,scale,scaledSize,setEnabled,setScale,style,styleParentTypes,tex,texture,this,tiled,typeResources,useIntPositions
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Skin.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: ea21f93c17600dcb50b15eeacd752bf97aa39570
  */
@@ -25,8 +25,6 @@ package sge
 package scenes
 package scene2d
 package ui
-
-import sge.utils.given
 
 import sge.files.FileHandle
 import sge.graphics.Color
@@ -47,10 +45,10 @@ import sge.scenes.scene2d.utils.TextureRegionDrawable
 import sge.scenes.scene2d.utils.TiledDrawable
 import lowlevel.util.DynamicArray
 import sge.utils.Json
+import sge.utils.LenientJson
 import lowlevel.Nullable
 import lowlevel.leanView
 import sge.utils.SgeError
-import sge.utils.readJson
 
 import scala.reflect.ClassTag
 
@@ -103,7 +101,12 @@ class Skin()(using Sge) extends AutoCloseable {
   /** Adds all resources in the specified skin JSON file. */
   def load(skinFile: FileHandle): Unit =
     try {
-      val root = skinFile.readJson[Json]
+      // Skin JSON authored against libGDX (including third-party skins like
+      // VisUI's) uses libGDX's lenient JSON dialect — unquoted object names
+      // and values, optional commas, // and block comments — which the strict
+      // jsoniter reader rejects. Parse it through the lenient reader that mirrors
+      // libGDX's JsonReader so stock skins load unchanged.
+      val root = LenientJson.parse(skinFile.readString(Nullable("UTF-8")))
       root match {
         case Json.Obj(rootObj) =>
           rootObj.fields.foreach { case (typeName, typeValue) =>
@@ -233,14 +236,14 @@ class Skin()(using Sge) extends AutoCloseable {
 
   /** Reads a style object from JSON using SkinStyleReader type class dispatch. Supports "parent" field for style inheritance. */
   private[ui] def readStyleObject(tpe: Class[?], json: Json): Any = {
-    val reader = SkinStyleReader.registry.getOrElse(tpe, throw SgeError.InvalidInput("No style reader registered for: " + tpe.getName)).asInstanceOf[SkinStyleReader[Any]]
+    val reader = SkinStyleReader.lookup(tpe).getOrElse(throw SgeError.InvalidInput("No style reader registered for: " + tpe.getName)).asInstanceOf[SkinStyleReader[Any]]
     val obj    = reader.create()
 
     // Handle parent field: copy all fields from the named parent resource.
     // Uses a compile-time type hierarchy instead of getSuperclass() for Scala.js compatibility.
     Skin.getField(json, "parent").foreach {
       case Json.Str(parentName) =>
-        val typesToTry = tpe :: Skin.styleParentTypes.getOrElse(tpe, Nil)
+        val typesToTry = tpe :: Skin.parentTypesOf(tpe)
         var found      = false
         for (parentType <- typesToTry if !found)
           try {
@@ -624,7 +627,7 @@ class Skin()(using Sge) extends AutoCloseable {
   /** Returns the map used to look up JSON class tags. The map can be modified before calling {@link #load(FileHandle)}. By default the map is populated with the simple class names of classes commonly
     * used in skins.
     */
-  def getJsonClassTags: Map[String, Class[?]] = Skin.classTagMap
+  def getJsonClassTags: Map[String, Class[?]] = Skin.classTagMap ++ Skin.extensionClassTags
 
   /** Disposes the {@link TextureAtlas} and all {@link AutoCloseable} resources in the skin. */
   override def close(): Unit = {
@@ -712,10 +715,53 @@ object Skin {
     classOf[Slider.SliderStyle] -> List(classOf[ProgressBar.ProgressBarStyle])
   )
 
-  /** Resolves a type name from skin JSON to a Class. Uses a hardcoded map instead of Class.forName for Scala.js/Native compatibility.
+  // ---------------------------------------------------------------------------
+  // Extension registration seam (ISS-515)
+  // ---------------------------------------------------------------------------
+  //
+  // The original libGDX Skin resolves JSON type-name strings to classes via
+  // Java reflection (ClassReflection.forName) and sets fields reflectively, so a
+  // skin produced by an external library (e.g. VisUI) "just works" once that
+  // library's classes are on the classpath. The SGE port replaced reflection
+  // with the hardcoded [[classTagMap]] / [[SkinStyleReader.registry]] for
+  // Scala.js/Native compatibility, which closed that extension point: an
+  // out-of-tree module cannot teach Skin about its own style classes.
+  //
+  // This seam reopens it minimally for cross-module skins: an extension
+  // registers (a) its JSON tag-name -> Class mappings here and (b) its
+  // Class -> SkinStyleReader mappings via [[SkinStyleReader.register]] before
+  // constructing a Skin. Resolution consults the extension maps after the
+  // built-in ones, so built-in behavior is unchanged.
+  //
+  // This is deliberately a narrow registration point, not the full closed-
+  // registry redesign tracked by ISS-534 (custom styles unloadable). It is a
+  // first step toward that general mechanism, kept small on purpose.
+
+  @volatile private var extensionClassTags:        Map[String, Class[?]]         = Map.empty
+  @volatile private var extensionStyleParentTypes: Map[Class[?], List[Class[?]]] = Map.empty
+
+  /** Registers additional JSON class-tag names so that skins authored against external libraries (e.g. VisUI) can be parsed. Tag names are the fully-qualified type strings used as the top-level keys
+    * in skin JSON (e.g. {@code com.kotcrab.vis.ui.Sizes}). Must be called before constructing the [[Skin]]. Built-in tags take precedence; registering an existing name is a no-op for that name.
+    *
+    * Optionally provide style-class parent hierarchies (used for the JSON "parent" field) for the registered style types via {@code parentTypes}, mirroring the built-in [[styleParentTypes]].
+    *
+    * @see
+    *   ISS-534 for the general closed-registry mechanism this is a step toward.
+    */
+  def registerJsonClassTags(tags: Map[String, Class[?]], parentTypes: Map[Class[?], List[Class[?]]] = Map.empty): Unit = {
+    extensionClassTags = extensionClassTags ++ tags
+    extensionStyleParentTypes = extensionStyleParentTypes ++ parentTypes
+  }
+
+  /** Resolves a type name from skin JSON to a Class. Uses a hardcoded map instead of Class.forName for Scala.js/Native compatibility. Extension-registered tags ([[registerJsonClassTags]]) are
+    * consulted after the built-in map.
     */
   private def resolveClass(name: String): Option[Class[?]] =
-    classTagMap.get(name)
+    classTagMap.get(name).orElse(extensionClassTags.get(name))
+
+  /** Returns the registered parent types for a style class, consulting the built-in [[styleParentTypes]] first, then extension-registered hierarchies. */
+  private def parentTypesOf(tpe: Class[?]): List[Class[?]] =
+    styleParentTypes.getOrElse(tpe, extensionStyleParentTypes.getOrElse(tpe, Nil))
 
   // ---------------------------------------------------------------------------
   // JSON field access helpers
