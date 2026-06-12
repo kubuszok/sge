@@ -6,10 +6,10 @@
  *
  * Covenant: partial-port
  * Covenant-source-reference: net/mgsx/gltf/loaders/shared/GLTFTypes.java
- * Covenant-verified: 2026-04-08
+ * Covenant-verified: 2026-06-12
  *
  * Partial-port debt:
- *   - One inherited TODO at line 106 ("is it the proper way to do it?") — needs upstream
+ *   - One inherited TODO at line 167 ("is it the proper way to do it?") — needs upstream
  *     review against the original Java to confirm semantics.
  *
  * upstream-commit: 683054a88382f71e8472abbc1c29931277c1cf22
@@ -93,7 +93,7 @@ object GLTFTypes {
 
   def map(v: CubicQuaternion, fv: Array[Float], offset: Int): CubicQuaternion = {
     v.tangentIn.set(fv(offset + 0), fv(offset + 1), fv(offset + 2), fv(offset + 3))
-    v.value.set(fv(offset + 4), fv(offset + 5), fv(offset + 6), fv(offset + 7))
+    v.set(fv(offset + 4), fv(offset + 5), fv(offset + 6), fv(offset + 7)) // CubicQuaternion IS a Quaternion: its own x/y/z/w hold the value (GLTFTypes.java:97 `v.set(...)`)
     v.tangentOut.set(fv(offset + 8), fv(offset + 9), fv(offset + 10), fv(offset + 11))
     v
   }

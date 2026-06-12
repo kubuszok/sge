@@ -6,10 +6,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 221
+ * Covenant-baseline-loc: 235
  * Covenant-baseline-methods: AnimationLoader,animMap,animation,animations,load,toSceneInterpolation
  * Covenant-source-reference: net/mgsx/gltf/loaders/shared/animation/AnimationLoader.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  */
 package sge
 package gltf
@@ -92,23 +92,29 @@ class AnimationLoader {
         val property = glChannel.target.get.path.get
         if ("translation" == property) {
 
-          nodeAnimation.asInstanceOf[NodeAnimationHack].translationMode = Nullable(toSceneInterpolation(interpolation))
+          val nah = nodeAnimation.asInstanceOf[NodeAnimationHack]
+          nah.translationMode = Nullable(toSceneInterpolation(interpolation))
 
           val translationKf = DynamicArray[NodeKeyframe[Vector3]]()
           if (interpolation == Interpolation.CUBICSPLINE) {
+            // Vector3 is a final case class in SGE, so CubicVector3 cannot subtype it (see CubicVector3.scala):
+            // the keyframe carries the plain value Vector3 while the CubicVector3 (value + tangents) is kept
+            // in a parallel array on NodeAnimationHack, index-aligned with translationKf.
+            val translationCubic = DynamicArray[CubicVector3]()
             // copy first frame if not at zero time
             if (inputData(0) > 0) {
-              translationKf.add(
-                new NodeKeyframe[Vector3](0, GLTFTypes.map(CubicVector3(), outputData, 0).asInstanceOf[AnyRef].asInstanceOf[Vector3])
-              ) // @nowarn — cubic stored as Vector3 for keyframe erasure
+              val cv = GLTFTypes.map(CubicVector3(), outputData, 0)
+              translationKf.add(new NodeKeyframe[Vector3](0, cv.value))
+              translationCubic.add(cv)
             }
             var k = 0
             while (k < inputData.length) {
-              translationKf.add(
-                new NodeKeyframe[Vector3](inputData(k), GLTFTypes.map(CubicVector3(), outputData, k * dataStride * 3).asInstanceOf[AnyRef].asInstanceOf[Vector3])
-              ) // @nowarn — cubic stored as Vector3 for keyframe erasure
+              val cv = GLTFTypes.map(CubicVector3(), outputData, k * dataStride * 3)
+              translationKf.add(new NodeKeyframe[Vector3](inputData(k), cv.value))
+              translationCubic.add(cv)
               k += 1
             }
+            nah.translationCubic = Nullable(translationCubic)
           } else {
             // copy first frame if not at zero time
             if (inputData(0) > 0) {
@@ -127,17 +133,15 @@ class AnimationLoader {
 
           val rotationKf = DynamicArray[NodeKeyframe[Quaternion]]()
           if (interpolation == Interpolation.CUBICSPLINE) {
+            // CubicQuaternion extends Quaternion (CubicQuaternion.scala), exactly as in gdx-gltf
+            // (AnimationLoader.java:110/113), so it is stored directly as the keyframe value with no cast.
             // copy first frame if not at zero time
             if (inputData(0) > 0) {
-              rotationKf.add(
-                new NodeKeyframe[Quaternion](0, GLTFTypes.map(CubicQuaternion(), outputData, 0).asInstanceOf[AnyRef].asInstanceOf[Quaternion])
-              ) // @nowarn — cubic stored as Quaternion for keyframe erasure
+              rotationKf.add(new NodeKeyframe[Quaternion](0, GLTFTypes.map(new CubicQuaternion(), outputData, 0)))
             }
             var k = 0
             while (k < inputData.length) {
-              rotationKf.add(
-                new NodeKeyframe[Quaternion](inputData(k), GLTFTypes.map(CubicQuaternion(), outputData, k * dataStride * 4).asInstanceOf[AnyRef].asInstanceOf[Quaternion])
-              ) // @nowarn — cubic stored as Quaternion for keyframe erasure
+              rotationKf.add(new NodeKeyframe[Quaternion](inputData(k), GLTFTypes.map(new CubicQuaternion(), outputData, k * dataStride * 4)))
               k += 1
             }
           } else {
@@ -154,23 +158,27 @@ class AnimationLoader {
           nodeAnimation.rotation = rotationKf
         } else if ("scale" == property) {
 
-          nodeAnimation.asInstanceOf[NodeAnimationHack].scalingMode = Nullable(toSceneInterpolation(interpolation))
+          val nahS = nodeAnimation.asInstanceOf[NodeAnimationHack]
+          nahS.scalingMode = Nullable(toSceneInterpolation(interpolation))
 
           val scalingKf = DynamicArray[NodeKeyframe[Vector3]]()
           if (interpolation == Interpolation.CUBICSPLINE) {
+            // see translation branch: cubic data kept in a parallel array on NodeAnimationHack (Vector3 is a final case class).
+            val scalingCubic = DynamicArray[CubicVector3]()
             // copy first frame if not at zero time
             if (inputData(0) > 0) {
-              scalingKf.add(
-                new NodeKeyframe[Vector3](0, GLTFTypes.map(CubicVector3(), outputData, 0).asInstanceOf[AnyRef].asInstanceOf[Vector3])
-              ) // @nowarn — cubic stored as Vector3 for keyframe erasure
+              val cv = GLTFTypes.map(CubicVector3(), outputData, 0)
+              scalingKf.add(new NodeKeyframe[Vector3](0, cv.value))
+              scalingCubic.add(cv)
             }
             var k = 0
             while (k < inputData.length) {
-              scalingKf.add(
-                new NodeKeyframe[Vector3](inputData(k), GLTFTypes.map(CubicVector3(), outputData, k * dataStride * 3).asInstanceOf[AnyRef].asInstanceOf[Vector3])
-              ) // @nowarn — cubic stored as Vector3 for keyframe erasure
+              val cv = GLTFTypes.map(CubicVector3(), outputData, k * dataStride * 3)
+              scalingKf.add(new NodeKeyframe[Vector3](inputData(k), cv.value))
+              scalingCubic.add(cv)
               k += 1
             }
+            nahS.scalingCubic = Nullable(scalingCubic)
           } else {
             // copy first frame if not at zero time
             if (inputData(0) > 0) {

@@ -9,10 +9,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 433
+ * Covenant-baseline-loc: 450
  * Covenant-baseline-methods: AnimationControllerHack,Transform,apply,applyAnimation,applyAnimationPlus,applyAnimations,applyNodeAnimationBlending,applyNodeAnimationDirectly,applying,begin,calculateTransforms,cubicQ,cubicV3,cubicW,d,end,existingOpt,getFirstKeyframeIndexAtTime,getMorphTargetAtTime,getNodeAnimationTransform,getRotationAtTime,getScalingAtTime,getTranslationAtTime,i,idt,index,initialCapacity,interpolation,lerp,max,n,newObject,node,q1,q2,q3,q4,reset,rot,rotation,scale,scl,set,setAnimation,setAnimationDesc,t2,t3,tmpT,toMatrix4,toString,trans,transform,transformPool,transforms,translation,weights
  * Covenant-source-reference: net/mgsx/gltf/scene3d/animation/AnimationControllerHack.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  */
 package sge
 package gltf
@@ -22,7 +22,7 @@ package animation
 import scala.util.boundary
 import scala.util.boundary.break
 
-import sge.gltf.scene3d.model.{ CubicQuaternion, CubicVector3, CubicWeightVector, NodePartPlus, NodePlus, WeightVector }
+import sge.gltf.scene3d.model.{ CubicQuaternion, CubicWeightVector, NodePartPlus, NodePlus, WeightVector }
 import sge.graphics.g3d.ModelInstance
 import sge.graphics.g3d.model.{ Animation, Node, NodeAnimation, NodeKeyframe, NodePart }
 import sge.graphics.g3d.utils.AnimationController
@@ -198,8 +198,12 @@ object AnimationControllerHack {
       if (nextIndex < trans.size) {
         val secondKeyframe = trans(nextIndex)
         val t              = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime)
-        val firstCV        = firstKeyframe.value.asInstanceOf[AnyRef].asInstanceOf[CubicVector3]
-        val secondCV       = secondKeyframe.value.asInstanceOf[AnyRef].asInstanceOf[CubicVector3]
+        // Java downcasts the keyframe value to CubicVector3 (AnimationControllerHack.java:202-203). SGE's Vector3
+        // is a final case class, so the CubicVector3 (value + tangents) lives in NodeAnimationHack.translationCubic
+        // index-aligned with the keyframe array.
+        val cubic    = nodeAnim.asInstanceOf[NodeAnimationHack].translationCubic.get
+        val firstCV  = cubic(index)
+        val secondCV = cubic(nextIndex)
         cubicV3(out, t, firstCV.value, firstCV.tangentOut, secondCV.value, secondCV.tangentIn)
       } else {
         out.set(firstKeyframe.value)
@@ -269,9 +273,11 @@ object AnimationControllerHack {
       if (nextIndex < rot.size) {
         val secondKeyframe = rot(nextIndex)
         val t              = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime)
-        val firstCV        = firstKeyframe.value.asInstanceOf[AnyRef].asInstanceOf[CubicQuaternion]
-        val secondCV       = secondKeyframe.value.asInstanceOf[AnyRef].asInstanceOf[CubicQuaternion]
-        cubicQ(out, t, secondKeyframe.keytime - firstKeyframe.keytime, firstCV.value, firstCV.tangentOut, secondCV.value, secondCV.tangentIn)
+        // CubicQuaternion extends Quaternion (CubicQuaternion.scala), so the keyframe value downcasts directly,
+        // exactly as Java does (AnimationControllerHack.java:287-290). The CubicQuaternion's own x/y/z/w are the value.
+        val firstCV  = firstKeyframe.value.asInstanceOf[CubicQuaternion]
+        val secondCV = secondKeyframe.value.asInstanceOf[CubicQuaternion]
+        cubicQ(out, t, secondKeyframe.keytime - firstKeyframe.keytime, firstCV, firstCV.tangentOut, secondCV, secondCV.tangentIn)
       } else {
         out.set(firstKeyframe.value)
       }
@@ -310,8 +316,10 @@ object AnimationControllerHack {
       if (nextIndex < scl.size) {
         val secondKeyframe = scl(nextIndex)
         val t              = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime)
-        val firstCV        = firstKeyframe.value.asInstanceOf[AnyRef].asInstanceOf[CubicVector3]
-        val secondCV       = secondKeyframe.value.asInstanceOf[AnyRef].asInstanceOf[CubicVector3]
+        // see getTranslationAtTime: cubic data recovered from NodeAnimationHack.scalingCubic by index (Vector3 is a final case class).
+        val cubic    = nodeAnim.asInstanceOf[NodeAnimationHack].scalingCubic.get
+        val firstCV  = cubic(index)
+        val secondCV = cubic(nextIndex)
         cubicV3(out, t, firstCV.value, firstCV.tangentOut, secondCV.value, secondCV.tangentIn)
       } else {
         out.set(firstKeyframe.value)

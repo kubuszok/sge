@@ -6,10 +6,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 230
+ * Covenant-baseline-loc: 245
  * Covenant-baseline-methods: ChannelExporter,GLTFAnimationExporter,a,channelExporterQuaternion,channelExporterVector3,channelExporterWeights,exportAnimation,exportAnimations,exportChannel,getOutput,i,mapInterpolation,numComponents,numElements,outputType,rotationInterpolation,scaleInterpolation,translationInterpolation
  * Covenant-source-reference: net/mgsx/gltf/exporters/GLTFAnimationExporter.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  */
 package sge
 package gltf
@@ -52,13 +52,21 @@ private[exporters] class GLTFAnimationExporter(private val base: GLTFExporter) {
       val nodeID   = base.nodeMapping.indexOfByRef(nodeAnim.node)
 
       nodeAnim.translation.foreach { trans =>
-        GLTFAnimationExporter.channelExporterVector3.exportChannel(base, a, nodeID, trans, "translation", translationInterpolation(nodeAnim))
+        val cubic = nodeAnim match {
+          case nah: NodeAnimationHack => nah.translationCubic
+          case _ => Nullable.empty[DynamicArray[CubicVector3]]
+        }
+        GLTFAnimationExporter.channelExporterVector3.exportChannel(base, a, nodeID, trans, "translation", translationInterpolation(nodeAnim), cubic)
       }
       nodeAnim.rotation.foreach { rot =>
         GLTFAnimationExporter.channelExporterQuaternion.exportChannel(base, a, nodeID, rot, "rotation", rotationInterpolation(nodeAnim))
       }
       nodeAnim.scaling.foreach { scl =>
-        GLTFAnimationExporter.channelExporterVector3.exportChannel(base, a, nodeID, scl, "scale", scaleInterpolation(nodeAnim))
+        val cubic = nodeAnim match {
+          case nah: NodeAnimationHack => nah.scalingCubic
+          case _ => Nullable.empty[DynamicArray[CubicVector3]]
+        }
+        GLTFAnimationExporter.channelExporterVector3.exportChannel(base, a, nodeID, scl, "scale", scaleInterpolation(nodeAnim), cubic)
       }
       nodeAnim match {
         case nodeAnimMorph: NodeAnimationHack =>
@@ -105,7 +113,8 @@ private[exporters] object GLTFAnimationExporter {
       nodeID:        Int,
       keyFrames:     DynamicArray[NodeKeyframe[T]],
       chanName:      String,
-      interpolation: Nullable[Interpolation]
+      interpolation: Nullable[Interpolation],
+      cubicVectors:  Nullable[DynamicArray[CubicVector3]] = Nullable.empty
     ): Unit = {
       if (a.channels.isEmpty) a.channels = Nullable(ArrayBuffer[GLTFAnimationChannel]())
       val chan = new GLTFAnimationChannel()
@@ -130,7 +139,10 @@ private[exporters] object GLTFAnimationExporter {
       while (i < numKeyframes) {
         val kf = keyFrames(i)
         inputs(i) = kf.keytime
-        getOutput(outputs, kf.value)
+        // For Vector3 channels the cubic tangents live in a parallel array (Vector3 is a final case class in SGE and
+        // cannot subtype it); resolve this keyframe's CubicVector3 by index so getOutput can emit its tangents.
+        val cubicVec = cubicVectors.fold(Nullable.empty[CubicVector3])(arr => Nullable(arr(i)))
+        getOutput(outputs, kf.value, cubicVec)
         i += 1
       }
       val outputAccessor = base.obtainAccessor()
@@ -154,66 +166,61 @@ private[exporters] object GLTFAnimationExporter {
       sampler.input = Nullable(base.root.accessors.get.size - 1)
     }
 
-    protected def getOutput(outputs: FloatBuffer, value: T): Unit
+    protected def getOutput(outputs: FloatBuffer, value: T, cubicVec: Nullable[CubicVector3]): Unit
   }
 
-  /** Exports Vector3 keyframe values. CubicVector3 values (stored via type erasure cast) are detected by casting to AnyRef and checking isInstanceOf[CubicVector3].
+  /** Exports Vector3 keyframe values. CUBICSPLINE channels carry their tangents in a parallel CubicVector3 array (resolved per keyframe into cubicVec) because SGE's Vector3 is a final case class and
+    * cannot be subtyped; mirrors gdx-gltf's `value instanceof CubicVector3` branch (GLTFAnimationExporter.java:95-105).
     */
   val channelExporterVector3: ChannelExporter[Vector3] = new ChannelExporter[Vector3](3, GLTFTypes.TYPE_VEC3) {
-    override protected def getOutput(outputs: FloatBuffer, value: Vector3): Unit = {
-      // CubicVector3 is stored as Vector3 via asInstanceOf erasure cast in the loader
-      val asRef = value.asInstanceOf[AnyRef]
-      if (asRef.isInstanceOf[CubicVector3]) {
-        val cubic = asRef.asInstanceOf[CubicVector3]
-        outputs.put(cubic.tangentIn.x)
-        outputs.put(cubic.tangentIn.y)
-        outputs.put(cubic.tangentIn.z)
-        outputs.put(cubic.value.x)
-        outputs.put(cubic.value.y)
-        outputs.put(cubic.value.z)
-        outputs.put(cubic.tangentOut.x)
-        outputs.put(cubic.tangentOut.y)
-        outputs.put(cubic.tangentOut.z)
-      } else {
+    override protected def getOutput(outputs: FloatBuffer, value: Vector3, cubicVec: Nullable[CubicVector3]): Unit =
+      cubicVec.fold {
         outputs.put(value.x)
         outputs.put(value.y)
         outputs.put(value.z)
+      } { cubic =>
+        outputs.put(cubic.tangentIn.x)
+        outputs.put(cubic.tangentIn.y)
+        outputs.put(cubic.tangentIn.z)
+        outputs.put(value.x) // value is the keyframe's value Vector3 (== cubic.value); GLTFAnimationExporter.java:100-102
+        outputs.put(value.y)
+        outputs.put(value.z)
+        outputs.put(cubic.tangentOut.x)
+        outputs.put(cubic.tangentOut.y)
+        outputs.put(cubic.tangentOut.z)
       }
-    }
   }
 
-  /** Exports Quaternion keyframe values. CubicQuaternion values (stored via type erasure cast) are detected by casting to AnyRef and checking isInstanceOf[CubicQuaternion].
+  /** Exports Quaternion keyframe values. CubicQuaternion extends Quaternion (CubicQuaternion.scala), so cubic keyframe values are detected with a plain instanceof, exactly as in gdx-gltf
+    * (GLTFAnimationExporter.java:116-129).
     */
   val channelExporterQuaternion: ChannelExporter[Quaternion] = new ChannelExporter[Quaternion](4, GLTFTypes.TYPE_VEC4) {
-    override protected def getOutput(outputs: FloatBuffer, value: Quaternion): Unit = {
-      // CubicQuaternion is stored as Quaternion via asInstanceOf erasure cast in the loader
-      val asRef = value.asInstanceOf[AnyRef]
-      if (asRef.isInstanceOf[CubicQuaternion]) {
-        val cubic = asRef.asInstanceOf[CubicQuaternion]
-        outputs.put(cubic.tangentIn.x)
-        outputs.put(cubic.tangentIn.y)
-        outputs.put(cubic.tangentIn.z)
-        outputs.put(cubic.tangentIn.w)
-        outputs.put(cubic.value.x)
-        outputs.put(cubic.value.y)
-        outputs.put(cubic.value.z)
-        outputs.put(cubic.value.w)
-        outputs.put(cubic.tangentOut.x)
-        outputs.put(cubic.tangentOut.y)
-        outputs.put(cubic.tangentOut.z)
-        outputs.put(cubic.tangentOut.w)
-      } else {
-        outputs.put(value.x)
-        outputs.put(value.y)
-        outputs.put(value.z)
-        outputs.put(value.w)
+    override protected def getOutput(outputs: FloatBuffer, value: Quaternion, cubicVec: Nullable[CubicVector3]): Unit =
+      value match {
+        case cubic: CubicQuaternion =>
+          outputs.put(cubic.tangentIn.x)
+          outputs.put(cubic.tangentIn.y)
+          outputs.put(cubic.tangentIn.z)
+          outputs.put(cubic.tangentIn.w)
+          outputs.put(value.x) // value's own x/y/z/w are the keyframe value; GLTFAnimationExporter.java:122-125
+          outputs.put(value.y)
+          outputs.put(value.z)
+          outputs.put(value.w)
+          outputs.put(cubic.tangentOut.x)
+          outputs.put(cubic.tangentOut.y)
+          outputs.put(cubic.tangentOut.z)
+          outputs.put(cubic.tangentOut.w)
+        case _ =>
+          outputs.put(value.x)
+          outputs.put(value.y)
+          outputs.put(value.z)
+          outputs.put(value.w)
       }
-    }
   }
 
   def channelExporterWeights(count: Int): ChannelExporter[WeightVector] =
     new ChannelExporter[WeightVector](1, GLTFTypes.TYPE_SCALAR, count) {
-      override protected def getOutput(outputs: FloatBuffer, value: WeightVector): Unit =
+      override protected def getOutput(outputs: FloatBuffer, value: WeightVector, cubicVec: Nullable[CubicVector3]): Unit =
         if (value.isInstanceOf[CubicWeightVector]) {
 
           /** https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#animations end of chapter : When used with CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are
