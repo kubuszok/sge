@@ -95,10 +95,10 @@ class GltfShaderResourcesRedSuite extends munit.FunSuite {
     Sge(app, new NoopGraphics(), new NoopAudio(), new DesktopFiles(), new NoopInput(), null.asInstanceOf[Net]) // @nowarn — net unused in these tests
   }
 
-  /** Runs a provider/builder code path that needs GL after reading its shaders. Today the shader read itself fails with SgeError.FileReadError (wrong
-    * classpath location); after the fix any non-file-read outcome (success, or hitting NoopGraphics' missing GL context) proves the resources resolved.
+  /** Runs a provider/builder code path that needs GL after reading its shaders. Today the shader read itself fails with SgeError.FileReadError (wrong classpath location); after the fix any
+    * non-file-read outcome (success, or hitting NoopGraphics' missing GL context) proves the resources resolved.
     */
-  private def assertShaderResourcesResolve(label: String)(body: => Any): Unit = {
+  private def assertShaderResourcesResolve(label: String)(body: => Any): Unit =
     try {
       body
       ()
@@ -108,7 +108,6 @@ class GltfShaderResourcesRedSuite extends munit.FunSuite {
       case _: Throwable =>
         () // reached GL (or another non-file failure) — every shader resource resolved
     }
-  }
 
   // -- (1) Runtime-use outcome of the provider code paths (headless) --------
 
@@ -120,15 +119,21 @@ class GltfShaderResourcesRedSuite extends munit.FunSuite {
     assert(PBRShaderProvider.getDefaultFragmentShader().nonEmpty)
   }
 
-  test("ISS-508: PBRDepthShaderProvider.getDefaultVertexShader resolves bundled depth.vs.glsl (PBRDepthShaderProvider.scala:65)") {
+  test(
+    "ISS-508: PBRDepthShaderProvider.getDefaultVertexShader resolves bundled depth.vs.glsl (PBRDepthShaderProvider.scala:65)"
+  ) {
     assert(PBRDepthShaderProvider.getDefaultVertexShader().nonEmpty)
   }
 
-  test("ISS-508: PBRDepthShaderProvider.getDefaultFragmentShader resolves bundled depth.fs.glsl (PBRDepthShaderProvider.scala:74)") {
+  test(
+    "ISS-508: PBRDepthShaderProvider.getDefaultFragmentShader resolves bundled depth.fs.glsl (PBRDepthShaderProvider.scala:74)"
+  ) {
     assert(PBRDepthShaderProvider.getDefaultFragmentShader().nonEmpty)
   }
 
-  test("ISS-508: PBREmissiveShaderProvider.createConfig resolves gdx-pbr.vs.glsl + emissive-only.fs.glsl (PBREmissiveShaderProvider.scala:71-72)") {
+  test(
+    "ISS-508: PBREmissiveShaderProvider.createConfig resolves gdx-pbr.vs.glsl + emissive-only.fs.glsl (PBREmissiveShaderProvider.scala:71-72)"
+  ) {
     val config = PBREmissiveShaderProvider.createConfig(0)
     assert(!Nullable.isEmpty(config.vertexShader), "vertex shader (gdx-pbr.vs.glsl) not loaded")
     assert(!Nullable.isEmpty(config.fragmentShader), "fragment shader (emissive-only.fs.glsl) not loaded")

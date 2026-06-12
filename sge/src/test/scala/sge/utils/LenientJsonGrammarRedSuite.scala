@@ -9,9 +9,8 @@ import hearth.kindlings.jsoniterjson.{ JsonNumber, JsonObject }
 
 /** ISS-515 bounce red suite: pins [[LenientJson]] to libGDX `JsonReader`'s exact lenient grammar.
   *
-  * Authority: `original-src/libgdx/gdx/res/com/badlogic/gdx/utils/JsonReader.rl` (the Ragel grammar) and the generated
-  * `original-src/libgdx/gdx/src/com/badlogic/gdx/utils/JsonReader.java`. Every expected value below was additionally
-  * cross-checked empirically against the real `com.badlogic.gdx.utils.JsonReader` (gdx 1.13.1) on the JVM.
+  * Authority: `original-src/libgdx/gdx/res/com/badlogic/gdx/utils/JsonReader.rl` (the Ragel grammar) and the generated `original-src/libgdx/gdx/src/com/badlogic/gdx/utils/JsonReader.java`. Every
+  * expected value below was additionally cross-checked empirically against the real `com.badlogic.gdx.utils.JsonReader` (gdx 1.13.1) on the JVM.
   *
   * Grammar rules cited throughout (JsonReader.rl):
   * {{{
@@ -26,14 +25,13 @@ import hearth.kindlings.jsoniterjson.{ JsonNumber, JsonObject }
   * 311  array       := ws* value? ws2* <: (comma ws* value ws2*)** :>> (','? ws* ']' @endArray);
   * }}}
   *
-  * Control characters under test are built with `11.toChar` (VT) and `12.toChar` (FF) so the
-  * difference stays visible in review — never as raw bytes hidden inside string literals.
+  * Control characters under test are built with `11.toChar` (VT) and `12.toChar` (FF) so the difference stays visible in review — never as raw bytes hidden inside string literals.
   */
 class LenientJsonGrammarRedSuite extends munit.FunSuite {
 
   private def obj(fields: (String, Json)*): Json = Json.Obj(JsonObject(fields.toVector))
-  private def arr(values: Json*): Json           = Json.Arr(values.toVector)
-  private def num(value: Long): Json             = Json.Num(JsonNumber.fromLong(value))
+  private def arr(values: Json*):           Json = Json.Arr(values.toVector)
+  private def num(value:  Long):            Json = Json.Num(JsonNumber.fromLong(value))
 
   /** 0x0B vertical tab / 0x0C form feed — built programmatically so no raw control bytes hide in literals. */
   private val VT = 11.toChar.toString

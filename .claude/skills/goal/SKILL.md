@@ -23,10 +23,11 @@ Execute ONE iteration of the plan §5 protocol:
    a. REPRODUCER — general-purpose agent, **`model: "fable"`**, prompt
       template in plan §5. It commits the red test as the branch's first
       commit (red-sha) and reports the failure line. The red test MUST be
-      committed as a scalafmt fixpoint (`re-scale build fmt` before the
-      commit) — otherwise a later format pass reflows the file and falsely
-      trips the red-commit-integrity diff (lesson imported from the SSG
-      campaign). If it cannot make the test fail, the issue may be stale —
+      committed as a scalafmt fixpoint — and because .scalafmt.conf has
+      project.git=true (scalafmt SKIPS untracked files), the file must be
+      `git add`ed BEFORE running `re-scale build fmt`, else the fixpoint
+      verification is a false positive (root cause of ISS-583/585/591,
+      found by the ISS-515 red3 reproducer). If it cannot make the test fail, the issue may be stale —
       adjudicate, do not fix anyway.
    b. IMPLEMENTER — `re-scale:port-implementer` for port issues, otherwise a
       general agent following `.claude/skills/fix-issue/SKILL.md`. ALWAYS
