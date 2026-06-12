@@ -19,10 +19,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 485
- * Covenant-baseline-methods: Blending,DownloadPixmapResponseListener,Filter,Format,Pixmap,_blending,_filter,blending,close,color,createFromFrameBuffer,disposed,downloadComplete,downloadFailed,drawCircle,drawLine,drawPixel,drawPixmap,drawRectangle,dst,fill,fillCircle,fillRectangle,fillTriangle,filter,format,fromGdx2DPixmapFormat,gLFormat,gLInternalFormat,getPixel,glType,height,isDisposed,pixels,pixels_,pixmap,setBlending,setColor,setFilter,this,toGdx2DPixmapFormat,toGlFormat,toGlType,width
+ * Covenant-baseline-loc: 537
+ * Covenant-baseline-methods: Blending,DownloadPixmapResponseListener,Filter,Format,Pixmap,_blending,_filter,blending,close,color,createFromFrameBuffer,disposed,downloadComplete,downloadFailed,downloadFromUrl,drawCircle,drawLine,drawPixel,drawPixmap,drawRectangle,dst,fill,fillCircle,fillRectangle,fillTriangle,filter,format,fromGdx2DPixmapFormat,gLFormat,gLInternalFormat,getPixel,glType,height,isDisposed,pixels,pixels_,pixmap,setBlending,setColor,setFilter,this,toGdx2DPixmapFormat,toGlFormat,toGlType,width
  * Covenant-source-reference: com/badlogic/gdx/graphics/Pixmap.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-12
  *
  * upstream-commit: e0b877c2b9800c96f548b8dcc2c129b2e1e7cd9c
  */
@@ -32,6 +32,7 @@ package graphics
 import sge.files.FileHandle
 import sge.graphics.g2d.Gdx2DPixmap
 import sge.utils.{ BufferUtils, SgeError }
+import lowlevel.Nullable
 import java.io.IOException
 import java.nio.ByteBuffer
 import scala.util.control.NonFatal
@@ -478,6 +479,48 @@ object Pixmap {
 
     def toGlType(format: Format): Int =
       Gdx2DPixmap.toGlType(toGdx2DPixmapFormat(format))
+  }
+
+  /** Downloads an image from http(s) url and passes it as a {@link Pixmap} to the specified {@link DownloadPixmapResponseListener}
+    *
+    * @param url
+    *   http url to download the image from
+    * @param responseListener
+    *   the listener to call once the image is available as a {@link Pixmap}
+    */
+  def downloadFromUrl(url: String, responseListener: DownloadPixmapResponseListener)(using Sge): Unit = {
+    val client  = Sge().net.httpClient
+    val request = client.obtainRequest()
+    request.withMethod(Net.HttpMethod.GET)
+    request.withUrl(url)
+    client.send(
+      request,
+      Nullable(
+        new Net.HttpResponseListener {
+          override def handleHttpResponse(httpResponse: Net.HttpResponse): Unit = {
+            val result = httpResponse.result
+            Sge().application.postRunnable(
+              new Runnable {
+                override def run(): Unit =
+                  try {
+                    val pixmap = new Pixmap(result, 0, result.length)
+                    responseListener.downloadComplete(pixmap)
+                  } catch {
+                    case t: Throwable => failed(t)
+                  }
+              }
+            )
+          }
+
+          override def failed(t: Throwable): Unit =
+            responseListener.downloadFailed(t)
+
+          override def cancelled(): Unit = {
+            // no way to cancel, will never get called
+          }
+        }
+      )
+    )
   }
 
   /** Response listener for {@link #downloadFromUrl(String, DownloadPixmapResponseListener)} */
