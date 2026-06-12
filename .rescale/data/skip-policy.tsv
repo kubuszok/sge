@@ -351,3 +351,4 @@ sge/src/main/scala/sge/net/SgeHttpClient.scala	shortcuts	pending-comment FPs: pe
 sge/src/test/scalajvm/sge/maps/tiled/TmxTileIdsEofRedSuite.scala	shortcuts	ISS-506 red-suite minimal-comment FP: fixture doc (audited)	2026-06-11	dev
 sge/src/test/scalanative/sge/maps/tiled/TmxTileIdsEofRedSuite.scala	shortcuts	ISS-506 red-suite fixture doc, native copy	2026-06-11	dev
 sge-extension/gltf/src/test/scalajvm/sge/gltf/GltfShaderResourcesRedSuite.scala	shortcuts	ISS-508 red-suite headless Application/GL fixture stubs + null-casts (audited)	2026-06-11	dev
+sge-extension/ai/src/test/scala/sge/ai/btree/utils/BtreeParserOutOfBoxRedSuite.scala	shortcuts	red-suite fixture: UnsupportedOperationException in dummy-leaf newInstance stubs (x2), never invoked at runtime; ISS-517 red test, precedent 55ec6c5a/9c24a51e	2026-06-12	dev
