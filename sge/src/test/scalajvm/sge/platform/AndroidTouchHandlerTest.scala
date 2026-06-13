@@ -102,6 +102,8 @@ class AndroidTouchHandlerTest extends munit.FunSuite {
 
     override def postScrollEvent(scrollAmountX: Int, scrollAmountY: Int, timeStamp: Long): Unit =
       scrollEvents += ScrollEventRecord(scrollAmountX, scrollAmountY, timeStamp)
+
+    override def postKeyEvent(eventType: Int, keyCode: Int, character: Char, timeStamp: Long): Unit = ()
   }
 
   // ── Tests ─────────────────────────────────────────────────────────────

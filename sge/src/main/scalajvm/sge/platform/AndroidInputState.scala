@@ -54,6 +54,9 @@ trait AndroidInputState {
 
   /** Post a scroll event to the event queue. */
   def postScrollEvent(scrollAmountX: Int, scrollAmountY: Int, timeStamp: Long): Unit
+
+  /** Post a key event to the event queue. */
+  def postKeyEvent(eventType: Int, keyCode: Int, character: Char, timeStamp: Long): Unit
 }
 
 object AndroidInputState {

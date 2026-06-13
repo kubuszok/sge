@@ -179,19 +179,25 @@ class AndroidInputTest extends FunSuite {
 
   test("onKeyDown/onKeyUp track key state") {
     val (input, _, _, _) = createInput()
+    // Key events are QUEUED on the UI thread and applied on the render thread
+    // in processEvents() (ISS-519, mirroring the touch event path).
     input.onKeyDown(Keys.A.toInt)
+    input.processEvents()
     assert(input.isKeyPressed(Keys.A))
     assert(input.isKeyPressed(Keys.ANY_KEY))
     assert(input.isKeyJustPressed(Keys.A))
 
     input.onKeyUp(Keys.A.toInt)
+    input.processEvents()
     assert(!input.isKeyPressed(Keys.A))
     assert(!input.isKeyPressed(Keys.ANY_KEY))
   }
 
   test("processEvents clears just-pressed state") {
     val (input, _, _, _) = createInput()
+    // justPressed becomes true the frame the queued keyDown is drained (ISS-519).
     input.onKeyDown(Keys.SPACE.toInt)
+    input.processEvents()
     assert(input.isKeyJustPressed(Keys.SPACE))
 
     input.processEvents()

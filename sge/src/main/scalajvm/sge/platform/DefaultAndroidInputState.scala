@@ -35,6 +35,7 @@ class DefaultAndroidInputState extends AndroidInputState {
 
   private[sge] val touchEvents:  DynamicArray[TouchEvent]  = DynamicArray[TouchEvent](64)
   private[sge] val scrollEvents: DynamicArray[ScrollEvent] = DynamicArray[ScrollEvent](8)
+  private[sge] val keyEvents:    DynamicArray[KeyEvent]    = DynamicArray[KeyEvent](64)
 
   // ── Per-pointer access ──────────────────────────────────────────────
 
@@ -113,6 +114,9 @@ class DefaultAndroidInputState extends AndroidInputState {
   override def postScrollEvent(scrollAmountX: Int, scrollAmountY: Int, timeStamp: Long): Unit =
     scrollEvents += ScrollEvent(scrollAmountX, scrollAmountY, timeStamp)
 
+  override def postKeyEvent(eventType: Int, keyCode: Int, character: Char, timeStamp: Long): Unit =
+    keyEvents += KeyEvent(eventType, keyCode, character, timeStamp)
+
   /** Drain all queued touch events. Returns a snapshot and clears the queue. */
   def drainTouchEvents(): DynamicArray[TouchEvent] = {
     val snapshot = DynamicArray[TouchEvent](touchEvents.size)
@@ -126,6 +130,14 @@ class DefaultAndroidInputState extends AndroidInputState {
     val snapshot = DynamicArray[ScrollEvent](scrollEvents.size)
     snapshot.addAll(scrollEvents)
     scrollEvents.clear()
+    snapshot
+  }
+
+  /** Drain all queued key events. Returns a snapshot and clears the queue. */
+  def drainKeyEvents(): DynamicArray[KeyEvent] = {
+    val snapshot = DynamicArray[KeyEvent](keyEvents.size)
+    snapshot.addAll(keyEvents)
+    keyEvents.clear()
     snapshot
   }
 }
@@ -146,3 +158,20 @@ final case class ScrollEvent(
   scrollAmountY: Int,
   timeStamp:     Long
 )
+
+/** A key event (queued on the UI thread, drained on the render thread). */
+final case class KeyEvent(
+  eventType: Int,
+  keyCode:   Int,
+  character: Char,
+  timeStamp: Long
+)
+
+object KeyEvent {
+
+  // ── Key event type constants ────────────────────────────────────────
+
+  val KEY_DOWN:  Int = 0
+  val KEY_UP:    Int = 1
+  val KEY_TYPED: Int = 2
+}

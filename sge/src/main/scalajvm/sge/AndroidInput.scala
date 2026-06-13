@@ -15,7 +15,7 @@
 package sge
 
 import sge.Input.*
-import sge.platform.{ AndroidInputState, AndroidMouseHandler, AndroidTouchHandler, DefaultAndroidInputState }
+import sge.platform.{ AndroidInputState, AndroidMouseHandler, AndroidTouchHandler, DefaultAndroidInputState, KeyEvent }
 import sge.platform.android.{ AndroidConfigOps, HapticsOps, InputDialogCallback, InputMethodOps, SensorOps, TouchInputOps }
 import lowlevel.Nullable
 import sge.utils.Nanos
@@ -154,39 +154,46 @@ class AndroidInput(
     else false
   }
 
-  /** Called from the key event handler to register a key press. */
-  private[sge] def onKeyDown(keycode: Int): Boolean = {
-    if (keycode >= 0 && keycode < 256) {
-      if (!pressedKeys(keycode)) {
-        pressedKeys(keycode) = true
-        keyCount += 1
-      }
-      justPressedKeys(keycode) = true
-    }
-    val processor = _inputProcessor
-    if (processor != null) processor.keyDown(Key(keycode)) // scalafix:ok
-    else false
+  /** Forward a key-down from the Android View to the key event queue.
+    *
+    * The host Activity/View must call this from its `dispatchKeyEvent` or an `OnKeyListener` wired to the GL surface view. The event is QUEUED here on the UI thread and applied on the render thread
+    * in [[processEvents]] (mirroring the touch event path).
+    *
+    * @param keycode
+    *   the key code (SGE/Android key code)
+    * @return
+    *   true if the key is caught (consumed by the engine)
+    */
+  def onKeyDown(keycode: Int): Boolean = {
+    inputState.postKeyEvent(KeyEvent.KEY_DOWN, keycode, 0, System.nanoTime())
+    isCatchKey(Key(keycode))
   }
 
-  /** Called from the key event handler to register a key release. */
-  private[sge] def onKeyUp(keycode: Int): Boolean = {
-    if (keycode >= 0 && keycode < 256) {
-      if (pressedKeys(keycode)) {
-        pressedKeys(keycode) = false
-        keyCount -= 1
-      }
-    }
-    val processor = _inputProcessor
-    if (processor != null) processor.keyUp(Key(keycode)) // scalafix:ok
-    else false
+  /** Forward a key-up from the Android View to the key event queue.
+    *
+    * The host Activity/View must call this from its `dispatchKeyEvent` or an `OnKeyListener` wired to the GL surface view. The event is QUEUED here on the UI thread and applied on the render thread
+    * in [[processEvents]] (mirroring the touch event path).
+    *
+    * @param keycode
+    *   the key code (SGE/Android key code)
+    * @return
+    *   true if the key is caught (consumed by the engine)
+    */
+  def onKeyUp(keycode: Int): Boolean = {
+    inputState.postKeyEvent(KeyEvent.KEY_UP, keycode, 0, System.nanoTime())
+    isCatchKey(Key(keycode))
   }
 
-  /** Called from the key event handler to register a typed character. */
-  private[sge] def onKeyTyped(character: Char): Boolean = {
-    val processor = _inputProcessor
-    if (processor != null) processor.keyTyped(character) // scalafix:ok
-    else false
-  }
+  /** Forward a typed character from the Android View to the key event queue.
+    *
+    * The host Activity/View must call this from its `dispatchKeyEvent` or an `OnKeyListener` wired to the GL surface view. The event is QUEUED here on the UI thread and applied on the render thread
+    * in [[processEvents]] (mirroring the touch event path).
+    *
+    * @param character
+    *   the typed character
+    */
+  def onKeyTyped(character: Char): Unit =
+    inputState.postKeyEvent(KeyEvent.KEY_TYPED, 0, character, System.nanoTime())
 
   // ── Text input / keyboard ──────────────────────────────────────────
 
@@ -342,8 +349,38 @@ class AndroidInput(
     val processor = _inputProcessor
 
     inputState.synchronized {
+      val keyEvents    = inputState.drainKeyEvents()
       val touchEvents  = inputState.drainTouchEvents()
       val scrollEvents = inputState.drainScrollEvents()
+
+      keyEvents.foreach { e =>
+        _currentEventTime = e.timeStamp
+        e.eventType match {
+          case KeyEvent.KEY_DOWN =>
+            if (e.keyCode >= 0 && e.keyCode < 256) {
+              if (!pressedKeys(e.keyCode)) {
+                pressedKeys(e.keyCode) = true
+                keyCount += 1
+              }
+              justPressedKeys(e.keyCode) = true
+            }
+            if (processor != null) processor.keyDown(Key(e.keyCode)) // scalafix:ok
+
+          case KeyEvent.KEY_UP =>
+            if (e.keyCode >= 0 && e.keyCode < 256) {
+              if (pressedKeys(e.keyCode)) {
+                pressedKeys(e.keyCode) = false
+                keyCount -= 1
+              }
+            }
+            if (processor != null) processor.keyUp(Key(e.keyCode)) // scalafix:ok
+
+          case KeyEvent.KEY_TYPED =>
+            if (processor != null) processor.keyTyped(e.character) // scalafix:ok
+
+          case _ => ()
+        }
+      }
 
       touchEvents.foreach { e =>
         _currentEventTime = e.timeStamp
