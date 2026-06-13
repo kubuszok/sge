@@ -7,10 +7,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 95
+ * Covenant-baseline-loc: 124
  * Covenant-baseline-methods: ShaderTransition,close,currScreenLoc,getProgram,lastScreenLoc,program,progressLoc,projTransLoc,render,renderContext,resize,screenQuad,this,viewport
  * Covenant-source-reference: de/eskalon/commons/screen/transition/impl/ShaderTransition.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-13
  */
 package sge
 package screen
@@ -48,8 +48,29 @@ class ShaderTransition(
 )(using Sge)
     extends TimedTransition(duration, interpolation) {
 
-  protected val program:  ShaderProgram = new ShaderProgram(vert, frag)
-  protected var viewport: Viewport      = new ScreenViewport() // Renders the transition over the whole screen
+  // Compile the shader; this needs to happen on the rendering thread!
+  // Mirrors guacamole's ShaderProgramFactory.fromString(vert, frag, true, ignorePrepend):
+  // when ignorePrepend is true the global ShaderProgram.prependVertexCode /
+  // prependFragmentCode must NOT be applied to the supplied source. The factory
+  // saves the two static fields, clears them around construction, then restores
+  // them in a finally block. The SGE ShaderProgram constructor reads those two
+  // static fields at construction time, so clearing them here suppresses the
+  // prepend; the try/finally guarantees the globals are restored even if the
+  // ShaderProgram construction throws.
+  protected val program: ShaderProgram =
+    if (ignorePrepend) {
+      val savedVertexPrepend   = ShaderProgram.prependVertexCode
+      val savedFragmentPrepend = ShaderProgram.prependFragmentCode
+      ShaderProgram.prependVertexCode = ""
+      ShaderProgram.prependFragmentCode = ""
+      try new ShaderProgram(vert, frag)
+      finally {
+        ShaderProgram.prependVertexCode = savedVertexPrepend
+        ShaderProgram.prependFragmentCode = savedFragmentPrepend
+      }
+    } else
+      new ShaderProgram(vert, frag)
+  protected var viewport: Viewport = new ScreenViewport() // Renders the transition over the whole screen
 
   private val renderContext: RenderContext = new RenderContext(
     new DefaultTextureBinder(DefaultTextureBinder.ROUNDROBIN)
