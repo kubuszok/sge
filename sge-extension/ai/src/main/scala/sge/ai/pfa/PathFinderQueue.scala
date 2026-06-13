@@ -6,18 +6,19 @@
  *
  * Migration notes:
  *   Renames: `com.badlogic.gdx.ai.pfa` -> `sge.ai.pfa`; `TimeUtils` -> `sge.utils.TimeUtils`;
- *     `CircularBuffer` -> `sge.ai.utils.CircularBuffer`; `Schedulable` removed (not ported);
- *     `Telegraph` -> `sge.ai.msg.Telegraph`; `Telegram` -> `sge.ai.msg.Telegram`
+ *     `CircularBuffer` -> `sge.ai.utils.CircularBuffer`; `Schedulable` -> `sge.ai.sched.Schedulable`;
+ *     `Telegraph` -> `sge.ai.msg.Telegraph`; `Telegram` -> `sge.ai.msg.Telegram`;
+ *     `GdxAI.getTimepiece()` -> constructor `timepiece` parameter (like `btree.leaf.Wait`)
  *   Convention: split packages; `null` -> `Nullable`; `return` -> `boundary`/`break`
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 88
- * Covenant-baseline-methods: PathFinderQueue,TIME_TOLERANCE,currentRequest,handleMessage,requestControl,requestQueue,run,size
+ * Covenant-baseline-loc: 104
+ * Covenant-baseline-methods: PathFinderQueue,TIME_TOLERANCE,currentRequest,handleMessage,requestControl,requestQueue,run,size,timepiece
  * Covenant-source-reference: com/badlogic/gdx/ai/pfa/PathFinderQueue.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-13
  *
  * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */
@@ -27,6 +28,7 @@ package pfa
 
 import sge.ai.msg.Telegram
 import sge.ai.msg.Telegraph
+import sge.ai.sched.Schedulable
 import sge.ai.Timepiece
 import sge.ai.utils.CircularBuffer
 import lowlevel.Nullable
@@ -40,7 +42,12 @@ import scala.util.boundary, boundary.break
   * @author
   *   davebaol (original implementation)
   */
-class PathFinderQueue[N](pathFinder: PathFinder[N]) extends Telegraph {
+class PathFinderQueue[N](
+  pathFinder: PathFinder[N],
+  /** The timepiece used for tracking AI time. */
+  val timepiece: Timepiece
+) extends Schedulable,
+      Telegraph {
 
   private val requestQueue: CircularBuffer[PathFinderRequest[N]] = CircularBuffer[PathFinderRequest[N]](16)
 
@@ -48,7 +55,7 @@ class PathFinderQueue[N](pathFinder: PathFinder[N]) extends Telegraph {
 
   private val requestControl: PathFinderRequestControl[N] = PathFinderRequestControl[N]()
 
-  def run(timeToRun: Long)(using tp: Timepiece): Unit = {
+  override def run(timeToRun: Long): Unit = {
     // Keep track of the current time
     requestControl.lastTime = TimeUtils.nanoTime().toLong
     requestControl.timeToRun = timeToRun
@@ -56,7 +63,7 @@ class PathFinderQueue[N](pathFinder: PathFinder[N]) extends Telegraph {
     requestControl.timeTolerance = PathFinderQueue.TIME_TOLERANCE
     requestControl.pathFinder = pathFinder
     requestControl.server = Nullable(this)
-    requestControl.timepiece = Nullable(tp)
+    requestControl.timepiece = Nullable(timepiece)
 
     // If no search in progress, take the next from the queue
     if (currentRequest.isEmpty) currentRequest = requestQueue.read()

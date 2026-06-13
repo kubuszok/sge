@@ -57,13 +57,13 @@ class PathFinderQueueSuite extends munit.FunSuite {
 
   test("new queue has size 0") {
     val pf    = new ImmediatePathFinder()
-    val queue = new PathFinderQueue[Int](pf)
+    val queue = new PathFinderQueue[Int](pf, new DefaultTimepiece())
     assertEquals(queue.size, 0)
   }
 
   test("handleMessage adds request to queue") {
     val pf    = new ImmediatePathFinder()
-    val queue = new PathFinderQueue[Int](pf)
+    val queue = new PathFinderQueue[Int](pf, new DefaultTimepiece())
 
     val request = new PathFinderRequest[Int]()
     request.startNode = 0
@@ -82,7 +82,7 @@ class PathFinderQueueSuite extends munit.FunSuite {
 
   test("handleMessage resets request status to SEARCH_NEW") {
     val pf    = new ImmediatePathFinder()
-    val queue = new PathFinderQueue[Int](pf)
+    val queue = new PathFinderQueue[Int](pf, new DefaultTimepiece())
 
     val request = new PathFinderRequest[Int]()
     request.startNode = 0
@@ -104,7 +104,7 @@ class PathFinderQueueSuite extends munit.FunSuite {
 
   test("handleMessage sets client from telegram sender") {
     val pf    = new ImmediatePathFinder()
-    val queue = new PathFinderQueue[Int](pf)
+    val queue = new PathFinderQueue[Int](pf, new DefaultTimepiece())
 
     val request = new PathFinderRequest[Int]()
     request.startNode = 0
@@ -123,7 +123,7 @@ class PathFinderQueueSuite extends munit.FunSuite {
 
   test("handleMessage returns true") {
     val pf    = new ImmediatePathFinder()
-    val queue = new PathFinderQueue[Int](pf)
+    val queue = new PathFinderQueue[Int](pf, new DefaultTimepiece())
 
     val telegram = makeTelegram()
     val result   = queue.handleMessage(telegram)
@@ -133,11 +133,11 @@ class PathFinderQueueSuite extends munit.FunSuite {
   // ── Running the queue ────────────────────────────────────────────────
 
   test("run processes queued requests") {
-    given tp: DefaultTimepiece = new DefaultTimepiece()
+    val tp: DefaultTimepiece = new DefaultTimepiece()
     tp.update(1.0f)
 
     val pf    = new ImmediatePathFinder()
-    val queue = new PathFinderQueue[Int](pf)
+    val queue = new PathFinderQueue[Int](pf, tp)
 
     val request = new PathFinderRequest[Int]()
     request.startNode = 0
@@ -162,7 +162,7 @@ class PathFinderQueueSuite extends munit.FunSuite {
 
   test("multiple requests are queued in order") {
     val pf    = new ImmediatePathFinder()
-    val queue = new PathFinderQueue[Int](pf)
+    val queue = new PathFinderQueue[Int](pf, new DefaultTimepiece())
 
     val client = new SimpleClient()
 
@@ -183,11 +183,11 @@ class PathFinderQueueSuite extends munit.FunSuite {
   }
 
   test("run with no requests does not crash") {
-    given tp: DefaultTimepiece = new DefaultTimepiece()
+    val tp: DefaultTimepiece = new DefaultTimepiece()
     tp.update(1.0f)
 
     val pf    = new ImmediatePathFinder()
-    val queue = new PathFinderQueue[Int](pf)
+    val queue = new PathFinderQueue[Int](pf, tp)
 
     queue.run(1000000L)
     assert(!pf.searchCalled, "search should not be called when queue is empty")
@@ -195,7 +195,7 @@ class PathFinderQueueSuite extends munit.FunSuite {
 
   test("telegram without extraInfo does not add to queue") {
     val pf    = new ImmediatePathFinder()
-    val queue = new PathFinderQueue[Int](pf)
+    val queue = new PathFinderQueue[Int](pf, new DefaultTimepiece())
 
     val telegram = makeTelegram()
     queue.handleMessage(telegram)
