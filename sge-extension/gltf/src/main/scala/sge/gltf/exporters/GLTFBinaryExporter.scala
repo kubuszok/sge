@@ -6,10 +6,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 162
+ * Covenant-baseline-loc: 169
  * Covenant-baseline-methods: GLTFBinaryExporter,batch,begin,beginFloats,beginShorts,buf,buffer,buffers,config,count,createBuffer,currentBuffer,end,exportImage,fbo,file,fileName,floatBuffer,flushAllToFiles,folder,newPosition,out,pixmap,position,reset,savePNG,shortBuffer,size,view,views
  * Covenant-source-reference: net/mgsx/gltf/exporters/GLTFBinaryExporter.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-13
  */
 package sge
 package gltf
@@ -21,12 +21,12 @@ import scala.collection.mutable.ArrayBuffer
 
 import sge.{ Application, Pixels, Sge }
 import sge.files.FileHandle
-import sge.graphics.{ ClearMask, GL20, Pixmap, Texture }
+import sge.graphics.{ ClearMask, GL20, Pixmap, PixmapIO, Texture }
 import sge.graphics.g2d.SpriteBatch
 import sge.graphics.glutils.FrameBuffer
 import sge.gltf.data.data.{ GLTFBuffer, GLTFBufferView }
 import sge.gltf.data.texture.GLTFImage
-import sge.gltf.loaders.exceptions.{ GLTFRuntimeException, GLTFUnsupportedException }
+import sge.gltf.loaders.exceptions.GLTFUnsupportedException
 import lowlevel.Nullable
 
 private[exporters] class GLTFBinaryExporter(
@@ -155,15 +155,15 @@ private[exporters] object GLTFBinaryExporter {
     if (sge.application.applicationType == Application.ApplicationType.WebGL) {
       throw new GLTFUnsupportedException("saving pixmap not supported for WebGL")
     } else {
-      // call PixmapIO.writePNG(file, pixmap); via reflection to
-      // avoid compilation error with GWT.
-      try {
-        val pixmapIO = Class.forName("sge.graphics.PixmapIO")
-        val writePNG = pixmapIO.getMethod("writePNG", classOf[FileHandle], classOf[Pixmap])
-        writePNG.invoke(null, file, pixmap) // @nowarn — Java reflection interop requires null receiver for static method
-      } catch {
-        case e: Exception =>
-          throw new GLTFRuntimeException(e)
-      }
+      // Upstream (GLTFBinaryExporter.java:149-154) routed this through LibGDX's
+      // ClassReflection facade with the comment "call PixmapIO.writePNG(file,
+      // pixmap); via reflection to avoid compilation error with GWT." That GWT
+      // workaround does not apply here: SGE's sge.graphics.PixmapIO is shared
+      // source compiled on every platform (JVM/JS/Native/Android), so the
+      // faithful equivalent is the direct call the facade was emulating. Raw
+      // java.lang reflection (Class.forName / java.lang.reflect.Method) does not
+      // link on Scala.js or Scala Native, so the direct call is also the only
+      // form that links across all platforms (ISS-533 clause 1).
+      PixmapIO.writePNG(file, pixmap)
     }
 }

@@ -427,6 +427,26 @@ val `sge-freetype` = (projectMatrix in file("sge-extension/freetype"))
 val `sge-gltf` = (projectMatrix in file("sge-extension/gltf"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
   .someVariations(versions.scalas, versions.platforms)((commonSettings("sge-extension/gltf") ++ dev.only1VersionInIDE ++ Seq(
+    // ISS-533: gltf's own native test binary links sge_native_ops symbols (via
+    // PixmapIO etc.), so the native axis needs the NativeProviderPlugin wiring
+    // (manifest discovery, extraction, -L linker flags) plus the sn-provider-sge
+    // native artifact — mirroring `sge` and `sge-physics`.
+    //
+    // ORDER MATTERS: `nativeProviderSettings` MUST precede the `ForAll`
+    // `relaxedSettings` Configure. commandmatrix's `collapse` reduces all matching
+    // `Configure` functions left-to-right with `andThen`, each doing `_.settings(..)`.
+    // When a broad `ForAll.Configure(_.settings(relaxedSettings *))` is composed
+    // *before* the native-only `nativeProviderSettings` Configure, the resulting
+    // last-applied `.settings` block shadows NativeProviderPlugin's `nativeConfig :=`
+    // override on the native axis, so no `-L<extractedDir>` is added and the
+    // libsge_native_ops.a extraction never runs (the `-l sge_native_ops` flag still
+    // arrives via sge core's @link annotations, hence "library not found" at link).
+    // Putting the provider wiring first matches the working `sge`/`sge-physics`/
+    // `regressionTest` ordering, where the provider's nativeConfig survives.
+    nativeProviderSettings,
+    MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
+      libraryDependencies += "com.kubuszok" % "sn-provider-sge" % versions.nativeComponents
+    )),
     MatrixAction.ForAll.Configure(_.settings(SgePlugin.relaxedSettings *)),
     jvmPlatformApiClasspath
   )) *)

@@ -6,10 +6,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 196
+ * Covenant-baseline-loc: 235
  * Covenant-baseline-methods: MeshTangentSpaceGenerator,biNormal,computeNormalsImpl,computeTangentSpace,computeTangentsImpl,count,i,index,normal,normalOffset,posOffset,stride,tan1,tan2,tangent,tangentOffset,texCoordOffset,vab,vac,vertexCount,vu,vv
  * Covenant-source-reference: net/mgsx/gltf/loaders/shared/geometry/MeshTangentSpaceGenerator.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-13
  */
 package sge
 package gltf
@@ -17,10 +17,42 @@ package loaders
 package shared
 package geometry
 
-import sge.graphics.VertexAttributes
+import sge.graphics.{ Mesh, VertexAttribute, VertexAttributes }
+import sge.graphics.VertexAttributes.Usage
+import sge.graphics.g3d.Material
 import sge.math.Vector3
+import sge.gltf.scene3d.attributes.PBRTextureAttribute
+import lowlevel.Nullable
 
 object MeshTangentSpaceGenerator {
+
+  def computeTangentSpace(mesh: Mesh, material: Material, computeNormals: Boolean, computeTangents: Boolean): Unit = {
+
+    if (mesh.numIndices == 0) throw new IllegalArgumentException("non indexed mesh not implemented")
+
+    val vertices = new Array[Float](mesh.numVertices * mesh.vertexAttributes.vertexSize / 4)
+    val indices  = new Array[Short](mesh.numIndices)
+    mesh.getVertices(vertices)
+    mesh.getIndices(indices)
+
+    val normalMap: Nullable[PBRTextureAttribute] = material.getAs[PBRTextureAttribute](PBRTextureAttribute.NormalTexture)
+    if (normalMap.isEmpty) throw new IllegalArgumentException("normal map not found in material")
+
+    val attributesGroup = mesh.vertexAttributes
+    var normalMapUVs: Nullable[VertexAttribute] = Nullable.empty
+    attributesGroup.foreach { a =>
+      if (a.usage == Usage.TextureCoordinates && a.unit == normalMap.get.uvIndex) {
+        normalMapUVs = Nullable(a)
+      }
+    }
+
+    if (normalMapUVs.isEmpty) throw new IllegalArgumentException("texture coordinates not found")
+
+    computeTangentSpace(vertices, indices, attributesGroup, computeNormals, computeTangents, normalMapUVs.get)
+
+    mesh.setVertices(vertices)
+    mesh.setIndices(indices)
+  }
 
   def computeTangentSpace(
     vertices:        Array[Float],

@@ -42,14 +42,21 @@ private[sge] object Gdx2dOpsJs extends Gdx2dOps {
 
   override def decodeImage(data: Array[Byte], offset: Int, len: Int): Option[Gdx2dOps.DecodeResult] = {
     val cached = decodedCache.get(data.asInstanceOf[js.Any])
-    if (js.isUndefined(cached)) None
-    else {
+    if (!js.isUndefined(cached)) {
       val result = cached.asInstanceOf[Gdx2dOps.DecodeResult]
       // Reset buffer position for each read
       result.pixels.position(0)
       Some(result)
+    } else {
+      // Cache miss: the bytes were not preloaded through the browser image
+      // pipeline (e.g. a Pixmap built synchronously from bytes PixmapIO.writePNG
+      // just produced, or headless Node code). Fall back to the synchronous
+      // pure-Scala PNG decoder (ISS-533 / ISS-651). Non-PNG inputs return None,
+      // preserving the original "not pre-decoded" failure path.
+      PngDecoderJs.decode(data, offset, len)
     }
   }
 
-  override def failureReason: String = "Image not pre-decoded — ensure BrowserAssetLoader preloads images before use"
+  override def failureReason: String =
+    "Image not pre-decoded and not a synchronously decodable PNG — ensure BrowserAssetLoader preloads images before use"
 }
