@@ -1070,13 +1070,21 @@ object TexturePacker {
   }
 
   def main(args: Array[String]): Unit = {
-    var input:  Nullable[String] = Nullable.empty
-    var output: Nullable[String] = Nullable.empty
+    var settings: Nullable[Settings] = Nullable.empty
+    var input:    Nullable[String]   = Nullable.empty
+    var output:   Nullable[String]   = Nullable.empty
     var packFileName = "pack.atlas"
 
     args.length match {
       case 4 =>
-        // Settings file parsing would go here -- for now just use defaults
+        // Upstream (case 4) deserializes the settings JSON onto a fresh Settings instance
+        // via `new Json().fromJson(Settings.class, new FileReader(args[3]))`; the port reuses
+        // TexturePackerFileProcessor.merge, which maps the same JSON keys (e.g. filterMin/
+        // filterMag through TextureFilter.valueOf) onto a Settings. Errors propagate, as
+        // upstream's FileReader/Json do.
+        val loaded = Settings()
+        new TexturePackerFileProcessor().merge(loaded, new File(args(3)))
+        settings = Nullable(loaded)
         packFileName = args(2)
         output = Nullable(args(1))
         input = Nullable(args(0))
@@ -1098,8 +1106,7 @@ object TexturePacker {
       val inputFile = new File(input.get)
       output = Nullable(new File(inputFile.getParentFile(), inputFile.getName() + "-packed").getAbsolutePath())
     }
-    // TODO: parse settings from args(3) when 4 args provided
-    val s = Settings()
+    val s = if (settings.isEmpty) Settings() else settings.get
 
     process(s, input.get, output.get, packFileName)
   }
