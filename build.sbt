@@ -65,7 +65,8 @@ lazy val al = new Aliases(
     `sge-visui`
   ),
   testOnly = Seq(
-    regressionTest
+    regressionTest,
+    `sge-android-robolectric`
   ),
   compileOnly = Seq(
     `sge-jvm-platform-api`,
@@ -659,6 +660,200 @@ val `sge-android-smoke` = (projectMatrix in file("sge-test/android-smoke"))
   )
   .dependsOn(sge)
 
+// ── Android Robolectric harness ───────────────────────────────────────
+//
+// Drives the real Android backend impl classes (the ones in
+// sge-jvm-platform/android/src/main/scala-android) on a plain JVM via
+// Robolectric 4.14.1 — no emulator, no Android SDK. Robolectric supplies a
+// full android.* runtime (the `android-all-instrumented` framework jar), so
+// the impl layer can be unit-tested off-device.
+//
+// This module is ADDITIVE: it does not touch how sge-jvm-platform-android
+// compiles WITH the SDK (that path + the CI emulator/APK jobs stay intact).
+// Because sge-jvm-platform-android compiles NOTHING without the SDK present,
+// this module compiles the impl sources itself, against android-all-
+// instrumented, rather than depending on that module's (empty) products.
+//
+// Scope boundary — impl classes that *subclass* an instrumented android
+// View/Window class (GLSurfaceView, PopupWindow, AutoCompleteTextView,
+// WallpaperService) cannot compile against the static android-all jar:
+// Robolectric instruments those parents to implement ShadowedObject, whose
+// synthetic $$robo$getData() method is only given a body at runtime via
+// bytecode rewriting, so it stays abstract in the static jar and the Scala
+// compiler (unlike javac) refuses to leave it unimplemented in a subclass.
+// Those four files + the aggregator that instantiates them are excluded from
+// this module's source set. The remaining impls (which only *call* android
+// APIs — preferences, clipboard, sensors, files, audio, …) compile and run.
+//
+// JDK pin — Robolectric 4.14.1 bundles ASM 9.x, which cannot parse JDK-25
+// (class-file major 69) bytecode; its instrumenting ClassLoader reads java.*
+// classes from the running JVM, so the TEST FORK must run on JDK 21. The
+// compile JVM stays at the build default. If JDK 21 is absent this module
+// SKIPS its tests (empty test source set + a warning) rather than failing the
+// build — it never hard-breaks environments without JDK 21.
+//
+// Run: sbt --client 'sge-android-robolectric/test'
+
+// Robolectric needs two androidx .aar artifacts (androidx.test:monitor,
+// androidx.tracing:tracing) on the runtime classpath for
+// InstrumentationRegistry. coursier/sbt don't unpack .aar onto the classpath,
+// so we declare them in a hidden `Aar` Ivy config (intransitive — their poms
+// list .jar deps that 404 on maven.google.com), resolve them, and unzip each
+// inner classes.jar into Test / unmanagedJars.
+lazy val Aar = config("aar").hide
+lazy val extractAars = taskKey[Seq[File]]("Unzip classes.jar out of resolved .aar artifacts")
+
+// JDK 21 home for the Robolectric test fork, if available. Honours JAVA21_HOME
+// first, then the sdkman graal build used in CI/dev, then any sdkman 21.* dir.
+lazy val robolectricJdk21Home: Option[File] = {
+  val fromEnv = sys.env.get("JAVA21_HOME").map(file).filter(_.exists)
+  def fromSdkman = {
+    val candidates = file(sys.props("user.home")) / ".sdkman" / "candidates" / "java"
+    val pinned     = candidates / "21.0.6-graal"
+    if (pinned.exists) Some(pinned)
+    else if (candidates.exists)
+      candidates.listFiles().toSeq.sortBy(_.getName).reverse.find(d => d.isDirectory && d.getName.startsWith("21."))
+    else None
+  }
+  fromEnv.orElse(fromSdkman)
+}
+
+val `sge-android-robolectric` = (projectMatrix in file("sge-test/android-robolectric"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
+  .someVariations(versions.scalas, List(VirtualAxis.jvm))((commonSettings("sge-test/android-robolectric") ++ dev.only1VersionInIDE ++ Seq(
+    MatrixAction.ForAll.Configure(_.settings(
+      (SgePlugin.relaxedSettings ++ Seq(
+        scalacOptions += "-Wconf:cat=deprecation:s"
+      )) *
+    ))
+  )) *)
+  .configs(Aar)
+  .settings(noPublishSettings)
+  .settings(mimaSettings)
+  .settings(
+    name := "sge-test-android-robolectric",
+
+    ivyConfigurations += Aar,
+    classpathTypes += "aar",
+    resolvers += "google" at "https://maven.google.com",
+
+    // Robolectric runs JUnit4 tests via junit-interface; not munit.
+    testFrameworks := Seq(new TestFramework("com.novocode.junit.JUnitFramework")),
+    testOptions += Tests.Argument(TestFramework("com.novocode.junit.JUnitFramework"), "-a", "-v"),
+
+    libraryDependencies ++= Seq(
+      "org.robolectric" % "robolectric"              % "4.14.1"                     % Test,
+      // Provided (not Test): the android.* framework jar must be on the COMPILE
+      // classpath so the impl sources type-check, and on the test classpath at
+      // runtime. Provided keeps it off any published artifact (this module is
+      // non-published anyway).
+      "org.robolectric" % "android-all-instrumented" % "14-robolectric-10818077-i6" % Provided,
+      // The classes in android-all-instrumented implement Robolectric's
+      // org.robolectric.internal.bytecode.{InstrumentedInterface,ShadowedObject}
+      // (these live in the `sandbox` artifact). The Scala compiler reads those
+      // signatures while type-checking the impl sources, so `sandbox` must be on
+      // the COMPILE classpath too — robolectric itself is Test-scoped and would
+      // otherwise leave sandbox off compile.
+      "org.robolectric" % "sandbox"                  % "4.14.1"                     % Provided,
+      "com.github.sbt"  % "junit-interface"          % "0.13.3"                     % Test,
+      "junit"           % "junit"                    % "4.13.2"                     % Test,
+      ("androidx.test"    % "monitor" % "1.7.2" % Aar)
+        .intransitive()
+        .artifacts(Artifact("monitor", "aar", "aar")),
+      ("androidx.tracing" % "tracing" % "1.1.0" % Aar)
+        .intransitive()
+        .artifacts(Artifact("tracing", "aar", "aar"))
+    ),
+
+    // Compile the impl layer here, against the Robolectric framework jar. The
+    // sge-jvm-platform-android module compiles these only WITH the SDK; this
+    // module compiles the SDK-independent subset itself. The framework jar
+    // (android-all-instrumented) is already a Test dependency, so it's on the
+    // compile classpath through Test scope at test time; we also add it to the
+    // compile classpath explicitly so the impl sources type-check.
+    Compile / unmanagedSourceDirectories ++= {
+      val androidImplDir =
+        (ThisBuild / baseDirectory).value / "sge-jvm-platform" / "android" / "src" / "main" / "scala-android"
+      if (robolectricJdk21Home.isDefined && androidImplDir.exists) Seq(androidImplDir) else Seq.empty
+    },
+    // Exclude impl classes that subclass an instrumented android class (see
+    // the scope-boundary note above) plus the aggregator that instantiates
+    // them. The remaining impls compile clean against android-all.
+    Compile / unmanagedSources := {
+      val excluded = Set(
+        "AndroidGLSurfaceViewImpl.scala",
+        "AndroidInputMethodImpl.scala",
+        "StandardKeyboardHeightProviderImpl.scala",
+        "AndroidLiveWallpaperServiceImpl.scala",
+        "AndroidPlatformProviderImpl.scala"
+      )
+      (Compile / unmanagedSources).value.filterNot(f => excluded.contains(f.getName))
+    },
+    // api ops interfaces (PreferencesOps, ClipboardOps, …) for the impls.
+    // Needed at compile time (impl sources implement them) AND at test compile
+    // time (the test references the impls, whose supertypes javac must resolve)
+    // and at test runtime.
+    Compile / unmanagedClasspath ++= {
+      val apiDirs = (`sge-jvm-platform-api`.jvm(versions.scala3) / Compile / products).value
+      apiDirs.map(Attributed.blank)
+    },
+    Test / unmanagedClasspath ++= {
+      val apiDirs = (`sge-jvm-platform-api`.jvm(versions.scala3) / Compile / products).value
+      apiDirs.map(Attributed.blank)
+    },
+    // android-all-instrumented is Provided, so it is already on the compile
+    // classpath — the impl sources type-check against the framework classes.
+
+    // Unzip classes.jar out of each resolved .aar into target/aar-classes.
+    extractAars := {
+      val log    = streams.value.log
+      val report = update.value
+      val outDir = target.value / "aar-classes"
+      IO.createDirectory(outDir)
+      val aars = report.select(configurationFilter(Aar.name)).filter(_.getName.endsWith(".aar"))
+      log.info(s"extractAars: ${aars.size} AAR(s) -> $outDir")
+      aars.toSeq.map { aar =>
+        val baseName    = aar.getName.stripSuffix(".aar")
+        val outJar      = outDir / s"$baseName-classes.jar"
+        val tmp         = IO.createTemporaryDirectory
+        IO.unzip(aar, tmp)
+        val classesJar  = tmp / "classes.jar"
+        if (!classesJar.exists)
+          sys.error(s"AAR ${aar.getName} has no classes.jar (found: ${IO.listFiles(tmp).map(_.getName).mkString(", ")})")
+        IO.copyFile(classesJar, outJar)
+        IO.delete(tmp)
+        log.info(s"extractAars: ${aar.getName} -> ${outJar.getName}")
+        outJar
+      }
+    },
+    Test / unmanagedJars ++= extractAars.value.map(Attributed.blank),
+
+    // The impl classes compiled here live in this module's product dir, which
+    // is already on the test classpath; the test instantiates them directly.
+
+    // JDK-21 handling — graceful, never hard-breaks the build.
+    //   present: run the test fork on JDK 21.
+    //   absent : skip this module's tests (empty test source set) + warn.
+    Test / fork := robolectricJdk21Home.isDefined,
+    Test / javaHome := robolectricJdk21Home,
+    Test / javaOptions ++= Seq(
+      "--add-opens=java.base/java.lang=ALL-UNNAMED",
+      "--add-opens=java.base/java.util=ALL-UNNAMED",
+      "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED"
+    ),
+    Test / sources := {
+      val log = sLog.value
+      if (robolectricJdk21Home.isDefined) (Test / sources).value
+      else {
+        log.warn(
+          "[sge-android-robolectric] JDK 21 not found (set JAVA21_HOME or install via sdkman) — " +
+            "Robolectric tests SKIPPED. Robolectric 4.14.1's ASM cannot run on JDK 25+."
+        )
+        Seq.empty
+      }
+    }
+  )
+
 // ── Integration tests ─────────────────────────────────────────────────
 //
 // Separate non-published modules with isolated classpaths to verify:
@@ -826,6 +1021,7 @@ lazy val root = (project in file("."))
   // Tests
   .aggregate(regressionTest.projectRefs *)
   .aggregate(`sge-android-smoke`.projectRefs *)
+  .aggregate(`sge-android-robolectric`.projectRefs *)
   // Integration tests
   .aggregate(`sge-it-desktop`.projectRefs *)
   .aggregate(`sge-it-jvm-platform`.projectRefs *)
