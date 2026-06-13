@@ -12,10 +12,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 3
- * Covenant-baseline-loc: 357
+ * Covenant-baseline-loc: 368
  * Covenant-baseline-methods: BUFFER_SIZE,CIM,COLOR_ARGB,COMPRESSION_DEFLATE,ChunkBuffer,FILTER_NONE,IDAT,IEND,IHDR,INTERLACE_NONE,PAETH,PNG,PixmapIO,SIGNATURE,buffer,close,curLineBytes,deflater,endChunk,flipY,fromInitialSize,lastLineLen,lineOutBytes,prevLineBytes,read,readBuffer,readCIM,setCompression,setFlipY,toGdx2DPixmapFormat,write,writeBuffer,writeCIM,writePNG
  * Covenant-source-reference: com/badlogic/gdx/graphics/PixmapIO.java
- * Covenant-verified: 2026-06-11
+ * Covenant-verified: 2026-06-13
  *
  * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
@@ -31,7 +31,6 @@ import java.io.IOException
 import java.io.OutputStream
 import java.nio.Buffer
 import java.util.zip.CRC32
-import java.util.zip.CheckedOutputStream
 import java.util.zip.Deflater
 import java.util.zip.DeflaterOutputStream
 import java.util.zip.InflaterInputStream
@@ -337,10 +336,22 @@ object PixmapIO {
     // initializers, so the shared pair is built by the companion factory
     // (`ChunkBuffer.fromInitialSize`) and threaded through the primary
     // constructor — matching the Java `ChunkBuffer(ByteArrayOutputStream, CRC32)`.
-    private class ChunkBuffer(buffer: ByteArrayOutputStream, crc: CRC32) extends DataOutputStream(new CheckedOutputStream(buffer, crc)) {
+    //
+    // Upstream wraps the buffer in `new CheckedOutputStream(buffer, crc)` so the
+    // CRC is updated incrementally as bytes flow through. CheckedOutputStream is
+    // not implemented on Scala.js (ISS-651), so here we write straight to the
+    // ByteArrayOutputStream and feed the CRC in `endChunk` instead. This is
+    // byte-identical: between two `endChunk` calls the buffer accumulates exactly
+    // the bytes the CheckedOutputStream would have seen (every write to this
+    // DataOutputStream lands in `buffer`, and nothing else touches it), and `crc`
+    // was reset together with `buffer` at the end of the previous chunk, so
+    // `crc.update(buffer.toByteArray())` covers the identical byte sequence in the
+    // identical order before `crc.getValue()` is read.
+    private class ChunkBuffer(buffer: ByteArrayOutputStream, crc: CRC32) extends DataOutputStream(buffer) {
       @throws[IOException]
       def endChunk(target: DataOutputStream): Unit = {
         flush()
+        crc.update(buffer.toByteArray())
         target.writeInt(buffer.size() - 4)
         buffer.writeTo(target)
         target.writeInt(crc.getValue().toInt)
