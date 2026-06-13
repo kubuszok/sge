@@ -10,10 +10,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 740
+ * Covenant-baseline-loc: 742
  * Covenant-baseline-methods: SkinStyleReader,copyFrom,create,lookup,register,registry,resolveColor,resolveFloat,resolveNullableColor,resolveNullableDrawable,resolveNullableFont,resolveStyle,setField,withColor,withDrawable,withFont,withStyle
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Skin.java
- * Covenant-verified: 2026-06-12
+ * Covenant-verified: 2026-06-13
  */
 package sge
 package scenes
@@ -76,12 +76,12 @@ object SkinStyleReader {
     case _ => Nullable.empty
   }
 
-  /** Sets a non-nullable Drawable field from JSON. No-op if lookup fails. */
+  /** Sets a non-nullable Drawable field from a JSON named reference. Mirrors libGDX Skin.get(name, Drawable.class) (Skin.java ~152-166, reached from the reflective field set): a named-but-missing
+    * resource is a hard error and propagates as an [[SgeError]] so [[Skin.readNamedObjects]] can wrap it (Skin.java ~530-544). A non-string JSON value (no named reference) leaves the field unset.
+    */
   private[ui] inline def withDrawable(skin: Skin, json: Json)(setter: Drawable => Unit): Unit = json match {
-    case Json.Str(name) =>
-      try setter(skin.getDrawable(name))
-      catch { case _: SgeError => () }
-    case _ => ()
+    case Json.Str(name) => setter(skin.getDrawable(name))
+    case _              => ()
   }
 
   /** Resolves a Nullable[Color] from JSON (string reference or inline object). */
@@ -95,17 +95,18 @@ object SkinStyleReader {
     case _              => readColor(json)
   }
 
-  /** Sets a non-nullable Color field from JSON. No-op if lookup fails. */
+  /** Sets a non-nullable Color field from JSON. Mirrors libGDX's Color serializer (Skin.java ~589-599): a string value resolves through Skin.get(name, Color.class), which is a hard error if missing —
+    * the [[SgeError]] propagates so [[Skin]] wraps it (Skin.java ~530-544). An inline color object is parsed via {@code readColor}.
+    */
   private[ui] inline def withColor(skin: Skin, json: Json, readColor: Json => Color)(setter: Color => Unit): Unit =
-    try setter(resolveColor(skin, json, readColor))
-    catch { case _: SgeError => () }
+    setter(resolveColor(skin, json, readColor))
 
-  /** Sets a non-nullable BitmapFont field from JSON. No-op if lookup fails. */
+  /** Sets a non-nullable BitmapFont field from a JSON named reference. Mirrors libGDX Skin.get(name, BitmapFont.class) (Skin.java ~152-166, reached from the reflective field set): a named-but-missing
+    * font is a hard error and propagates as an [[SgeError]] so [[Skin.readNamedObjects]] can wrap it (Skin.java ~530-544). A non-string JSON value (no named reference) leaves the field unset.
+    */
   private[ui] inline def withFont(skin: Skin, json: Json)(setter: BitmapFont => Unit): Unit = json match {
-    case Json.Str(name) =>
-      try setter(skin.getFont(name))
-      catch { case _: SgeError => () }
-    case _ => ()
+    case Json.Str(name) => setter(skin.getFont(name))
+    case _              => ()
   }
 
   /** Resolves a Nullable[BitmapFont] from JSON. */
@@ -128,10 +129,11 @@ object SkinStyleReader {
     case _              => readStyle(styleClass, json).asInstanceOf[S]
   }
 
-  /** Sets a nested style field. No-op if lookup fails. */
+  /** Sets a nested style field. A string value resolves through Skin.get(name, styleClass) (Skin.java ~152-166), a hard error if missing — the [[SgeError]] propagates so [[Skin]] wraps it (Skin.java
+    * ~530-544). An inline object is parsed via {@code readStyle}.
+    */
   private[ui] inline def withStyle[S](skin: Skin, json: Json, styleClass: Class[S], readStyle: (Class[?], Json) => Any)(setter: S => Unit): Unit =
-    try setter(resolveStyle(skin, json, styleClass, readStyle))
-    catch { case _: SgeError => () }
+    setter(resolveStyle(skin, json, styleClass, readStyle))
 
   // ---------------------------------------------------------------------------
   // 1. ButtonStyle

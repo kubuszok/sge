@@ -14,10 +14,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 799
+ * Covenant-baseline-loc: 815
  * Covenant-baseline-methods: Skin,TintedDrawable,_atlas,_scale,add,addRegions,addType,atlas,atlasFile,classTagMap,close,color,colorJson,drawable,drawableName,existing,find,flip,fontFile,get,getAll,getBoolField,getColor,getDrawable,getField,getFloatField,getFont,getJsonClassTags,getPatch,getRegion,getRegions,getSprite,getStringField,getTiledDrawable,has,i,load,markupEnabled,name,newDrawable,newRegion,obj,optional,parentTypesOf,path,readBitmapFont,readColor,readNamedObjects,readStyleObject,readTintedDrawable,readValue,reader,region,regionName,regions,registerJsonClassTags,remove,resolveClass,resource,resources,result,scale,scaledSize,setEnabled,setScale,style,styleParentTypes,tex,texture,this,tiled,typeResources,useIntPositions
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Skin.java
- * Covenant-verified: 2026-06-12
+ * Covenant-verified: 2026-06-13
  *
  * upstream-commit: ea21f93c17600dcb50b15eeacd752bf97aa39570
  */
@@ -68,6 +68,17 @@ class Skin()(using Sge) extends AutoCloseable {
   private var _atlas: Nullable[TextureAtlas]                          = Nullable.empty
   private var _scale: Float                                           = 1f
 
+  /** Live map used to look up JSON class tags, mirroring libGDX's per-instance {@code jsonClassTags} ObjectMap (Skin.java ~63-67). Seeded with the built-in default tags ([[Skin.classTagMap]]) and any
+    * cross-module tags registered via [[Skin.registerJsonClassTags]] before this skin was constructed. Exposed mutably through [[getJsonClassTags]] so callers may register additional tags before
+    * [[load]] (Skin.java ~622-627).
+    */
+  private val jsonClassTags: mutable.Map[String, Class[?]] = {
+    val m = mutable.Map.empty[String, Class[?]]
+    m ++= Skin.classTagMap
+    m ++= Skin.extensionClassTags
+    m
+  }
+
   /** Creates a skin containing the resources in the specified skin JSON file. If a file in the same directory with a ".atlas" extension exists, it is loaded as a {@link TextureAtlas} and the texture
     * regions added to the skin. The atlas is automatically disposed when the skin is disposed.
     */
@@ -110,9 +121,14 @@ class Skin()(using Sge) extends AutoCloseable {
       root match {
         case Json.Obj(rootObj) =>
           rootObj.fields.foreach { case (typeName, typeValue) =>
-            Skin.resolveClass(typeName) match {
+            resolveClass(typeName) match {
               case Some(tpe) => readNamedObjects(tpe, typeValue, skinFile)
-              case None      => () // Unknown type, skip
+              case None      =>
+                // Unknown type name. libGDX resolves the type via json.getClass(name) then
+                // ClassReflection.forName and throws a SerializationException wrapping the
+                // ReflectionException when the name cannot be resolved (Skin.java ~516-528);
+                // it does not silently drop the section.
+                throw SgeError.InvalidInput("Unable to resolve class for skin JSON type name: " + typeName)
             }
           }
         case _ => ()
@@ -624,10 +640,16 @@ class Skin()(using Sge) extends AutoCloseable {
   /** Returns the {@link TextureAtlas} passed to this skin constructor, or Nullable.empty. */
   def atlas: Nullable[TextureAtlas] = _atlas
 
-  /** Returns the map used to look up JSON class tags. The map can be modified before calling {@link #load(FileHandle)}. By default the map is populated with the simple class names of classes commonly
-    * used in skins.
+  /** Resolves a type name from skin JSON to a Class, consulting this skin's live [[jsonClassTags]] map. Uses a populated map instead of Class.forName for Scala.js/Native compatibility; entries
+    * registered through [[getJsonClassTags]] before [[load]] are honored (Skin.java ~616-627).
     */
-  def getJsonClassTags: Map[String, Class[?]] = Skin.classTagMap ++ Skin.extensionClassTags
+  private def resolveClass(name: String): Option[Class[?]] =
+    jsonClassTags.get(name)
+
+  /** Returns the map used to look up JSON class tags. The map can be modified before calling {@link #load(FileHandle)}. By default the map is populated with the simple class names of classes commonly
+    * used in skins. Mirrors libGDX's getJsonClassTags returning the live mutable jsonClassTags map (Skin.java ~622-627), so callers can register custom tags before loading.
+    */
+  def getJsonClassTags: mutable.Map[String, Class[?]] = jsonClassTags
 
   /** Disposes the {@link TextureAtlas} and all {@link AutoCloseable} resources in the skin. */
   override def close(): Unit = {
@@ -752,12 +774,6 @@ object Skin {
     extensionClassTags = extensionClassTags ++ tags
     extensionStyleParentTypes = extensionStyleParentTypes ++ parentTypes
   }
-
-  /** Resolves a type name from skin JSON to a Class. Uses a hardcoded map instead of Class.forName for Scala.js/Native compatibility. Extension-registered tags ([[registerJsonClassTags]]) are
-    * consulted after the built-in map.
-    */
-  private def resolveClass(name: String): Option[Class[?]] =
-    classTagMap.get(name).orElse(extensionClassTags.get(name))
 
   /** Returns the registered parent types for a style class, consulting the built-in [[styleParentTypes]] first, then extension-registered hierarchies. */
   private def parentTypesOf(tpe: Class[?]): List[Class[?]] =
