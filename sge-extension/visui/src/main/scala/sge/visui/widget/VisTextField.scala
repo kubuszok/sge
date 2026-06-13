@@ -7,10 +7,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 248
+ * Covenant-baseline-loc: 315
  * Covenant-baseline-methods: DigitsOnlyFilter,TextFieldFilter,TextFieldListener,VisTextField,VisTextFieldStyle,_cursorPercentHeight,_enterKeyFocusTraversal,_focusBorderEnabled,_ignoreEqualsTextChange,_inputValid,_readOnly,_visStyle,acceptChar,backgroundDrawable,backgroundOver,beforeChangeEventFired,changeText,clearText,clickListener,cursorHeight,cursorPercentHeight,cursorYPadding,disabled_,draw,drawBorder,drawCursor,enter,errorBorder,exit,focusBorder,focusBorderEnabled,focusBorderEnabled_,focusField,focusGained,focusLost,initialize,isEmpty,isEnterKeyFocusTraversal,isIgnoreEqualsTextChange,isInputValid,isReadOnly,keyTyped,setCursorAtTextEnd,setCursorPercentHeight,setEnterKeyFocusTraversal,setIgnoreEqualsTextChange,setInputValid,setReadOnly,this,toString,touchDown
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/VisTextField.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-13
  *
  * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
@@ -18,11 +18,12 @@ package sge
 package visui
 package widget
 
+import sge.Input.Key
 import sge.graphics.{ Color, Cursor }
 import sge.graphics.g2d.{ Batch, BitmapFont }
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener }
 import sge.scenes.scene2d.ui.TextField
-import sge.scenes.scene2d.utils.{ ClickListener, Drawable }
+import sge.scenes.scene2d.utils.{ ClickListener, Drawable, UIUtils }
 import lowlevel.Nullable
 import sge.visui.{ FocusManager, Focusable, VisUI }
 import sge.visui.util.{ BorderOwner, CursorManager }
@@ -78,6 +79,63 @@ class VisTextField(text: Nullable[String], visStyle: VisTextField.VisTextFieldSt
         }
       }
     )
+  }
+
+  /** Installs the VisUI text-field click listener so the input path consults the VisUI-specific `readOnly` and `enterKeyFocusTraversal` flags.
+    *
+    * In the original VisUI, VisTextField fully reimplements `TextFieldClickListener` with these flags woven into `keyDown`/`keyTyped` (VisTextField.java lines 1069-1254). This port extends SGE's core
+    * TextField, so the gating is added by subclassing the core `TextFieldClickListener` and overriding only the points where VisUI diverges.
+    */
+  override protected def createInputListener(): InputListener =
+    new VisTextFieldClickListener()
+
+  /** Core `TextFieldClickListener` specialised with VisUI's `readOnly` / `enterKeyFocusTraversal` semantics. */
+  protected class VisTextFieldClickListener extends TextFieldClickListener {
+
+    /** Mirrors VisTextField.java line 1193 (`if (disabled || readOnly) return false;`): a read-only field rejects ALL typed characters (typing, Enter-insert, backspace/delete). Otherwise the core
+      * keyTyped runs unchanged; the Enter focus-traversal branch is handled by the `checkFocusTraversal` override below.
+      */
+    override def keyTyped(event: InputEvent, character: Char): Boolean =
+      if (_readOnly) false
+      else super.keyTyped(event, character)
+
+    /** Mirrors VisTextField.java line 1211: when `enterKeyFocusTraversal` is enabled, the Android-Enter character (`'\n'`, VisTextField.java `ENTER_ANDROID`) triggers focus traversal via `next(...)`
+      * instead of being inserted. The core's TAB and platform-Enter (Android/iOS) traversal behaviour is preserved by delegating to `super`.
+      */
+    override protected def checkFocusTraversal(character: Char): Boolean =
+      super.checkFocusTraversal(character) ||
+        (getFocusTraversal && character == '\n' && _enterKeyFocusTraversal)
+
+    /** Mirrors the `readOnly == false` gating on the editing key-combos in VisTextField.java keyDown. Two gated groups exist:
+      *
+      * Ctrl/Cmd block (VisTextField.java lines 1083-1110):
+      *   - Ctrl/Cmd+V paste (line 1084: `keycode == Keys.V && readOnly == false`)
+      *   - Ctrl/Cmd+X cut (line 1092: `keycode == Keys.X && readOnly == false`)
+      *   - Ctrl/Cmd+Z undo (line 1100: `keycode == Keys.Z && readOnly == false`)
+      *
+      * Shift block (VisTextField.java lines 1112-1114):
+      *   - Shift+Insert paste (line 1113: `keycode == Keys.INSERT && readOnly == false`)
+      *   - Shift+ForwardDel cut (line 1114: `keycode == Keys.FORWARD_DEL && readOnly == false`)
+      *
+      * When read-only, these editing combos are consumed without mutating the text (the original simply skips the gated branch). For the ctrl edits the original still returns `true` after the ctrl
+      * block; for the shift edits INSERT/FORWARD_DEL are not cursor-movement keys, so the original's selection sub-block (LEFT/RIGHT/HOME/END) is a no-op for them — consuming the event here
+      * (returning `true` without delegating to the core shift block) is observably identical to the original skipping only the paste/cut line.
+      *
+      * Ctrl/Cmd+C copy (line 1088) and Ctrl/Cmd+A selectAll (line 1096) are NOT gated, so read-only still allows selecting, copying and reading — they fall through to the core keyDown unchanged, as
+      * does every non-editing key (including Shift+arrow selection on a read-only field).
+      */
+    override def keyDown(event: InputEvent, keycode: Key): Boolean =
+      if (_readOnly && UIUtils.ctrl() && isReadOnlyBlockedCtrlEdit(keycode))
+        true
+      else if (_readOnly && UIUtils.shift() && isReadOnlyBlockedShiftEdit(keycode))
+        true
+      else super.keyDown(event, keycode)
+
+    private def isReadOnlyBlockedCtrlEdit(keycode: Key): Boolean =
+      keycode == sge.Input.Keys.V || keycode == sge.Input.Keys.X || keycode == sge.Input.Keys.Z
+
+    private def isReadOnlyBlockedShiftEdit(keycode: Key): Boolean =
+      keycode == sge.Input.Keys.INSERT || keycode == sge.Input.Keys.FORWARD_DEL
   }
 
   def this()(using Sge) = this(Nullable(""), VisUI.getSkin.get[VisTextField.VisTextFieldStyle])
