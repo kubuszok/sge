@@ -17,6 +17,15 @@ trait GLSurfaceViewOps {
   /** Returns the underlying Android View (as AnyRef). */
   def view: AnyRef
 
+  /** Whether the GL rendering thread is currently paused (set by [[onPause]]/[[onResume]]). */
+  def isPaused: Boolean
+
+  /** Whether the surface is in continuous rendering mode (vs. render-on-demand). Reflects the last [[setContinuousRendering]] call. */
+  def continuousRendering: Boolean
+
+  /** Whether a single-frame render has been requested since the last frame drew (render-on-demand mode). */
+  def renderRequested: Boolean
+
   /** Pauses the GL rendering thread. */
   def onPause(): Unit
 

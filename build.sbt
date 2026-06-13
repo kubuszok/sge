@@ -179,10 +179,17 @@ val sge = (projectMatrix in file("sge"))
         libraryDependencies += "com.kubuszok" %% "multiarch-core" % versions.multiarch,
         libraryDependencies += "com.kubuszok" %% "multiarch-panama-jdk" % versions.multiarch,
         libraryDependencies += "com.kubuszok" %  "pnm-provider-sge-desktop" % versions.nativeComponents,
+        // sge-core compiles against the api ops interfaces only. The android
+        // module's COMPILE products are intentionally NOT on sge-core's compile
+        // classpath: sge-core references none of the android *Impl classes at
+        // compile time, while the scala-android SgeActivity shell (in the android
+        // module) consumes sge-core's products — so pulling android compile-products
+        // onto sge-core's compile classpath would form a build cycle (sge ↔ android).
+        // The android products are still merged into the sge JAR (packageBin
+        // mappings below) and are on the test classpath at runtime.
         Compile / unmanagedClasspath ++= {
-          val apiDirs     = (`sge-jvm-platform-api`.jvm(versions.scala3) / Compile / products).value
-          val androidDirs = (`sge-jvm-platform-android`.jvm(versions.scala3) / Compile / products).value
-          (apiDirs ++ androidDirs).map(Attributed.blank)
+          val apiDirs = (`sge-jvm-platform-api`.jvm(versions.scala3) / Compile / products).value
+          apiDirs.map(Attributed.blank)
         },
         Test / unmanagedClasspath ++= {
           val apiDirs     = (`sge-jvm-platform-api`.jvm(versions.scala3) / Compile / products).value
@@ -318,6 +325,10 @@ val `sge-jvm-platform-android` = (projectMatrix in file("sge-jvm-platform/androi
   .settings(mimaSettings)
   .settings(
     scalacOptions ++= Seq("-release", "17"),
+    // The scala-android SgeActivity shell reads sge-core class signatures that
+    // reference `lowlevel.Nullable` (from lls), so lls must be on this module's
+    // compile classpath to resolve those signatures.
+    libraryDependencies += "com.kubuszok" %% "lls" % versions.lls,
     Compile / unmanagedJars ++= {
       val base     = (ThisBuild / baseDirectory).value
       val cacheDir = base / "sge-deps" / "android-sdk"
@@ -330,6 +341,18 @@ val `sge-jvm-platform-android` = (projectMatrix in file("sge-jvm-platform/androi
       if (hasAndroidSdk)
         Seq((ThisBuild / baseDirectory).value / "sge-jvm-platform" / "android" / "src" / "main" / "scala-android")
       else Seq.empty
+    },
+    // The scala-android SgeActivity shell (sge/SgeActivity.scala) references
+    // sge-core types (Sge, AndroidApplication, SgeAndroidDriver, AndroidGraphics,
+    // Pixels). Reference sge-core's JVM products via LocalProject (by id, not the
+    // `sge` val) so this module does not appear in the `sge` val's initialization
+    // graph — that would be a recursive-val cycle, since the `sge` val already
+    // mentions this module (test classpath + packageBin mappings). sge-core does
+    // NOT compile-depend on this module's products (see the note on sge-core's
+    // Compile/unmanagedClasspath), so there is no sbt task cycle either.
+    Compile / unmanagedClasspath ++= {
+      val sgeDirs = (LocalProject("sge") / Compile / products).value
+      sgeDirs.map(Attributed.blank)
     }
   )
   .dependsOn(`sge-jvm-platform-api`)
@@ -785,7 +808,11 @@ val `sge-android-robolectric` = (projectMatrix in file("sge-test/android-robolec
         "AndroidInputMethodImpl.scala",
         "StandardKeyboardHeightProviderImpl.scala",
         "AndroidLiveWallpaperServiceImpl.scala",
-        "AndroidPlatformProviderImpl.scala"
+        "AndroidPlatformProviderImpl.scala",
+        // SgeActivity references sge-core types (Sge, AndroidApplication,
+        // SgeAndroidDriver) that this SDK-independent harness does not put on its
+        // classpath; its driver logic is covered by SgeAndroidDriverRedSuite.
+        "SgeActivity.scala"
       )
       (Compile / unmanagedSources).value.filterNot(f => excluded.contains(f.getName))
     },

@@ -72,15 +72,37 @@ class AndroidGLSurfaceViewImpl(
 
   private var _glEsVersion: Int = targetVersion
 
+  // Render-loop state tracked here because android's GLSurfaceView exposes no
+  // getters for pause/render-mode/render-request.
+  private var _isPaused:            Boolean = false
+  private var _continuousRendering: Boolean = true // GLSurfaceView defaults to RENDERMODE_CONTINUOUSLY
+  private var _renderRequested:     Boolean = false
+
   override def view: AnyRef = surfaceView
 
-  override def onPause(): Unit = surfaceView.onPause()
+  override def isPaused: Boolean = _isPaused
 
-  override def onResume(): Unit = surfaceView.onResume()
+  override def continuousRendering: Boolean = _continuousRendering
 
-  override def requestRender(): Unit = surfaceView.requestRender()
+  override def renderRequested: Boolean = _renderRequested
+
+  override def onPause(): Unit = {
+    _isPaused = true
+    surfaceView.onPause()
+  }
+
+  override def onResume(): Unit = {
+    _isPaused = false
+    surfaceView.onResume()
+  }
+
+  override def requestRender(): Unit = {
+    _renderRequested = true
+    surfaceView.requestRender()
+  }
 
   override def setContinuousRendering(continuous: Boolean): Unit = {
+    _continuousRendering = continuous
     val mode = if (continuous) GLSurfaceView.RENDERMODE_CONTINUOUSLY else GLSurfaceView.RENDERMODE_WHEN_DIRTY
     surfaceView.setRenderMode(mode)
   }

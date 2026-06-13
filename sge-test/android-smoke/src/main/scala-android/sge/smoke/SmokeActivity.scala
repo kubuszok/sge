@@ -1,8 +1,10 @@
 // SGE — Android smoke test Activity
 //
-// Activity that bootstraps a full SGE application using AndroidApplication
-// and SmokeListener. Creates all subsystems (graphics, audio, files, input,
-// net), runs 6 subsystem checks, and exits after 30 frames.
+// Activity that bootstraps a full SGE application using SgeActivity (the
+// canonical Android host shell) and SmokeListener. SgeActivity creates all
+// subsystems (graphics, audio, files, input, net) and drives the lifecycle /
+// frame / input wiring via SgeAndroidDriver; this Activity only supplies the
+// listener + config and adds the smoke-specific 30-frame exit logging.
 //
 // Results are logged via both scribe (SmokeListener) and android.util.Log
 // (this Activity) so they're visible in logcat regardless of the scribe backend.
@@ -12,130 +14,41 @@
 package sge
 package smoke
 
-import _root_.android.app.Activity
-import _root_.android.opengl.GLSurfaceView
-import _root_.android.os.{ Bundle, Handler, Looper }
 import _root_.android.util.Log
-import javax.microedition.khronos.egl.{ EGLConfig => AndroidEGLConfig }
-import javax.microedition.khronos.opengles.GL10
 
 import sge.platform.android._
 
-/** Smoke test Activity. Creates a full Sge context with all subsystems, runs SmokeListener's 6 subsystem checks, then exits after 30 frames.
+/** Smoke test Activity. Extends [[sge.SgeActivity]], so the full Sge context with all subsystems is created and pumped by the shared host shell + [[sge.SgeAndroidDriver]]. Supplies a
+  * [[SmokeListener]] (which runs the 6 subsystem checks) and exits after 30 frames, logging SMOKE_TEST_PASSED / SMOKE_TEST_FAILED for the integration test to detect.
   */
-class SmokeActivity extends Activity {
+class SmokeActivity extends SgeActivity {
 
   private val TAG = "SGE-SMOKE"
 
-  private var app: AndroidApplication = scala.compiletime.uninitialized
+  override protected def createListener(using Sge): ApplicationListener = new SmokeListener()
 
-  override def onCreate(savedInstanceState: Bundle): Unit = {
-    super.onCreate(savedInstanceState)
-
-    try {
-      Log.i(TAG, "Creating SGE smoke test...")
-
-      val provider = AndroidPlatformProviderImpl
-      val config   = provider.defaultConfig()
-      config.useAccelerometer = true
-      config.useGyroscope = true
-      config.useCompass = false
-      // Audio enabled — subsystem checks verify audio accessibility
-
-      val lifecycle = provider.createLifecycle(this).asInstanceOf[AndroidLifecycleImpl]
-      val listener: Sge ?=> ApplicationListener = new SmokeListener()
-      app = new AndroidApplication(listener, config, provider, lifecycle, this)
-
-      Log.i(TAG, "AndroidApplication created, initializing graphics...")
-
-      val surfaceView = app
-        .initializeGraphicsAndInput(
-          getWindowManager(),
-          new Handler(Looper.getMainLooper())
-        )
-        .asInstanceOf[GLSurfaceView]
-
-      surfaceView.setRenderer(
-        new GLSurfaceView.Renderer {
-
-          private var created = false
-
-          override def onSurfaceCreated(gl: GL10, eglConfig: AndroidEGLConfig): Unit = {
-            val versionStr  = gl.glGetString(GL10.GL_VERSION)
-            val vendorStr   = gl.glGetString(GL10.GL_VENDOR)
-            val rendererStr = gl.glGetString(GL10.GL_RENDERER)
-            Log.i(TAG, s"GL surface created: $versionStr / $vendorStr / $rendererStr")
-
-            val graphics = app.graphics.asInstanceOf[AndroidGraphics]
-            graphics.setupGL(versionStr, vendorStr, rendererStr)
-            app.initializeSge()
-            // Defer listener.create() to onSurfaceChanged so dimensions are available
-            created = false
-            Log.i(TAG, "SGE fully initialized with all subsystems")
-          }
-
-          override def onSurfaceChanged(gl: GL10, w: Int, h: Int): Unit = {
-            val graphics = app.graphics.asInstanceOf[AndroidGraphics]
-            graphics._width = w
-            graphics._height = h
-            gl.glViewport(0, 0, w, h)
-            Log.i(TAG, s"Surface changed: ${w}x${h}")
-            if (!created) {
-              app.listener.create()
-              created = true
-            }
-            app.listener.resize(Pixels(w), Pixels(h))
-          }
-
-          override def onDrawFrame(gl: GL10): Unit = {
-            val graphics = app.graphics.asInstanceOf[AndroidGraphics]
-            graphics.updateFrameTiming(false)
-            app.processInputEvents()
-            app.executeRunnables()
-
-            val frame = graphics.frameId
-            if (frame % 10 == 0) Log.i(TAG, s"Frame $frame")
-
-            app.listener.render()
-
-            // Echo the pass/fail marker via Log.i so logcat captures it reliably
-            if (!app.running) {
-              if (app.listener.asInstanceOf[SmokeListener].allPassed) Log.i(TAG, "SMOKE_TEST_PASSED")
-              else Log.i(TAG, "SMOKE_TEST_FAILED")
-              app.listener.dispose()
-            }
-          }
-        }
-      )
-
-      setContentView(surfaceView)
-      Log.i(TAG, "Content view set, rendering started")
-
-    } catch {
-      case e: Throwable =>
-        Log.e(TAG, "SMOKE_TEST_FAILED: " + e.getMessage, e)
-        finish()
-    }
+  override protected def createConfig(provider: AndroidPlatformProvider): AndroidConfigOps = {
+    val config = provider.defaultConfig()
+    config.useAccelerometer = true
+    config.useGyroscope = true
+    config.useCompass = false
+    // Audio enabled — subsystem checks verify audio accessibility
+    config
   }
 
-  override def onResume(): Unit = {
-    super.onResume()
-    if (app != null) { // scalafix:ok
-      app.onResume()
-      if (app.sgeContext != null) app.listener.resume() // scalafix:ok
-    }
-  }
+  override protected def onFrameRendered(): Unit = {
+    // Per-frame liveness marker (every 10 frames). The android-it test treats
+    // "SGE-SMOKE: Frame " as a liveness fallback when some emulator subsystem
+    // checks fail, so this logging must be preserved.
+    val frame = application.graphics.frameId
+    if (frame % 10 == 0) Log.i(TAG, s"Frame $frame")
 
-  override def onPause(): Unit = {
-    if (app != null) { // scalafix:ok
-      if (app.sgeContext != null) app.listener.pause() // scalafix:ok
-      app.onPause()
+    // Echo the pass/fail marker via Log.i so logcat captures it reliably.
+    // SmokeListener.exit() (after 30 frames) sets app.running = false.
+    if (!application.running) {
+      if (application.listener.asInstanceOf[SmokeListener].allPassed) Log.i(TAG, "SMOKE_TEST_PASSED")
+      else Log.i(TAG, "SMOKE_TEST_FAILED")
+      application.listener.dispose()
     }
-    super.onPause()
-  }
-
-  override def onDestroy(): Unit = {
-    if (app != null) app.onDestroy() // scalafix:ok
-    super.onDestroy()
   }
 }
