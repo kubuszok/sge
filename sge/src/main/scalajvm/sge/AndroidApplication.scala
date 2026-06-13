@@ -270,25 +270,46 @@ private[sge] class AndroidAudio(ops: AudioEngineOps) extends Audio {
     AndroidAudioRecorderAdapter(ops.newAudioRecorder(samplingRate, isMono))
 
   override def newSound(fileHandle: files.FileHandle): audio.Sound = {
-    val fh = fileHandle
-    fh.fileType match {
+    // Mirrors libgdx DefaultAndroidAudio.newSound (lines 163-183): cast to AndroidFileHandle.
+    val aHandle = fileHandle.asInstanceOf[AndroidFileHandle]
+    aHandle.fileType match {
       case files.FileType.Internal =>
-        // Internal files need file descriptor access (Android assets)
-        val file = fh.internalFile
-        // For non-asset files, use path-based loading
-        AndroidSoundAdapter(ops.newSoundFromPath(file.getPath()))
+        // Internal files are APK assets with no filesystem path — load via the asset
+        // file descriptor (libgdx: getAssetFileDescriptor() -> soundPool.load(descriptor, 1)).
+        val descriptor = aHandle.getAssetFileDescriptor()
+        if (descriptor == null) {
+          // libgdx throws GdxRuntimeException when the asset fd cannot be opened.
+          throw utils.SgeError.AudioError(
+            s"Error loading audio file: $fileHandle\nNote: Internal audio files must be placed in the assets directory."
+          )
+        }
+        val (fd, startOffset, length) = descriptor
+        AndroidSoundAdapter(ops.newSoundFromFd(fd, startOffset, length))
       case _ =>
-        AndroidSoundAdapter(ops.newSoundFromPath(fh.internalFile.getAbsolutePath()))
+        // All other file types are real filesystem paths (libgdx: soundPool.load(file().getPath(), 1)).
+        AndroidSoundAdapter(ops.newSoundFromPath(aHandle.file.getPath()))
     }
   }
 
   override def newMusic(file: files.FileHandle): audio.Music = {
-    val fh = file
-    fh.fileType match {
+    // Mirrors libgdx DefaultAndroidAudio.newMusic (lines 92-126): cast to AndroidFileHandle.
+    val aHandle = file.asInstanceOf[AndroidFileHandle]
+    aHandle.fileType match {
       case files.FileType.Internal =>
-        AndroidMusicAdapter(ops.newMusicFromPath(fh.internalFile.getPath()))
+        // Internal files are APK assets with no filesystem path — load via the asset
+        // file descriptor (libgdx: getAssetFileDescriptor() -> setDataSource(fd, startOffset, length)).
+        val descriptor = aHandle.getAssetFileDescriptor()
+        if (descriptor == null) {
+          // libgdx throws GdxRuntimeException when the asset fd cannot be opened.
+          throw utils.SgeError.AudioError(
+            s"Error loading audio file: $file\nNote: Internal audio files must be placed in the assets directory."
+          )
+        }
+        val (fd, startOffset, length) = descriptor
+        AndroidMusicAdapter(ops.newMusicFromFd(fd, startOffset, length))
       case _ =>
-        AndroidMusicAdapter(ops.newMusicFromPath(fh.internalFile.getAbsolutePath()))
+        // All other file types are real filesystem paths (libgdx: setDataSource(file().getPath())).
+        AndroidMusicAdapter(ops.newMusicFromPath(aHandle.file.getPath()))
     }
   }
 

@@ -15,7 +15,7 @@
 package sge
 package files
 
-import java.io.{ File, FileInputStream, IOException, InputStream }
+import java.io.{ File, FileDescriptor, FileInputStream, IOException, InputStream }
 import java.nio.{ ByteBuffer, ByteOrder }
 import java.nio.channels.FileChannel
 import sge.platform.android.FilesOps
@@ -70,9 +70,21 @@ class AndroidFileHandle(internalFile: File, fileType: FileType, private val file
       super.read()
     }
 
+  /** Returns the asset file descriptor for this file, or `null` if the file is not of type Internal.
+    *
+    * Mirrors libgdx `AndroidFileHandle.getAssetFileDescriptor()` (`assets != null ? assets.openFd(path()) : null`): the SGE analogue routes through [[FilesOps.openInternalFd]], which abstracts
+    * `AssetManager.openFd()`. The returned tuple is `(fileDescriptor, startOffset, declaredLength)`, the SGE equivalent of Android's `AssetFileDescriptor`.
+    *
+    * @return
+    *   the asset file descriptor tuple, or `null` when the file is not Internal or the asset fd cannot be opened
+    */
+  def getAssetFileDescriptor(): (FileDescriptor, Long, Long) | Null =
+    if (fileType == FileType.Internal) filesOps.openInternalFd(internalFile.getPath())
+    else null // scalafix:ok
+
   override def map(mode: FileChannel.MapMode): ByteBuffer =
     if (fileType == FileType.Internal) {
-      val fdResult = filesOps.openInternalFd(internalFile.getPath())
+      val fdResult = getAssetFileDescriptor()
       if (fdResult == null) {
         throw utils.SgeError.FileReadError(this, s"Error memory mapping file: $this ($fileType)")
       }
