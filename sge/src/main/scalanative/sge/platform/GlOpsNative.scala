@@ -59,6 +59,7 @@ private[sge] object GlOpsNative extends GlOps {
   private val EGL_DEPTH_SIZE:            CInt = 0x3025
   private val EGL_STENCIL_SIZE:          CInt = 0x3026
   private val EGL_SAMPLE_BUFFERS:        CInt = 0x3032
+  private val EGL_SAMPLES:               CInt = 0x3031
   private val EGL_RENDERABLE_TYPE:       CInt = 0x3040
   private val EGL_OPENGL_ES3_BIT:        CInt = 0x0040
   private val EGL_SURFACE_TYPE:          CInt = 0x3033
@@ -76,6 +77,43 @@ private[sge] object GlOpsNative extends GlOps {
 
   // Cache the EGL display from the last createContext call for setSwapInterval
   @volatile private var cachedDisplay: Ptr[Byte] = null
+
+  // Builds the EGL config attribute list (key/value pairs terminated by
+  // EGL_NONE) from the requested framebuffer parameters. Extracted as a
+  // testable seam so the attribute construction can be unit-tested without a
+  // live EGL display. Mirrors GlOpsJvm.createContext's `attribs` array.
+  private[sge] def buildConfigAttribs(
+    r:       Int,
+    g:       Int,
+    b:       Int,
+    a:       Int,
+    depth:   Int,
+    stencil: Int,
+    samples: Int
+  ): Array[Int] = {
+    val base = Array(
+      EGL_RED_SIZE,
+      r,
+      EGL_GREEN_SIZE,
+      g,
+      EGL_BLUE_SIZE,
+      b,
+      EGL_ALPHA_SIZE,
+      a,
+      EGL_DEPTH_SIZE,
+      depth,
+      EGL_STENCIL_SIZE,
+      stencil,
+      EGL_RENDERABLE_TYPE,
+      EGL_OPENGL_ES3_BIT,
+      EGL_SURFACE_TYPE,
+      EGL_WINDOW_BIT
+    )
+    val msaa =
+      if (samples > 0) Array(EGL_SAMPLE_BUFFERS, 1, EGL_SAMPLES, samples)
+      else Array.empty[Int]
+    base ++ msaa ++ Array(EGL_NONE)
+  }
 
   // ─── GlOps implementation ────────────────────────────────────────────
 
@@ -113,20 +151,13 @@ private[sge] object GlOpsNative extends GlOps {
     }
 
     // Choose config — build attribute list dynamically
-    val attribs = stackalloc[CInt](19)
-    var idx     = 0
-    attribs(idx) = EGL_RED_SIZE; idx += 1; attribs(idx) = r; idx += 1
-    attribs(idx) = EGL_GREEN_SIZE; idx += 1; attribs(idx) = g; idx += 1
-    attribs(idx) = EGL_BLUE_SIZE; idx += 1; attribs(idx) = b; idx += 1
-    attribs(idx) = EGL_ALPHA_SIZE; idx += 1; attribs(idx) = a; idx += 1
-    attribs(idx) = EGL_DEPTH_SIZE; idx += 1; attribs(idx) = depth; idx += 1
-    attribs(idx) = EGL_STENCIL_SIZE; idx += 1; attribs(idx) = stencil; idx += 1
-    attribs(idx) = EGL_RENDERABLE_TYPE; idx += 1; attribs(idx) = EGL_OPENGL_ES3_BIT; idx += 1
-    attribs(idx) = EGL_SURFACE_TYPE; idx += 1; attribs(idx) = EGL_WINDOW_BIT; idx += 1
-    if (samples > 0) {
-      attribs(idx) = EGL_SAMPLE_BUFFERS; idx += 1; attribs(idx) = 1; idx += 1
+    val attribValues = buildConfigAttribs(r, g, b, a, depth, stencil, samples)
+    val attribs      = stackalloc[CInt](attribValues.length)
+    var idx          = 0
+    while (idx < attribValues.length) {
+      attribs(idx) = attribValues(idx)
+      idx += 1
     }
-    attribs(idx) = EGL_NONE
 
     val configOut  = stackalloc[Ptr[Byte]]()
     val numConfigs = stackalloc[CInt]()
