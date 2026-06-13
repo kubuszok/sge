@@ -7,10 +7,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 337
+ * Covenant-baseline-loc: 371
  * Covenant-baseline-methods: APPROVE,BLOCK_INPUT,CANCEL,DEFAULT_ALPHA,DEFAULT_FADING_TIME,DEFAULT_LISTENER,DEFAULT_MOVING_TIME,DragAdapter,DragListener,Draggable,INVISIBLE_ON_DRAG,KEEP_WITHIN_PARENT,LAST_POSITION,MIMIC_COORDINATES,MimicActor,STAGE_COORDINATES,_alpha,_blocker,_deadzoneRadius,_offsetX,_offsetY,actor,addBlocker,addMimicHidingAction,alpha,alpha_,attachMimic,attachTo,b,blockInput,blocker,deadzoneRadius,deadzoneRadius_,dragStartX,dragStartY,draw,fadingInterpolation,fadingTime,getFadingTime,getMovingTime,getStageCoordinates,getStageCoordinatesWithDeadzone,getStageCoordinatesWithOffset,getStageCoordinatesWithinParent,handled,i,invisibleWhenDragged,isBlockingInput,isDisabled,isDragged,isInvisibleWhenDragged,isKeptWithinParent,isValid,isWithinDeadzone,keepWithinParent,listener,listener_,listeners,mimic,mouseMoved,movingInterpolation,movingTime,offsetX,offsetY,onDrag,onEnd,onStart,remove,removeBlocker,scrolled,setBlockInput,setFadingInterpolation,setFadingTime,setInvisibleWhenDragged,setKeepWithinParent,setMovingInterpolation,setMovingTime,this,touchDown,touchDragged,touchUp,updateSize
  * Covenant-source-reference: com/kotcrab/vis/ui/widget/Draggable.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-13
  *
  * upstream-commit: 820300c86a1bd907404217195a9987e5c66d2220
  */
@@ -147,7 +147,12 @@ class Draggable(private var _listener: Nullable[Draggable.DragListener])(using S
     }
   }
 
-  protected def getStageCoordinates(event: InputEvent): Unit =
+  protected def getStageCoordinates(event: InputEvent): Unit = {
+    // Mirror the original's live MimicActor.getWidth()/getHeight() delegation
+    // (Draggable.java lines 535-543): refresh the mimic's reported size from the
+    // dragged actor before the keep-within-parent / deadzone clamp reads it, so
+    // the clamp always uses the actor's real size instead of 0.
+    mimic.updateSize()
     if (keepWithinParent) {
       getStageCoordinatesWithinParent(event)
     } else if (_deadzoneRadius > 0f) {
@@ -155,6 +160,7 @@ class Draggable(private var _listener: Nullable[Draggable.DragListener])(using S
     } else {
       getStageCoordinatesWithOffset(event)
     }
+  }
 
   private def getStageCoordinatesWithDeadzone(event: InputEvent): Unit = {
     var handled = false
@@ -332,9 +338,27 @@ object Draggable {
       super.remove()
     }
 
-    // Note: width/height are vars inherited from Actor; we update them when actor changes
+    // The original Java overrides MimicActor.getWidth()/getHeight()
+    // (Draggable.java lines 535-543) to delegate LIVE to the mimicked actor:
+    //   public float getWidth ()  { return actor == null ? 0f : actor.getWidth(); }
+    //   public float getHeight () { return actor == null ? 0f : actor.getHeight(); }
+    // so the keep-within-parent clamp always sees the dragged actor's real size.
+    // In SGE, Actor.width/height are mutable vars that a `def` cannot override,
+    // so the same live contract is reproduced by copying the mimicked actor's
+    // current size into the inherited vars. updateSize() is invoked wherever the
+    // original's live getter would be read for the clamp (setActor in attachMimic
+    // and on every getStageCoordinates pass), so mimic.width/height always mirror
+    // the dragged actor's real size (0 when there is no actor, matching the
+    // null branch above).
     def updateSize(): Unit =
-      actor.foreach { a => this.width = a.width; this.height = a.height }
+      actor match {
+        case a if a.isDefined =>
+          this.width = a.get.width
+          this.height = a.get.height
+        case _ =>
+          this.width = 0f
+          this.height = 0f
+      }
 
     override def draw(batch: Batch, parentAlpha: Float): Unit =
       actor.foreach { a =>
