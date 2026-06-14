@@ -12,6 +12,13 @@
  *   Idiom: split packages; no return; created-once flag is a simple var.
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 101
+ * Covenant-baseline-methods: SgeAndroidDriver,_,created,genericMotion,keyDown,keyTyped,keyUp,onDestroy,onDrawFrame,onPause,onResume,onSurfaceChanged,touchEvent
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-06-14
  */
 package sge
 
