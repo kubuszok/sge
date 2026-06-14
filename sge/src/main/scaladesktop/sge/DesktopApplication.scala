@@ -169,6 +169,11 @@ class DesktopApplication(
       }
       windowing.pollEvents()
 
+      // Drive per-frame hooks (SGE-original) once per frame, right after input
+      // pollEvents so polling-based subsystems (e.g. the controllers extension)
+      // refresh their state before the next window render consumes it.
+      runFrameHooks()
+
       // Process application-level runnables
       var shouldRequestRendering = false
       _runnables.synchronized {

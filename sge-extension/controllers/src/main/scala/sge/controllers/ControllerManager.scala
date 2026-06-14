@@ -50,6 +50,13 @@ abstract class ControllerManager {
   /** Removes every global [[ControllerListener]] previously added. */
   def clearListeners(): Unit
 
+  /** Polls the underlying platform for controller state and dispatches connect/disconnect/button/axis events. Call once per frame.
+    *
+    * SGE-original: gdx-controllers is event/callback driven (the platform pushes connect/disconnect and input events). SGE is polling-based for cross-platform uniformity, so the per-frame tick is
+    * lifted onto the abstract base. This lets the [[Controllers]] facade and the auto-registered per-frame [[Application]] hook drive any manager polymorphically.
+    */
+  def poll(): Unit
+
   /** Manages the currentController field. Must be added to controller listeners as the first listener. */
   protected class ManageCurrentControllerListener extends ControllerAdapter {
 

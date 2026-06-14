@@ -63,7 +63,7 @@ import sge.utils.Clipboard
   * @author
   *   mzechner
   */
-trait Application {
+trait Application extends FrameHookHost {
 
   /** @return the {@link ApplicationListener} instance */
   def applicationListener: ApplicationListener

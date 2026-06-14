@@ -70,7 +70,7 @@ object GlfwControllerNativeInit {
             axes(ai) = !(axesPtr + ai)
             ai += 1
           }
-          ControllerState.fromDigitalButtons(name, guid, connected = true, buttons, axes, ControllerPowerLevel.Unknown)
+          ControllerState.fromDigitalButtons(name, GlfwControllerBackend.uniqueIdFor(guid, index), connected = true, buttons, axes, ControllerPowerLevel.Unknown)
         } else {
           // Gamepad state failed, fall back to raw joystick
           pollRawJoystick(index, name, guid)
@@ -105,6 +105,6 @@ object GlfwControllerNativeInit {
       bi += 1
     }
 
-    ControllerState.fromDigitalButtons(name, guid, connected = true, buttons, axes, ControllerPowerLevel.Unknown)
+    ControllerState.fromDigitalButtons(name, GlfwControllerBackend.uniqueIdFor(guid, index), connected = true, buttons, axes, ControllerPowerLevel.Unknown)
   }
 }

@@ -50,4 +50,20 @@ object GlfwControllerBackend {
   /** Platform-specific polling implementation. On Scala Native, this is overridden by the actual GLFW FFI bindings in scalanative/. On JVM, this returns Disconnected (stub).
     */
   private[controllers] var pollControllerImpl: Int => ControllerState = _ => ControllerState.Disconnected
+
+  /** Builds the [[ControllerState.uniqueId]] for a GLFW joystick from its model GUID and its joystick slot index.
+    *
+    * Two physically distinct pads of the same model report the SAME GLFW GUID, so a GUID-only id makes [[DefaultControllerManager.poll]] (which matches controllers by `uniqueId`) MERGE them into one
+    * controller. Incorporating the slot index disambiguates them, mirroring the browser backend's `s"gamepad-$gpIndex"` (BrowserControllerImpl). Pure helper so the distinctness is unit-testable
+    * without GLFW.
+    *
+    * @param guid
+    *   the GLFW joystick GUID (identical across same-model pads)
+    * @param slot
+    *   the GLFW joystick slot index (0..15), which is unique per connected pad
+    * @return
+    *   a uniqueId distinct per slot even for identical GUIDs
+    */
+  def uniqueIdFor(guid: String, slot: Int): String =
+    s"$guid-$slot"
 }

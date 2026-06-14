@@ -277,6 +277,11 @@ class BrowserApplication(
     }
     runnablesHelper.clear()
 
+    // Drive per-frame hooks (SGE-original) once per frame, before render so
+    // polling-based subsystems (e.g. the controllers extension) refresh their
+    // state and the game observes it during this frame's render().
+    runFrameHooks()
+
     _graphics._frameId += 1
     listener.render()
 

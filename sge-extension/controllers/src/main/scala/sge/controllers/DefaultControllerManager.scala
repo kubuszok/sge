@@ -47,7 +47,7 @@ class DefaultControllerManager(ops: ControllerOps) extends ControllerManager {
     listeners.clear()
 
   /** Polls all controller slots and dispatches connect/disconnect/button/axis events. Call this once per frame. */
-  def poll(): Unit = {
+  override def poll(): Unit = {
     val states = ops.getConnectedControllers()
 
     // Detect disconnections: controllers we were tracking that are no longer connected

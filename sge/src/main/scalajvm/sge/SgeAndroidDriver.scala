@@ -76,6 +76,10 @@ final class SgeAndroidDriver(app: AndroidApplication) {
   def onDrawFrame(): Unit = {
     app.processInputEvents()
     app.executeRunnables()
+    // Drive per-frame hooks (SGE-original) before render so polling-based
+    // subsystems (e.g. the controllers extension) refresh their state and the
+    // game observes it during this frame's render().
+    app.runFrameHooks()
     app.listener.render()
   }
 

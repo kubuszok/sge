@@ -97,6 +97,9 @@ class HeadlessApplication(
 
           executeRunnables()
           _graphics.updateTime()
+          // Drive per-frame hooks (SGE-original) before render so polling-based
+          // subsystems refresh their state and the game observes it this frame.
+          runFrameHooks()
           listener.render()
 
           if (!running) break(())
