@@ -169,7 +169,14 @@ val jvmPlatformApiClasspath = MatrixAction.ForPlatforms(VirtualAxis.jvm).Configu
 
 // Core library
 
-val sge = (projectMatrix in file("sge"))
+// Explicit type annotation: `sge` and `sge-jvm-platform-android` form a
+// mutually-recursive pair of build vals — sge's Test/packageBin pull the
+// android module's products, and the android module's Compile classpath pulls
+// sge-core's products (for the scala-android SgeActivity shell). The sbt TASK
+// graph stays acyclic (android.Compile -> sge.Compile -> api.Compile; sge.Test
+// / packageBin -> android.Compile), but Scala still requires a type annotation
+// to type a recursively-referenced val.
+val sge: sbt.internal.ProjectMatrix = (projectMatrix in file("sge"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
   .someVariations(versions.scalas, versions.platforms)((commonSettings() ++ dev.only1VersionInIDE ++ Seq(
     nativeProviderSettings,
@@ -341,21 +348,21 @@ val `sge-jvm-platform-android` = (projectMatrix in file("sge-jvm-platform/androi
       if (hasAndroidSdk)
         Seq((ThisBuild / baseDirectory).value / "sge-jvm-platform" / "android" / "src" / "main" / "scala-android")
       else Seq.empty
-    },
-    // The scala-android SgeActivity shell (sge/SgeActivity.scala) references
-    // sge-core types (Sge, AndroidApplication, SgeAndroidDriver, AndroidGraphics,
-    // Pixels). Reference sge-core's JVM products via LocalProject (by id, not the
-    // `sge` val) so this module does not appear in the `sge` val's initialization
-    // graph — that would be a recursive-val cycle, since the `sge` val already
-    // mentions this module (test classpath + packageBin mappings). sge-core does
-    // NOT compile-depend on this module's products (see the note on sge-core's
-    // Compile/unmanagedClasspath), so there is no sbt task cycle either.
-    Compile / unmanagedClasspath ++= {
-      val sgeDirs = (LocalProject("sge") / Compile / products).value
-      sgeDirs.map(Attributed.blank)
     }
   )
-  .dependsOn(`sge-jvm-platform-api`)
+  // The scala-android SgeActivity shell (sge/SgeActivity.scala) references
+  // sge-core types (Sge, AndroidApplication, SgeAndroidDriver, AndroidGraphics,
+  // Pixels). Depend on the sge-core matrix directly so its JVM-row compile
+  // products land on this module's compile classpath and the build is ordered
+  // android.compile -> sge.compile. This MUST be a matrix-level `.dependsOn` (a
+  // deferred reference resolved during load), NOT `sge.jvm(...).products` on
+  // unmanagedClasspath: the latter eagerly forces sge's row materialization at
+  // settings-construction time, which re-enters sge's own Test/packageBin
+  // reference to this module and dereferences a still-initializing build val
+  // (NPE). sge-core does NOT `.dependsOn` this module (it pulls these products
+  // only at Test/packageBin, via tasks), so the dependsOn graph
+  // android -> sge -> api stays acyclic.
+  .dependsOn(`sge-jvm-platform-api`, sge)
 
 // ── Extension modules ─────────────────────────────────────────────────
 //
