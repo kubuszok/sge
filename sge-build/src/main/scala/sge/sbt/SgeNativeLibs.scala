@@ -8,85 +8,87 @@ import sbt.Keys._
 /** SGE-specific native library validation and settings.
   *
   * Library extraction, JAR scanning, and linker flag merging are handled by `NativeProviderPlugin` from `sbt-multiarch-scala`. This object provides:
-  *   - JVM JAR validation (ensuring native shared libs are present before packaging)
+  *   - Release-time validation that the resolved `pnm-provider-sge-*` dependency actually carries every native binary its manifest promises, for every desktop platform (ISS-484)
   *   - The `sgeNativeLibDir` key for local development overrides
+  *
+  * Why the resolved dependency and not the sge JAR's own `native/` mappings: the desktop native libs are delivered to users through the `pnm-provider-sge-desktop` JAR, which sge declares as a POM dependency. A release could bundle (or extract) libs into the sge JAR and still ship a POM that omits the provider — leaving users with no natives. So the gate validates the dependency users actually resolve. It is invoked explicitly before the Sonatype publish (`sbt "sge / sgeValidateNativeLibs" ci-release` in release.yml) rather than auto-wired onto `makePom`/`publishLocal`, so local/demo `publishLocal` in CI is not blocked by a runtime-only provider gap — only the actual release is gated.
   *
   * Covenant: full-port Covenant-baseline-spec-pass: 0 Covenant-baseline-loc: 91 Covenant-baseline-methods: SgeNativeLibs,sgeValidateNativeLibs,validationSettings Covenant-source-reference:
   * SGE-original Covenant-verified: 2026-04-19
   */
 object SgeNativeLibs {
 
-  // ── JVM JAR native lib validation ──────────────────────────────────
+  // ── pnm-provider-sge-* dependency validation ───────────────────────
 
   val sgeValidateNativeLibs = taskKey[Unit](
-    "Validate native shared libraries are present for JVM JAR packaging"
+    "Validate the resolved pnm-provider-sge-* dependency carries every native binary its manifest promises, for all desktop platforms"
   )
 
-  /** Validation settings for the sge JVM axis. Checks that native shared libraries are present in the `packageBin` mappings before packaging.
+  /** Minimum size (bytes) for a provider binary to count as a real shared library rather than an undersized non-functional one. The sge desktop natives (glfw/audio/native_ops) are hundreds of KB on every platform; the known Rosetta no-op binaries are ~16 KB, so 32 KB cleanly separates them. */
+  private val MinLibBytes: Long = 32L * 1024L
+
+  /** Read a provider JAR's `pnm-provider.json` content (empty string if absent) and the uncompressed size of every `native/...` entry. */
+  private def readProviderJar(jar: File): (String, Map[String, Long]) = {
+    val zf = new java.util.zip.ZipFile(jar)
+    try {
+      val sizes    = scala.collection.mutable.Map.empty[String, Long]
+      var manifest = ""
+      val entries  = zf.entries()
+      while (entries.hasMoreElements) {
+        val e = entries.nextElement()
+        if (!e.isDirectory) {
+          if (e.getName == "pnm-provider.json") {
+            val is = zf.getInputStream(e)
+            try manifest = scala.io.Source.fromInputStream(is, "UTF-8").mkString
+            finally is.close()
+          } else if (e.getName.startsWith("native/")) {
+            sizes(e.getName) = e.getSize
+          }
+        }
+      }
+      (manifest, sizes.toMap)
+    } finally zf.close()
+  }
+
+  /** Validation settings for the sge JVM axis. Defines the `sgeValidateNativeLibs` task; release.yml invokes it explicitly before `ci-release` so a failure blocks the Sonatype publish (sbt runs commands sequentially and stops on the first failure).
     */
   lazy val validationSettings: Seq[Setting[_]] = Seq(
     sgeValidateNativeLibs := {
-      val log         = streams.value.log
-      val jarMappings = (Compile / packageBin / mappings).value
-      val isCI        = sys.env.get("CI").contains("true")
-      val host        = Platform.host
+      val log      = streams.value.log
+      val report   = update.value
+      val required = Platform.desktop.map(_.classifier).toSet
 
-      // Collect which platform/lib combos are present
-      val nativeMappings = jarMappings.collect {
-        case (_, path) if path.startsWith("native/") => path
+      val providerFiles = report
+        .matching(moduleFilter(organization = "com.kubuszok", name = "pnm-provider-sge*"))
+        .filter(_.getName.endsWith(".jar"))
+
+      if (providerFiles.isEmpty) {
+        sys.error(
+          "[sge] No pnm-provider-sge-* dependency resolved for the sge JVM artifact.\n" +
+            "  Native shared libraries are delivered to users via that provider JAR,\n" +
+            "  declared as a dependency in the published POM. Without it, anything that\n" +
+            "  resolves `sge` gets no natives. Ensure pnm-provider-sge-desktop is a\n" +
+            "  declared dependency before publishing."
+        )
       }
 
-      if (nativeMappings.isEmpty) {
-        val msg = "[sge] WARNING: No native shared libraries found in JAR mappings.\n" +
-          "  Native libs come from sge-native-providers provider JARs on Maven.\n" +
-          "  In CI, ensure the matching pnm-provider-sge-* artifacts are downloaded\n" +
-          "  to sge-deps/native-components/target/release/ before packaging."
-        val skipValidation = sys.env.get("SGE_SKIP_NATIVE_VALIDATION").contains("true")
-        if (isCI && !skipValidation) sys.error(msg) else log.warn(msg)
-      } else {
-        // Group by platform
-        val byPlatform = nativeMappings.groupBy { path =>
-          val parts = path.stripPrefix("native/").split('/')
-          if (parts.length >= 2) parts(0) else "unknown"
-        }
-
-        val skipValidation = sys.env.get("SGE_SKIP_NATIVE_VALIDATION").contains("true")
-        if (!skipValidation && !byPlatform.contains(host.classifier)) {
-          sys.error(
-            s"[sge] Native libraries missing for host platform '${host.classifier}'.\n" +
-              s"  Native libs come from sge-native-providers provider JARs on Maven —\n" +
-              s"  ensure the matching pnm-provider-sge-* artifacts are present in\n" +
-              s"  sge-deps/native-components/target/release/.\n" +
-              s"  Present platforms: ${byPlatform.keys.mkString(", ")}"
-          )
-        }
-
-        if (isCI && !skipValidation) {
-          val missing = Platform.desktop.filterNot(p => byPlatform.contains(p.classifier))
-          if (missing.nonEmpty) {
-            sys.error(
-              s"[sge] CI: Native libraries missing for platforms: ${missing.map(_.classifier).mkString(", ")}\n" +
-                s"  Present platforms: ${byPlatform.keys.mkString(", ")}\n" +
-                "  Ensure all 6 pnm-provider-sge-* artifacts are downloaded from\n" +
-                "  the sge-native-providers Maven publication before packaging."
-            )
-          }
-        } else {
-          val missing = Platform.desktop.filterNot(p => byPlatform.contains(p.classifier))
-          if (missing.nonEmpty) {
-            log.warn(
-              s"[sge] Native libraries missing for non-host platforms: ${missing.map(_.classifier).mkString(", ")}. " +
-                "This is OK for local development; CI will require all platforms."
-            )
-          }
-        }
-
-        log.info(s"[sge] Native lib validation passed. Platforms: ${byPlatform.keys.mkString(", ")}")
-        byPlatform.foreach { case (plat, libs) =>
-          log.info(s"[sge]   $plat: ${libs.map(_.split('/').last).mkString(", ")}")
-        }
+      val violations = providerFiles.flatMap { jar =>
+        val (manifest, sizes) = readProviderJar(jar)
+        NativeProviderValidation.violations(jar.getName, manifest, sizes, required, MinLibBytes)
       }
-    },
-    Compile / packageBin := ((Compile / packageBin) dependsOn sgeValidateNativeLibs).value
+
+      if (violations.nonEmpty) {
+        sys.error(
+          "[sge] Native-lib release validation failed — the resolved provider JAR(s) do not\n" +
+            "  carry every native binary their manifest promises for all desktop platforms:\n" +
+            violations.map("    - " + _).mkString("\n")
+        )
+      }
+
+      log.info(
+        s"[sge] Native-lib validation passed for ${providerFiles.map(_.getName).mkString(", ")} " +
+          s"(platforms: ${required.toList.sorted.mkString(", ")})."
+      )
+    }
   )
 }

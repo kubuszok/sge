@@ -4,6 +4,12 @@ on:
   push:
     branches: [master]
     tags: ["*"]
+  # Snapshot publishing on PRs is intentional: it is the organization's mechanism
+  # for testing cross-repository artifacts on CI. The job-level `if` below restricts
+  # it to PRs opened by org members so external-fork PRs never publish (and never
+  # receive the signing/Sonatype secrets). ISS-484.
+  pull_request:
+    branches: [master]
 
 # Cancel in-progress runs for the same branch/tag
 concurrency:
@@ -16,6 +22,14 @@ env:
 jobs:
   build-and-publish:
     runs-on: macos-latest
+
+    # Push events (master / tags) always run. Pull-request events publish a
+    # snapshot ONLY when the PR author is an org member/owner/collaborator —
+    # external-fork PRs must not publish, as that would expose the GPG/Sonatype
+    # secrets. ISS-484.
+    if: >-
+      github.event_name != 'pull_request' ||
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)
 
     name: ${{ startsWith(github.ref, 'refs/tags/') && 'Publish Tag as Release' || 'Publish Snapshot' }}
 
@@ -34,19 +48,12 @@ jobs:
           jvm: ${{ env.JVM_VERSION }}
           apps: sbt
       - name: Publish all projects
-        run: sbt ci-release
+        # Validate natives before publishing: sgeValidateNativeLibs checks that the
+        # resolved pnm-provider-sge-* dependency (the JAR users resolve to get natives)
+        # carries every binary its manifest promises for all desktop platforms. sbt runs
+        # commands in sequence and aborts on the first failure, so a gap blocks ci-release.
+        # No skip flag — nothing unvalidated reaches Sonatype.
+        run: sbt "sge / sgeValidateNativeLibs" ci-release
         env:
-          # ISS-484: Kept in place pending a scope decision. The native-lib
-          # gate (SgeNativeLibs.sgeValidateNativeLibs) reads native/* mappings
-          # from on-disk sge-deps/native-components/target/{cross,release}/,
-          # which NO release or CI step populates here — the libs live inside
-          # the resolved pnm-provider-sge-* JARs, not those dirs. With the var
-          # removed the gate sys.errors ("No native shared libraries found in
-          # JAR mappings", SgeNativeLibs.scala:45) under CI=true, verified
-          # locally. Making the gate real requires a provider-JAR extraction
-          # step (build/CI change, out of this issue's scope) and a decision
-          # on which platforms a release must validate. Do not drop this line
-          # without that step in place.
-          SGE_SKIP_NATIVE_VALIDATION: "true"
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
