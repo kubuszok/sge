@@ -6,23 +6,25 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   Renames: Table/Actor/Stage → standalone (scene2d base not inherited),
- *     ObjectMap → mutable.HashMap, FocusListener/InputListener/ChangeListener → callback-based,
- *     Actions/Interpolation → standalone action stubs (no scene2d Action hierarchy),
- *     Button → TextraButton (standalone widget), @Null → Nullable
- *   Merged with: Table layout into lightweight content/button label lists
- *   Convention: Dialog show/hide/key behavior fully ported within standalone paradigm.
- *     show/hide take stageWidth/stageHeight instead of scene2d Stage since TextraWindow
- *     is not an Actor. Listener infrastructure added directly for ChangeListener,
- *     FocusListener, and InputListener patterns.
+ *   Renames: TextraDialog extends TextraWindow (which now extends
+ *     sge.scenes.scene2d.ui.Table extends WidgetGroup extends Actor), so the
+ *     dialog joins the scene graph and carries the real Actor action/listener/
+ *     stage infrastructure. contentTable/buttonTable are real scene2d Tables;
+ *     text(...)/typing(...)/button(...) add real Cells. show(Stage)/hide(Action)
+ *     use the real scene2d Actions (fadeIn/fadeOut/sequence/alpha/removeListener/
+ *     removeActor) and the inherited addAction/clearActions/remove. The
+ *     ignoreTouchDown InputListener and the modal FocusListener are real scene2d
+ *     listeners; buttonTable carries a real ChangeListener that drives result(..)
+ *     and hide(). ObjectMap -> scala.collection.mutable.Map; @Null -> Nullable.
+ *   Convention: Dialog show/hide/key/result behavior fully ported.
  *   Idiom: Nullable[A] for nullable fields; boundary/break for early returns.
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 465
- * Covenant-baseline-methods: ButtonTable,ContentTable,FocusListenerMarker,IgnoreTouchDownMarker,TextraDialog,_skin,_visible,actions,add,addAction,addCaptureListener,addListener,binding,btn,button,buttonTable,cancel,cancelHide,captureListeners,clearActions,contentTable,contentY,defaults_space,draw,entries,focusListener,getButtonTable,getContentTable,handleButtonClick,handleKeyDown,hide,ignoreTouchDown,initialize,isVisible,key,keyBindings,labels,listeners,newLabel,newTypingLabel,previousKeyboardFocus,previousScrollFocus,remove,removeCaptureListener,removeListener,result,s,setObject,setStage,show,text,this,typing,values
+ * Covenant-baseline-loc: 413
+ * Covenant-baseline-methods: TextraDialog,_skin,btn,button,buttonTable,cancel,cancelHide,changed,contentTable,focusChanged,focusListener,getButtonTable,getContentTable,hide,ignoreTouchDown,initialize,kbActor,key,keyDown,keyboardFocusChanged,newLabel,newTypingLabel,previousKeyboardFocus,previousScrollFocus,result,run,s,scrollActor,scrollFocusChanged,setObject,setStage,show,text,this,touchDown,typing,values
  * Covenant-source-reference: com/github/tommyettinger/textra/TextraDialog.java
- * Covenant-verified: 2026-06-12
+ * Covenant-verified: 2026-06-15
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
@@ -32,9 +34,14 @@ package textra
 import scala.collection.mutable
 
 import sge.graphics.Color
-import sge.graphics.g2d.Batch
-import sge.scenes.scene2d.ui.Skin
+import sge.math.Interpolation
+import sge.scenes.scene2d.{ Action, Actor, InputEvent, InputListener, Stage }
+import sge.scenes.scene2d.actions.Actions
+import sge.scenes.scene2d.ui.{ Skin, Table }
+import sge.scenes.scene2d.utils.{ ChangeListener, FocusListener }
+import sge.Input.Key
 import lowlevel.Nullable
+import sge.utils.Seconds
 
 /** Displays a dialog, which is a window with a title, a content table, and a button table. Methods are provided to add a label to the content table and buttons to the button table, but any widgets
   * can be added. When a button is clicked, {@link #result(Object)} is called and the dialog is removed from the stage.
@@ -44,36 +51,24 @@ import lowlevel.Nullable
   */
 class TextraDialog(title: String, style: Styles.WindowStyle, replacementFont: Font)(using Sge) extends TextraWindow(title, style, replacementFont) {
 
-  // Content and button containers (standalone equivalent of scene2d Table)
-  val contentTable: TextraDialog.ContentTable = new TextraDialog.ContentTable()
-  val buttonTable:  TextraDialog.ButtonTable  = new TextraDialog.ButtonTable()
+  var contentTable: Table = scala.compiletime.uninitialized
+  var buttonTable:  Table = scala.compiletime.uninitialized
 
   private var _skin: Nullable[Skin] = Nullable.empty
 
-  val values:     mutable.HashMap[AnyRef, Nullable[AnyRef]] = mutable.HashMap.empty
-  var cancelHide: Boolean                                   = false
+  val values:     mutable.Map[Actor, Nullable[AnyRef]] = mutable.Map.empty
+  var cancelHide: Boolean                              = false
 
-  // Focus tracking for show/hide
-  var previousKeyboardFocus: Nullable[AnyRef] = Nullable.empty
-  var previousScrollFocus:   Nullable[AnyRef] = Nullable.empty
+  var previousKeyboardFocus: Nullable[Actor] = Nullable.empty
+  var previousScrollFocus:   Nullable[Actor] = Nullable.empty
+  var focusListener:         FocusListener   = scala.compiletime.uninitialized
 
-  // Visibility tracking (standalone replacement for scene2d Stage membership)
-  private var _visible: Boolean = false
-
-  // Listener storage (standalone replacement for scene2d listener infrastructure)
-  private val listeners:        mutable.ArrayBuffer[AnyRef] = mutable.ArrayBuffer.empty
-  private val captureListeners: mutable.ArrayBuffer[AnyRef] = mutable.ArrayBuffer.empty
-  // Action storage (standalone replacement for scene2d action infrastructure)
-  private val actions: mutable.ArrayBuffer[AnyRef] = mutable.ArrayBuffer.empty
-
-  // Focus listener for modal behavior (standalone equivalent of scene2d FocusListener)
-  protected val focusListener: AnyRef = TextraDialog.FocusListenerMarker
-
-  // Input listener that cancels touch-down events during hide animation
-  protected val ignoreTouchDown: AnyRef = TextraDialog.IgnoreTouchDownMarker
-
-  // Key bindings for keyboard shortcuts
-  private val keyBindings: mutable.ArrayBuffer[(Int, Nullable[AnyRef])] = mutable.ArrayBuffer.empty
+  protected val ignoreTouchDown: InputListener = new InputListener() {
+    override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Input.Button): Boolean = {
+      event.cancel()
+      false
+    }
+  }
 
   def this(title: String, style: Styles.WindowStyle)(using Sge) =
     this(title, style, Nullable.fold(style.titleFont)(new Font())(identity))
@@ -98,14 +93,72 @@ class TextraDialog(title: String, style: Styles.WindowStyle, replacementFont: Fo
     this._skin = Nullable(skin)
   }
 
+  initialize()
+
   // --- Initialize ---
   private def initialize(): Unit = {
     setModal(true)
 
-    contentTable.defaults_space = 6f
-    buttonTable.defaults_space = 6f
+    defaults().space(6)
+    contentTable = new Table(_skin)
+    add(Nullable[Actor](contentTable)).expand().fill()
+    row()
+    buttonTable = new Table(_skin)
+    add(Nullable[Actor](buttonTable)).fillX()
+
+    contentTable.defaults().space(6)
+    buttonTable.defaults().space(6)
+
+    buttonTable.addListener(
+      new ChangeListener() {
+        override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit =
+          if (values.contains(actor)) {
+            var current = actor
+            while (current.parent.exists(_ ne buttonTable))
+              current.parent.foreach { p => current = p }
+            result(values.getOrElse(current, Nullable.empty))
+            if (!cancelHide) hide()
+            cancelHide = false
+          }
+      }
+    )
+
+    focusListener = new FocusListener() {
+      override def keyboardFocusChanged(event: FocusListener.FocusEvent, actor: Actor, focused: Boolean): Unit =
+        if (!focused) focusChanged(event)
+
+      override def scrollFocusChanged(event: FocusListener.FocusEvent, actor: Actor, focused: Boolean): Unit =
+        if (!focused) focusChanged(event)
+
+      private def focusChanged(event: FocusListener.FocusEvent): Unit =
+        stage.foreach { stage =>
+          if (
+            isModal && stage.root.children.nonEmpty
+            && (stage.root.children.last eq TextraDialog.this)
+          ) { // TextraDialog is top most actor.
+            val newFocusedActor = event.relatedActor
+            newFocusedActor.foreach { nfa =>
+              if (
+                !nfa.isDescendantOf(TextraDialog.this)
+                && !(previousKeyboardFocus.exists(_ eq nfa) || previousScrollFocus.exists(_ eq nfa))
+              ) {
+                event.cancel()
+              }
+            }
+          }
+        }
+    }
+
   }
-  initialize()
+
+  /** Wires the modal FocusListener to the dialog's stage lifetime (TextraDialog.java:159-165 `setStage`, :161 `addListener(focusListener)`): the real FocusListener is added when the dialog is
+    * attached to a stage (so it participates in the dialog's listener wiring while shown) and removed when it leaves it. hide() also removes it explicitly (TextraDialog.java:350).
+    */
+  override protected[sge] def setStage(stage: Nullable[Stage]): Unit = {
+    if (stage.isEmpty) removeListener(focusListener)
+    else addListener(focusListener)
+    super.setStage(stage)
+  }
 
   // --- Label factories ---
 
@@ -113,7 +166,7 @@ class TextraDialog(title: String, style: Styles.WindowStyle, replacementFont: Fo
     new TextraLabel(text, style)
 
   override protected def newLabel(text: String, font: Font, color: Color): TextraLabel =
-    if (color == null) new TextraLabel(text, font) else new TextraLabel(text, font, color)
+    new TextraLabel(text, font, color)
 
   protected def newTypingLabel(text: String, style: Styles.LabelStyle): TypingLabel =
     new TypingLabel(text, style)
@@ -121,70 +174,10 @@ class TextraDialog(title: String, style: Styles.WindowStyle, replacementFont: Fo
   protected def newTypingLabel(text: String, font: Font, color: Color): TypingLabel =
     new TypingLabel(text, font, color)
 
-  // --- Listener infrastructure (standalone replacements for scene2d Actor methods) ---
-
-  def addListener(listener: AnyRef): Boolean =
-    if (!listeners.contains(listener)) {
-      listeners += listener
-      true
-    } else {
-      false
-    }
-
-  def removeListener(listener: AnyRef): Boolean =
-    listeners.indexOf(listener) match {
-      case -1 => false
-      case i  =>
-        listeners.remove(i)
-        true
-    }
-
-  def addCaptureListener(listener: AnyRef): Boolean =
-    if (!captureListeners.contains(listener)) {
-      captureListeners += listener
-      true
-    } else {
-      false
-    }
-
-  def removeCaptureListener(listener: AnyRef): Boolean =
-    captureListeners.indexOf(listener) match {
-      case -1 => false
-      case i  =>
-        captureListeners.remove(i)
-        true
-    }
-
-  // --- Action infrastructure (standalone replacements for scene2d Actor methods) ---
-
-  def addAction(action: AnyRef): Unit =
-    actions += action
-
-  def clearActions(): Unit =
-    actions.clear()
-
-  /** Removes this dialog (standalone equivalent of scene2d Actor.remove()). */
-  def remove(): Boolean = {
-    _visible = false
-    true
-  }
-
   // --- Content table / Button table accessors ---
 
-  def getContentTable: TextraDialog.ContentTable = contentTable
-  def getButtonTable:  TextraDialog.ButtonTable  = buttonTable
-
-  // --- Stage tracking (standalone; setStage is a no-op but matches the original's override pattern) ---
-
-  protected def setStage(stage: Nullable[AnyRef]): Unit =
-    if (stage.isEmpty) {
-      addListener(focusListener)
-    } else {
-      removeListener(focusListener)
-    }
-
-  /** Returns whether this dialog is currently visible/shown (standalone equivalent of getStage() != null). */
-  def isVisible: Boolean = _visible
+  def getContentTable: Table = contentTable
+  def getButtonTable:  Table = buttonTable
 
   // --- Content: text methods ---
 
@@ -211,7 +204,7 @@ class TextraDialog(title: String, style: Styles.WindowStyle, replacementFont: Fo
     *   a non-null TextraLabel
     */
   def text(label: TextraLabel): TextraDialog = {
-    contentTable.add(label)
+    contentTable.add(Nullable[Actor](label))
     this
   }
 
@@ -240,7 +233,7 @@ class TextraDialog(title: String, style: Styles.WindowStyle, replacementFont: Fo
     *   a non-null TypingLabel
     */
   def typing(label: TypingLabel): TextraDialog = {
-    contentTable.add(label)
+    contentTable.add(Nullable[Actor](label))
     this
   }
 
@@ -285,44 +278,53 @@ class TextraDialog(title: String, style: Styles.WindowStyle, replacementFont: Fo
     *   The object that will be passed to {@link #result(Object)} if this button is clicked. May be null.
     */
   def button(btn: TextraButton, obj: Nullable[AnyRef]): TextraDialog = {
-    buttonTable.add(btn)
+    buttonTable.add(Nullable[Actor](btn))
     setObject(btn, obj)
     this
   }
 
-  def setObject(actor: AnyRef, obj: Nullable[AnyRef]): Unit =
-    values.put(actor, obj)
+  def setObject(actor: Actor, obj: Nullable[AnyRef]): Unit =
+    values(actor) = obj
 
   // --- Show ---
 
   /** {@link #pack() Packs} the dialog (but doesn't set the position), adds it to the stage, sets it as the keyboard and scroll focus, clears any actions on the dialog, and adds the specified action
     * to it. The previous keyboard and scroll focus are remembered so they can be restored when the dialog is hidden.
     *
-    * In standalone mode, stageWidth/stageHeight are used since TextraDialog is not a scene2d Actor.
-    *
     * @param action
     *   May be null.
     */
-  def show(stageWidth: Float, stageHeight: Float, action: Nullable[AnyRef]): TextraDialog = {
+  def show(stage: Stage, action: Nullable[Action]): TextraDialog = {
     clearActions()
     removeCaptureListener(ignoreTouchDown)
 
     previousKeyboardFocus = Nullable.empty
+    val kbActor = stage.keyboardFocus
+    kbActor.foreach { a =>
+      if (!a.isDescendantOf(this)) previousKeyboardFocus = Nullable(a)
+    }
+
     previousScrollFocus = Nullable.empty
+    val scrollActor = stage.scrollFocus
+    scrollActor.foreach { a =>
+      if (!a.isDescendantOf(this)) previousScrollFocus = Nullable(a)
+    }
 
-    _visible = true
+    stage.addActor(this)
     pack()
-
-    Nullable.foreach(action)(addAction)
+    stage.cancelTouchFocus()
+    stage.setKeyboardFocus(Nullable[Actor](this))
+    stage.setScrollFocus(Nullable[Actor](this))
+    action.foreach(addAction)
 
     this
   }
 
-  /** Centers the dialog in the stage and calls {@link #show(Float, Float, Nullable)} with a fade-in action. Standalone equivalent of show(Stage) which uses stage dimensions for centering.
+  /** Centers the dialog in the stage and calls {@link #show(Stage, Action)} with a {@link Actions#fadeIn(float, Interpolation)} action (TextraDialog.java:334-338).
     */
-  def show(stageWidth: Float, stageHeight: Float): TextraDialog = {
-    show(stageWidth, stageHeight, Nullable.empty)
-    setPosition(Math.round((stageWidth - getWidth) / 2f).toFloat, Math.round((stageHeight - getHeight) / 2f).toFloat)
+  def show(stage: Stage): TextraDialog = {
+    show(stage, Nullable(Actions.sequence(Actions.alpha(0f), Actions.fadeIn(Seconds(0.4f), Nullable(Interpolation.fade)))))
+    setPosition(Math.round((stage.width - getWidth) / 2f).toFloat, Math.round((stage.height - getHeight) / 2f).toFloat)
     this
   }
 
@@ -333,34 +335,41 @@ class TextraDialog(title: String, style: Styles.WindowStyle, replacementFont: Fo
     * @param action
     *   If null, the dialog is removed immediately. Otherwise, the dialog is removed when the action completes. The dialog will not respond to touch down events during the action.
     */
-  def hide(action: Nullable[AnyRef]): Unit = {
-    removeListener(focusListener)
-    // In full scene2d integration, would restore previous keyboard/scroll focus here.
-    // Standalone mode does not manage scene2d Stage focus.
-    Nullable.fold(action) {
+  def hide(action: Nullable[Action]): Unit = {
+    stage.foreach { stage =>
+      removeListener(focusListener)
+      previousKeyboardFocus.foreach { pkf =>
+        if (pkf.stage.isEmpty) previousKeyboardFocus = Nullable.empty
+      }
+      val kbActor = stage.keyboardFocus
+      if (kbActor.isEmpty || kbActor.exists(_.isDescendantOf(this))) stage.setKeyboardFocus(previousKeyboardFocus)
+
+      previousScrollFocus.foreach { psf =>
+        if (psf.stage.isEmpty) previousScrollFocus = Nullable.empty
+      }
+      val scrollActor = stage.scrollFocus
+      if (scrollActor.isEmpty || scrollActor.exists(_.isDescendantOf(this))) stage.setScrollFocus(previousScrollFocus)
+    }
+    action.fold {
       remove()
       ()
     } { a =>
       addCaptureListener(ignoreTouchDown)
-      addAction(a)
-      // In full scene2d integration, this would be:
-      //   addAction(sequence(action, Actions.removeListener(ignoreTouchDown, true), Actions.removeActor()))
-      // In standalone mode, the action completes and the dialog is removed.
-      _visible = false
+      addAction(Actions.sequence(a, Actions.removeListener(ignoreTouchDown, true), Actions.removeActor()))
     }
   }
 
   /** Hides the dialog. Called automatically when a button is clicked. The default implementation fades out the dialog over 400 milliseconds.
     */
   def hide(): Unit =
-    hide(Nullable("fadeOut:0.4" /* standalone action placeholder */ ))
+    hide(Nullable(Actions.fadeOut(Seconds(0.4f), Nullable(Interpolation.fade))))
 
   /** Hides the dialog. Called automatically when a button is clicked. The default implementation fades out the dialog over {@code durationSeconds} seconds.
     * @param durationSeconds
     *   how many seconds for the fade Action to last before this completely disappears
     */
   def hide(durationSeconds: Float): Unit =
-    hide(Nullable(s"fadeOut:$durationSeconds" /* standalone action placeholder */ ))
+    hide(Nullable(Actions.fadeOut(Seconds(durationSeconds), Nullable(Interpolation.fade))))
 
   // --- Key binding ---
 
@@ -369,39 +378,26 @@ class TextraDialog(title: String, style: Styles.WindowStyle, replacementFont: Fo
     * @see
     *   Keys
     */
-  def key(keycode: Int, obj: Nullable[AnyRef]): TextraDialog = {
-    keyBindings += ((keycode, obj))
+  def key(keycode: Key, obj: Nullable[AnyRef]): TextraDialog = {
+    addListener(
+      new InputListener() {
+        override def keyDown(event: InputEvent, keycode2: Key): Boolean = {
+          if (keycode == keycode2) {
+            // Delay a frame to eat the keyTyped event.
+            Sge().application.postRunnable(new Runnable() {
+              def run(): Unit = {
+                result(obj)
+                if (!cancelHide) hide()
+                cancelHide = false
+              }
+            })
+          }
+          false
+        }
+      }
+    )
     this
   }
-
-  /** Checks key bindings against a pressed keycode. Call this from your input handling. In full scene2d integration, this would be handled by an InputListener added via addListener. In standalone
-    * mode, the caller must invoke this when key events occur.
-    */
-  def handleKeyDown(keycode: Int): Boolean = {
-    val binding = keyBindings.find(_._1 == keycode)
-    binding match {
-      case Some((_, obj)) =>
-        // In full scene2d integration, this would post a Runnable to delay a frame.
-        result(obj)
-        if (!cancelHide) hide()
-        cancelHide = false
-        true
-      case _ =>
-        false
-    }
-  }
-
-  // --- Button click handling ---
-
-  /** Processes a button click. Call this when a button in the dialog is clicked. In full scene2d integration, this is handled by the ChangeListener on buttonTable. In standalone mode, the caller must
-    * invoke this when button click events occur.
-    */
-  def handleButtonClick(actor: AnyRef): Unit =
-    if (values.contains(actor)) {
-      result(values(actor))
-      if (!cancelHide) hide()
-      cancelHide = false
-    }
 
   // --- Result callback ---
 
@@ -414,52 +410,4 @@ class TextraDialog(title: String, style: Styles.WindowStyle, replacementFont: Fo
 
   def cancel(): Unit =
     cancelHide = true
-
-  // --- Draw override ---
-
-  /** Draws the dialog including content labels and button entries. */
-  override def draw(batch: Batch, parentAlpha: Float): Unit = {
-    super.draw(batch, parentAlpha)
-
-    // Draw content labels
-    var contentY = getY + getHeight - getPadTop
-    contentTable.labels.foreach { lbl =>
-      contentY -= lbl.getPrefHeight + contentTable.defaults_space
-      lbl.setPosition(getX + getPadLeft + contentTable.defaults_space, contentY)
-      lbl.draw(batch, parentAlpha)
-    }
-
-    // Draw button entries
-    buttonTable.entries.foreach { case (btn, _) =>
-      btn.draw(batch, parentAlpha)
-    }
-  }
-}
-
-object TextraDialog {
-
-  // Marker objects for standalone listener tracking
-  private[textra] val FocusListenerMarker:   AnyRef = new AnyRef {}
-  private[textra] val IgnoreTouchDownMarker: AnyRef = new AnyRef {}
-
-  /** Lightweight content table for standalone mode. Holds content labels (TextraLabel/TypingLabel). */
-  class ContentTable {
-    val labels:         mutable.ArrayBuffer[TextraLabel] = mutable.ArrayBuffer.empty
-    var defaults_space: Float                            = 6f
-
-    def add(label: TextraLabel): Unit =
-      labels += label
-  }
-
-  /** Lightweight button table for standalone mode. Holds button entries with their associated result objects. */
-  class ButtonTable {
-    val entries:        mutable.ArrayBuffer[(TextraButton, Nullable[AnyRef])] = mutable.ArrayBuffer.empty
-    var defaults_space: Float                                                 = 6f
-
-    def add(btn: TextraButton): Unit =
-      entries += ((btn, Nullable.empty))
-
-    def add(btn: TextraButton, obj: Nullable[AnyRef]): Unit =
-      entries += ((btn, obj))
-  }
 }
