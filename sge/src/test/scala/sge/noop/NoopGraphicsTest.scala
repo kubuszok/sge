@@ -33,11 +33,15 @@ class NoopGraphicsTest extends munit.FunSuite {
 
   // ---- GL accessors ----
 
-  test("getGL20 throws UnsupportedOperationException") {
+  test("getGL20 returns the no-op GL20 (NoopGL20) so headless render paths can construct") {
     val g = NoopGraphics()
-    intercept[UnsupportedOperationException] {
-      g.gl20
-    }
+    assert(g.gl20 eq NoopGL20)
+  }
+
+  test("setGL20 is honored: a set value is returned by getGL20") {
+    val g = NoopGraphics()
+    g.gl20 = NoopGL20
+    assert(g.gl20 eq NoopGL20)
   }
 
   test("getGL30/31/32 return empty") {

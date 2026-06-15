@@ -40,6 +40,7 @@ import sge.scenes.scene2d.ui.Skin
 import sge.scenes.scene2d.utils.Drawable
 import lowlevel.Nullable
 import sge.utils.Align
+import sge.utils.Seconds
 
 /** A TextraListBox displays TextraLabels and highlights the currently selected item.
   *
@@ -281,7 +282,7 @@ class TextraListBox(style: Styles.ListStyle) {
   def act(delta: Float): Unit = {
     var i = 0
     while (i < items.size) {
-      items(i).act(delta)
+      items(i).act(Seconds(delta)) // Actor.act takes Seconds; this list's delta is a raw Float
       i += 1
     }
   }
@@ -621,8 +622,8 @@ class TextraListBox(style: Styles.ListStyle) {
     var i = 0
     while (i < items.size) {
       val item = items(i)
-      item.getFont.calculateSize(item.layout)
-      h += item.layout.getHeight
+      item.getFont.calculateSize(item.baseLayout)
+      h += item.baseLayout.getHeight
       if (i >= index) {
         break(h)
       }

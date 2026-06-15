@@ -85,14 +85,14 @@ class TypingTooltip(
     // container.fill(wrap) -- not available in standalone ContainerProxy
 
     getActor.setFont(font, false)
-    getActor.layout.setTargetWidth(style.wrapWidth)
+    getActor.baseLayout.setTargetWidth(style.wrapWidth)
     getActor.wrap = true
     Nullable.foreach(style.label) { ls =>
       Nullable.foreach(ls.fontColor)(c => getActor.setColor(c))
     }
-    font.regenerateLayout(getActor.layout)
+    font.regenerateLayout(getActor.baseLayout)
 //    font.calculateSize(container.getActor.layout)
-    getActor.setSize(getActor.layout.getWidth, getActor.layout.getHeight)
+    getActor.setSize(getActor.baseLayout.getWidth, getActor.baseLayout.getHeight)
   }
 
   /** Restarts the typing animation when the tooltip is entered. */

@@ -45,7 +45,7 @@ package graphics
 package g2d
 
 import sge.graphics.glutils.ShaderProgram
-import sge.noop.NoopGraphics
+import sge.noop.{ NoopGL20, NoopGraphics }
 
 class SpriteCacheRedSuite extends munit.FunSuite {
 

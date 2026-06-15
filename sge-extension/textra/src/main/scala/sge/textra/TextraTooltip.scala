@@ -81,20 +81,20 @@ class TextraTooltip(
       Nullable.foreach(ls.fontColor)(c => _label.setColor(c))
     }
     // Then we can regenerate the layout.
-    _label.getFont.regenerateLayout(_label.layout)
-    _label.setSize(_label.layout.getWidth, _label.layout.getHeight)
+    _label.getFont.regenerateLayout(_label.baseLayout)
+    _label.setSize(_label.baseLayout.getWidth, _label.baseLayout.getHeight)
     this.background = style.background
     this.wrapWidth = style.wrapWidth
   }
 
   def setStyle(style: Styles.TextTooltipStyle, font: Font): Unit = {
     _label.setFont(font, false)
-    _label.layout.setTargetWidth(style.wrapWidth)
+    _label.baseLayout.setTargetWidth(style.wrapWidth)
     Nullable.foreach(style.label) { ls =>
       Nullable.foreach(ls.fontColor)(c => _label.setColor(c))
     }
-    font.regenerateLayout(_label.layout)
-    _label.setSize(_label.layout.getWidth, _label.layout.getHeight)
+    font.regenerateLayout(_label.baseLayout)
+    _label.setSize(_label.baseLayout.getWidth, _label.baseLayout.getHeight)
     this.background = style.background
     this.wrapWidth = style.wrapWidth
   }

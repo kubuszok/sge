@@ -33,6 +33,7 @@ import scala.collection.mutable.ArrayBuffer
 
 import sge.files.{ FileHandle, FileType }
 import sge.noop.{ NoopAudio, NoopGraphics, NoopInput }
+import sge.utils.Seconds
 
 class TextraMarkupLinkSuite extends munit.FunSuite {
 
@@ -115,7 +116,7 @@ class TextraMarkupLinkSuite extends munit.FunSuite {
     // Clicking a glyph in the linked span is registered by TypingLabel as lastTouchedIndex; glyph 0
     // ('c' of "click") is inside the {LINK} span because the default initial text is empty.
     label.lastTouchedIndex = 0
-    label.act(0.016f)
+    label.act(Seconds(0.016f))
 
     assertEquals(
       net.opened.toList,
@@ -138,7 +139,7 @@ class TextraMarkupLinkSuite extends munit.FunSuite {
     label.skipToTheEnd()
 
     // No glyph is marked as touched, so the LinkEffect must not open anything.
-    label.act(0.016f)
+    label.act(Seconds(0.016f))
 
     assertEquals(
       net.opened.toList,

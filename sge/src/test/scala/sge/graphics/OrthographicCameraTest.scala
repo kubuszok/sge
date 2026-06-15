@@ -6,7 +6,7 @@ package sge
 package graphics
 
 import sge.math.{ Matrix4, Vector3 }
-import sge.noop.NoopGraphics
+import sge.noop.{ NoopGL20, NoopGraphics }
 
 class OrthographicCameraTest extends munit.FunSuite {
 

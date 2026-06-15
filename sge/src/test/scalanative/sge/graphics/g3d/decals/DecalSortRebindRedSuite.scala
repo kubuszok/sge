@@ -55,7 +55,7 @@ package decals
 import java.nio.IntBuffer
 
 import sge.graphics.g2d.TextureRegion
-import sge.noop.NoopGraphics
+import sge.noop.{ NoopGL20, NoopGraphics }
 import lowlevel.util.DynamicArray
 
 class DecalSortRebindRedSuite extends munit.FunSuite {

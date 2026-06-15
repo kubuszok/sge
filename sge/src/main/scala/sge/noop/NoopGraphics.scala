@@ -5,7 +5,7 @@
  *   Source: backends/gdx-backend-headless/.../mock/graphics/MockGraphics.java
  *   Renames: MockGraphics -> NoopGraphics
  *   Convention: extends Graphics directly (Java extends AbstractGraphics); configurable width/height (Java returns 0);
- *     non-null monitor/displayMode stubs (Java returns null); gl20 throws (Java returns null);
+ *     non-null monitor/displayMode stubs (Java returns null); gl20 returns a no-op NoopGL20, set value honored (Java returns null);
  *     gl30/31/32 return Nullable.empty (Java returns null); glVersion returns new Object (Java has GLVersion);
  *     getPpi/Ppc return 96-based values (Java returns 0); bufferFormat returns real instance (Java returns null);
  *     setContinuousRendering/continuousRendering track state (Java ignores); incrementFrameId() merged into updateTime();
@@ -33,7 +33,8 @@ import sge.graphics.glutils.GLVersion
 import lowlevel.Nullable
 import sge.utils.{ Nanos, Seconds, TimeUtils }
 
-/** A no-op [[sge.Graphics]] implementation for headless/testing use. Tracks frame timing via [[updateTime]] but provides no GL context.
+/** A no-op [[sge.Graphics]] implementation for headless/testing use. Tracks frame timing via [[updateTime]] and provides a no-op [[sge.graphics.GL20]] (see [[NoopGL20]]) so headless rendering paths
+  * (e.g. a headless [[sge.scenes.scene2d.Stage]]) can be constructed without a real GL context.
   */
 class NoopGraphics(
   val noopWidth:  Int = 640,
@@ -72,8 +73,9 @@ class NoopGraphics(
 
   override def gl32Available: Boolean = false
 
-  override def gl20: GL20 =
-    throw new UnsupportedOperationException("NoopGraphics has no GL context")
+  private var _gl20: GL20 = NoopGL20
+
+  override def gl20: GL20 = _gl20
 
   override def gl30: Nullable[GL30] = Nullable.empty
 
@@ -81,7 +83,8 @@ class NoopGraphics(
 
   override def gl32: Nullable[GL32] = Nullable.empty
 
-  override def gl20_=(value: GL20): Unit = {}
+  override def gl20_=(value: GL20): Unit =
+    _gl20 = value
 
   override def gl30_=(value: GL30): Unit = {}
 

@@ -17,10 +17,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 1416
- * Covenant-baseline-methods: FloatArrayHelper,TypingLabel,_hasParent,act,activeEffects,actualEnd,actualWidth,adjustedWidth,ai,appendText,baseX,baseY,breakAllLines,cancelSkipping,changed,charCooldown,charCounter,clearColor,clearVariables,continue_,copySelectedText,cs,cumulative,curly,current,defaultJustify,doLayout,dragging,draw,drawSection,dt,e,ended,first,get,getAdvances,getClearColor,getCumulativeLineHeight,getDefaultToken,getEllipsis,getFont,getFromIntermediate,getInLayout,getInWorkingLayout,getIntermediateText,getLineHeight,getLineInLayout,getLineIndexInLayout,getMaxLines,getOffsets,getOriginalText,getPrefHeight,getPrefWidth,getRotations,getSelectedText,getSizing,getTextSpeed,getTypingListener,getVariables,getWorkingLayout,gi,globalIndex,glyphCharCompensation,glyphCharIndex,glyphCount,hasEnded,hasEndedBefore,hasParent,hasSelection,height,i,idx,ignoringEffects,ignoringEvents,incr,index,insertInLayout,intermediateText,invalidateHierarchy,isEnded,isIgnoringEffects,isIgnoringEvents,isPaused,isSelectable,isSkipping,isTouchable,lastTouchedIndex,layoutHeight,length,lines,ln,n,o,oi,onStage,originX,originY,originalHeight,originalText,overIndex,parseTokens,parsed,pause,paused,processCharProgression,r,randomize,rawCharIndex,regenerateLayout,removeVariable,resetShader,restart,restoreOriginalText,resume,ri,rot,s,saveOriginalText,sb,selectable,selectionDrawable,selectionEnd,selectionStart,set,setAlignment,setDefaultToken,setEllipsis,setHasParent,setHeight,setIgnoringEffects,setIgnoringEvents,setInLayout,setInWorkingLayout,setIntermediateText,setMaxLines,setPaused,setSelectable,setSize,setSuperHeight,setSuperWidth,setText,setTextSpeed,setTypingListener,setVariable,setVariables,setWidth,setWrap,si,size,sizeChanged,skipToTheEnd,skipping,sn,subAct,substring,text,textSpeed,this,toSkip,toString,tokenEntries,trackingInput,triggerEvent,typingListener,variables,widgetHeight,widgetWidth,width,workingLayout
+ * Covenant-baseline-loc: 1400
+ * Covenant-baseline-methods: FloatArrayHelper,TypingLabel,act,activeEffects,actualEnd,actualWidth,adjustedWidth,ai,appendText,baseX,baseY,breakAllLines,cancelSkipping,changed,charCooldown,charCounter,clearColor,clearVariables,continue_,copySelectedText,cs,cumulative,curly,current,defaultJustify,doLayout,dragging,draw,drawSection,dt,e,ended,first,get,getAdvances,getClearColor,getCumulativeLineHeight,getDefaultToken,getEllipsis,getFont,getFromIntermediate,getInLayout,getInWorkingLayout,getIntermediateText,getLineHeight,getLineInLayout,getLineIndexInLayout,getMaxLines,getOffsets,getOriginalText,getPrefHeight,getPrefWidth,getRotations,getSelectedText,getSizing,getTextSpeed,getTypingListener,getVariables,getWorkingLayout,gi,globalIndex,glyphCharCompensation,glyphCharIndex,glyphCount,hasEnded,hasEndedBefore,hasSelection,height,i,idx,ignoringEffects,ignoringEvents,incr,index,insertInLayout,intermediateText,isEnded,isIgnoringEffects,isIgnoringEvents,isPaused,isSelectable,isSkipping,lastTouchedIndex,layoutHeight,length,lines,ln,n,o,oi,onStage,originX,originY,originalHeight,originalText,overIndex,parseTokens,parsed,pause,paused,processCharProgression,r,randomize,rawCharIndex,regenerateLayout,removeVariable,resetShader,restart,restoreOriginalText,resume,ri,rot,s,saveOriginalText,sb,selectable,selectionDrawable,selectionEnd,selectionStart,set,setAlignment,setDefaultToken,setEllipsis,setHeight,setIgnoringEffects,setIgnoringEvents,setInLayout,setInWorkingLayout,setIntermediateText,setMaxLines,setPaused,setSelectable,setSize,setText,setTextSpeed,setTypingListener,setVariable,setVariables,setWidth,setWrap,si,size,skipToTheEnd,skipping,sn,subAct,substring,text,textSpeed,this,toSkip,toString,tokenEntries,trackingInput,triggerEvent,typingListener,variables,widgetHeight,widgetWidth,width,workingLayout
  * Covenant-source-reference: com/github/tommyettinger/textra/TypingLabel.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-15
  *
  * Partial-port debt:
  *   - Clipboard integration pending SGE Clipboard backend.
@@ -43,6 +43,7 @@ import sge.scenes.scene2d.utils.Drawable
 import sge.scenes.scene2d.utils.TransformDrawable
 import sge.textra.utils.ColorUtils
 import sge.utils.Align
+import sge.utils.Seconds
 import lowlevel.Nullable
 
 /** An extension of TextraLabel that progressively shows the text as if it was being typed in real time, and allows the use of tokens in the format: {TOKEN=PARAMETER;ANOTHER_PARAMETER;MORE}. These
@@ -100,36 +101,14 @@ class TypingLabel(using Sge) extends TextraLabel {
   private var ignoringEffects:       Boolean             = false
   private var onStage:               Boolean             = false
 
-  // --- Scene2d Actor/Widget equivalents ---
-  // These would normally come from Actor/Widget; since TextraLabel is standalone,
-  // they are implemented directly here.
-  private var _hasParent: Boolean = false
-
-  /** Returns whether this label has a parent container. Scene2d Actor equivalent. */
-  def hasParent: Boolean = _hasParent
-
-  /** Allows setting parent status for layout triggering. */
-  def setHasParent(v: Boolean): Unit = _hasParent = v
-
-  /** Invalidates this label and all ancestors in the widget hierarchy. Scene2d Widget equivalent. */
-  def invalidateHierarchy(): Unit = invalidate()
-
-  /** Called when the actor's size has been changed. Scene2d Actor equivalent. */
-  protected def sizeChanged(): Unit = ()
-
-  /** Returns whether this label accepts touch events. Scene2d Actor equivalent. */
-  def isTouchable: Boolean = true
-
-  /** Sets width without triggering layout recalculations on the base layout. */
-  override def setSuperWidth(width: Float): Unit =
-    // Directly set the TextraLabel width backing field via its setter,
-    // but we override setWidth below so we need a way to bypass it.
-    // We call the parent's direct field access.
-    super.setSuperWidth(width)
-
-  /** Sets height without triggering layout recalculations on the base layout. */
-  override def setSuperHeight(height: Float): Unit =
-    super.setSuperHeight(height)
+  // --- Scene2d Actor/Widget members ---
+  // hasParent, invalidateHierarchy(), sizeChanged() and isTouchable are now inherited from
+  // Actor/Widget (TextraLabel extends Widget extends Actor) — upstream TypingLabel does not override
+  // them, it uses the inherited versions (hasParent() at TypingLabel.java:1078, isTouchable() at
+  // :1495, invalidateHierarchy()/sizeChanged() from setWidth/setHeight/setSize). The previous
+  // standalone stand-ins (a private _hasParent flag, a no-op sizeChanged, a constant-true
+  // isTouchable, an invalidate-only invalidateHierarchy) are removed so the real scene-graph
+  // bookkeeping drives them.
 
   // --- Constructors ---
 
@@ -137,13 +116,13 @@ class TypingLabel(using Sge) extends TextraLabel {
   def this(text: String, style: Styles.LabelStyle)(using Sge) = {
     this()
     this.font = Nullable.fold(style.font)(new Font())(identity)
-    this.layout = new Layout()
-    Nullable.foreach(style.fontColor)(c => layout.setBaseColor(c))
+    this.baseLayout = new Layout()
+    Nullable.foreach(style.fontColor)(c => baseLayout.setBaseColor(c))
     this.style = Nullable(style)
     defaultToken = TypingConfig.getDefaultInitialText
     workingLayout.font = Nullable(this.font)
-    workingLayout.setBaseColor(layout.baseColor)
-    Color.abgr8888ToColor(clearColor, layout.getBaseColor)
+    workingLayout.setBaseColor(baseLayout.baseColor)
+    Color.abgr8888ToColor(clearColor, baseLayout.getBaseColor)
     setText(storedText, modifyOriginalText = true)
   }
 
@@ -151,13 +130,13 @@ class TypingLabel(using Sge) extends TextraLabel {
   def this(text: String, style: Styles.LabelStyle, replacementFont: Font)(using Sge) = {
     this()
     this.font = replacementFont
-    this.layout = new Layout()
-    Nullable.foreach(style.fontColor)(c => layout.setBaseColor(c))
+    this.baseLayout = new Layout()
+    Nullable.foreach(style.fontColor)(c => baseLayout.setBaseColor(c))
     this.style = Nullable(style)
     defaultToken = TypingConfig.getDefaultInitialText
     workingLayout.font = Nullable(this.font)
-    workingLayout.setBaseColor(layout.baseColor)
-    Color.abgr8888ToColor(clearColor, layout.getBaseColor)
+    workingLayout.setBaseColor(baseLayout.baseColor)
+    Color.abgr8888ToColor(clearColor, baseLayout.getBaseColor)
     setText(storedText, modifyOriginalText = true)
   }
 
@@ -165,7 +144,7 @@ class TypingLabel(using Sge) extends TextraLabel {
   def this(text: String, font: Font)(using Sge) = {
     this()
     this.font = font
-    this.layout = new Layout()
+    this.baseLayout = new Layout()
     this.style = Nullable(new Styles.LabelStyle())
     defaultToken = TypingConfig.getDefaultInitialText
     workingLayout.font = Nullable(this.font)
@@ -176,13 +155,13 @@ class TypingLabel(using Sge) extends TextraLabel {
   def this(text: String, font: Font, color: Color)(using Sge) = {
     this()
     this.font = font
-    this.layout = new Layout()
+    this.baseLayout = new Layout()
     this.style = Nullable(new Styles.LabelStyle())
-    if (color != null) layout.setBaseColor(color) // @nowarn — constructor param from Java callers
+    if (color != null) baseLayout.setBaseColor(color) // @nowarn — constructor param from Java callers
     defaultToken = TypingConfig.getDefaultInitialText
     workingLayout.font = Nullable(this.font)
-    workingLayout.setBaseColor(layout.baseColor)
-    Color.abgr8888ToColor(clearColor, layout.getBaseColor)
+    workingLayout.setBaseColor(baseLayout.baseColor)
+    Color.abgr8888ToColor(clearColor, baseLayout.getBaseColor)
     setText(storedText, modifyOriginalText = true)
   }
 
@@ -264,7 +243,7 @@ class TypingLabel(using Sge) extends TextraLabel {
   def setText(newText: String, modifyOriginalText: Boolean, restart: Boolean): Unit = {
     val hasEndedBefore = this.ended
     val text           = Parser.handleBracketMinusMarkup(newText)
-    font.markup(text, layout.clear().setJustification(defaultJustify))
+    font.markup(text, baseLayout.clear().setJustification(defaultJustify))
 
     if (wrap) {
       workingLayout.setTargetWidth(getWidth)
@@ -689,7 +668,7 @@ class TypingLabel(using Sge) extends TextraLabel {
   override def getMaxLines: Int = workingLayout.maxLines
 
   override def setMaxLines(maxLines: Int): Unit = {
-    layout.setMaxLines(maxLines)
+    baseLayout.setMaxLines(maxLines)
     workingLayout.setMaxLines(maxLines)
   }
 
@@ -778,11 +757,11 @@ class TypingLabel(using Sge) extends TextraLabel {
   /// --- Core Functionality --- ///
   //////////////////////////////////
 
-  /** Called each frame. Updates typing animation. */
-  override def act(delta: Float): Unit =
-    // In a scene2d setup, super.act(delta) processes Actions.
-    // Since we have no Actor base class, we just call subAct directly.
-    subAct(delta)
+  /** Called each frame. Updates typing animation. Overrides Actor.act(Seconds); upstream (TypingLabel.java:734) calls `super.act(delta)` (Actor.act, which processes scene2d Actions) then `subAct`. */
+  override def act(delta: Seconds): Unit = {
+    super.act(delta)
+    subAct(delta.toFloat)
+  }
 
   /** Performs the non-Action-related logic of parsing tokens, skipping/advancing (when needed), ensuring the layout and workingLayout fields match internally, calculating size changes, and handling
     * all effects.
@@ -799,30 +778,30 @@ class TypingLabel(using Sge) extends TextraLabel {
         processCharProgression()
       }
     }
-    val glyphCount = layout.countGlyphs
+    val glyphCount = baseLayout.countGlyphs
 
     getOffsets.setSize(glyphCount + glyphCount)
     var oi = 0
     while (oi < glyphCount + glyphCount) {
-      workingLayout.offsets(oi) = layout.offsets(oi)
+      workingLayout.offsets(oi) = baseLayout.offsets(oi)
       oi += 1
     }
     getSizing.setSize(glyphCount + glyphCount)
     var si = 0
     while (si < glyphCount + glyphCount) {
-      workingLayout.sizing(si) = layout.sizing(si)
+      workingLayout.sizing(si) = baseLayout.sizing(si)
       si += 1
     }
     getRotations.setSize(glyphCount)
     var ri = 0
     while (ri < glyphCount) {
-      workingLayout.rotations(ri) = layout.rotations(ri)
+      workingLayout.rotations(ri) = baseLayout.rotations(ri)
       ri += 1
     }
     getAdvances.setSize(glyphCount)
     var ai = 0
     while (ai < glyphCount) {
-      workingLayout.advances(ai) = layout.advances(ai)
+      workingLayout.advances(ai) = baseLayout.advances(ai)
       ai += 1
     }
 
@@ -893,7 +872,7 @@ class TypingLabel(using Sge) extends TextraLabel {
         rawCharIndex += 1
 
         // Get next character and calculate cooldown increment
-        val layoutSize = layout.countGlyphs
+        val layoutSize = baseLayout.countGlyphs
 
         // If char progression is finished, or if text is empty, notify listener and abort routine
         if (layoutSize == 0 || glyphCharIndex >= layoutSize) {
@@ -957,7 +936,7 @@ class TypingLabel(using Sge) extends TextraLabel {
           if (!tokenProcessed) {
             val safeIndex = MathUtils.clamp(glyphCharIndex + 1, 0, layoutSize - 1)
             if (layoutSize > 0) {
-              val baseChar           = getInLayout(layout, safeIndex)
+              val baseChar           = getInLayout(baseLayout, safeIndex)
               val intervalMultiplier = TypingConfig.INTERVAL_MULTIPLIERS_BY_CHAR.getOrElse((baseChar & 0xffff).toInt, 1f)
               if (textSpeed < 0f) {
                 charCooldown += textSpeed * randomize(glyphCharIndex) * intervalMultiplier
@@ -973,7 +952,7 @@ class TypingLabel(using Sge) extends TextraLabel {
 
             // Notify listener about char progression
             if (glyphCharIndex >= 0 && glyphCharIndex < layoutSize && rawCharIndex >= 0) {
-              Nullable.foreach(typingListener)(_.onChar(getInLayout(layout, glyphCharIndex)))
+              Nullable.foreach(typingListener)(_.onChar(getInLayout(baseLayout, glyphCharIndex)))
             }
 
             // Break loop if this was our first glyph to prevent glyph issues.
@@ -1223,7 +1202,7 @@ class TypingLabel(using Sge) extends TextraLabel {
       }
     }
 
-    if (layout.lines.isEmpty || parentAlpha <= 0f) break(())
+    if (baseLayout.lines.isEmpty || parentAlpha <= 0f) break(())
 
     val resetShader = font.getDistanceField != Font.DistanceFieldType.STANDARD &&
       Nullable.fold(font.shader)(true)(sh => batch.shader ne sh)

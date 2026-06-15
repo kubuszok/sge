@@ -17,9 +17,9 @@
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 660
- * Covenant-baseline-methods: TextraLabel,_color,_height,_originX,_originY,_rotation,_scaleX,_scaleY,_width,_x,_y,act,actualWidth,adjustedWidth,align,baseX,baseY,cs,defaultToken,doLayout,draw,e,font,getAdvances,getAlignment,getColor,getDefaultToken,getEllipsis,getFont,getGlyph,getHeight,getLineHeight,getMaxLines,getOffsets,getOriginX,getOriginY,getPrefHeight,getPrefWidth,getRotation,getRotations,getScaleX,getScaleY,getSizing,getWidth,getX,getY,glyphCount,height,i,idx,index,invalidate,isWrap,layout,layoutHeight,lines,ln,n,old,originX,originY,originalHeight,prefSizeInvalid,regenerateLayout,resetShader,rot,s,sb,setAlignment,setBounds,setColor,setDefaultToken,setEllipsis,setFont,setHeight,setMaxLines,setParent,setPosition,setRotation,setScaleX,setScaleY,setSize,setStage,setSuperHeight,setSuperWidth,setText,setWidth,setWrap,setX,setY,skipToTheEnd,sn,storedText,style,substring,this,toString,useIntegerPositions,validate,widgetHeight,widgetWidth,width,wrap
+ * Covenant-baseline-methods: TextraLabel,act,actualWidth,adjustedWidth,align,baseLayout,baseX,baseY,cs,defaultToken,doLayout,draw,e,font,getAdvances,getAlignment,getColor,getDefaultToken,getEllipsis,getFont,getGlyph,getHeight,getLineHeight,getMaxLines,getOffsets,getOriginX,getOriginY,getPrefHeight,getPrefWidth,getRotation,getRotations,getScaleX,getScaleY,getSizing,getWidth,getX,getY,glyphCount,height,i,idx,index,invalidate,isWrap,layout,layoutHeight,lines,ln,n,old,originX,originY,originalHeight,prefSizeInvalid,regenerateLayout,resetShader,rot,s,sb,setAlignment,setColor,setDefaultToken,setEllipsis,setFont,setHeight,setMaxLines,setSize,setSuperHeight,setSuperWidth,setText,setWidth,setWrap,sgeContext,skipToTheEnd,sn,storedText,style,substring,this,toString,useIntegerPositions,validate,widgetHeight,widgetWidth,width,wrap
  * Covenant-source-reference: com/github/tommyettinger/textra/TextraLabel.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-15
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
@@ -30,15 +30,21 @@ import scala.util.boundary
 import scala.util.boundary.break
 
 import sge.graphics.Color
+import sge.scenes.scene2d.ui.Widget
 import sge.scenes.scene2d.utils.Drawable
 import sge.scenes.scene2d.utils.TransformDrawable
 import sge.utils.Align
+import sge.utils.Seconds
 import lowlevel.Nullable
 
 /** A scene2d.ui Widget that displays text using a Font rather than a libGDX BitmapFont. This supports being laid out in a Table. This permits square-bracket tag markup from Font. It does not support
   * the curly-brace token markup that its subclass TypingLabel does, nor does this handle input in the way TypingLabel can.
+  *
+  * Upstream `TextraLabel extends Widget` (TextraLabel.java:52); Widget extends Actor, so a TextraLabel participates in the scene2d graph (parent/stage tracking, layout). The
+  * position/size/scale/rotation/ origin/color state below is inherited from Actor rather than re-rolled by hand; the Java-style `getX`/`getWidth`/`getColor`/… accessors delegate to those inherited
+  * fields so the rest of the textra package (which mirrors upstream's inherited getters) keeps working.
   */
-class TextraLabel(using Sge) {
+class TextraLabel(using Sge) extends Widget {
 
   /** The per-application [[Sge]] context this label was constructed with. Upstream resolves application globals (`Gdx.net`, `Gdx.app`) directly at use time; SGE has no globals, so the context is
     * threaded through the constructor and captured here. Effects produced from markup that need the application — currently only `{LINK}`, which opens a URL via `Sge.net.openURI` (mirroring
@@ -46,7 +52,11 @@ class TextraLabel(using Sge) {
     */
   private[textra] val sgeContext: Sge = summon[Sge]
 
-  var layout:         Layout = new Layout()
+  /** The base Layout holding this label's parsed glyphs. Upstream names this field `layout` (TextraLabel.java:53), but SGE's `Widget`/`Layout` trait already defines a `layout()` method (the layout
+    * hook); a Scala field and an inherited method cannot share a name, so — mirroring SGE's own `Label.glyphLayout` convention — the field is `baseLayout` here while the inherited `layout()` hook
+    * (overridden below to run `doLayout()`) keeps its scene2d meaning.
+    */
+  var baseLayout:     Layout = new Layout()
   protected var font: Font   = new Font()
   var align:          Align  = Align.left
 
@@ -57,51 +67,26 @@ class TextraLabel(using Sge) {
   protected var prefSizeInvalid: Boolean                     = true
   protected var defaultToken:    String                      = ""
 
-  // Widget-like fields (normally inherited from scene2d)
-  private var _width:    Float = 0f
-  private var _height:   Float = 0f
-  private var _x:        Float = 0f
-  private var _y:        Float = 0f
-  private var _scaleX:   Float = 1f
-  private var _scaleY:   Float = 1f
-  private var _rotation: Float = 0f
-  private val _originX:  Float = 0f
-  private val _originY:  Float = 0f
-  private val _color:    Color = new Color(Color.WHITE)
+  // Position/size/scale/rotation/origin/color are inherited from Actor (via Widget). The Java-style
+  // getters below mirror upstream's inherited Actor getters (getX(), getColor(), …) so the rest of the
+  // textra package — which is written against those names — keeps compiling.
+  def getX:        Float = x
+  def getY:        Float = y
+  def getScaleX:   Float = scaleX
+  def getScaleY:   Float = scaleY
+  def getRotation: Float = rotation
+  def getOriginX:  Float = originX
+  def getOriginY:  Float = originY
+  def getColor:    Color = color
 
-  def getX:                    Float = _x
-  def getY:                    Float = _y
-  def setX(x:          Float): Unit  = _x = x
-  def setY(y:          Float): Unit  = _y = y
-  def getScaleX:               Float = _scaleX
-  def getScaleY:               Float = _scaleY
-  def setScaleX(sx:    Float): Unit  = _scaleX = sx
-  def setScaleY(sy:    Float): Unit  = _scaleY = sy
-  def getRotation:             Float = _rotation
-  def setRotation(rot: Float): Unit  = _rotation = rot
-  def getOriginX:              Float = _originX
-  def getOriginY:              Float = _originY
-  def getColor:                Color = _color
-  def setColor(c:      Color): Unit  = if (c != null) _color.set(c)
+  def setColor(c: Color): Unit = if (c != null) color.set(c) // @nowarn — Java interop boundary (callers pass possibly-null Color)
 
-  def setColor(r: Float, g: Float, b: Float, a: Float): Unit = _color.set(r, g, b, a)
-
-  def setPosition(x: Float, y: Float): Unit = {
-    _x = x
-    _y = y
-  }
-
-  def setBounds(x: Float, y: Float, width: Float, height: Float): Unit = {
-    _x = x
-    _y = y
-    _width = width
-    _height = height
-  }
+  def setColor(r: Float, g: Float, b: Float, a: Float): Unit = color.set(r, g, b, a)
 
   /** Creates a TextraLabel that uses the default font with white color. */
   def this(dummy: Unit)(using Sge) = {
     this()
-    layout = new Layout()
+    baseLayout = new Layout()
     font = new Font()
     style = Nullable(new Styles.LabelStyle(font, Nullable.empty))
     defaultToken = TypingConfig.getDefaultInitialText
@@ -112,81 +97,81 @@ class TextraLabel(using Sge) {
   def this(text: String, style: Styles.LabelStyle)(using Sge) = {
     this()
     this.font = Nullable.fold(style.font)(new Font())(identity)
-    this.layout = new Layout()
-    Nullable.foreach(style.fontColor)(c => layout.setBaseColor(c))
+    this.baseLayout = new Layout()
+    Nullable.foreach(style.fontColor)(c => baseLayout.setBaseColor(c))
     this.style = Nullable(style)
     defaultToken = TypingConfig.getDefaultInitialText
     storedText = defaultToken + text
-    font.markup(storedText, layout)
+    font.markup(storedText, baseLayout)
   }
 
   /** Creates a TextraLabel with the given text and style, using a replacement font. */
   def this(text: String, style: Styles.LabelStyle, replacementFont: Font)(using Sge) = {
     this()
     this.font = replacementFont
-    this.layout = new Layout()
-    Nullable.foreach(style.fontColor)(c => layout.setBaseColor(c))
+    this.baseLayout = new Layout()
+    Nullable.foreach(style.fontColor)(c => baseLayout.setBaseColor(c))
     this.style = Nullable(style)
     defaultToken = TypingConfig.getDefaultInitialText
     storedText = defaultToken + text
-    font.markup(storedText, layout)
+    font.markup(storedText, baseLayout)
   }
 
   /** Creates a TextraLabel with the given text and font. */
   def this(text: String, font: Font)(using Sge) = {
     this()
     this.font = font
-    this.layout = new Layout()
+    this.baseLayout = new Layout()
     this.style = Nullable(new Styles.LabelStyle())
     defaultToken = TypingConfig.getDefaultInitialText
     storedText = defaultToken + text
-    font.markup(storedText, layout)
+    font.markup(storedText, baseLayout)
   }
 
   /** Creates a TextraLabel with the given text, font, and default color. */
   def this(text: String, font: Font, color: Color)(using Sge) = {
     this()
     this.font = font
-    this.layout = new Layout()
+    this.baseLayout = new Layout()
     this.style = Nullable(new Styles.LabelStyle())
-    if (color != null) layout.setBaseColor(color)
+    if (color != null) baseLayout.setBaseColor(color)
     defaultToken = TypingConfig.getDefaultInitialText
     storedText = defaultToken + text
-    font.markup(storedText, layout)
+    font.markup(storedText, baseLayout)
   }
 
   /** Creates a TextraLabel with the given text, font, color, and justification. */
   def this(text: String, font: Font, color: Color, justify: Justify)(using Sge) = {
     this()
     this.font = font
-    this.layout = new Layout()
+    this.baseLayout = new Layout()
     this.style = Nullable(new Styles.LabelStyle())
-    if (color != null) layout.setBaseColor(color)
+    if (color != null) baseLayout.setBaseColor(color)
     defaultToken = TypingConfig.getDefaultInitialText
     storedText = defaultToken + text
-    font.markup(storedText, layout)
-    layout.setJustification(justify)
+    font.markup(storedText, baseLayout)
+    baseLayout.setJustification(justify)
   }
 
-  def getWidth:  Float = _width
-  def getHeight: Float = _height
+  def getWidth:  Float = width
+  def getHeight: Float = height
 
-  def setWidth(width: Float): Unit = {
-    _width = width
-    layout.setTargetWidth(width)
-    font.calculateSize(layout)
+  override def setWidth(width: Float): Unit = {
+    this.width = width
+    baseLayout.setTargetWidth(width)
+    font.calculateSize(baseLayout)
   }
 
-  def setHeight(height: Float): Unit = {
-    _height = height
-    font.calculateSize(layout)
+  override def setHeight(height: Float): Unit = {
+    this.height = height
+    font.calculateSize(baseLayout)
   }
 
-  def setSize(width: Float, height: Float): Unit = {
-    _width = width
-    _height = height
-    layout.setTargetWidth(width)
-    font.calculateSize(layout)
+  override def setSize(width: Float, height: Float): Unit = {
+    this.width = width
+    this.height = height
+    baseLayout.setTargetWidth(width)
+    font.calculateSize(baseLayout)
   }
 
   /** This only exists so code that needs to set the raw Actor width (bypassing layout recalculation) still can, even with setWidth() implemented here.
@@ -194,34 +179,25 @@ class TextraLabel(using Sge) {
     *   the new width, in world units as a float
     */
   def setSuperWidth(width: Float): Unit =
-    _width = width
+    super.setWidth(width)
 
   /** This only exists so code that needs to set the raw Actor height (bypassing layout recalculation) still can, even with setHeight() implemented here.
     * @param height
     *   the new height, in world units as a float
     */
   def setSuperHeight(height: Float): Unit =
-    _height = height
+    super.setHeight(height)
 
-  /** Called by the framework when this actor or any ascendant is added to a group that is in the stage. This is overridden as public instead of protected because most of its usage in scene2d.ui code
-    * is not actually in inheriting classes, but in other classes in the same package.
-    * @param stage
-    *   May be null if the actor or any ascendant is no longer in a stage.
-    */
-  def setStage(stage: AnyRef): Unit = ()
-
-  /** Called by the framework when an actor is added to or removed from a group. This is overridden as public instead of protected because most of its usage in scene2d.ui code is not actually in
-    * inheriting classes, but in other classes in the same package.
-    * @param parent
-    *   May be null if the actor has been removed from the parent.
-    */
-  def setParent(parent: AnyRef): Unit = ()
+  // setStage(Stage) and setParent(Group) are inherited from Actor (protected[scene2d]). Upstream
+  // (TextraLabel.java:748-762) widens them to public but still runs the inherited bookkeeping; the
+  // SGE Actor seams already record stage/parent, and Group.addActor/setStage drive them, so no
+  // override is needed here — the previous no-op stubs are removed (they broke stage/parent tracking).
 
   def getPrefWidth: Float =
     if (wrap) 0f
     else {
       if (prefSizeInvalid) validate()
-      var width = layout.getWidth
+      var width = baseLayout.getWidth
       Nullable.foreach(style) { s =>
         Nullable.foreach(s.background) { bgAny =>
           bgAny match {
@@ -236,7 +212,7 @@ class TextraLabel(using Sge) {
 
   def getPrefHeight: Float = {
     if (prefSizeInvalid) validate()
-    var height = layout.getHeight
+    var height = baseLayout.getHeight
     Nullable.foreach(style) { s =>
       Nullable.foreach(s.background) { bgAny =>
         bgAny match {
@@ -276,7 +252,7 @@ class TextraLabel(using Sge) {
 
   def getFont: Font = font
 
-  /** Sets the font and regenerates the layout. */
+  /** Sets the font and regenerates the baseLayout. */
   def setFont(font: Font): Unit =
     if (!this.font.eq(font)) {
       this.font = font
@@ -292,32 +268,36 @@ class TextraLabel(using Sge) {
 
   /** Re-calculates line breaks when wrapping is enabled, and always re-calculates the size. */
   def regenerateLayout(): Unit = {
-    font.regenerateLayout(layout)
-    font.calculateSize(layout)
+    font.regenerateLayout(baseLayout)
+    font.calculateSize(baseLayout)
   }
 
   /** Changes the text in this TextraLabel to the given String, parsing any markup in it. */
   def setText(markupText: String): Unit = {
     storedText = defaultToken + markupText
-    if (wrap) layout.setTargetWidth(_width)
-    font.markup(storedText, layout.clear())
+    if (wrap) baseLayout.setTargetWidth(width)
+    font.markup(storedText, baseLayout.clear())
   }
 
   /** By default, does nothing; this is overridden in TypingLabel to skip its text progression ahead. */
   def skipToTheEnd(): TextraLabel = this
 
-  /** Called each frame with the time since the last frame. No-op for TextraLabel; overridden in TypingLabel. */
-  def act(delta: Float): Unit = ()
+  /** Called each frame with the time since the last frame. No-op for TextraLabel; overridden in TypingLabel. Overrides Actor.act(Seconds). */
+  override def act(delta: Seconds): Unit = ()
 
-  def invalidate(): Unit =
+  override def invalidate(): Unit = {
+    super.invalidate()
     prefSizeInvalid = true
+  }
 
-  def validate(): Unit =
+  override def validate(): Unit = {
     prefSizeInvalid = false
+    super.validate()
+  }
 
   /** Performs layout calculations, adjusting wrapping and target width. Called by validate() or when wrap changes. */
   def doLayout(): Unit = {
-    val width         = _width
+    val width         = this.width
     var adjustedWidth = width
     Nullable.foreach(style) { s =>
       Nullable.foreach(s.background) { bgAny =>
@@ -328,42 +308,47 @@ class TextraLabel(using Sge) {
         }
       }
     }
-    val originalHeight = layout.getHeight
-    val actualWidth    = font.calculateSize(layout)
+    val originalHeight = baseLayout.getHeight
+    val actualWidth    = font.calculateSize(baseLayout)
 
     if (wrap) {
-      if (adjustedWidth == 0 || layout.getTargetWidth != adjustedWidth || actualWidth > adjustedWidth) {
+      if (adjustedWidth == 0 || baseLayout.getTargetWidth != adjustedWidth || actualWidth > adjustedWidth) {
         if (adjustedWidth != 0f) {
-          layout.setTargetWidth(adjustedWidth)
+          baseLayout.setTargetWidth(adjustedWidth)
         }
-        font.regenerateLayout(layout)
+        font.regenerateLayout(baseLayout)
       }
 
       // If the call to calculateSize() changed layout's height, update height.
-      val newHeight = layout.getHeight
+      val newHeight = baseLayout.getHeight
       if (!lowlevel.math.MathUtils.isEqual(originalHeight, newHeight)) {
         setSuperHeight(newHeight)
       }
     }
   }
 
-  /** Draws this label using the given Batch. parentAlpha is multiplied into the label's own alpha. */
-  def draw(batch: sge.graphics.g2d.Batch, parentAlpha: Float): Unit = boundary {
+  /** The scene2d Widget layout hook. Upstream's TextraLabel.layout() (TextraLabel.java:619) is exactly the body of [[doLayout]]; here the inherited `layout()` delegates to it so that
+    * Widget.validate() (called from [[validate]] via super) drives wrap re-layout the same way it does upstream.
+    */
+  override def layout(): Unit = doLayout()
+
+  /** Draws this label using the given Batch. parentAlpha is multiplied into the label's own alpha. Overrides Widget/Actor draw. */
+  override def draw(batch: sge.graphics.g2d.Batch, parentAlpha: Float): Unit = boundary {
     validate()
 
-    val rot     = _rotation
-    val originX = _originX
-    val originY = _originY
+    val rot     = rotation
+    val originX = this.originX
+    val originY = this.originY
     val sn      = lowlevel.math.MathUtils.sinDeg(rot)
     val cs      = lowlevel.math.MathUtils.cosDeg(rot)
 
-    val lines = layout.lineCount
-    var baseX = _x
-    var baseY = _y
+    val lines = baseLayout.lineCount
+    var baseX = x
+    var baseY = y
 
     // These two blocks use different height measurements, so center vertical is offset once by half the layout
     // height, and once by half the widget height.
-    val layoutHeight = layout.getHeight * _scaleY
+    val layoutHeight = baseLayout.getHeight * scaleY
     if (align.isBottom) {
       baseX -= sn * layoutHeight
       baseY += cs * layoutHeight
@@ -371,7 +356,7 @@ class TextraLabel(using Sge) {
       baseX -= sn * layoutHeight * 0.5f
       baseY += cs * layoutHeight * 0.5f
     }
-    val widgetHeight = _height * _scaleY
+    val widgetHeight = height * scaleY
     if (align.isTop) {
       baseX -= sn * widgetHeight
       baseY += cs * widgetHeight
@@ -380,7 +365,7 @@ class TextraLabel(using Sge) {
       baseY += cs * widgetHeight * 0.5f
     }
 
-    val widgetWidth = _width * _scaleX
+    val widgetWidth = width * scaleX
     if (align.isRight) {
       baseX += cs * widgetWidth
       baseY += sn * widgetWidth
@@ -417,29 +402,29 @@ class TextraLabel(using Sge) {
               case td: TransformDrawable =>
                 try
                   td.draw(batch,
-                          _x,
-                          _y, // position
+                          x,
+                          y, // position
                           originX,
                           originY, // origin
-                          _width,
-                          _height, // size
+                          width,
+                          height, // size
                           1f,
                           1f, // scale
                           rot
                   ) // rotation
                 catch {
                   case _: UnsupportedOperationException | _: ClassCastException =>
-                    bg.draw(batch, _x, _y, _width, _height)
+                    bg.draw(batch, x, y, width, height)
                 }
               case _ =>
-                bg.draw(batch, _x, _y, _width, _height)
+                bg.draw(batch, x, y, width, height)
             }
           case _ => ()
         }
       }
     }
 
-    if (layout.lines.isEmpty || parentAlpha <= 0f) break(())
+    if (baseLayout.lines.isEmpty || parentAlpha <= 0f) break(())
 
     // we only change the shader or batch color if we actually are drawing something.
     val resetShader = font.getDistanceField != Font.DistanceFieldType.STANDARD &&
@@ -447,16 +432,16 @@ class TextraLabel(using Sge) {
     if (resetShader) {
       font.enableShader(batch)
     }
-    batch.color.set(_color).a *= parentAlpha
+    batch.color.set(color).a *= parentAlpha
     batch.color = batch.color
 
     var ln = 0
     while (ln < lines) {
-      val line = layout.lines(ln)
+      val line = baseLayout.lines(ln)
 
       if (line.glyphs.nonEmpty) {
-        val lineWidth  = line.width * _scaleX
-        val lineHeight = line.height * _scaleY
+        val lineWidth  = line.width * scaleX
+        val lineHeight = line.height * scaleY
 
         baseX += sn * lineHeight
         baseY -= cs * lineHeight
@@ -486,7 +471,7 @@ class TextraLabel(using Sge) {
         var f: Nullable[Font] = Nullable.empty
         var kern  = -1
         var curly = false
-        val start = layout.countGlyphsBeforeLine(ln)
+        val start = baseLayout.countGlyphsBeforeLine(ln)
         var i     = 0
         val n     = line.glyphs.size
         while (i < n) {
@@ -518,7 +503,7 @@ class TextraLabel(using Sge) {
             val fFont = Nullable.getOrElse(f)(font)
             val even  = (start + i) << 1
             val odd   = even | 1
-            val a     = getAdvances.get(start + i) * _scaleX
+            val a     = getAdvances.get(start + i) * scaleX
             if (i == 0) {
               x -= 0.5f * fFont.cellWidth
               x += cs * 0.5f * fFont.cellWidth
@@ -547,14 +532,14 @@ class TextraLabel(using Sge) {
               kern = -1
             }
 
-            var xx = x + xChange + getOffsets.get(even) * _scaleX
-            var yy = y + yChange + getOffsets.get(odd) * _scaleY
+            var xx = x + xChange + getOffsets.get(even) * scaleX
+            var yy = y + yChange + getOffsets.get(odd) * scaleY
             if (font.integerPosition) {
               xx = xx.toInt.toFloat
               yy = yy.toInt.toFloat
             }
 
-            val single = fFont.drawGlyph(batch, glyph, xx, yy, getRotations.get(start + i) + rot, getSizing.get(even) * _scaleX, getSizing.get(odd) * _scaleY, 0, a)
+            val single = fFont.drawGlyph(batch, glyph, xx, yy, getRotations.get(start + i) + rot, getSizing.get(even) * scaleX, getSizing.get(odd) * scaleY, 0, a)
             xChange += cs * single
             yChange += sn * single
           }
@@ -569,13 +554,13 @@ class TextraLabel(using Sge) {
     }
   }
 
-  /** Gets a glyph from this label's layout. */
+  /** Gets a glyph from this label's baseLayout. */
   def getGlyph(index: Int): Long = boundary {
     var idx = index
     var i   = 0
-    val n   = layout.lineCount
+    val n   = baseLayout.lineCount
     while (i < n && idx >= 0) {
-      val glyphs = layout.lines(i).glyphs
+      val glyphs = baseLayout.lines(i).glyphs
       if (idx < glyphs.size) break(glyphs(idx))
       else idx -= glyphs.size
       i += 1
@@ -584,30 +569,30 @@ class TextraLabel(using Sge) {
   }
 
   /** The maximum number of Lines this label can display. */
-  def getMaxLines: Int = layout.maxLines
+  def getMaxLines: Int = baseLayout.maxLines
 
   /** Sets the maximum number of Lines this Layout can display; this is always at least 1. */
   def setMaxLines(maxLines: Int): Unit =
-    layout.setMaxLines(maxLines)
+    baseLayout.setMaxLines(maxLines)
 
   /** Gets the ellipsis, which may be null, or may be a String placed at the end of text if its max lines are exceeded. */
-  def getEllipsis: Nullable[String] = layout.ellipsis
+  def getEllipsis: Nullable[String] = baseLayout.ellipsis
 
   /** Sets the ellipsis text. */
   def setEllipsis(ellipsis: Nullable[String]): Unit =
-    layout.setEllipsis(ellipsis)
+    baseLayout.setEllipsis(ellipsis)
 
   /** Gets a String from the layout, made of only the char portions of the glyphs from start (inclusive) to end (exclusive). */
   def substring(start: Int, end: Int): String = boundary {
     val s          = Math.max(0, start)
-    val e          = Math.min(layout.countGlyphs, end)
+    val e          = Math.min(baseLayout.countGlyphs, end)
     var index      = s
     val sb         = new StringBuilder(e - s)
     var glyphCount = 0
     var i          = 0
-    val n          = layout.lineCount
+    val n          = baseLayout.lineCount
     while (i < n && index >= 0) {
-      val glyphs = layout.lines(i).glyphs
+      val glyphs = baseLayout.lines(i).glyphs
       if (index < glyphs.size) {
         val fin = index - s - glyphCount + e
         while (index < fin && index < glyphs.size) {
@@ -642,10 +627,10 @@ class TextraLabel(using Sge) {
   def getLineHeight(index: Int): Float = boundary {
     var idx = index
     var i   = 0
-    val n   = layout.lineCount
+    val n   = baseLayout.lineCount
     while (i < n && idx >= 0) {
-      val glyphs = layout.lines(i).glyphs
-      if (idx < glyphs.size) break(layout.lines(i).height)
+      val glyphs = baseLayout.lines(i).glyphs
+      if (idx < glyphs.size) break(baseLayout.lines(i).height)
       else idx -= glyphs.size
       i += 1
     }
@@ -653,16 +638,16 @@ class TextraLabel(using Sge) {
   }
 
   /** Contains one float per glyph; each is a rotation in degrees to apply to that glyph (around its center). */
-  def getRotations: FloatArrayHelper = new FloatArrayHelper(layout.rotations)
+  def getRotations: FloatArrayHelper = new FloatArrayHelper(baseLayout.rotations)
 
   /** Contains two floats per glyph; even items are x offsets, odd items are y offsets. */
-  def getOffsets: FloatArrayHelper = new FloatArrayHelper(layout.offsets)
+  def getOffsets: FloatArrayHelper = new FloatArrayHelper(baseLayout.offsets)
 
   /** Contains two floats per glyph, as size multipliers; even items apply to x, odd items apply to y. */
-  def getSizing: FloatArrayHelper = new FloatArrayHelper(layout.sizing)
+  def getSizing: FloatArrayHelper = new FloatArrayHelper(baseLayout.sizing)
 
   /** Contains one float per glyph; each is a multiplier that affects the x-advance of that glyph. */
-  def getAdvances: FloatArrayHelper = new FloatArrayHelper(layout.advances)
+  def getAdvances: FloatArrayHelper = new FloatArrayHelper(baseLayout.advances)
 
   /** Returns the default token being used in this label. */
   def getDefaultToken: String = defaultToken

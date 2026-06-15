@@ -117,7 +117,7 @@ object Parser {
 
   /** Parse tokens that only replace text, such as colors and variables. */
   private def parseReplacements(label: TypingLabel): Unit = {
-    var text: CharSequence = label.layout.appendIntoDirect(new StringBuilder)
+    var text: CharSequence = label.baseLayout.appendIntoDirect(new StringBuilder)
 
     if (label.getFont.omitCurlyBraces && label.getFont.enableSquareBrackets) {
       var matcherIndexOffset = 0

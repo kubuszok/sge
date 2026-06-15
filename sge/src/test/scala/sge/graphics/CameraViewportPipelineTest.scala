@@ -9,7 +9,7 @@ package graphics
 
 import munit.FunSuite
 import sge.math.Vector3
-import sge.noop.NoopGraphics
+import sge.noop.{ NoopGL20, NoopGraphics }
 import sge.utils.viewport.{ ExtendViewport, FitViewport, ScreenViewport, StretchViewport }
 
 class CameraViewportPipelineTest extends FunSuite {

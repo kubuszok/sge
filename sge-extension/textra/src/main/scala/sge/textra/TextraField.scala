@@ -40,7 +40,7 @@ import sge.scenes.scene2d.{ Actor, Group, Stage }
 import sge.scenes.scene2d.utils.{ Drawable, UIUtils }
 import lowlevel.Nullable
 import lowlevel.util.DynamicArray
-import sge.utils.{ Align, Clipboard }
+import sge.utils.{ Align, Clipboard, Seconds }
 
 /** A single-line text input field using a Font.
   *
@@ -293,7 +293,7 @@ class TextraField(using Sge) {
       clearSelection()
       val oldText = text
       text = ""
-      label.layout.clear()
+      label.baseLayout.clear()
       cursor = 0
       paste(Nullable(s), fireChangeEvent = false)
       if (programmaticChangeEvents) {
@@ -722,7 +722,7 @@ class TextraField(using Sge) {
       }
       val bLen = sb.length
       sb.setLength(0)
-      text = label.layout.appendIntoDirect(sb).toString
+      text = label.baseLayout.appendIntoDirect(sb).toString
       updateDisplayText()
       cursor += bLen
     }
@@ -733,9 +733,9 @@ class TextraField(using Sge) {
     } else {
       if (showingMessage) {
         showingMessage = false
-        label.layout.clear()
+        label.baseLayout.clear()
       }
-      label.insertInLayout(label.layout, position, inserting)
+      label.insertInLayout(label.baseLayout, position, inserting)
       true
     }
 
@@ -748,7 +748,7 @@ class TextraField(using Sge) {
     if (showingMessage) {
       break(label.selectionStart)
     }
-    Nullable.foreach(label.layout.getLine(0)) { line =>
+    Nullable.foreach(label.baseLayout.getLine(0)) { line =>
       val glyphs = line.glyphs
       if (glyphs.nonEmpty && label.selectionEnd >= 0 && label.selectionStart <= label.selectionEnd) {
         val removeEnd = Math.max(Math.min(glyphs.size - 1, label.selectionEnd), 0)
@@ -760,9 +760,9 @@ class TextraField(using Sge) {
       }
     }
     if (fireChangeEvent) {
-      changeText(text, label.layout.appendIntoDirect(new StringBuilder()).toString)
+      changeText(text, label.baseLayout.appendIntoDirect(new StringBuilder()).toString)
     } else {
-      text = label.layout.appendIntoDirect(new StringBuilder()).toString
+      text = label.baseLayout.appendIntoDirect(new StringBuilder()).toString
     }
     clearSelection()
     from
@@ -880,7 +880,7 @@ class TextraField(using Sge) {
   // --- Act ---
 
   def act(delta: Float): Unit = {
-    label.act(delta)
+    label.act(Seconds(delta)) // Actor.act takes Seconds; TextraField's own delta is a raw Float
 
     // Blink cursor
     if (focused && blinkEnabled) {
@@ -1409,7 +1409,7 @@ class TextraField(using Sge) {
             val insertion = if (enter) "\n" else String.valueOf(ch)
             insert(cursor, insertion)
             cursor += 1
-            text = label.layout.appendIntoDirect(new StringBuilder()).toString
+            text = label.baseLayout.appendIntoDirect(new StringBuilder()).toString
           }
           if (changeText(oldText, text)) {
             val time = System.currentTimeMillis()

@@ -7,7 +7,7 @@ package utils
 package viewport
 
 import sge.graphics.{ GL20, OrthographicCamera }
-import sge.noop.NoopGraphics
+import sge.noop.{ NoopGL20, NoopGraphics }
 
 class ViewportTest extends munit.FunSuite {
 

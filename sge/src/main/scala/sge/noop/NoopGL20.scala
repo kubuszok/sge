@@ -1,14 +1,23 @@
 /*
  * Copyright 2025-2026 Mateusz Kubuszok
  * Licensed under the Apache License, Version 2.0
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 340
+ * Covenant-baseline-methods: NoopGL20,glActiveTexture,glAttachShader,glBindAttribLocation,glBindBuffer,glBindFramebuffer,glBindRenderbuffer,glBindTexture,glBlendColor,glBlendEquation,glBlendEquationSeparate,glBlendFunc,glBlendFuncSeparate,glBufferData,glBufferSubData,glCheckFramebufferStatus,glClear,glClearColor,glClearDepthf,glClearStencil,glColorMask,glCompileShader,glCompressedTexImage2D,glCompressedTexSubImage2D,glCopyTexImage2D,glCopyTexSubImage2D,glCreateProgram,glCreateShader,glCullFace,glDeleteBuffer,glDeleteBuffers,glDeleteFramebuffer,glDeleteFramebuffers,glDeleteProgram,glDeleteRenderbuffer,glDeleteRenderbuffers,glDeleteShader,glDeleteTexture,glDeleteTextures,glDepthFunc,glDepthMask,glDepthRangef,glDetachShader,glDisable,glDisableVertexAttribArray,glDrawArrays,glDrawElements,glEnable,glEnableVertexAttribArray,glFinish,glFlush,glFramebufferRenderbuffer,glFramebufferTexture2D,glFrontFace,glGenBuffer,glGenBuffers,glGenFramebuffer,glGenFramebuffers,glGenRenderbuffer,glGenRenderbuffers,glGenTexture,glGenTextures,glGenerateMipmap,glGetActiveAttrib,glGetActiveUniform,glGetAttachedShaders,glGetAttribLocation,glGetBooleanv,glGetBufferParameteriv,glGetError,glGetFloatv,glGetFramebufferAttachmentParameteriv,glGetIntegerv,glGetProgramInfoLog,glGetProgramiv,glGetRenderbufferParameteriv,glGetShaderInfoLog,glGetShaderPrecisionFormat,glGetShaderiv,glGetString,glGetTexParameterfv,glGetTexParameteriv,glGetUniformLocation,glGetUniformfv,glGetUniformiv,glGetVertexAttribPointerv,glGetVertexAttribfv,glGetVertexAttribiv,glHint,glIsBuffer,glIsEnabled,glIsFramebuffer,glIsProgram,glIsRenderbuffer,glIsShader,glIsTexture,glLineWidth,glLinkProgram,glPixelStorei,glPolygonOffset,glReadPixels,glReleaseShaderCompiler,glRenderbufferStorage,glSampleCoverage,glScissor,glShaderBinary,glShaderSource,glStencilFunc,glStencilFuncSeparate,glStencilMask,glStencilMaskSeparate,glStencilOp,glStencilOpSeparate,glTexImage2D,glTexParameterf,glTexParameterfv,glTexParameteri,glTexParameteriv,glTexSubImage2D,glUniform1f,glUniform1fv,glUniform1i,glUniform1iv,glUniform2f,glUniform2fv,glUniform2i,glUniform2iv,glUniform3f,glUniform3fv,glUniform3i,glUniform3iv,glUniform4f,glUniform4fv,glUniform4i,glUniform4iv,glUniformMatrix2fv,glUniformMatrix3fv,glUniformMatrix4fv,glUseProgram,glValidateProgram,glVertexAttrib1f,glVertexAttrib1fv,glVertexAttrib2f,glVertexAttrib2fv,glVertexAttrib3f,glVertexAttrib3fv,glVertexAttrib4f,glVertexAttrib4fv,glVertexAttribPointer,glViewport
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-06-15
  */
 package sge
+package noop
 
 import java.nio.{ Buffer, FloatBuffer, IntBuffer }
 
 import sge.graphics._
 
-/** No-op GL20 implementation for tests that trigger GL calls (e.g. viewport.update → HdpiUtils.glViewport). All methods are stubs that return zero/false/empty/Unit as appropriate.
+/** No-op [[sge.graphics.GL20]] implementation for headless/testing use, where GL calls are issued but no real GL context exists (e.g. viewport.update -> HdpiUtils.glViewport). Every method is a no-op
+  * that returns zero/false/empty/Unit as appropriate.
   */
 object NoopGL20 extends GL20 {
 

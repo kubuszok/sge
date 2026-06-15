@@ -36,6 +36,7 @@ import sge.graphics.g2d.Batch
 import sge.scenes.scene2d.utils.Drawable
 import lowlevel.Nullable
 import sge.utils.Align
+import sge.utils.Seconds
 
 /** A select box (aka a drop-down list) allows a user to choose one of a number of values from a list. When inactive, the selected value is displayed. When activated, it shows the list of values that
   * may be selected.
@@ -303,7 +304,7 @@ class TextraSelectBox(style: Styles.SelectBoxStyle)(using Sge) {
       _prefWidth = 0f
       if (bg != null) _prefWidth = bg.leftWidth + bg.rightWidth
       Nullable.foreach(getSelected) { sel =>
-        _prefWidth += sel.getFont.calculateSize(sel.layout)
+        _prefWidth += sel.getFont.calculateSize(sel.baseLayout)
       }
       _prefWidth = Math.min(Math.max(_prefWidth, _maxWidth), _minWidth)
     } else {
@@ -311,7 +312,7 @@ class TextraSelectBox(style: Styles.SelectBoxStyle)(using Sge) {
       var i            = 0
       while (i < items.size) {
         val item = items(i)
-        maxItemWidth = Math.max(item.getFont.calculateSize(item.layout), maxItemWidth)
+        maxItemWidth = Math.max(item.getFont.calculateSize(item.baseLayout), maxItemWidth)
         i += 1
       }
 
@@ -413,12 +414,12 @@ class TextraSelectBox(style: Styles.SelectBoxStyle)(using Sge) {
   }
 
   def act(delta: Float): Unit =
-    Nullable.foreach(getSelected)(_.act(delta))
+    Nullable.foreach(getSelected)(_.act(Seconds(delta))) // Actor.act takes Seconds; this box's delta is a raw Float
 
   protected def drawItem(batch: Batch, item: TextraLabel, x: Float, y: Float, width: Float): Unit = {
     item.setEllipsis(Nullable("..."))
     item.setWrap(false)
-    item.layout.setTargetWidth(width)
+    item.baseLayout.setTargetWidth(width)
     item.setSize(width, item.getHeight)
     item.setPosition(x, y)
     item.draw(batch, 1f)
@@ -490,7 +491,7 @@ class TextraSelectBox(style: Styles.SelectBoxStyle)(using Sge) {
     while (i < items.size) {
       val item = items(i)
 //            item.layout.setTargetWidth(Gdx.graphics.getBackBufferWidth());
-      width = Math.max(item.getFont.calculateSize(item.layout), width)
+      width = Math.max(item.getFont.calculateSize(item.baseLayout), width)
       i += 1
     }
     val bg = Nullable.fold(_style.background)(null: Drawable) { case d: Drawable => d; case _ => null }

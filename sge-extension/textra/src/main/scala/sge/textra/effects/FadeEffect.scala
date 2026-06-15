@@ -38,7 +38,7 @@ class FadeEffect(label: TypingLabel, params: Array[String]) extends Effect(label
     val progress = MathUtils.clamp(timePassed / fadeDuration, 0f, 1f)
     var g        = glyph
     if (color1 == 256) {
-      g = (g & 0xffffff00ffffffffL) | (MathUtils.lerp((g >>> 32 & 255).toFloat, alpha1 * (label.getInLayout(label.layout, globalIndex) >>> 32 & 255).toFloat, 1f - progress).toLong << 32)
+      g = (g & 0xffffff00ffffffffL) | (MathUtils.lerp((g >>> 32 & 255).toFloat, alpha1 * (label.getInLayout(label.baseLayout, globalIndex) >>> 32 & 255).toFloat, 1f - progress).toLong << 32)
       label.setInWorkingLayout(globalIndex, g)
     } else {
       g = (g & 0xffffffffL) | (ColorUtils.lerpColors((g >>> 32).toInt, color1, 1f - progress).toLong << 32)
@@ -47,7 +47,7 @@ class FadeEffect(label: TypingLabel, params: Array[String]) extends Effect(label
     if (color2 == 256) {
       label.setInWorkingLayout(
         globalIndex,
-        (g & 0xffffff00ffffffffL) | (MathUtils.lerp((g >>> 32 & 255).toFloat, alpha2 * (label.getInLayout(label.layout, globalIndex) >>> 32 & 255).toFloat, progress).toLong << 32)
+        (g & 0xffffff00ffffffffL) | (MathUtils.lerp((g >>> 32 & 255).toFloat, alpha2 * (label.getInLayout(label.baseLayout, globalIndex) >>> 32 & 255).toFloat, progress).toLong << 32)
       )
     } else {
       label.setInWorkingLayout(globalIndex, (g & 0xffffffffL) | (ColorUtils.lerpColors((g >>> 32).toInt, color2, progress).toLong << 32))
