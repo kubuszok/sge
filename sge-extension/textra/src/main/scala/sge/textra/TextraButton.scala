@@ -6,18 +6,26 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   Renames: Button → standalone class (scene2d base not inherited;
- *     button state exposed as mutable fields),
- *     Cell → Nullable.empty placeholder, Skin → removed
+ *   Renames: TextraButton extends sge.scenes.scene2d.ui.Button
+ *     (Button extends Table extends WidgetGroup extends Actor), so button
+ *     state (isChecked/isPressed/isOver/disabled/hasKeyboardFocus/toggle/
+ *     ButtonGroup membership) and the Table/Cell backing are inherited rather
+ *     than hand-rolled. The textra Styles.TextButtonStyle is flattened (it is
+ *     NOT a scene2d Button.ButtonStyle), so the inherited Button carries an
+ *     empty Button.ButtonStyle for its own background/offset machinery while
+ *     the textra style drives the label font/color. Upstream's inherited Java
+ *     getters (getName/getPrefWidth/getPrefHeight/getWidth/getHeight/
+ *     isDisabled) are exposed as thin accessors over the renamed scene2d
+ *     properties so the rest of the textra package keeps compiling.
  *   Convention: getX()/setX() → public var or def pairs.
  *   Idiom: Nullable[A] for nullable fields; boundary/break for early returns.
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 197
- * Covenant-baseline-methods: TextraButton,_hasKeyboardFocus,_height,_isChecked,_isDisabled,_isOver,_isPressed,_style,_width,c,draw,focused,getFontColor,getHeight,getName,getPrefHeight,getPrefWidth,getStyle,getText,getTextraLabel,getTextraLabelCell,getWidth,hasKeyboardFocus,hasKeyboardFocus_,isChecked,isChecked_,isDisabled,isDisabled_,isOver,isOver_,isPressed,isPressed_,label,name,newLabel,setChecked,setSize,setStyle,setText,setTextraLabel,skipToTheEnd,this,toString,useIntegerPositions
+ * Covenant-baseline-loc: 216
+ * Covenant-baseline-methods: TextraButton,_style,c,draw,focused,getFontColor,getHeight,getName,getPrefHeight,getPrefWidth,getStyle,getText,getTextraLabel,getTextraLabelCell,getWidth,isDisabled,isDisabled_,label,newLabel,setStyle,setText,setTextraLabel,skipToTheEnd,this,toString,useIntegerPositions
  * Covenant-source-reference: com/github/tommyettinger/textra/TextraButton.java
- * Covenant-verified: 2026-06-12
+ * Covenant-verified: 2026-06-15
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
@@ -30,13 +38,15 @@ import scala.util.boundary.break
 import sge.graphics.Color
 import sge.graphics.g2d.Batch
 import lowlevel.Nullable
+import sge.scenes.scene2d.Actor
+import sge.scenes.scene2d.ui.{ Button, Cell, Skin }
 import sge.utils.Align
 
 /** A button with a child {@link TextraLabel} to display text.
   * @author
   *   Nathan Sweet
   */
-class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replacementFont: Font)(using Sge) {
+class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replacementFont: Font)(using Sge) extends Button() {
 
   private var label: TextraLabel = newLabel(
     Nullable.fold(text)("")(identity),
@@ -47,28 +57,40 @@ class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replac
 
   private var _style: Styles.TextButtonStyle = style
 
-  // Name field (normally inherited from scene2d Actor)
-  var name: Nullable[String] = Nullable.empty
+  // Upstream `super()` then `setStyle(style, replacementFont)` then
+  // `add(label).expand().fill()` then `setSize(getPrefWidth(), getPrefHeight())`
+  // (TextraButton.java:62-69). The label is added to the Table backing this
+  // Button and so gets a real Cell (TextraButton.java:156 `getCell(label)`).
+  setStyle(style, replacementFont)
+  add(Nullable[Actor](label)).expand().fill()
+  setSize(getPrefWidth, getPrefHeight)
 
+  /** The button's name. Upstream reads `getName()` (inherited from Actor); SGE exposes the inherited `name` property under the Java getter the textra package is written against.
+    */
   def getName: Nullable[String] = name
 
-  // Preferred size (normally inherited from scene2d Widget/Table)
-  private var _width:  Float = 0f
-  private var _height: Float = 0f
+  def this(text: Nullable[String], skin: Skin)(using Sge) = {
+    this(text, skin.get[Styles.TextButtonStyle])
+    setSkin(Nullable(skin))
+  }
 
-  // Button state fields (normally inherited from scene2d Button)
-  private var _isChecked:        Boolean = false
-  private var _isPressed:        Boolean = false
-  private var _isOver:           Boolean = false
-  private var _isDisabled:       Boolean = false
-  private var _hasKeyboardFocus: Boolean = false
-
-  // Initialize size from preferred dimensions (as original does in constructor)
-  _width = getPrefWidth
-  _height = getPrefHeight
+  def this(text: Nullable[String], skin: Skin, styleName: String)(using Sge) = {
+    this(text, skin.get[Styles.TextButtonStyle](styleName))
+    setSkin(Nullable(skin))
+  }
 
   def this(text: Nullable[String], style: Styles.TextButtonStyle)(using Sge) =
     this(text, style, Nullable.fold(style.font)(new Font())(f => new Font(f)))
+
+  def this(text: Nullable[String], skin: Skin, replacementFont: Font)(using Sge) = {
+    this(text, skin.get[Styles.TextButtonStyle], replacementFont)
+    setSkin(Nullable(skin))
+  }
+
+  def this(text: Nullable[String], skin: Skin, styleName: String, replacementFont: Font)(using Sge) = {
+    this(text, skin.get[Styles.TextButtonStyle](styleName), replacementFont)
+    setSkin(Nullable(skin))
+  }
 
   protected def newLabel(text: String, style: Styles.LabelStyle): TextraLabel =
     new TextraLabel(text, style)
@@ -76,82 +98,86 @@ class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replac
   protected def newLabel(text: String, font: Font, color: Color): TextraLabel =
     new TextraLabel(text, font, color)
 
-  def setStyle(style: Styles.TextButtonStyle): Unit = {
-    this._style = style
-    Nullable.foreach(style.font)(f => label.setFont(f))
-    Nullable.foreach(style.fontColor)(c => label.setColor(c))
-  }
+  def setStyle(style: Styles.TextButtonStyle): Unit =
+    setStyle(style, false)
 
   def setStyle(style: Styles.TextButtonStyle, makeGridGlyphs: Boolean): Unit = {
     this._style = style
-    Nullable.foreach(style.font)(f => label.setFont(f))
-    Nullable.foreach(style.fontColor)(c => label.setColor(c))
+    // The inherited Button carries an empty scene2d ButtonStyle for its own
+    // background/offset machinery; the textra Styles.TextButtonStyle (flattened,
+    // not a scene2d Button.ButtonStyle) drives only the label font/color here.
+    super.setStyle(new Button.ButtonStyle())
+
+    Nullable(label).foreach { l =>
+      Nullable.foreach(style.font)(f => l.setFont(f))
+      Nullable.foreach(style.fontColor)(c => l.setColor(c))
+    }
   }
 
   def setStyle(style: Styles.TextButtonStyle, font: Font): Unit = {
     this._style = style
-    label.setFont(font)
-    Nullable.foreach(style.fontColor)(c => label.setColor(c))
+    super.setStyle(new Button.ButtonStyle())
+
+    Nullable(label).foreach { l =>
+      l.setFont(font)
+      Nullable.foreach(style.fontColor)(c => l.setColor(c))
+    }
   }
 
   def getStyle: Styles.TextButtonStyle = _style
 
   /** Returns the appropriate label font color from the style based on the current button state. */
   protected def getFontColor: Nullable[Color] = boundary {
-    if (_isDisabled && _style.disabledFontColor.isDefined) break(_style.disabledFontColor)
-    if (_isPressed) {
-      if (_isChecked && _style.checkedDownFontColor.isDefined) break(_style.checkedDownFontColor)
+    if (isDisabled && _style.disabledFontColor.isDefined) break(_style.disabledFontColor)
+    if (isPressed) {
+      if (isChecked && _style.checkedDownFontColor.isDefined) break(_style.checkedDownFontColor)
       if (_style.downFontColor.isDefined) break(_style.downFontColor)
     }
-    if (_isOver) {
-      if (_isChecked) {
+    if (isOver) {
+      if (isChecked) {
         if (_style.checkedOverFontColor.isDefined) break(_style.checkedOverFontColor)
       } else {
         if (_style.overFontColor.isDefined) break(_style.overFontColor)
       }
     }
-    val focused = _hasKeyboardFocus
-    if (_isChecked) {
+    val focused = hasKeyboardFocus
+    if (isChecked) {
       if (focused && _style.checkedFocusedFontColor.isDefined) break(_style.checkedFocusedFontColor)
       if (_style.checkedFontColor.isDefined) break(_style.checkedFontColor)
-      if (_isOver && _style.overFontColor.isDefined) break(_style.overFontColor)
+      if (isOver && _style.overFontColor.isDefined) break(_style.overFontColor)
     }
     if (focused && _style.focusedFontColor.isDefined) break(_style.focusedFontColor)
     _style.fontColor
   }
 
-  def draw(batch: Batch, parentAlpha: Float): Unit = {
+  override def draw(batch: Batch, parentAlpha: Float): Unit = {
     val c = getFontColor
     Nullable.foreach(c)(label.setColor)
-    label.draw(batch, parentAlpha)
+    super.draw(batch, parentAlpha)
   }
 
   def setTextraLabel(newLabel: TextraLabel): Unit = {
     require(newLabel != null, "label cannot be null.")
     if (!(this.label eq newLabel)) {
+      getTextraLabelCell.setActor(Nullable[Actor](newLabel))
       this.label = newLabel
     }
   }
 
   def getTextraLabel: TextraLabel = label
 
-  /** Returns the Cell containing the label (standalone: no Table backing, returns Nullable.empty). */
-  def getTextraLabelCell: Nullable[AnyRef] = Nullable.empty
+  /** Returns the Cell containing the label (the label was added to the Table backing this Button). */
+  def getTextraLabelCell: Cell[TextraLabel] = getCell(label).get
 
   /** Returns the preferred width based on the label. */
-  def getPrefWidth: Float = label.getPrefWidth
+  def getPrefWidth: Float = prefWidth
 
   /** Returns the preferred height based on the label. */
-  def getPrefHeight: Float = label.getPrefHeight
+  def getPrefHeight: Float = prefHeight
 
-  def getWidth: Float = _width
+  def getWidth: Float = width
 
-  def getHeight: Float = _height
-
-  def setSize(width: Float, height: Float): Unit = {
-    _width = width
-    _height = height
-  }
+  def getHeight: Float = height
 
   /** A no-op unless {@code label.getFont()} is a subclass that overrides {@link Font#handleIntegerPosition(float)}.
     * @param integer
@@ -173,18 +199,11 @@ class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replac
   def skipToTheEnd(): Unit =
     label.skipToTheEnd()
 
-  // Button state accessors
-  def isChecked:                          Boolean = _isChecked
-  def isChecked_=(value:        Boolean): Unit    = _isChecked = value
-  def setChecked(value:         Boolean): Unit    = _isChecked = value
-  def isPressed:                          Boolean = _isPressed
-  def isPressed_=(value:        Boolean): Unit    = _isPressed = value
-  def isOver:                             Boolean = _isOver
-  def isOver_=(value:           Boolean): Unit    = _isOver = value
-  def isDisabled:                         Boolean = _isDisabled
-  def isDisabled_=(value:       Boolean): Unit    = _isDisabled = value
-  def hasKeyboardFocus:                   Boolean = _hasKeyboardFocus
-  def hasKeyboardFocus_=(value: Boolean): Unit    = _hasKeyboardFocus = value
+  /** Upstream reads `isDisabled()` (inherited from Button); SGE renamed it to the `disabled` property, exposed here under the Java name the textra package (and TextraButton's own state-driven font
+    * logic) is written against. `isChecked`/`isPressed`/`isOver`/`hasKeyboardFocus`/`setChecked`/`toggle` come from the inherited Button.
+    */
+  def isDisabled:                   Boolean = disabled
+  def isDisabled_=(value: Boolean): Unit    = disabled = value
 
   override def toString: String =
     if (name.isDefined) name.get

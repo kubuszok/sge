@@ -42,8 +42,9 @@ import lowlevel.Nullable
 class Button()(using Sge) extends Table() with Disableable with Styleable[Button.ButtonStyle] {
   import Button._
 
-  private var _style:            ButtonStyle              = scala.compiletime.uninitialized
-  private[ui] var isChecked:     Boolean                  = false
+  private var _style: ButtonStyle = scala.compiletime.uninitialized
+  // Public reader (upstream Button.isChecked() is public, TextraButton reads it); writes stay within the button machinery via setChecked/toggle.
+  var isChecked:                 Boolean                  = false
   private[ui] var _isDisabled:   Boolean                  = false
   private[ui] var buttonGroup:   Nullable[ButtonGroup[?]] = Nullable.empty
   private[ui] var clickListener: ClickListener            = scala.compiletime.uninitialized
