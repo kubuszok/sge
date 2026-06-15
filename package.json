@@ -1,0 +1,8 @@
+{
+  "name": "sge-jsdom-test-env",
+  "private": true,
+  "description": "Dev-only: provides the jsdom package for the Scala.js jsdom jsEnv used by sge JS unit tests of browser components (ISS-672/ISS-536). Not published.",
+  "devDependencies": {
+    "jsdom": "^22.1.0"
+  }
+}

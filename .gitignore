@@ -12,6 +12,9 @@ project/*
 target/
 .sbt/
 
+## node (jsdom env for Scala.js DOM unit tests — package.json/lock are tracked, deps are not)
+node_modules/
+
 # VC Code, Cursor, etc.
 .vscode/
 .cursorrules

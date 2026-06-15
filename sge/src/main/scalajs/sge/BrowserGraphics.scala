@@ -117,7 +117,7 @@ class BrowserGraphics(
   override def ppiY:    Float = 96f * getNativeScreenDensity().toFloat
   override def ppcX:    Float = ppiX / 2.54f
   override def ppcY:    Float = ppiY / 2.54f
-  override def density: Float = getNativeScreenDensity().toFloat / 160f
+  override def density: Float = ppiX / 160f
 
   // --- Display modes ---
 

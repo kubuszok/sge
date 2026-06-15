@@ -245,7 +245,10 @@ val sge: sbt.internal.ProjectMatrix = (projectMatrix in file("sge"))
       )) *
     )),
     MatrixAction.ForPlatforms(VirtualAxis.js).Configure(_.settings(
-      libraryDependencies += "org.scala-js" %%% "scalajs-dom" % versions.scalajsDom
+      libraryDependencies += "org.scala-js" %%% "scalajs-dom" % versions.scalajsDom,
+      // Run sge JS unit tests under jsdom so browser components (BrowserGraphics, etc.)
+      // that touch document/window can be tested (the default Node env has no DOM). ISS-672.
+      Test / jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv()
     )),
     MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
       libraryDependencies ++= Seq(
