@@ -12,7 +12,7 @@
 package sge
 package graphics
 
-import java.nio.{ Buffer, ByteBuffer, ByteOrder, FloatBuffer, IntBuffer, LongBuffer }
+import java.nio.{ Buffer, ByteBuffer, ByteOrder, CharBuffer, DoubleBuffer, FloatBuffer, IntBuffer, LongBuffer, ShortBuffer }
 
 import scala.scalanative.runtime.{ Intrinsics, fromRawPtr }
 import scala.scalanative.unsafe.*
@@ -58,10 +58,13 @@ private[graphics] object NativeGlHelper {
   }
 
   private def elementSize(buf: Buffer): Int = buf match {
-    case _: ByteBuffer  => 1
-    case _: FloatBuffer => 4
-    case _: IntBuffer   => 4
-    case _: LongBuffer  => 8
+    case _: ByteBuffer   => 1
+    case _: ShortBuffer  => 2
+    case _: CharBuffer   => 2
+    case _: FloatBuffer  => 4
+    case _: IntBuffer    => 4
+    case _: LongBuffer   => 8
+    case _: DoubleBuffer => 8
     case _ => 1
   }
 
