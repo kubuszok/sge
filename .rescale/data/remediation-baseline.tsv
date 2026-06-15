@@ -1,6 +1,6 @@
 metric	value	measured	command
-covenant_fail_total	192	2026-06-12	re-scale enforce verify --all 2>&1 | grep -cE '^  /'
-covenant_shortcut_drift	135	2026-06-12	re-scale enforce verify --all 2>&1 | grep -c 'shortcuts introduced'
+covenant_fail_total	191	2026-06-15	re-scale enforce verify --all 2>&1 | grep -cE '^  /'
+covenant_shortcut_drift	134	2026-06-15	re-scale enforce verify --all 2>&1 | grep -c 'shortcuts introduced'
 covenant_missing_header	56	2026-06-12	re-scale enforce verify --all 2>&1 | grep -c 'no covenant header'
 covenant_methods_removed	1	2026-06-12	re-scale enforce verify --all 2>&1 | grep -c 'methods removed since baseline'
 shortcut_hits	241	2026-06-10	re-scale enforce shortcuts --src sge,sge-jvm-platform,sge-extension,sge-build 2>&1 | tail -1
@@ -10,4 +10,4 @@ ignored_tests	2	2026-06-10	grep -rE '\.ignore\b' --include='*.scala' sge/src/tes
 assumes_tests	8	2026-06-10	grep -rE 'assume\(' --include='*.scala' sge/src/test sge-test sge-extension sge-jvm-platform 2>/dev/null | grep '/test' | wc -l
 exception_swallows_main	40	2026-06-12	grep -rE 'case _: (Exception|Throwable) =>' --include='*.scala' sge/src/main sge-extension sge-jvm-platform 2>/dev/null | grep '/main/' | wc -l
 open_review_issues	34	2026-06-14	re-scale db issues list --status open --category review-fable --limit 500 2>/dev/null | tail -n +2 | wc -l
-sge_original_covenant_refs	78	2026-06-14	grep -rl 'Covenant-source-reference: SGE-original' --include='*.scala' sge/src sge-extension sge-jvm-platform sge-build 2>/dev/null | wc -l
+sge_original_covenant_refs	79	2026-06-15	grep -rl 'Covenant-source-reference: SGE-original' --include='*.scala' sge/src sge-extension sge-jvm-platform sge-build 2>/dev/null | wc -l
