@@ -125,6 +125,12 @@ private[graphics] object NativeGlHelper {
     if (offset == 0) null
     else fromRawPtr[Byte](Intrinsics.castLongToRawPtr(offset.toLong))
 
+  /** Get a native pointer to the buffer at a specific byte offset, preserving the full 64-bit offset (for GL indirect-draw parameters whose offset is a long pointer into the bound buffer).
+    */
+  def offsetPtr(offset: Long): Ptr[Byte] =
+    if (offset == 0L) null
+    else fromRawPtr[Byte](Intrinsics.castLongToRawPtr(offset))
+
   // ─── GLboolean helpers ────────────────────────────────────────────────────
 
   def glBool(v: Boolean): CUnsignedChar =

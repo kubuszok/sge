@@ -145,10 +145,10 @@ class AngleGL31Native extends AngleGL30Native with GL31 {
   // ─── Indirect draw ────────────────────────────────────────────────────────
 
   override def glDrawArraysIndirect(mode: PrimitiveMode, indirect: Long): Unit =
-    GL31C.glDrawArraysIndirect(mode.toInt, offsetPtr(indirect.toInt))
+    GL31C.glDrawArraysIndirect(mode.toInt, offsetPtr(indirect))
 
   override def glDrawElementsIndirect(mode: PrimitiveMode, `type`: DataType, indirect: Long): Unit =
-    GL31C.glDrawElementsIndirect(mode.toInt, `type`.toInt, offsetPtr(indirect.toInt))
+    GL31C.glDrawElementsIndirect(mode.toInt, `type`.toInt, offsetPtr(indirect))
 
   // ─── Framebuffer parameters ───────────────────────────────────────────────
 
