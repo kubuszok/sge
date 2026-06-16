@@ -8,7 +8,11 @@
  *
  * Migration notes:
  * - Java final class with static methods -> Scala object
- * - SharedLibraryLoader.os/Os enum -> System.getProperty os detection
+ * - SharedLibraryLoader.os/Os enum -> per-platform OS detection seam
+ *   (UIUtilsPlatform). JVM/Native read System.getProperty("os.name"); JS
+ *   super-sources the GWT UIUtils emulation and reads window.navigator.platform.
+ * - The 5 is* flags delegate to UIUtilsPlatform (this file is shared scala/, so
+ *   it cannot host platform-specific code); kept as cache-once vals.
  * - Gdx.input -> Sge().input (using Sge context parameter)
  * - No-arg methods require (using Sge); int-arg overloads are pure
  * - All methods faithfully ported
@@ -16,10 +20,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 88
- * Covenant-baseline-methods: UIUtils,alt,ctrl,isAndroid,isIos,isLinux,isMac,isWindows,left,middle,os,right,shift
+ * Covenant-baseline-loc: 86
+ * Covenant-baseline-methods: UIUtils,alt,ctrl,isAndroid,isIos,isLinux,isMac,isWindows,left,middle,right,shift
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/UIUtils.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-16
  *
  * upstream-commit: 70725e2c7598f7fa02214814a85adad5134bb277
  */
@@ -32,26 +36,11 @@ import sge.Input.{ Button, Key }
 
 object UIUtils {
 
-  val isAndroid: Boolean = {
-    val os = System.getProperty("os.name", "").toLowerCase
-    os.contains("android")
-  }
-  val isMac: Boolean = {
-    val os = System.getProperty("os.name", "").toLowerCase
-    os.contains("mac")
-  }
-  val isWindows: Boolean = {
-    val os = System.getProperty("os.name", "").toLowerCase
-    os.contains("windows")
-  }
-  val isLinux: Boolean = {
-    val os = System.getProperty("os.name", "").toLowerCase
-    os.contains("linux") && !os.contains("android")
-  }
-  val isIos: Boolean = {
-    val os = System.getProperty("os.name", "").toLowerCase
-    os.contains("ios")
-  }
+  val isAndroid: Boolean = UIUtilsPlatform.isAndroid
+  val isMac:     Boolean = UIUtilsPlatform.isMac
+  val isWindows: Boolean = UIUtilsPlatform.isWindows
+  val isLinux:   Boolean = UIUtilsPlatform.isLinux
+  val isIos:     Boolean = UIUtilsPlatform.isIos
 
   def left()(using Sge): Boolean =
     Sge().input.isButtonPressed(Input.Buttons.LEFT)
