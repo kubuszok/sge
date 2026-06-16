@@ -117,8 +117,8 @@ private[graphics] object GL32C {
   def glGetSamplerParameterIuiv(sampler: CInt, pname: CInt, params: Ptr[CInt]): Unit = extern
 
   // Texture buffer
-  def glTexBuffer(target:      CInt, internalformat: CInt, buffer: CInt):                           Unit = extern
-  def glTexBufferRange(target: CInt, internalformat: CInt, buffer: CInt, offset: CInt, size: CInt): Unit = extern
+  def glTexBuffer(target:      CInt, internalformat: CInt, buffer: CInt):                               Unit = extern
+  def glTexBufferRange(target: CInt, internalformat: CInt, buffer: CInt, offset: CSSize, size: CSSize): Unit = extern
 
   // 3D multisample texture storage
   def glTexStorage3DMultisample(target: CInt, samples: CInt, intfmt: CInt, w: CInt, h: CInt, depth: CInt, fixed: CUnsignedChar): Unit = extern
@@ -380,7 +380,7 @@ class AngleGL32Native extends AngleGL31Native with GL32 {
   override def glTexBuffer(target: TextureTarget, internalformat: Int, buffer: Int): Unit =
     GL32C.glTexBuffer(target.toInt, internalformat, buffer)
   override def glTexBufferRange(target: TextureTarget, internalformat: Int, buffer: Int, offset: Int, size: Int): Unit =
-    GL32C.glTexBufferRange(target.toInt, internalformat, buffer, offset, size)
+    GL32C.glTexBufferRange(target.toInt, internalformat, buffer, offset.toSize, size.toSize)
 
   // ─── 3D multisample texture storage ───────────────────────────────────────
 

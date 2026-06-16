@@ -42,10 +42,10 @@ private[graphics] object GL30C {
   def glGetQueryObjectuiv(id: CInt, pname: CInt, params: Ptr[CInt]): Unit          = extern
 
   // Buffer mapping
-  def glUnmapBuffer(target:            CInt):                                           CUnsignedChar = extern
-  def glMapBufferRange(target:         CInt, offset: CInt, length: CInt, access: CInt): Ptr[Byte]     = extern
-  def glFlushMappedBufferRange(target: CInt, offset: CInt, length: CInt):               Unit          = extern
-  def glDrawBuffers(n:                 CInt, bufs:   Ptr[CInt]):                        Unit          = extern
+  def glUnmapBuffer(target:            CInt):                                               CUnsignedChar = extern
+  def glMapBufferRange(target:         CInt, offset: CSSize, length: CSSize, access: CInt): Ptr[Byte]     = extern
+  def glFlushMappedBufferRange(target: CInt, offset: CSSize, length: CSSize):               Unit          = extern
+  def glDrawBuffers(n:                 CInt, bufs:   Ptr[CInt]):                            Unit          = extern
 
   // Non-square uniform matrices
   def glUniformMatrix2x3fv(loc: CInt, count: CInt, transpose: CUnsignedChar, value: Ptr[CFloat]): Unit = extern
@@ -67,17 +67,17 @@ private[graphics] object GL30C {
   def glIsVertexArray(array:   CInt):                    CUnsignedChar = extern
 
   // Transform feedback
-  def glBeginTransformFeedback(primitiveMode: CInt):                                                                    Unit          = extern
-  def glEndTransformFeedback():                                                                                         Unit          = extern
-  def glBindBufferRange(target:               CInt, index: CInt, buffer:   CInt, offset:             CInt, size: CInt): Unit          = extern
-  def glBindBufferBase(target:                CInt, index: CInt, buffer:   CInt):                                       Unit          = extern
-  def glTransformFeedbackVaryings(program:    CInt, count: CInt, varyings: Ptr[CString], bufferMode: CInt):             Unit          = extern
-  def glBindTransformFeedback(target:         CInt, id:    CInt):                                                       Unit          = extern
-  def glGenTransformFeedbacks(n:              CInt, ids:   Ptr[CInt]):                                                  Unit          = extern
-  def glDeleteTransformFeedbacks(n:           CInt, ids:   Ptr[CInt]):                                                  Unit          = extern
-  def glIsTransformFeedback(id:               CInt):                                                                    CUnsignedChar = extern
-  def glPauseTransformFeedback():                                                                                       Unit          = extern
-  def glResumeTransformFeedback():                                                                                      Unit          = extern
+  def glBeginTransformFeedback(primitiveMode: CInt):                                                                        Unit          = extern
+  def glEndTransformFeedback():                                                                                             Unit          = extern
+  def glBindBufferRange(target:               CInt, index: CInt, buffer:   CInt, offset:             CSSize, size: CSSize): Unit          = extern
+  def glBindBufferBase(target:                CInt, index: CInt, buffer:   CInt):                                           Unit          = extern
+  def glTransformFeedbackVaryings(program:    CInt, count: CInt, varyings: Ptr[CString], bufferMode: CInt):                 Unit          = extern
+  def glBindTransformFeedback(target:         CInt, id:    CInt):                                                           Unit          = extern
+  def glGenTransformFeedbacks(n:              CInt, ids:   Ptr[CInt]):                                                      Unit          = extern
+  def glDeleteTransformFeedbacks(n:           CInt, ids:   Ptr[CInt]):                                                      Unit          = extern
+  def glIsTransformFeedback(id:               CInt):                                                                        CUnsignedChar = extern
+  def glPauseTransformFeedback():                                                                                           Unit          = extern
+  def glResumeTransformFeedback():                                                                                          Unit          = extern
 
   // Vertex attrib integer
   def glVertexAttribIPointer(index: CInt, size:    CInt, tp:     CInt, stride: CInt, pointer: Ptr[Byte]): Unit = extern
@@ -104,7 +104,7 @@ private[graphics] object GL30C {
   def glGetStringi(name: CInt, index: CInt): CString = extern
 
   // Buffer copy
-  def glCopyBufferSubData(readTarget: CInt, writeTarget: CInt, readOffset: CInt, writeOffset: CInt, size: CInt): Unit = extern
+  def glCopyBufferSubData(readTarget: CInt, writeTarget: CInt, readOffset: CSSize, writeOffset: CSSize, size: CSSize): Unit = extern
 
   // Uniform blocks
   def glGetUniformIndices(program:         CInt, count: CInt, names:   Ptr[CString], indices: Ptr[CInt]):                  Unit = extern
@@ -234,13 +234,13 @@ class AngleGL30Native extends AngleGL20Native with GL30 {
     throw new UnsupportedOperationException("glGetBufferPointerv not implemented")
 
   override def glMapBufferRange(target: BufferTarget, offset: Int, length: Int, access: Int): Buffer = {
-    val ptr = GL30C.glMapBufferRange(target.toInt, offset, length, access)
+    val ptr = GL30C.glMapBufferRange(target.toInt, offset.toSize, length.toSize, access)
     if (ptr == null) null.asInstanceOf[Buffer] // @nowarn - GL interop boundary
     else wrapPtr(ptr, length)
   }
 
   override def glFlushMappedBufferRange(target: BufferTarget, offset: Int, length: Int): Unit =
-    GL30C.glFlushMappedBufferRange(target.toInt, offset, length)
+    GL30C.glFlushMappedBufferRange(target.toInt, offset.toSize, length.toSize)
 
   override def glDrawBuffers(n: Int, bufs: IntBuffer): Unit = GL30C.glDrawBuffers(n, bufPtr(bufs).asInstanceOf[Ptr[CInt]])
 
@@ -297,10 +297,10 @@ class AngleGL30Native extends AngleGL20Native with GL30 {
 
   // ─── Transform feedback ───────────────────────────────────────────────────
 
-  override def glBeginTransformFeedback(primitiveMode: PrimitiveMode):                                                 Unit = GL30C.glBeginTransformFeedback(primitiveMode.toInt)
-  override def glEndTransformFeedback():                                                                               Unit = GL30C.glEndTransformFeedback()
-  override def glBindBufferRange(target:               BufferTarget, index: Int, buffer: Int, offset: Int, size: Int): Unit = GL30C.glBindBufferRange(target.toInt, index, buffer, offset, size)
-  override def glBindBufferBase(target:                BufferTarget, index: Int, buffer: Int):                         Unit = GL30C.glBindBufferBase(target.toInt, index, buffer)
+  override def glBeginTransformFeedback(primitiveMode: PrimitiveMode): Unit = GL30C.glBeginTransformFeedback(primitiveMode.toInt)
+  override def glEndTransformFeedback():                               Unit = GL30C.glEndTransformFeedback()
+  override def glBindBufferRange(target: BufferTarget, index: Int, buffer: Int, offset: Int, size: Int): Unit = GL30C.glBindBufferRange(target.toInt, index, buffer, offset.toSize, size.toSize)
+  override def glBindBufferBase(target:  BufferTarget, index: Int, buffer: Int):                         Unit = GL30C.glBindBufferBase(target.toInt, index, buffer)
 
   override def glTransformFeedbackVaryings(program: Int, varyings: Array[String], bufferMode: Int): Unit = {
     val zone = Zone.open()
@@ -376,7 +376,7 @@ class AngleGL30Native extends AngleGL20Native with GL30 {
   // ─── Buffer copy ──────────────────────────────────────────────────────────
 
   override def glCopyBufferSubData(readTarget: BufferTarget, writeTarget: BufferTarget, readOffset: Int, writeOffset: Int, size: Int): Unit =
-    GL30C.glCopyBufferSubData(readTarget.toInt, writeTarget.toInt, readOffset, writeOffset, size)
+    GL30C.glCopyBufferSubData(readTarget.toInt, writeTarget.toInt, readOffset.toSize, writeOffset.toSize, size.toSize)
 
   // ─── Uniform blocks ───────────────────────────────────────────────────────
 

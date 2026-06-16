@@ -100,8 +100,8 @@ private[graphics] object GL20C {
   def glGenBuffers(n:                CInt, buffers: Ptr[CInt]):                                 Unit          = extern
   def glDeleteBuffers(n:             CInt, buffers: Ptr[CInt]):                                 Unit          = extern
   def glBindBuffer(target:           CInt, buffer:  CInt):                                      Unit          = extern
-  def glBufferData(target:           CInt, size:    CInt, data:   Ptr[Byte], usage: CInt):      Unit          = extern
-  def glBufferSubData(target:        CInt, offset:  CInt, size:   CInt, data:       Ptr[Byte]): Unit          = extern
+  def glBufferData(target:           CInt, size:    CSSize, data: Ptr[Byte], usage: CInt):      Unit          = extern
+  def glBufferSubData(target:        CInt, offset:  CSSize, size: CSSize, data:     Ptr[Byte]): Unit          = extern
   def glIsBuffer(buffer:             CInt):                                                     CUnsignedChar = extern
   def glGetBufferParameteriv(target: CInt, pname:   CInt, params: Ptr[CInt]):                   Unit          = extern
 
@@ -391,10 +391,10 @@ class AngleGL20Native extends GL20 {
   override def glBindBuffer(target: BufferTarget, buffer: Int): Unit = GL20C.glBindBuffer(target.toInt, buffer)
 
   override def glBufferData(target: BufferTarget, size: Int, data: Buffer, usage: BufferUsage): Unit =
-    GL20C.glBufferData(target.toInt, size, bufPtr(data), usage.toInt)
+    GL20C.glBufferData(target.toInt, size.toSize, bufPtr(data), usage.toInt)
 
   override def glBufferSubData(target: BufferTarget, offset: Int, size: Int, data: Buffer): Unit =
-    GL20C.glBufferSubData(target.toInt, offset, size, bufPtr(data))
+    GL20C.glBufferSubData(target.toInt, offset.toSize, size.toSize, bufPtr(data))
 
   override def glIsBuffer(buffer: Int): Boolean = fromGlBool(GL20C.glIsBuffer(buffer))
 

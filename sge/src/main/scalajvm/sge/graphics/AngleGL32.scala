@@ -32,6 +32,7 @@ class AngleGL32(lookup: SymbolLookup) extends AngleGL31(lookup) with GL32 {
 
   // ─── Shorthand layout aliases (inherited from parents are private) ─────────
   private val I32: ValueLayout.OfInt   = JAVA_INT
+  private val L32: ValueLayout.OfLong  = JAVA_LONG // GLintptr / GLsizeiptr = ptrdiff_t (pointer-sized)
   private val F32: ValueLayout.OfFloat = JAVA_FLOAT
   private val B32: ValueLayout.OfByte  = JAVA_BYTE
   private val P32: AddressLayout       = ADDRESS
@@ -459,10 +460,11 @@ class AngleGL32(lookup: SymbolLookup) extends AngleGL31(lookup) with GL32 {
   override def glTexBuffer(target: TextureTarget, internalformat: Int, buffer: Int): Unit =
     _glTexBuffer.invoke(target, internalformat, buffer)
 
+  // glTexBufferRange: void(GLenum, GLenum, GLuint buffer, GLintptr offset, GLsizeiptr size) — offset/size are ptrdiff_t-sized (64-bit)
   private lazy val _glTexBufferRange =
-    h32("glTexBufferRange", FunctionDescriptor.ofVoid(I32, I32, I32, I32, I32))
+    h32("glTexBufferRange", FunctionDescriptor.ofVoid(I32, I32, I32, L32, L32))
   override def glTexBufferRange(target: TextureTarget, internalformat: Int, buffer: Int, offset: Int, size: Int): Unit =
-    _glTexBufferRange.invoke(target, internalformat, buffer, offset, size)
+    _glTexBufferRange.invoke(target, internalformat, buffer, offset.toLong, size.toLong)
 
   // ─── 3D multisample texture storage ───────────────────────────────────────
 

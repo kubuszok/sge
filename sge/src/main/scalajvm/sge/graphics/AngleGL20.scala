@@ -34,6 +34,7 @@ class AngleGL20(lookup: SymbolLookup) extends GL20 {
   // ─── Shorthand layout aliases ─────────────────────────────────────────────
 
   private val I: ValueLayout.OfInt   = JAVA_INT
+  private val L: ValueLayout.OfLong  = JAVA_LONG // GLintptr / GLsizeiptr = ptrdiff_t (pointer-sized)
   private val F: ValueLayout.OfFloat = JAVA_FLOAT
   private val B: ValueLayout.OfByte  = JAVA_BYTE // GLboolean = unsigned char
   private val P: AddressLayout       = ADDRESS
@@ -317,13 +318,15 @@ class AngleGL20(lookup: SymbolLookup) extends GL20 {
   private lazy val _glBindBuffer = h("glBindBuffer", FunctionDescriptor.ofVoid(I, I))
   override def glBindBuffer(target: BufferTarget, buffer: Int): Unit = _glBindBuffer.invoke(target, buffer)
 
-  private lazy val _glBufferData = h("glBufferData", FunctionDescriptor.ofVoid(I, I, P, I))
+  // glBufferData: void(GLenum, GLsizeiptr size, const void *, GLenum) — size is ptrdiff_t-sized (64-bit)
+  private lazy val _glBufferData = h("glBufferData", FunctionDescriptor.ofVoid(I, L, P, I))
   override def glBufferData(target: BufferTarget, size: Int, data: Buffer, usage: BufferUsage): Unit =
-    _glBufferData.invoke(target, size, bufAddr(data), usage)
+    _glBufferData.invoke(target, size.toLong, bufAddr(data), usage)
 
-  private lazy val _glBufferSubData = h("glBufferSubData", FunctionDescriptor.ofVoid(I, I, I, P))
+  // glBufferSubData: void(GLenum, GLintptr offset, GLsizeiptr size, const void *) — offset/size are ptrdiff_t-sized (64-bit)
+  private lazy val _glBufferSubData = h("glBufferSubData", FunctionDescriptor.ofVoid(I, L, L, P))
   override def glBufferSubData(target: BufferTarget, offset: Int, size: Int, data: Buffer): Unit =
-    _glBufferSubData.invoke(target, offset, size, bufAddr(data))
+    _glBufferSubData.invoke(target, offset.toLong, size.toLong, bufAddr(data))
 
   private lazy val _glIsBuffer = h("glIsBuffer", FunctionDescriptor.of(B, I))
   override def glIsBuffer(buffer: Int): Boolean = fromGlBool(_glIsBuffer.invoke(buffer))

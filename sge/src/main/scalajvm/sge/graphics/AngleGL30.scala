@@ -32,6 +32,7 @@ class AngleGL30(lookup: SymbolLookup) extends AngleGL20(lookup) with GL30 {
 
   // ─── Shorthand layout aliases (inherited I, F, B, P from AngleGL20 are private) ─
   private val I30: ValueLayout.OfInt   = JAVA_INT
+  private val L30: ValueLayout.OfLong  = JAVA_LONG // GLintptr / GLsizeiptr = ptrdiff_t (pointer-sized)
   private val F30: ValueLayout.OfFloat = JAVA_FLOAT
   private val B30: ValueLayout.OfByte  = JAVA_BYTE
   private val P30: AddressLayout       = ADDRESS
@@ -166,16 +167,18 @@ class AngleGL30(lookup: SymbolLookup) extends AngleGL20(lookup) with GL30 {
   override def glGetBufferPointerv(target: BufferTarget, pname: Int): Buffer =
     throw new UnsupportedOperationException("glGetBufferPointerv not implemented")
 
-  private lazy val _glMapBufferRange = h30("glMapBufferRange", FunctionDescriptor.of(P30, I30, I30, I30, I30))
+  // glMapBufferRange: void*(GLenum, GLintptr offset, GLsizeiptr length, GLbitfield) — offset/length are ptrdiff_t-sized (64-bit)
+  private lazy val _glMapBufferRange = h30("glMapBufferRange", FunctionDescriptor.of(P30, I30, L30, L30, I30))
   override def glMapBufferRange(target: BufferTarget, offset: Int, length: Int, access: Int): Buffer = {
-    val ptr = _glMapBufferRange.invoke(target, offset, length, access).asInstanceOf[MemorySegment]
+    val ptr = _glMapBufferRange.invoke(target, offset.toLong, length.toLong, access).asInstanceOf[MemorySegment]
     if (ptr == MemorySegment.NULL) null.asInstanceOf[Buffer] // @nowarn - GL interop boundary
     else ptr.reinterpret(length.toLong).asByteBuffer().order(ByteOrder.nativeOrder())
   }
 
-  private lazy val _glFlushMappedBufferRange = h30("glFlushMappedBufferRange", FunctionDescriptor.ofVoid(I30, I30, I30))
+  // glFlushMappedBufferRange: void(GLenum, GLintptr offset, GLsizeiptr length) — offset/length are ptrdiff_t-sized (64-bit)
+  private lazy val _glFlushMappedBufferRange = h30("glFlushMappedBufferRange", FunctionDescriptor.ofVoid(I30, L30, L30))
   override def glFlushMappedBufferRange(target: BufferTarget, offset: Int, length: Int): Unit =
-    _glFlushMappedBufferRange.invoke(target, offset, length)
+    _glFlushMappedBufferRange.invoke(target, offset.toLong, length.toLong)
 
   // ─── Draw buffers ─────────────────────────────────────────────────────────
 
@@ -260,9 +263,10 @@ class AngleGL30(lookup: SymbolLookup) extends AngleGL20(lookup) with GL30 {
   private lazy val _glEndTransformFeedback = h30("glEndTransformFeedback", FunctionDescriptor.ofVoid())
   override def glEndTransformFeedback(): Unit = _glEndTransformFeedback.invoke()
 
-  private lazy val _glBindBufferRange = h30("glBindBufferRange", FunctionDescriptor.ofVoid(I30, I30, I30, I30, I30))
+  // glBindBufferRange: void(GLenum, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size) — offset/size are ptrdiff_t-sized (64-bit)
+  private lazy val _glBindBufferRange = h30("glBindBufferRange", FunctionDescriptor.ofVoid(I30, I30, I30, L30, L30))
   override def glBindBufferRange(target: BufferTarget, index: Int, buffer: Int, offset: Int, size: Int): Unit =
-    _glBindBufferRange.invoke(target.toInt, index, buffer, offset, size)
+    _glBindBufferRange.invoke(target.toInt, index, buffer, offset.toLong, size.toLong)
 
   private lazy val _glBindBufferBase = h30("glBindBufferBase", FunctionDescriptor.ofVoid(I30, I30, I30))
   override def glBindBufferBase(target: BufferTarget, index: Int, buffer: Int): Unit =
@@ -396,9 +400,10 @@ class AngleGL30(lookup: SymbolLookup) extends AngleGL20(lookup) with GL30 {
 
   // ─── Buffer copy ──────────────────────────────────────────────────────────
 
-  private lazy val _glCopyBufferSubData = h30("glCopyBufferSubData", FunctionDescriptor.ofVoid(I30, I30, I30, I30, I30))
+  // glCopyBufferSubData: void(GLenum, GLenum, GLintptr readOffset, GLintptr writeOffset, GLsizeiptr size) — offsets/size are ptrdiff_t-sized (64-bit)
+  private lazy val _glCopyBufferSubData = h30("glCopyBufferSubData", FunctionDescriptor.ofVoid(I30, I30, L30, L30, L30))
   override def glCopyBufferSubData(readTarget: BufferTarget, writeTarget: BufferTarget, readOffset: Int, writeOffset: Int, size: Int): Unit =
-    _glCopyBufferSubData.invoke(readTarget, writeTarget, readOffset, writeOffset, size)
+    _glCopyBufferSubData.invoke(readTarget, writeTarget, readOffset.toLong, writeOffset.toLong, size.toLong)
 
   // ─── Uniform blocks ───────────────────────────────────────────────────────
 
