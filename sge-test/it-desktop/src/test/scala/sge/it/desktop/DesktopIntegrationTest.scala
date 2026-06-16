@@ -204,6 +204,66 @@ class DesktopIntegrationTest extends FunSuite {
     }
   }
 
+  // ── ISS-537: supportsExtension reflects the live GL context ─────────
+  // DesktopGraphics.supportsExtension(name) must consult the actual ANGLE GL
+  // context, not the GLFW context. The GLFW window is created with
+  // GLFW_NO_API (DesktopApplication.scala), so glfwExtensionSupported()
+  // returns false for EVERY name — even extensions the ANGLE ES 3.0 context
+  // genuinely exposes. The desktop backend must instead enumerate via
+  // glGetStringi(GL_EXTENSIONS, i) for i in 0 until glGetInteger(GL_NUM_EXTENSIONS).
+  //
+  // This runs in a dedicated subprocess (SupportsExtensionHarnessMain) that
+  // touches ONLY the GL extension APIs — never the monitor APIs — so the only
+  // way it can FAIL is the supportsExtension contract itself. The harness
+  // independently enumerates the live extension set, picks a genuinely-present
+  // extension, and asserts supportsExtension returns true for it (and false
+  // for an absent name). Against the buggy DesktopGraphics this is the red:
+  // supportsExtension returns false for a present extension.
+
+  test("supportsExtension reflects the live GL context (ISS-537)") {
+    val isHeadless = java.awt.GraphicsEnvironment.isHeadless ||
+      (System.getenv("DISPLAY") == null && System.getenv("WAYLAND_DISPLAY") == null &&
+        !System.getProperty("os.name", "").toLowerCase.contains("mac") &&
+        !System.getProperty("os.name", "").toLowerCase.contains("win"))
+    requireOrAssume(!isHeadless, "No display server available — skipping supportsExtension test")
+
+    val resultsFile = File.createTempFile("sge-it-supportsext-", ".txt")
+    resultsFile.deleteOnExit()
+
+    val javaHome = System.getProperty("java.home")
+    val javaBin  = s"$javaHome/bin/java"
+    val cp       = System.getProperty("java.class.path")
+
+    val cmd = new java.util.ArrayList[String]()
+    cmd.add(javaBin)
+    if (System.getProperty("os.name", "").toLowerCase.contains("mac")) {
+      cmd.add("-XstartOnFirstThread")
+    }
+    cmd.add("--enable-native-access=ALL-UNNAMED")
+    cmd.add("-cp")
+    cmd.add(cp)
+    cmd.add("sge.it.desktop.SupportsExtensionHarnessMain")
+    cmd.add(resultsFile.getAbsolutePath)
+
+    val pb = new ProcessBuilder(cmd)
+    pb.inheritIO()
+    val process  = pb.start()
+    val exitCode = process.waitFor()
+
+    assertEquals(exitCode, 0, s"supportsExtension harness process exited with code $exitCode")
+
+    val result = new String(Files.readAllBytes(resultsFile.toPath)).trim
+    assert(result.nonEmpty, "supportsExtension result file is empty")
+    System.err.println(s"=== ISS-537 supportsExtension result ===\n$result")
+
+    // The harness writes "PASS:msg" or "FAIL:msg". Against the buggy code it
+    // writes FAIL because supportsExtension('<present>') returned false.
+    assert(
+      result.startsWith("PASS:"),
+      s"ISS-537: supportsExtension does not reflect the live GL context: $result"
+    )
+  }
+
   /** Minimal JSON parsing for check results. */
   private def parseChecks(json: String): Seq[CheckResult] = {
     // Match {"name":"...","passed":...,"message":"..."}

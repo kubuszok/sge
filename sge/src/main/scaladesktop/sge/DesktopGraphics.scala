@@ -21,7 +21,7 @@ import sge.graphics.Cursor.SystemCursor
 import sge.graphics.glutils.{ GLVersion, HdpiMode }
 import sge.platform.WindowingOps
 import lowlevel.Nullable
-import sge.utils.Seconds
+import sge.utils.{ BufferUtils, Seconds }
 
 /** Desktop implementation of [[Graphics]]. Manages the GL context, frame timing, display mode queries, and cursor.
   *
@@ -56,6 +56,7 @@ class DesktopGraphics private[sge] (
   @volatile private var _logicalHeight:    Int     = 0
   @volatile private var _isContinuous:     Boolean = true
 
+  private var _extensions:        Nullable[Set[String]] = Nullable.empty
   private var _bufferFormat:      Graphics.BufferFormat = scala.compiletime.uninitialized
   private var _lastFrameTime:     Long                  = -1L
   private var _deltaTime:         Seconds               = Seconds.zero
@@ -400,8 +401,30 @@ class DesktopGraphics private[sge] (
 
   override def bufferFormat: Graphics.BufferFormat = _bufferFormat
 
-  override def supportsExtension(extension: String): Boolean =
-    windowing.extensionSupported(extension)
+  override def supportsExtension(extension: String): Boolean = {
+    // The GLFW window is created GLFW_NO_API — ANGLE (not GLFW) owns the GL
+    // context — so glfwExtensionSupported() has no current GL context and
+    // always returns false. Consult the live GL context instead, mirroring
+    // AndroidGraphics. The desktop ANGLE context is GL ES 3.0 core, where
+    // glGetString(GL_EXTENSIONS) returns null, so enumerate via the indexed
+    // glGetStringi(GL_EXTENSIONS, i) form. Cache the computed set lazily.
+    val exts = _extensions.fold {
+      val computed = _gl30.fold {
+        // Defensive ES 2.0 fallback: no ES 3.0 context, read the legacy
+        // space-separated GL_EXTENSIONS string instead of returning false.
+        val s = _gl20.glGetString(GL20.GL_EXTENSIONS)
+        if (s == null) Set.empty[String] else s.split(' ').filter(_.nonEmpty).toSet // null-safe — ES2 driver may return null
+      } { gl30 =>
+        val countBuf = BufferUtils.newIntBuffer(16)
+        gl30.glGetIntegerv(GL30.GL_NUM_EXTENSIONS, countBuf)
+        val count = countBuf.get(0)
+        (0 until count).iterator.map(i => gl30.glGetStringi(GL20.GL_EXTENSIONS, i)).filter(s => (s ne null) && s.nonEmpty).toSet
+      }
+      _extensions = Nullable(computed)
+      computed
+    }(identity)
+    exts.contains(extension)
+  }
 
   // ─── Continuous rendering ─────────────────────────────────────────────
 
