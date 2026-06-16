@@ -285,10 +285,11 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
     canvas.addEventListener("wheel", (e: dom.WheelEvent) => handleWheel(e), true)
     document.addEventListener("keydown", (e: KeyboardEvent) => handleKeyDown(e), false)
     document.addEventListener("keyup", (e: KeyboardEvent) => handleKeyUp(e), false)
+    document.addEventListener("keypress", (e: KeyboardEvent) => handleKeyPress(e), false)
     window.addEventListener("blur", (_: dom.Event) => handleBlur(), false)
     canvas.addEventListener("touchstart", (e: TouchEvent) => handleTouchStart(e), true)
     canvas.addEventListener("touchmove", (e: TouchEvent) => handleTouchMove(e), true)
-    canvas.addEventListener("touchcancel", (e: TouchEvent) => handleTouchEnd(e), true)
+    canvas.addEventListener("touchcancel", (e: TouchEvent) => handleTouchCancel(e), true)
     canvas.addEventListener("touchend", (e: TouchEvent) => handleTouchEnd(e), true)
   }
 
@@ -399,6 +400,18 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
       }
     }
 
+  private def handleKeyPress(e: KeyboardEvent): Unit =
+    if (hasFocus) {
+      // char c = (char)e.getCharCode();
+      val c = e.charCode.toChar
+      // usually, browsers don't send a keypress event for tab, so we emulate it in
+      // keyup event. Just in case this changes in the future, we sort this out here
+      // to avoid sending the event twice.
+      if (c != '\t') {
+        if (processor != null) processor.keyTyped(c)
+      }
+    }
+
   private def handleKeyUp(e: KeyboardEvent): Unit =
     if (!hasFocus) {
       // Release all pressed keys on blur
@@ -406,12 +419,9 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
     } else {
       val code = keyForCode(e.keyCode, e.location)
       if (isCatchKey(code)) e.preventDefault()
-      // Tab doesn't fire keypress in most browsers, so we emulate keyTyped here
+      // js does not raise keypress event for tab, so emulate this here for
+      // platform-independant behaviour
       if (processor != null && code == Keys.TAB) processor.keyTyped('\t')
-      // Also forward keypress for printable characters via the key string
-      if (e.key.length == 1 && code != Keys.BACKSPACE) {
-        if (processor != null) processor.keyTyped(e.key.charAt(0))
-      }
       if (pressedKeys(code.toInt)) {
         pressedKeyCount -= 1
         pressedKeys(code.toInt) = false
@@ -471,6 +481,29 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
         touchXArr(touchId) = getRelativeTouchX(touch)
         touchYArr(touchId) = getRelativeTouchY(touch)
         if (processor != null) processor.touchDragged(Pixels(touchXArr(touchId)), Pixels(touchYArr(touchId)), touchId)
+      }
+      i += 1
+    }
+    currentEventTimeStamp = utils.TimeUtils.nanoTime()
+    e.preventDefault()
+  }
+
+  private def handleTouchCancel(e: TouchEvent): Unit = {
+    val touches = e.changedTouches
+    var i       = 0
+    while (i < touches.length) {
+      val touch = touches(i)
+      val real  = touch.identifier.toInt
+      touchMap.get(real).foreach { touchId =>
+        touchMap.remove(real)
+        touchedArr(touchId) = false
+        deltaXArr(touchId) = getRelativeTouchX(touch) - touchXArr(touchId)
+        deltaYArr(touchId) = getRelativeTouchY(touch) - touchYArr(touchId)
+        touchXArr(touchId) = getRelativeTouchX(touch)
+        touchYArr(touchId) = getRelativeTouchY(touch)
+        // A cancelled touch (cheek/system gesture) is not a touchUp: route it to the
+        // dedicated touchCancelled callback, matching Android's TOUCH_CANCELLED path.
+        if (processor != null) processor.touchCancelled(Pixels(touchXArr(touchId)), Pixels(touchYArr(touchId)), touchId, Buttons.LEFT)
       }
       i += 1
     }
