@@ -133,16 +133,18 @@ class AngleGL32(lookup: SymbolLookup) extends AngleGL31(lookup) with GL32 {
     h32("glDebugMessageCallback", FunctionDescriptor.ofVoid(P32, P32))
 
   override def glDebugMessageCallback(callback: DebugProc): Unit = {
-    // Close previous callback arena if any
-    if (debugCallbackArena != null) {
-      debugCallbackArena.close()
-      debugCallbackArena = null.asInstanceOf[Arena]
-    }
+    // Install-new-before-close-old: GL retains the previously installed upcall
+    // stub pointer until we hand it a new one (or NULL). Closing the old arena
+    // first would free that stub while GL may still invoke it from a driver
+    // thread → use-after-free. So capture the previous arena, install the new
+    // callback, and only then close the previous arena.
+    val previous = debugCallbackArena
 
     if (callback == null) {
       _glDebugMessageCallback.invoke(MemorySegment.NULL, MemorySegment.NULL)
+      debugCallbackArena = null.asInstanceOf[Arena]
     } else {
-      debugCallbackArena = Arena.ofShared()
+      val newArena = Arena.ofShared()
       val stubDesc = FunctionDescriptor.ofVoid(I32, I32, I32, I32, I32, P32, P32)
       // We need a MethodHandle for the dispatch method
       val dispatchHandle = MethodHandles
@@ -161,8 +163,15 @@ class AngleGL32(lookup: SymbolLookup) extends AngleGL31(lookup) with GL32 {
             classOf[MemorySegment]
           )
         )
-      val stub = linker32.upcallStub(dispatchHandle, stubDesc, debugCallbackArena)
+      val stub = linker32.upcallStub(dispatchHandle, stubDesc, newArena)
       _glDebugMessageCallback.invoke(stub, MemorySegment.NULL)
+      debugCallbackArena = newArena
+    }
+
+    // Now that the new stub (or NULL) is installed, it is safe to free the old
+    // arena: GL no longer references the previous stub.
+    if (previous != null) {
+      previous.close()
     }
   }
 

@@ -184,8 +184,59 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
     (px.get(I, 0), py.get(I, 0))
   }
 
-  // Upcall stub arena — kept alive for the process lifetime
+  // Upcall stub arena — kept alive for the process lifetime.
+  // Used ONLY for the process-lifetime error-callback stub (see init()); every
+  // per-window callback stub gets its own closeable arena (callbackArenas below)
+  // so it can be freed when the callback is re-set or the window is destroyed.
   private val upcallArena: Arena = Arena.ofAuto()
+
+  // Per-(window, callback-kind) upcall-stub arenas. Each GLFW callback setter
+  // installs its stub in a dedicated Arena.ofShared() so the stub can be freed
+  // exactly when it stops being referenced by GLFW — i.e. when the callback is
+  // re-set (with a new stub or NULL) or the window is destroyed. Without this,
+  // every stub would live in the long-lived upcallArena forever → one leaked
+  // upcall stub per registration (and per re-registration / per window).
+  // Key: (windowHandle, kind) where kind identifies the callback slot.
+  private val callbackArenas =
+    new java.util.concurrent.ConcurrentHashMap[(Long, String), java.lang.foreign.Arena]()
+
+  /** Install (or clear) a per-window GLFW callback upcall stub, freeing the previously installed stub's arena.
+    *
+    * Invariant: install-new-before-close-old. GLFW retains the previously installed upcall-stub pointer until we hand it a new one (or NULL). We must therefore install the new stub first and only
+    * then close the old arena; closing it first would free a stub GLFW may still invoke from a driver/event thread → use-after-free.
+    *
+    * @param window
+    *   the GLFW window handle
+    * @param kind
+    *   the callback slot identifier (e.g. "key", "focus")
+    * @param makeStub
+    *   builds the upcall stub in the supplied arena (must NOT use upcallArena)
+    * @param install
+    *   invokes the GLFW setter with the new stub (or NULL)
+    * @param isNull
+    *   whether the caller's callback was null (clear the slot)
+    */
+  private def installWindowCallback(
+    window:   Long,
+    kind:     String,
+    makeStub: Arena => MemorySegment,
+    install:  MemorySegment => Unit,
+    isNull:   Boolean
+  ): Unit =
+    if (isNull) {
+      // Clear the slot first (GLFW drops the old stub pointer), then free its arena.
+      install(MemorySegment.NULL)
+      Option(callbackArenas.remove((window, kind))).foreach(_.close())
+    } else {
+      val a    = Arena.ofShared()
+      val stub = makeStub(a)
+      // Install the new stub BEFORE freeing the old one.
+      install(stub)
+      val old = callbackArenas.put((window, kind), a)
+      if (old != null) {
+        old.close()
+      }
+    }
 
   // ─── Initialization ────────────────────────────────────────────────────
 
@@ -249,8 +300,21 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
     } finally arena.close()
   }
 
-  override def destroyWindow(windowHandle: Long): Unit =
+  override def destroyWindow(windowHandle: Long): Unit = {
+    // Destroy the window first — GLFW drops all of its callback-stub pointers as
+    // part of teardown — then free every per-callback arena owned by this window
+    // so its upcall stubs are released (otherwise they would leak for the rest of
+    // the process lifetime).
     hDestroyWindow.invoke(ptr(windowHandle))
+    val it = callbackArenas.entrySet().iterator()
+    while (it.hasNext) {
+      val entry = it.next()
+      if (entry.getKey._1 == windowHandle) {
+        entry.getValue.close()
+        it.remove()
+      }
+    }
+  }
 
   override def windowShouldClose(windowHandle: Long): Boolean = {
     val result = hShouldClose.invoke(ptr(windowHandle)).asInstanceOf[Int]
@@ -599,10 +663,11 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
 
   // ─── Callbacks (upcall stubs) ──────────────────────────────────────────
 
-  override def setFramebufferSizeCallback(windowHandle: Long, callback: (Long, Int, Int) => Unit): Unit = {
-    val stub =
-      if (callback == null) MemorySegment.NULL
-      else {
+  override def setFramebufferSizeCallback(windowHandle: Long, callback: (Long, Int, Int) => Unit): Unit =
+    installWindowCallback(
+      windowHandle,
+      "framebufferSize",
+      arena => {
         val desc   = FunctionDescriptor.ofVoid(P, I, I)
         val target = java.lang.invoke.MethodHandles
           .lookup()
@@ -614,15 +679,17 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment], classOf[Int], classOf[Int])
           )
-        linker.upcallStub(target, desc, upcallArena)
-      }
-    hSetFbSizeCb.invoke(ptr(windowHandle), stub)
-  }
+        linker.upcallStub(target, desc, arena)
+      },
+      stub => hSetFbSizeCb.invoke(ptr(windowHandle), stub),
+      callback == null
+    )
 
-  override def setWindowFocusCallback(windowHandle: Long, callback: (Long, Boolean) => Unit): Unit = {
-    val stub =
-      if (callback == null) MemorySegment.NULL
-      else {
+  override def setWindowFocusCallback(windowHandle: Long, callback: (Long, Boolean) => Unit): Unit =
+    installWindowCallback(
+      windowHandle,
+      "focus",
+      arena => {
         val desc   = FunctionDescriptor.ofVoid(P, I)
         val target = java.lang.invoke.MethodHandles
           .lookup()
@@ -634,15 +701,17 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment], classOf[Int])
           )
-        linker.upcallStub(target, desc, upcallArena)
-      }
-    hSetFocusCb.invoke(ptr(windowHandle), stub)
-  }
+        linker.upcallStub(target, desc, arena)
+      },
+      stub => hSetFocusCb.invoke(ptr(windowHandle), stub),
+      callback == null
+    )
 
-  override def setWindowIconifyCallback(windowHandle: Long, callback: (Long, Boolean) => Unit): Unit = {
-    val stub =
-      if (callback == null) MemorySegment.NULL
-      else {
+  override def setWindowIconifyCallback(windowHandle: Long, callback: (Long, Boolean) => Unit): Unit =
+    installWindowCallback(
+      windowHandle,
+      "iconify",
+      arena => {
         val desc   = FunctionDescriptor.ofVoid(P, I)
         val target = java.lang.invoke.MethodHandles
           .lookup()
@@ -654,15 +723,17 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment], classOf[Int])
           )
-        linker.upcallStub(target, desc, upcallArena)
-      }
-    hSetIconifyCb.invoke(ptr(windowHandle), stub)
-  }
+        linker.upcallStub(target, desc, arena)
+      },
+      stub => hSetIconifyCb.invoke(ptr(windowHandle), stub),
+      callback == null
+    )
 
-  override def setWindowMaximizeCallback(windowHandle: Long, callback: (Long, Boolean) => Unit): Unit = {
-    val stub =
-      if (callback == null) MemorySegment.NULL
-      else {
+  override def setWindowMaximizeCallback(windowHandle: Long, callback: (Long, Boolean) => Unit): Unit =
+    installWindowCallback(
+      windowHandle,
+      "maximize",
+      arena => {
         val desc   = FunctionDescriptor.ofVoid(P, I)
         val target = java.lang.invoke.MethodHandles
           .lookup()
@@ -674,15 +745,17 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment], classOf[Int])
           )
-        linker.upcallStub(target, desc, upcallArena)
-      }
-    hSetMaximizeCb.invoke(ptr(windowHandle), stub)
-  }
+        linker.upcallStub(target, desc, arena)
+      },
+      stub => hSetMaximizeCb.invoke(ptr(windowHandle), stub),
+      callback == null
+    )
 
-  override def setWindowCloseCallback(windowHandle: Long, callback: Long => Unit): Unit = {
-    val stub =
-      if (callback == null) MemorySegment.NULL
-      else {
+  override def setWindowCloseCallback(windowHandle: Long, callback: Long => Unit): Unit =
+    installWindowCallback(
+      windowHandle,
+      "close",
+      arena => {
         val desc   = FunctionDescriptor.ofVoid(P)
         val target = java.lang.invoke.MethodHandles
           .lookup()
@@ -694,15 +767,17 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment])
           )
-        linker.upcallStub(target, desc, upcallArena)
-      }
-    hSetCloseCb.invoke(ptr(windowHandle), stub)
-  }
+        linker.upcallStub(target, desc, arena)
+      },
+      stub => hSetCloseCb.invoke(ptr(windowHandle), stub),
+      callback == null
+    )
 
-  override def setDropCallback(windowHandle: Long, callback: (Long, Array[String]) => Unit): Unit = {
-    val stub =
-      if (callback == null) MemorySegment.NULL
-      else {
+  override def setDropCallback(windowHandle: Long, callback: (Long, Array[String]) => Unit): Unit =
+    installWindowCallback(
+      windowHandle,
+      "drop",
+      arena => {
         val desc   = FunctionDescriptor.ofVoid(P, I, P)
         val target = java.lang.invoke.MethodHandles
           .lookup()
@@ -721,15 +796,17 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment], classOf[Int], classOf[MemorySegment])
           )
-        linker.upcallStub(target, desc, upcallArena)
-      }
-    hSetDropCb.invoke(ptr(windowHandle), stub)
-  }
+        linker.upcallStub(target, desc, arena)
+      },
+      stub => hSetDropCb.invoke(ptr(windowHandle), stub),
+      callback == null
+    )
 
-  override def setWindowRefreshCallback(windowHandle: Long, callback: Long => Unit): Unit = {
-    val stub =
-      if (callback == null) MemorySegment.NULL
-      else {
+  override def setWindowRefreshCallback(windowHandle: Long, callback: Long => Unit): Unit =
+    installWindowCallback(
+      windowHandle,
+      "refresh",
+      arena => {
         val desc   = FunctionDescriptor.ofVoid(P)
         val target = java.lang.invoke.MethodHandles
           .lookup()
@@ -741,17 +818,19 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment])
           )
-        linker.upcallStub(target, desc, upcallArena)
-      }
-    hSetRefreshCb.invoke(ptr(windowHandle), stub)
-  }
+        linker.upcallStub(target, desc, arena)
+      },
+      stub => hSetRefreshCb.invoke(ptr(windowHandle), stub),
+      callback == null
+    )
 
   // ─── Input callbacks ─────────────────────────────────────────────────
 
-  override def setKeyCallback(windowHandle: Long, callback: (Long, Int, Int, Int, Int) => Unit): Unit = {
-    val stub =
-      if (callback == null) MemorySegment.NULL
-      else {
+  override def setKeyCallback(windowHandle: Long, callback: (Long, Int, Int, Int, Int) => Unit): Unit =
+    installWindowCallback(
+      windowHandle,
+      "key",
+      arena => {
         val desc   = FunctionDescriptor.ofVoid(P, I, I, I, I)
         val target = java.lang.invoke.MethodHandles
           .lookup()
@@ -771,15 +850,17 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
               classOf[Int]
             )
           )
-        linker.upcallStub(target, desc, upcallArena)
-      }
-    hSetKeyCb.invoke(ptr(windowHandle), stub)
-  }
+        linker.upcallStub(target, desc, arena)
+      },
+      stub => hSetKeyCb.invoke(ptr(windowHandle), stub),
+      callback == null
+    )
 
-  override def setCharCallback(windowHandle: Long, callback: (Long, Int) => Unit): Unit = {
-    val stub =
-      if (callback == null) MemorySegment.NULL
-      else {
+  override def setCharCallback(windowHandle: Long, callback: (Long, Int) => Unit): Unit =
+    installWindowCallback(
+      windowHandle,
+      "char",
+      arena => {
         val desc   = FunctionDescriptor.ofVoid(P, I)
         val target = java.lang.invoke.MethodHandles
           .lookup()
@@ -791,15 +872,17 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment], classOf[Int])
           )
-        linker.upcallStub(target, desc, upcallArena)
-      }
-    hSetCharCb.invoke(ptr(windowHandle), stub)
-  }
+        linker.upcallStub(target, desc, arena)
+      },
+      stub => hSetCharCb.invoke(ptr(windowHandle), stub),
+      callback == null
+    )
 
-  override def setScrollCallback(windowHandle: Long, callback: (Long, Double, Double) => Unit): Unit = {
-    val stub =
-      if (callback == null) MemorySegment.NULL
-      else {
+  override def setScrollCallback(windowHandle: Long, callback: (Long, Double, Double) => Unit): Unit =
+    installWindowCallback(
+      windowHandle,
+      "scroll",
+      arena => {
         val desc   = FunctionDescriptor.ofVoid(P, D, D)
         val target = java.lang.invoke.MethodHandles
           .lookup()
@@ -812,15 +895,17 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment], classOf[Double], classOf[Double])
           )
-        linker.upcallStub(target, desc, upcallArena)
-      }
-    hSetScrollCb.invoke(ptr(windowHandle), stub)
-  }
+        linker.upcallStub(target, desc, arena)
+      },
+      stub => hSetScrollCb.invoke(ptr(windowHandle), stub),
+      callback == null
+    )
 
-  override def setCursorPosCallback(windowHandle: Long, callback: (Long, Double, Double) => Unit): Unit = {
-    val stub =
-      if (callback == null) MemorySegment.NULL
-      else {
+  override def setCursorPosCallback(windowHandle: Long, callback: (Long, Double, Double) => Unit): Unit =
+    installWindowCallback(
+      windowHandle,
+      "cursorPos",
+      arena => {
         val desc   = FunctionDescriptor.ofVoid(P, D, D)
         val target = java.lang.invoke.MethodHandles
           .lookup()
@@ -833,15 +918,17 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment], classOf[Double], classOf[Double])
           )
-        linker.upcallStub(target, desc, upcallArena)
-      }
-    hSetCurPosCb.invoke(ptr(windowHandle), stub)
-  }
+        linker.upcallStub(target, desc, arena)
+      },
+      stub => hSetCurPosCb.invoke(ptr(windowHandle), stub),
+      callback == null
+    )
 
-  override def setMouseButtonCallback(windowHandle: Long, callback: (Long, Int, Int, Int) => Unit): Unit = {
-    val stub =
-      if (callback == null) MemorySegment.NULL
-      else {
+  override def setMouseButtonCallback(windowHandle: Long, callback: (Long, Int, Int, Int) => Unit): Unit =
+    installWindowCallback(
+      windowHandle,
+      "mouseButton",
+      arena => {
         val desc   = FunctionDescriptor.ofVoid(P, I, I, I)
         val target = java.lang.invoke.MethodHandles
           .lookup()
@@ -854,10 +941,11 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment], classOf[Int], classOf[Int], classOf[Int])
           )
-        linker.upcallStub(target, desc, upcallArena)
-      }
-    hSetMouseBtnCb.invoke(ptr(windowHandle), stub)
-  }
+        linker.upcallStub(target, desc, arena)
+      },
+      stub => hSetMouseBtnCb.invoke(ptr(windowHandle), stub),
+      callback == null
+    )
 
   // ─── Window icon ────────────────────────────────────────────────────
 
