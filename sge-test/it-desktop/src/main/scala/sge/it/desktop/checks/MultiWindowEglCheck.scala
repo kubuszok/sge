@@ -51,19 +51,19 @@ import java.lang.invoke.MethodHandle
 object MultiWindowEglCheck {
 
   // ─── GL constants we need ──────────────────────────────────────────────
-  private val GL_NO_ERROR:        Int = 0x0000
-  private val GL_VERSION:         Int = 0x1f02
-  private val GL_TEXTURE_2D:      Int = 0x0de1
-  private val GL_RGBA:            Int = 0x1908
-  private val GL_UNSIGNED_BYTE:   Int = 0x1401
-  private val GL_TRUE:            Int = 1
+  private val GL_NO_ERROR:      Int = 0x0000
+  private val GL_VERSION:       Int = 0x1f02
+  private val GL_TEXTURE_2D:    Int = 0x0de1
+  private val GL_RGBA:          Int = 0x1908
+  private val GL_UNSIGNED_BYTE: Int = 0x1401
+  private val GL_TRUE:          Int = 1
 
-  private val I: ValueLayout.OfInt    = JAVA_INT
-  private val P: AddressLayout        = ADDRESS
+  private val I: ValueLayout.OfInt = JAVA_INT
+  private val P: AddressLayout     = ADDRESS
 
   /** Bound GLESv2 entry points. Resolved once against the same shared library + loader the engine uses. */
-  private final class Gl(lookup: SymbolLookup) {
-    private val linker: Linker = Linker.nativeLinker()
+  final private class Gl(lookup: SymbolLookup) {
+    private val linker:                                    Linker       = Linker.nativeLinker()
     private def h(name: String, desc: FunctionDescriptor): MethodHandle =
       linker.downcallHandle(
         lookup.find(name).orElseThrow(() => new UnsatisfiedLinkError(s"GLESv2 symbol not found: $name")),
@@ -174,11 +174,20 @@ object MultiWindowEglCheck {
     } finally {
       // Best-effort cleanup. Against the bug, destroyContext(ctx1) already
       // terminated the display, so destroying ctx2 may be a no-op; swallow.
-      if (ctx2 != 0L) try glOps.destroyContext(ctx2) catch { case _: Throwable => () }
-      if (ctx1 != 0L) try glOps.destroyContext(ctx1) catch { case _: Throwable => () }
-      if (win2 != 0L) try windowing.destroyWindow(win2) catch { case _: Throwable => () }
-      if (win1 != 0L) try windowing.destroyWindow(win1) catch { case _: Throwable => () }
-      try windowing.terminate() catch { case _: Throwable => () }
+      if (ctx2 != 0L)
+        try glOps.destroyContext(ctx2)
+        catch { case _: Throwable => () }
+      if (ctx1 != 0L)
+        try glOps.destroyContext(ctx1)
+        catch { case _: Throwable => () }
+      if (win2 != 0L)
+        try windowing.destroyWindow(win2)
+        catch { case _: Throwable => () }
+      if (win1 != 0L)
+        try windowing.destroyWindow(win1)
+        catch { case _: Throwable => () }
+      try windowing.terminate()
+      catch { case _: Throwable => () }
     }
   }
 
@@ -224,9 +233,9 @@ object MultiWindowEglCheck {
 
   /** Clause 2: a texture created in window 1's context must be recognized in window 2's context (shared namespace).
     *
-    * Pre-fix the two contexts are created with eglCreateContext(..., EGL_NO_CONTEXT, ...) — no sharing — so the id is NOT a texture in ctx2 → RED. The fix threads window 1's context into createContext
-    * and passes it as the eglCreateContext share argument (the `sharedContext` DesktopApplication already plumbs into setupWindow but currently drops before glOps.createContext); with sharing, the same
-    * two-window setup makes the id valid in ctx2 and this assertion flips to green.
+    * Pre-fix the two contexts are created with eglCreateContext(..., EGL_NO_CONTEXT, ...) — no sharing — so the id is NOT a texture in ctx2 → RED. The fix threads window 1's context into
+    * createContext and passes it as the eglCreateContext share argument (the `sharedContext` DesktopApplication already plumbs into setupWindow but currently drops before glOps.createContext); with
+    * sharing, the same two-window setup makes the id valid in ctx2 and this assertion flips to green.
     */
   private def sharingClause(glOps: GlOpsJvm, gl: Gl, ctx1: Long, ctx2: Long): CheckResult = {
     // Create + allocate a real texture object in window 1's context.

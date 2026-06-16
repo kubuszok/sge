@@ -33,11 +33,8 @@ import sge.utils.BufferUtils
 /** Verifies that Graphics.gl31Available / gl32Available reflect the live GL context's actual version, not an unconditional truth. */
 object GlVersionGateCheck {
 
-  /** Query the live GL context's major.minor version. Primary path is
-    * glGetIntegerv(GL_MAJOR_VERSION / GL_MINOR_VERSION) — GL30-era integer
-    * queries available on any ES 3.0 core context. If those come back as 0/0
-    * (some drivers gate them), fall back to parsing glGetString(GL_VERSION),
-    * whose ES form is "OpenGL ES <major>.<minor> <vendor>".
+  /** Query the live GL context's major.minor version. Primary path is glGetIntegerv(GL_MAJOR_VERSION / GL_MINOR_VERSION) — GL30-era integer queries available on any ES 3.0 core context. If those come
+    * back as 0/0 (some drivers gate them), fall back to parsing glGetString(GL_VERSION), whose ES form is "OpenGL ES <major>.<minor> <vendor>".
     */
   private def queryVersion(gl30: GL30): Either[String, (Int, Int)] = {
     val majBuf = BufferUtils.newIntBuffer(1)

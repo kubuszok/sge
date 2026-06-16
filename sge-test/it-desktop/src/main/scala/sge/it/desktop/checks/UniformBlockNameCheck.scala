@@ -37,8 +37,8 @@ object UniformBlockNameCheck {
   // lets GL write all 26 chars; the fix (bufSize=remaining()) caps it at 8.
   private val blockName: String = "ISS540LongUniformBlockName"
 
-  private val requestedRemaining: Int = 8
-  private val bufCapacity:        Int = 2048
+  private val requestedRemaining: Int  = 8
+  private val bufCapacity:        Int  = 2048
   private val sentinel:           Byte = 0xaa.toByte
 
   // A minimal ES3 program declaring `blockName` as a std140 uniform block so the

@@ -69,16 +69,16 @@ object DesktopWindowLifecycleCheck {
         val clause1 = errorCallbackClause()
         val clause3 = closeBeforeUpdateClause(windowing, glOps)
         (clause1, clause3)
-      } finally {
-        try windowing.terminate() catch { case _: Throwable => () }
-      }
+      } finally
+        try windowing.terminate()
+        catch { case _: Throwable => () }
     }
   }
 
   /** Clause 1: after the SGE init seam (WindowingOpsJvm().init()), GLFW must already carry an installed error callback.
     *
-    * glfwSetErrorCallback returns the PREVIOUS callback. We pass NULL to read the current one, assert the returned previous is non-NULL (SGE installed one at init), then restore it. Against current code
-    * SGE installs none, so the previous is NULL → RED.
+    * glfwSetErrorCallback returns the PREVIOUS callback. We pass NULL to read the current one, assert the returned previous is non-NULL (SGE installed one at init), then restore it. Against current
+    * code SGE installs none, so the previous is NULL → RED.
     */
   private def errorCallbackClause(): CheckResult = {
     // GLFW is already loaded into this process by WindowingOpsJvm() (System.load),
@@ -184,13 +184,13 @@ object DesktopWindowLifecycleCheck {
             passed = false,
             s"DesktopWindow.close() threw ${t.getClass.getName} on a window created but never updated: ${t.getMessage}"
           )
-      } finally {
+      } finally
         // On the green path close() already destroyed the native window; only the
         // red path (close aborted before destroyWindow) leaves it to clean up.
         if (!closeCompleted) {
-          try windowing.destroyWindow(handle) catch { case _: Throwable => () }
+          try windowing.destroyWindow(handle)
+          catch { case _: Throwable => () }
         }
-      }
     }
   }
 }
