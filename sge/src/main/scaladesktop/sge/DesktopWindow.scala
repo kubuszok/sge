@@ -358,14 +358,18 @@ class DesktopWindow private[sge] (
   // ─── Lifecycle ────────────────────────────────────────────────────────
 
   override def close(): Unit = {
-    _listener.pause()
-    _listener.dispose()
+    if (_listenerInitialized) {
+      _listener.pause()
+      _listener.dispose()
+    }
     _graphics.close()
     _input.close()
     windowing.setWindowFocusCallback(_windowHandle, null)
     windowing.setWindowIconifyCallback(_windowHandle, null)
+    windowing.setWindowMaximizeCallback(_windowHandle, null)
     windowing.setWindowCloseCallback(_windowHandle, null)
     windowing.setDropCallback(_windowHandle, null)
+    windowing.setWindowRefreshCallback(_windowHandle, null)
     if (_eglContext != 0L) {
       glOps.destroyContext(_eglContext)
       _eglContext = 0L

@@ -124,6 +124,9 @@ private object GlfwC {
   def glfwSetDropCallback(window:            Ptr[Byte], cb: CFuncPtr3[Ptr[Byte], CInt, Ptr[CString], Unit]): CFuncPtr3[Ptr[Byte], CInt, Ptr[CString], Unit] = extern
   def glfwSetWindowRefreshCallback(window:   Ptr[Byte], cb: CFuncPtr1[Ptr[Byte], Unit]):                     CFuncPtr1[Ptr[Byte], Unit]                     = extern
 
+  // Error callback: GLFWerrorfun signature void(*)(int error, const char* description).
+  def glfwSetErrorCallback(cb: CFuncPtr2[CInt, CString, Unit]): CFuncPtr2[CInt, CString, Unit] = extern
+
   // Input callbacks
   def glfwSetKeyCallback(window:         Ptr[Byte], cb: CFuncPtr5[Ptr[Byte], CInt, CInt, CInt, CInt, Unit]): CFuncPtr5[Ptr[Byte], CInt, CInt, CInt, CInt, Unit] = extern
   def glfwSetCharCallback(window:        Ptr[Byte], cb: CFuncPtr2[Ptr[Byte], CUnsignedInt, Unit]):           CFuncPtr2[Ptr[Byte], CUnsignedInt, Unit]           = extern
@@ -190,8 +193,13 @@ private[sge] object WindowingOpsNative extends WindowingOps {
   override def setInitHint(hint: Int, value: Int): Unit =
     GlfwC.glfwInitHint(hint, value)
 
-  override def init(): Boolean =
+  override def init(): Boolean = {
+    // Install a GLFW error callback BEFORE glfwInit so init-time errors surface
+    // (glfwSetErrorCallback is valid before glfwInit). LibGDX installs a
+    // GLFWErrorCallback at init so GLFW failures are logged rather than dropped.
+    GlfwC.glfwSetErrorCallback(fnError)
     GlfwC.glfwInit() != 0
+  }
 
   override def terminate(): Unit =
     GlfwC.glfwTerminate()
@@ -577,6 +585,12 @@ private[sge] object WindowingOpsNative extends WindowingOps {
   }
   private val fnWindowRefresh = CFuncPtr1.fromScalaFunction[Ptr[Byte], Unit] { win =>
     val handle = longFromPtr(win); cbWindowRefresh.get(handle).foreach(_(handle))
+  }
+  // GLFW error callback: logs the error so GLFW failures surface (mirrors LibGDX's
+  // GLFWErrorCallback). Static CFuncPtr — outlives init() for the process lifetime.
+  private val fnError = CFuncPtr2.fromScalaFunction[CInt, CString, Unit] { (error, description) =>
+    val message = if (description == null) "" else fromCString(description, UTF8)
+    utils.Log.error(s"GLFW error 0x${java.lang.Integer.toHexString(error)}: $message")
   }
   private val fnKey = CFuncPtr5.fromScalaFunction[Ptr[Byte], CInt, CInt, CInt, CInt, Unit] { (win, key, scancode, action, mods) =>
     val handle = longFromPtr(win); cbKey.get(handle).foreach(_(handle, key, scancode, action, mods))

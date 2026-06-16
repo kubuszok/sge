@@ -480,6 +480,99 @@ class DesktopIntegrationTest extends FunSuite {
     )
   }
 
+  // ── ISS-551: desktop window / windowing lifecycle ──────────────────────
+  // THREE clauses in the SGE-original desktop window code; this IT pins two of
+  // them as live, observable defects (the third, close() leaking the maximize +
+  // refresh callbacks, is fixed by inspection — see the issue):
+  //
+  //   Clause 1 (no GLFW error callback installed). LibGDX installs a
+  //     GLFWErrorCallback at init so GLFW failures surface; SGE installs none —
+  //     WindowingOps has no setErrorCallback method and nothing calls
+  //     glfwSetErrorCallback. The harness drives the SGE init seam
+  //     (WindowingOpsJvm().init()) then probes the live GLFW state with a RAW
+  //     glfwSetErrorCallback downcall, which returns the previously-installed
+  //     callback. Against the bug that previous is NULL → RED.
+  //
+  //   Clause 3 (NPE if a window closes before its first update). DesktopWindow.
+  //     close() calls _listener.pause()/dispose() unconditionally, but _listener
+  //     is scala.compiletime.uninitialized until the first update(). The harness
+  //     builds a DesktopWindow the same way DesktopApplication.setupWindow does
+  //     and calls close() WITHOUT any update() → _listener.pause() NPEs → RED.
+  //
+  // This runs in a DEDICATED subprocess (DesktopWindowLifecycleHarnessMain) that
+  // touches only the windowing-lifecycle seams — never the monitor APIs
+  // (glfwGetMonitorName aborts headless, ISS-485) and never an FBO (ISS-572) —
+  // so the only way each clause can FAIL is the contract under test. The harness
+  // writes one "PASS:msg"/"FAIL:msg" line per clause to two files; both must PASS.
+  //
+  // NOTE: the bug sites (DesktopWindow.close ~360-374 and the absent
+  // setErrorCallback in WindowingOps) live in scaladesktop / shared platform
+  // code; this IT proves the two clauses on JVM only.
+
+  test("desktop window lifecycle: GLFW error callback installed at init; close() before first update does not NPE (ISS-551)") {
+    val isHeadless = java.awt.GraphicsEnvironment.isHeadless ||
+      (System.getenv("DISPLAY") == null && System.getenv("WAYLAND_DISPLAY") == null &&
+        !System.getProperty("os.name", "").toLowerCase.contains("mac") &&
+        !System.getProperty("os.name", "").toLowerCase.contains("win"))
+    requireOrAssume(!isHeadless, "No display server available — skipping desktop window lifecycle test")
+
+    val clause1File = File.createTempFile("sge-it-desktopwindow-errorcallback-", ".txt")
+    val clause3File = File.createTempFile("sge-it-desktopwindow-closebeforeupdate-", ".txt")
+    clause1File.deleteOnExit()
+    clause3File.deleteOnExit()
+
+    val javaHome = System.getProperty("java.home")
+    val javaBin  = s"$javaHome/bin/java"
+    val cp       = System.getProperty("java.class.path")
+
+    val cmd = new java.util.ArrayList[String]()
+    cmd.add(javaBin)
+    if (System.getProperty("os.name", "").toLowerCase.contains("mac")) {
+      cmd.add("-XstartOnFirstThread")
+    }
+    cmd.add("--enable-native-access=ALL-UNNAMED")
+    cmd.add("-cp")
+    cmd.add(cp)
+    cmd.add("sge.it.desktop.DesktopWindowLifecycleHarnessMain")
+    cmd.add(clause1File.getAbsolutePath)
+    cmd.add(clause3File.getAbsolutePath)
+
+    val pb = new ProcessBuilder(cmd)
+    pb.inheritIO()
+    val process  = pb.start()
+    val exitCode = process.waitFor()
+
+    assertEquals(exitCode, 0, s"desktop window lifecycle harness process exited with code $exitCode")
+
+    val clause1 = new String(Files.readAllBytes(clause1File.toPath)).trim
+    val clause3 = new String(Files.readAllBytes(clause3File.toPath)).trim
+    assert(clause1.nonEmpty, "desktop window lifecycle clause-1 result file is empty")
+    assert(clause3.nonEmpty, "desktop window lifecycle clause-3 result file is empty")
+    System.err.println(
+      s"=== ISS-551 desktop window lifecycle results ===\nclause1 (error callback installed): $clause1\nclause3 (close before first update): $clause3"
+    )
+
+    // Evaluate BOTH clauses before failing so a one-clause fix can't flip the
+    // suite green: the test fails until clause 1 (error callback installed) AND
+    // clause 3 (no NPE on close-before-first-update) both PASS.
+    //   Clause 1: against the bug, glfwSetErrorCallback returns NULL as the
+    //     previous callback → FAIL.
+    //   Clause 3: against the bug, _listener.pause() on the uninitialized
+    //     _listener → NullPointerException → FAIL.
+    val failures = scala.collection.mutable.ListBuffer.empty[String]
+    if (!clause1.startsWith("PASS:")) {
+      failures += s"ISS-551 clause 1: SGE installs no GLFW error callback at init (WindowingOps has no setErrorCallback and " +
+        s"nothing calls glfwSetErrorCallback) so GLFW errors are silently dropped: $clause1"
+    }
+    if (!clause3.startsWith("PASS:")) {
+      failures += s"ISS-551 clause 3: DesktopWindow.close() NPEs on a window closed before its first update (it calls " +
+        s"_listener.pause()/dispose() before _listener is initialized): $clause3"
+    }
+    if (failures.nonEmpty) {
+      fail(s"${failures.size} ISS-551 clause(s) failed:\n${failures.mkString("\n")}")
+    }
+  }
+
   /** Minimal JSON parsing for check results. */
   private def parseChecks(json: String): Seq[CheckResult] = {
     // Match {"name":"...","passed":...,"message":"..."}

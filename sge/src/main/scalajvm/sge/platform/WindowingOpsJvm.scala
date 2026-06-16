@@ -194,7 +194,41 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
   override def setInitHint(hint: Int, value: Int): Unit =
     hInitHint.invoke(hint, value)
 
+  // glfwSetErrorCallback(GLFWerrorfun callback) -> previous GLFWerrorfun.
+  // GLFWerrorfun signature: void(*)(int error, const char* description).
+  private lazy val hSetErrorCb = h("glfwSetErrorCallback", FunctionDescriptor.of(P, P))
+
+  // The error-callback upcall stub must outlive init() — GLFW invokes it whenever
+  // an error is reported, for the whole process lifetime. Allocate it in the
+  // long-lived upcallArena (Arena.ofAuto), NOT a confined arena we close (a freed
+  // stub would be a use-after-free when GLFW reports an error).
+  private lazy val errorCallbackStub: MemorySegment = {
+    val desc   = FunctionDescriptor.ofVoid(I, P)
+    val target = java.lang.invoke.MethodHandles
+      .lookup()
+      .bind(
+        new AnyRef {
+          @scala.annotation.nowarn("id=E198")
+          def invoke(error: Int, description: MemorySegment): Unit = {
+            // description is a NUL-terminated UTF-8 C string owned by GLFW.
+            // NULL guards against GLFW passing no description.
+            val message =
+              if (description.address() == 0L) ""
+              else readCStr(description)
+            utils.Log.error(s"GLFW error 0x${java.lang.Integer.toHexString(error)}: $message")
+          }
+        },
+        "invoke",
+        java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[Int], classOf[MemorySegment])
+      )
+    linker.upcallStub(target, desc, upcallArena)
+  }
+
   override def init(): Boolean = {
+    // Install a GLFW error callback BEFORE glfwInit so init-time errors surface
+    // (glfwSetErrorCallback is valid before glfwInit). LibGDX installs a
+    // GLFWErrorCallback at init so GLFW failures are logged rather than dropped.
+    hSetErrorCb.invoke(errorCallbackStub)
     val result = hInit.invoke().asInstanceOf[Int]
     result != 0
   }
