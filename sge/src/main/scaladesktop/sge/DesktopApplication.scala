@@ -305,8 +305,20 @@ class DesktopApplication(
     glOps.setSwapInterval(if (config.vSyncEnabled) 1 else 0)
 
     // Initialize GL bindings (ANGLE on JVM, @extern on Native)
-    val gl32 = glFactory()
-    window.graphics.initGL(gl32, Nullable(gl32), Nullable(gl32), Nullable(gl32))
+    // The AngleGL32 instance implements all ES levels, but it must only be
+    // *advertised* (via gl30/gl31/gl32 availability) at the level the live EGL
+    // context actually supports — otherwise gl31Available/gl32Available are
+    // unconditionally true and callers invoke ES 3.1/3.2 entry points
+    // (glDispatchCompute, etc.) on an ES 3.0 context → GL errors (ISS-539).
+    // The context is already current here, so query its real major.minor.
+    val gl32           = glFactory()
+    val (major, minor) = queryGlVersion(gl32)
+    // gl30 is present whenever the context is >= 3.0 (it is — desktop EGL
+    // requests ES 3.0). gl31/gl32 are gated on the queried version.
+    val gl30Slot = if (major > 3 || (major == 3 && minor >= 0)) Nullable(gl32) else Nullable.empty[sge.graphics.GL30]
+    val gl31Slot = if (major > 3 || (major == 3 && minor >= 1)) Nullable(gl32) else Nullable.empty[sge.graphics.GL31]
+    val gl32Slot = if (major > 3 || (major == 3 && minor >= 2)) Nullable(gl32) else Nullable.empty[sge.graphics.GL32]
+    window.graphics.initGL(gl32, gl30Slot, gl31Slot, gl32Slot)
 
     // Apply window icon from config if set
     config.windowIconPaths.foreach { paths =>
@@ -335,6 +347,29 @@ class DesktopApplication(
       // the call above switches the OpenGL context to the newly created window,
       // ensure that the invariant "currentWindow is the window with the current active OpenGL context" holds
       cw.makeCurrent()
+    }
+  }
+
+  /** Query the live GL context's major.minor version (the context must already be current). Primary path is glGetIntegerv(GL_MAJOR_VERSION / GL_MINOR_VERSION) — integer queries available on any ES
+    * 3.0 core context. If the major comes back as 0 (some drivers gate these queries), fall back to parsing glGetString(GL_VERSION), whose ES form is "OpenGL ES <major>.<minor> <vendor>". Used to
+    * gate gl31/gl32 availability so we advertise only what the context actually supports (ISS-539).
+    */
+  private def queryGlVersion(gl: sge.graphics.GL30): (Int, Int) = {
+    val buf = sge.utils.BufferUtils.newIntBuffer(1)
+    gl.glGetIntegerv(sge.graphics.GL30.GL_MAJOR_VERSION, buf)
+    val major = buf.get(0)
+    gl.glGetIntegerv(sge.graphics.GL30.GL_MINOR_VERSION, buf)
+    val minor = buf.get(0)
+    if (major > 0) {
+      (major, minor)
+    } else {
+      // Fallback: parse the version string, e.g. "OpenGL ES 3.0 (ANGLE ...)".
+      val versionString = Nullable(gl.glGetString(sge.graphics.GL20.GL_VERSION))
+      versionString.fold((0, 0)) { s =>
+        """(\d+)\.(\d+)""".r.findFirstMatchIn(s).fold((0, 0)) { m =>
+          (m.group(1).toInt, m.group(2).toInt)
+        }
+      }
     }
   }
 

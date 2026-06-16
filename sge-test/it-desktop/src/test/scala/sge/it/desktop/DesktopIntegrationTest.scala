@@ -408,6 +408,78 @@ class DesktopIntegrationTest extends FunSuite {
     )
   }
 
+  // ── ISS-539: gl31Available / gl32Available must reflect the real GL version ──
+  // DesktopApplication (scaladesktop/sge/DesktopApplication.scala:308-309)
+  // creates ONE AngleGL32 instance and installs it as gl20 AND gl30 AND gl31 AND
+  // gl32 (all Nullable-present), unconditionally:
+  //     val gl32 = glFactory()
+  //     window.graphics.initGL(gl32, Nullable(gl32), Nullable(gl32), Nullable(gl32))
+  // So DesktopGraphics.gl31Available (= _gl31.isDefined) and gl32Available
+  // (= _gl32.isDefined) are ALWAYS true, even though the desktop EGL context is
+  // requested as ES 3.0 (GlOpsJvm asks EGL_CONTEXT_MAJOR_VERSION=3, MINOR=0) and
+  // the window reports GL=3.0. Code guarded by `if (gl32Available)` then dispatches
+  // ES 3.1/3.2 entry points on a 3.0 context → GL errors.
+  //
+  // This runs in a DEDICATED subprocess (GlVersionGateHarnessMain) that touches
+  // ONLY the GL version-query APIs — never the monitor APIs (glfwGetMonitorName
+  // aborts headless, ISS-485) and never an FBO (ISS-572 ClassCastException) — so
+  // the only way it can FAIL is the version-gate contract itself. The harness
+  // queries the live context's major.minor via
+  // glGetIntegerv(GL_MAJOR_VERSION/GL_MINOR_VERSION) and asserts, policy-agnostically:
+  //   gl31Available == (major > 3 || (major == 3 && minor >= 1))
+  //   gl32Available == (major > 3 || (major == 3 && minor >= 2))
+  // On the real ES 3.0 ANGLE context (major=3, minor=0) both expected values are
+  // false but the current code returns true for both → the red.
+  //
+  // NOTE: the install site (DesktopApplication:308-309) lives in scaladesktop,
+  // shared by JVM + Native, so the bug is identical on Native; this IT proves it
+  // on JVM only.
+
+  test("gl31Available/gl32Available reflect the live GL version, not unconditional truth (ISS-539)") {
+    val isHeadless = java.awt.GraphicsEnvironment.isHeadless ||
+      (System.getenv("DISPLAY") == null && System.getenv("WAYLAND_DISPLAY") == null &&
+        !System.getProperty("os.name", "").toLowerCase.contains("mac") &&
+        !System.getProperty("os.name", "").toLowerCase.contains("win"))
+    requireOrAssume(!isHeadless, "No display server available — skipping GL version-gate test")
+
+    val resultsFile = File.createTempFile("sge-it-glversiongate-", ".txt")
+    resultsFile.deleteOnExit()
+
+    val javaHome = System.getProperty("java.home")
+    val javaBin  = s"$javaHome/bin/java"
+    val cp       = System.getProperty("java.class.path")
+
+    val cmd = new java.util.ArrayList[String]()
+    cmd.add(javaBin)
+    if (System.getProperty("os.name", "").toLowerCase.contains("mac")) {
+      cmd.add("-XstartOnFirstThread")
+    }
+    cmd.add("--enable-native-access=ALL-UNNAMED")
+    cmd.add("-cp")
+    cmd.add(cp)
+    cmd.add("sge.it.desktop.GlVersionGateHarnessMain")
+    cmd.add(resultsFile.getAbsolutePath)
+
+    val pb = new ProcessBuilder(cmd)
+    pb.inheritIO()
+    val process  = pb.start()
+    val exitCode = process.waitFor()
+
+    assertEquals(exitCode, 0, s"GL version-gate harness process exited with code $exitCode")
+
+    val result = new String(Files.readAllBytes(resultsFile.toPath)).trim
+    assert(result.nonEmpty, "GL version-gate result file is empty")
+    System.err.println(s"=== ISS-539 GL version-gate result ===\n$result")
+
+    // The harness writes "PASS:msg" or "FAIL:msg". Against the buggy code it
+    // writes FAIL because gl31Available/gl32Available are unconditionally true on
+    // an ES 3.0 context.
+    assert(
+      result.startsWith("PASS:"),
+      s"ISS-539: gl31Available/gl32Available do not reflect the live GL version: $result"
+    )
+  }
+
   /** Minimal JSON parsing for check results. */
   private def parseChecks(json: String): Seq[CheckResult] = {
     // Match {"name":"...","passed":...,"message":"..."}
