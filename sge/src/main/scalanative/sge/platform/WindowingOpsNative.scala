@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets
 
 import scala.scalanative.runtime.{ Intrinsics, fromRawPtr, toRawPtr }
 import scala.scalanative.unsafe.*
+import scala.scalanative.unsigned.UnsignedRichLong
 
 // ─── GLFW C bindings ──────────────────────────────────────────────────────
 
@@ -167,6 +168,21 @@ private object ObjCRuntime {
   // objc_msgSend variant for sending a CGFloat (Double on 64-bit) argument — setContentsScale:
   @name("objc_msgSend")
   def msgSendDouble(obj: Ptr[Byte], sel: Ptr[Byte], arg: CDouble): Ptr[Byte] = extern
+
+  // objc_msgSend variant returning NSUInteger — used for [NSArray count].
+  // ABI: NSUInteger == unsigned long == 64-bit on macOS (LP64), so the return is CSize,
+  // NOT CInt.
+  @name("objc_msgSend")
+  def msgSendCount(obj: Ptr[Byte], sel: Ptr[Byte]): CSize = extern
+
+  // objc_msgSend variant taking an NSUInteger index and returning id — used for
+  // [NSArray objectAtIndex:]. ABI: NSUInteger index == unsigned long == 64-bit (CSize).
+  @name("objc_msgSend")
+  def msgSendIndex(obj: Ptr[Byte], sel: Ptr[Byte], idx: CSize): Ptr[Byte] = extern
+
+  // objc_getClass — look up an Objective-C class by name (used for CATransaction).
+  @name("objc_getClass")
+  def objcGetClass(name: CString): Ptr[Byte] = extern
 }
 
 // ─── GLFWvidmode struct layout ─────────────────────────────────────────────
@@ -185,8 +201,9 @@ private[sge] object WindowingOpsNative extends WindowingOps {
 
   private val UTF8 = StandardCharsets.UTF_8
 
-  // Cached CALayer pointer for updating contentsScale on display changes (macOS only)
-  private var cachedLayerPtr: Ptr[Byte] = null
+  // Cached CALayer address — set once per window at creation, reused by updateNativeLayerScale.
+  // Map from GLFW window handle → CALayer address (macOS only).
+  private val cachedLayerAddresses: java.util.HashMap[Long, Long] = new java.util.HashMap()
 
   // ─── Initialization ──────────────────────────────────────────────────
 
@@ -259,7 +276,7 @@ private[sge] object WindowingOpsNative extends WindowingOps {
         val selSetContentsScale = ObjCRuntime.selRegisterName(toCString("setContentsScale:")(using zone))
         ObjCRuntime.msgSendDouble(layer, selSetContentsScale, scale)
 
-        cachedLayerPtr = layer
+        cachedLayerAddresses.put(windowHandle, longFromPtr(layer))
         longFromPtr(layer)
       } finally zone.close()
     } else if (platform == WindowingOps.GLFW_PLATFORM_X11)
@@ -270,15 +287,63 @@ private[sge] object WindowingOpsNative extends WindowingOps {
       throw new UnsupportedOperationException(s"getNativeWindowHandle not supported on platform $platform")
   }
 
+  override def beginNoAnimationTransaction(): Unit =
+    if (this.platform == WindowingOps.GLFW_PLATFORM_COCOA) {
+      val zone = Zone.open()
+      try {
+        val caTransaction        = ObjCRuntime.objcGetClass(toCString("CATransaction")(using zone))
+        val selBegin             = ObjCRuntime.selRegisterName(toCString("begin")(using zone))
+        val selSetDisableActions = ObjCRuntime.selRegisterName(toCString("setDisableActions:")(using zone))
+        ObjCRuntime.msgSend(caTransaction, selBegin, null) // [CATransaction begin]
+        // YES = 1, encoded as a pointer-sized value (ABI-safe on arm64)
+        val yes = fromRawPtr[Byte](Intrinsics.castLongToRawPtr(1L))
+        ObjCRuntime.msgSend(caTransaction, selSetDisableActions, yes) // [CATransaction setDisableActions:YES]
+      } finally zone.close()
+    }
+
+  override def commitTransaction(): Unit =
+    if (this.platform == WindowingOps.GLFW_PLATFORM_COCOA) {
+      val zone = Zone.open()
+      try {
+        val caTransaction = ObjCRuntime.objcGetClass(toCString("CATransaction")(using zone))
+        val selCommit     = ObjCRuntime.selRegisterName(toCString("commit")(using zone))
+        ObjCRuntime.msgSend(caTransaction, selCommit, null) // [CATransaction commit]
+      } finally zone.close()
+    }
+
   override def updateNativeLayerScale(windowHandle: Long): Unit =
-    if (cachedLayerPtr != null && this.platform == WindowingOps.GLFW_PLATFORM_COCOA) {
+    if (this.platform == WindowingOps.GLFW_PLATFORM_COCOA) {
+      // Re-fetch the layer from the NSWindow for THIS window handle each call, so
+      // multi-window apps scale the correct window (not whichever was created last).
+      val nsWindow  = GlfwC.glfwGetCocoaWindow(ptrFromLong(windowHandle))
       val (fbW, _)  = getFramebufferSize(windowHandle)
       val (winW, _) = getWindowSize(windowHandle)
       val scale: CDouble = if (winW > 0) fbW.toDouble / winW.toDouble else 1.0
       val zone = Zone.open()
       try {
-        val sel = ObjCRuntime.selRegisterName(toCString("setContentsScale:")(using zone))
-        ObjCRuntime.msgSendDouble(cachedLayerPtr, sel, scale)
+        val selContentView = ObjCRuntime.selRegisterName(toCString("contentView")(using zone))
+        val contentView    = ObjCRuntime.msgSend(nsWindow, selContentView, null)
+        val selLayer       = ObjCRuntime.selRegisterName(toCString("layer")(using zone))
+        val layer          = ObjCRuntime.msgSend(contentView, selLayer, null)
+        val selScale       = ObjCRuntime.selRegisterName(toCString("setContentsScale:")(using zone))
+        ObjCRuntime.msgSendDouble(layer, selScale, scale)
+        // ANGLE's Metal backend creates a CAMetalLayer sublayer whose contentsScale
+        // must also be updated — it only reads the parent's scale at creation time.
+        val selSublayers = ObjCRuntime.selRegisterName(toCString("sublayers")(using zone))
+        val sublayers    = ObjCRuntime.msgSend(layer, selSublayers, null)
+        if (longFromPtr(sublayers) != 0L) {
+          val selCount = ObjCRuntime.selRegisterName(toCString("count")(using zone))
+          // NSUInteger count is 64-bit on macOS (LP64) — widen to Long for the loop.
+          val count            = ObjCRuntime.msgSendCount(sublayers, selCount).toLong
+          val selObjectAtIndex = ObjCRuntime.selRegisterName(toCString("objectAtIndex:")(using zone))
+          var i                = 0L
+          while (i < count) {
+            val sublayer = ObjCRuntime.msgSendIndex(sublayers, selObjectAtIndex, i.toCSize)
+            ObjCRuntime.msgSendDouble(sublayer, selScale, scale)
+            i += 1
+          }
+        }
+        cachedLayerAddresses.put(windowHandle, longFromPtr(layer))
       } finally zone.close()
     }
 
