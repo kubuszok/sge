@@ -78,6 +78,23 @@ private[sge] object GlOpsNative extends GlOps {
   // Cache the EGL display from the last createContext call for setSwapInterval
   @volatile private var cachedDisplay: Ptr[Byte] = null
 
+  // ─── Per-display context bookkeeping ──────────────────────────────────
+  // The ANGLE EGL display is SHARED across all windows: eglGetPlatformDisplay
+  // returns the SAME display connection for every createContext call. Two
+  // pieces of state must be tracked per display so multi-window works:
+  //   1. liveContexts — how many contexts are still alive on each display, so
+  //      eglTerminate(display) runs ONLY when the last one is destroyed (a
+  //      per-window eglTerminate would tear down the shared display and kill
+  //      every other window's context — ISS-538 clause 1).
+  //   2. primaryContext — the FIRST (non-shared) EGL context created on each
+  //      display. New contexts share with it by default so GL resources
+  //      (textures, buffers) live in one namespace across windows (ISS-538
+  //      clause 2). Keyed by display address; values are EGL context addresses.
+  // These run on the GL/main thread; the maps are guarded for safety.
+  private val liveContexts:   scala.collection.mutable.HashMap[Long, Int]  = scala.collection.mutable.HashMap.empty
+  private val primaryContext: scala.collection.mutable.HashMap[Long, Long] = scala.collection.mutable.HashMap.empty
+  private val displayLock:    AnyRef                                       = new AnyRef
+
   // Builds the EGL config attribute list (key/value pairs terminated by
   // EGL_NONE) from the requested framebuffer parameters. Extracted as a
   // testable seam so the attribute construction can be unit-tested without a
@@ -118,14 +135,15 @@ private[sge] object GlOpsNative extends GlOps {
   // ─── GlOps implementation ────────────────────────────────────────────
 
   override def createContext(
-    windowHandle: Long,
-    r:            Int,
-    g:            Int,
-    b:            Int,
-    a:            Int,
-    depth:        Int,
-    stencil:      Int,
-    samples:      Int
+    windowHandle:        Long,
+    r:                   Int,
+    g:                   Int,
+    b:                   Int,
+    a:                   Int,
+    depth:               Int,
+    stencil:             Int,
+    samples:             Int,
+    sharedContextHandle: Long
   ): Long = boundary {
     // Get display using ANGLE platform extension — tells ANGLE to use its own
     // backend selection (Metal on macOS, D3D on Windows, Vulkan on Linux).
@@ -174,7 +192,25 @@ private[sge] object GlOpsNative extends GlOps {
     ctxAttribs(2) = EGL_CONTEXT_MINOR_VERSION; ctxAttribs(3) = 0
     ctxAttribs(4) = EGL_NONE
 
-    val context = EglC.eglCreateContext(display, config, null, ctxAttribs)
+    // Resolve the eglCreateContext share argument so GL resources are shared
+    // across windows on this display (ISS-538 clause 2):
+    //   - an explicit sharedContextHandle (a handle from a previous
+    //     createContext, threaded by DesktopApplication) → that context's EGL
+    //     context;
+    //   - otherwise the display's primary (first) context, if one exists;
+    //   - otherwise null (EGL_NO_CONTEXT) — this becomes the display's primary.
+    val displayKey = longFromPtr(display)
+    val shareCtx: Ptr[Byte] =
+      if (sharedContextHandle != 0L) {
+        val (_, _, sharedCtx, _) = readState(sharedContextHandle)
+        sharedCtx
+      } else
+        displayLock.synchronized(primaryContext.get(displayKey)) match {
+          case Some(primary) => ptrFromLong(primary)
+          case None          => null
+        }
+
+    val context = EglC.eglCreateContext(display, config, shareCtx, ctxAttribs)
     if (context == null) {
       System.err.println(s"[sge] eglCreateContext failed: error=0x${eglErrorHex()}")
       break(0L)
@@ -192,6 +228,17 @@ private[sge] object GlOpsNative extends GlOps {
 
     // Make current
     EglC.eglMakeCurrent(display, surface, surface, context)
+
+    // Register this context on its display: bump the live-context count (so
+    // destroyContext defers eglTerminate until the last one goes) and, if this
+    // is the first context on the display, record it as primary so later
+    // contexts share with it by default.
+    displayLock.synchronized {
+      liveContexts.update(displayKey, liveContexts.getOrElse(displayKey, 0) + 1)
+      if (sharedContextHandle == 0L && !primaryContext.contains(displayKey)) {
+        primaryContext.update(displayKey, longFromPtr(context))
+      }
+    }
 
     // Store state in a heap-allocated struct (4 pointers)
     val state = stdlib.malloc(ContextStructSize)
@@ -218,7 +265,26 @@ private[sge] object GlOpsNative extends GlOps {
     EglC.eglMakeCurrent(display, null, null, null)
     EglC.eglDestroySurface(display, surface)
     EglC.eglDestroyContext(display, context)
-    EglC.eglTerminate(display)
+    // The EGL display is SHARED across all windows: only terminate it once the
+    // LAST context on it has been destroyed. Terminating per-window would tear
+    // down every other window's context on the same display (ISS-538 clause 1).
+    val displayKey = longFromPtr(display)
+    val terminate  = displayLock.synchronized {
+      if (primaryContext.get(displayKey).contains(longFromPtr(context))) {
+        primaryContext.remove(displayKey)
+      }
+      val remaining = liveContexts.getOrElse(displayKey, 1) - 1
+      if (remaining <= 0) {
+        liveContexts.remove(displayKey)
+        true
+      } else {
+        liveContexts.update(displayKey, remaining)
+        false
+      }
+    }
+    if (terminate) {
+      EglC.eglTerminate(display)
+    }
     stdlib.free(ptrFromLong(contextHandle))
   }
 

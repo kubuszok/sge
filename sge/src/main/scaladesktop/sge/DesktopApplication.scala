@@ -287,7 +287,15 @@ class DesktopApplication(
     // Create EGL context for this window (ANGLE manages the GL context, not GLFW)
     // EGL needs the platform-native window handle (NSWindow/X11 Window/HWND), not the GLFW handle
     val nativeHandle = windowing.getNativeWindowHandle(windowHandle)
-    val eglCtx       = glOps.createContext(nativeHandle, config.r, config.g, config.b, config.a, config.depth, config.stencil, config.samples)
+    // `sharedContext` is the GLFW window handle of the window this one should
+    // share GL resources with (0 for the main window). Map it to that window's
+    // stored EGL context handle and thread it into createContext so the two
+    // contexts share a GL resource namespace (ISS-538 clause 2); if it can't be
+    // resolved, fall back to 0 (share with the display's primary context).
+    val sharedEglCtx =
+      if (sharedContext == 0L) 0L
+      else windows.find(_.windowHandle == sharedContext).fold(0L)(_.eglContext)
+    val eglCtx = glOps.createContext(nativeHandle, config.r, config.g, config.b, config.a, config.depth, config.stencil, config.samples, sharedEglCtx)
     if (eglCtx == 0L) {
       throw SgeError.GraphicsError("Failed to create EGL context")
     }

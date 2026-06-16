@@ -327,6 +327,87 @@ class DesktopIntegrationTest extends FunSuite {
     )
   }
 
+  // ── ISS-538: multi-window EGL must isolate contexts and share resources ──
+  // TWO structural defects in the desktop multi-window EGL path (GlOpsJvm,
+  // mirror bug in GlOpsNative):
+  //   (1) GlOpsJvm.destroyContext calls eglTerminate(display) — but the EGL
+  //       display is SHARED across all windows, so tearing down ONE window's
+  //       context terminates the display and invalidates EVERY other window's
+  //       context. Closing one window kills GL for all of them.
+  //   (2) GlOpsJvm.createContext always passes EGL_NO_CONTEXT as the
+  //       eglCreateContext share argument (and has no sharedContext param), so
+  //       textures/buffers created in one window are invisible in another.
+  //       DesktopApplication threads a `sharedContext` into setupWindow ->
+  //       createGlfwWindow but drops it before glOps.createContext.
+  //
+  // This runs in a DEDICATED subprocess (MultiWindowEglHarnessMain) that
+  // creates TWO hidden GLFW windows + TWO EGL contexts on the shared display
+  // and exercises both contracts via raw GLESv2 calls. It never touches the
+  // monitor APIs (glfwGetMonitorName aborts headless, ISS-485) and never
+  // builds an FBO (ISS-572), so the only way each clause can FAIL is the
+  // contract under test. The harness writes one "PASS:msg"/"FAIL:msg" line per
+  // clause to two separate files; both must PASS.
+
+  test("multi-window EGL: destroying one window keeps others valid, contexts share resources (ISS-538)") {
+    val isHeadless = java.awt.GraphicsEnvironment.isHeadless ||
+      (System.getenv("DISPLAY") == null && System.getenv("WAYLAND_DISPLAY") == null &&
+        !System.getProperty("os.name", "").toLowerCase.contains("mac") &&
+        !System.getProperty("os.name", "").toLowerCase.contains("win"))
+    requireOrAssume(!isHeadless, "No display server available — skipping multi-window EGL test")
+
+    val clause1File = File.createTempFile("sge-it-multiwindowegl-terminate-", ".txt")
+    val clause2File = File.createTempFile("sge-it-multiwindowegl-sharing-", ".txt")
+    clause1File.deleteOnExit()
+    clause2File.deleteOnExit()
+
+    val javaHome = System.getProperty("java.home")
+    val javaBin  = s"$javaHome/bin/java"
+    val cp       = System.getProperty("java.class.path")
+
+    val cmd = new java.util.ArrayList[String]()
+    cmd.add(javaBin)
+    if (System.getProperty("os.name", "").toLowerCase.contains("mac")) {
+      cmd.add("-XstartOnFirstThread")
+    }
+    cmd.add("--enable-native-access=ALL-UNNAMED")
+    cmd.add("-cp")
+    cmd.add(cp)
+    cmd.add("sge.it.desktop.MultiWindowEglHarnessMain")
+    cmd.add(clause1File.getAbsolutePath)
+    cmd.add(clause2File.getAbsolutePath)
+
+    val pb = new ProcessBuilder(cmd)
+    pb.inheritIO()
+    val process  = pb.start()
+    val exitCode = process.waitFor()
+
+    assertEquals(exitCode, 0, s"multi-window EGL harness process exited with code $exitCode")
+
+    val clause1 = new String(Files.readAllBytes(clause1File.toPath)).trim
+    val clause2 = new String(Files.readAllBytes(clause2File.toPath)).trim
+    assert(clause1.nonEmpty, "multi-window EGL clause-1 result file is empty")
+    assert(clause2.nonEmpty, "multi-window EGL clause-2 result file is empty")
+    System.err.println(
+      s"=== ISS-538 multi-window EGL results ===\nclause1 (eglTerminate isolation): $clause1\nclause2 (cross-window sharing): $clause2"
+    )
+
+    // Clause 1: destroyContext(ctx1) must NOT terminate the shared display.
+    // Against the bug, eglTerminate(display) invalidates ctx2 → FAIL.
+    assert(
+      clause1.startsWith("PASS:"),
+      s"ISS-538 clause 1: destroying one window's EGL context terminated the SHARED display and invalidated " +
+        s"another window's context (GlOpsJvm.destroyContext calls eglTerminate per-window): $clause1"
+    )
+
+    // Clause 2: a texture from ctx1 must be recognized in ctx2 (shared namespace).
+    // Against the bug, eglCreateContext uses EGL_NO_CONTEXT → no sharing → FAIL.
+    assert(
+      clause2.startsWith("PASS:"),
+      s"ISS-538 clause 2: two windows' EGL contexts do not share GL resources (GlOpsJvm.createContext passes " +
+        s"EGL_NO_CONTEXT and drops the sharedContext DesktopApplication threads into setupWindow): $clause2"
+    )
+  }
+
   /** Minimal JSON parsing for check results. */
   private def parseChecks(json: String): Seq[CheckResult] = {
     // Match {"name":"...","passed":...,"message":"..."}

@@ -51,18 +51,23 @@ private[sge] trait GlOps {
     *   stencil buffer bits
     * @param samples
     *   MSAA sample count (0 = disabled)
+    * @param sharedContextHandle
+    *   the context handle (as returned by a previous `createContext`) of another window on the same display whose GL resources (textures, buffers, …) the new context should share, or 0 to share with
+    *   the display's primary context (the first context created on it) automatically — making all windows on the display share a single GL resource namespace by default. The very first context
+    *   created on a display becomes that primary and shares with nothing.
     * @return
     *   a native EGL context handle, or 0 on failure
     */
   def createContext(
-    windowHandle: Long,
-    r:            Int,
-    g:            Int,
-    b:            Int,
-    a:            Int,
-    depth:        Int,
-    stencil:      Int,
-    samples:      Int
+    windowHandle:        Long,
+    r:                   Int,
+    g:                   Int,
+    b:                   Int,
+    a:                   Int,
+    depth:               Int,
+    stencil:             Int,
+    samples:             Int,
+    sharedContextHandle: Long = 0L
   ): Long
 
   /** Destroys the EGL context and releases resources. */
