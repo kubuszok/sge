@@ -33,10 +33,7 @@ object SupportsExtensionCheck {
     val countBuf = BufferUtils.newIntBuffer(16)
     gl30.glGetIntegerv(GL30.GL_NUM_EXTENSIONS, countBuf)
     val count = countBuf.get(0)
-    (0 until count).iterator
-      .map(i => gl30.glGetStringi(GL20.GL_EXTENSIONS, i))
-      .filter(s => (s ne null) && s.nonEmpty)
-      .toSeq
+    (0 until count).iterator.map(i => gl30.glGetStringi(GL20.GL_EXTENSIONS, i)).filter(s => (s ne null) && s.nonEmpty).toSeq
   }
 
   def run()(using Sge): CheckResult =
@@ -66,7 +63,7 @@ object SupportsExtensionCheck {
           val presentExtension = present.head
 
           val presentResult = graphics.supportsExtension(presentExtension)
-          val absentResult   = graphics.supportsExtension(absentExtension)
+          val absentResult  = graphics.supportsExtension(absentExtension)
 
           if (!presentResult) {
             CheckResult(

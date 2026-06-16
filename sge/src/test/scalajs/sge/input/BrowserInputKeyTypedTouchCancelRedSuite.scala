@@ -33,12 +33,12 @@ class BrowserInputKeyTypedTouchCancelRedSuite extends FunSuite {
 
   // A recording InputProcessor: appends every callback it receives to `events`,
   // tagged by a stable label so the assertions can inspect what fired.
-  private final class Recorder extends InputProcessor {
+  final private class Recorder extends InputProcessor {
     val events: scala.collection.mutable.ArrayBuffer[String] =
       scala.collection.mutable.ArrayBuffer.empty
 
-    override def keyDown(keycode: Key):   Boolean = { events += s"keyDown(${keycode.toInt})"; false }
-    override def keyUp(keycode:   Key):   Boolean = { events += s"keyUp(${keycode.toInt})"; false }
+    override def keyDown(keycode:    Key):  Boolean = { events += s"keyDown(${keycode.toInt})"; false }
+    override def keyUp(keycode:      Key):  Boolean = { events += s"keyUp(${keycode.toInt})"; false }
     override def keyTyped(character: Char): Boolean = { events += s"keyTyped($character)"; false }
 
     override def touchDown(screenX: Pixels, screenY: Pixels, pointer: Int, button: Button): Boolean = {
@@ -81,8 +81,8 @@ class BrowserInputKeyTypedTouchCancelRedSuite extends FunSuite {
     // matching where DefaultBrowserInput registers its keyboard listeners.
     val pressInit = new KeyboardEventInit {}
     pressInit.key = "a"
-    pressInit.keyCode = 65    // 'A' DOM keyCode (also drives keyForCode)
-    pressInit.charCode = 97   // 'a' — what the GWT original reads via getCharCode()
+    pressInit.keyCode = 65 // 'A' DOM keyCode (also drives keyForCode)
+    pressInit.charCode = 97 // 'a' — what the GWT original reads via getCharCode()
     pressInit.bubbles = true
     val press = new KeyboardEvent("keypress", pressInit)
     document.dispatchEvent(press)
@@ -116,9 +116,9 @@ class BrowserInputKeyTypedTouchCancelRedSuite extends FunSuite {
     // `changedTouches` JS array of {identifier, clientX, clientY}. This drives the
     // exact registered touchstart/touchcancel handler paths.
     def touchEvent(kind: String, identifier: Int): Event = {
-      val touch = js.Dynamic.literal(identifier = identifier, clientX = 5.0, clientY = 7.0)
+      val touch   = js.Dynamic.literal(identifier = identifier, clientX = 5.0, clientY = 7.0)
       val touches = js.Array[js.Dynamic](touch)
-      val e = new Event(kind, new org.scalajs.dom.EventInit { bubbles = true })
+      val e       = new Event(kind, new org.scalajs.dom.EventInit { bubbles = true })
       e.asInstanceOf[js.Dynamic].changedTouches = touches
       e
     }

@@ -46,10 +46,10 @@ import lowlevel.Nullable
 
 class ParticleShaderScreenWidthRedSuite extends munit.FunSuite {
 
-  private val framebufferWidth = 800
+  private val framebufferWidth  = 800
   private val framebufferHeight = 600
-  private val viewportWidth = 10f
-  private val viewportHeight = 8f
+  private val viewportWidth     = 10f
+  private val viewportHeight    = 8f
 
   private def makeSge(): Sge = {
     val graphics = new NoopGraphics(framebufferWidth, framebufferHeight) {
@@ -59,7 +59,7 @@ class ParticleShaderScreenWidthRedSuite extends munit.FunSuite {
   }
 
   /** ShaderProgram that reports compiled (so BaseShader.init accepts it) and records the float pushed to setUniformf. */
-  private final class RecordingShaderProgram(using Sge) extends ShaderProgram("", "") {
+  final private class RecordingShaderProgram(using Sge) extends ShaderProgram("", "") {
     var captured: Nullable[Float] = Nullable.empty
 
     override def compiled: Boolean = true
@@ -69,9 +69,9 @@ class ParticleShaderScreenWidthRedSuite extends munit.FunSuite {
   }
 
   /** Minimal BaseShader exposing only what the screenWidth setter needs. */
-  private final class RecordingBaseShader(using Sge) extends BaseShader {
+  final private class RecordingBaseShader(using Sge) extends BaseShader {
     def init():                          Unit    = ()
-    def compareTo(other: Shader):        Int     = 0
+    def compareTo(other:    Shader):     Int     = 0
     def canRender(instance: Renderable): Boolean = true
   }
 

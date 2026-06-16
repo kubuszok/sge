@@ -31,7 +31,7 @@ class WebGL30UnsignedUniformOverflowRedSuite extends FunSuite {
 
   // Mock WebGL2RenderingContext: records the typed array passed to uniform1uiv,
   // which is exactly the Uint32Array produced by copyUnsigned.
-  private final class GlRecorder {
+  final private class GlRecorder {
     var recorded: Uint32Array = new Uint32Array(0)
 
     val dyn: js.Dynamic = js.Dynamic.literal(
@@ -39,15 +39,16 @@ class WebGL30UnsignedUniformOverflowRedSuite extends FunSuite {
       pixelStorei = ((_: Int, _: Int) => ()): js.Function2[Int, Int, Unit],
       // program / uniform plumbing so getUniformLocation(location) resolves to a
       // non-null handle without touching real WebGL.
-      createProgram = (() => js.Dynamic.literal(tag = "program")): js.Function0[js.Dynamic],
-      useProgram    = ((_: js.Dynamic) => ()): js.Function1[js.Dynamic, Unit],
-      getUniformLocation =
-        ((_: js.Dynamic, _: String) => js.Dynamic.literal(tag = "uloc")): js.Function2[js.Dynamic, String, js.Dynamic],
+      createProgram = (() => js.Dynamic.literal(tag = "program")):                           js.Function0[js.Dynamic],
+      useProgram = ((_: js.Dynamic) => ()):                                                  js.Function1[js.Dynamic, Unit],
+      getUniformLocation = ((_: js.Dynamic, _: String) => js.Dynamic.literal(tag = "uloc")): js.Function2[js.Dynamic, String, js.Dynamic],
       // The method under test: WebGL30.glUniform1uiv forwards copyUnsigned(value) here.
-      uniform1uiv = ((_: js.Dynamic, array: Uint32Array, _: Int, _: Int) => {
-        recorded = array
-        ()
-      }): js.Function4[js.Dynamic, Uint32Array, Int, Int, Unit]
+      uniform1uiv = (
+        (_: js.Dynamic, array: Uint32Array, _: Int, _: Int) => {
+          recorded = array
+          ()
+        }
+      ): js.Function4[js.Dynamic, Uint32Array, Int, Int, Unit]
     )
   }
 

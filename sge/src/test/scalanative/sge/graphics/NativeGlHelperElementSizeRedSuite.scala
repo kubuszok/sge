@@ -52,14 +52,12 @@ class NativeGlHelperElementSizeRedSuite extends munit.FunSuite {
   // Number of elements to advance the position by before measuring the pointer.
   private val N = 3
 
-  /** Native address of a Ptr[Byte] as a Long, using the same intrinsics
-    * NativeGlHelper itself uses internally to materialise the pointer.
+  /** Native address of a Ptr[Byte] as a Long, using the same intrinsics NativeGlHelper itself uses internally to materialise the pointer.
     */
   private def addrOf(ptr: Ptr[Byte]): Long =
     Intrinsics.castRawPtrToLong(toRawPtr(ptr))
 
-  /** Byte distance the data pointer moves when the buffer position advances from
-    * 0 to N. The buffer must be a fresh direct buffer at position 0.
+  /** Byte distance the data pointer moves when the buffer position advances from 0 to N. The buffer must be a fresh direct buffer at position 0.
     */
   private def pointerDelta(buf: Buffer): Long = {
     buf.position(0)
@@ -72,7 +70,7 @@ class NativeGlHelperElementSizeRedSuite extends munit.FunSuite {
   private def assertElementSize(buf: Buffer, expectedSize: Int): Unit =
     assertEquals(
       pointerDelta(buf),
-      (N.toLong * expectedSize.toLong),
+      N.toLong * expectedSize.toLong,
       s"advancing ${buf.getClass.getSimpleName} by $N elements must move the native " +
         s"data pointer by ${N * expectedSize} bytes (element size $expectedSize); " +
         "elementSize's `case _ => 1` collapses this to N bytes for non Byte/Int/Float/Long buffers"
