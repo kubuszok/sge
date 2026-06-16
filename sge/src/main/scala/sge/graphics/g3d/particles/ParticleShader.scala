@@ -13,7 +13,7 @@
  *   companion getDefaultVertexShader()/getDefaultFragmentShader() → def defaultVertexShader/defaultFragmentShader
  * - Java enums → Scala 3 enums (ParticleType, AlignMode)
  * - Config: null strings → Nullable[String]
- * - Gdx.graphics.getWidth() in screenWidth setter → camera.viewportWidth (approximation)
+ * - Gdx.graphics.getWidth() in screenWidth setter → shader.sgeContext.graphics.width (framebuffer pixel width, ISS-549)
  * - Gdx.app.getType() → Sge().application.applicationType via (using Sge) context parameter
  * - Gdx.files.classpath → Sge().files.classpath for default shader loading
  * - Setters use GlobalSetter/LocalSetter abstract classes instead of anonymous Setter
@@ -57,7 +57,7 @@ class ParticleShader private (
   initRenderable: Renderable,
   val config:     ParticleShader.Config,
   shaderProgram:  ShaderProgram
-)(using val sge: Sge)
+)(using override val sgeContext: Sge)
     extends BaseShader {
 
   import ParticleShader.*
@@ -451,10 +451,7 @@ object ParticleShader {
 
     val screenWidth: BaseShader.Setter = new BaseShader.GlobalSetter() {
       override def set(shader: BaseShader, inputID: Int, renderable: Renderable, combinedAttributes: Attributes): Unit =
-        // Use camera viewport width as approximation for screen width
-        shader.camera.foreach { cam =>
-          shader.setFloat(inputID, cam.viewportWidth.toFloat)
-        }
+        shader.setFloat(inputID, shader.sgeContext.graphics.width.toFloat)
     }
 
     val worldViewTrans: BaseShader.Setter = new BaseShader.LocalSetter() {

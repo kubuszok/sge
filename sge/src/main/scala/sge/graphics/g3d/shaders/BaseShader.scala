@@ -17,6 +17,7 @@
  * - set(float) renamed to setFloat, set(int) renamed to setInt (overload disambiguation)
  * - getInstancedAttributeLocations returns Nullable[Array[Int]] instead of nullable array
  * - combinedAttributes field is private val (matches Java private field)
+ * - (using val sgeContext: Sge) constructor exposes Sge to setters (replaces Gdx.* global; ISS-549 screenWidth needs Sge().graphics.width). Named sgeContext (not sge) to avoid shadowing the top-level `package sge` inside subclass bodies (e.g. gltf PBRShader's sge.graphics.VertexAttributes path)
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
@@ -46,7 +47,7 @@ import sge.utils.SgeError
   *   Xoppa A BaseShader is a wrapper around a ShaderProgram that keeps track of the uniform and attribute locations. It does not manage the ShaderPogram, you are still responsible for disposing the
   *   ShaderProgram.
   */
-abstract class BaseShader extends Shader {
+abstract class BaseShader(using val sgeContext: Sge) extends Shader {
 
   private val uniforms:   DynamicArray[String]                         = DynamicArray[String]()
   private val validators: DynamicArray[Nullable[BaseShader.Validator]] =
