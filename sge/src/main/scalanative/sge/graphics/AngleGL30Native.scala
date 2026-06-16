@@ -403,7 +403,13 @@ class AngleGL30Native extends AngleGL20Native with GL30 {
     GL30C.glGetActiveUniformBlockiv(program, uniformBlockIndex, pname, bufPtr(params).asInstanceOf[Ptr[CInt]])
 
   override def glGetActiveUniformBlockName(program: Int, uniformBlockIndex: Int, length: Buffer, uniformBlockName: Buffer): Unit =
-    GL30C.glGetActiveUniformBlockName(program, uniformBlockIndex, 1024, bufPtr(length).asInstanceOf[Ptr[CInt]], bufPtr(uniformBlockName).asInstanceOf[CString])
+    GL30C.glGetActiveUniformBlockName(
+      program,
+      uniformBlockIndex,
+      uniformBlockName.remaining(),
+      bufPtr(length).asInstanceOf[Ptr[CInt]],
+      bufPtr(uniformBlockName).asInstanceOf[CString]
+    )
 
   override def glGetActiveUniformBlockName(program: Int, uniformBlockIndex: Int): String = {
     val nameBuf   = stackalloc[Byte](1024)

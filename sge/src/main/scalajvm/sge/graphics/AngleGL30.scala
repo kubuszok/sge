@@ -436,7 +436,7 @@ class AngleGL30(lookup: SymbolLookup) extends AngleGL20(lookup) with GL30 {
   private lazy val _glGetActiveUniformBlockName = h30("glGetActiveUniformBlockName", FunctionDescriptor.ofVoid(I30, I30, I30, P30, P30))
 
   override def glGetActiveUniformBlockName(program: Int, uniformBlockIndex: Int, length: Buffer, uniformBlockName: Buffer): Unit =
-    _glGetActiveUniformBlockName.invoke(program, uniformBlockIndex, 1024, bufAddr30(length), bufAddr30(uniformBlockName))
+    _glGetActiveUniformBlockName.invoke(program, uniformBlockIndex, uniformBlockName.remaining(), bufAddr30(length), bufAddr30(uniformBlockName))
 
   override def glGetActiveUniformBlockName(program: Int, uniformBlockIndex: Int): String = {
     val arena = Arena.ofConfined()

@@ -264,6 +264,69 @@ class DesktopIntegrationTest extends FunSuite {
     )
   }
 
+  // ── ISS-540: glGetActiveUniformBlockName must not overflow the caller buffer ──
+  // The BUFFER overload
+  //   GL30.glGetActiveUniformBlockName(program, idx, length, uniformBlockName)
+  // passes a GLsizei `bufSize` to native GL — the max bytes GL may write into
+  // `uniformBlockName`. AngleGL30 / AngleGL30Native HARDCODE this to 1024 instead
+  // of deriving it from uniformBlockName.remaining(), so a caller buffer smaller
+  // than the block name is overrun → native heap corruption. The correct value is
+  // remaining() (glGetDebugMessageLog already does this).
+  //
+  // This runs in a dedicated subprocess (UniformBlockNameHarnessMain) that touches
+  // ONLY shader/program/UBO APIs — never the monitor APIs (glfwGetMonitorName
+  // aborts headless) and never an FBO (ISS-572 ClassCastException) — so the only
+  // way it can FAIL is the overflow itself. The harness compiles + links a real
+  // ES3 program with a 26-char uniform block, allocates a LARGE (2048) direct
+  // buffer filled with a 0xAA sentinel, grants only remaining()==8, calls the
+  // buffer overload, and asserts no byte past index 8 was clobbered. Against the
+  // buggy bufSize=1024, GL writes the full 26-char name → sentinel overwritten →
+  // the red.
+
+  test("glGetActiveUniformBlockName respects caller buffer remaining() (ISS-540)") {
+    val isHeadless = java.awt.GraphicsEnvironment.isHeadless ||
+      (System.getenv("DISPLAY") == null && System.getenv("WAYLAND_DISPLAY") == null &&
+        !System.getProperty("os.name", "").toLowerCase.contains("mac") &&
+        !System.getProperty("os.name", "").toLowerCase.contains("win"))
+    requireOrAssume(!isHeadless, "No display server available — skipping uniformBlockName overflow test")
+
+    val resultsFile = File.createTempFile("sge-it-uniformblockname-", ".txt")
+    resultsFile.deleteOnExit()
+
+    val javaHome = System.getProperty("java.home")
+    val javaBin  = s"$javaHome/bin/java"
+    val cp       = System.getProperty("java.class.path")
+
+    val cmd = new java.util.ArrayList[String]()
+    cmd.add(javaBin)
+    if (System.getProperty("os.name", "").toLowerCase.contains("mac")) {
+      cmd.add("-XstartOnFirstThread")
+    }
+    cmd.add("--enable-native-access=ALL-UNNAMED")
+    cmd.add("-cp")
+    cmd.add(cp)
+    cmd.add("sge.it.desktop.UniformBlockNameHarnessMain")
+    cmd.add(resultsFile.getAbsolutePath)
+
+    val pb = new ProcessBuilder(cmd)
+    pb.inheritIO()
+    val process  = pb.start()
+    val exitCode = process.waitFor()
+
+    assertEquals(exitCode, 0, s"uniformBlockName harness process exited with code $exitCode")
+
+    val result = new String(Files.readAllBytes(resultsFile.toPath)).trim
+    assert(result.nonEmpty, "uniformBlockName result file is empty")
+    System.err.println(s"=== ISS-540 uniformBlockName overflow result ===\n$result")
+
+    // The harness writes "PASS:msg" or "FAIL:msg". Against the buggy code it
+    // writes FAIL because glGetActiveUniformBlockName wrote past remaining().
+    assert(
+      result.startsWith("PASS:"),
+      s"ISS-540: glGetActiveUniformBlockName overflowed the caller buffer (hardcoded bufSize 1024): $result"
+    )
+  }
+
   /** Minimal JSON parsing for check results. */
   private def parseChecks(json: String): Seq[CheckResult] = {
     // Match {"name":"...","passed":...,"message":"..."}
