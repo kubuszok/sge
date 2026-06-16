@@ -39,11 +39,17 @@ class WebGL30(gl2: js.Dynamic) extends WebGL20(gl2) with GL30 {
   private val vertexArrays:      js.Array[js.Dynamic] = js.Array(js.undefined.asInstanceOf[js.Dynamic])
   private var nextVertexArrayId: Int                  = 1
 
-  private val uIntBuffer: Uint32Array = new Uint32Array(2000 * 6)
+  private var uIntBuffer: Uint32Array = new Uint32Array(2000 * 6)
 
   // ------ GL30-specific helpers ------
 
+  private def ensureCapacity(buffer: IntBuffer): Unit =
+    if (buffer.remaining() > uIntBuffer.length) {
+      uIntBuffer = new Uint32Array(buffer.remaining())
+    }
+
   private def copyUnsigned(buffer: IntBuffer): Uint32Array = {
+    ensureCapacity(buffer)
     val remaining = buffer.remaining()
     var i         = buffer.position()
     var j         = 0
