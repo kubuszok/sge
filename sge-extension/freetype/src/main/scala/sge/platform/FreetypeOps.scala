@@ -2,8 +2,10 @@
 //
 // Platform implementations:
 //   JVM:    FreetypeOpsPanama  (delegates to Rust via Panama FFM)
-//   JS:     FreetypeOpsJs      (stub — users pre-generate fonts for JS)
 //   Native: FreetypeOpsNative  (delegates to Rust via C ABI)
+// FreeType is a native C library with no browser/WASM backend, so sge-freetype
+// has NO JS axis (ISS-553) — JS games pre-bake bitmap fonts (.fnt + .png) on
+// JVM/Native and load them with BitmapFont.
 //
 // Migration notes:
 //   Origin: LibGDX gdx-freetype extension (JNI native methods in FreeType.java)

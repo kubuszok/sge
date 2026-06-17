@@ -421,7 +421,12 @@ val `sge-ecs` = (projectMatrix in file("sge-extension/ecs"))
 
 val `sge-freetype` = (projectMatrix in file("sge-extension/freetype"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala3))
-  .someVariations(versions.scalas, versions.platforms)((commonSettings("sge-extension/freetype") ++ dev.only1VersionInIDE ++ Seq(
+  // FreeType is a native C library (glyph rasterization) with no browser/WASM
+  // backend — JS is intentionally NOT a target. JS games pre-bake bitmap fonts
+  // (.fnt + .png) on JVM/Native and load those with BitmapFont. Dropping the JS
+  // axis makes that a resolution-time signal (no sge-freetype JS artifact)
+  // instead of a runtime UnsupportedOperationException. ISS-553.
+  .someVariations(versions.scalas, List(VirtualAxis.jvm, VirtualAxis.native))((commonSettings("sge-extension/freetype") ++ dev.only1VersionInIDE ++ Seq(
     nativeProviderSettings,
     jvmPlatformApiClasspath,
     MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(

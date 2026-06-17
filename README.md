@@ -34,9 +34,9 @@ It is additionally tested with:
 | sge-ai | [gdx-ai](https://github.com/libgdx/gdx-ai) | 1.8.3 | JVM / JS / Native |
 | sge-ecs | [Ashley ECS](https://github.com/libgdx/ashley) | 1.8.0 | JVM / JS / Native |
 | sge-controllers | [gdx-controllers](https://github.com/libgdx/gdx-controllers) | 2.2.5 | JVM / JS / Native |
-| sge-freetype | [LibGDX FreeType](https://github.com/libgdx/libgdx) | 1.14.0 | JVM / JS / Native |
-| sge-physics | [Rapier2D](https://rapier.rs/) | 0.32 | JVM / JS / Native |
-| sge-physics3d | [Rapier3D](https://rapier.rs/) | 0.32 | JVM / JS / Native |
+| sge-freetype | [LibGDX FreeType](https://github.com/libgdx/libgdx) | 1.14.0 | JVM / Native (JS: pre-bake bitmap fonts) |
+| sge-physics | [Rapier2D](https://rapier.rs/) | 0.32 | JVM / Native (JS: Rapier WASM, in progress) |
+| sge-physics3d | [Rapier3D](https://rapier.rs/) | 0.32 | JVM / Native (JS: Rapier WASM, in progress) |
 | sge-gltf | [gdx-gltf](https://github.com/mgsx-dev/gdx-gltf) | 2.3.0 | JVM / JS / Native |
 | sge-vfx | [gdx-vfx](https://github.com/crashinvaders/gdx-vfx) | 0.5.4 | JVM / JS / Native |
 | sge-textra | [TextraTypist](https://github.com/tommyettinger/textratypist) | 2.2.15-SNAPSHOT | JVM / JS / Native |
