@@ -15,10 +15,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 532
- * Covenant-baseline-methods: Group,_cullingArea,act,actor,addActor,addActorAfter,addActorAt,addActorBefore,alpha,applyTransform,buffer,children,childrenChanged,clear,clearChildren,computeTransform,computedTransform,cullingArea,debugAll,draw,drawChildren,drawDebug,drawDebugChildren,findActor,firstIndex,getChild,hasChildren,hit,i,index,localToDescendantCoordinates,maxIndex,n,oldTransform,originX,originY,p,parentGroup,removeActor,removeActorAt,resetTransform,secondIndex,setCullingArea,setDebug,setStage,snapshot,swapActor,toString,transform,worldTransform
+ * Covenant-baseline-loc: 516
+ * Covenant-baseline-methods: Group,_cullingArea,act,actor,addActor,addActorAfter,addActorAt,addActorBefore,alpha,applyTransform,buffer,children,childrenChanged,clear,clearChildren,computeTransform,computedTransform,cullingArea,debugAll,draw,drawChildren,drawDebug,drawDebugChildren,findActor,firstIndex,getChild,hasChildren,hit,i,index,localToDescendantCoordinates,maxIndex,oldTransform,originX,originY,p,parentGroup,removeActor,removeActorAt,resetTransform,secondIndex,setCullingArea,setDebug,setStage,snapshot,swapActor,toString,transform,worldTransform
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/Group.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-17
  *
  * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */
@@ -86,21 +86,21 @@ class Group()(using Sge) extends Actor() with Cullable {
         // No transform for this group, offset each child.
         val offsetX = x
         val offsetY = y
-        x = 0
-        y = 0
+        _x = 0
+        _y = 0
         snapshot.leanView.foreach { child =>
           if (child.visible) {
             val cx = child.x
             val cy = child.y
-            child.x = cx + offsetX
-            child.y = cy + offsetY
+            child._x = cx + offsetX
+            child._y = cy + offsetY
             child.draw(batch, alpha)
-            child.x = cx
-            child.y = cy
+            child._x = cx
+            child._y = cy
           }
         }
-        x = offsetX
-        y = offsetY
+        _x = offsetX
+        _y = offsetY
       }
     } { ca =>
       // Draw children only if inside culling area.
@@ -121,23 +121,23 @@ class Group()(using Sge) extends Actor() with Cullable {
         // No transform for this group, offset each child.
         val offsetX = x
         val offsetY = y
-        x = 0
-        y = 0
+        _x = 0
+        _y = 0
         snapshot.leanView.foreach { child =>
           if (child.visible) {
             val cx = child.x
             val cy = child.y
             if (cx <= cullRight && cy <= cullTop && cx + child.width >= cullLeft && cy + child.height >= cullBottom) {
-              child.x = cx + offsetX
-              child.y = cy + offsetY
+              child._x = cx + offsetX
+              child._y = cy + offsetY
               child.draw(batch, alpha)
-              child.x = cx
-              child.y = cy
+              child._x = cx
+              child._y = cy
             }
           }
         }
-        x = offsetX
-        y = offsetY
+        _x = offsetX
+        _y = offsetY
       }
     }
   }
@@ -168,21 +168,21 @@ class Group()(using Sge) extends Actor() with Cullable {
       // No transform for this group, offset each child.
       val offsetX = x
       val offsetY = y
-      x = 0
-      y = 0
+      _x = 0
+      _y = 0
       snapshot.leanView.foreach { child =>
         if (child.visible && (child.isDebug || child.isInstanceOf[Group])) {
           val cx = child.x
           val cy = child.y
-          child.x = cx + offsetX
-          child.y = cy + offsetY
+          child._x = cx + offsetX
+          child._y = cy + offsetY
           child.drawDebug(shapes)
-          child.x = cx
-          child.y = cy
+          child._x = cx
+          child._y = cy
         }
       }
-      x = offsetX
-      y = offsetY
+      _x = offsetX
+      _y = offsetY
     }
   }
 

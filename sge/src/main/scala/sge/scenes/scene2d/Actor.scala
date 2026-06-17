@@ -16,10 +16,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 924
- * Covenant-baseline-methods: Actor,POOLS,_actions,_captureListeners,_debug,_iteratingCaptureListeners,_iteratingListeners,_listeners,_parent,_pendingCaptureListenerRemovals,_pendingListenerRemovals,_stage,a,act,actions,addAction,addCaptureListener,addListener,adjusted,ascendants,ascendantsVisible,ax,ay,captureListeners,childX,childY,clear,clearActions,clearListeners,clipBegin,clipEnd,color,debug,draw,drawDebug,drawDebugBounds,fire,firstAscendant,getX,getY,hasActions,hasKeyboardFocus,hasParent,hasScrollFocus,height,hit,i,isAscendantOf,isDebug,isDescendantOf,isTouchFocusListener,isTouchFocusTarget,isTouchable,listeners,listenersToNotify,localToActorCoordinates,localToAscendantCoordinates,localToParentCoordinates,localToScreenCoordinates,localToStageCoordinates,moveBy,name,notify,originX,originY,p,parent,parentToLocalCoordinates,positionChanged,remove,removeAction,removeCaptureListener,removeListener,result,right,rotateBy,rotation,rotationChanged,scaleBy,scaleChanged,scaleX,scaleY,screenToLocalCoordinates,setBounds,setDebug,setHeight,setOrigin,setParent,setPosition,setRotation,setScale,setScaleX,setScaleY,setSize,setStage,setWidth,setX,setY,setZIndex,sizeBy,sizeChanged,stage,stageToLocalCoordinates,toBack,toFront,toString,top,touchable,userObject,visible,width,x,y,zIndex
+ * Covenant-baseline-loc: 958
+ * Covenant-baseline-methods: Actor,POOLS,_actions,_captureListeners,_debug,_height,_iteratingCaptureListeners,_iteratingListeners,_listeners,_parent,_pendingCaptureListenerRemovals,_pendingListenerRemovals,_rotation,_scaleX,_scaleY,_stage,_width,_x,_y,a,act,actions,addAction,addCaptureListener,addListener,adjusted,ascendants,ascendantsVisible,ax,ay,captureListeners,childX,childY,clear,clearActions,clearListeners,clipBegin,clipEnd,color,debug,draw,drawDebug,drawDebugBounds,fire,firstAscendant,getX,getY,hasActions,hasKeyboardFocus,hasParent,hasScrollFocus,height,height_,hit,i,isAscendantOf,isDebug,isDescendantOf,isTouchFocusListener,isTouchFocusTarget,isTouchable,listeners,listenersToNotify,localToActorCoordinates,localToAscendantCoordinates,localToParentCoordinates,localToScreenCoordinates,localToStageCoordinates,moveBy,name,notify,originX,originY,p,parent,parentToLocalCoordinates,positionChanged,remove,removeAction,removeCaptureListener,removeListener,result,right,rotateBy,rotation,rotationChanged,rotation_,scaleBy,scaleChanged,scaleX,scaleX_,scaleY,scaleY_,screenToLocalCoordinates,setBounds,setDebug,setHeight,setOrigin,setParent,setPosition,setRotation,setScale,setScaleX,setScaleY,setSize,setStage,setWidth,setX,setY,setZIndex,sizeBy,sizeChanged,stage,stageToLocalCoordinates,toBack,toFront,toString,top,touchable,userObject,visible,width,width_,x,x_,y,y_,zIndex
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/Actor.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-17
  *
  * upstream-commit: 80398bf4c2814b27b5234e6a85487a0691968a31
  */
@@ -78,18 +78,46 @@ class Actor()(using Sge) {
   var touchable: Touchable = Touchable.enabled
 
   /** If false, the actor will not be drawn and will not receive touch events. Default is true. */
-  var visible:        Boolean = true
-  private var _debug: Boolean = false
-  var x:              Float   = 0
-  var y:              Float   = 0
-  var width:          Float   = 0
-  var height:         Float   = 0
-  var originX:        Float   = 0
-  var originY:        Float   = 0
-  var scaleX:         Float   = 1
-  var scaleY:         Float   = 1
-  var rotation:       Float   = 0
-  val color:          Color   = Color(1, 1, 1, 1)
+  var visible:                    Boolean = true
+  private var _debug:             Boolean = false
+  private[scene2d] var _x:        Float   = 0
+  private[scene2d] var _y:        Float   = 0
+  private[scene2d] var _width:    Float   = 0
+  private[scene2d] var _height:   Float   = 0
+  var originX:                    Float   = 0
+  var originY:                    Float   = 0
+  private[scene2d] var _scaleX:   Float   = 1
+  private[scene2d] var _scaleY:   Float   = 1
+  private[scene2d] var _rotation: Float   = 0
+  val color:                      Color   = Color(1, 1, 1, 1)
+
+  /** The actor's x position, relative to its parent. Assigning routes through {@link #setX(float)} so the layout-invalidation hook {@link #positionChanged()} fires. */
+  def x:                 Float = _x
+  def x_=(value: Float): Unit  = setX(value)
+
+  /** The actor's y position, relative to its parent. Assigning routes through {@link #setY(float)} so the layout-invalidation hook {@link #positionChanged()} fires. */
+  def y:                 Float = _y
+  def y_=(value: Float): Unit  = setY(value)
+
+  /** The actor's width. Assigning routes through {@link #setWidth(float)} so the layout-invalidation hook {@link #sizeChanged()} fires. */
+  def width:                 Float = _width
+  def width_=(value: Float): Unit  = setWidth(value)
+
+  /** The actor's height. Assigning routes through {@link #setHeight(float)} so the layout-invalidation hook {@link #sizeChanged()} fires. */
+  def height:                 Float = _height
+  def height_=(value: Float): Unit  = setHeight(value)
+
+  /** The actor's scale on the X axis. Assigning routes through {@link #setScaleX(float)} so the layout-invalidation hook {@link #scaleChanged()} fires. */
+  def scaleX:                 Float = _scaleX
+  def scaleX_=(value: Float): Unit  = setScaleX(value)
+
+  /** The actor's scale on the Y axis. Assigning routes through {@link #setScaleY(float)} so the layout-invalidation hook {@link #scaleChanged()} fires. */
+  def scaleY:                 Float = _scaleY
+  def scaleY_=(value: Float): Unit  = setScaleY(value)
+
+  /** The actor's rotation in degrees. Assigning routes through {@link #setRotation(float)} so the layout-invalidation hook {@link #rotationChanged()} fires. */
+  def rotation:                 Float = _rotation
+  def rotation_=(value: Float): Unit  = setRotation(value)
 
   /** An application specific object for convenience. */
   var userObject: Nullable[AnyRef] = Nullable.empty
@@ -460,8 +488,8 @@ class Actor()(using Sge) {
   }
 
   def setX(x: Float): Unit =
-    if (this.x != x) {
-      this.x = x
+    if (_x != x) {
+      _x = x
       positionChanged()
     }
 
@@ -474,15 +502,15 @@ class Actor()(using Sge) {
     else if (!alignment.isLeft) //
       adjusted -= width / 2
 
-    if (this.x != adjusted) {
-      this.x = adjusted
+    if (_x != adjusted) {
+      _x = adjusted
       positionChanged()
     }
   }
 
   def setY(y: Float): Unit =
-    if (this.y != y) {
-      this.y = y
+    if (_y != y) {
+      _y = y
       positionChanged()
     }
 
@@ -495,8 +523,8 @@ class Actor()(using Sge) {
     else if (!alignment.isBottom) //
       adjusted -= height / 2
 
-    if (this.y != adjusted) {
-      this.y = adjusted
+    if (_y != adjusted) {
+      _y = adjusted
       positionChanged()
     }
   }
@@ -513,9 +541,9 @@ class Actor()(using Sge) {
 
   /** Sets the position of the actor's bottom left corner. */
   def setPosition(x: Float, y: Float): Unit =
-    if (this.x != x || this.y != y) {
-      this.x = x
-      this.y = y
+    if (_x != x || _y != y) {
+      _x = x
+      _y = y
       positionChanged()
     }
 
@@ -534,9 +562,9 @@ class Actor()(using Sge) {
     else if (!alignment.isBottom) //
       ay -= height / 2
 
-    if (this.x != ax || this.y != ay) {
-      this.x = ax
-      this.y = ay
+    if (_x != ax || _y != ay) {
+      _x = ax
+      _y = ay
       positionChanged()
     }
   }
@@ -544,20 +572,20 @@ class Actor()(using Sge) {
   /** Add x and y to current position */
   def moveBy(x: Float, y: Float): Unit =
     if (x != 0 || y != 0) {
-      this.x += x
-      this.y += y
+      _x += x
+      _y += y
       positionChanged()
     }
 
   def setWidth(width: Float): Unit =
-    if (this.width != width) {
-      this.width = width
+    if (_width != width) {
+      _width = width
       sizeChanged()
     }
 
   def setHeight(height: Float): Unit =
-    if (this.height != height) {
-      this.height = height
+    if (_height != height) {
+      _height = height
       sizeChanged()
     }
 
@@ -581,38 +609,38 @@ class Actor()(using Sge) {
 
   /** Sets the width and height. */
   def setSize(width: Float, height: Float): Unit =
-    if (this.width != width || this.height != height) {
-      this.width = width
-      this.height = height
+    if (_width != width || _height != height) {
+      _width = width
+      _height = height
       sizeChanged()
     }
 
   /** Adds the specified size to the current size. */
   def sizeBy(size: Float): Unit =
     if (size != 0) {
-      width += size
-      height += size
+      _width += size
+      _height += size
       sizeChanged()
     }
 
   /** Adds the specified size to the current size. */
   def sizeBy(width: Float, height: Float): Unit =
     if (width != 0 || height != 0) {
-      this.width += width
-      this.height += height
+      _width += width
+      _height += height
       sizeChanged()
     }
 
   /** Set bounds the x, y, width, and height. */
   def setBounds(x: Float, y: Float, width: Float, height: Float): Unit = {
-    if (this.x != x || this.y != y) {
-      this.x = x
-      this.y = y
+    if (_x != x || _y != y) {
+      _x = x
+      _y = y
       positionChanged()
     }
-    if (this.width != width || this.height != height) {
-      this.width = width
-      this.height = height
+    if (_width != width || _height != height) {
+      _width = width
+      _height = height
       sizeChanged()
     }
   }
@@ -641,59 +669,59 @@ class Actor()(using Sge) {
   }
 
   def setScaleX(scaleX: Float): Unit =
-    if (this.scaleX != scaleX) {
-      this.scaleX = scaleX
+    if (_scaleX != scaleX) {
+      _scaleX = scaleX
       scaleChanged()
     }
 
   def setScaleY(scaleY: Float): Unit =
-    if (this.scaleY != scaleY) {
-      this.scaleY = scaleY
+    if (_scaleY != scaleY) {
+      _scaleY = scaleY
       scaleChanged()
     }
 
   /** Sets the scale for both X and Y */
   def setScale(scaleXY: Float): Unit =
-    if (this.scaleX != scaleXY || this.scaleY != scaleXY) {
-      this.scaleX = scaleXY
-      this.scaleY = scaleXY
+    if (_scaleX != scaleXY || _scaleY != scaleXY) {
+      _scaleX = scaleXY
+      _scaleY = scaleXY
       scaleChanged()
     }
 
   /** Sets the scale X and scale Y. */
   def setScale(scaleX: Float, scaleY: Float): Unit =
-    if (this.scaleX != scaleX || this.scaleY != scaleY) {
-      this.scaleX = scaleX
-      this.scaleY = scaleY
+    if (_scaleX != scaleX || _scaleY != scaleY) {
+      _scaleX = scaleX
+      _scaleY = scaleY
       scaleChanged()
     }
 
   /** Adds the specified scale to the current scale. */
   def scaleBy(scale: Float): Unit =
     if (scale != 0) {
-      scaleX += scale
-      scaleY += scale
+      _scaleX += scale
+      _scaleY += scale
       scaleChanged()
     }
 
   /** Adds the specified scale to the current scale. */
   def scaleBy(scaleX: Float, scaleY: Float): Unit =
     if (scaleX != 0 || scaleY != 0) {
-      this.scaleX += scaleX
-      this.scaleY += scaleY
+      _scaleX += scaleX
+      _scaleY += scaleY
       scaleChanged()
     }
 
   def setRotation(degrees: Float): Unit =
-    if (this.rotation != degrees) {
-      this.rotation = degrees
+    if (_rotation != degrees) {
+      _rotation = degrees
       rotationChanged()
     }
 
   /** Adds the specified rotation to the current rotation. */
   def rotateBy(amountInDegrees: Float): Unit =
     if (amountInDegrees != 0) {
-      rotation = (rotation + amountInDegrees) % 360
+      _rotation = (_rotation + amountInDegrees) % 360
       rotationChanged()
     }
 
