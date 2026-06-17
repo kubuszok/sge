@@ -85,7 +85,7 @@ def commonSettings(
   rustLibPath: Option[String] = None
 ) = Seq(
   MatrixAction.ForAll.Configure(
-    _.settings(SgePlugin.commonSettings *).settings(
+    _.settings(SgePlugin.commonSettings *).settings(SgePlugin.strictSettings *).settings(
       libraryDependencies ++= Seq(
         "org.scalameta"     %%% "munit"             % versions.munit % Test,
         "org.scalameta"     %%% "munit-scalacheck"  % versions.munitScalacheck % Test

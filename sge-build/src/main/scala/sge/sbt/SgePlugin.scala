@@ -29,9 +29,12 @@ import sbt.internal.ProjectMatrix
   * )
   * }}}
   *
-  * Covenant: full-port Covenant-baseline-spec-pass: 0 Covenant-baseline-loc: 181 Covenant-baseline-methods:
-  * NativeCrossAxis,SgePlugin,androidDex,androidInstall,androidPackage,androidSign,autoImport,commonSettings,coreDep,fromProps,globalSettings,jsPlatform,jvmPlatform,nativePlatform,projectSettings,relaxedSettings,releaseAll,releaseAppName,releaseCacheDir,releaseJlinkModules,releaseMacOsBundleId,releaseMacOsIcon,releaseNativeLibDirs,releasePackage,releasePlatform,releaseRoastVersion,releaseTargets,releaseUseZgc,releaseVmArgs,requires,scalaVersion,sgeNativeLibDir,sgeNativeLibLocalDir,sgePackageBrowser,sgePackageNative,sgeRelease,sgeVersion,trigger,withCrossNative
-  * Covenant-source-reference: SGE-original Covenant-verified: 2026-04-19
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 213
+ * Covenant-baseline-methods: NativeCrossAxis,SgeExtension,SgePlugin,androidDex,androidInstall,androidPackage,androidSign,autoImport,commonSettings,coreDep,defaultScalacOptions,fromProps,globalSettings,jsPlatform,jvmPlatform,nativePlatform,projectSettings,relaxedSettings,releaseAll,releaseAppName,releaseCacheDir,releaseJlinkModules,releaseMacOsBundleId,releaseMacOsIcon,releaseNativeLibDirs,releasePackage,releasePlatform,releaseRoastVersion,releaseTargets,releaseUseZgc,releaseVmArgs,requires,scalaVersion,sgeExtensions,sgeNativeLibDir,sgeNativeLibLocalDir,sgePackageBrowser,sgePackageNative,sgeRelease,sgeVersion,strictScalacOptions,strictSettings,trigger,withCrossNative
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-06-17
   */
 object SgePlugin extends AutoPlugin {
 
@@ -142,23 +145,44 @@ object SgePlugin extends AutoPlugin {
 
   // ── Compiler flags ──────────────────────────────────────────────────
 
-  /** Scala 3 compiler flags matching SGE conventions: braces required, -Werror, unused warnings. */
+  /** Lenient default compiler flags applied to every downstream game project. Enables `-language:implicitConversions` (needed for the Nullable assignment
+    * ergonomics) and the macro-derivation timeouts (needed everywhere), but does NOT force `-Werror` / `-no-indent` / `-W...` strict warnings onto user
+    * projects — those are opt-in via [[strictScalacOptions]] / [[strictSettings]].
+    */
+  val defaultScalacOptions: Seq[String] = Seq(
+    "-deprecation",
+    "-feature",
+    "-language:implicitConversions",
+    // Kindlings macro derivation timeout — raised for Rosetta x86_64 emulation
+    // where macro expansion is ~3x slower than native ARM64.
+    "-Xmacro-settings:jsoniterDerivation.timeout=30s",
+    "-Xmacro-settings:ubjsonDerivation.timeout=30s"
+  )
+
+  /** Opt-in strict compiler flags matching SGE conventions: braces required, -Werror, unused warnings. SGE's own modules apply these; downstream games may opt
+    * in via [[strictSettings]].
+    */
+  val strictScalacOptions: Seq[String] = Seq(
+    "-no-indent",
+    "-Werror",
+    "-Wimplausible-patterns",
+    "-Wrecurse-with-default",
+    "-Wenum-comment-discard",
+    "-Wunused:imports,privates,locals,patvars,nowarn"
+  )
+
+  /** Lenient default compiler settings applied to every downstream game project. Pins the SGE Scala version and appends [[defaultScalacOptions]]. Does NOT force
+    * `-Werror` / `-no-indent` — strict flags are opt-in via [[strictSettings]].
+    */
   val commonSettings: Seq[Setting[_]] = Seq(
     Keys.scalaVersion := SgePlugin.scalaVersion,
-    scalacOptions ++= Seq(
-      "-deprecation",
-      "-feature",
-      "-no-indent",
-      "-Werror",
-      "-Wimplausible-patterns",
-      "-Wrecurse-with-default",
-      "-Wenum-comment-discard",
-      "-Wunused:imports,privates,locals,patvars,nowarn",
-      // Kindlings macro derivation timeout — raised for Rosetta x86_64 emulation
-      // where macro expansion is ~3x slower than native ARM64.
-      "-Xmacro-settings:jsoniterDerivation.timeout=30s",
-      "-Xmacro-settings:ubjsonDerivation.timeout=30s"
-    )
+    scalacOptions ++= defaultScalacOptions
+  )
+
+  /** Opt-in strict compiler settings — appends [[strictScalacOptions]]. SGE's own modules apply this on top of [[commonSettings]]; downstream games may opt in.
+    */
+  val strictSettings: Seq[Setting[_]] = Seq(
+    scalacOptions ++= strictScalacOptions
   )
 
   /** Relaxed compiler flags for demo/example projects (disables unused warnings). */

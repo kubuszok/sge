@@ -37,3 +37,7 @@ addSbtPlugin("com.kubuszok"     % "sbt-multiarch-scala" % "0.1.2")
 
 // Sonatype snapshots for sbt-multi-arch-release
 resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots"
+
+// Test scope for unit-testing pure plugin data (e.g. the strict/lenient
+// scalacOptions partition). ISS-556.
+libraryDependencies += "org.scalameta" %% "munit" % "1.0.2" % Test
