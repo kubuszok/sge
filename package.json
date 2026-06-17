@@ -4,6 +4,7 @@
   "description": "Dev-only: provides the jsdom package for the Scala.js jsdom jsEnv used by sge JS unit tests of browser components (ISS-672/ISS-536). Not published.",
   "devDependencies": {
     "@dimforge/rapier2d-compat": "0.19.3",
+    "@dimforge/rapier3d-compat": "0.19.3",
     "jsdom": "^22.1.0"
   }
 }
