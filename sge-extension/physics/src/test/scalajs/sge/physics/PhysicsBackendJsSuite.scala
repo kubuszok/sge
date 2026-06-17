@@ -384,6 +384,115 @@ class PhysicsBackendJsSuite extends FunSuite {
     }
   }
 
+  // ── 9b. Spring joint ────────────────────────────────────────────────────
+  // Spring/Rope/Motor joints are backed by base Rapier2D ImpulseJoint subclasses (Spring/Rope/Fixed), which do NOT
+  // expose the UnitImpulseJoint motor/limit mutators. Each of these tests EXECUTES the previously-throwing setter, so a
+  // `TypeError: ... is not a function` would fail the test outright; they also assert the high-level getter round-trips
+  // the set value and a step does not crash.
+  test("joint: a spring joint pulls two separated bodies toward each other and the setters round-trip") {
+    withWorld(0f, 0f) { world =>
+      // Two dynamic bodies 4m apart on X; a spring with rest length 1 should pull them together over time.
+      val a = world.createBody(BodyType.Dynamic, x = -2f, y = 0f)
+      val b = world.createBody(BodyType.Dynamic, x = 2f, y = 0f)
+      a.attachCollider(Shape.Circle(0.1f), density = 1f)
+      b.attachCollider(Shape.Circle(0.1f), density = 1f)
+
+      val joint = world.createJoint(JointDef.Spring(a, b, restLength = 1f, stiffness = 50f, damping = 2f))
+      assert(joint.isInstanceOf[SpringJoint], "should create a SpringJoint")
+      val spring = joint.asInstanceOf[SpringJoint]
+
+      val (ax0, _) = a.position
+      val (bx0, _) = b.position
+      val dist0    = scala.math.abs(bx0 - ax0)
+
+      // EXECUTE the previously-crashing setters (configureMotorPosition on a base SpringImpulseJoint -> TypeError).
+      spring.restLength = 1f
+      assert(scala.math.abs(spring.restLength - 1f) < 0.001f, s"restLength should round-trip to 1, got ${spring.restLength}")
+      spring.setParams(stiffness = 80f, damping = 3f)
+
+      var i = 0
+      while (i < 180) {
+        world.step(1f / 60f)
+        i += 1
+      }
+      val (ax1, _) = a.position
+      val (bx1, _) = b.position
+      val dist1    = scala.math.abs(bx1 - ax1)
+      // The spring (rest length 1) must contract the 4m separation toward the rest length.
+      assert(dist1 < dist0 - 0.5f, s"spring should pull the bodies closer (rest length 1), dist went $dist0 -> $dist1")
+    }
+  }
+
+  // ── 9c. Rope joint ──────────────────────────────────────────────────────
+  test("joint: a rope joint keeps a falling body within its max distance and the setter round-trips") {
+    withWorld(0f, -10f) { world =>
+      // Static anchor at the origin; a dynamic body hangs from a rope of max distance 2.
+      val anchor  = world.createBody(BodyType.Static, x = 0f, y = 0f)
+      val hanging = world.createBody(BodyType.Dynamic, x = 0f, y = -0.5f)
+      anchor.attachCollider(Shape.Circle(0.1f))
+      hanging.attachCollider(Shape.Circle(0.1f), density = 1f)
+
+      val joint = world.createJoint(JointDef.Rope(anchor, hanging, maxDistance = 2f))
+      assert(joint.isInstanceOf[RopeJoint], "should create a RopeJoint")
+      val rope = joint.asInstanceOf[RopeJoint]
+
+      // EXECUTE the previously-crashing setter (setLimits on a base RopeImpulseJoint -> TypeError).
+      rope.maxDistance = 2f
+      assert(scala.math.abs(rope.maxDistance - 2f) < 0.001f, s"maxDistance should round-trip to 2, got ${rope.maxDistance}")
+
+      var i = 0
+      while (i < 240) {
+        world.step(1f / 60f)
+        i += 1
+      }
+      // Gravity pulls the body down, but the rope must keep it within ~maxDistance of the anchor.
+      val (hx, hy) = hanging.position
+      val dist     = scala.math.sqrt((hx * hx + hy * hy).toDouble).toFloat
+      assert(hy < -0.5f, s"under gravity the hanging body should drop, got y=$hy")
+      assert(dist < 2.5f, s"rope (max distance 2) must keep the body within ~2m of the anchor, got dist=$dist")
+    }
+  }
+
+  // ── 9d. Motor joint ─────────────────────────────────────────────────────
+  test("joint: a motor joint's setters execute and round-trip without throwing") {
+    withWorld(0f, 0f) { world =>
+      val a = world.createBody(BodyType.Dynamic, x = 0f, y = 0f)
+      val b = world.createBody(BodyType.Dynamic, x = 1f, y = 0f)
+      a.attachCollider(Shape.Circle(0.1f), density = 1f)
+      b.attachCollider(Shape.Circle(0.1f), density = 1f)
+
+      val joint = world.createJoint(JointDef.Motor(a, b))
+      assert(joint.isInstanceOf[MotorJoint], "should create a MotorJoint")
+      val motor = joint.asInstanceOf[MotorJoint]
+
+      // EXECUTE every previously-crashing motor setter (applyMotorTarget -> configureMotorPosition on a base
+      // FixedImpulseJoint -> TypeError). The linear offset is applied via setAnchor2; the max-force/torque/correction
+      // factor are accepted and stored. All getters must round-trip the set values.
+      motor.linearOffset = (0.5f, 0f)
+      val (ox, oy) = motor.linearOffset
+      assert(scala.math.abs(ox - 0.5f) < 0.001f, s"linearOffset x should round-trip to 0.5, got $ox")
+      assert(scala.math.abs(oy) < 0.001f, s"linearOffset y should round-trip to 0, got $oy")
+
+      motor.maxForce = 100f
+      assert(scala.math.abs(motor.maxForce - 100f) < 0.001f, s"maxForce should round-trip to 100, got ${motor.maxForce}")
+      motor.maxTorque = 50f
+      assert(scala.math.abs(motor.maxTorque - 50f) < 0.001f, s"maxTorque should round-trip to 50, got ${motor.maxTorque}")
+      motor.correctionFactor = 0.3f
+      assert(
+        scala.math.abs(motor.correctionFactor - 0.3f) < 0.001f,
+        s"correctionFactor should round-trip to 0.3, got ${motor.correctionFactor}"
+      )
+
+      // Stepping after configuring the motor must not throw.
+      var i = 0
+      while (i < 60) {
+        world.step(1f / 60f)
+        i += 1
+      }
+      assert(true, "stepping a configured motor joint must not throw")
+    }
+  }
+
   // ── 10. Contact events ──────────────────────────────────────────────────
   test("contacts: a falling body landing on a floor produces a contact-start event for the right colliders") {
     withWorld(0f, -10f) { world =>

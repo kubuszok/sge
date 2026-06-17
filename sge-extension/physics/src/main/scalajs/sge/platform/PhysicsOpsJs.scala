@@ -20,8 +20,8 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 1388
- * Covenant-baseline-methods: BodyState,ColliderState,JointState,PhysicsOpsJs,R,WorldState,a1,a2,add,addCollider,addVertexBuffer,ang,angularOffset,applyMotorTarget,arr,axisX,axisY,b,bodies,body,bodyApplyForce,bodyApplyForceAtPoint,bodyApplyImpulse,bodyApplyImpulseAtPoint,bodyApplyTorque,bodyApplyTorqueImpulse,bodyByRapier,bodyEnableCcd,bodyGetAngle,bodyGetAngularDamping,bodyGetAngularVelocity,bodyGetDominanceGroup,bodyGetGravityScale,bodyGetInertia,bodyGetLinearDamping,bodyGetLinearVelocity,bodyGetLocalCenterOfMass,bodyGetMass,bodyGetPosition,bodyGetType,bodyGetVelocityAtPoint,bodyGetWorldCenterOfMass,bodyIsAwake,bodyIsCcdEnabled,bodyIsEnabled,bodyIsRotationLocked,bodyIsTranslationLockedX,bodyIsTranslationLockedY,bodyRecomputeMassProperties,bodyResetForces,bodyResetTorques,bodySetAngle,bodySetAngularDamping,bodySetAngularVelocity,bodySetDominanceGroup,bodySetEnabled,bodySetEnabledTranslations,bodySetFixedRotation,bodySetGravityScale,bodySetLinearDamping,bodySetLinearVelocity,bodySetPosition,bodySleep,bodyState,bodyWakeUp,c,c1,castShape,cb,collider,colliderByRapier,colliderGetAabb,colliderGetActiveCollisionTypes,colliderGetActiveEvents,colliderGetActiveHooks,colliderGetCollisionGroups,colliderGetContactForceEventThreshold,colliderGetDensity,colliderGetFriction,colliderGetMass,colliderGetOneWayDirection,colliderGetParentBody,colliderGetPosition,colliderGetPositionWrtParent,colliderGetRestitution,colliderGetShapeType,colliderGetSolverGroups,colliderIsEnabled,colliderIsSensor,colliderSetActiveCollisionTypes,colliderSetActiveEvents,colliderSetActiveHooks,colliderSetCollisionGroups,colliderSetContactForceEventThreshold,colliderSetContactSkin,colliderSetDensity,colliderSetEnabled,colliderSetFriction,colliderSetMass,colliderSetOneWayDirection,colliderSetPositionWrtParent,colliderSetRestitution,colliderSetSensor,colliderSetSolverGroups,colliderState,colliders,collisionCb,contactForce,contactPairCount,contactPairPoints,contactStart,contactStop,copyPairs,correctionFactor,cos,count,createBody,createBoxCollider,createCapsuleCollider,createCircleCollider,createDynamicBody,createFixedJoint,createHeightfieldCollider,createKinematicBody,createMotorJoint,createPolygonCollider,createPolylineCollider,createPrismaticJoint,createRevoluteJoint,createRopeJoint,createSegmentCollider,createSpringJoint,createStaticBody,createTriMeshCollider,createWorld,cs,cx,cy,d,damping,data,desc,destroyBody,destroyCollider,destroyJoint,destroyWorld,drainEvents,dx,dy,eventQueue,forceCb,g,h,handle,hiBits,hit,hx,hy,i,idx,intersectShape,intersectionStart,intersectionStop,joints,jst,limitLower,limitUpper,linearOffsetX,linearOffsetY,loBits,localAnchor,makeShape,mapShapeType,maxDistance,maxMotorForce,maxMotorTorque,maxX,maxY,minX,minY,motorJointGetAngularOffset,motorJointGetCorrectionFactor,motorJointGetLinearOffset,motorJointGetMaxForce,motorJointGetMaxTorque,motorJointSetAngularOffset,motorJointSetCorrectionFactor,motorJointSetLinearOffset,motorJointSetMaxForce,motorJointSetMaxTorque,motorMaxForce,motorMaxTorque,motorSpeed,n,newImpulseJoint,nextBody,nextCollider,nextJoint,nextWorld,numAdditionalFrictionIterations,oneWayActive,oneWayAngle,oneWayNx,oneWayNy,p,packGroups,pad,pollContactForceEvents,pollContactStartEvents,pollContactStopEvents,pollIntersectionStartEvents,pollIntersectionStopEvents,prismaticJointEnableLimits,prismaticJointEnableMotor,prismaticJointGetLimits,prismaticJointGetMaxMotorForce,prismaticJointGetMotorSpeed,prismaticJointGetTranslation,prismaticJointSetLimits,prismaticJointSetMaxMotorForce,prismaticJointSetMotorSpeed,projectPoint,pts,queryAABB,queryPoint,r,rapierKey,ray,rayCast,rayCastAll,recomputeParentMass,registerJoint,res,restLength,revoluteJointEnableLimits,revoluteJointEnableMotor,revoluteJointGetAngle,revoluteJointGetLimits,revoluteJointGetMaxMotorTorque,revoluteJointGetMotorSpeed,revoluteJointIsLimitEnabled,revoluteJointSetLimits,revoluteJointSetMaxMotorTorque,revoluteJointSetMotorSpeed,ropeJointGetMaxDistance,ropeJointSetMaxDistance,rotationLocked,sgeBodyHandle,sgeColliderHandle,shape,sin,springJointGetRestLength,springJointSetParams,springJointSetRestLength,src,st,stiffness,t,t1,t2,theta,toFloat32,transLockedX,transLockedY,tx,ty,v,vec,verts,w,world,worldGetGravity,worldGetNumSolverIterations,worldSetGravity,worldSetNumAdditionalFrictionIterations,worldSetNumInternalPgsIterations,worldSetNumSolverIterations,worldStep,worlds,ws
+ * Covenant-baseline-loc: 1424
+ * Covenant-baseline-methods: BodyState,ColliderState,JointState,PhysicsOpsJs,R,WorldState,a1,a2,add,addCollider,addVertexBuffer,ang,angularOffset,applyMotorTarget,arr,axisX,axisY,b,bodies,body,bodyApplyForce,bodyApplyForceAtPoint,bodyApplyImpulse,bodyApplyImpulseAtPoint,bodyApplyTorque,bodyApplyTorqueImpulse,bodyByRapier,bodyEnableCcd,bodyGetAngle,bodyGetAngularDamping,bodyGetAngularVelocity,bodyGetDominanceGroup,bodyGetGravityScale,bodyGetInertia,bodyGetLinearDamping,bodyGetLinearVelocity,bodyGetLocalCenterOfMass,bodyGetMass,bodyGetPosition,bodyGetType,bodyGetVelocityAtPoint,bodyGetWorldCenterOfMass,bodyIsAwake,bodyIsCcdEnabled,bodyIsEnabled,bodyIsRotationLocked,bodyIsTranslationLockedX,bodyIsTranslationLockedY,bodyRecomputeMassProperties,bodyResetForces,bodyResetTorques,bodySetAngle,bodySetAngularDamping,bodySetAngularVelocity,bodySetDominanceGroup,bodySetEnabled,bodySetEnabledTranslations,bodySetFixedRotation,bodySetGravityScale,bodySetLinearDamping,bodySetLinearVelocity,bodySetPosition,bodySleep,bodyState,bodyWakeUp,c,c1,castShape,cb,collider,colliderByRapier,colliderGetAabb,colliderGetActiveCollisionTypes,colliderGetActiveEvents,colliderGetActiveHooks,colliderGetCollisionGroups,colliderGetContactForceEventThreshold,colliderGetDensity,colliderGetFriction,colliderGetMass,colliderGetOneWayDirection,colliderGetParentBody,colliderGetPosition,colliderGetPositionWrtParent,colliderGetRestitution,colliderGetShapeType,colliderGetSolverGroups,colliderIsEnabled,colliderIsSensor,colliderSetActiveCollisionTypes,colliderSetActiveEvents,colliderSetActiveHooks,colliderSetCollisionGroups,colliderSetContactForceEventThreshold,colliderSetContactSkin,colliderSetDensity,colliderSetEnabled,colliderSetFriction,colliderSetMass,colliderSetOneWayDirection,colliderSetPositionWrtParent,colliderSetRestitution,colliderSetSensor,colliderSetSolverGroups,colliderState,colliders,collisionCb,contactForce,contactPairCount,contactPairPoints,contactStart,contactStop,copyPairs,correctionFactor,cos,count,createBody,createBoxCollider,createCapsuleCollider,createCircleCollider,createDynamicBody,createFixedJoint,createHeightfieldCollider,createKinematicBody,createMotorJoint,createPolygonCollider,createPolylineCollider,createPrismaticJoint,createRevoluteJoint,createRopeJoint,createSegmentCollider,createSpringJoint,createStaticBody,createTriMeshCollider,createWorld,cs,cx,cy,d,damping,data,desc,destroyBody,destroyCollider,destroyJoint,destroyWorld,drainEvents,dx,dy,eventQueue,forceCb,g,h,handle,hiBits,hit,hx,hy,i,idx,intersectShape,intersectionStart,intersectionStop,joints,jst,limitLower,limitUpper,linearOffsetX,linearOffsetY,loBits,localAnchor,makeShape,mapShapeType,maxDistance,maxMotorForce,maxMotorTorque,maxX,maxY,minX,minY,motorJointGetAngularOffset,motorJointGetCorrectionFactor,motorJointGetLinearOffset,motorJointGetMaxForce,motorJointGetMaxTorque,motorJointSetAngularOffset,motorJointSetCorrectionFactor,motorJointSetLinearOffset,motorJointSetMaxForce,motorJointSetMaxTorque,motorMaxForce,motorMaxTorque,motorSpeed,n,newImpulseJoint,nextBody,nextCollider,nextJoint,nextWorld,numAdditionalFrictionIterations,oneWayActive,oneWayAngle,oneWayNx,oneWayNy,p,packGroups,pad,pollContactForceEvents,pollContactStartEvents,pollContactStopEvents,pollIntersectionStartEvents,pollIntersectionStopEvents,prismaticJointEnableLimits,prismaticJointEnableMotor,prismaticJointGetLimits,prismaticJointGetMaxMotorForce,prismaticJointGetMotorSpeed,prismaticJointGetTranslation,prismaticJointSetLimits,prismaticJointSetMaxMotorForce,prismaticJointSetMotorSpeed,projectPoint,pts,queryAABB,queryPoint,r,rapierKey,ray,rayCast,rayCastAll,recomputeParentMass,recreateJoint,registerJoint,res,restLength,revoluteJointEnableLimits,revoluteJointEnableMotor,revoluteJointGetAngle,revoluteJointGetLimits,revoluteJointGetMaxMotorTorque,revoluteJointGetMotorSpeed,revoluteJointIsLimitEnabled,revoluteJointSetLimits,revoluteJointSetMaxMotorTorque,revoluteJointSetMotorSpeed,ropeJointGetMaxDistance,ropeJointSetMaxDistance,rotationLocked,sgeBodyHandle,sgeColliderHandle,shape,sin,springJointGetRestLength,springJointSetParams,springJointSetRestLength,src,st,stiffness,t,t1,t2,theta,toFloat32,transLockedX,transLockedY,tx,ty,v,vec,verts,w,world,worldGetGravity,worldGetNumSolverIterations,worldSetGravity,worldSetNumAdditionalFrictionIterations,worldSetNumInternalPgsIterations,worldSetNumSolverIterations,worldStep,worlds,ws
  * Covenant-source-reference: SGE-original
  * Covenant-verified: 2026-06-17
  */
@@ -71,8 +71,13 @@ private[platform] object PhysicsOpsJs extends PhysicsOps {
   private val bodyByRapier:     mutable.Map[String, Long] = mutable.Map()
   private val colliderByRapier: mutable.Map[String, Long] = mutable.Map()
 
-  /** Per-joint state, including the configured motor/limit values Rapier does not read back. */
-  final private class JointState(val world: Long, val joint: js.Dynamic, val kind: Int, val body1: Long, val body2: Long) {
+  /** Per-joint state, including the configured motor/limit values Rapier does not read back.
+    *
+    * `joint` is a `var` because the Spring/Rope/Fixed-backed-motor joint subclasses (base `ImpulseJoint`) expose no post-creation mutator for their creation-time parameters (rope length, spring
+    * rest-length/stiffness/damping); the only way to reflect a setter — matching the Rust/Panama backend, which really reconfigures the joint — is to remove the underlying Rapier joint and recreate
+    * it from updated `JointData`, then rebind this field. The SGE Long handle in the `joints` registry is unchanged, so existing references stay valid.
+    */
+  final private class JointState(val world: Long, var joint: js.Dynamic, val kind: Int, val body1: Long, val body2: Long) {
     // kind: 0=revolute, 1=prismatic, 2=fixed, 3=rope, 4=spring, 5=motor
     var limitLower:       Float = 0f
     var limitUpper:       Float = 0f
@@ -803,6 +808,17 @@ private[platform] object PhysicsOpsJs extends PhysicsOps {
 
   private def jst(joint: Long): JointState = joints(joint)
 
+  /** Remove the Rapier joint backing `st` and recreate it from the supplied (updated) `JointData`, rebinding `st.joint` to the new object.
+    *
+    * Rapier2D-JS exposes no post-creation mutator for a Spring/Rope joint's creation-time parameters (rope length, spring rest-length/stiffness/damping) — they live only on `JointData` and are baked
+    * in at `createImpulseJoint` time. To make the corresponding setters actually change the joint (mirroring the Rust/Panama backend, which reconfigures the live joint), we destroy + recreate the
+    * underlying joint with new parameters. The SGE Long handle keying `st` in the `joints` registry never changes, so any external reference to the joint stays valid.
+    */
+  private def recreateJoint(st: JointState, data: js.Dynamic): Unit = {
+    w(st.world).removeImpulseJoint(st.joint, true)
+    st.joint = newImpulseJoint(st.world, data, st.body1, st.body2)
+  }
+
   // ─── Revolute joint limits and motors ─────────────────────────────────────
 
   override def revoluteJointEnableLimits(world: Long, joint: Long, enable: Boolean): Unit = {
@@ -957,12 +973,16 @@ private[platform] object PhysicsOpsJs extends PhysicsOps {
     applyMotorTarget(st)
   }
 
-  /** Drive the fixed-joint-backed motor toward the configured linear/angular offset using position motors. The correction factor scales the motor stiffness, mirroring the Rust motor joint. */
-  private def applyMotorTarget(st: JointState): Unit = {
-    val stiffness = (st.correctionFactor * 1000f).toDouble
-    val damping   = (st.correctionFactor * 100f).toDouble
-    st.joint.configureMotorPosition(st.angularOffset.toDouble, stiffness, damping)
-  }
+  /** Drive the fixed-joint-backed motor toward the configured linear offset.
+    *
+    * `createMotorJoint` backs the motor with a `FixedImpulseJoint`, which is a base `ImpulseJoint` and therefore has NO `configureMotorPosition`/`configureMotorVelocity` — those exist only on
+    * `UnitImpulseJoint` (Revolute/Prismatic). The one real, member-safe lever the base `ImpulseJoint` exposes is `setAnchor2`: shifting body2's anchor by the requested linear offset makes the fixed
+    * joint hold the bodies at that offset, which is the observable behavior of the Rust/Panama motor joint's linear target. The angular-offset / max-force / max-torque / correction-factor values have
+    * no representation on a plain Rapier fixed joint, so they are accepted and stored on the registry record only (the getters round-trip them) — a documented divergence from Panama, whose native
+    * motor joint applies them as solver gains. We never call a method that doesn't exist on `FixedImpulseJoint`, and never throw.
+    */
+  private def applyMotorTarget(st: JointState): Unit =
+    st.joint.setAnchor2(vec(st.linearOffsetX, st.linearOffsetY))
 
   override def motorJointGetMaxForce(world: Long, joint: Long): Float =
     jst(joint).motorMaxForce
@@ -978,7 +998,10 @@ private[platform] object PhysicsOpsJs extends PhysicsOps {
   override def ropeJointSetMaxDistance(world: Long, joint: Long, maxDist: Float): Unit = {
     val st = jst(joint)
     st.maxDistance = maxDist
-    st.joint.setLimits(0d, maxDist.toDouble)
+    // A RopeImpulseJoint is a base ImpulseJoint: it has no setLimits / mutator. The rope's max length is a creation-time
+    // JointData.rope parameter, so reconfigure it by recreating the joint with the new length (matching the Rust/Panama
+    // backend, which actually changes the rope's max distance).
+    recreateJoint(st, R.JointData.rope(maxDist.toDouble, vec(0f, 0f), vec(0f, 0f)))
   }
 
   override def ropeJointGetMaxDistance(world: Long, joint: Long): Float =
@@ -989,8 +1012,11 @@ private[platform] object PhysicsOpsJs extends PhysicsOps {
   override def springJointSetRestLength(world: Long, joint: Long, restLength: Float): Unit = {
     val st = jst(joint)
     st.restLength = restLength
-    // Reconfigure the spring motor with the new rest length.
-    st.joint.configureMotorPosition(restLength.toDouble, st.stiffness.toDouble, st.damping.toDouble)
+    // A SpringImpulseJoint is a base ImpulseJoint: it has no configureMotorPosition / mutator. Rest length, stiffness and
+    // damping are creation-time JointData.spring parameters, so reconfigure the spring by recreating the joint with the
+    // new rest length (keeping the current stiffness/damping). This mirrors the Rust/Panama backend, which actually
+    // changes the spring's rest length.
+    recreateJoint(st, R.JointData.spring(restLength.toDouble, st.stiffness.toDouble, st.damping.toDouble, vec(0f, 0f), vec(0f, 0f)))
   }
 
   override def springJointGetRestLength(world: Long, joint: Long): Float =
@@ -1000,7 +1026,10 @@ private[platform] object PhysicsOpsJs extends PhysicsOps {
     val st = jst(joint)
     st.stiffness = stiffness
     st.damping = damping
-    st.joint.configureMotorPosition(st.restLength.toDouble, stiffness.toDouble, damping.toDouble)
+    // As above: stiffness and damping are baked into JointData.spring at creation, so recreate the spring joint with the
+    // new params (keeping the current rest length) rather than calling a UnitImpulseJoint-only mutator the base
+    // SpringImpulseJoint does not have.
+    recreateJoint(st, R.JointData.spring(st.restLength.toDouble, stiffness.toDouble, damping.toDouble, vec(0f, 0f), vec(0f, 0f)))
   }
 
   // ─── Body mass/inertia ──────────────────────────────────────────────────────
