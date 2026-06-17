@@ -90,6 +90,9 @@ class DesktopApplicationConfig extends DesktopWindowConfig {
   /** Stream for error output. */
   var errorStream: PrintStream = System.err
 
+  /** SGE extensions whose dependencies are loaded once at application startup, before the game listener's `create()` runs. */
+  var extensions: Seq[SgeExtension] = Seq.empty
+
   // ---- convenience methods ----
 
   /** Sets the audio device configuration.
@@ -201,6 +204,7 @@ class DesktopApplicationConfig extends DesktopWindowConfig {
     debug = config.debug
     debugStream = config.debugStream
     errorStream = config.errorStream
+    extensions = config.extensions
   }
 }
 

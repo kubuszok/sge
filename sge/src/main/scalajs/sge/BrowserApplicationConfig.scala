@@ -97,6 +97,11 @@ class BrowserApplicationConfig(
     */
   var preloadAssets: Boolean = true
 
+  /** SGE extensions whose dependencies are loaded once at application startup, after asset preload and before the game listener's `create()` runs. On JS an extension may load asynchronously (e.g. a
+    * WASM module) here.
+    */
+  var extensions: Seq[SgeExtension] = Seq.empty
+
   /** Returns true if this is a fixed-size application (both width and height are non-zero). */
   def isFixedSizeApplication: Boolean = width != 0 && height != 0
 }

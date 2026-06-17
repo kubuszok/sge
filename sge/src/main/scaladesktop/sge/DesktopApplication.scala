@@ -127,6 +127,15 @@ class DesktopApplication(
 
     try {
       given Sge = _sge
+      // Load extension dependencies once, before the game listener's create() runs.
+      // create() is invoked lazily on the first frame inside loop() (via
+      // DesktopWindow.initializeListener), so blocking here guarantees extensions
+      // are loaded first. On JVM/Native loads are synchronous (already-completed
+      // Futures); parasitic runs the sequential fold's continuations inline.
+      scala.concurrent.Await.result(
+        SgeExtension.loadAll(_config.extensions)(using _sge, scala.concurrent.ExecutionContext.parasitic),
+        scala.concurrent.duration.Duration(60, java.util.concurrent.TimeUnit.SECONDS)
+      )
       loop()
       cleanupWindows()
     } catch {

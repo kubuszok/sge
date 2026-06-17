@@ -124,9 +124,14 @@ class BrowserApplication(
       .recover { case _: Throwable =>
         dom.console.info("[sge] No assets.txt manifest found; starting without preload")
       }
+      // Load extension dependencies (e.g. async WASM modules) once, after preload
+      // and before the game listener's create() runs in startGameLoop().
+      .flatMap(_ => SgeExtension.loadAll(config.extensions)(using sgeContext, summon))
       .foreach(_ => startGameLoop())
   } else {
-    startGameLoop()
+    import scala.concurrent.ExecutionContext.Implicits.global
+    // No asset preload: still load extension dependencies once before create().
+    SgeExtension.loadAll(config.extensions)(using sgeContext, summon).foreach(_ => startGameLoop())
   }
 
   private def startGameLoop(): Unit = {

@@ -73,6 +73,13 @@ class HeadlessApplication(
   // ---- main loop ----
 
   private def mainLoop(): Unit = {
+    // Load extension dependencies once, before the game listener's create() runs.
+    // On JVM/Native loads are synchronous (already-completed Futures); parasitic
+    // runs the sequential fold's continuations inline.
+    scala.concurrent.Await.result(
+      SgeExtension.loadAll(config.extensions)(using sgeContext, scala.concurrent.ExecutionContext.parasitic),
+      scala.concurrent.duration.Duration(60, java.util.concurrent.TimeUnit.SECONDS)
+    )
     listener.create()
 
     val targetInterval = Nanos(targetRenderInterval())

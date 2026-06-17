@@ -13,10 +13,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 29
+ * Covenant-baseline-loc: 41
  * Covenant-baseline-methods: HeadlessApplicationConfig
  * Covenant-source-reference: backends/gdx-backend-headless/src/com/badlogic/gdx/backends/headless/HeadlessApplicationConfiguration.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-17
  *
  * upstream-commit: caf7e6fe10f923ca15bee8ec7ff4911c4fc691cd
  */
@@ -30,9 +30,12 @@ package sge
   *   Directory for preferences files. Default is ".prefs/".
   * @param maxNetThreads
   *   Maximum threads for network requests. Default is [[Int.MaxValue]].
+  * @param extensions
+  *   SGE extensions whose dependencies are loaded once at application startup, before the game listener's `create()` runs. Default is empty.
   */
 final case class HeadlessApplicationConfig(
   updatesPerSecond:     Int = 60,
   preferencesDirectory: String = ".prefs/",
-  maxNetThreads:        Int = Int.MaxValue
+  maxNetThreads:        Int = Int.MaxValue,
+  extensions:           Seq[SgeExtension] = Seq.empty
 )
