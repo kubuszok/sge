@@ -7,5 +7,17 @@
   "attribution": {
     "commit": "",
     "pr": ""
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "RS=\"$(command -v re-scale || true)\"; [ -z \"$RS\" ] && RS=\"$(ls -t \"$HOME\"/.local/share/re-scale/*/bin/re-scale 2>/dev/null | head -1)\"; [ -z \"$RS\" ] && RS=\"$HOME/Workspaces/kubuszok/re-scale/bin/re-scale\"; [ -x \"$RS\" ] && \"$RS\" metals start --port 7845 >> \"$CLAUDE_PROJECT_DIR/.rescale/.metals-hook.log\" 2>&1 || true"
+          }
+        ]
+      }
+    ]
   }
 }
