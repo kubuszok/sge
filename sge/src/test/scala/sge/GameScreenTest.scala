@@ -13,20 +13,20 @@ class GameScreenTest extends munit.FunSuite {
     var lastResizeWidth:  Pixels       = Pixels(0)
     var lastResizeHeight: Pixels       = Pixels(0)
 
-    def show():                 Unit = calls = calls :+ "show"
-    def hide():                 Unit = calls = calls :+ "hide"
+    override def show():        Unit = calls = calls :+ "show"
+    override def hide():        Unit = calls = calls :+ "hide"
     def render(delta: Seconds): Unit = {
       calls = calls :+ "render"
       lastRenderDelta = delta
     }
-    def resize(width: Pixels, height: Pixels): Unit = {
+    override def resize(width: Pixels, height: Pixels): Unit = {
       calls = calls :+ "resize"
       lastResizeWidth = width
       lastResizeHeight = height
     }
-    def pause():  Unit = calls = calls :+ "pause"
-    def resume(): Unit = calls = calls :+ "resume"
-    def close():  Unit = calls = calls :+ "close"
+    override def pause():  Unit = calls = calls :+ "pause"
+    override def resume(): Unit = calls = calls :+ "resume"
+    override def close():  Unit = calls = calls :+ "close"
   }
 
   private given Sge = SgeTestFixture.testSge()
@@ -92,22 +92,22 @@ class GameScreenTest extends munit.FunSuite {
     val game = new Game() { override def create(): Unit = () }
     var order: List[String] = Nil
     val trackingOld = new Screen {
-      def show():                                Unit = ()
-      def hide():                                Unit = order = order :+ "old-hide"
-      def render(delta: Seconds):                Unit = ()
-      def resize(width: Pixels, height: Pixels): Unit = ()
-      def pause():                               Unit = ()
-      def resume():                              Unit = ()
-      def close():                               Unit = ()
+      override def show():                                Unit = ()
+      override def hide():                                Unit = order = order :+ "old-hide"
+      def render(delta:          Seconds):                Unit = ()
+      override def resize(width: Pixels, height: Pixels): Unit = ()
+      override def pause():                               Unit = ()
+      override def resume():                              Unit = ()
+      override def close():                               Unit = ()
     }
     val trackingNew = new Screen {
-      def show():                                Unit = order = order :+ "new-show"
-      def hide():                                Unit = ()
-      def render(delta: Seconds):                Unit = ()
-      def resize(width: Pixels, height: Pixels): Unit = ()
-      def pause():                               Unit = ()
-      def resume():                              Unit = ()
-      def close():                               Unit = ()
+      override def show():                                Unit = order = order :+ "new-show"
+      override def hide():                                Unit = ()
+      def render(delta:          Seconds):                Unit = ()
+      override def resize(width: Pixels, height: Pixels): Unit = ()
+      override def pause():                               Unit = ()
+      override def resume():                              Unit = ()
+      override def close():                               Unit = ()
     }
 
     game.screen = Nullable(trackingOld)
@@ -237,13 +237,13 @@ class GameScreenTest extends munit.FunSuite {
 
     /** A screen adapter: all methods are no-ops. */
     val adapter = new Screen {
-      def show():                                Unit = ()
-      def hide():                                Unit = ()
-      def render(delta: Seconds):                Unit = ()
-      def resize(width: Pixels, height: Pixels): Unit = ()
-      def pause():                               Unit = ()
-      def resume():                              Unit = ()
-      def close():                               Unit = ()
+      override def show():                                Unit = ()
+      override def hide():                                Unit = ()
+      def render(delta:          Seconds):                Unit = ()
+      override def resize(width: Pixels, height: Pixels): Unit = ()
+      override def pause():                               Unit = ()
+      override def resume():                              Unit = ()
+      override def close():                               Unit = ()
     }
 
     game.screen = Nullable(adapter)

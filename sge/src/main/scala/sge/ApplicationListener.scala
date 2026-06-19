@@ -13,10 +13,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 50
+ * Covenant-baseline-loc: 59
  * Covenant-baseline-methods: ApplicationListener,create,dispose,pause,render,resize,resume
  * Covenant-source-reference: com/badlogic/gdx/ApplicationListener.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-19
  *
  * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
@@ -33,7 +33,7 @@ package sge
 trait ApplicationListener {
 
   /** Called when the {@link Application} is first created. */
-  def create(): Unit
+  def create(): Unit = {}
 
   /** Called when the {@link Application} is resized. This can happen at any point during a non-paused state but will never happen before a call to {@link #create()} .
     *
@@ -42,18 +42,18 @@ trait ApplicationListener {
     * @param height
     *   the new height in pixels
     */
-  def resize(width: Pixels, height: Pixels): Unit
+  def resize(width: Pixels, height: Pixels): Unit = {}
 
   /** Called when the {@link Application} should render itself. */
   def render(): Unit
 
   /** Called when the {@link Application} is paused, usually when it's not active or visible on-screen. An Application is also paused before it is destroyed.
     */
-  def pause(): Unit
+  def pause(): Unit = {}
 
   /** Called when the {@link Application} is resumed from a paused state, usually when it regains focus. */
-  def resume(): Unit
+  def resume(): Unit = {}
 
   /** Called when the {@link Application} is destroyed. Preceded by a call to {@link #pause()}. */
-  def dispose(): Unit
+  def dispose(): Unit = {}
 }

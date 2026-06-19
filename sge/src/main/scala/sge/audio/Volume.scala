@@ -8,10 +8,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 29
- * Covenant-baseline-methods: Volume,max,min,parse,toFloat,unsafeMake
+ * Covenant-baseline-loc: 42
+ * Covenant-baseline-methods: Volume,apply,max,min,parse,toFloat,unsafeMake
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-19
  */
 package sge
 package audio
@@ -24,6 +24,12 @@ object Volume {
   def parse(value: Float): Either[String, Volume] =
     if (value < 0 || value > 1) Left(s"Volume must be between 0 and 1, got $value")
     else Right(value)
+
+  /** Clamps the value into the valid range [min, max]; the everyday safe construction path. */
+  def apply(value: Float): Volume =
+    if (value < min) min
+    else if (value > max) max
+    else value
 
   def unsafeMake(value: Float): Volume = value
 

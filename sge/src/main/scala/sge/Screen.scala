@@ -13,10 +13,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 47
+ * Covenant-baseline-loc: 56
  * Covenant-baseline-methods: Screen,close,hide,pause,render,resize,resume,show
  * Covenant-source-reference: com/badlogic/gdx/Screen.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-19
  *
  * upstream-commit: d862041b45cdf5cf90ef370035867b25bea2af89
  */
@@ -31,7 +31,7 @@ import sge.utils.Seconds
 trait Screen extends AutoCloseable {
 
   /** Called when this screen becomes the current screen for a {@link Game}. */
-  def show(): Unit
+  def show(): Unit = {}
 
   /** Called when the screen should render itself.
     * @param delta
@@ -40,17 +40,17 @@ trait Screen extends AutoCloseable {
   def render(delta: Seconds): Unit
 
   /** @see ApplicationListener#resize(int, int) */
-  def resize(width: Pixels, height: Pixels): Unit
+  def resize(width: Pixels, height: Pixels): Unit = {}
 
   /** @see ApplicationListener#pause() */
-  def pause(): Unit
+  def pause(): Unit = {}
 
   /** @see ApplicationListener#resume() */
-  def resume(): Unit
+  def resume(): Unit = {}
 
   /** Called when this screen is no longer the current screen for a {@link Game}. */
-  def hide(): Unit
+  def hide(): Unit = {}
 
   /** Called when this screen should release all resources. */
-  def close(): Unit
+  override def close(): Unit = {}
 }

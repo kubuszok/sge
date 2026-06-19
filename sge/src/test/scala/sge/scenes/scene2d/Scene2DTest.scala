@@ -349,21 +349,21 @@ class Scene2DTest extends munit.FunSuite {
     val events = scala.collection.mutable.ArrayBuffer[String]()
 
     class TestScreen extends Screen {
-      val id:                                    String = ""
-      def show():                                Unit   = events += s"show-$id"
-      def hide():                                Unit   = events += s"hide-$id"
-      def render(delta: Seconds):                Unit   = {}
-      def resize(width: Pixels, height: Pixels): Unit   = events += s"resize-$id"
-      def pause():                               Unit   = events += s"pause-$id"
-      def resume():                              Unit   = events += s"resume-$id"
-      def close():                               Unit   = {}
+      val id:                                             String = ""
+      override def show():                                Unit   = events += s"show-$id"
+      override def hide():                                Unit   = events += s"hide-$id"
+      def render(delta:          Seconds):                Unit   = {}
+      override def resize(width: Pixels, height: Pixels): Unit   = events += s"resize-$id"
+      override def pause():                               Unit   = events += s"pause-$id"
+      override def resume():                              Unit   = events += s"resume-$id"
+      override def close():                               Unit   = {}
     }
 
     val screen1 = new TestScreen { override val id = "1" }
     val screen2 = new TestScreen { override val id = "2" }
 
     val game = new Game() {
-      def create(): Unit = {}
+      override def create(): Unit = {}
     }
 
     game.screen = Nullable(screen1)
@@ -379,17 +379,17 @@ class Scene2DTest extends munit.FunSuite {
     val events = scala.collection.mutable.ArrayBuffer[String]()
 
     val screen = new Screen {
-      def show():                                Unit = {}
-      def hide():                                Unit = {}
-      def render(delta: Seconds):                Unit = events += "render"
-      def resize(width: Pixels, height: Pixels): Unit = events += "resize"
-      def pause():                               Unit = events += "pause"
-      def resume():                              Unit = events += "resume"
-      def close():                               Unit = {}
+      override def show():                                Unit = {}
+      override def hide():                                Unit = {}
+      def render(delta:          Seconds):                Unit = events += "render"
+      override def resize(width: Pixels, height: Pixels): Unit = events += "resize"
+      override def pause():                               Unit = events += "pause"
+      override def resume():                              Unit = events += "resume"
+      override def close():                               Unit = {}
     }
 
     val game = new Game() {
-      def create(): Unit = {}
+      override def create(): Unit = {}
     }
 
     game.screen = Nullable(screen)
@@ -407,17 +407,17 @@ class Scene2DTest extends munit.FunSuite {
     given Sge  = makeContext()
     var hidden = false
     val screen = new Screen {
-      def show():                                Unit = {}
-      def hide():                                Unit = hidden = true
-      def render(delta: Seconds):                Unit = {}
-      def resize(width: Pixels, height: Pixels): Unit = {}
-      def pause():                               Unit = {}
-      def resume():                              Unit = {}
-      def close():                               Unit = {}
+      override def show():                                Unit = {}
+      override def hide():                                Unit = hidden = true
+      def render(delta:          Seconds):                Unit = {}
+      override def resize(width: Pixels, height: Pixels): Unit = {}
+      override def pause():                               Unit = {}
+      override def resume():                              Unit = {}
+      override def close():                               Unit = {}
     }
 
     val game = new Game() {
-      def create(): Unit = {}
+      override def create(): Unit = {}
     }
     game.screen = Nullable(screen)
     hidden = false
