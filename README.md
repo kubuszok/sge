@@ -77,6 +77,16 @@ dependency list, CI setup, and what can be removed.
 The Android SDK auto-downloads on the first invocation of any
 `androidXxx` sbt task — no manual setup needed.
 
+## Building a game
+
+New to SGE? Start with the
+**[Getting Started guide](docs/getting-started.md)** — it walks through project
+setup with the SGE sbt plugin (using
+[`sge-build/src/main/resources/sge-template-build.sbt`](sge-build/src/main/resources/sge-template-build.sbt)
+as the starting `build.sbt`), the `(using Sge)` context idiom, a working
+`Game` / `Screen` example, and per-platform launchers for desktop, browser, and
+Android.
+
 ## Quick Start
 
 The dev workflow uses [`re-scale`](https://github.com/kubuszok/re-scale)

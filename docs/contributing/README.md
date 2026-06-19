@@ -2,6 +2,11 @@
 
 Reference documentation for the Java-to-Scala conversion process.
 
+> Building a game *with* SGE (rather than working on the port)? See the
+> user-facing [Getting Started guide](../getting-started.md). It uses
+> [`sge-build/src/main/resources/sge-template-build.sbt`](../../sge-build/src/main/resources/sge-template-build.sbt)
+> as the starting `build.sbt`.
+
 | Guide | Purpose |
 |-------|---------|
 | [conversion-rules.md](conversion-rules.md) | Full Java→Scala procedure (19 type/API adjustments) |
