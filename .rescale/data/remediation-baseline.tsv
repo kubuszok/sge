@@ -9,5 +9,5 @@ dup_covenant_files	0	2026-06-10	grep -rc '\* Covenant: ' --include='*.scala' sge
 ignored_tests	2	2026-06-10	grep -rE '\.ignore\b' --include='*.scala' sge/src/test sge-test sge-extension 2>/dev/null | grep '/test/' | wc -l
 assumes_tests	8	2026-06-10	grep -rE 'assume\(' --include='*.scala' sge/src/test sge-test sge-extension sge-jvm-platform 2>/dev/null | grep '/test' | wc -l
 exception_swallows_main	40	2026-06-12	grep -rE 'case _: (Exception|Throwable) =>' --include='*.scala' sge/src/main sge-extension sge-jvm-platform 2>/dev/null | grep '/main/' | wc -l
-open_review_issues	11	2026-06-19	re-scale db issues list --status open --category review-fable --limit 500 2>/dev/null | tail -n +2 | wc -l
+open_review_issues	10	2026-06-19	re-scale db issues list --status open --category review-fable --limit 500 2>/dev/null | tail -n +2 | wc -l
 sge_original_covenant_refs	85	2026-06-19	grep -rl 'Covenant-source-reference: SGE-original' --include='*.scala' sge/src sge-extension sge-jvm-platform sge-build 2>/dev/null | wc -l
