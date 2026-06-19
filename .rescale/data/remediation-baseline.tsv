@@ -3,7 +3,7 @@ covenant_fail_total	190	2026-06-17	re-scale enforce verify --all 2>&1 | grep -cE
 covenant_shortcut_drift	134	2026-06-15	re-scale enforce verify --all 2>&1 | grep -c 'shortcuts introduced'
 covenant_missing_header	56	2026-06-12	re-scale enforce verify --all 2>&1 | grep -c 'no covenant header'
 covenant_methods_removed	0	2026-06-17	re-scale enforce verify --all 2>&1 | grep -c 'methods removed since baseline'
-shortcut_hits	454	2026-06-19	re-scale enforce shortcuts --src sge,sge-jvm-platform,sge-extension,sge-build 2>&1 | tail -1
+shortcut_hits	455	2026-06-19	re-scale enforce shortcuts --src sge,sge-jvm-platform,sge-extension,sge-build 2>&1 | tail -1
 stale_stubs	8	2026-06-10	re-scale enforce stale-stubs --src sge,sge-jvm-platform,sge-extension 2>&1 | tail -1
 dup_covenant_files	0	2026-06-10	grep -rc '\* Covenant: ' --include='*.scala' sge/src sge-extension sge-jvm-platform 2>/dev/null | awk -F: '$NF>1' | wc -l
 ignored_tests	2	2026-06-10	grep -rE '\.ignore\b' --include='*.scala' sge/src/test sge-test sge-extension 2>/dev/null | grep '/test/' | wc -l
