@@ -1,43 +1,51 @@
-sbtPlugin := true
-
-name         := "sge-build"
-organization := "com.kubuszok"
-
-// Version matches the SGE library. Read from ../.sge-version (written by
-// root build's writeDemoVersion task) or fall back to git SHA snapshot.
-version := {
-  val versionFile = new File("../.sge-version")
-  if (versionFile.exists())
-    scala.io.Source.fromFile(versionFile).mkString.trim
-  else {
-    val sha = scala.sys.process.Process(Seq("git", "rev-parse", "HEAD"), new File("..")).!!.trim
-    s"$sha-SNAPSHOT"
-  }
-}
-
-// Match the sbt version used by projects consuming this plugin
-scalaVersion := "2.12.20"
-
-// Generate sge-build.properties with the plugin version baked in.
-// SgePlugin.sgeVersion reads this from the classpath at runtime.
-Compile / resourceGenerators += Def.task {
-  val file = (Compile / resourceManaged).value / "sge-build.properties"
-  IO.write(file, s"sge.version=${version.value}\n")
-  Seq(file)
-}.taskValue
-
-// Plugin dependencies — these are available to projects that enable SgePlugin
-addSbtPlugin("com.eed3si9n"     % "sbt-projectmatrix"  % "0.11.0")
-addSbtPlugin("org.scala-js"     % "sbt-scalajs"        % "1.21.0")
-addSbtPlugin("org.scala-native" % "sbt-scala-native"   % "0.5.10")
-addSbtPlugin("org.scalameta"    % "sbt-scalafmt"       % "2.5.4")
-
-// multiarch-scala — provides Platform, NativeProviderPlugin, ZigCross, JvmPackaging
-addSbtPlugin("com.kubuszok"     % "sbt-multiarch-scala" % "0.1.2")
-
-// Sonatype snapshots for sbt-multi-arch-release
-resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots"
-
-// Test scope for unit-testing pure plugin data (e.g. the strict/lenient
-// scalacOptions partition). ISS-556.
-libraryDependencies += "org.scalameta" %% "munit" % "1.0.2" % Test
+// Explicit root project enabling SbtPlugin so the `scripted` task + its keys
+// (scriptedLaunchOpts / scriptedBufferLog) are in scope (ISS-562). SbtPlugin
+// also sets `sbtPlugin := true` and brings in the ScriptedPlugin.
+lazy val root = (project in file("."))
+  .enablePlugins(SbtPlugin)
+  .settings(
+    name         := "sge-build",
+    organization := "com.kubuszok",
+    // Version matches the SGE library. Read from ../.sge-version (written by
+    // root build's writeDemoVersion task) or fall back to git SHA snapshot.
+    version := {
+      val versionFile = new File("../.sge-version")
+      if (versionFile.exists())
+        scala.io.Source.fromFile(versionFile).mkString.trim
+      else {
+        val sha = scala.sys.process.Process(Seq("git", "rev-parse", "HEAD"), new File("..")).!!.trim
+        s"$sha-SNAPSHOT"
+      }
+    },
+    // Match the sbt version used by projects consuming this plugin
+    scalaVersion := "2.12.20",
+    // Generate sge-build.properties with the plugin version baked in.
+    // SgePlugin.sgeVersion reads this from the classpath at runtime.
+    Compile / resourceGenerators += Def.task {
+      val file = (Compile / resourceManaged).value / "sge-build.properties"
+      IO.write(file, s"sge.version=${version.value}\n")
+      Seq(file)
+    }.taskValue,
+    // Plugin dependencies — these are available to projects that enable SgePlugin
+    addSbtPlugin("com.eed3si9n"     % "sbt-projectmatrix"  % "0.11.0"),
+    addSbtPlugin("org.scala-js"     % "sbt-scalajs"        % "1.21.0"),
+    addSbtPlugin("org.scala-native" % "sbt-scala-native"   % "0.5.10"),
+    addSbtPlugin("org.scalameta"    % "sbt-scalafmt"       % "2.5.4"),
+    // multiarch-scala — provides Platform, NativeProviderPlugin, ZigCross, JvmPackaging
+    addSbtPlugin("com.kubuszok"     % "sbt-multiarch-scala" % "0.1.2"),
+    // Sonatype snapshots for sbt-multi-arch-release
+    resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
+    // Test scope for unit-testing pure plugin data (e.g. the strict/lenient
+    // scalacOptions partition). ISS-556.
+    libraryDependencies += "org.scalameta" %% "munit" % "1.0.2" % Test,
+    // ── sbt scripted tests (ISS-562) ─────────────────────────────────────
+    // Each test under src/sbt-test/<group>/<name>/ gets a throwaway sbt project
+    // that resolves THIS plugin via the locally-published version. `scripted`
+    // runs publishLocal first; we forward the resulting version through the
+    // `plugin.version` system property so test projects can wire
+    // `addSbtPlugin("com.kubuszok" % "sge-build" % sys.props("plugin.version"))`.
+    scriptedLaunchOpts := {
+      scriptedLaunchOpts.value ++ Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
+    },
+    scriptedBufferLog := false
+  )

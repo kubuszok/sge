@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Must be EXCLUDED from the generated asset manifest (see generateAssetManifestTask). -->
+<manifest package="com.example" />

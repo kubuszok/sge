@@ -1,0 +1,20 @@
+# ISS-562 - scripted test for sge-build packaging tasks.
+# Exercises the SGE asset manifest generator and the simple-mode release
+# package, against a fresh hello-world project built on the locally-published
+# sge-build plugin.
+
+# Generate the asset manifest (on the browser/JS axis, where it is wired) and
+# assert its contents via the custom checkManifest task: asset paths present,
+# AndroidManifest.xml excluded, text classification + size > 0. This is the
+# assertion the CANARY regression must trip.
+> checkManifest
+
+# Build the simple-mode release package and assert launchers + jars exist.
+> checkReleasePackage
+
+# The generated manifest + release package outputs must physically exist on disk
+# (projectMatrix axis target dirs are js-3 / jvm-3).
+$ exists game/target/js-3/resource_managed/main/assets.txt
+$ exists game/target/jvm-3/release-package/hello-sge/bin/hello-sge
+$ exists game/target/jvm-3/release-package/hello-sge/bin/hello-sge.bat
+$ exists game/target/jvm-3/release-package/hello-sge/lib
