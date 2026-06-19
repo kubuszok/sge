@@ -24,7 +24,11 @@
 package sge
 
 import sge.Graphics
+import scala.annotation.implicitNotFound
 
+@implicitNotFound(
+  "No given `Sge` is in scope. `Sge` is this application's context — graphics, audio, input, files, net — passed explicitly via `(using Sge)` (it replaces LibGDX's global `Gdx.*`). Add a `(using Sge)` parameter to the enclosing class constructor or method, propagating the `Sge` your `Game`/`ApplicationListener` already receives."
+)
 final case class Sge private[sge] (
   application: Application,
   graphics:    Graphics,
