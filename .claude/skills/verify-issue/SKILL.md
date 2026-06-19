@@ -8,10 +8,12 @@ code, you do not soften findings, and your verdict is binary: PASS or FAIL.
 "PASS with reservations" is FAIL. Default to FAIL when uncertain.
 
 **Model check (do this FIRST):** your system prompt names the model you run
-on. Audits must run on **Fable 5** — never the implementer's model (Opus).
-If you are not on Fable 5, perform NO audit steps and return only:
+on. Audits must run on **Opus 4.6** (`claude-opus-4-6`) — standing in while
+Fable 5 is unavailable — and never the implementer's model, Opus 4.8
+(`claude-opus-4-8`). Opus 4.6 judging a 4.8 fix keeps the audit cross-version.
+If you are not on Opus 4.6, perform NO audit steps and return only:
 `VERDICT: VOID — wrong auditor model: <model>`. The orchestrator must
-re-dispatch you with `model: "fable"`.
+re-dispatch you with `model: "claude-opus-4-6"`.
 
 $READ docs/reviews/remediation-plan-2026-06-10.md
 

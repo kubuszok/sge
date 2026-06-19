@@ -57,19 +57,22 @@ Two cross-cutting rules:
 
 | Role | Who | Model | May do | May NOT do |
 |---|---|---|---|---|
-| **Orchestrator** | Main Claude session driving `/loop` | Fable 5 (session default) | Pick issues, spawn agents, run the resolve gate, `re-scale db issues resolve`, merge branches, update progress | Write fixes or tests itself (it would be grading its own work) |
-| **Reproducer** | `Agent` (general-purpose), one per issue | Fable 5 (`model: "fable"`) | Write the red test from the issue text + original Java; commit it | Touch main-source code; see the fix |
+| **Orchestrator** | Main Claude session driving `/loop` | Opus 4.8 (session default) | Pick issues, spawn agents, run the resolve gate, `re-scale db issues resolve`, merge branches, update progress | Write fixes or tests itself (it would be grading its own work) |
+| **Reproducer** | `Agent` (general-purpose), one per issue | Opus 4.6 (`model: "claude-opus-4-6"`) | Write the red test from the issue text + original Java; commit it | Touch main-source code; see the fix |
 | **Implementer** | `Agent` (`re-scale:port-implementer`), worktree-isolated | **Opus 4.8** (`model: "opus"`) | Fix the bug faithfully to the original; run tests locally | Modify the red test, covenant headers, enforcement config, issue DB, or CI files; declare the issue resolved |
-| **Auditor** | `Agent` (`re-scale:port-auditor`), fresh context per issue | **Fable 5** (`model: "fable"`) | Adversarially verify (§3 checklist); re-stamp covenant if and only if everything passes; file bounce issues | Fix anything |
+| **Auditor** | `Agent` (`re-scale:port-auditor`), fresh context per issue | **Opus 4.6** (`model: "claude-opus-4-6"`) | Adversarially verify (§3 checklist); re-stamp covenant if and only if everything passes; file bounce issues | Fix anything |
 
 **Model pinning is mandatory, not advisory.** Implementer runs on Opus 4.8,
-auditor on Fable 5 — cross-model verification means the judge does not share
-the writer's blind spots (an auditor of the same model tends to find the same
-rationalizations plausible), and Fable 5 is the model that found these bugs in
-the first place. The orchestrator passes `model` explicitly in every `Agent`
-call (or `opts.model` in `Workflow` `agent()` calls); an implementer spawned
-without `model: "opus"` or an auditor without `model: "fable"` is a protocol
-violation — kill and respawn.
+reproducer and auditor on **Opus 4.6** while Fable 5 is unavailable —
+cross-version verification means the judge does not share the writer's blind
+spots (an auditor of the same model build tends to find the same
+rationalizations plausible). Fable 5 found these bugs originally and remains
+the preferred reproducer/auditor model; restore `model: "fable"` for both
+roles once Fable 5 is available again. The orchestrator passes `model`
+explicitly in every `Agent` call (or `opts.model` in `Workflow` `agent()`
+calls); an implementer spawned without `model: "opus"` (Opus 4.8) or an
+auditor on the implementer's exact model is a protocol violation — kill and
+respawn.
 
 Claude Code utilities mapping:
 
@@ -253,7 +256,7 @@ from the SSG campaign, adapted to this repo's red-commit protocol):
 |---|---|---|
 | `/goal` | Orchestrator constitution — one full iteration | run via `/loop /goal` |
 | `/fix-issue <ISS-ID>` | Implementer checklist + prohibitions | dispatched with `model: "opus"` |
-| `/verify-issue <ISS-ID>` | Auditor checklist incl. proof-of-red, mutation spot-check, model self-check (returns `VERDICT: VOID` if not on Fable 5) | dispatched with `model: "fable"` |
+| `/verify-issue <ISS-ID>` | Auditor checklist incl. proof-of-red, mutation spot-check, model self-check (returns `VERDICT: VOID` if not on Opus 4.6) | dispatched with `model: "claude-opus-4-6"` (Fable 5 unavailable) |
 | `/ratchet-check [--update]` | Metric ratchet vs `.rescale/data/remediation-baseline.tsv` | `--update` is orchestrator-only |
 
 ### Start the campaign
@@ -263,12 +266,12 @@ from the SSG campaign, adapted to this repo's red-commit protocol):
 ```
 
 Each `/goal` iteration: ratchet → pick issues (batch A exclusively while any
-remain) → per issue run Reproducer (`model: "fable"`, red test as first
-commit on worktree branch `fix/ISS-NNN-slug`) → Implementer (`/fix-issue`,
+remain) → per issue run Reproducer (`model: "claude-opus-4-6"`, red test as
+first commit on worktree branch `fix/ISS-NNN-slug`) → Implementer (`/fix-issue`,
 `re-scale:port-implementer` for ports, `model: "opus"`) → orchestrator re-runs
 the floor gates itself (pasted output is never evidence; an implementer that
 resolved its own issue gets the delivery rejected wholesale) → Auditor
-(`/verify-issue`, `re-scale:port-auditor` for ports, `model: "fable"`).
+(`/verify-issue`, `re-scale:port-auditor` for ports, `model: "claude-opus-4-6"`).
 
 **Bounce rule:** FAIL verdicts go back to the SAME implementer via
 SendMessage (never a fresh agent "trying again clean" — that erases the
@@ -280,7 +283,7 @@ memory/remediation-progress.md.
 The prompt templates below are the canonical text the skills are built from —
 use them directly if dispatching without the skills.
 
-### Reproducer prompt template (general-purpose, model: "fable" — Fable 5)
+### Reproducer prompt template (general-purpose, model: "claude-opus-4-6" — Opus 4.6, Fable 5 unavailable)
 
 ```
 You write a failing test for exactly one bug. Repo: /Users/dev/Workspaces/GitHub/sge,
@@ -308,7 +311,7 @@ the fix separately. Report: fix-sha, test output, and any adjacent bugs you
 noticed but did NOT fix (they get new issues).
 ```
 
-### Auditor prompt template (subagent_type: re-scale:port-auditor, model: "fable" — Fable 5)
+### Auditor prompt template (subagent_type: re-scale:port-auditor, model: "claude-opus-4-6" — Opus 4.6, Fable 5 unavailable)
 
 ```
 Adversarially audit the fix for ISS-NNN on branch fix/ISS-NNN-<slug>. Issue:
