@@ -73,6 +73,10 @@ val viewer3d         = demo("viewer-3d",         "sge-demo-viewer3d",     "viewe
 val particleShow     = demo("particle-show",     "sge-demo-particles",    "particles",    "SGE Particles")(projectMatrix in file("particle-show"))
 val netChat          = demo("net-chat",          "sge-demo-netchat",      "netchat",      "SGE Net Chat")(projectMatrix in file("net-chat"))
 val viewportGallery  = demo("viewport-gallery",  "sge-demo-viewports",    "viewports",    "SGE Viewports")(projectMatrix in file("viewport-gallery"))
+// Game/Screen demo: built directly on SGE's public Game/Screen API (not the
+// DemoScene abstraction the other demos use). JVM/JS/Native only — Android
+// Game-launch is blocked by ISS-554 (no library Game-launcher Activity yet).
+val gameScreens      = demo("game-screens",      "sge-demo-gamescreens",  "gamescreens",  "SGE Game/Screen")(projectMatrix in file("game-screens"))
 
 // Asset Showcase: procedural PNG textures and WAV audio generated at compile time
 // (see project/AssetGenerator.scala).
