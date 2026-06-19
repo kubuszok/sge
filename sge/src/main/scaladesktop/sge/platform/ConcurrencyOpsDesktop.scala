@@ -15,16 +15,23 @@ import scala.concurrent.ExecutionContext
 
 private[sge] object ConcurrencyOpsDesktop extends ConcurrencyOps {
 
-  private val executorService: java.util.concurrent.ExecutorService =
-    java.util.concurrent.Executors.newSingleThreadExecutor { (r: Runnable) =>
-      val t = new Thread(r, "AssetManager")
-      t.setDaemon(true)
-      t
-    }
+  // A per-instance owned executor: one single-thread daemon ExecutorService, shut down
+  // independently of every other. Mirrors LibGDX's `new AsyncExecutor(1, "AssetManager")`.
+  final private class DesktopOwnedExecutor extends OwnedExecutor {
 
-  override val executor: ExecutionContext = ExecutionContext.fromExecutorService(executorService)
+    private val executorService: java.util.concurrent.ExecutorService =
+      java.util.concurrent.Executors.newSingleThreadExecutor { (r: Runnable) =>
+        val t = new Thread(r, "AssetManager")
+        t.setDaemon(true)
+        t
+      }
 
-  override def shutdown(): Unit = executorService.shutdown()
+    override val executor: ExecutionContext = ExecutionContext.fromExecutorService(executorService)
+
+    override def shutdown(): Unit = executorService.shutdown()
+  }
+
+  override def createExecutor(): OwnedExecutor = new DesktopOwnedExecutor
 
   override def yieldThread(): Unit = Thread.`yield`()
 }

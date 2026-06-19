@@ -16,9 +16,14 @@ import scala.concurrent.ExecutionContext
 
 private[sge] object ConcurrencyOpsJs extends ConcurrencyOps {
 
-  override val executor: ExecutionContext = ExecutionContext.global
+  // JS is single-threaded: every owned executor runs on ExecutionContext.global and its
+  // shutdown is a safe no-op (there is no per-instance thread pool to terminate).
+  private object JsOwnedExecutor extends OwnedExecutor {
+    override val executor:   ExecutionContext = ExecutionContext.global
+    override def shutdown(): Unit             = () // no-op on JS
+  }
 
-  override def shutdown(): Unit = () // no-op on JS
+  override def createExecutor(): OwnedExecutor = JsOwnedExecutor
 
   override def yieldThread(): Unit = () // no-op on JS (single-threaded)
 }

@@ -62,7 +62,11 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
   private val loadQueue: DynamicArray[AssetDescriptor[?]]                          = DynamicArray()
 
   private val concurrency: sge.platform.ConcurrencyOps = sge.platform.PlatformOps.concurrency
-  private val executor:    ExecutionContext            = concurrency.executor
+  // Per-instance executor, owned by this AssetManager (mirrors LibGDX's
+  // `executor = new AsyncExecutor(1, "AssetManager")`). close() shuts down ONLY this one,
+  // so disposing one AssetManager never breaks async loading on any other.
+  private val ownedExecutor: sge.platform.OwnedExecutor = concurrency.createExecutor()
+  private val executor:      ExecutionContext           = ownedExecutor.executor
 
   private val tasks:     DynamicArray[AssetLoadingTask] = DynamicArray()
   private var listener:  Nullable[AssetErrorListener]   = Nullable.empty
@@ -502,22 +506,27 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
     log.debug("Waiting for asset to be loaded: " + fileName)
     boundary {
       while (true) {
-        synchronized {
+        // NOTE: do not break out of the synchronized block directly — unwinding boundary.break
+        // through Predef.synchronized's monitorexit raises IllegalMonitorStateException. Instead
+        // compute the outcome inside the lock, then break after releasing it.
+        val resolved: Nullable[T] = synchronized {
           val result = lookup[T](fileName, Nullable.empty)
           if (result.isDefined) {
             log.debug("Asset loaded: " + fileName)
-            boundary.break(result.getOrElse(throw SgeError.InvalidInput("unreachable")))
-          }
-          // If update() returns true, all queues are empty. The asset either loaded (caught above)
-          // or failed with an error listener swallowing the exception. Break to avoid infinite loop.
-          if (update()) {
-            boundary.break(
+            result
+          } else if (update()) {
+            // If update() returns true, all queues are empty. The asset either loaded (caught above)
+            // or failed with an error listener swallowing the exception. Resolve to avoid infinite loop.
+            Nullable(
               lookup[T](fileName, Nullable.empty).getOrElse(
                 throw SgeError.InvalidInput("Asset not loaded: " + fileName)
               )
             )
+          } else {
+            Nullable.empty
           }
         }
+        if (resolved.isDefined) boundary.break(resolved.getOrElse(throw SgeError.InvalidInput("unreachable")))
         concurrency.yieldThread()
       }
       throw SgeError.InvalidInput("unreachable") // satisfies compiler
@@ -788,7 +797,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
   override def close(): Unit = {
     log.debug("Disposing.")
     clear()
-    concurrency.shutdown()
+    ownedExecutor.shutdown()
   }
 
   /** Clears and disposes all assets and the preloading queue. */
