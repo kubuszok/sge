@@ -50,7 +50,7 @@ class InputEventQueue {
     }
 
     processor.foreach { proc =>
-      val q = processingQueue.toArray
+      val q = processingQueue.items
       var i = 0
       val n = processingQueue.size
       while (i < n) {
@@ -96,7 +96,7 @@ class InputEventQueue {
   private def next(nextType: Int, startIndex: Int): Int =
     synchronized {
       scala.util.boundary {
-        val q = queue.toArray
+        val q = queue.items
         var i = startIndex
         val n = queue.size
         while (i < n) {

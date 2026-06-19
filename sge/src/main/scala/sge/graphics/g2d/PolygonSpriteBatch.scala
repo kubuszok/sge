@@ -1217,7 +1217,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
       lastTexture.foreach(_.bind())
       val mesh = this.mesh
       mesh.setVertices(vertices, 0, vertexIndex)
-      mesh.setIndices(triangles.slice(0, trianglesInBatch))
+      mesh.setIndices(triangles, 0, trianglesInBatch)
       if (blendingDisabled) {
         Sge().graphics.gl.glDisable(EnableCap.Blend)
       } else {
