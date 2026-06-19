@@ -237,4 +237,63 @@ class PolygonSpriteBatchRedSuite extends munit.FunSuite {
       s"final partial flush drew indices $finalIndices but only uploaded $uploadedVertices vertices — out-of-range references: $outOfRange (Java lines 784-787 recompute prevents this)"
     )
   }
+
+  // --- ISS-566: zero-copy flush index upload (offset + count must be exact) ---
+  //
+  // ISS-566 is a behaviour-PRESERVING perf fix: flush() (PolygonSpriteBatch.scala
+  // line 1220) currently calls `mesh.setIndices(triangles.slice(0, trianglesInBatch))`
+  // (an allocating slice copy whose length == trianglesInBatch), and the fix
+  // switches to the zero-copy overload `mesh.setIndices(triangles, 0, trianglesInBatch)`
+  // — matching Java PolygonSpriteBatch.java:1210
+  // `mesh.setIndices(triangles, 0, count)`.
+  //
+  // Both forms must upload EXACTLY the first `trianglesInBatch` entries of the
+  // `triangles` array starting at offset 0. The zero-copy overload makes the
+  // (offset, count) arguments load-bearing: unlike the slice form, it hands the
+  // FULL `triangles` array to Mesh, so a wrong offset or count would leak
+  // adjacent (stale) entries. The 3-quad scenario is the strongest gate because
+  // after the first flush the `triangles` array still holds the FIRST batch's
+  // stale tail (4,5,6,6,7,4 at indices 6..11) while the final partial flush must
+  // upload only the recomputed 6 indices (0,1,2,2,3,0). The recording GL below
+  // captures the first `count` shorts actually drawn, so:
+  //   - count mutated (e.g. trianglesInBatch+6, or triangles.length) -> the stale
+  //     4,5,6,6,7,4 tail leaks into the final flush -> assertion fails.
+  //   - offset mutated (e.g. 1 instead of 0) -> indices shift -> assertion fails.
+
+  test("ISS-566 gate: each flush uploads EXACTLY trianglesInBatch indices from offset 0 (no stale tail leak)") {
+    val recordingGL = new DrawElementsRecordingGL20
+    given Sge       = makeSge(recordingGL)
+    val batch       = makeBatch()
+    val texture     = dummyTexture()
+
+    batch.begin()
+    batch.draw(texture, quadStrip(3), 0, 60)
+    batch.end()
+
+    assertEquals(recordingGL.drawElementsCalls.size, 2, "3 quads against a 2-quad capacity flush exactly twice")
+
+    // First (full) flush: offset 0, count 12.
+    val (firstCount, firstIndices) = recordingGL.drawElementsCalls.head
+    assertEquals(firstCount, 12)
+    assertEquals(
+      firstIndices,
+      Vector(0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4),
+      "full flush must upload triangles(0 until 12); a non-zero offset or wrong count corrupts this"
+    )
+
+    // Final (partial) flush: offset 0, count 6. The triangles array still holds
+    // 4,5,6,6,7,4 at indices 6..11 from the prior batch; the zero-copy overload
+    // must NOT upload them. count must be exactly 6.
+    val (finalCount, finalIndices) = recordingGL.drawElementsCalls.last
+    assertEquals(finalCount, 6, "partial flush must upload exactly trianglesInBatch=6 indices, not the stale 12")
+    assertEquals(
+      finalIndices,
+      Vector(0, 1, 2, 2, 3, 0),
+      "partial flush must upload triangles(0 until 6) only; leaking the stale tail (4,5,6,6,7,4) means count/offset is wrong"
+    )
+    assert(
+      !finalIndices.contains(7),
+      s"the stale first-batch index 7 must never reach the final flush: $finalIndices"
+    )
+  }
 }
