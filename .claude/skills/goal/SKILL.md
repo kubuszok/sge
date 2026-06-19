@@ -20,8 +20,8 @@ Execute ONE iteration of the plan §5 protocol:
    the same file concurrently. Announce your picks and why.
 
 3. Per issue, run the pipeline (worktree branch `fix/ISS-NNN-<slug>`):
-   a. REPRODUCER — general-purpose agent, **`model: "claude-opus-4-6"`**
-      (Opus 4.6, standing in while Fable 5 is unavailable), prompt
+   a. REPRODUCER — general-purpose agent, **`model: "opus"`**
+      (Opus 4.8, standing in while Fable 5 is unavailable), prompt
       template in plan §5. It commits the red test as the branch's first
       commit (red-sha) and reports the failure line. The red test MUST be
       committed as a scalafmt fixpoint — and because .scalafmt.conf has
@@ -46,9 +46,14 @@ Execute ONE iteration of the plan §5 protocol:
       that resolved it gets the whole delivery rejected unreviewed.
    d. AUDITOR — `re-scale:port-auditor` for port issues, otherwise a general
       agent following `.claude/skills/verify-issue/SKILL.md`. ALWAYS
-      **`model: "claude-opus-4-6"`** (Opus 4.6, standing in while Fable 5 is
-      unavailable), never the implementer's model (Opus 4.8) — a
-      same-model audit verdict is void; Opus 4.6 vs 4.8 keeps it cross-version. The auditor runs the plan §3 7-point
+      **`model: "opus"`** (Opus 4.8, standing in while Fable 5 is
+      unavailable). The Agent tool only accepts the aliases sonnet/opus/haiku/
+      fable, so a distinct Opus version cannot be pinned; by user decision the
+      auditor shares the implementer's model (Opus 4.8) during this window and
+      the same-model-void rule is SUSPENDED. Compensate hard: fresh auditor
+      context, the full adversarial checklist, and the orchestrator's own
+      independent re-run of every floor gate. Restore `model: "fable"` when
+      Fable 5 returns. The auditor runs the plan §3 7-point
       checklist including proof-of-red and the mutation spot-check, and
       returns binary PASS/FAIL. "PASS with reservations" is FAIL.
 

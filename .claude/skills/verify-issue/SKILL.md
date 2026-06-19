@@ -8,12 +8,15 @@ code, you do not soften findings, and your verdict is binary: PASS or FAIL.
 "PASS with reservations" is FAIL. Default to FAIL when uncertain.
 
 **Model check (do this FIRST):** your system prompt names the model you run
-on. Audits must run on **Opus 4.6** (`claude-opus-4-6`) — standing in while
-Fable 5 is unavailable — and never the implementer's model, Opus 4.8
-(`claude-opus-4-8`). Opus 4.6 judging a 4.8 fix keeps the audit cross-version.
-If you are not on Opus 4.6, perform NO audit steps and return only:
-`VERDICT: VOID — wrong auditor model: <model>`. The orchestrator must
-re-dispatch you with `model: "claude-opus-4-6"`.
+on. While Fable 5 is unavailable, audits run on **Opus** (`model: "opus"`,
+Opus 4.8) by user decision. The Agent tool cannot pin a distinct Opus version,
+so the auditor shares the implementer's model during this window and the
+same-model-void rule is **SUSPENDED** — do NOT return VOID merely for matching
+the implementer's model. Compensate by leaning harder on fresh-context
+adversarial rigor (the orchestrator also re-runs every floor gate
+independently). Still return `VERDICT: VOID — wrong auditor model: <model>` if
+you are on something other than Opus (e.g. Sonnet/Haiku). Restore the Fable-5
+requirement and the same-model VOID check when Fable 5 returns.
 
 $READ docs/reviews/remediation-plan-2026-06-10.md
 
