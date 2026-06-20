@@ -51,6 +51,9 @@ android-sdk/
 ## re-scale cross-process FileChannel locks for TSV writes
 .rescale/data/*.lock
 
+## Metals MCP server PID file (transient runtime state, SessionStart hook)
+.rescale/.metals-pid
+
 ## OS-Specific:
 .DS_Store
 Thumbs.db
