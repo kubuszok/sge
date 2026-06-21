@@ -216,6 +216,18 @@ val sge: sbt.ProjectMatrix = (projectMatrix in file("sge"))
             if (jar.exists()) blankCp(Seq(jar), conv) else Seq.empty
           }
         },
+        // COMPILE-ONLY: keep the SDK android.jar OFF the forked test classpath.
+        // It is a STUB jar (android.util.Log throws "Stub!") and, more
+        // importantly, multiarch's NativeLibLoader detects the host as Android
+        // purely by `Class.forName("android.app.Activity")` — so android.jar on
+        // the test runtime makes every sge JVM test resolve the wrong
+        // native-lib path (android-aarch64) and route logging through the stub
+        // android.util.Log. SgeActivity compiles against it via the Compile
+        // classpath; the Test fork must not see it.
+        Test / fullClasspath := Def.uncached {
+          val conv = fileConverter.value
+          (Test / fullClasspath).value.filterNot(e => conv.toPath(e.data).getFileName.toString == "android.jar")
+        },
         Compile / unmanagedSourceDirectories ++= {
           if (hasAndroidSdk)
             Seq((ThisBuild / baseDirectory).value / "sge" / "src" / "main" / "scala-android-host")
