@@ -1,6 +1,6 @@
 import _root_.multiarch.sbt.{JvmPackaging, Platform}
 import _root_.sge.sbt.SgePlugin
-import sbt.internal.ProjectMatrix
+import sbt.ProjectMatrix
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -40,7 +40,7 @@ val shared = (projectMatrix in file("shared"))
     name           := "sge-demos-shared",
     organization   := "com.kubuszok",
     publish / skip := true,
-    libraryDependencies += "com.kubuszok" %%% "lls" % "0.1.0"
+    libraryDependencies += "com.kubuszok" %% "lls" % "0.2.0"
   )
   .jvmPlatform()
   .jsPlatform()
@@ -133,7 +133,7 @@ addCommandAlias("androidAll",
 
 val collectReleases = taskKey[File]("Collect all release artifacts into target/releases/")
 
-collectReleases := {
+collectReleases := Def.uncached {
   val log = streams.value.log
   val outDir = baseDirectory.value / "target" / "releases"
   IO.delete(outDir)
