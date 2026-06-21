@@ -198,14 +198,36 @@ val sge: sbt.ProjectMatrix = (projectMatrix in file("sge"))
         libraryDependencies += "com.kubuszok" %% "multiarch-core" % Versions.multiarch,
         libraryDependencies += "com.kubuszok" %% "multiarch-panama-jdk" % Versions.multiarch,
         libraryDependencies += "com.kubuszok" %  "pnm-provider-sge-desktop" % Versions.nativeComponents,
+        // `sge.SgeActivity` (the canonical Android host Activity shell) lives in
+        // sge-core — in the SDK-gated `scala-android-host` source dir — so the
+        // android module need not depend on sge (breaking the former sge<->android
+        // cycle). It references the android framework (`android.app.Activity`,
+        // `GLSurfaceView`, …), so the real SDK `android.jar` is put on this JVM
+        // axis' COMPILE classpath (mirroring the android module). The dir is
+        // added only when the SDK is present, so SDK-less builds simply skip
+        // SgeActivity — exactly as the android module skips its impls. The
+        // android backend it uses is the abstract `platformProvider`, supplied by
+        // the game, so sge-core references NO `*Impl` class at compile time.
+        Compile / unmanagedJars ++= Def.uncached {
+          val conv     = fileConverter.value
+          val cacheDir = (ThisBuild / baseDirectory).value / "sge-deps" / "android-sdk"
+          _root_.multiarch.sbt.AndroidSdk.findSdkRoot(cacheDir).toSeq.flatMap { sdkRoot =>
+            val jar = _root_.multiarch.sbt.AndroidSdk.androidJar(sdkRoot)
+            if (jar.exists()) blankCp(Seq(jar), conv) else Seq.empty
+          }
+        },
+        Compile / unmanagedSourceDirectories ++= {
+          if (hasAndroidSdk)
+            Seq((ThisBuild / baseDirectory).value / "sge" / "src" / "main" / "scala-android-host")
+          else Seq.empty
+        },
         // sge-core compiles against the api ops interfaces only. The android
         // module's COMPILE products are intentionally NOT on sge-core's compile
         // classpath: sge-core references none of the android *Impl classes at
-        // compile time, while the scala-android SgeActivity shell (in the android
-        // module) consumes sge-core's products — so pulling android compile-products
-        // onto sge-core's compile classpath would form a build cycle (sge ↔ android).
-        // The android products are still merged into the sge JAR (packageBin
-        // mappings below) and are on the test classpath at runtime.
+        // compile time. The android products are still merged into the sge JAR
+        // (packageBin mappings below) and are on the test classpath at runtime —
+        // a one-directional sge → android edge (no cycle, since android no longer
+        // dependsOn sge).
         Compile / unmanagedClasspath ++= Def.uncached {
           val conv    = fileConverter.value
           val apiDirs = (`sge-jvm-platform-api`.jvm(Versions.scala3) / Compile / products).value
@@ -382,7 +404,12 @@ val `sge-jvm-platform-android` = (projectMatrix in file("sge-jvm-platform/androi
   // (NPE). sge-core does NOT `.dependsOn` this module (it pulls these products
   // only at Test/packageBin, via tasks), so the dependsOn graph
   // android -> sge -> api stays acyclic.
-  .dependsOn(`sge-jvm-platform-api`, sge)
+  // sbt-2.0 cycle break: this module is now sge-FREE (SgeActivity moved to
+  // sge-core as `sge.SgeActivity`, taking the only sge-core reference with it),
+  // so it dependsOn ONLY the api module. The former `.dependsOn(sge)` + sge
+  // pulling this module's products was an sge<->android mutually-recursive pair
+  // that sbt 1.x tolerated lazily but sbt 2.0's eager task graph deadlocked on.
+  .dependsOn(`sge-jvm-platform-api`)
 
 // ── Extension modules ─────────────────────────────────────────────────
 //

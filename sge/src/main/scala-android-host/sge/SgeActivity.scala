@@ -9,10 +9,24 @@
 //
 // This generalizes the manual wiring that every game previously hand-copied
 // (see sge-test/android-smoke/.../SmokeActivity.scala, now refactored to
-// extend this shell). Subclasses provide only `createListener` and may
-// override `createConfig` / `onFrameRendered`.
+// extend this shell). Subclasses provide `platformProvider` (the android
+// backend, e.g. `sge.platform.android.AndroidPlatformProviderImpl`, which lives
+// in sge-jvm-platform-android) and `createListener`; they may override
+// `createConfig` / `onFrameRendered`.
 //
-// Compiled only when android.jar is on the classpath.
+// LOCATION: this class lives in sge-core (not sge-jvm-platform-android) so the
+// android module need NOT depend on sge. SgeActivity references sge-core types
+// (Sge, ApplicationListener, AndroidApplication, SgeAndroidDriver,
+// AndroidGraphics) — all local to this module — plus the android framework
+// (on this module's JVM compile classpath as a Provided dependency, so
+// `extends Activity` resolves; not needed at desktop runtime). Its only former
+// coupling to sge-jvm-platform-android, the concrete `AndroidPlatformProviderImpl`,
+// is now the abstract [[platformProvider]] supplied by the game. This makes the
+// build graph one-directional (sge -> sge-jvm-platform-android -> api) instead
+// of the former sge<->android mutual reference that sbt 2.0's eager task graph
+// deadlocked on.
+//
+// Compiled only when the android framework jar is on the classpath.
 
 package sge
 
@@ -33,7 +47,8 @@ import sge.platform.android._
   * driver. All orchestration logic lives in the driver (which is android-type-free and unit-tested on a plain JVM); this class only translates Android framework callbacks into the plain
   * `Int`/`Char`/`AnyRef` arguments the driver accepts.
   *
-  * Subclasses must implement [[createListener]]. They may override [[createConfig]] to customize the [[AndroidConfigOps]] and [[onFrameRendered]] for a post-render hook.
+  * Subclasses must implement [[platformProvider]] (the android backend) and [[createListener]]. They may override [[createConfig]] to customize the [[AndroidConfigOps]] and [[onFrameRendered]] for a
+  * post-render hook.
   */
 abstract class SgeActivity extends Activity {
 
@@ -44,6 +59,11 @@ abstract class SgeActivity extends Activity {
 
   /** The driver pumping the application's lifecycle, available after [[onCreate]]. */
   private var _driver: SgeAndroidDriver = scala.compiletime.uninitialized
+
+  /** The android backend provider for this application — e.g. `sge.platform.android.AndroidPlatformProviderImpl` from sge-jvm-platform-android. Supplied by the game (which has the android backend on
+    * its classpath) so sge-core need not depend on that module.
+    */
+  protected def platformProvider: AndroidPlatformProvider
 
   /** The application built by this Activity. Available to subclasses after [[onCreate]] has run. */
   protected def application: AndroidApplication = _application
@@ -68,7 +88,7 @@ abstract class SgeActivity extends Activity {
     try {
       Log.i(TAG, "Creating SGE application...")
 
-      val provider = AndroidPlatformProviderImpl
+      val provider = platformProvider
       val config   = createConfig(provider)
 
       val lifecycle = provider.createLifecycle(this)

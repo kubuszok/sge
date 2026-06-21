@@ -25,6 +25,10 @@ class SmokeActivity extends SgeActivity {
 
   private val TAG = "SGE-SMOKE"
 
+  // The android backend — `SgeActivity` (now in sge-core) takes this abstractly
+  // so sge-core need not depend on sge-jvm-platform-android.
+  override protected def platformProvider: AndroidPlatformProvider = AndroidPlatformProviderImpl
+
   override protected def createListener(using Sge): ApplicationListener = new SmokeListener()
 
   override protected def createConfig(provider: AndroidPlatformProvider): AndroidConfigOps = {

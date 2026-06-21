@@ -78,7 +78,7 @@ class FrameBufferISS561Suite extends munit.FunSuite {
 
   // --- Fixed handles the recording GL hands back -----------------------------
   private val FramebufferHandle = 40
-  private val TextureHandle      = 60
+  private val TextureHandle     = 60
 
   // A small color FBO. 4x3 so width != height pins glViewport arguments.
   private val FbWidth  = 4
@@ -183,20 +183,28 @@ class FrameBufferISS561Suite extends munit.FunSuite {
   // --- successful build: handles, order, dimensions, color texture ------------
 
   test("ISS561: a successful FrameBuffer build generates the FBO, attaches the color texture, and checks status COMPLETE") {
-    val gl = new RecordingGL20() // status defaults to GL_FRAMEBUFFER_COMPLETE
+    val gl    = new RecordingGL20() // status defaults to GL_FRAMEBUFFER_COMPLETE
     given Sge = makeSge(gl)
 
     val fb = new FrameBuffer(makeBuilder)
 
     // The framebuffer handle is the glGenFramebuffer() value, not the texture's.
-    assertEquals(fb.getFramebufferHandle, FramebufferHandle, "framebufferHandle must be the glGenFramebuffer() result (port GLFrameBuffer.scala line 170)")
+    assertEquals(
+      fb.getFramebufferHandle,
+      FramebufferHandle,
+      "framebufferHandle must be the glGenFramebuffer() result (port GLFrameBuffer.scala line 170)"
+    )
     assertEquals(fb.width.toInt, FbWidth, "width comes from the builder")
     assertEquals(fb.height.toInt, FbHeight, "height comes from the builder")
 
     // The color texture exists and is the Texture created from the attachment
     // spec; its GL handle is the glGenTexture() value.
     assertEquals(fb.textureAttachments.size, 1, "exactly one color texture attachment was created")
-    assertEquals(fb.colorBufferTexture.textureObjectHandle.toInt, TextureHandle, "the color texture's GL handle is the glGenTexture() result")
+    assertEquals(
+      fb.colorBufferTexture.textureObjectHandle.toInt,
+      TextureHandle,
+      "the color texture's GL handle is the glGenTexture() result"
+    )
 
     // The salient FBO state-machine calls, in the order build() issues them.
     // (Texture filter/wrap glTexParameteri / glTexImage2D are intentionally not
@@ -212,7 +220,10 @@ class FrameBufferISS561Suite extends munit.FunSuite {
         Call("glGenFramebuffer", Nil),
         Call("glBindFramebuffer", List(GL20.GL_FRAMEBUFFER, FramebufferHandle)),
         Call("glGenTexture", Nil),
-        Call("glFramebufferTexture2D", List(GL20.GL_FRAMEBUFFER, GL20.GL_COLOR_ATTACHMENT0, TextureTarget.Texture2D.toInt, TextureHandle, 0)),
+        Call(
+          "glFramebufferTexture2D",
+          List(GL20.GL_FRAMEBUFFER, GL20.GL_COLOR_ATTACHMENT0, TextureTarget.Texture2D.toInt, TextureHandle, 0)
+        ),
         Call("glCheckFramebufferStatus", List(GL20.GL_FRAMEBUFFER)),
         Call("glBindFramebuffer", List(GL20.GL_FRAMEBUFFER, 0))
       ),
@@ -229,7 +240,7 @@ class FrameBufferISS561Suite extends munit.FunSuite {
     // GL reports GL_FRAMEBUFFER_UNSUPPORTED. build() (port lines 345-374) must
     // NOT register the buffer; it disposes the color texture, deletes the
     // framebuffer object, and throws the documented IllegalStateException.
-    val gl = new RecordingGL20(framebufferStatus = GL20.GL_FRAMEBUFFER_UNSUPPORTED)
+    val gl    = new RecordingGL20(framebufferStatus = GL20.GL_FRAMEBUFFER_UNSUPPORTED)
     given Sge = makeSge(gl)
 
     val ex = intercept[IllegalStateException] {
@@ -265,9 +276,9 @@ class FrameBufferISS561Suite extends munit.FunSuite {
   // --- begin()/bind(): bind the FBO + set its viewport ------------------------
 
   test("ISS561: begin() binds the framebuffer handle and sets the viewport to the FBO size; bind() binds without a viewport") {
-    val gl = new RecordingGL20()
+    val gl    = new RecordingGL20()
     given Sge = makeSge(gl)
-    val fb = new FrameBuffer(makeBuilder)
+    val fb    = new FrameBuffer(makeBuilder)
     gl.calls.clear() // drop construction noise; isolate begin()/bind()
 
     fb.begin()
@@ -295,9 +306,9 @@ class FrameBufferISS561Suite extends munit.FunSuite {
   // --- end()/unbind(): rebind default framebuffer + restore default viewport --
 
   test("ISS561: end() unbinds to the default framebuffer (0) and restores the back-buffer viewport") {
-    val gl = new RecordingGL20()
+    val gl    = new RecordingGL20()
     given Sge = makeSge(gl)
-    val fb = new FrameBuffer(makeBuilder)
+    val fb    = new FrameBuffer(makeBuilder)
     gl.calls.clear()
 
     fb.end()
@@ -314,9 +325,9 @@ class FrameBufferISS561Suite extends munit.FunSuite {
   // --- dispose/close: delete texture + (zeroed) renderbuffers + framebuffer ---
 
   test("ISS561: close() disposes the color texture and deletes the framebuffer object") {
-    val gl = new RecordingGL20()
+    val gl    = new RecordingGL20()
     given Sge = makeSge(gl)
-    val fb = new FrameBuffer(makeBuilder)
+    val fb    = new FrameBuffer(makeBuilder)
     gl.calls.clear()
 
     fb.close()
