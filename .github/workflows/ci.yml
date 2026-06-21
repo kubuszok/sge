@@ -207,7 +207,7 @@ jobs:
         run: npx --yes playwright install --with-deps chromium
 
       - name: Run browser integration tests
-        run: sbt 'sge-it-browser/test'
+        run: sbt 'sge-it-browser/testFull'
 
   # ─── Scala Native tests (uses provider JARs from Sonatype) ──────────
 
@@ -346,7 +346,7 @@ jobs:
       - name: Run Desktop integration tests (under xvfb)
         run: |
           xvfb-run -a --server-args="-screen 0 1280x1024x24" \
-            sbt 'sge-it-desktop/test'
+            sbt 'sge-it-desktop/testFull'
         env:
           # Hard-fail (do not assume-skip) if the display or native libs are
           # unavailable — this job must never silently return to zero executed
@@ -374,7 +374,7 @@ jobs:
           apps: sbt
 
       - name: Run JVM Platform integration tests
-        run: sbt 'sge-it-jvm-platform/test'
+        run: sbt 'sge-it-jvm-platform/testFull'
 
   # ─── Android IT tests (emulator) ──────────────────────────────
 
@@ -413,7 +413,7 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -no-metrics
           disable-animations: true
-          script: sbt 'sge-android-smoke/test'
+          script: sbt 'sge-android-smoke/testFull'
 
   # ─── Android IT tests (emulator, depends on unit tests) ────────
 
@@ -456,7 +456,7 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -no-metrics
           disable-animations: true
-          script: sbt 'sge-it-android/test'
+          script: sbt 'sge-it-android/testFull'
 
   # ─── Demo smoke (Scala.js) ──────────────────────────────────────
 

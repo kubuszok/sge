@@ -80,10 +80,17 @@ lazy val sgeAliasCombinations: Seq[(String, String)] =
 def sgeAliasName(prefix: String, platform: String, scalaBin: String): String =
   s"$prefix-${platform.toLowerCase}-${scalaBin.replace('.', '_')}"
 
+// sbt 2.0 changed `test` to an INCREMENTAL/cached task — on a fresh CI checkout
+// `<id>/test` runs 0 suites (silent false-green). The Aliases helper still emits
+// `<id>/test`, so rewrite the task to `<id>/testFull` (the non-incremental form)
+// in the ci-*/test-* aliases. Only the `/test` task suffix is rewritten; `/compile`,
+// `coverage`, `clean` etc. are untouched (no project id ends in a bare `/test`).
+def testFullify(cmd: String): String = cmd.replace("/test", "/testFull")
+
 lazy val sgeCommandAliases: Seq[Def.Setting[State => State]] =
   sgeAliasCombinations.flatMap { case (platform, scalaBin) =>
-    addCommandAlias(sgeAliasName("ci", platform, scalaBin), al.ci(platform, scalaBin)) ++
-      addCommandAlias(sgeAliasName("test", platform, scalaBin), al.test(platform, scalaBin)) ++
+    addCommandAlias(sgeAliasName("ci", platform, scalaBin), testFullify(al.ci(platform, scalaBin))) ++
+      addCommandAlias(sgeAliasName("test", platform, scalaBin), testFullify(al.test(platform, scalaBin))) ++
       addCommandAlias(sgeAliasName("publishLocal", platform, scalaBin), al.publishLocal(platform, scalaBin).mkString(" ; "))
   }
 
