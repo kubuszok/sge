@@ -4,6 +4,12 @@
 lazy val root = (project in file("."))
   .enablePlugins(SbtPlugin)
   .settings(
+    // sbt 2.0 plugins are Scala 3, but some transitive plugin deps (e.g.
+    // sbt-scalafmt → scalafmt-dynamic) still pull Scala-2.13 builds of
+    // scala-xml / scala-collection-compat alongside the Scala-3 ones, tripping
+    // the conflicting-cross-version-suffix guard. These are runtime-compatible
+    // here (plugin classpath), so don't fail the build on the mixed suffixes.
+    conflictWarning := conflictWarning.value.copy(failOnConflict = false),
     name         := "sge-build",
     organization := "com.kubuszok",
     // Version matches the SGE library. Read from ../.sge-version (written by
@@ -17,8 +23,8 @@ lazy val root = (project in file("."))
         s"$sha-SNAPSHOT"
       }
     },
-    // Match the sbt version used by projects consuming this plugin
-    scalaVersion := "2.12.20",
+    // sbt 2.0 plugins are built for Scala 3 (the sbt-2.0 meta-build dialect);
+    // no explicit scalaVersion needed (SbtPlugin defaults it).
     // Generate sge-build.properties with the plugin version baked in.
     // SgePlugin.sgeVersion reads this from the classpath at runtime.
     Compile / resourceGenerators += Def.task {
@@ -26,13 +32,13 @@ lazy val root = (project in file("."))
       IO.write(file, s"sge.version=${version.value}\n")
       Seq(file)
     }.taskValue,
-    // Plugin dependencies — these are available to projects that enable SgePlugin
-    addSbtPlugin("com.eed3si9n"     % "sbt-projectmatrix"  % "0.11.0"),
-    addSbtPlugin("org.scala-js"     % "sbt-scalajs"        % "1.21.0"),
-    addSbtPlugin("org.scala-native" % "sbt-scala-native"   % "0.5.10"),
-    addSbtPlugin("org.scalameta"    % "sbt-scalafmt"       % "2.5.4"),
+    // Plugin dependencies — these are available to projects that enable SgePlugin.
+    // sbt-projectmatrix is merged into sbt 2.0 (no longer added separately).
+    addSbtPlugin("org.scala-js"     % "sbt-scalajs"        % "1.22.0"),
+    addSbtPlugin("org.scala-native" % "sbt-scala-native"   % "0.5.12"),
+    addSbtPlugin("org.scalameta"    % "sbt-scalafmt"       % "2.5.6"),
     // multiarch-scala — provides Platform, NativeProviderPlugin, ZigCross, JvmPackaging
-    addSbtPlugin("com.kubuszok"     % "sbt-multiarch-scala" % "0.1.2"),
+    addSbtPlugin("com.kubuszok"     % "sbt-multiarch-scala" % "0.3.0"),
     // Sonatype snapshots for sbt-multi-arch-release
     resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
     // Test scope for unit-testing pure plugin data (e.g. the strict/lenient
