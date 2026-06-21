@@ -53,7 +53,7 @@ object SgeNativeLibs {
   /** Validation settings for the sge JVM axis. Defines the `sgeValidateNativeLibs` task; release.yml invokes it explicitly before `ci-release` so a failure blocks the Sonatype publish (sbt runs commands sequentially and stops on the first failure).
     */
   lazy val validationSettings: Seq[Setting[_]] = Seq(
-    sgeValidateNativeLibs := {
+    sgeValidateNativeLibs := Def.uncached {
       val log      = streams.value.log
       val report   = update.value
       val required = Platform.desktop.map(_.classifier).toSet

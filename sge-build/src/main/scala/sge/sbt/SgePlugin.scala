@@ -4,7 +4,7 @@ import multiarch.sbt.{ JvmPackaging, Platform, ProjectMatrixOps => MultiArchProj
 
 import sbt._
 import sbt.Keys._
-import sbt.internal.ProjectMatrix
+import sbt.ProjectMatrix
 
 /** Base SGE project plugin. Provides Scala 3 compiler settings, native lib directory handling, and common keys. Enable on a projectMatrix or Project:
   * {{{

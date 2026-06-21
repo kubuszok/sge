@@ -61,7 +61,7 @@ object SgePackaging {
 
     resDirs.filter(_.exists()).foreach { base =>
       val baseDir = base.toPath
-      (base ** "*").get.foreach { f =>
+      (base ** "*").get().foreach { f =>
         if (f.isFile && f.getName != "AndroidManifest.xml" && f.getName != "assets.txt") {
           val rel  = baseDir.relativize(f.toPath).toString.replace('\\', '/')
           val size = f.length()
@@ -136,7 +136,7 @@ object SgePackaging {
     IO.createDirectory(assetsDir)
     resDirs.filter(_.exists()).foreach { base =>
       val baseDir = base.toPath
-      (base ** "*").get.foreach { f =>
+      (base ** "*").get().foreach { f =>
         if (f.isFile) {
           val rel        = baseDir.relativize(f.toPath).toString.replace('\\', '/')
           val targetFile = assetsDir / rel
@@ -187,8 +187,10 @@ object SgePackaging {
     */
   lazy val browserSettings: Seq[Setting[_]] = Seq(
     sgeBrowserTitle := JvmPackaging.releaseAppName.value,
-    sgeGenerateAssetManifest := generateAssetManifestTask.value,
-    sgePackageBrowser := packageBrowserTask.value
+    // sbt 2.0 caches task results and refuses to cache a File/Path output; these
+    // packaging tasks produce directories/files as side effects, so opt out.
+    sgeGenerateAssetManifest := Def.uncached(generateAssetManifestTask.value),
+    sgePackageBrowser := Def.uncached(packageBrowserTask.value)
   )
 
   // ── Scala Native packaging ─────────────────────────────────────────
@@ -249,7 +251,7 @@ object SgePackaging {
   /** Scala Native packaging settings. Apply to Native platform projects. Requires the caller to wire `sgeNativeBinary` to `Compile / nativeLink`.
     */
   lazy val nativeSettings: Seq[Setting[_]] = Seq(
-    sgePackageNative := packageNativeTask.value
+    sgePackageNative := Def.uncached(packageNativeTask.value)
   )
 
   // ── Helpers ────────────────────────────────────────────────────────
@@ -287,7 +289,7 @@ object SgePackaging {
     val parentDir = sourceDir.getParentFile
     val out       = new java.util.zip.ZipOutputStream(new java.io.FileOutputStream(archiveFile))
     try {
-      val allFiles = (sourceDir ** AllPassFilter).get.filter(_.isFile)
+      val allFiles = (sourceDir ** AllPassFilter).get().filter(_.isFile)
       allFiles.foreach { file =>
         val relativePath = parentDir.toPath.relativize(file.toPath).toString
         val entry        = new java.util.zip.ZipEntry(relativePath)

@@ -9,7 +9,6 @@ import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 import scala.scalanative.sbtplugin.ScalaNativePlugin
 import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport._
-import sbtprojectmatrix.ProjectMatrixKeys.projectMatrixBaseDirectory
 
 /** JVM desktop platform plugin. Auto-triggers when [[SgePlugin]] is enabled.
   *
@@ -49,7 +48,7 @@ object SgeDesktopJvmPlatform extends AutoPlugin {
   /** JVM platform settings: fork for Panama FFM, library path, scaladesktop source dir. */
   private lazy val jvmRuntime: Seq[Setting[_]] = Seq(
     Compile / unmanagedSourceDirectories ++= {
-      val desktopDir = projectMatrixBaseDirectory.value / "src" / "main" / "scaladesktop"
+      val desktopDir = baseDirectory.value / "src" / "main" / "scaladesktop"
       if (desktopDir.exists()) Seq(desktopDir) else Seq.empty
     },
     fork := true,
@@ -91,7 +90,7 @@ object SgeBrowserPlatform extends AutoPlugin {
       SgePlugin.sgeVersion
     ),
     scalaJSUseMainModuleInitializer := true,
-    SgePackaging.sgeJsOutputDir := {
+    SgePackaging.sgeJsOutputDir := Def.uncached {
       val _ = (Compile / fullLinkJS).value
       (Compile / fullLinkJS / scalaJSLinkerOutputDirectory).value
     },
@@ -126,7 +125,12 @@ object SgeDesktopNativePlatform extends AutoPlugin {
           SgePlugin.sgeVersion
         ),
         NativeExtractSettings.nativeLibSourceDir := SgePlugin.autoImport.sgeNativeLibLocalDir.value,
-        SgePackaging.sgeNativeBinary := (Compile / nativeLink).value
+        // sbt 2.0: nativeLink yields a HashedVirtualFileRef; materialize it to a
+        // real File through the build's FileConverter.
+        SgePackaging.sgeNativeBinary := Def.uncached {
+          val conv = fileConverter.value
+          conv.toPath((Compile / nativeLink).value).toFile
+        }
       )
 }
 
