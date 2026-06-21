@@ -8,7 +8,7 @@
  *   Renames: GwtApplication -> BrowserApplication
  *   Convention: Scala.js only; GWT EntryPoint/Panel/Widget -> direct DOM manipulation
  *   Convention: GWT AnimationScheduler -> window.requestAnimationFrame
- *   Convention: Preloader replaced by BrowserAssetLoader (fetch-based)
+ *   Convention: Preloader replaced by BrowserAssetLoader (build-time-embedded resources)
  *   Convention: AgentInfo JSNI helper dropped (use navigator.userAgent directly)
  *   Convention: LoadingListener callback replaced by simple onReady/onSetup hooks
  *   Idiom: Gdx.* globals -> Sge context (given); postRunnable uses scala.collection.mutable.ArrayBuffer
@@ -44,14 +44,16 @@ import sge.utils.Clipboard
   *   a context function that creates the application listener when given an [[Sge]] context
   * @param config
   *   the browser application configuration
-  * @param baseUrl
-  *   base URL for asset loading (default: "assets/")
   */
 class BrowserApplication(
   listenerFactory: Sge ?=> ApplicationListener,
-  config:          BrowserApplicationConfig,
-  baseUrl:         String = "assets/"
+  config:          BrowserApplicationConfig
 ) extends Application {
+
+  // Hard reference to the build-time-generated, self-registering embedded-resources
+  // object so Scala.js DCE keeps its initializer (which calls EmbeddedResources.register).
+  // Assets are embedded at compile time and served synchronously via PlatformResources.
+  val _ : AnyRef = _root_.sge.platform.GeneratedEmbeddedResources
 
   // --- Runnables ---
 
@@ -74,7 +76,7 @@ class BrowserApplication(
 
   private val _graphics = new BrowserGraphics(canvas, config, gl20, gl30Opt, glVersion)
   private val _audio: Audio = if (!config.disableAudio) new DefaultBrowserAudio(this) else new NoopAudio
-  private val assetLoader = new BrowserAssetLoader(baseUrl)
+  private val assetLoader = new BrowserAssetLoader
   private val _files      = new BrowserFiles(assetLoader)
   private val _net        = new BrowserNet(config)
   private val _clipboard  = new BrowserClipboard
@@ -103,34 +105,12 @@ class BrowserApplication(
     listenerFactory
   }
 
-  // Preload assets from manifest if enabled, then start the game.
-  // If assets.txt is not found (404), start without preloading.
-  if (config.preloadAssets) {
+  // Assets are embedded at compile time (multiarch-resources) and served
+  // synchronously by BrowserAssetLoader \u2014 there is no async fetch/manifest
+  // preload phase. Load extension dependencies (e.g. async WASM modules) once
+  // before the game listener's create() runs in startGameLoop(), then start.
+  locally {
     import scala.concurrent.ExecutionContext.Implicits.global
-    val callback = new BrowserAssetLoader.PreloadCallback {
-      def update(loaded: Int, total: Int, lastAssetSize: Long): Unit = {
-        val loadingDiv = document.getElementById("loading")
-        if (loadingDiv != null) {
-          loadingDiv.textContent = s"Loading assets\u2026 $loaded / $total"
-        }
-      }
-      def error(path: String, cause: Throwable): Unit =
-        dom.console.warn(s"[sge] Failed to preload: $path \u2014 ${cause.getMessage}")
-      def finished(): Unit = ()
-    }
-    assetLoader
-      .preload("assets.txt", callback)
-      .toFuture
-      .recover { case _: Throwable =>
-        dom.console.info("[sge] No assets.txt manifest found; starting without preload")
-      }
-      // Load extension dependencies (e.g. async WASM modules) once, after preload
-      // and before the game listener's create() runs in startGameLoop().
-      .flatMap(_ => SgeExtension.loadAll(config.extensions)(using sgeContext, summon))
-      .foreach(_ => startGameLoop())
-  } else {
-    import scala.concurrent.ExecutionContext.Implicits.global
-    // No asset preload: still load extension dependencies once before create().
     SgeExtension.loadAll(config.extensions)(using sgeContext, summon).foreach(_ => startGameLoop())
   }
 

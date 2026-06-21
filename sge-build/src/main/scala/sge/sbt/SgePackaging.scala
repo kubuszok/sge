@@ -22,9 +22,9 @@ import sbt.Keys._
   *
   * `sgePackageNative` — packages Scala Native executable into a distributable directory.
   *
-  * Covenant: full-port Covenant-baseline-spec-pass: 0 Covenant-baseline-loc: 307 Covenant-baseline-methods:
-  * NativeLibExts,SgePackaging,_,appName,archive,assetsDir,binary,browserSettings,cmd,codesignAdHoc,createTarGzArchive,createZipArchive,dest,dirName,dirs,distSettings,entries,exeName,exit,generateAssetManifestTask,generateHtml,hasNativeLibs,hostIsMac,html,isWindows,jsDir,jvmSettings,log,manifest,mimeType,n,nativeDir,nativeSettings,out,outDir,outFile,output,packageBrowserTask,packageNativeTask,parentDir,platform,proc,resDirs,sgeBrowserTitle,sgeGenerateAssetManifest,sgeJsOutputDir,sgeNativeBinary,sgePackageBrowser,sgePackageNative,sgeRelease,title
-  * Covenant-source-reference: SGE-original Covenant-verified: 2026-04-19
+  * Covenant: full-port Covenant-baseline-spec-pass: 0 Covenant-baseline-loc: 225 Covenant-baseline-methods:
+  * NativeLibExts,SgePackaging,_,appName,archive,binary,browserSettings,cmd,codesignAdHoc,createTarGzArchive,createZipArchive,dest,dirName,distSettings,exeName,exit,generateHtml,hasNativeLibs,hostIsMac,html,isWindows,jsDir,jvmSettings,log,nativeDir,nativeSettings,out,outDir,output,packageBrowserTask,packageNativeTask,parentDir,platform,proc,sgeBrowserTitle,sgeJsOutputDir,sgeNativeBinary,sgePackageBrowser,sgePackageNative,sgeRelease,title
+  * Covenant-source-reference: SGE-original Covenant-verified: 2026-06-22
   */
 object SgePackaging {
 
@@ -38,9 +38,8 @@ object SgePackaging {
 
   // ── Browser (Scala.js) packaging ───────────────────────────────────
 
-  val sgePackageBrowser        = taskKey[File]("Package Scala.js output as a browser-ready directory with HTML")
-  val sgeBrowserTitle          = settingKey[String]("HTML page title for the browser package")
-  val sgeGenerateAssetManifest = taskKey[File]("Generate assets.txt manifest from project resources")
+  val sgePackageBrowser = taskKey[File]("Package Scala.js output as a browser-ready directory with HTML")
+  val sgeBrowserTitle   = settingKey[String]("HTML page title for the browser package")
 
   /** The fullLinkJS output directory must be provided by the caller, since sbt-scalajs types are not on this plugin's classpath. Wire it in build.sbt:
     * {{{
@@ -49,79 +48,17 @@ object SgePackaging {
     */
   val sgeJsOutputDir = taskKey[File]("Directory containing fullLinkJS output (main.js)")
 
-  private val generateAssetManifestTask: Def.Initialize[Task[File]] = Def.task {
-    // Trigger resource generators first so generated files (e.g. test textures, audio) are present
-    val _       = (Compile / managedResources).value
-    val log     = streams.value.log
-    val resDirs = (Compile / unmanagedResourceDirectories).value ++ (Compile / managedResourceDirectories).value
-    val outFile = (Compile / resourceManaged).value / "assets.txt"
-
-    val entries = scala.collection.mutable.ArrayBuffer[String]()
-    val dirs    = scala.collection.mutable.Set[String]()
-
-    resDirs.filter(_.exists()).foreach { base =>
-      val baseDir = base.toPath
-      (base ** "*").get().foreach { f =>
-        if (f.isFile && f.getName != "AndroidManifest.xml" && f.getName != "assets.txt") {
-          val rel  = baseDir.relativize(f.toPath).toString.replace('\\', '/')
-          val size = f.length()
-          val ext  = f.getName.toLowerCase match {
-            case n
-                if n.endsWith(".png") || n.endsWith(".jpg") || n.endsWith(".jpeg") ||
-                  n.endsWith(".gif") || n.endsWith(".bmp") || n.endsWith(".webp") =>
-              "i"
-            case n if n.endsWith(".wav") || n.endsWith(".ogg") || n.endsWith(".mp3") => "a"
-            case n
-                if n.endsWith(".json") || n.endsWith(".g3dj") || n.endsWith(".atlas") ||
-                  n.endsWith(".fnt") || n.endsWith(".txt") || n.endsWith(".xml") ||
-                  n.endsWith(".glsl") || n.endsWith(".vert") || n.endsWith(".frag") ||
-                  n.endsWith(".tmj") || n.endsWith(".tsj") || n.endsWith(".skin") =>
-              "t"
-            case _ => "b" // binary fallback (g3db, etc.)
-          }
-          val mime = mimeType(f.getName)
-          entries += s"$ext:$rel:$size:$mime"
-
-          // Track parent directories
-          var parent = rel
-          while (parent.contains("/")) {
-            parent = parent.substring(0, parent.lastIndexOf('/'))
-            if (dirs.add(parent)) entries += s"d:$parent:0:"
-          }
-        }
-      }
-    }
-
-    IO.write(outFile, entries.sorted.mkString("\n"))
-    log.info(s"[sge] Asset manifest: ${entries.size} entries -> ${outFile.getAbsolutePath}")
-    outFile
-  }
-
-  private def mimeType(name: String): String = {
-    val n = name.toLowerCase
-    if (n.endsWith(".png")) "image/png"
-    else if (n.endsWith(".jpg") || n.endsWith(".jpeg")) "image/jpeg"
-    else if (n.endsWith(".gif")) "image/gif"
-    else if (n.endsWith(".bmp")) "image/bmp"
-    else if (n.endsWith(".webp")) "image/webp"
-    else if (n.endsWith(".wav")) "audio/wav"
-    else if (n.endsWith(".ogg")) "audio/ogg"
-    else if (n.endsWith(".mp3")) "audio/mpeg"
-    else if (n.endsWith(".json") || n.endsWith(".g3dj") || n.endsWith(".tmj") || n.endsWith(".tsj")) "application/json"
-    else if (n.endsWith(".xml")) "application/xml"
-    else if (n.endsWith(".txt") || n.endsWith(".atlas") || n.endsWith(".fnt") || n.endsWith(".skin")) "text/plain"
-    else if (n.endsWith(".glsl") || n.endsWith(".vert") || n.endsWith(".frag")) "text/plain"
-    else "application/octet-stream"
-  }
-
   private val packageBrowserTask: Def.Initialize[Task[File]] = Def.task {
-    val log      = streams.value.log
-    val appName  = JvmPackaging.releaseAppName.value
-    val title    = sgeBrowserTitle.value
-    val jsDir    = sgeJsOutputDir.value
-    val outDir   = target.value / "sge-browser" / appName
-    val resDirs  = (Compile / unmanagedResourceDirectories).value ++ (Compile / managedResourceDirectories).value
-    val manifest = sgeGenerateAssetManifest.value
+    // Assets are embedded into main.js at compile time by
+    // MultiArchResourcesPlugin.embeddedResourcesSettings (base64) and served
+    // synchronously at runtime via multiarch.resources.PlatformResources — there
+    // is no assets.txt manifest and no fetch/preload step. This task only emits
+    // index.html + the fullLinkJS output (main.js).
+    val log     = streams.value.log
+    val appName = JvmPackaging.releaseAppName.value
+    val title   = sgeBrowserTitle.value
+    val jsDir   = sgeJsOutputDir.value
+    val outDir  = target.value / "sge-browser" / appName
 
     IO.delete(outDir)
     IO.createDirectory(outDir)
@@ -130,24 +67,6 @@ object SgePackaging {
     IO.listFiles(jsDir).foreach { f =>
       IO.copyFile(f, outDir / f.getName)
     }
-
-    // Copy resources into assets/ subdirectory
-    val assetsDir = outDir / "assets"
-    IO.createDirectory(assetsDir)
-    resDirs.filter(_.exists()).foreach { base =>
-      val baseDir = base.toPath
-      (base ** "*").get().foreach { f =>
-        if (f.isFile) {
-          val rel        = baseDir.relativize(f.toPath).toString.replace('\\', '/')
-          val targetFile = assetsDir / rel
-          IO.createDirectory(targetFile.getParentFile)
-          IO.copyFile(f, targetFile)
-        }
-      }
-    }
-
-    // Copy manifest into assets/
-    IO.copyFile(manifest, assetsDir / "assets.txt")
 
     // Generate index.html
     val html = generateHtml(title, appName)
@@ -187,9 +106,8 @@ object SgePackaging {
     */
   lazy val browserSettings: Seq[Setting[_]] = Seq(
     sgeBrowserTitle := JvmPackaging.releaseAppName.value,
-    // sbt 2.0 caches task results and refuses to cache a File/Path output; these
-    // packaging tasks produce directories/files as side effects, so opt out.
-    sgeGenerateAssetManifest := Def.uncached(generateAssetManifestTask.value),
+    // sbt 2.0 caches task results and refuses to cache a File/Path output; this
+    // packaging task produces a directory as a side effect, so opt out.
     sgePackageBrowser := Def.uncached(packageBrowserTask.value)
   )
 

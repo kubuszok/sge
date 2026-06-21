@@ -1,22 +1,19 @@
 # ISS-562 - scripted test for the sge-build BROWSER packaging task.
-# Exercises SgePackaging.sgePackageBrowser (browser HTML/manifest generation)
-# against a fresh hello-world project built on the locally-published sge-build
-# plugin. The fullLinkJS step is bypassed by overriding sgeJsOutputDir to a stub
-# directory containing a fake main.js (see build.sbt) — so the real HTML/copy/
-# manifest logic runs without invoking the Scala.js linker.
+# Exercises SgePackaging.sgePackageBrowser (browser HTML generation + main.js
+# copy) and the multiarch-resources embedded-resources sourceGenerator against a
+# fresh hello-world project built on the locally-published sge-build plugin. The
+# fullLinkJS step is bypassed by overriding sgeJsOutputDir to a stub directory
+# containing a fake main.js (see build.sbt) — so the real HTML/copy logic runs
+# without invoking the Scala.js linker.
 
 # Assert the package contents via the custom checkBrowserPackage task. This task
-# depends on (and therefore runs) game.js(...) / sgePackageBrowser, so the browser
-# packaging task is exercised here.
+# compiles the JS axis (running the embedded-resources sourceGenerator) and runs
+# game.js(...) / sgePackageBrowser, then asserts (against the actual task outputs,
+# so it is robust to the projectMatrix target layout):
 #   - index.html exists + contains the title, the <script src="main.js"> tag,
 #     and the Loading/app-name text
 #   - main.js was copied into the output
-#   - assets/assets.txt exists + contains the asset entries
-# This is the assertion the CANARY regression must trip.
+#   - the generated, self-registering GeneratedEmbeddedResources.scala object is
+#     produced and registers the expected resource paths
+#   - CANARY: assets/assets.txt (and the assets/ dir) are ABSENT
 > checkBrowserPackage
-
-# The browser package outputs must physically exist on disk (JS axis target is
-# game/target/js-3 for the projectMatrix JS axis).
-$ exists game/target/js-3/sge-browser/hello-sge-browser/index.html
-$ exists game/target/js-3/sge-browser/hello-sge-browser/main.js
-$ exists game/target/js-3/sge-browser/hello-sge-browser/assets/assets.txt

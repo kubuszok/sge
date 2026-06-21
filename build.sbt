@@ -1,4 +1,5 @@
 import _root_.multiarch.sbt.Platform
+import _root_.multiarch.sbt.MultiArchResourcesPlugin
 import _root_.sge.sbt.{SgeNativeLibs, SgePlugin}
 import commandmatrix.extra.*
 import kubuszok.sbt._
@@ -307,6 +308,15 @@ val sge: sbt.ProjectMatrix = (projectMatrix in file("sge"))
       // that touch document/window can be tested (the default Node env has no DOM). ISS-672.
       Test / jsEnv := Def.uncached(new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv())
     )),
+    MatrixAction.ForPlatforms(VirtualAxis.js).Configure(_.settings(
+      // Embed the module's resources into a self-registering generated object so
+      // `multiarch.resources.PlatformResources` can serve them synchronously on
+      // Scala.js (no classpath, no HTTP/manifest preload). Referenced once from
+      // BrowserApplication to defeat Scala.js DCE.
+      MultiArchResourcesPlugin.embeddedResourcesSettings(
+        objectName = "sge.platform.GeneratedEmbeddedResources"
+      )
+    )),
     MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
       libraryDependencies ++= Seq(
         "com.kubuszok" % "sn-provider-sge"  % Versions.nativeComponents,
@@ -320,6 +330,7 @@ val sge: sbt.ProjectMatrix = (projectMatrix in file("sge"))
     name := "sge",
     libraryDependencies ++= Seq(
       "com.kubuszok" %% "lls" % Versions.lls,
+      "com.kubuszok" %% "multiarch-resources" % Versions.multiarch,
       "com.kubuszok" %% "kindlings-fast-show-pretty" % Versions.kindlings,
       "com.kubuszok" %% "kindlings-jsoniter-derivation" % Versions.kindlings,
       "com.kubuszok" %% "kindlings-jsoniter-json" % Versions.kindlings,

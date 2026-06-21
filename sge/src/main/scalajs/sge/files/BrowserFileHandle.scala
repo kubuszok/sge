@@ -6,7 +6,8 @@
  *
  * Migration notes:
  *   Renames: GwtFileHandle -> BrowserFileHandle
- *   Convention: Scala.js only; reads from BrowserAssetLoader's in-memory cache
+ *   Convention: Scala.js only; reads synchronously from BrowserAssetLoader's
+ *     build-time-embedded resources (multiarch.resources.PlatformResources)
  *   Convention: Write operations throw SgeError (browser has no writable filesystem)
  *   Idiom: Overrides all I/O methods from FileHandle base class
  *   Idiom: No java.io.File dependency — passes null to parent constructor and overrides
@@ -22,10 +23,10 @@ import java.io.{ BufferedInputStream, ByteArrayInputStream, File, InputStream, R
 import java.io.InputStreamReader
 import lowlevel.Nullable
 
-/** Browser implementation of [[FileHandle]]. Reads from the [[BrowserAssetLoader]]'s in-memory cache. Write operations are not supported and will throw.
+/** Browser implementation of [[FileHandle]]. Reads synchronously from the [[BrowserAssetLoader]]'s build-time-embedded resources. Write operations are not supported and will throw.
   *
   * @param assetLoader
-  *   the preloaded asset loader
+  *   the asset loader backed by embedded resources
   * @param filePath
   *   the asset path (forward-slash separated)
   * @param fileType
@@ -76,12 +77,9 @@ class BrowserFileHandle(
 
   override def read(): InputStream = {
     val p = path
-    if (assetLoader.isText(p)) {
-      new ByteArrayInputStream(assetLoader.readText(p).getBytes("UTF-8"))
-    } else if (assetLoader.isBinary(p)) {
-      new ByteArrayInputStream(assetLoader.readBytes(p))
-    } else {
-      throw utils.SgeError.FileReadError(this, s"Asset not preloaded: $p")
+    assetLoader.readBytes(p) match {
+      case Some(bytes) => new ByteArrayInputStream(bytes)
+      case None        => throw utils.SgeError.FileReadError(this, s"Asset not found: $p")
     }
   }
 
@@ -96,23 +94,17 @@ class BrowserFileHandle(
 
   override def readString(charset: Nullable[String] = Nullable.empty): String = {
     val p = path
-    if (assetLoader.isText(p)) {
-      assetLoader.readText(p)
-    } else if (assetLoader.isBinary(p)) {
-      charset.fold(new String(assetLoader.readBytes(p)))(cs => new String(assetLoader.readBytes(p), cs))
-    } else {
-      throw utils.SgeError.FileReadError(this, s"Asset not preloaded: $p")
+    assetLoader.readBytes(p) match {
+      case Some(bytes) => charset.fold(new String(bytes, "UTF-8"))(cs => new String(bytes, cs))
+      case None        => throw utils.SgeError.FileReadError(this, s"Asset not found: $p")
     }
   }
 
   override def readBytes(): Array[Byte] = {
     val p = path
-    if (assetLoader.isBinary(p)) {
-      assetLoader.readBytes(p)
-    } else if (assetLoader.isText(p)) {
-      assetLoader.readText(p).getBytes("UTF-8")
-    } else {
-      throw utils.SgeError.FileReadError(this, s"Asset not preloaded: $p")
+    assetLoader.readBytes(p) match {
+      case Some(bytes) => bytes
+      case None        => throw utils.SgeError.FileReadError(this, s"Asset not found: $p")
     }
   }
 

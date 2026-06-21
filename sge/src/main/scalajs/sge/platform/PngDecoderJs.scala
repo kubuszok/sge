@@ -5,12 +5,12 @@
 // Synchronous pure-Scala PNG decoder for the Scala.js platform (ISS-533 /
 // ISS-651).
 //
-// The browser image pipeline (BrowserAssetLoader -> HTMLImageElement -> Canvas)
-// is asynchronous and unavailable when a Pixmap is built synchronously from
-// in-memory bytes that were never preloaded (e.g. the bytes PixmapIO.writePNG
-// just produced, or headless test/tool code under Node). This decoder gives
-// Gdx2dOpsJs.decodeImage a synchronous fallback so such PNGs round-trip on the
-// JS baseline exactly as they do on JVM and Native.
+// Assets are embedded at build time (multiarch.resources) and served
+// synchronously, so image bytes are decoded synchronously here rather than via
+// an async browser Canvas pipeline. This decoder is also used when a Pixmap is
+// built synchronously from in-memory bytes (e.g. the bytes PixmapIO.writePNG
+// just produced, or headless test/tool code under Node), so such PNGs round-trip
+// on the JS baseline exactly as they do on JVM and Native.
 //
 // Supports the 8-bit non-interlaced PNG color types SGE actually emits and the
 // common variants: greyscale (0), truecolor (2), indexed (3), greyscale+alpha

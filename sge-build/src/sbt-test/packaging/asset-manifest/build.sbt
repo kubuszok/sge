@@ -2,16 +2,25 @@ import sge.sbt.SgePlugin
 import sge.sbt.SgePlugin.autoImport._
 import sge.sbt.SgePackaging
 import multiarch.sbt.JvmPackaging
+import multiarch.sbt.MultiArchResourcesPlugin
 
 // Minimal SGE game project used purely to exercise the packaging tasks shipped
 // by the sge-build plugin (ISS-562 scripted test). It enables SgePlugin (so the
-// SGE packaging settings — sgeGenerateAssetManifest + releasePackage — are wired
-// in) but DROPS the heavy `sge` library + extension dependencies that the JVM
+// SGE packaging settings — releasePackage + browser embedding — are wired in)
+// but DROPS the heavy `sge` library + extension dependencies that the JVM
 // platform plugin adds by default. The scripted harness only has the *plugin*
 // published locally, not the full SGE library for this exact version, and the
-// packaging tasks under test (asset manifest + simple release package) don't
-// need the engine on the classpath to run. The single source file is a plain
-// `main` with no SGE imports so the project compiles standalone.
+// packaging tasks under test don't need the engine on the classpath to run. The
+// single source file is a plain `main` with no SGE imports so the project
+// compiles standalone.
+//
+// This test was REPURPOSED for the multiarch-resources migration: the bespoke
+// assets.txt manifest generator (sgeGenerateAssetManifest) is gone. Browser
+// assets are now embedded at compile time by
+// MultiArchResourcesPlugin.embeddedResourcesSettings, which generates a
+// self-registering object. This test asserts that generated object embeds the
+// expected resource paths (and that AndroidManifest.xml is included verbatim as
+// just another resource — there is no special classification any more).
 lazy val game = (projectMatrix in file("game"))
   .enablePlugins(SgePlugin)
   .settings(
@@ -24,55 +33,63 @@ lazy val game = (projectMatrix in file("game"))
       m.organization == "com.kubuszok" &&
       (m.name.startsWith("sge_") || m.name.startsWith("sge-extension"))
     },
+    // The generated embedded-resources object imports
+    // multiarch.resources.EmbeddedResources, so the runtime library must be on
+    // the classpath (sge-core depends on it the same way).
+    libraryDependencies += "com.kubuszok" %% "multiarch-resources" % "0.3.0",
     Compile / mainClass := Some("com.example.HelloGame"),
     // Don't fork test JVM with native lib paths we never built.
     fork := false
   )
   // JVM axis: exercises releasePackage (simple-mode launcher scripts + jars).
   .jvmPlatform()
-  // JS (browser) axis: the sgeGenerateAssetManifest task is wired on the browser
-  // platform (SgeBrowserPlatform / SgePackaging.browserSettings). It only reads
-  // Compile resources, so it runs without a fullLinkJS step (no Scala.js linking).
-  .jsPlatform()
-
-// A tiny custom task that reads the generated manifest and fails loudly if any
-// expected asset line is missing. This is what the scripted `test` script drives
-// (in addition to `$ exists` checks) and what the CANARY regression must trip.
-lazy val checkManifest = taskKey[Unit]("Assert assets.txt contains the expected asset entries")
-
-checkManifest := {
-  val manifest = (game.js(SgePlugin.scalaVersion) / Compile / SgePackaging.sgeGenerateAssetManifest).value
-  if (!manifest.exists()) sys.error(s"[check] manifest does not exist: $manifest")
-  val lines = IO.readLines(manifest)
-  val body  = lines.mkString("\n")
-  // The manifest format is "<type>:<relpath>:<size>:<mime>". We assert on the
-  // relpath fragment so the test is robust to size/mime details.
-  val expected = Seq("assets/hello.txt", "assets/data/x.json", "assets/data")
-  val missing  = expected.filterNot(e => lines.exists(_.contains(e)))
-  if (missing.nonEmpty) {
-    sys.error(
-      s"[check] manifest is missing expected entries: ${missing.mkString(", ")}\n" +
-        s"--- assets.txt (${lines.size} lines) ---\n$body"
+  // JS (browser) axis: wire the embedded-resources sourceGenerator (as sge-core
+  // does). Compiling the JS axis runs it and produces the generated object.
+  .jsPlatform(
+    scalaVersions = Seq(SgePlugin.scalaVersion),
+    settings = MultiArchResourcesPlugin.embeddedResourcesSettings(
+      objectName = "com.example.GeneratedEmbeddedResources"
     )
-  }
-  // hello.txt must be classified as a text asset ("t:") with a size > 0.
-  val helloLine = lines.find(_.contains("assets/hello.txt")).getOrElse(
-    sys.error("[check] no line for assets/hello.txt")
   )
-  if (!helloLine.startsWith("t:")) sys.error(s"[check] hello.txt not classified as text: $helloLine")
-  val helloSize = helloLine.split(":")(2).toLong
-  if (helloSize <= 0) sys.error(s"[check] hello.txt has non-positive size: $helloLine")
-  // AndroidManifest.xml and assets.txt itself must be skipped.
-  if (lines.exists(_.contains("AndroidManifest.xml"))) {
-    sys.error("[check] AndroidManifest.xml must be excluded from the manifest")
+
+// A custom task that compiles the JS axis (running the embedded-resources
+// sourceGenerator) and reads the generated object, failing loudly if any
+// expected asset path is missing. This is what the scripted `test` script drives
+// and what the CANARY regression must trip.
+lazy val checkEmbeddedResources = taskKey[Unit]("Assert the generated embedded-resources object embeds the expected resource paths")
+
+checkEmbeddedResources := Def.uncached {
+  // Force compilation so the embedded-resources sourceGenerator runs.
+  val _      = (game.js(SgePlugin.scalaVersion) / Compile / compile).value
+  val srcMgd = (game.js(SgePlugin.scalaVersion) / Compile / sourceManaged).value
+  val genFile = srcMgd / "com" / "example" / "GeneratedEmbeddedResources.scala"
+  if (!genFile.exists()) sys.error(s"[check] generated embedded-resources object missing: $genFile")
+  val genBody = IO.read(genFile)
+  if (!genBody.contains("object GeneratedEmbeddedResources")) {
+    sys.error(s"[check] generated file does not define object GeneratedEmbeddedResources:\n$genFile")
   }
-  streams.value.log.info(s"[check] manifest OK: ${lines.size} entries")
+  if (!genBody.contains("EmbeddedResources.register")) {
+    sys.error(s"[check] generated file does not self-register via EmbeddedResources.register:\n$genFile")
+  }
+  // The generated object must embed the resource paths (classpath-absolute keys).
+  val expectedKeys = Seq("/assets/hello.txt", "/assets/data/x.json")
+  val missingKeys  = expectedKeys.filterNot(genBody.contains)
+  if (missingKeys.nonEmpty) {
+    sys.error(s"[check] generated object missing expected resource keys: ${missingKeys.mkString(", ")}\n$genFile")
+  }
+  // CANARY: the old assets.txt manifest path must NEVER be generated as a
+  // resource directory artifact for the JS axis.
+  val staleManifest = (game.js(SgePlugin.scalaVersion) / Compile / resourceManaged).value / "assets.txt"
+  if (staleManifest.exists()) {
+    sys.error(s"[check] CANARY: assets.txt manifest must NOT be generated (old mechanism resurfaced): $staleManifest")
+  }
+  streams.value.log.info(s"[check] embedded-resources object OK: $genFile")
 }
 
 // Assert the simple-mode release package produced bin/ launchers + the app jar.
 lazy val checkReleasePackage = taskKey[Unit]("Assert releasePackage produced launchers + jars")
 
-checkReleasePackage := {
+checkReleasePackage := Def.uncached {
   val outDir  = (game.jvm(SgePlugin.scalaVersion) / JvmPackaging.releasePackage).value
   val appName = (game.jvm(SgePlugin.scalaVersion) / JvmPackaging.releaseAppName).value
   val unix    = outDir / "bin" / appName

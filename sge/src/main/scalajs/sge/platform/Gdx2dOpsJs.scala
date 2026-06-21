@@ -1,12 +1,15 @@
-// SGE Native Ops — Scala.js image decoder using browser Canvas API
+// SGE Native Ops — Scala.js image decoder.
 //
-// Images are pre-decoded during BrowserAssetLoader's async preload phase
-// (HTMLImageElement + Canvas 2D getImageData), then served synchronously
-// from a cache keyed by the byte array reference.
+// Image bytes are decoded synchronously via the pure-Scala PngDecoderJs
+// (ISS-533 / ISS-651). Assets are embedded at build time and served
+// synchronously (multiarch.resources), so there is no async Canvas pre-decode
+// phase. The reference-keyed decodedCache remains available for any caller that
+// wants to register a pre-decoded result (e.g. a future Canvas-based path);
+// when empty, decodeImage falls through to the synchronous PNG decoder.
 //
 // Migration notes:
 //   Origin: SGE-original (platform abstraction)
-//   Convention: pre-decode during async preload, serve synchronously from cache
+//   Convention: synchronous decode via PngDecoderJs; optional pre-decode cache
 //   Idiom: split packages
 //   Audited: 2026-03-10
 
@@ -16,14 +19,14 @@ package platform
 import java.nio.ByteBuffer
 import scala.scalajs.js
 
-// private[sge] so BrowserAssetLoader (in sge.files) can call cacheDecodedImage
+// private[sge] so a pre-decode producer (in sge.files) could call cacheDecodedImage
 private[sge] object Gdx2dOpsJs extends Gdx2dOps {
 
   // Use native JS Map via js.Dynamic — supports object keys with reference equality.
   // Scala.js js.Map facade doesn't expose .set/.get, so we use the raw JS API.
   private val decodedCache: js.Dynamic = js.Dynamic.newInstance(js.Dynamic.global.Map)()
 
-  /** Cache a pre-decoded image result. Called from BrowserAssetLoader during preload.
+  /** Cache a pre-decoded image result, keyed by the raw byte array reference.
     *
     * @param rawBytes
     *   the raw encoded image bytes (same reference stored in binaryCache)
@@ -48,15 +51,14 @@ private[sge] object Gdx2dOpsJs extends Gdx2dOps {
       result.pixels.position(0)
       Some(result)
     } else {
-      // Cache miss: the bytes were not preloaded through the browser image
-      // pipeline (e.g. a Pixmap built synchronously from bytes PixmapIO.writePNG
-      // just produced, or headless Node code). Fall back to the synchronous
-      // pure-Scala PNG decoder (ISS-533 / ISS-651). Non-PNG inputs return None,
-      // preserving the original "not pre-decoded" failure path.
+      // Cache miss (the normal path now that assets are embedded and decoded
+      // synchronously): decode via the pure-Scala PNG decoder (ISS-533 /
+      // ISS-651). Non-PNG inputs return None, preserving the original
+      // "not decodable" failure path.
       PngDecoderJs.decode(data, offset, len)
     }
   }
 
   override def failureReason: String =
-    "Image not pre-decoded and not a synchronously decodable PNG — ensure BrowserAssetLoader preloads images before use"
+    "Image is not a synchronously decodable PNG — only PNG inputs are supported on the Scala.js baseline"
 }

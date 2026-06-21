@@ -93,11 +93,7 @@ class BrowserApplicationConfig(
   /** If true, audio backend will not be used. */
   var disableAudio: Boolean = false
 
-  /** If true, preload all assets listed in assets.txt before starting the game loop. The manifest is fetched from `<baseUrl>/assets.txt`.
-    */
-  var preloadAssets: Boolean = true
-
-  /** SGE extensions whose dependencies are loaded once at application startup, after asset preload and before the game listener's `create()` runs. On JS an extension may load asynchronously (e.g. a
+  /** SGE extensions whose dependencies are loaded once at application startup, before the game listener's `create()` runs. On JS an extension may load asynchronously (e.g. a
     * WASM module) here.
     */
   var extensions: Seq[SgeExtension] = Seq.empty

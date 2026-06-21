@@ -6,7 +6,8 @@
  *
  * Migration notes:
  *   Renames: GwtFiles -> BrowserFiles
- *   Convention: Scala.js only; uses BrowserAssetLoader instead of GWT Preloader
+ *   Convention: Scala.js only; uses BrowserAssetLoader (build-time-embedded
+ *     resources via multiarch.resources.PlatformResources) instead of GWT Preloader
  *   Convention: Only Internal FileType supported (browser has no filesystem)
  *   Idiom: GdxRuntimeException -> SgeError.InvalidInput
  *   Audited: 2026-03-08
@@ -18,10 +19,10 @@ package files
 
 /** Browser implementation of [[Files]]. Only [[FileType.Internal]] is supported.
   *
-  * Assets are served from the [[BrowserAssetLoader]]'s in-memory cache, which must be populated (via [[BrowserAssetLoader.preload]]) before use.
+  * Assets are served synchronously from build-time-embedded resources via [[BrowserAssetLoader]].
   *
   * @param assetLoader
-  *   the preloaded asset loader
+  *   the asset loader backed by embedded resources
   */
 class BrowserFiles(val assetLoader: BrowserAssetLoader) extends sge.Files {
 
