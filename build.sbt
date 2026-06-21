@@ -76,11 +76,15 @@ lazy val sgeAliasCombinations: Seq[(String, String)] =
     case VirtualAxis.native => "Native"
   }.map(p => (p, "3"))
 
+// Mirrors the (protected) Aliases.aliasName: e.g. ("ci", "JVM", "3") -> "ci-jvm-3".
+def sgeAliasName(prefix: String, platform: String, scalaBin: String): String =
+  s"$prefix-${platform.toLowerCase}-${scalaBin.replace('.', '_')}"
+
 lazy val sgeCommandAliases: Seq[Def.Setting[State => State]] =
   sgeAliasCombinations.flatMap { case (platform, scalaBin) =>
-    addCommandAlias(al.aliasName("ci", platform, scalaBin), al.ci(platform, scalaBin)) ++
-      addCommandAlias(al.aliasName("test", platform, scalaBin), al.test(platform, scalaBin)) ++
-      addCommandAlias(al.aliasName("publishLocal", platform, scalaBin), al.publishLocal(platform, scalaBin).mkString(" ; "))
+    addCommandAlias(sgeAliasName("ci", platform, scalaBin), al.ci(platform, scalaBin)) ++
+      addCommandAlias(sgeAliasName("test", platform, scalaBin), al.test(platform, scalaBin)) ++
+      addCommandAlias(sgeAliasName("publishLocal", platform, scalaBin), al.publishLocal(platform, scalaBin).mkString(" ; "))
   }
 
 def commonSettings(
@@ -118,7 +122,11 @@ def commonSettings(
     Compile / unmanagedSourceDirectories ++= {
       val desktopDir = (ThisBuild / baseDirectory).value / projectDir / "src" / "main" / "scaladesktop"
       if (desktopDir.exists()) Seq(desktopDir) else Seq.empty
-    }
+    },
+    // scalacheck 1.19 pulls scala-native test-interface 0.5.8 while scala-native
+    // 0.5.12 brings 0.5.12 (strict eviction). They are compatible in practice;
+    // downgrade the eviction error to a warning on the native test classpath.
+    evictionErrorLevel := Level.Warn
   ))
 )
 
@@ -256,7 +264,7 @@ val sge: sbt.ProjectMatrix = (projectMatrix in file("sge"))
       libraryDependencies += "org.scala-js" %% "scalajs-dom" % Versions.scalajsDom,
       // Run sge JS unit tests under jsdom so browser components (BrowserGraphics, etc.)
       // that touch document/window can be tested (the default Node env has no DOM). ISS-672.
-      Test / jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv()
+      Test / jsEnv := Def.uncached(new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv())
     )),
     MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
       libraryDependencies ++= Seq(
