@@ -146,52 +146,48 @@ private[platform] object JpegDecoderJs {
       if (u16() != 0xffd8) None // SOI
       else decodeMarkers()
 
-    private def decodeMarkers(): Option[Gdx2dOps.DecodeResult] = {
-      var result: Option[Gdx2dOps.DecodeResult] = None
-      var sawSOF0 = false
-      var done    = false
-      while (!done)
-        if (pos >= end) done = true
-        else {
+    private def decodeMarkers(): Option[Gdx2dOps.DecodeResult] =
+      scala.util.boundary {
+        var sawSOF0 = false
+        while (true) {
+          if (pos >= end) scala.util.boundary.break(None)
           // Find next marker (skip fill bytes).
           var b = u8()
           while (b != 0xff && pos < end) b = u8()
-          if (pos >= end) done = true
-          else {
-            var m = u8()
-            while (m == 0xff && pos < end) m = u8() // skip fill FFs
-            m match {
-              case 0xc0 => // SOF0 baseline
-                readSOF0()
-                sawSOF0 = true
-              case 0xc1 => // SOF1 extended sequential — same layout; treat as baseline
-                readSOF0()
-                sawSOF0 = true
-              case 0xc2 | 0xc3 | 0xc5 | 0xc6 | 0xc7 | 0xc9 | 0xca | 0xcb | 0xcd | 0xce | 0xcf =>
-                // Progressive / lossless / arithmetic / hierarchical: unsupported.
-                done = true
-              case 0xc4 => readDHT()
-              case 0xdb => readDQT()
-              case 0xdd => readDRI()
-              case 0xda => // SOS
-                if (!sawSOF0) done = true
-                else {
-                  readSOS()
-                  result = Some(assemble())
-                  done = true // first scan completes a baseline image
-                }
-              case 0xd9                        => done = true // EOI
-              case 0x01                        => () // TEM, no payload
-              case x if x >= 0xd0 && x <= 0xd7 => () // RSTn outside scan, no payload
-              case _                           =>
-                // Skip any other marker segment by its length.
-                val seg = u16()
-                pos += (seg - 2)
-            }
+          if (pos >= end) scala.util.boundary.break(None)
+          var m = u8()
+          while (m == 0xff && pos < end) m = u8() // skip fill FFs
+          m match {
+            case 0xc0 => // SOF0 baseline
+              readSOF0()
+              sawSOF0 = true
+            case 0xc1 => // SOF1 extended sequential — same layout; treat as baseline
+              readSOF0()
+              sawSOF0 = true
+            case 0xc2 | 0xc3 | 0xc5 | 0xc6 | 0xc7 | 0xc9 | 0xca | 0xcb | 0xcd | 0xce | 0xcf =>
+              // Progressive / lossless / arithmetic / hierarchical: unsupported.
+              scala.util.boundary.break(None)
+            case 0xc4 => readDHT()
+            case 0xdb => readDQT()
+            case 0xdd => readDRI()
+            case 0xda => // SOS
+              if (!sawSOF0) scala.util.boundary.break(None)
+              else {
+                readSOS()
+                // first scan completes a baseline image
+                scala.util.boundary.break(Some(assemble()))
+              }
+            case 0xd9                        => scala.util.boundary.break(None) // EOI
+            case 0x01                        => () // TEM, no payload
+            case x if x >= 0xd0 && x <= 0xd7 => () // RSTn outside scan, no payload
+            case _                           =>
+              // Skip any other marker segment by its length.
+              val seg = u16()
+              pos += (seg - 2)
           }
         }
-      result
-    }
+        None // unreachable: the while(true) only exits via boundary.break
+      }
 
     private def readSOF0(): Unit = {
       val _    = u16() // segment length
