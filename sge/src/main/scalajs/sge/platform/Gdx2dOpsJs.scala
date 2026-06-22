@@ -52,13 +52,14 @@ private[sge] object Gdx2dOpsJs extends Gdx2dOps {
       Some(result)
     } else {
       // Cache miss (the normal path now that assets are embedded and decoded
-      // synchronously): decode via the pure-Scala PNG decoder (ISS-533 /
-      // ISS-651). Non-PNG inputs return None, preserving the original
-      // "not decodable" failure path.
-      PngDecoderJs.decode(data, offset, len)
+      // synchronously): decode via the pure-Scala decoders (ISS-533 / ISS-651).
+      // Each decoder checks its own magic bytes first and returns None for a
+      // non-matching format, so the chain is cheap and falls through cleanly to
+      // the original "not decodable" failure path for unsupported inputs.
+      PngDecoderJs.decode(data, offset, len).orElse(BmpDecoderJs.decode(data, offset, len)).orElse(GifDecoderJs.decode(data, offset, len)).orElse(JpegDecoderJs.decode(data, offset, len))
     }
   }
 
   override def failureReason: String =
-    "Image is not a synchronously decodable PNG — only PNG inputs are supported on the Scala.js baseline"
+    "Image is not a synchronously decodable PNG/BMP/GIF/baseline-JPEG on the Scala.js baseline"
 }
