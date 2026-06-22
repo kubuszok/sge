@@ -21,7 +21,7 @@ import scala.collection.mutable.ArrayBuffer
 /** GREEN suite for ISS-516: proves controller auto-poll fires through a running host's per-frame tick after [[Controllers.installAutoPoll]] / [[Controllers.installAutoPollInto]], and stops after
   * [[Controllers.dispose]]. See the file header for rationale.
   */
-class ControllersAutoPollAppSuite extends munit.FunSuite {
+class ControllersAutoPollAppSuite extends ControllersIsolatedSuite {
 
   /** A [[ControllerManager]] that records every poll() invocation (same shape as the red suite's recorder). */
   private class RecordingControllerManager extends ControllerManager {
@@ -49,56 +49,56 @@ class ControllersAutoPollAppSuite extends munit.FunSuite {
   }
 
   test("ISS-516(in-app): installAutoPollInto makes runFrameHooks drive manager.poll() every frame") {
-    Controllers.dispose() // clean state
-    val manager = RecordingControllerManager()
-    val host    = TestFrameHookHost()
+    serialized {
+      val manager = RecordingControllerManager()
+      val host    = TestFrameHookHost()
 
-    Controllers.initialize(manager)
-    // initialize alone must NOT install into the host (app-less): ticking the host polls nothing yet.
-    host.tick()
-    assertEquals(manager.pollCount, 0, "initialize must NOT register into the running host by itself")
-
-    // Install the per-frame poll into the running host (the (using Sge) path delegates here).
-    Controllers.installAutoPollInto(host)
-
-    // Simulate N frames by ticking the host's own per-frame loop — no manual poll().
-    val frames = 5
-    var f      = 0
-    while (f < frames) {
+      Controllers.initialize(manager)
+      // initialize alone must NOT install into the host (app-less): ticking the host polls nothing yet.
       host.tick()
-      f += 1
-    }
-    assertEquals(
-      manager.pollCount,
-      frames,
-      "the installed per-frame hook must call manager.poll() once per host frame"
-    )
+      assertEquals(manager.pollCount, 0, "initialize must NOT register into the running host by itself")
 
-    // dispose() must remove the installed hook so subsequent host ticks do NOT poll.
-    Controllers.dispose()
-    val countAtDispose = manager.pollCount
-    host.tick()
-    host.tick()
-    assertEquals(
-      manager.pollCount,
-      countAtDispose,
-      "dispose() must remove the installed hook; subsequent host ticks must not poll (no leak)"
-    )
+      // Install the per-frame poll into the running host (the (using Sge) path delegates here).
+      Controllers.installAutoPollInto(host)
+
+      // Simulate N frames by ticking the host's own per-frame loop — no manual poll().
+      val frames = 5
+      var f      = 0
+      while (f < frames) {
+        host.tick()
+        f += 1
+      }
+      assertEquals(
+        manager.pollCount,
+        frames,
+        "the installed per-frame hook must call manager.poll() once per host frame"
+      )
+
+      // dispose() must remove the installed hook so subsequent host ticks do NOT poll.
+      Controllers.dispose()
+      val countAtDispose = manager.pollCount
+      host.tick()
+      host.tick()
+      assertEquals(
+        manager.pollCount,
+        countAtDispose,
+        "dispose() must remove the installed hook; subsequent host ticks must not poll (no leak)"
+      )
+    }
   }
 
   test("ISS-516(in-app): re-install does not leak hooks (exactly one poll per frame)") {
-    Controllers.dispose()
-    val manager = RecordingControllerManager()
-    val host    = TestFrameHookHost()
+    serialized {
+      val manager = RecordingControllerManager()
+      val host    = TestFrameHookHost()
 
-    Controllers.initialize(manager)
-    Controllers.installAutoPollInto(host)
-    Controllers.installAutoPollInto(host) // idempotent: replaces, does not stack
+      Controllers.initialize(manager)
+      Controllers.installAutoPollInto(host)
+      Controllers.installAutoPollInto(host) // idempotent: replaces, does not stack
 
-    host.tick()
-    assertEquals(manager.pollCount, 1, "re-install must leave exactly one poll hook (no leak)")
-
-    Controllers.dispose()
+      host.tick()
+      assertEquals(manager.pollCount, 1, "re-install must leave exactly one poll hook (no leak)")
+    }
   }
 
   // ── (using Sge) resolution proof ────────────────────────────────────────

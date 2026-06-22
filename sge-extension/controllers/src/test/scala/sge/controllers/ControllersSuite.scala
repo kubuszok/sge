@@ -9,7 +9,7 @@ package controllers
 
 import scala.collection.mutable.ArrayBuffer
 
-class ControllersSuite extends munit.FunSuite {
+class ControllersSuite extends ControllersIsolatedSuite {
 
   /** A test [[ControllerOps]] that returns configurable controller states. */
   private class TestControllerOps extends ControllerOps {
@@ -39,20 +39,24 @@ class ControllersSuite extends munit.FunSuite {
     )
 
   test("Controllers throws when not initialized") {
-    Controllers.dispose() // Ensure clean state
-    intercept[IllegalStateException] {
-      Controllers.getControllers
+    serialized {
+      // The reset fixture already restored the singleton to its pristine un-initialized state.
+      intercept[IllegalStateException] {
+        Controllers.getControllers
+      }
     }
   }
 
   test("Controllers.initialize and dispose lifecycle") {
-    val ops     = TestControllerOps()
-    val manager = DefaultControllerManager(ops)
-    Controllers.initialize(manager)
-    assertEquals(Controllers.getControllers.size, 0)
-    Controllers.dispose()
-    intercept[IllegalStateException] {
-      Controllers.getControllers
+    serialized {
+      val ops     = TestControllerOps()
+      val manager = DefaultControllerManager(ops)
+      Controllers.initialize(manager)
+      assertEquals(Controllers.getControllers.size, 0)
+      Controllers.dispose()
+      intercept[IllegalStateException] {
+        Controllers.getControllers
+      }
     }
   }
 
@@ -166,24 +170,26 @@ class ControllersSuite extends munit.FunSuite {
   }
 
   test("DefaultControllerManager tracks current controller") {
-    val ops     = TestControllerOps()
-    val manager = DefaultControllerManager(ops)
-    Controllers.initialize(manager)
+    serialized {
+      val ops     = TestControllerOps()
+      val manager = DefaultControllerManager(ops)
+      Controllers.initialize(manager)
 
-    // No controller yet
-    assert(Controllers.current.isEmpty, "No current controller expected")
+      // No controller yet
+      assert(Controllers.current.isEmpty, "No current controller expected")
 
-    // Connect
-    ops.states = Array(makeState())
-    manager.poll()
-    assert(Controllers.current.isDefined, "Current controller should be set after connect")
+      // Connect
+      ops.states = Array(makeState())
+      manager.poll()
+      assert(Controllers.current.isDefined, "Current controller should be set after connect")
 
-    // Disconnect
-    ops.states = Array.empty
-    manager.poll()
-    assert(Controllers.current.isEmpty, "Current controller should be empty after disconnect")
+      // Disconnect
+      ops.states = Array.empty
+      manager.poll()
+      assert(Controllers.current.isEmpty, "Current controller should be empty after disconnect")
 
-    Controllers.dispose()
+      Controllers.dispose()
+    }
   }
 
   test("DefaultControllerManager handles multiple controllers") {

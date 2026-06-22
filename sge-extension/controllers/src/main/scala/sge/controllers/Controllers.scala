@@ -7,7 +7,7 @@
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 69
- * Covenant-baseline-methods: Controllers,addListener,clearListeners,current,dispose,getControllers,getListeners,getManager,initialize,manager,removeListener
+ * Covenant-baseline-methods: Controllers,addListener,clearListeners,current,dispose,getControllers,getListeners,getManager,initialize,manager,removeListener,resetForTest
  * Covenant-source-reference: com/badlogic/gdx/controllers/Controllers.java
  * Covenant-verified: 2026-04-19
  *
@@ -124,6 +124,16 @@ object Controllers {
     * leak hooks.
     */
   def dispose(): Unit = {
+    removeFrameHooks()
+    manager = Nullable.empty
+  }
+
+  /** Restores this global singleton to its pristine, un-initialized state: removes any installed app hook from its host, clears the local frame-hook list, and drops the manager so [[getManager]]
+    * throws again. Provided as a clean teardown seam so suites sharing this process-global singleton can isolate their state from one another (see the controllers test suites); not part of the public
+    * API surface. Equivalent to [[dispose]] for the currently tracked state, but named to make the test-isolation intent explicit and to remain a stable reset point even if [[dispose]] later grows
+    * additional shutdown semantics.
+    */
+  private[controllers] def resetForTest(): Unit = {
     removeFrameHooks()
     manager = Nullable.empty
   }

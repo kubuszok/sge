@@ -20,7 +20,7 @@ package controllers
 import scala.collection.mutable.ArrayBuffer
 
 /** RED suite for ISS-516. See the file header for the failure rationale. */
-class ControllersWiringRedSuite extends munit.FunSuite {
+class ControllersWiringRedSuite extends ControllersIsolatedSuite {
 
   /** A [[ControllerManager]] that records every poll() invocation. Grounded in the real abstract base — mirrors the mock style of ControllersSuite's TestControllerOps/DefaultControllerManager but
     * records auto-poll calls.
@@ -53,43 +53,41 @@ class ControllersWiringRedSuite extends munit.FunSuite {
   // RED NOW: neither Controllers.registeredFrameHooks nor the auto-registration of a
   // poll() frame hook exists (Controllers.scala:36-37 only stores the manager).
   test("ISS-516(a): initialize auto-registers a per-frame poll hook") {
-    Controllers.dispose() // clean state
-    val manager = RecordingControllerManager()
-    Controllers.initialize(manager)
+    serialized {
+      val manager = RecordingControllerManager()
+      Controllers.initialize(manager)
 
-    // The chosen design registers exactly one frame hook (the poll() driver).
-    val hooks = Controllers.registeredFrameHooks
-    assert(hooks.nonEmpty, "Controllers.initialize must register a per-frame poll hook")
+      // The chosen design registers exactly one frame hook (the poll() driver).
+      val hooks = Controllers.registeredFrameHooks
+      assert(hooks.nonEmpty, "Controllers.initialize must register a per-frame poll hook")
 
-    // Simulate N frames by invoking the registered hooks — no manual poll().
-    val frames = 5
-    var f      = 0
-    while (f < frames) {
-      hooks.foreach(_())
-      f += 1
+      // Simulate N frames by invoking the registered hooks — no manual poll().
+      val frames = 5
+      var f      = 0
+      while (f < frames) {
+        hooks.foreach(_())
+        f += 1
+      }
+      assertEquals(
+        manager.pollCount,
+        frames,
+        "the auto-registered frame hook must call manager.poll() once per frame"
+      )
     }
-    assertEquals(
-      manager.pollCount,
-      frames,
-      "the auto-registered frame hook must call manager.poll() once per frame"
-    )
-
-    Controllers.dispose()
   }
 
   // ── (c) Controllers.poll() facade ───────────────────────────────────────
   // CHOSEN fix item: a Controllers.poll() facade that delegates to the manager.
   // RED NOW: Controllers.poll does not exist (Controllers.scala has no such method).
   test("ISS-516(c): Controllers.poll() facade delegates to the manager") {
-    Controllers.dispose()
-    val manager = RecordingControllerManager()
-    Controllers.initialize(manager)
+    serialized {
+      val manager = RecordingControllerManager()
+      Controllers.initialize(manager)
 
-    Controllers.poll()
-    Controllers.poll()
-    assertEquals(manager.pollCount, 2, "Controllers.poll() must delegate to manager.poll()")
-
-    Controllers.dispose()
+      Controllers.poll()
+      Controllers.poll()
+      assertEquals(manager.pollCount, 2, "Controllers.poll() must delegate to manager.poll()")
+    }
   }
 
   // ── (b) GLFW uniqueId slot-distinctness ─────────────────────────────────
