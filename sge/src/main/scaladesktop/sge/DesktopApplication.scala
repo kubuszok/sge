@@ -450,7 +450,7 @@ class DesktopApplication(
   // ─── Application trait ──────────────────────────────────────────────
 
   override def applicationListener: ApplicationListener =
-    _currentWindow.fold(windows.head.listener)(_.listener)
+    DesktopApplication.listenerOrFail(_currentWindow, windows)
 
   override def graphics: Graphics =
     DesktopApplication.currentOrFail(_currentWindow)(_.graphics, "graphics")
@@ -533,4 +533,23 @@ object DesktopApplication {
     */
   private[sge] def currentOrFail[A](window: Nullable[DesktopWindow])(select: DesktopWindow => A, what: String): A =
     window.map(select).getOrElse(throw SgeError.GraphicsError(s"No current window; $what is unavailable until a window becomes current"))
+
+  /** Resolves the [[ApplicationListener]] from the currently-current window, or — when no window is current — from the first existing window, failing fast with a clearly-messaged
+    * [[SgeError.GraphicsError]] when there is no window at all to source the listener from.
+    *
+    * The [[Application]] trait requires a non-`Nullable` `applicationListener`, but the listener only exists once a window has been created. The previous direct `windows.head` read threw a
+    * `NoSuchElementException` (an exception far from cause) when `windows` was empty in an otherwise null-free API; this surfaces an explicit error naming the missing-window condition instead. The
+    * happy paths are behaviorally identical: a current window yields its listener; no current window but a non-empty window list yields the first window's listener.
+    *
+    * @param current
+    *   the currently-current window, if any
+    * @param windows
+    *   the existing windows (used as a fallback source when no window is current)
+    */
+  private[sge] def listenerOrFail(current: Nullable[DesktopWindow], windows: collection.Seq[DesktopWindow]): ApplicationListener =
+    current.fold {
+      if (windows.isEmpty)
+        throw SgeError.GraphicsError("No window available; applicationListener is unavailable until a window is created")
+      else windows.head.listener
+    }(_.listener)
 }
