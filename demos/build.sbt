@@ -1,4 +1,4 @@
-import _root_.multiarch.sbt.{JvmPackaging, Platform}
+import _root_.multiarch.sbt.{EmbeddedResourcesGen, JvmPackaging, Platform}
 import _root_.sge.sbt.SgePlugin
 import sbt.ProjectMatrix
 
@@ -46,6 +46,64 @@ val shared = (projectMatrix in file("shared"))
   .jsPlatform()
   .nativePlatform()
 
+// ── Browser asset embedding ─────────────────────────────────────────
+// Scala.js has no classpath, so each browser app must embed its OWN
+// Compile resources at build time into a self-registering generated
+// object (multiarch.resources.EmbeddedResources.register at init).
+// `embeddedResourcesSettings` embeds a SINGLE directory, so we first
+// STAGE the full Compile resource set (unmanaged src/main/resources +
+// managed/generated resources like asset-showcase's PNG/WAV — see
+// AssetGenerator) into one directory, then embed that. The generated
+// object's FQN is unique per demo (demos.<pkg>.GeneratedEmbeddedResources)
+// so a demo+sge link never clashes with sge's own
+// sge.platform.GeneratedEmbeddedResources. The per-demo BrowserMain
+// references the object once to defeat Scala.js DCE.
+
+def browserEmbeddedResources(pkg: String): Seq[Setting[_]] = {
+  // The multiarch helper (`MultiArchResourcesPlugin.embeddedResourcesSettings`)
+  // embeds a SINGLE setting-derived directory (default: src/main/resources). That
+  // misses generated/managed resources (e.g. asset-showcase's PNG/WAV from
+  // AssetGenerator's resourceGenerators). So we wire our own `sourceGenerators`
+  // entry that (1) STAGES the FULL `Compile / resources` set — unmanaged +
+  // managed — into one directory, then (2) calls the SAME generator the plugin
+  // uses (`EmbeddedResourcesGen.generate`) on that staged dir.
+  //
+  // Depending on `Compile / resources` from the SOURCE-generation path is safe:
+  // it does NOT create the `resourceGenerators -> resources -> resourceGenerators`
+  // cycle that adding the staging task to `resourceGenerators` would.
+  //
+  // The generated object's FQN is unique per demo
+  // (demos.<pkg>.GeneratedEmbeddedResources), so a demo+sge link never clashes
+  // with sge's own sge.platform.GeneratedEmbeddedResources; the per-demo
+  // BrowserMain references it once to defeat Scala.js DCE.
+  val objectName = s"demos.$pkg.GeneratedEmbeddedResources"
+  Seq(
+    Compile / sourceGenerators += Def.task {
+      val staged = (Compile / resourceManaged).value.getParentFile / "embedded-resources-staged"
+      val dirs   = (Compile / resourceDirectories).value
+      val all    = (Compile / resources).value
+      val log    = streams.value.log
+      IO.delete(staged)
+      IO.createDirectory(staged)
+      all.foreach { f =>
+        if (f.isFile) {
+          // Preserve each resource's path relative to its resource-root so the
+          // embedded classpath key matches the JVM/Native classpath key.
+          val root = dirs.find(d => f.getAbsolutePath.startsWith(d.getAbsolutePath + java.io.File.separator))
+          val rel  = root.map(r => r.toPath.relativize(f.toPath).toString).getOrElse(f.getName)
+          IO.copyFile(f, staged / rel)
+        }
+      }
+      val segments = objectName.split('.').toSeq
+      val dirPart  = segments.init.foldLeft((Compile / sourceManaged).value)(_ / _)
+      val outFile  = dirPart / (segments.last + ".scala")
+      // sbt-2.0 refuses to cache a File/Seq[File] task result without a HashWriter;
+      // opt out, matching the multiarch helper's own Compat.uncached usage.
+      Def.uncached(Seq(EmbeddedResourcesGen.generate(staged, outFile, objectName, log)))
+    }.taskValue
+  )
+}
+
 // ── Demo projects ───────────────────────────────────────────────────
 
 def demo(dir: String, sbtName: String, pkg: String, title: String,
@@ -58,7 +116,7 @@ def demo(dir: String, sbtName: String, pkg: String, title: String,
       sgeExtensions := extensions)
     .dependsOn(shared)
     .jvmPlatform(demoDistSettings ++ Seq(Compile / mainClass := Some(s"demos.$pkg.DesktopMain")))
-    .jsPlatform()
+    .jsPlatform(browserEmbeddedResources(pkg))
     .nativePlatform()
     .withCrossNative
 
@@ -90,7 +148,7 @@ val assetShowcase = (projectMatrix in file("asset-showcase"))
   .settings(AssetGenerator.settings)
   .dependsOn(shared)
   .jvmPlatform(demoDistSettings ++ Seq(Compile / mainClass := Some("demos.assets.DesktopMain")))
-  .jsPlatform()
+  .jsPlatform(browserEmbeddedResources("assets"))
   .nativePlatform()
   .withCrossNative
 
