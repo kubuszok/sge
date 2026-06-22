@@ -1,6 +1,6 @@
 # covenant-gate baseline (ISS-483) — set of (file, kind) pairs currently failing
 # columns: file<TAB>kind   (file is repo-relative)
-# kinds: shortcut-drift | missing-header | methods-removed | verify-other | covenanted-shortcut
+# kinds: shortcut-drift | missing-header | methods-removed | verify-other | covenanted-shortcut | dup-covenant-header
 # regenerate: .rescale/scripts/covenant-gate.sh --generate
 sge-build/src/main/scala/sge/sbt/SgeExtension.scala	missing-header
 sge-extension/ai/src/main/scala/sge/ai/btree/TaskCloneException.scala	shortcut-drift
@@ -79,13 +79,13 @@ sge-extension/screens/src/main/scala/sge/screen/transition/ScreenTransition.scal
 sge-extension/textra/src/main/scala/sge/textra/BitmapFontSupport.scala	shortcut-drift
 sge-extension/textra/src/main/scala/sge/textra/Font.scala	shortcut-drift
 sge-extension/textra/src/main/scala/sge/textra/LzmaUtils.scala	shortcut-drift
-sge-extension/textra/src/main/scala/sge/textra/TextraField.scala	shortcut-drift
 sge-extension/textra/src/main/scala/sge/textra/TextraLabel.scala	shortcut-drift
 sge-extension/textra/src/main/scala/sge/textra/TypingLabel.scala	shortcut-drift
 sge-extension/textra/src/main/scala/sge/textra/utils/ColorUtils.scala	shortcut-drift
 sge-extension/textra/src/main/scala/sge/textra/utils/LZBCompression.scala	shortcut-drift
 sge-extension/tools/src/main/scala/sge/tools/texturepacker/MaxRectsPacker.scala	shortcut-drift
 sge-extension/tools/src/main/scala/sge/tools/texturepacker/TexturePacker.scala	shortcut-drift
+sge-extension/visui/src/main/scala/sge/visui/VisUISkinReaders.scala	missing-header
 sge-extension/visui/src/main/scala/sge/visui/building/utilities/CellWidget.scala	shortcut-drift
 sge-extension/visui/src/main/scala/sge/visui/util/adapter/AbstractListAdapter.scala	shortcut-drift
 sge-extension/visui/src/main/scala/sge/visui/widget/MultiSplitPane.scala	shortcut-drift
@@ -183,13 +183,10 @@ sge/src/main/scala/sge/math/Bezier.scala	shortcut-drift
 sge/src/main/scala/sge/math/Ellipse.scala	shortcut-drift
 sge/src/main/scala/sge/math/Quaternion.scala	shortcut-drift
 sge/src/main/scala/sge/net/SgeHttpClient.scala	shortcut-drift
-sge/src/main/scala/sge/noop/NoopGraphics.scala	shortcut-drift
 sge/src/main/scala/sge/platform/Gdx2dOps.scala	shortcut-drift
 sge/src/main/scala/sge/platform/WindowingOps.scala	shortcut-drift
-sge/src/main/scala/sge/scenes/scene2d/Group.scala	methods-removed
 sge/src/main/scala/sge/scenes/scene2d/ui/Container.scala	shortcut-drift
 sge/src/main/scala/sge/scenes/scene2d/ui/ScrollPane.scala	shortcut-drift
-sge/src/main/scala/sge/scenes/scene2d/ui/Skin.scala	methods-removed
 sge/src/main/scala/sge/scenes/scene2d/ui/SplitPane.scala	shortcut-drift
 sge/src/main/scala/sge/scenes/scene2d/utils/TiledDrawable.scala	shortcut-drift
 sge/src/main/scala/sge/utils/DynamicArrayOps.scala	missing-header

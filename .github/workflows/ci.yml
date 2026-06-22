@@ -77,7 +77,12 @@ jobs:
       - name: Install re-scale
         run: |
           set -euo pipefail
-          git clone --depth=1 https://github.com/kubuszok/re-scale.git "$RUNNER_TEMP/re-scale"
+          # Pin to the SAME tag the local dev install + the committed covenant-gate
+          # baseline were built with (0.1.5). Cloning latest master made the gate
+          # non-reproducible: re-scale's covenant method-set/shortcut computation
+          # drifts between releases, so files clean locally were flagged on CI
+          # (and vice versa) with no way to reconcile. A pinned gate is a real gate.
+          git clone --depth=1 --branch 0.1.5 https://github.com/kubuszok/re-scale.git "$RUNNER_TEMP/re-scale"
           cd "$RUNNER_TEMP/re-scale"
           sbt install
           echo "$RUNNER_TEMP/re-scale/bin" >> "$GITHUB_PATH"
@@ -161,6 +166,13 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: always()
+        # scoverage does not emit an aggregate report on Scala 3.8.x under sbt 2.0
+        # (the report at the path below is not produced); codecov-action v5 hard-
+        # fails when its explicit `files:` are absent even with fail_ci_if_error
+        # false, which would red the whole JVM job though every test passed.
+        # Coverage upload is reporting-only — keep it non-fatal until scoverage
+        # report generation is restored (tracked follow-up).
+        continue-on-error: true
         uses: codecov/codecov-action@v5
         with:
           files: target/scala-3.8.3/scoverage-report/scoverage.xml
@@ -456,7 +468,11 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -no-metrics
           disable-animations: true
-          script: sbt 'sge-it-android/testFull'
+          # Build the smoke APK INSIDE the emulator-runner environment right
+          # before the IT, so the app-debug.apk the test locates is guaranteed to
+          # exist in this step's workspace (the separate "Build smoke APK" step
+          # above runs in a context the test could not see the artifact from).
+          script: sbt 'sge-android-smoke/androidSign; sge-it-android/testFull'
 
   # ─── Demo smoke (Scala.js) ──────────────────────────────────────
 

@@ -53,7 +53,10 @@ jobs:
         # carries every binary its manifest promises for all desktop platforms. sbt runs
         # commands in sequence and aborts on the first failure, so a gap blocks ci-release.
         # No skip flag — nothing unvalidated reaches Sonatype.
-        run: sbt "sge / sgeValidateNativeLibs" ci-release
+        # sbt 2.0 joins multiple CLI args into ONE command line (so
+        # `sbt "a" "b"` parses as `a b` and fails); sequence with `;` in a
+        # single arg so native-lib validation runs before ci-release.
+        run: sbt "sge / sgeValidateNativeLibs; ci-release"
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
