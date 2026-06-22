@@ -452,15 +452,13 @@ class DesktopApplication(
   override def applicationListener: ApplicationListener =
     _currentWindow.fold(windows.head.listener)(_.listener)
 
-  @scala.annotation.nowarn("msg=deprecated") // orNull — returns null when no window is current (Application trait requires non-Nullable return)
   override def graphics: Graphics =
-    _currentWindow.map(_.graphics).orNull
+    DesktopApplication.currentOrFail(_currentWindow)(_.graphics, "graphics")
 
   override def audio: Audio = _audio
 
-  @scala.annotation.nowarn("msg=deprecated") // orNull — returns null when no window is current (Application trait requires non-Nullable return)
   override def input: Input =
-    _currentWindow.map(_.input).orNull
+    DesktopApplication.currentOrFail(_currentWindow)(_.input, "input")
 
   override def files: Files = _files
 
@@ -516,4 +514,23 @@ class DesktopApplication(
 
   override def createInput(window: DesktopWindow): DesktopInput =
     DefaultDesktopInput(window, windowing)
+}
+
+object DesktopApplication {
+
+  /** Resolves a window-bound accessor (graphics, input) from the currently-current window, failing fast with a clearly-messaged [[SgeError.GraphicsError]] when no window is current.
+    *
+    * The [[Application]] trait requires non-`Nullable` returns for `graphics`/`input`, but those resources only exist while a window is current. Rather than returning a bare `null` (which produces an
+    * NPE far from cause in an otherwise null-free API), this surfaces an explicit error naming the missing-current-window condition and the affected accessor. The happy path (window present) is
+    * behaviorally identical to a direct field read.
+    *
+    * @param window
+    *   the currently-current window, if any
+    * @param select
+    *   extracts the desired accessor from the window
+    * @param what
+    *   the accessor name, used in the failure message
+    */
+  private[sge] def currentOrFail[A](window: Nullable[DesktopWindow])(select: DesktopWindow => A, what: String): A =
+    window.map(select).getOrElse(throw SgeError.GraphicsError(s"No current window; $what is unavailable until a window becomes current"))
 }
