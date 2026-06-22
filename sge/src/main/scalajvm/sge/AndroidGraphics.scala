@@ -55,8 +55,21 @@ class AndroidGraphics(
 
   // ─── Frame state ──────────────────────────────────────────────────────
 
-  @volatile var _width:  Int = 0
-  @volatile var _height: Int = 0
+  @volatile private[sge] var _width:  Int = 0
+  @volatile private[sge] var _height: Int = 0
+
+  /** Updates the back-buffer dimensions. Called from the GL thread when the surface size changes (the renderer's `onSurfaceChanged`). The only sanctioned mutator of `_width`/`_height` — all dimension
+    * updates route through here so no caller pokes the volatiles directly.
+    *
+    * @param width
+    *   the new surface width in pixels
+    * @param height
+    *   the new surface height in pixels
+    */
+  private[sge] def resize(width: Int, height: Int): Unit = {
+    _width = width
+    _height = height
+  }
 
   private var _bufferFormat:  Graphics.BufferFormat = Graphics.BufferFormat(config.r, config.g, config.b, config.a, config.depth, config.stencil, config.numSamples, false)
   private var _lastFrameTime: Long                  = System.nanoTime()

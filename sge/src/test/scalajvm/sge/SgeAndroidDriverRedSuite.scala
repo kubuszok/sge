@@ -359,6 +359,14 @@ class SgeAndroidDriverRedSuite extends FunSuite {
     val (app, _, _) = buildApp(buf, init = true)
     val driver      = new SgeAndroidDriver(app)
 
+    // Establish `created` (the first surface change drives create()+resize()) so the
+    // render pump is active — ISS-554 gates render() until create() has fired. This
+    // pre-existing test (from the ISS-518 driver commit) predates that gate; the
+    // onSurfaceChanged()+clear preserves its real intent (runnable drained BEFORE
+    // render in one frame) without re-encoding the render-before-create race.
+    driver.onSurfaceChanged(800, 600)
+    buf.clear()
+
     // A posted runnable records "runnable" when executeRunnables drains it.
     app.postRunnable(() => buf += "runnable")
 
@@ -371,6 +379,14 @@ class SgeAndroidDriverRedSuite extends FunSuite {
     val buf         = scala.collection.mutable.ArrayBuffer.empty[String]
     val (app, _, _) = buildApp(buf, init = true)
     val driver      = new SgeAndroidDriver(app)
+
+    // Establish `created` (the first surface change drives create()+resize()) so the
+    // render pump is active — ISS-554 gates render() until create() has fired. This
+    // pre-existing test (from the ISS-518 driver commit) predates that gate; the
+    // onSurfaceChanged()+clear preserves its real intent (key drained BEFORE render
+    // in one frame) without re-encoding the render-before-create race.
+    driver.onSurfaceChanged(800, 600)
+    buf.clear()
 
     // Route a keyDown through the driver; it must be drained by processInputEvents
     // (which onDrawFrame calls) so the key is pressed by the time render runs.
@@ -477,5 +493,55 @@ class SgeAndroidDriverRedSuite extends FunSuite {
     driver.genericMotion("fake-motion-event")
     // No exception = the routing seam is wired.
     assert(true)
+  }
+
+  // ════════════════════════════════════════════════════════════════════
+  // 5. ISS-554: render-before-create race
+  //    onDrawFrame() must NOT drive listener.render() (nor the per-frame
+  //    app hooks that feed render) until create() has fired — i.e. until
+  //    after the FIRST onSurfaceChanged(). The GL thread can legitimately
+  //    fire onDrawFrame() before the first onSurfaceChanged(); rendering
+  //    before create() forces every game to null-guard its un-created
+  //    state (e.g. AssetShowcaseGame:120 `assetManager == null`), a
+  //    null-ban-covenant violation in an otherwise null-free codebase.
+  // ════════════════════════════════════════════════════════════════════
+
+  test("ISS-554: onDrawFrame BEFORE the first onSurfaceChanged does NOT drive listener.render (render-before-create race)") {
+    val buf         = scala.collection.mutable.ArrayBuffer.empty[String]
+    val (app, _, _) = buildApp(buf, init = true)
+    val driver      = new SgeAndroidDriver(app)
+
+    // GL thread fires a frame before the surface has ever been configured,
+    // so create() has not run yet.
+    driver.onDrawFrame()
+
+    assert(!buf.contains("render"), "listener.render() must NOT fire before listener.create() (render-before-create race)")
+    assert(!buf.contains("create"), "create() is driven by onSurfaceChanged, not onDrawFrame")
+  }
+
+  test("ISS-554: onDrawFrame AFTER the first onSurfaceChanged DOES drive listener.render (fix must not disable rendering)") {
+    val buf         = scala.collection.mutable.ArrayBuffer.empty[String]
+    val (app, _, _) = buildApp(buf, init = true)
+    val driver      = new SgeAndroidDriver(app)
+
+    driver.onSurfaceChanged(800, 600) // create() + resize()
+    buf.clear()
+    driver.onDrawFrame()
+
+    assertEquals(buf.toList, List("render"))
+  }
+
+  test(
+    "ISS-554: full sequence onDrawFrame -> onSurfaceChanged -> onDrawFrame records create,resize,render with NO render before create"
+  ) {
+    val buf         = scala.collection.mutable.ArrayBuffer.empty[String]
+    val (app, _, _) = buildApp(buf, init = true)
+    val driver      = new SgeAndroidDriver(app)
+
+    driver.onDrawFrame() // pre-surface: must be a no-op for render
+    driver.onSurfaceChanged(640, 480) // create() then resize()
+    driver.onDrawFrame() // now created: render proceeds
+
+    assertEquals(buf.toList, List("create", "resize:640x480", "render"))
   }
 }

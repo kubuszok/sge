@@ -116,25 +116,23 @@ abstract class SgeActivity extends Activity {
             val vendorStr   = gl.glGetString(GL10.GL_VENDOR)
             val rendererStr = gl.glGetString(GL10.GL_RENDERER)
             Log.i(TAG, s"GL surface created: $versionStr / $vendorStr / $rendererStr")
-
-            val graphics = _application.graphics.asInstanceOf[AndroidGraphics]
-            graphics.setupGL(versionStr, vendorStr, rendererStr)
-            _application.initializeSge()
+            // Pure forwarder: the driver runs setupGL then initializeSge on the
+            // typed _graphics (no asInstanceOf[AndroidGraphics] here).
+            _driver.onSurfaceCreated(versionStr, vendorStr, rendererStr)
             Log.i(TAG, "SGE fully initialized with all subsystems")
           }
 
           override def onSurfaceChanged(gl: GL10, w: Int, h: Int): Unit = {
-            val graphics = _application.graphics.asInstanceOf[AndroidGraphics]
-            graphics._width = w
-            graphics._height = h
             gl.glViewport(0, 0, w, h)
             Log.i(TAG, s"Surface changed: ${w}x${h}")
+            // The driver resizes the graphics back-buffer (cast-free) before
+            // driving create()/resize() on the listener.
             _driver.onSurfaceChanged(w, h)
           }
 
           override def onDrawFrame(gl: GL10): Unit = {
-            val graphics = _application.graphics.asInstanceOf[AndroidGraphics]
-            graphics.updateFrameTiming(false)
+            // The driver advances graphics frame timing and drives the frame pump
+            // (gated so render never fires before create() — ISS-554).
             _driver.onDrawFrame()
             onFrameRendered()
           }

@@ -215,6 +215,31 @@ class AndroidApplication(
     glSurface.view
   }
 
+  // ── Graphics GL orchestration (called by SgeAndroidDriver, cast-free) ──
+
+  /** Set up the GL instances on the [[AndroidGraphics]] from the detected GL strings, then build the [[Sge]] context. Mirrors the former host-Activity `onSurfaceCreated` sequence (setupGL before
+    * initializeSge), but operates on the typed `_graphics` field so no `asInstanceOf[AndroidGraphics]` is needed.
+    *
+    * @param version
+    *   the GL_VERSION string
+    * @param vendor
+    *   the GL_VENDOR string
+    * @param renderer
+    *   the GL_RENDERER string
+    */
+  def setupGraphicsGL(version: String, vendor: String, renderer: String): Unit = {
+    _graphics.setupGL(version, vendor, renderer)
+    val _ = initializeSge()
+  }
+
+  /** Update the [[AndroidGraphics]] back-buffer dimensions. Routed to [[AndroidGraphics.resize]] so the `_width`/`_height` volatiles are never poked from outside the graphics object. */
+  def resizeGraphics(width: Int, height: Int): Unit =
+    if (_graphics != null) _graphics.resize(width, height) // scalafix:ok
+
+  /** Advance the [[AndroidGraphics]] per-frame timing (delta/fps/frameId). Called once per frame from the render loop. */
+  def updateGraphicsFrameTiming(): Unit =
+    if (_graphics != null) _graphics.updateFrameTiming(false) // scalafix:ok
+
   /** Process touch/scroll/key events through the input processor. Call once per frame. */
   def processInputEvents(): Unit =
     if (_input != null) _input.processEvents() // scalafix:ok

@@ -115,20 +115,17 @@ object AssetShowcaseGame extends DemoScene {
     phase = PhaseLoading
   }
 
-  override def render(dt: Seconds)(using Sge): Unit =
-    // Guard: on Android, render() can be called before init() completes
-    if (assetManager == null) { ScreenUtils.clear(0f, 0f, 0f, 1f, true); () }
-    else {
-      val delta = dt.toFloat
-      ScreenUtils.clear(0.12f, 0.12f, 0.18f, 1f, true)
+  override def render(dt: Seconds)(using Sge): Unit = {
+    val delta = dt.toFloat
+    ScreenUtils.clear(0.12f, 0.12f, 0.18f, 1f, true)
 
-      if (phase == PhaseLoading) {
-        renderLoading(delta)
-      } else {
-        handleInput(delta)
-        renderShowcase(delta)
-      }
+    if (phase == PhaseLoading) {
+      renderLoading(delta)
+    } else {
+      handleInput(delta)
+      renderShowcase(delta)
     }
+  }
 
   // ── Loading phase ──────────────────────────────────────────────────
 
