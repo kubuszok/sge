@@ -34,8 +34,44 @@ import lowlevel.Nullable
 /** Utility class to parse tokens from a TypingLabel; not intended for external use in most situations. */
 object Parser {
 
-  private val PATTERN_MARKUP_STRIP:      Pattern = Pattern.compile("((?<!\\[)\\[[^\\[\\]]*(\\]))")
+  // The original RegExodus patterns guard the opening bracket/brace with a
+  // negative look-behind `(?<!\[)` / `(?<!\{)` so an escaped `[[` / `{{` is not
+  // treated as the start of a tag. Scala Native's `java.util.regex` is backed by
+  // an RE2 port that does NOT support look-behind (it throws PatternSyntaxException
+  // at module-init when these patterns compile), while JVM and Scala.js do. To
+  // stay single-source and identical on all four platforms, the look-behind is
+  // dropped from the patterns and enforced in code instead: a match is accepted
+  // only when its opening char is not immediately preceded by the same char
+  // (see `notEscaped` / `findNotEscaped` below). This is byte-for-byte equivalent
+  // to the original look-behind on every input (verified against the JVM engine).
+  private val PATTERN_MARKUP_STRIP:      Pattern = Pattern.compile("(\\[[^\\[\\]]*(\\]))")
   private val PATTERN_COLOR_HEX_NO_HASH: Pattern = Pattern.compile("[A-Fa-f0-9]{3,8}")
+
+  /** True if the char opening a match at `start` is not escaped, i.e. not immediately preceded by `esc` (the look-behind-free equivalent of `(?<!esc)`). */
+  private def notEscaped(in: CharSequence, start: Int, esc: Char): Boolean =
+    start == 0 || in.charAt(start - 1) != esc
+
+  /** Advances `m` to the next match (from `from`) whose opening char is not escaped by `esc`, replicating `m.find(from)` under a `(?<!esc)` look-behind. */
+  private def findNotEscaped(m: Matcher, from: Int, in: CharSequence, esc: Char): Boolean = {
+    var found = m.find(from)
+    while (found && !notEscaped(in, m.start(), esc))
+      found = m.find(m.start() + 1)
+    found
+  }
+
+  /** Replaces every non-escaped match of `pattern` (opening char not preceded by `esc`) in `in` with the literal `replacement`, leaving escaped matches untouched — the look-behind-free equivalent of
+    * `matcher.replaceAll(replacement)` on a `(?<!esc)`-guarded pattern.
+    */
+  private def replaceAllNotEscaped(pattern: Pattern, in: String, esc: Char, replacement: String): String = {
+    val m  = pattern.matcher(in)
+    val sb = new StringBuffer()
+    while (m.find()) {
+      val emit = if (notEscaped(in, m.start(), esc)) replacement else m.group()
+      m.appendReplacement(sb, Matcher.quoteReplacement(emit))
+    }
+    m.appendTail(sb)
+    sb.toString
+  }
 
   private val BOOLEAN_TRUE: CaseInsensitiveIntMap =
     new CaseInsensitiveIntMap(Array("true", "yes", "t", "y", "on", "1"), new Array[Int](6))
@@ -49,11 +85,13 @@ object Parser {
   /** Replaces any square-bracket-minus markup of the form [-SOMETHING] with the curly-brace tag form {SOMETHING}. */
   def handleBracketMinusMarkup(text: String): String =
     if (text.contains("[-")) {
-      val p  = Pattern.compile("((?<!\\[)\\[-([^\\[\\]]*)(?:\\]))")
+      val p  = Pattern.compile("(\\[-([^\\[\\]]*)(?:\\]))")
       val m  = p.matcher(text)
       val sb = new StringBuffer()
-      while (m.find())
-        m.appendReplacement(sb, "{" + Matcher.quoteReplacement(m.group(2)) + "}")
+      while (m.find()) {
+        val emit = if (notEscaped(text, m.start(), '[')) "{" + Matcher.quoteReplacement(m.group(2)) + "}" else Matcher.quoteReplacement(m.group())
+        m.appendReplacement(sb, emit)
+      }
       m.appendTail(sb)
       sb.toString
     } else {
@@ -64,25 +102,43 @@ object Parser {
   def preprocess(text: String): String = {
     var result = text
     // [ ] → {RESET}
-    result = Pattern.compile("((?<!\\[)\\[ (?:\\]))").matcher(result).replaceAll("{RESET}")
+    result = replaceAllNotEscaped(Pattern.compile("(\\[ (?:\\]))"), result, '[', "{RESET}")
     // [] → {UNDO}
-    result = Pattern.compile("((?<!\\[)\\[(?:\\]))").matcher(result).replaceAll("{UNDO}")
+    result = replaceAllNotEscaped(Pattern.compile("(\\[(?:\\]))"), result, '[', "{UNDO}")
     // Color markup → {COLOR=...}
-    val colorPattern = Pattern.compile("(?<!\\[)\\[(?:(?:#([A-Fa-f0-9]{3,8}))|(?:\\|?([\\p{L}\\p{N}][^\\[\\]]*)))(\\])")
+    // The original color-name first char is `[\pL\pN]` (any Unicode letter or
+    // digit). Scala.js's `java.util.regex` rejects Unicode property classes unless
+    // the linker emits ES2018, which would force every downstream Scala.js
+    // application that links this library to opt into ES2018 — an inappropriate
+    // burden for a library. Since every textra colour name is ASCII (hex colours,
+    // the Palette names, and the effect/internal tokens are all ASCII), `[a-zA-Z0-9]`
+    // is equivalent here for every reachable input on all four platforms (verified
+    // against the JVM engine across the full markup grammar) while needing no ES2018.
+    val colorPattern = Pattern.compile("\\[(?:(?:#([A-Fa-f0-9]{3,8}))|(?:\\|?([a-zA-Z0-9][^\\[\\]]*)))(\\])")
     val colorMatcher = colorPattern.matcher(result)
     val colorSb      = new StringBuffer()
     while (colorMatcher.find()) {
-      val matched = if (colorMatcher.group(1) != null) colorMatcher.group(1) else colorMatcher.group(2)
-      colorMatcher.appendReplacement(colorSb, Matcher.quoteReplacement("{COLOR=" + matched + "}"))
+      val emit =
+        if (notEscaped(result, colorMatcher.start(), '[')) {
+          val matched = if (colorMatcher.group(1) != null) colorMatcher.group(1) else colorMatcher.group(2)
+          Matcher.quoteReplacement("{COLOR=" + matched + "}")
+        } else {
+          Matcher.quoteReplacement(colorMatcher.group())
+        }
+      colorMatcher.appendReplacement(colorSb, emit)
     }
     colorMatcher.appendTail(colorSb)
     result = colorSb.toString
     // General markup → {STYLE=...}
-    val stylePattern = Pattern.compile("(?<!\\[)\\[([^\\[\\]\\+][^\\[\\]]*)(\\])")
+    val stylePattern = Pattern.compile("\\[([^\\[\\]\\+][^\\[\\]]*)(\\])")
     val styleMatcher = stylePattern.matcher(result)
     val styleSb      = new StringBuffer()
-    while (styleMatcher.find())
-      styleMatcher.appendReplacement(styleSb, Matcher.quoteReplacement("{STYLE=" + styleMatcher.group(1) + "}"))
+    while (styleMatcher.find()) {
+      val emit =
+        if (notEscaped(result, styleMatcher.start(), '[')) Matcher.quoteReplacement("{STYLE=" + styleMatcher.group(1) + "}")
+        else Matcher.quoteReplacement(styleMatcher.group())
+      styleMatcher.appendReplacement(styleSb, emit)
+    }
     styleMatcher.appendTail(styleSb)
     result = styleSb.toString
     result
@@ -125,7 +181,7 @@ object Parser {
       var continue_ = true
       while (continue_) {
         val m2 = PATTERN_TOKEN_STRIP.matcher(text)
-        if (!m2.find(matcherIndexOffset)) {
+        if (!findNotEscaped(m2, matcherIndexOffset, text, '{')) {
           continue_ = false
         } else {
           val internalTokenOpt = InternalToken.fromName(m2.group(INDEX_TOKEN))
@@ -228,7 +284,7 @@ object Parser {
 
   /** Parses regular tokens that don't need replacement and register their indexes in the TypingLabel. */
   private def parseRegularTokens(label: TypingLabel): Unit = {
-    val markupStripped = PATTERN_MARKUP_STRIP.matcher(label.getIntermediateText).replaceAll("")
+    val markupStripped = replaceAllNotEscaped(PATTERN_MARKUP_STRIP, label.getIntermediateText.toString, '[', "")
     var text2: CharSequence = label.getIntermediateText
 
     if (label.getFont.omitCurlyBraces) {
@@ -240,10 +296,10 @@ object Parser {
         val m  = PATTERN_TOKEN_STRIP.matcher(markupStripped)
         val m2 = PATTERN_TOKEN_STRIP.matcher(text2)
 
-        if (!m.find(matcherIndexOffset)) {
+        if (!findNotEscaped(m, matcherIndexOffset, markupStripped, '{')) {
           continue_ = false
         } else {
-          m2.find(m2IndexOffset)
+          findNotEscaped(m2, m2IndexOffset, text2, '{')
 
           val tokenName = m.group(INDEX_TOKEN).toUpperCase
           var tokenCategory: TokenCategory = null
@@ -438,7 +494,9 @@ object Parser {
   /** Compiles the token-matching pattern from all registered effect tokens. */
   private def compileTokenPattern(): Pattern = {
     val sb = new StringBuilder
-    sb.append("(?<!\\{)\\{(")
+    // The original `(?<!\{)` look-behind is dropped here (RE2/Scala Native has no
+    // look-behind) and enforced in code at the find sites via `findNotEscaped(..., '{')`.
+    sb.append("\\{(")
     val tokens = scala.collection.mutable.ArrayBuffer[String]()
     tokens ++= TypingConfig.EFFECT_START_TOKENS.keys
     tokens ++= TypingConfig.EFFECT_END_TOKENS.keys
