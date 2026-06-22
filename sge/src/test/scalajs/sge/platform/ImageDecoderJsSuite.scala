@@ -125,7 +125,7 @@ class ImageDecoderJsSuite extends munit.FunSuite {
     // them (e.g. red 255 -> ~237 even in the reference decoder). A tight
     // tolerance of 10 then proves this decoder agrees with a known-good decoder
     // rather than merely "is in the right ballpark".
-    val Tol = 10
+    val Tol                = 10
     val ReferenceQuadrants = List(
       (4, 4, 237, 9, 0, "top-left red"),
       (12, 4, 14, 249, 0, "top-right green"),
@@ -145,7 +145,7 @@ class ImageDecoderJsSuite extends munit.FunSuite {
     // Ground truth: the same JPEG bytes decoded by the JVM reference decoder
     // (javax.imageio.ImageIO) on the middle row — a left(dark)->right(bright)
     // ramp. Tight tolerance 8 proves agreement with the reference decoder.
-    val Tol = 8
+    val Tol          = 8
     val ReferenceRow = List((0, 0), (4, 67), (8, 137), (12, 204), (15, 255))
     ReferenceRow.foreach { case (x, expected) =>
       val (r, g, b, a) = px(res, x, 8)

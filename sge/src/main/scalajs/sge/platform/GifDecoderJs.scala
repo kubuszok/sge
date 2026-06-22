@@ -20,8 +20,7 @@ package platform
 
 private[platform] object GifDecoderJs {
 
-  /** Decodes a GIF byte range to an RGBA8888 result (first frame), or None if
-    * `data` is not a GIF this decoder understands.
+  /** Decodes a GIF byte range to an RGBA8888 result (first frame), or None if `data` is not a GIF this decoder understands.
     */
   def decode(data: Array[Byte], offset: Int, len: Int): Option[Gdx2dOps.DecodeResult] = {
     val hasSignature =
@@ -43,7 +42,7 @@ private[platform] object GifDecoderJs {
 
   // Cursor over the source byte range; little-endian for multi-byte fields.
   final private class Reader(data: Array[Byte], val base: Int, val end: Int) {
-    var pos: Int = base
+    var pos:  Int = base
     def u8(): Int = {
       if (pos >= end) throw new GifError("EOF")
       val v = data(pos) & 0xff
@@ -76,9 +75,9 @@ private[platform] object GifDecoderJs {
     // Logical Screen Descriptor.
     r.u16() // logical screen width (unused; the frame descriptor defines the image)
     r.u16() // logical screen height
-    val packed  = r.u8()
-    r.u8()      // background color index
-    r.u8()      // pixel aspect ratio
+    val packed = r.u8()
+    r.u8() // background color index
+    r.u8() // pixel aspect ratio
     val gctFlag = (packed & 0x80) != 0
     val gctSize = 2 << (packed & 0x07)
 
@@ -99,11 +98,11 @@ private[platform] object GifDecoderJs {
             val label = r.u8()
             if (label == 0xf9) {
               // Graphic Control Extension: 1-byte size, packed, delay(2), tIndex, terminator.
-              r.u8()                // block size (always 4)
+              r.u8() // block size (always 4)
               val gcPacked = r.u8()
-              r.u16()               // delay time
-              val tIndex   = r.u8()
-              r.u8()                // block terminator
+              r.u16() // delay time
+              val tIndex = r.u8()
+              r.u8() // block terminator
               if ((gcPacked & 0x01) != 0) transparentIndex = tIndex
             } else {
               // Other extension (comment, application, plain text): skip sub-blocks.
@@ -123,7 +122,7 @@ private[platform] object GifDecoderJs {
   }
 
   /** Skip a chain of GIF sub-blocks (each: 1-byte length, then that many bytes; terminated by a 0-length block). */
-  private def skipSubBlocks(r: Reader): Unit = {
+  private def skipSubBlocks(r: Reader): Unit =
     scala.util.boundary {
       while (true) {
         val n = r.u8()
@@ -131,12 +130,11 @@ private[platform] object GifDecoderJs {
         r.skip(n)
       }
     }
-  }
 
   private def decodeFrame(
-      r: Reader,
-      globalCt: Array[Byte],
-      transparentIndex: Int
+    r:                Reader,
+    globalCt:         Array[Byte],
+    transparentIndex: Int
   ): Gdx2dOps.DecodeResult = {
     r.u16() // image left position
     r.u16() // image top position
@@ -216,10 +214,8 @@ private[platform] object GifDecoderJs {
 
   /** Variable-width LZW decode (GIF flavor), producing up to `expected` index bytes.
     *
-    * Standard GIF LZW: codes start at minCodeSize+1 bits and grow as the
-    * dictionary fills; a clear code resets the dictionary, an end-of-information
-    * code stops the stream. Dictionary entries are (prefix-code, suffix-byte)
-    * pairs expanded via a stack.
+    * Standard GIF LZW: codes start at minCodeSize+1 bits and grow as the dictionary fills; a clear code resets the dictionary, an end-of-information code stops the stream. Dictionary entries are
+    * (prefix-code, suffix-byte) pairs expanded via a stack.
     */
   private def lzwDecode(input: Array[Byte], minCodeSize: Int, expected: Int): Array[Byte] = {
     val clearCode = 1 << minCodeSize
@@ -247,14 +243,13 @@ private[platform] object GifDecoderJs {
       while (outPos < expected) {
         // Read one code of the current width.
         var enoughBits = true
-        while (bitCnt < codeSize && enoughBits) {
+        while (bitCnt < codeSize && enoughBits)
           if (inPos >= input.length) enoughBits = false
           else {
             bitBuf |= (input(inPos) & 0xff) << bitCnt
             bitCnt += 8
             inPos += 1
           }
-        }
         if (!enoughBits && bitCnt < codeSize) scala.util.boundary.break() // out of data
         val code = bitBuf & ((1 << codeSize) - 1)
         bitBuf >>>= codeSize

@@ -20,9 +20,7 @@ package platform
 
 private[platform] object BmpDecoderJs {
 
-  /** Decodes a BMP byte range to an RGBA8888 result, or None if `data` is not a
-    * BMP this decoder understands (so the caller can fall back to its own error
-    * path).
+  /** Decodes a BMP byte range to an RGBA8888 result, or None if `data` is not a BMP this decoder understands (so the caller can fall back to its own error path).
     */
   def decode(data: Array[Byte], offset: Int, len: Int): Option[Gdx2dOps.DecodeResult] = {
     // Magic bytes: 'B','M'.
@@ -43,7 +41,7 @@ private[platform] object BmpDecoderJs {
   private def u32(d: Array[Byte], p: Int): Int =
     (d(p) & 0xff) | ((d(p + 1) & 0xff) << 8) | ((d(p + 2) & 0xff) << 16) | ((d(p + 3) & 0xff) << 24)
 
-  private def decodeChecked(data: Array[Byte], offset: Int, len: Int): Option[Gdx2dOps.DecodeResult] = {
+  private def decodeChecked(data: Array[Byte], offset: Int, len: Int): Option[Gdx2dOps.DecodeResult] =
     if (len < 54) None // 14-byte file header + 40-byte BITMAPINFOHEADER minimum
     else {
       // BITMAPFILEHEADER (14 bytes): magic(2), size(4), reserved(4), pixel-data offset(10..13).
@@ -53,13 +51,13 @@ private[platform] object BmpDecoderJs {
       val headerSize = u32(data, offset + 14)
       if (headerSize < 40) None // OS/2 BITMAPCOREHEADER (12) unsupported
       else {
-        val width        = u32(data, offset + 18)
-        val rawHeight    = u32(data, offset + 22)
-        val topDown      = rawHeight < 0
-        val height       = scala.math.abs(rawHeight)
-        val planes       = u16(data, offset + 26)
-        val bitCount     = u16(data, offset + 28)
-        val compression  = u32(data, offset + 30)
+        val width       = u32(data, offset + 18)
+        val rawHeight   = u32(data, offset + 22)
+        val topDown     = rawHeight < 0
+        val height      = scala.math.abs(rawHeight)
+        val planes      = u16(data, offset + 26)
+        val bitCount    = u16(data, offset + 28)
+        val compression = u32(data, offset + 30)
 
         // BI_RGB == 0. (BI_BITFIELDS == 3 unsupported; RLE 1/2 unsupported.)
         if (planes != 1) None
@@ -94,7 +92,7 @@ private[platform] object BmpDecoderJs {
                 // avoid a writer's zeroed reserved byte making the whole image
                 // transparent. (Alpha-carrying BMPs use BI_BITFIELDS/BI_ALPHA,
                 // which this decoder declines above.)
-                val a = 0xff
+                val a  = 0xff
                 val dp = dstOff + x * 4
                 rgba(dp) = r.toByte
                 rgba(dp + 1) = g.toByte
@@ -109,5 +107,4 @@ private[platform] object BmpDecoderJs {
         }
       }
     }
-  }
 }

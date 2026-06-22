@@ -53,7 +53,7 @@ class BrowserApplication(
   // Hard reference to the build-time-generated, self-registering embedded-resources
   // object so Scala.js DCE keeps its initializer (which calls EmbeddedResources.register).
   // Assets are embedded at compile time and served synchronously via PlatformResources.
-  val _ : AnyRef = _root_.sge.platform.GeneratedEmbeddedResources
+  val _: AnyRef = _root_.sge.platform.GeneratedEmbeddedResources
 
   // --- Runnables ---
 

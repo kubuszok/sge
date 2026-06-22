@@ -1,9 +1,7 @@
 import sbt.VirtualAxis
 import sge.sbt.SgePlugin
 
-/** Build version catalogue. Flattened from the former anonymous
-  * `val versions = new {…}` refinement, which does not survive the
-  * sbt-2.0 Scala-3 build dialect.
+/** Build version catalogue. Flattened from the former anonymous `val versions = new {…}` refinement, which does not survive the sbt-2.0 Scala-3 build dialect.
   */
 object Versions {
   // Versions we are publishing for.

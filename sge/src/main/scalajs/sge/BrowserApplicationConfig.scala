@@ -93,8 +93,7 @@ class BrowserApplicationConfig(
   /** If true, audio backend will not be used. */
   var disableAudio: Boolean = false
 
-  /** SGE extensions whose dependencies are loaded once at application startup, before the game listener's `create()` runs. On JS an extension may load asynchronously (e.g. a
-    * WASM module) here.
+  /** SGE extensions whose dependencies are loaded once at application startup, before the game listener's `create()` runs. On JS an extension may load asynchronously (e.g. a WASM module) here.
     */
   var extensions: Seq[SgeExtension] = Seq.empty
 

@@ -49,9 +49,8 @@ class MaxRectsPackerISS561Suite extends munit.FunSuite {
   // enums; keep headless to avoid any toolkit init on macOS forked JVMs.
   System.setProperty("java.awt.headless", "true")
 
-  /** A predictable Settings: no power-of-two rounding, no padding, no edge
-    * padding, no rotation, not square, not fast, silent. minWidth/minHeight
-    * are tiny so page sizing is driven by the rects, not the floor.
+  /** A predictable Settings: no power-of-two rounding, no padding, no edge padding, no rotation, not square, not fast, silent. minWidth/minHeight are tiny so page sizing is driven by the rects, not
+    * the floor.
     */
   private def baseSettings(maxW: Int, maxH: Int): Settings = {
     val s = new Settings()
@@ -115,9 +114,7 @@ class MaxRectsPackerISS561Suite extends munit.FunSuite {
       }
     }
 
-  /** Asserts every placed rect is within its page bounds (page.width/height is
-    * the tight bbox = max(x+width)/max(y+height), so this is x>=0, y>=0 plus
-    * x+width<=page.width, y+height<=page.height).
+  /** Asserts every placed rect is within its page bounds (page.width/height is the tight bbox = max(x+width)/max(y+height), so this is x>=0, y>=0 plus x+width<=page.width, y+height<=page.height).
     */
   private def assertInBounds(pages: ArrayBuffer[Page]): Unit =
     pages.foreach { page =>
@@ -164,8 +161,7 @@ class MaxRectsPackerISS561Suite extends munit.FunSuite {
     assertEquals(page.outputRects.size, 2)
 
     val byX = page.outputRects.sortBy(_.x).toList
-    assertEquals(byX.map(r => (r.x, r.y)), List((0, 0), (50, 0)),
-      "the right-side free split must place the second rect exactly at x=50,y=0")
+    assertEquals(byX.map(r => (r.x, r.y)), List((0, 0), (50, 0)), "the right-side free split must place the second rect exactly at x=50,y=0")
     assertEquals(page.width, 100)
     assertEquals(page.height, 100)
     assertNoOverlap(pages)
@@ -188,12 +184,11 @@ class MaxRectsPackerISS561Suite extends munit.FunSuite {
     val pages  = packer.pack(buf(rect("big", 100, 100), rect("wide", 100, 40), rect("small", 40, 60)))
 
     assertEquals(pages.size, 1, "all three rects must fit on a single 100x200 page")
-    val page    = pages(0)
-    val byName  = page.outputRects.map(r => r.name.get -> ((r.x, r.y))).toMap
-    assertEquals(byName("big"),   (0, 0))
-    assertEquals(byName("wide"),  (0, 100))
-    assertEquals(byName("small"), (0, 140),
-      "the bottom-side free split (below 'wide') must be available for 'small' at y=140")
+    val page   = pages(0)
+    val byName = page.outputRects.map(r => r.name.get -> ((r.x, r.y))).toMap
+    assertEquals(byName("big"), (0, 0))
+    assertEquals(byName("wide"), (0, 100))
+    assertEquals(byName("small"), (0, 140), "the bottom-side free split (below 'wide') must be available for 'small' at y=140")
     assertEquals(page.height, 200)
     assertNoOverlap(pages)
     assertInBounds(pages)
@@ -233,9 +228,13 @@ class MaxRectsPackerISS561Suite extends munit.FunSuite {
 
   test("ISS561 six varied rects: single page, all placed, no overlap, in bounds") {
     val packer = new MaxRectsPacker(baseSettings(256, 256))
-    val input = buf(
-      rect("p", 60, 60), rect("q", 100, 30), rect("r", 30, 100),
-      rect("s", 70, 70), rect("t", 40, 90), rect("u", 90, 40)
+    val input  = buf(
+      rect("p", 60, 60),
+      rect("q", 100, 30),
+      rect("r", 30, 100),
+      rect("s", 70, 70),
+      rect("t", 40, 90),
+      rect("u", 90, 40)
     )
     val pages = packer.pack(input)
 
@@ -297,8 +296,7 @@ class MaxRectsPackerISS561Suite extends munit.FunSuite {
     assertEquals(pages.size, 1, "two 50-wide (40+10 pad) rects fit side-by-side in width 100")
     val page = pages(0)
     val byX  = page.outputRects.sortBy(_.x).toList
-    assertEquals(byX.map(_.x), List(0, 50),
-      "right-side split offset must use the padded width 50, not the raw 40")
+    assertEquals(byX.map(_.x), List(0, 50), "right-side split offset must use the padded width 50, not the raw 40")
     byX.foreach(r => assertEquals(r.width, 50, "each rect is 40 + paddingX 10 wide"))
     // Non-overlap is padding-independent; in-bounds vs Page.width is skipped
     // here because packPage subtracts paddingX off Page.width at the end.

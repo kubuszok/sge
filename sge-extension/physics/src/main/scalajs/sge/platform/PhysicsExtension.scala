@@ -24,7 +24,8 @@ import scala.concurrent.Future
 
 /** Holds the initialized Rapier2D JS module so [[PhysicsOpsJs]] can read it.
   *
-  * The module is bound through `js.Dynamic` facades (no `@JSImport`, no bundler — the SGE build is bundler-free and uses `ModuleKind.NoModule`). [[PhysicsExtension.load]] populates [[rapier]] exactly once.
+  * The module is bound through `js.Dynamic` facades (no `@JSImport`, no bundler — the SGE build is bundler-free and uses `ModuleKind.NoModule`). [[PhysicsExtension.load]] populates [[rapier]] exactly
+  * once.
   */
 private[platform] object RapierModule {
 
@@ -73,8 +74,8 @@ object PhysicsExtension extends sge.SgeExtension {
 
   /** Obtains the Rapier module namespace: prefer a pre-existing browser global, else `require` it (node/jsdom).
     *
-    * Note: `js.Dynamic.global` may only appear as the left-hand side of a `.`-selection (Scala.js global-scope rule), so each access selects a member directly rather than binding the global object to a
-    * value.
+    * Note: `js.Dynamic.global` may only appear as the left-hand side of a `.`-selection (Scala.js global-scope rule), so each access selects a member directly rather than binding the global object to
+    * a value.
     */
   private def obtainModule: js.Dynamic =
     if (js.typeOf(js.Dynamic.global.RAPIER) != "undefined") js.Dynamic.global.RAPIER

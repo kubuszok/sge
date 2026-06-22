@@ -25,8 +25,7 @@ package platform
 
 private[platform] object JpegDecoderJs {
 
-  /** Decodes a baseline-JPEG byte range to an RGBA8888 result, or None if `data`
-    * is not a baseline JPEG this decoder understands.
+  /** Decodes a baseline-JPEG byte range to an RGBA8888 result, or None if `data` is not a baseline JPEG this decoder understands.
     */
   def decode(data: Array[Byte], offset: Int, len: Int): Option[Gdx2dOps.DecodeResult] = {
     // SOI marker: FF D8.
@@ -101,13 +100,13 @@ private[platform] object JpegDecoderJs {
 
   // ---- Component metadata. ----
   final private class Component {
-    var id     = 0
-    var h      = 1 // horizontal sampling factor
-    var v      = 1 // vertical sampling factor
-    var quant  = 0 // quant table index
-    var dcTab  = 0
-    var acTab  = 0
-    var pred   = 0 // running DC predictor
+    var id    = 0
+    var h     = 1 // horizontal sampling factor
+    var v     = 1 // vertical sampling factor
+    var quant = 0 // quant table index
+    var dcTab = 0
+    var acTab = 0
+    var pred  = 0 // running DC predictor
     // Per-component fully-upsampled plane (filled during MCU assembly).
     var plane: Array[Byte] = Array.emptyByteArray
     var planeW = 0
@@ -118,19 +117,19 @@ private[platform] object JpegDecoderJs {
     private var pos = base
 
     private val quantTables = Array.ofDim[Int](4, 64)
-    private val dcTables     = Array.fill(4)(new HuffTable())
-    private val acTables     = Array.fill(4)(new HuffTable())
+    private val dcTables    = Array.fill(4)(new HuffTable())
+    private val acTables    = Array.fill(4)(new HuffTable())
 
-    private var width      = 0
-    private var height     = 0
+    private var width  = 0
+    private var height = 0
     private var components: Array[Component] = Array.empty
     private var restartInterval = 0
 
     // Bit reader state (entropy-coded segment, with FF00 byte-stuffing and
     // marker handling).
-    private var bitBuf  = 0
-    private var bitCnt  = 0
-    private var marker  = 0 // a marker encountered mid-scan (e.g. RSTn / EOI)
+    private var bitBuf = 0
+    private var bitCnt = 0
+    private var marker = 0 // a marker encountered mid-scan (e.g. RSTn / EOI)
 
     private def u8(): Int = {
       val v = data(pos) & 0xff
@@ -143,16 +142,15 @@ private[platform] object JpegDecoderJs {
       (hi << 8) | lo
     }
 
-    def run(): Option[Gdx2dOps.DecodeResult] = {
+    def run(): Option[Gdx2dOps.DecodeResult] =
       if (u16() != 0xffd8) None // SOI
       else decodeMarkers()
-    }
 
     private def decodeMarkers(): Option[Gdx2dOps.DecodeResult] = {
       var result: Option[Gdx2dOps.DecodeResult] = None
       var sawSOF0 = false
       var done    = false
-      while (!done) {
+      while (!done)
         if (pos >= end) done = true
         else {
           // Find next marker (skip fill bytes).
@@ -182,23 +180,22 @@ private[platform] object JpegDecoderJs {
                   result = Some(assemble())
                   done = true // first scan completes a baseline image
                 }
-              case 0xd9 => done = true // EOI
-              case 0x01 => () // TEM, no payload
+              case 0xd9                        => done = true // EOI
+              case 0x01                        => () // TEM, no payload
               case x if x >= 0xd0 && x <= 0xd7 => () // RSTn outside scan, no payload
-              case _ =>
+              case _                           =>
                 // Skip any other marker segment by its length.
                 val seg = u16()
                 pos += (seg - 2)
             }
           }
         }
-      }
       result
     }
 
     private def readSOF0(): Unit = {
-      val _        = u16() // segment length
-      val prec     = u8()
+      val _    = u16() // segment length
+      val prec = u8()
       if (prec != 8) throw new JpegError("only 8-bit precision supported")
       height = u16()
       width = u16()
@@ -207,9 +204,9 @@ private[platform] object JpegDecoderJs {
       val comps = new Array[Component](nComp)
       var i     = 0
       while (i < nComp) {
-        val c   = new Component()
+        val c = new Component()
         c.id = u8()
-        val hv  = u8()
+        val hv = u8()
         c.h = (hv >> 4) & 0x0f
         c.v = hv & 0x0f
         c.quant = u8()
@@ -276,15 +273,15 @@ private[platform] object JpegDecoderJs {
     }
 
     private def readSOS(): Unit = {
-      val _      = u16() // length
-      val ns     = u8()
+      val _  = u16() // length
+      val ns = u8()
       if (ns != components.length) throw new JpegError("SOS component count mismatch")
       var i = 0
       while (i < ns) {
         val cs   = u8()
         val tdta = u8()
         // Find the component with this id.
-        var ci = 0
+        var ci    = 0
         var found = -1
         while (ci < components.length) {
           if (components(ci).id == cs) found = ci
@@ -308,7 +305,7 @@ private[platform] object JpegDecoderJs {
       marker = 0
     }
 
-    private def nextBit(): Int = {
+    private def nextBit(): Int =
       if (marker != 0) 0 // a marker was hit; feed zero bits until the caller realigns
       else {
         if (bitCnt == 0) {
@@ -337,7 +334,6 @@ private[platform] object JpegDecoderJs {
           (bitBuf >> bitCnt) & 1
         }
       }
-    }
 
     private def receive(n: Int): Int = {
       var v = 0
@@ -375,14 +371,8 @@ private[platform] object JpegDecoderJs {
 
     // Zig-zag order.
     private val zigzag = Array(
-      0, 1, 8, 16, 9, 2, 3, 10,
-      17, 24, 32, 25, 18, 11, 4, 5,
-      12, 19, 26, 33, 40, 48, 41, 34,
-      27, 20, 13, 6, 7, 14, 21, 28,
-      35, 42, 49, 56, 57, 50, 43, 36,
-      29, 22, 15, 23, 30, 37, 44, 51,
-      58, 59, 52, 45, 38, 31, 39, 46,
-      53, 60, 61, 54, 47, 55, 62, 63
+      0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51, 58, 59, 52,
+      45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63
     )
 
     // Decode one 8x8 block into a dequantized, IDCT'd, level-shifted byte block.
@@ -393,7 +383,7 @@ private[platform] object JpegDecoderJs {
       val acT  = acTables(comp.acTab)
 
       // DC.
-      val t  = decodeHuff(dcT)
+      val t    = decodeHuff(dcT)
       val diff = extend(receive(t), t)
       comp.pred += diff
       coef(0) = comp.pred * q(0)
@@ -451,7 +441,7 @@ private[platform] object JpegDecoderJs {
       var u = 0
       while (u < 8) {
         val cu = if (u == 0) 1.0 / scala.math.sqrt(2.0) else 1.0
-        var x = 0
+        var x  = 0
         while (x < 8) {
           t(u)(x) = cu * scala.math.cos(((2 * x + 1) * u * scala.math.Pi) / 16.0)
           x += 1
@@ -507,10 +497,10 @@ private[platform] object JpegDecoderJs {
         if (components(ci).v > vMax) vMax = components(ci).v
         ci += 1
       }
-      val mcuW   = 8 * hMax
-      val mcuH   = 8 * vMax
-      val mcusX  = (width + mcuW - 1) / mcuW
-      val mcusY  = (height + mcuH - 1) / mcuH
+      val mcuW  = 8 * hMax
+      val mcuH  = 8 * vMax
+      val mcusX = (width + mcuW - 1) / mcuW
+      val mcusY = (height + mcuH - 1) / mcuH
 
       // Allocate per-component planes sized to the padded component grid.
       ci = 0
@@ -524,7 +514,7 @@ private[platform] object JpegDecoderJs {
       }
 
       resetBits()
-      val block = new Array[Int](64)
+      val block        = new Array[Int](64)
       var restartCount = 0
 
       var my = 0
@@ -540,7 +530,7 @@ private[platform] object JpegDecoderJs {
           }
           ci = 0
           while (ci < nComp) {
-            val c = components(ci)
+            val c  = components(ci)
             var by = 0
             while (by < c.v) {
               var bx = 0
@@ -552,7 +542,7 @@ private[platform] object JpegDecoderJs {
                 var yy  = 0
                 while (yy < 8) {
                   val rowBase = (py0 + yy) * c.planeW + px0
-                  var xx = 0
+                  var xx      = 0
                   while (xx < 8) {
                     c.plane(rowBase + xx) = block(yy * 8 + xx).toByte
                     xx += 1
@@ -602,9 +592,9 @@ private[platform] object JpegDecoderJs {
             val cbv = cb.plane((y * cb.v / vMax) * cb.planeW + (x * cb.h / hMax)) & 0xff
             val crv = cr.plane((y * cr.v / vMax) * cr.planeW + (x * cr.h / hMax)) & 0xff
             // YCbCr -> RGB (JFIF / ITU-R BT.601 full-range).
-            val r = yv + 1.402 * (crv - 128)
-            val g = yv - 0.344136 * (cbv - 128) - 0.714136 * (crv - 128)
-            val b = yv + 1.772 * (cbv - 128)
+            val r  = yv + 1.402 * (crv - 128)
+            val g  = yv - 0.344136 * (cbv - 128) - 0.714136 * (crv - 128)
+            val b  = yv + 1.772 * (cbv - 128)
             val di = (y * width + x) * 4
             rgba(di) = clampByte(r)
             rgba(di + 1) = clampByte(g)
@@ -632,7 +622,7 @@ private[platform] object JpegDecoderJs {
       // The bit reader leaves the marker in the stream (pos rewound). Scan for it.
       // Skip until FF Dn.
       scala.util.boundary {
-        while (pos + 1 < end) {
+        while (pos + 1 < end)
           if ((data(pos) & 0xff) == 0xff) {
             val m = data(pos + 1) & 0xff
             if (m >= 0xd0 && m <= 0xd7) {
@@ -644,7 +634,6 @@ private[platform] object JpegDecoderJs {
               pos += 1
             }
           } else pos += 1
-        }
       }
       marker = 0
     }

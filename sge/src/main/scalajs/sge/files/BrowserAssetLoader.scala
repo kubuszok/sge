@@ -20,9 +20,8 @@ import multiarch.resources.{ EmbeddedResources, PlatformResources }
 
 /** Browser asset loader backed by [[multiarch.resources.PlatformResources]].
   *
-  * Assets are embedded into the JS bundle at build time (base64) by
-  * `MultiArchResourcesPlugin.embeddedResourcesSettings` and served synchronously — there is no HTTP fetch, manifest, or async preload phase. A Node `fs` fallback (provided by `PlatformResources` itself)
-  * keeps in-repo development and test resources working from the repository tree.
+  * Assets are embedded into the JS bundle at build time (base64) by `MultiArchResourcesPlugin.embeddedResourcesSettings` and served synchronously — there is no HTTP fetch, manifest, or async preload
+  * phase. A Node `fs` fallback (provided by `PlatformResources` itself) keeps in-repo development and test resources working from the repository tree.
   *
   * Paths are forward-slash separated and resolved as classpath-absolute (a leading `/` is added when absent) before being handed to `PlatformResources`.
   */
@@ -56,9 +55,7 @@ class BrowserAssetLoader {
 
   /** Get the size of an asset in bytes, or 0 if it cannot be read. */
   def length(path: String): Long =
-    PlatformResources
-      .getResourceBytes(classOf[BrowserAssetLoader], absolute(fixSlashes(path)))
-      .fold(0L)(_.length.toLong)
+    PlatformResources.getResourceBytes(classOf[BrowserAssetLoader], absolute(fixSlashes(path))).fold(0L)(_.length.toLong)
 
   /** List direct children of a directory, derived from the embedded resource key set. */
   def list(directory: String): Array[String] = {
