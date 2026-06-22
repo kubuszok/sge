@@ -275,7 +275,18 @@ jobs:
 
       - name: Install Scala Native system dependencies (Windows)
         if: runner.os == 'Windows'
-        run: choco install llvm --yes
+        # zlib: the migration links Scala Native's javalib z.c (java.util.zip /
+        # ZipCodec) which #include <zlib.h> and @link("z"). Linux/macOS have
+        # system zlib; Windows does not. Provide it via vcpkg and expose it to
+        # clang through CPATH (headers) + LIBRARY_PATH (libs); clang's `-lz`
+        # resolves z.lib (vcpkg ships zlib.lib, so copy it to z.lib).
+        run: |
+          choco install llvm --yes
+          vcpkg install zlib:x64-windows-static
+          $z = "$env:VCPKG_INSTALLATION_ROOT\installed\x64-windows-static"
+          Copy-Item "$z\lib\zlib.lib" "$z\lib\z.lib" -Force
+          "CPATH=$z\include"    | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "LIBRARY_PATH=$z\lib" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Run Scala Native tests
         run: sbt test-native-3
@@ -325,7 +336,18 @@ jobs:
 
       - name: Install Scala Native system dependencies (Windows)
         if: runner.os == 'Windows'
-        run: choco install llvm --yes
+        # zlib: the migration links Scala Native's javalib z.c (java.util.zip /
+        # ZipCodec) which #include <zlib.h> and @link("z"). Linux/macOS have
+        # system zlib; Windows does not. Provide it via vcpkg and expose it to
+        # clang through CPATH (headers) + LIBRARY_PATH (libs); clang's `-lz`
+        # resolves z.lib (vcpkg ships zlib.lib, so copy it to z.lib).
+        run: |
+          choco install llvm --yes
+          vcpkg install zlib:x64-windows-static
+          $z = "$env:VCPKG_INSTALLATION_ROOT\installed\x64-windows-static"
+          Copy-Item "$z\lib\zlib.lib" "$z\lib\z.lib" -Force
+          "CPATH=$z\include"    | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "LIBRARY_PATH=$z\lib" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Run native FFI validation (headless)
         run: sbt 'sge-it-native-ffi/run -- --headless'
