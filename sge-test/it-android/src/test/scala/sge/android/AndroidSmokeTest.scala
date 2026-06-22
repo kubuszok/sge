@@ -150,22 +150,45 @@ class AndroidSmokeTest extends FunSuite {
 
   // ── APK helpers ─────────────────────────────────────────────────────
 
-  /** Finds the signed smoke test APK. */
+  /** Finds the signed smoke test APK by walking the android-smoke module's target tree. The cross-version segment of the output path (e.g. `jvm-3` vs `scala-3.x`) varies by sbt/toolchain version, so
+    * locate the APK by name rather than hard-coding the full path (which broke on sbt 2.0's `jvm-3` layout vs older layouts). On failure, list any `.apk` present for diagnosis.
+    */
   private def findApk(): Path = {
-    val cwd        = Paths.get(System.getProperty("user.dir"))
-    val candidates = Seq(
-      cwd.resolve("sge-test/android-smoke/target/jvm-3/android/app-debug.apk"),
-      cwd.resolve("../../sge-test/android-smoke/target/jvm-3/android/app-debug.apk").normalize
-    )
-    candidates
-      .find(Files.exists(_))
-      .getOrElse(
-        fail(
-          "Smoke APK not found. Run 'sbt sge-android-smoke/androidSign' first.\n" +
-            s"Checked: ${candidates.mkString(", ")}"
-        )
+    val cwd       = Paths.get(System.getProperty("user.dir"))
+    val targetDir = cwd.resolve("sge-test/android-smoke/target")
+    walkForFile(targetDir, "app-debug.apk").getOrElse {
+      val present = listFilesEndingWith(targetDir, ".apk")
+      fail(
+        "Smoke APK 'app-debug.apk' not found. Run 'sbt sge-android-smoke/androidSign' first.\n" +
+          s"Searched under: $targetDir (cwd=$cwd)\n" +
+          (if (present.isEmpty) "No .apk files exist under that tree."
+           else s".apk files present:\n  ${present.mkString("\n  ")}")
       )
+    }
   }
+
+  /** First regular file named `name` anywhere under `root`, or None. */
+  private def walkForFile(root: Path, name: String): Option[Path] =
+    if (!Files.isDirectory(root)) None
+    else {
+      val stream = Files.walk(root)
+      try {
+        val found = stream.filter(p => Files.isRegularFile(p) && p.getFileName.toString == name).findFirst()
+        if (found.isPresent) Some(found.get) else None
+      } finally stream.close()
+    }
+
+  /** All regular files under `root` whose name ends with `suffix` (diagnostic). */
+  private def listFilesEndingWith(root: Path, suffix: String): Seq[Path] =
+    if (!Files.isDirectory(root)) Seq.empty
+    else {
+      val stream  = Files.walk(root)
+      val builder = Seq.newBuilder[Path]
+      try {
+        stream.filter(p => Files.isRegularFile(p) && p.getFileName.toString.endsWith(suffix)).forEach(p => builder += p)
+        builder.result()
+      } finally stream.close()
+    }
 
   // ── Test ────────────────────────────────────────────────────────────
 

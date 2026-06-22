@@ -112,6 +112,12 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      # The Scala.js unit tests run under the jsdom jsEnv; jsdom (+ rapier compat)
+      # are declared in package.json but must be installed into node_modules, or
+      # the JS env aborts with "Cannot find module 'jsdom'" (RunTerminatedException).
+      - name: Install JS test deps (jsdom)
+        run: npm ci
+
       - name: Run Scala.js tests (core + all extensions)
         run: sbt test-js-3
 
