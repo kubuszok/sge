@@ -123,7 +123,10 @@ def demo(dir: String, sbtName: String, pkg: String, title: String,
     .dependsOn(shared)
     .jvmPlatform(demoDistSettings ++ Seq(Compile / mainClass := Some(s"demos.$pkg.DesktopMain")))
     .jsPlatform(browserEmbeddedResources(pkg))
-    .nativePlatform()
+    // The desktop main (scaladesktop) is shared by the JVM and Native desktop
+    // axes. sbt-scala-native's nativeLink no longer auto-detects it on sbt 2.0,
+    // so set it explicitly (mirrors the jvmPlatform mainClass above).
+    .nativePlatform(Seq(Compile / mainClass := Some(s"demos.$pkg.DesktopMain")))
     .withCrossNative
 
 val pong             = demo("pong",              "sge-demo-pong",         "pong",         "SGE Pong")(projectMatrix in file("pong"))
@@ -155,7 +158,7 @@ val assetShowcase = (projectMatrix in file("asset-showcase"))
   .dependsOn(shared)
   .jvmPlatform(demoDistSettings ++ Seq(Compile / mainClass := Some("demos.assets.DesktopMain")))
   .jsPlatform(browserEmbeddedResources("assets"))
-  .nativePlatform()
+  .nativePlatform(Seq(Compile / mainClass := Some("demos.assets.DesktopMain")))
   .withCrossNative
 
 // ── Release aliases ─────────────────────────────────────────────────

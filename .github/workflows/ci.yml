@@ -212,7 +212,7 @@ jobs:
         # publishLocal-js-3 delivers sge core + ALL extensions to Ivy local so
         # demos depending on extensions (e.g. tileWorld → sge-extension-noise)
         # resolve them. writeDemoVersion pins .sge-version for both.
-        run: sbt 'sge/publishM2; sgeJS/publishM2; writeDemoVersion; publishLocal-js-3'
+        run: sbt 'sge/publishM2; sgeJS/publishM2; writeDemoVersion; publishLocal-jvm-3; publishLocal-js-3'
 
       - name: Publish sge-build plugin to Ivy local
         working-directory: sge-build
