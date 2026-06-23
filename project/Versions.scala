@@ -29,6 +29,10 @@ object Versions {
 
   // Native component providers (from sge-native-providers repo)
   val multiarch        = "0.3.0"
-  val nativeComponents = "0.1.2"
+  // 0.1.2-30-g14bab58-SNAPSHOT carries the Windows sge_audio.dll/glfw3.dll +
+  // macos-x86_64 real dylibs + ANGLE EGL/GLESv2 naming fix (sge-native-providers
+  // PR #11). 0.1.2 lacked the Windows audio/glfw DLLs (sgeValidateNativeLibs gate)
+  // and shipped non-functional 16KB macos-x86_64 stubs.
+  val nativeComponents = "0.1.2-30-g14bab58-SNAPSHOT"
   val curlProvider     = multiarch
 }
