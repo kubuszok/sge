@@ -578,11 +578,16 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -no-metrics
           disable-animations: true
-          # Build the smoke APK INSIDE the emulator-runner environment right
-          # before the IT, so the app-debug.apk the test locates is guaranteed to
-          # exist in this step's workspace (the separate "Build smoke APK" step
-          # above runs in a context the test could not see the artifact from).
-          script: sbt 'sge-android-smoke/androidSign; sge-it-android/testFull'
+          # Build the smoke APK INSIDE the emulator-runner environment right before
+          # the IT (the separate "Build smoke APK" step runs in a context the test
+          # could not see the artifact from). Diagnostics: print the cwd and every
+          # .apk produced so the next run reveals the real output path if the test
+          # still cannot locate it.
+          script: |
+            echo "ANDROID-IT cwd=$(pwd) HOME=$HOME"
+            sbt 'sge-android-smoke/androidSign'
+            echo "=== .apk files produced ==="; find "$(pwd)" -name '*.apk' 2>/dev/null; find "$HOME" -name 'app-debug.apk' 2>/dev/null | head
+            sbt 'sge-it-android/testFull'
 
   # ─── Demo smoke (Scala.js) ──────────────────────────────────────
 
