@@ -29,28 +29,34 @@ class DemoSmokeTest extends FunSuite {
     * `<artifact>-fastopt` dir name vary by toolchain.
     */
   private def findDemoJsDir(demoName: String, artifactName: String): Path = {
-    val cwd       = Paths.get(System.getProperty("user.dir"))
-    val targetDir = cwd.resolve(s"demos/$demoName/target")
-    walkForMainJsDir(targetDir).getOrElse {
+    val cwd = Paths.get(System.getProperty("user.dir"))
+    // demos are a separate sub-build; sbt-2.0's out-of-tree layout puts the app
+    // fastLinkJS output at <root>/demos/.../<artifact>-fastopt/main.js (not
+    // demos/<name>/target/js-3/...). Locate the app `-fastopt` dir by artifact name.
+    val root = cwd.resolve("demos")
+    findFastoptDir(root, artifactName).getOrElse {
       fail(
-        s"Demo JS output (main.js) not found for $demoName under $targetDir. " +
+        s"Demo JS output ($artifactName-fastopt/main.js) not found for $demoName under $root. " +
           s"Run 'sbt ${demoName}JS/fastLinkJS' first. (cwd=$cwd)"
       )
     }
   }
 
-  /** The directory under `root` that directly contains a `main.js`, preferring a `*-fastopt` dir if several exist, or None.
+  /** The `<artifact>-fastopt` directory (the application linker output, NOT the `<artifact>-test-fastopt` one) that contains `main.js`, anywhere under `root`.
     */
-  private def walkForMainJsDir(root: Path): Option[Path] =
+  private def findFastoptDir(root: Path, artifact: String): Option[Path] =
     if (!Files.isDirectory(root)) None
     else {
-      val stream  = Files.walk(root)
-      val builder = Seq.newBuilder[Path]
-      try
-        stream.filter(p => Files.isRegularFile(p) && p.getFileName.toString == "main.js").forEach(p => builder += p.getParent)
-      finally stream.close()
-      val dirs = builder.result()
-      dirs.find(_.getFileName.toString.endsWith("-fastopt")).orElse(dirs.headOption)
+      val stream = Files.walk(root)
+      try {
+        val found = stream
+          .filter(p =>
+            Files.isRegularFile(p) && p.getFileName.toString == "main.js" &&
+              p.getParent.getFileName.toString == s"$artifact-fastopt"
+          )
+          .findFirst()
+        if (found.isPresent) Some(found.get.getParent) else None
+      } finally stream.close()
     }
 
   /** Start a simple HTTP server serving files from the given directory. */

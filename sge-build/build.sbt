@@ -10,6 +10,14 @@ lazy val root = (project in file("."))
     // the conflicting-cross-version-suffix guard. These are runtime-compatible
     // here (plugin classpath), so don't fail the build on the mixed suffixes.
     conflictWarning := conflictWarning.value.copy(failOnConflict = false),
+    // conflictWarning above does NOT cover sbt 2.0's separate "conflicting
+    // cross-version suffixes" guard (it hard-fails when both _3 and _2.13 builds
+    // of scala-xml / scala-collection-compat appear). Declare the Always scheme so
+    // the runtime-compatible mixed suffixes are allowed.
+    libraryDependencySchemes ++= Seq(
+      "org.scala-lang.modules" %% "scala-xml"               % VersionScheme.Always,
+      "org.scala-lang.modules" %% "scala-collection-compat" % VersionScheme.Always
+    ),
     name         := "sge-build",
     organization := "com.kubuszok",
     // Version matches the SGE library. Read from ../.sge-version (written by

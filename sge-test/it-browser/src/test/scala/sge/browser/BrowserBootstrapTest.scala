@@ -38,28 +38,35 @@ class BrowserBootstrapTest extends FunSuite {
     * `scala-3.x`, and the `<module>-fastopt` dir name) varies by sbt/Scala.js toolchain version, so don't hard-code it.
     */
   private def findDemoJsDir(): Path = {
-    val cwd       = Paths.get(System.getProperty("user.dir"))
-    val targetDir = cwd.resolve("sge-test/regression/target")
-    walkForMainJsDir(targetDir).getOrElse {
+    val cwd = Paths.get(System.getProperty("user.dir"))
+    // sbt-2.0 uses an out-of-tree layout: the regression app's fastLinkJS output is
+    // <root>/target/out/sjs1/<scala>/sge-test-regression/sge-test-regression-fastopt/main.js
+    // (NOT sge-test/regression/target/...). Locate the app `-fastopt` dir (not the
+    // `-test-fastopt` one) by name anywhere under target.
+    val root = cwd.resolve("target")
+    findFastoptDir(root, "sge-test-regression").getOrElse {
       fail(
-        "Demo JS output (main.js) not found under " + targetDir + ". " +
+        "Demo JS output (sge-test-regression-fastopt/main.js) not found under " + root + ". " +
           "Run 'sbt regressionTestJS/fastLinkJS' first. (cwd=" + cwd + ")"
       )
     }
   }
 
-  /** The directory under `root` that directly contains a `main.js` (the fastLinkJS output), or None. Prefers a `*-fastopt` dir if several `main.js` exist.
+  /** The `<artifact>-fastopt` directory (the application linker output, NOT the `<artifact>-test-fastopt` one) that contains `main.js`, anywhere under `root`.
     */
-  private def walkForMainJsDir(root: Path): Option[Path] =
+  private def findFastoptDir(root: Path, artifact: String): Option[Path] =
     if (!Files.isDirectory(root)) None
     else {
-      val stream  = Files.walk(root)
-      val builder = Seq.newBuilder[Path]
-      try
-        stream.filter(p => Files.isRegularFile(p) && p.getFileName.toString == "main.js").forEach(p => builder += p.getParent)
-      finally stream.close()
-      val dirs = builder.result()
-      dirs.find(_.getFileName.toString.endsWith("-fastopt")).orElse(dirs.headOption)
+      val stream = Files.walk(root)
+      try {
+        val found = stream
+          .filter(p =>
+            Files.isRegularFile(p) && p.getFileName.toString == "main.js" &&
+              p.getParent.getFileName.toString == s"$artifact-fastopt"
+          )
+          .findFirst()
+        if (found.isPresent) Some(found.get.getParent) else None
+      } finally stream.close()
     }
 
   /** Start a simple HTTP server serving files from the given directories (first match wins). */
