@@ -88,9 +88,19 @@ def sgeAliasName(prefix: String, platform: String, scalaBin: String): String =
 // `coverage`, `clean` etc. are untouched (no project id ends in a bare `/test`).
 def testFullify(cmd: String): String = cmd.replace("/test", "/testFull")
 
+// scoverage produces NO usable aggregate report on Scala 3.8.x under sbt 2.0 AND
+// its per-test measurement files race under parallel execution, intermittently
+// failing the JVM run with "scoverage.measurements.<uuid> (No such file)". Since
+// coverage yields no report anyway (the codecov upload is already non-fatal),
+// strip the `coverage`/`coverageAggregate`/`coverageOff` steps from the ci alias
+// so the JVM test run is deterministic. (JS/Native ci aliases carry no coverage,
+// so this is a no-op there.) Restore when scoverage supports 3.8.x.
+def dropCoverage(cmd: String): String =
+  cmd.replace("coverage ; ", "").replace(" ; coverageAggregate ; coverageOff", "")
+
 lazy val sgeCommandAliases: Seq[Def.Setting[State => State]] =
   sgeAliasCombinations.flatMap { case (platform, scalaBin) =>
-    addCommandAlias(sgeAliasName("ci", platform, scalaBin), testFullify(al.ci(platform, scalaBin))) ++
+    addCommandAlias(sgeAliasName("ci", platform, scalaBin), dropCoverage(testFullify(al.ci(platform, scalaBin)))) ++
       addCommandAlias(sgeAliasName("test", platform, scalaBin), testFullify(al.test(platform, scalaBin))) ++
       addCommandAlias(sgeAliasName("publishLocal", platform, scalaBin), al.publishLocal(platform, scalaBin).mkString(" ; "))
   }
