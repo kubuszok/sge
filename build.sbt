@@ -561,6 +561,28 @@ val `sge-gltf` = (projectMatrix in file("sge-extension/gltf"))
     MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
       libraryDependencies += "com.kubuszok" % "sn-provider-sge" % Versions.nativeComponents
     )),
+    // ISS-533: gltf's JVM tests build VertexArray-backed meshes, which allocate
+    // unsafe ByteBuffers through BufferOpsPanama → NativeLibLoader.load("sge_native_ops").
+    // The `pnm-provider-sge-desktop` Panama provider (the JAR carrying
+    // libsge_native_ops for desktop) is NOT transitive from `sge` core, so — exactly
+    // like `sge-physics` re-adds `pnm-provider-sge-physics-desktop` on its JVM axis —
+    // gltf must pull the sge-core Panama provider onto its own JVM axis or the native
+    // lib is absent on the forked test classpath (UnsatisfiedLinkError).
+    MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(
+      libraryDependencies += "com.kubuszok" % "pnm-provider-sge-desktop" % Versions.nativeComponents,
+      // android.jar leaks onto gltf's test classpath transitively from `sge`
+      // core's Compile/unmanagedJars (when the Android SDK is present). It is a
+      // STUB jar, and multiarch's NativeLibLoader detects the host as Android
+      // purely by `Class.forName("android.app.Activity")` — so its presence on
+      // the test runtime makes NativeLibLoader resolve the wrong native-lib path
+      // (android-aarch64) instead of the desktop provider's libsge_native_ops.
+      // sge core filters it from its own Test/fullClasspath for the same reason;
+      // mirror that here so the desktop Panama provider's lib is the one found.
+      Test / fullClasspath := Def.uncached {
+        val conv = fileConverter.value
+        (Test / fullClasspath).value.filterNot(e => conv.toPath(e.data).getFileName.toString == "android.jar")
+      }
+    )),
     MatrixAction.ForAll.Configure(_.settings(SgePlugin.relaxedSettings *)),
     jvmPlatformApiClasspath
   )) *)
