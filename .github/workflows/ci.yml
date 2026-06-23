@@ -312,9 +312,14 @@ jobs:
           if (-not (Test-Path "$z\zlib.lib")) { throw "zlib.lib was not built under $z" }
           # clang's `-lz` resolves z.lib; the MSVC makefile emits zlib.lib (static).
           Copy-Item "$z\zlib.lib" "$z\z.lib" -Force
-          Write-Host "Built zlib static lib: $z\z.lib ; header: $z\zlib.h"
+          Write-Host "Built zlib static lib: $z\zlib.lib ; header: $z\zlib.h"
           "CPATH=$z"        | Out-File $env:GITHUB_ENV -Append -Encoding utf8
           "LIBRARY_PATH=$z" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          # Scala Native links on Windows via clang++/link.exe, which searches the
+          # MSVC `LIB` env (NOT LIBRARY_PATH) and wants `zlib.lib` (the @link("z")
+          # name maps to zlib on Windows). Prepend the from-source zlib dir to LIB
+          # so the linker finds zlib.lib (the LNK1104 'cannot open zlib.lib' fix).
+          "LIB=$z;$env:LIB" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Run Scala Native tests
         run: sbt test-native-3
@@ -397,9 +402,14 @@ jobs:
           if (-not (Test-Path "$z\zlib.lib")) { throw "zlib.lib was not built under $z" }
           # clang's `-lz` resolves z.lib; the MSVC makefile emits zlib.lib (static).
           Copy-Item "$z\zlib.lib" "$z\z.lib" -Force
-          Write-Host "Built zlib static lib: $z\z.lib ; header: $z\zlib.h"
+          Write-Host "Built zlib static lib: $z\zlib.lib ; header: $z\zlib.h"
           "CPATH=$z"        | Out-File $env:GITHUB_ENV -Append -Encoding utf8
           "LIBRARY_PATH=$z" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          # Scala Native links on Windows via clang++/link.exe, which searches the
+          # MSVC `LIB` env (NOT LIBRARY_PATH) and wants `zlib.lib` (the @link("z")
+          # name maps to zlib on Windows). Prepend the from-source zlib dir to LIB
+          # so the linker finds zlib.lib (the LNK1104 'cannot open zlib.lib' fix).
+          "LIB=$z;$env:LIB" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Run native FFI validation (headless)
         run: sbt 'sge-it-native-ffi/run -- --headless'
