@@ -37,6 +37,53 @@ val demoDistSettings: Seq[Setting[_]] = Seq(
   )
 )
 
+// ── Shared desktop (JVM + Native) source directory ──────────────────
+// The `scaladesktop` dir holds desktop launcher logic shared by the JVM
+// (Panama FFM) and Scala Native (@extern C FFI) desktop axes; the
+// platform-specific `DesktopApplicationFactory` is resolved at link time.
+//
+// SgePlugin's SgeDesktopJvmPlatform is supposed to add this dir, but under
+// sbt 2.0 a projectMatrix row's `baseDirectory` resolves to
+// `.sbt/matrix/<row>` (not the real project dir), so the plugin's
+// `baseDirectory / src/main/scaladesktop` guard never matches and the dir is
+// silently dropped from BOTH the JVM and Native rows. The root build wires the
+// equivalent dir for `regressionTest` off `(ThisBuild / baseDirectory) /
+// projectDir / src/main/scaladesktop` in its `commonSettings`; mirror that here
+// off the demos build's `ThisBuild / baseDirectory` (= demos/) + the demo's
+// sub-directory so the shared desktop sources compile on JVM and Native alike.
+// (SgeBrowserPlatform already filters this dir off the JS rows.)
+def desktopSources(dir: String): Seq[Setting[_]] = {
+  def addDesktopDir = Compile / unmanagedSourceDirectories ++= {
+    val desktopDir = (ThisBuild / baseDirectory).value / dir / "src" / "main" / "scaladesktop"
+    if (desktopDir.exists()) Seq(desktopDir) else Seq.empty
+  }
+  Seq(addDesktopDir)
+}
+
+// Per-demo desktop main class (JVM + Native). The `mainClass` is derived from
+// the project's OWN `discoveredMainClasses` at task time rather than from a
+// captured `pkg` literal.
+//
+// Inlining `Compile / mainClass := Some(s"demos.$pkg.DesktopMain")` (a plain
+// value setting) in the `demo()` factory collapsed every factory demo's
+// mainClass to the FIRST demo's value (`demos.pong.DesktopMain`): the `:=` RHS
+// is macro-expanded once at a shared definition site, so the captured `pkg`
+// resolved to a single binding for all demos. On Native (where nativeLink
+// validates the entry point) that made every demo but Pong fail with "Unknown
+// type demos.pong.DesktopMain"; JVM never caught it because `sbt compile` does
+// not validate `mainClass`.
+//
+// A `Compile / mainClass := { ... }.value` TASK is re-evaluated per project, so
+// reading the project's own discovered `demos.<pkg>.DesktopMain` here pins the
+// correct entry point for each demo without depending on a captured literal.
+val desktopMainClass: Seq[Setting[_]] = Seq(
+  Compile / mainClass := {
+    (Compile / discoveredMainClasses).value
+      .find(_.endsWith(".DesktopMain"))
+      .orElse((Compile / mainClass).value)
+  }
+)
+
 // ── Shared demo framework ───────────────────────────────────────────
 
 val shared = (projectMatrix in file("shared"))
@@ -48,9 +95,9 @@ val shared = (projectMatrix in file("shared"))
     publish / skip := true,
     libraryDependencies += "com.kubuszok" %% "lls" % "0.2.0"
   )
-  .jvmPlatform()
+  .jvmPlatform(desktopSources("shared"))
   .jsPlatform()
-  .nativePlatform()
+  .nativePlatform(scalaVersions = Seq(SgePlugin.scalaVersion), settings = desktopSources("shared"))
 
 // ── Browser asset embedding ─────────────────────────────────────────
 // Scala.js has no classpath, so each browser app must embed its OWN
@@ -121,14 +168,19 @@ def demo(dir: String, sbtName: String, pkg: String, title: String,
       JvmPackaging.releaseAppName := title,
       sgeExtensions := extensions)
     .dependsOn(shared)
-    .jvmPlatform(demoDistSettings ++ Seq(Compile / mainClass := Some(s"demos.$pkg.DesktopMain")))
+    .jvmPlatform(demoDistSettings ++ desktopSources(dir) ++ desktopMainClass)
     .jsPlatform(browserEmbeddedResources(pkg))
     // The desktop main (scaladesktop) is shared by the JVM and Native desktop
-    // axes. sbt-scala-native's nativeLink no longer auto-detects it on sbt 2.0,
-    // so set it explicitly. Named args (scalaVersions+settings) are required:
+    // axes. Under sbt 2.0 the scaladesktop dir must be wired explicitly on BOTH
+    // rows (see `desktopSources`), and sbt-scala-native's nativeLink no longer
+    // auto-detects the main, so set `mainClass` explicitly too (see
+    // `desktopMainClass`). Named args (scalaVersions+settings) are required:
     // positional `.nativePlatform(Seq(...))` binds the Seq to the projectMatrix
     // member's `scalaVersions: Seq[String]` param (Required: String).
-    .nativePlatform(scalaVersions = Seq(SgePlugin.scalaVersion), settings = Seq(Compile / mainClass := Some(s"demos.$pkg.DesktopMain")))
+    .nativePlatform(
+      scalaVersions = Seq(SgePlugin.scalaVersion),
+      settings = desktopSources(dir) ++ desktopMainClass
+    )
     .withCrossNative
 
 val pong             = demo("pong",              "sge-demo-pong",         "pong",         "SGE Pong")(projectMatrix in file("pong"))
@@ -158,9 +210,12 @@ val assetShowcase = (projectMatrix in file("asset-showcase"))
   )
   .settings(AssetGenerator.settings)
   .dependsOn(shared)
-  .jvmPlatform(demoDistSettings ++ Seq(Compile / mainClass := Some("demos.assets.DesktopMain")))
+  .jvmPlatform(demoDistSettings ++ desktopSources("asset-showcase") ++ desktopMainClass)
   .jsPlatform(browserEmbeddedResources("assets"))
-  .nativePlatform(scalaVersions = Seq(SgePlugin.scalaVersion), settings = Seq(Compile / mainClass := Some("demos.assets.DesktopMain")))
+  .nativePlatform(
+    scalaVersions = Seq(SgePlugin.scalaVersion),
+    settings = desktopSources("asset-showcase") ++ desktopMainClass
+  )
   .withCrossNative
 
 // ── Release aliases ─────────────────────────────────────────────────
