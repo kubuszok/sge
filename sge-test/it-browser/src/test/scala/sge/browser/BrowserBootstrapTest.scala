@@ -34,24 +34,33 @@ class BrowserBootstrapTest extends FunSuite {
   override val munitTimeout: scala.concurrent.duration.Duration =
     scala.concurrent.duration.Duration(60, "s")
 
-  /** Locate the fastLinkJS output directory for the demo module. */
+  /** Locate the fastLinkJS output directory for the demo module by walking the regression module's target tree for the `main.js` the linker emits. The exact path (the cross-version segment `js-3` vs
+    * `scala-3.x`, and the `<module>-fastopt` dir name) varies by sbt/Scala.js toolchain version, so don't hard-code it.
+    */
   private def findDemoJsDir(): Path = {
-    // sbt runs tests from the project root, so user.dir should be the repo root.
-    // The demo fastLinkJS output is at: sge-regression-test/target/js-3/sge-regression-test-fastopt/
-    val cwd        = Paths.get(System.getProperty("user.dir"))
-    val candidates = Seq(
-      // From project root (sbt runs from here)
-      cwd.resolve("sge-test/regression/target/js-3/sge-test-regression-fastopt"),
-      // From sge-it-tests/browser subdir (just in case)
-      cwd.resolve("../../sge-test/regression/target/js-3/sge-test-regression-fastopt").normalize
-    )
-    candidates.find(p => Files.isDirectory(p) && Files.exists(p.resolve("main.js"))).getOrElse {
+    val cwd       = Paths.get(System.getProperty("user.dir"))
+    val targetDir = cwd.resolve("sge-test/regression/target")
+    walkForMainJsDir(targetDir).getOrElse {
       fail(
-        s"Demo JS output not found. Run 'sbt regressionTestJS/fastLinkJS' first.\n" +
-          s"Checked: ${candidates.mkString(", ")}"
+        "Demo JS output (main.js) not found under " + targetDir + ". " +
+          "Run 'sbt regressionTestJS/fastLinkJS' first. (cwd=" + cwd + ")"
       )
     }
   }
+
+  /** The directory under `root` that directly contains a `main.js` (the fastLinkJS output), or None. Prefers a `*-fastopt` dir if several `main.js` exist.
+    */
+  private def walkForMainJsDir(root: Path): Option[Path] =
+    if (!Files.isDirectory(root)) None
+    else {
+      val stream  = Files.walk(root)
+      val builder = Seq.newBuilder[Path]
+      try
+        stream.filter(p => Files.isRegularFile(p) && p.getFileName.toString == "main.js").forEach(p => builder += p.getParent)
+      finally stream.close()
+      val dirs = builder.result()
+      dirs.find(_.getFileName.toString.endsWith("-fastopt")).orElse(dirs.headOption)
+    }
 
   /** Start a simple HTTP server serving files from the given directories (first match wins). */
   private def startServer(rootDir: Path, extraRoots: Path*): (HttpServer, Int) = {

@@ -25,20 +25,33 @@ class DemoSmokeTest extends FunSuite {
   override val munitTimeout: scala.concurrent.duration.Duration =
     scala.concurrent.duration.Duration(120, "s")
 
-  /** Locate the fastLinkJS output directory for a demo module. */
+  /** Locate the fastLinkJS output directory for a demo module by walking the demo's target tree for the `main.js` the linker emits — the cross-version path segment (`js-3` vs `scala-3.x`) and the
+    * `<artifact>-fastopt` dir name vary by toolchain.
+    */
   private def findDemoJsDir(demoName: String, artifactName: String): Path = {
-    val cwd        = Paths.get(System.getProperty("user.dir"))
-    val candidates = Seq(
-      cwd.resolve(s"demos/$demoName/target/js-3/$artifactName-fastopt"),
-      cwd.resolve(s"../../demos/$demoName/target/js-3/$artifactName-fastopt").normalize
-    )
-    candidates.find(p => Files.isDirectory(p) && Files.exists(p.resolve("main.js"))).getOrElse {
+    val cwd       = Paths.get(System.getProperty("user.dir"))
+    val targetDir = cwd.resolve(s"demos/$demoName/target")
+    walkForMainJsDir(targetDir).getOrElse {
       fail(
-        s"Demo JS output not found for $demoName. Run 'sbt ${demoName}JS/fastLinkJS' first.\n" +
-          s"Checked: ${candidates.mkString(", ")}"
+        s"Demo JS output (main.js) not found for $demoName under $targetDir. " +
+          s"Run 'sbt ${demoName}JS/fastLinkJS' first. (cwd=$cwd)"
       )
     }
   }
+
+  /** The directory under `root` that directly contains a `main.js`, preferring a `*-fastopt` dir if several exist, or None.
+    */
+  private def walkForMainJsDir(root: Path): Option[Path] =
+    if (!Files.isDirectory(root)) None
+    else {
+      val stream  = Files.walk(root)
+      val builder = Seq.newBuilder[Path]
+      try
+        stream.filter(p => Files.isRegularFile(p) && p.getFileName.toString == "main.js").forEach(p => builder += p.getParent)
+      finally stream.close()
+      val dirs = builder.result()
+      dirs.find(_.getFileName.toString.endsWith("-fastopt")).orElse(dirs.headOption)
+    }
 
   /** Start a simple HTTP server serving files from the given directory. */
   private def startServer(rootDir: Path): (HttpServer, Int) = {
