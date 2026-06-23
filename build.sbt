@@ -757,7 +757,29 @@ val `sge-vfx` = (projectMatrix in file("sge-extension/vfx"))
 
 val `sge-visui` = (projectMatrix in file("sge-extension/visui"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(Versions.scala3))
-  .someVariations(Versions.scalas, Versions.platforms)((commonSettings("sge-extension/visui") ++ dev.only1VersionInIDE ++ Seq(jvmPlatformApiClasspath)) *)
+  .someVariations(Versions.scalas, Versions.platforms)((commonSettings("sge-extension/visui") ++ dev.only1VersionInIDE ++ Seq(
+    jvmPlatformApiClasspath,
+    // ISS-531: visui's JVM tests construct a Stage -> SpriteBatch -> Mesh -> VBO,
+    // which allocates unsafe ByteBuffers via BufferOpsPanama ->
+    // NativeLibLoader.load("sge_native_ops"). The `pnm-provider-sge-desktop`
+    // Panama provider (the JAR carrying libsge_native_ops for desktop) is NOT
+    // transitive from `sge` core, so add it on the JVM axis (mirroring sge-gltf /
+    // sge-physics) and filter the android.jar stub from the test classpath (its
+    // presence makes multiarch's NativeLibLoader mis-detect the host as Android
+    // and resolve the wrong native-lib path).
+    MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(
+      libraryDependencies += "com.kubuszok" % "pnm-provider-sge-desktop" % Versions.nativeComponents,
+      Test / fullClasspath := Def.uncached {
+        val conv = fileConverter.value
+        (Test / fullClasspath).value.filterNot(e => conv.toPath(e.data).getFileName.toString == "android.jar")
+      },
+      // VisUI is a process-global singleton (VisUI._skin); multiple suites
+      // load()/dispose() it per-test, so running suites concurrently races the
+      // global state ("VisUI is not loaded!" / "cannot be loaded twice"). Run the
+      // JVM suites sequentially. JS/Native are single-threaded and unaffected.
+      Test / parallelExecution := false
+    ))
+  )) *)
   .settings(publishSettings)
   .settings(mimaSettings)
   .settings(name := "sge-extension-visui")
