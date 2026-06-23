@@ -283,14 +283,49 @@ jobs:
         # ZipCodec) which #include <zlib.h> and @link("z"). Linux/macOS have
         # system zlib; Windows does not. Provide it via vcpkg and expose it to
         # clang through CPATH (headers) + LIBRARY_PATH (libs); clang's `-lz`
-        # resolves z.lib (vcpkg ships zlib.lib, so copy it to z.lib).
+        # resolves z.lib, so we copy vcpkg's real import lib to z.lib.
+        #
+        # vcpkg's exact install layout/lib name varies (zlib.lib vs
+        # zlibstatic.lib, triplet subdir vs not), so DISCOVER the real lib +
+        # header by recursive search under VCPKG_INSTALLATION_ROOT rather than
+        # hard-coding a path. Fail loudly (and log what was found) if either is
+        # missing so the next run has diagnostics.
         run: |
+          $ErrorActionPreference = "Stop"
           choco install llvm --yes
           vcpkg install zlib:x64-windows-static
-          $z = "$env:VCPKG_INSTALLATION_ROOT\installed\x64-windows-static"
-          Copy-Item "$z\lib\zlib.lib" "$z\lib\z.lib" -Force
-          "CPATH=$z\include"    | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-          "LIBRARY_PATH=$z\lib" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          $root = $env:VCPKG_INSTALLATION_ROOT
+          Write-Host "Searching for zlib under: $root"
+          # Prefer a static import lib from an x64 static install; accept
+          # zlib.lib or zlibstatic.lib. Pick the first match outside any debug dir.
+          $lib = Get-ChildItem -Path $root -Recurse -File -Include 'zlib.lib','zlibstatic.lib' -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -match 'x64-windows-static' -and $_.FullName -notmatch '\\debug\\' } |
+            Select-Object -First 1
+          if (-not $lib) {
+            # Fall back to any matching lib if the preferred triplet path missed.
+            $lib = Get-ChildItem -Path $root -Recurse -File -Include 'zlib.lib','zlibstatic.lib' -ErrorAction SilentlyContinue |
+              Where-Object { $_.FullName -notmatch '\\debug\\' } |
+              Select-Object -First 1
+          }
+          $hdr = Get-ChildItem -Path $root -Recurse -File -Filter 'zlib.h' -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -match 'x64-windows-static' -and $_.FullName -notmatch '\\debug\\' } |
+            Select-Object -First 1
+          if (-not $hdr) {
+            $hdr = Get-ChildItem -Path $root -Recurse -File -Filter 'zlib.h' -ErrorAction SilentlyContinue |
+              Where-Object { $_.FullName -notmatch '\\debug\\' } |
+              Select-Object -First 1
+          }
+          if (-not $lib) { throw "zlib import lib (zlib.lib/zlibstatic.lib) not found under $root" }
+          if (-not $hdr) { throw "zlib header (zlib.h) not found under $root" }
+          $libDir = $lib.DirectoryName
+          $incDir = $hdr.DirectoryName
+          Write-Host "Found zlib lib:    $($lib.FullName)"
+          Write-Host "Found zlib header: $($hdr.FullName)"
+          # clang's `-lz` looks for z.lib; copy the discovered lib to that name.
+          Copy-Item $lib.FullName (Join-Path $libDir "z.lib") -Force
+          Write-Host "Copied to:         $(Join-Path $libDir 'z.lib')"
+          "CPATH=$incDir"        | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "LIBRARY_PATH=$libDir" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Run Scala Native tests
         run: sbt test-native-3
@@ -344,14 +379,49 @@ jobs:
         # ZipCodec) which #include <zlib.h> and @link("z"). Linux/macOS have
         # system zlib; Windows does not. Provide it via vcpkg and expose it to
         # clang through CPATH (headers) + LIBRARY_PATH (libs); clang's `-lz`
-        # resolves z.lib (vcpkg ships zlib.lib, so copy it to z.lib).
+        # resolves z.lib, so we copy vcpkg's real import lib to z.lib.
+        #
+        # vcpkg's exact install layout/lib name varies (zlib.lib vs
+        # zlibstatic.lib, triplet subdir vs not), so DISCOVER the real lib +
+        # header by recursive search under VCPKG_INSTALLATION_ROOT rather than
+        # hard-coding a path. Fail loudly (and log what was found) if either is
+        # missing so the next run has diagnostics.
         run: |
+          $ErrorActionPreference = "Stop"
           choco install llvm --yes
           vcpkg install zlib:x64-windows-static
-          $z = "$env:VCPKG_INSTALLATION_ROOT\installed\x64-windows-static"
-          Copy-Item "$z\lib\zlib.lib" "$z\lib\z.lib" -Force
-          "CPATH=$z\include"    | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-          "LIBRARY_PATH=$z\lib" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          $root = $env:VCPKG_INSTALLATION_ROOT
+          Write-Host "Searching for zlib under: $root"
+          # Prefer a static import lib from an x64 static install; accept
+          # zlib.lib or zlibstatic.lib. Pick the first match outside any debug dir.
+          $lib = Get-ChildItem -Path $root -Recurse -File -Include 'zlib.lib','zlibstatic.lib' -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -match 'x64-windows-static' -and $_.FullName -notmatch '\\debug\\' } |
+            Select-Object -First 1
+          if (-not $lib) {
+            # Fall back to any matching lib if the preferred triplet path missed.
+            $lib = Get-ChildItem -Path $root -Recurse -File -Include 'zlib.lib','zlibstatic.lib' -ErrorAction SilentlyContinue |
+              Where-Object { $_.FullName -notmatch '\\debug\\' } |
+              Select-Object -First 1
+          }
+          $hdr = Get-ChildItem -Path $root -Recurse -File -Filter 'zlib.h' -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -match 'x64-windows-static' -and $_.FullName -notmatch '\\debug\\' } |
+            Select-Object -First 1
+          if (-not $hdr) {
+            $hdr = Get-ChildItem -Path $root -Recurse -File -Filter 'zlib.h' -ErrorAction SilentlyContinue |
+              Where-Object { $_.FullName -notmatch '\\debug\\' } |
+              Select-Object -First 1
+          }
+          if (-not $lib) { throw "zlib import lib (zlib.lib/zlibstatic.lib) not found under $root" }
+          if (-not $hdr) { throw "zlib header (zlib.h) not found under $root" }
+          $libDir = $lib.DirectoryName
+          $incDir = $hdr.DirectoryName
+          Write-Host "Found zlib lib:    $($lib.FullName)"
+          Write-Host "Found zlib header: $($hdr.FullName)"
+          # clang's `-lz` looks for z.lib; copy the discovered lib to that name.
+          Copy-Item $lib.FullName (Join-Path $libDir "z.lib") -Force
+          Write-Host "Copied to:         $(Join-Path $libDir 'z.lib')"
+          "CPATH=$incDir"        | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "LIBRARY_PATH=$libDir" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Run native FFI validation (headless)
         run: sbt 'sge-it-native-ffi/run -- --headless'
