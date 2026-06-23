@@ -293,43 +293,28 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           choco install llvm --yes
-          # Force a known classic-mode install root: the runner's bare
-          # `vcpkg install <port>:<triplet>` did NOT populate
-          # VCPKG_INSTALLATION_ROOT/installed (manifest-mode interference), so the
-          # lib was never found. --x-install-root pins the location deterministically.
-          $root = "$env:RUNNER_TEMP\vcpkg-zlib"
-          vcpkg install zlib:x64-windows-static --x-install-root="$root"
-          Write-Host "Searching for zlib under: $root"
-          # Prefer a static import lib from an x64 static install; accept
-          # zlib.lib or zlibstatic.lib. Pick the first match outside any debug dir.
-          $lib = Get-ChildItem -Path $root -Recurse -File -Include 'zlib.lib','zlibstatic.lib' -ErrorAction SilentlyContinue |
-            Where-Object { $_.FullName -match 'x64-windows-static' -and $_.FullName -notmatch '\\debug\\' } |
-            Select-Object -First 1
-          if (-not $lib) {
-            # Fall back to any matching lib if the preferred triplet path missed.
-            $lib = Get-ChildItem -Path $root -Recurse -File -Include 'zlib.lib','zlibstatic.lib' -ErrorAction SilentlyContinue |
-              Where-Object { $_.FullName -notmatch '\\debug\\' } |
-              Select-Object -First 1
-          }
-          $hdr = Get-ChildItem -Path $root -Recurse -File -Filter 'zlib.h' -ErrorAction SilentlyContinue |
-            Where-Object { $_.FullName -match 'x64-windows-static' -and $_.FullName -notmatch '\\debug\\' } |
-            Select-Object -First 1
-          if (-not $hdr) {
-            $hdr = Get-ChildItem -Path $root -Recurse -File -Filter 'zlib.h' -ErrorAction SilentlyContinue |
-              Where-Object { $_.FullName -notmatch '\\debug\\' } |
-              Select-Object -First 1
-          }
-          if (-not $lib) { throw "zlib import lib (zlib.lib/zlibstatic.lib) not found under $root" }
-          if (-not $hdr) { throw "zlib header (zlib.h) not found under $root" }
-          $libDir = $lib.DirectoryName
-          $incDir = $hdr.DirectoryName
-          Write-Host "Found zlib lib:    $($lib.FullName)"
-          Write-Host "Found zlib header: $($hdr.FullName)"
-          # clang's `-lz` looks for z.lib; copy the discovered lib to that name.
-          Copy-Item $lib.FullName (Join-Path $libDir "z.lib") -Force
-          Write-Host "Copied to:         $(Join-Path $libDir 'z.lib')"
-          "CPATH=$incDir"        | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-          "LIBRARY_PATH=$libDir" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          # vcpkg never materialized the import lib on this runner (manifest-mode
+          # interference, repeated attempts). Build zlib deterministically from
+          # source with the MSVC toolchain instead. Enter the VS dev shell so
+          # nmake/cl + the Windows SDK are on PATH for THIS step's build; the sbt
+          # Scala Native build sets up its own clang env, we only export
+          # CPATH/LIBRARY_PATH (additive) so its clang finds zlib.h + z.lib.
+          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
+          Import-Module "$vs\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+          Enter-VsDevShell -VsInstallPath $vs -DevCmdArguments "-arch=x64" -SkipAutomaticLocation
+          $z = "$env:RUNNER_TEMP\zlib-src"
+          git clone --depth=1 -b v1.3.1 https://github.com/madler/zlib "$z"
+          Push-Location $z
+          # zlib's release tree ships zconf.h; regenerate from the template if absent.
+          if (-not (Test-Path "$z\zconf.h")) { Copy-Item "$z\zconf.h.in" "$z\zconf.h" -Force }
+          nmake -f win32/Makefile.msc zlib.lib
+          Pop-Location
+          if (-not (Test-Path "$z\zlib.lib")) { throw "zlib.lib was not built under $z" }
+          # clang's `-lz` resolves z.lib; the MSVC makefile emits zlib.lib (static).
+          Copy-Item "$z\zlib.lib" "$z\z.lib" -Force
+          Write-Host "Built zlib static lib: $z\z.lib ; header: $z\zlib.h"
+          "CPATH=$z"        | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "LIBRARY_PATH=$z" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Run Scala Native tests
         run: sbt test-native-3
@@ -393,43 +378,28 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           choco install llvm --yes
-          # Force a known classic-mode install root: the runner's bare
-          # `vcpkg install <port>:<triplet>` did NOT populate
-          # VCPKG_INSTALLATION_ROOT/installed (manifest-mode interference), so the
-          # lib was never found. --x-install-root pins the location deterministically.
-          $root = "$env:RUNNER_TEMP\vcpkg-zlib"
-          vcpkg install zlib:x64-windows-static --x-install-root="$root"
-          Write-Host "Searching for zlib under: $root"
-          # Prefer a static import lib from an x64 static install; accept
-          # zlib.lib or zlibstatic.lib. Pick the first match outside any debug dir.
-          $lib = Get-ChildItem -Path $root -Recurse -File -Include 'zlib.lib','zlibstatic.lib' -ErrorAction SilentlyContinue |
-            Where-Object { $_.FullName -match 'x64-windows-static' -and $_.FullName -notmatch '\\debug\\' } |
-            Select-Object -First 1
-          if (-not $lib) {
-            # Fall back to any matching lib if the preferred triplet path missed.
-            $lib = Get-ChildItem -Path $root -Recurse -File -Include 'zlib.lib','zlibstatic.lib' -ErrorAction SilentlyContinue |
-              Where-Object { $_.FullName -notmatch '\\debug\\' } |
-              Select-Object -First 1
-          }
-          $hdr = Get-ChildItem -Path $root -Recurse -File -Filter 'zlib.h' -ErrorAction SilentlyContinue |
-            Where-Object { $_.FullName -match 'x64-windows-static' -and $_.FullName -notmatch '\\debug\\' } |
-            Select-Object -First 1
-          if (-not $hdr) {
-            $hdr = Get-ChildItem -Path $root -Recurse -File -Filter 'zlib.h' -ErrorAction SilentlyContinue |
-              Where-Object { $_.FullName -notmatch '\\debug\\' } |
-              Select-Object -First 1
-          }
-          if (-not $lib) { throw "zlib import lib (zlib.lib/zlibstatic.lib) not found under $root" }
-          if (-not $hdr) { throw "zlib header (zlib.h) not found under $root" }
-          $libDir = $lib.DirectoryName
-          $incDir = $hdr.DirectoryName
-          Write-Host "Found zlib lib:    $($lib.FullName)"
-          Write-Host "Found zlib header: $($hdr.FullName)"
-          # clang's `-lz` looks for z.lib; copy the discovered lib to that name.
-          Copy-Item $lib.FullName (Join-Path $libDir "z.lib") -Force
-          Write-Host "Copied to:         $(Join-Path $libDir 'z.lib')"
-          "CPATH=$incDir"        | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-          "LIBRARY_PATH=$libDir" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          # vcpkg never materialized the import lib on this runner (manifest-mode
+          # interference, repeated attempts). Build zlib deterministically from
+          # source with the MSVC toolchain instead. Enter the VS dev shell so
+          # nmake/cl + the Windows SDK are on PATH for THIS step's build; the sbt
+          # Scala Native build sets up its own clang env, we only export
+          # CPATH/LIBRARY_PATH (additive) so its clang finds zlib.h + z.lib.
+          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
+          Import-Module "$vs\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+          Enter-VsDevShell -VsInstallPath $vs -DevCmdArguments "-arch=x64" -SkipAutomaticLocation
+          $z = "$env:RUNNER_TEMP\zlib-src"
+          git clone --depth=1 -b v1.3.1 https://github.com/madler/zlib "$z"
+          Push-Location $z
+          # zlib's release tree ships zconf.h; regenerate from the template if absent.
+          if (-not (Test-Path "$z\zconf.h")) { Copy-Item "$z\zconf.h.in" "$z\zconf.h" -Force }
+          nmake -f win32/Makefile.msc zlib.lib
+          Pop-Location
+          if (-not (Test-Path "$z\zlib.lib")) { throw "zlib.lib was not built under $z" }
+          # clang's `-lz` resolves z.lib; the MSVC makefile emits zlib.lib (static).
+          Copy-Item "$z\zlib.lib" "$z\z.lib" -Force
+          Write-Host "Built zlib static lib: $z\z.lib ; header: $z\zlib.h"
+          "CPATH=$z"        | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+          "LIBRARY_PATH=$z" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Run native FFI validation (headless)
         run: sbt 'sge-it-native-ffi/run -- --headless'
