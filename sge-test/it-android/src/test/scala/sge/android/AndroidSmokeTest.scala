@@ -154,8 +154,11 @@ class AndroidSmokeTest extends FunSuite {
     * locate the APK by name rather than hard-coding the full path (which broke on sbt 2.0's `jvm-3` layout vs older layouts). On failure, list any `.apk` present for diagnosis.
     */
   private def findApk(): Path = {
-    val cwd       = Paths.get(System.getProperty("user.dir"))
-    val targetDir = cwd.resolve("sge-test/android-smoke/target")
+    val cwd = Paths.get(System.getProperty("user.dir"))
+    // sbt-2.0 uses an out-of-tree layout: androidSign writes the signed APK to
+    // <root>/target/out/jvm/<scala>/sge-test-android-smoke/android/app-debug.apk
+    // (NOT sge-test/android-smoke/target/...). Locate it by name under target.
+    val targetDir = cwd.resolve("target")
     walkForFile(targetDir, "app-debug.apk").getOrElse {
       val present = listFilesEndingWith(targetDir, ".apk")
       fail(
