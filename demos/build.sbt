@@ -6,6 +6,12 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 
 ThisBuild / resolvers ++= Seq(
   Resolver.mavenLocal,
+  // CI publishes the SGE core + extension SNAPSHOTs via the `publishLocal-{jvm,js,native}-3`
+  // aliases, which deliver to the Ivy local repo (~/.ivy2/local, sbt's "local"
+  // resolver / Resolver.defaultLocal). The release/verify jobs additionally
+  // publishM2 (mavenLocal) for sge core. Resolve from both so extension artifacts
+  // (e.g. sge-extension-noise) are found wherever the publishing job put them.
+  Resolver.defaultLocal,
   "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots"
 )
 ThisBuild / updateOptions := updateOptions.value.withCachedResolution(false)
