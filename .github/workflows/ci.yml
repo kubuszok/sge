@@ -293,8 +293,12 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           choco install llvm --yes
-          vcpkg install zlib:x64-windows-static
-          $root = $env:VCPKG_INSTALLATION_ROOT
+          # Force a known classic-mode install root: the runner's bare
+          # `vcpkg install <port>:<triplet>` did NOT populate
+          # VCPKG_INSTALLATION_ROOT/installed (manifest-mode interference), so the
+          # lib was never found. --x-install-root pins the location deterministically.
+          $root = "$env:RUNNER_TEMP\vcpkg-zlib"
+          vcpkg install zlib:x64-windows-static --x-install-root="$root"
           Write-Host "Searching for zlib under: $root"
           # Prefer a static import lib from an x64 static install; accept
           # zlib.lib or zlibstatic.lib. Pick the first match outside any debug dir.
@@ -389,8 +393,12 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           choco install llvm --yes
-          vcpkg install zlib:x64-windows-static
-          $root = $env:VCPKG_INSTALLATION_ROOT
+          # Force a known classic-mode install root: the runner's bare
+          # `vcpkg install <port>:<triplet>` did NOT populate
+          # VCPKG_INSTALLATION_ROOT/installed (manifest-mode interference), so the
+          # lib was never found. --x-install-root pins the location deterministically.
+          $root = "$env:RUNNER_TEMP\vcpkg-zlib"
+          vcpkg install zlib:x64-windows-static --x-install-root="$root"
           Write-Host "Searching for zlib under: $root"
           # Prefer a static import lib from an x64 static install; accept
           # zlib.lib or zlibstatic.lib. Pick the first match outside any debug dir.
