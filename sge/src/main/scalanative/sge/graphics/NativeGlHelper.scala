@@ -36,25 +36,40 @@ private[graphics] object NativeGlHelper {
 
   /** Probe a direct ByteBuffer to find the offset of _rawAddress within the object.
     *
-    * We allocate a direct ByteBuffer of known size, then scan the object memory for a value that looks like a valid native heap pointer (non-zero, large, plausible address range). The first
-    * 8-byte-aligned offset after the header that contains such a pointer is the _rawAddress field.
+    * We allocate a direct ByteBuffer, stamp a unique marker into its data, then
+    * scan the object's 8-byte-aligned fields for the one whose value — treated as
+    * a pointer and dereferenced — reads the marker back. That field is the
+    * `_rawAddress` pointer to the malloc'd data.
+    *
+    * A magnitude-only heuristic ("address > 4GB") is NOT portable: on Windows the
+    * native heap address can be below 4GB, so it mis-detects the field (the
+    * Windows-native NativeGlHelperElementSize failures). The marker is
+    * deterministic regardless of address range. We still guard the dereference
+    * with a `> 64KB, 8-byte-aligned` check so small int fields (capacity, limit,
+    * position, ...) are never dereferenced as pointers.
     */
   private def detectRawAddressOffset(): Int = {
-    // Create a direct ByteBuffer — its _rawAddress points to malloc'd memory
-    val probe  = ByteBuffer.allocateDirect(64)
+    val probe = ByteBuffer.allocateDirect(64)
+    // Stamp in native byte order so the marker bytes match a native raw load.
+    probe.order(ByteOrder.nativeOrder())
+    val marker = 0x5347_4548_5052_4245L // 'SGEHPRBE'
+    probe.putLong(0, marker)
     val rawObj = Intrinsics.castObjectToRawPtr(probe)
-    // Scan offsets 8, 16, 24, 32, 40 — _rawAddress must be 8-byte aligned
-    // and should be a non-zero pointer value that doesn't look like a small int.
     var offset = 8
-    while (offset <= 48) {
-      val fieldPtr = Intrinsics.elemRawPtr(rawObj, Intrinsics.castIntToRawSizeUnsigned(offset))
-      val value    = Intrinsics.castRawPtrToLong(Intrinsics.loadRawPtr(fieldPtr))
-      // A valid native heap address is non-zero and > 4GB (above any reasonable int field value)
-      if (value > 0x100000000L) return offset
+    var found  = -1
+    while (offset <= 48 && found < 0) {
+      val fieldPtr  = Intrinsics.elemRawPtr(rawObj, Intrinsics.castIntToRawSizeUnsigned(offset))
+      val candidate = Intrinsics.loadRawPtr(fieldPtr)
+      val addr      = Intrinsics.castRawPtrToLong(candidate)
+      // Only dereference plausible, aligned pointers (skip small int fields).
+      if (addr > 0x10000L && (addr & 0x7L) == 0L) {
+        val derefed = Intrinsics.castRawPtrToLong(Intrinsics.loadRawPtr(candidate))
+        if (derefed == marker) found = offset
+      }
       offset += 8
     }
-    // Fallback: try the documented layout (16-byte header + 8 = 24)
-    24
+    // Fallback: the documented layout (16-byte header + 8 = 24).
+    if (found >= 0) found else 24
   }
 
   private def elementSize(buf: Buffer): Int = buf match {
