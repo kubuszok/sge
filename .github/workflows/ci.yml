@@ -483,13 +483,18 @@ jobs:
           find / -name 'libvk_swiftshader.so*' 2>/dev/null | head || true
           if [ -n "$icd" ] && [ -f "$icd" ]; then
             cat "$icd" || true
-            echo "VK_ICD_FILENAMES=$icd" >> "$GITHUB_ENV"
-            echo "ANGLE_DEFAULT_PLATFORM=vulkan" >> "$GITHUB_ENV"
             echo "--- vulkaninfo via SwiftShader ---"
             VK_ICD_FILENAMES="$icd" vulkaninfo --summary 2>&1 | head -30 || true
-          else
-            echo "WARNING: SwiftShader ICD not found — Desktop IT will run the ANGLE GL backend (ISS-538 clause 2 will fail)."
           fi
+          # Vulkan backend is NOT exported to the run: ANGLE's Vulkan device init
+          # fails identically on BOTH available software Vulkans — mesa lavapipe
+          # (1.3.275) AND Chrome's SwiftShader (1.0.5) — at vk_renderer.cpp
+          # initialize:2318 ("Internal Vulkan error -3" -> eglInitialize 0x3001),
+          # i.e. a feature no software Vulkan provides on this GPU-less runner. So
+          # the run uses the default ANGLE GL backend (honest 6/7; ISS-538 clause 2
+          # cannot pass here). Driving Vulkan additionally exposed a forked-JVM
+          # false-green (harness CRASH vs clean fail let testFull exit 0), which
+          # the GL backend avoids.
 
       - name: Run Desktop integration tests (under xvfb)
         run: |
