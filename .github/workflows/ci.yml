@@ -476,16 +476,18 @@ jobs:
           # no GPU present on the runner.
           LIBGL_ALWAYS_SOFTWARE: "true"
           GALLIUM_DRIVER: "llvmpipe"
-          # Drive ANGLE's Vulkan backend over mesa lavapipe (software Vulkan) so
-          # cross-window EGL context resource sharing works (ISS-538 clause 2);
-          # the default ANGLE GL-over-llvmpipe backend does not honour shared
-          # contexts. ANGLE reads ANGLE_DEFAULT_PLATFORM when the display is
-          # requested as EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE (GlOpsJvm does).
-          # Pin the lavapipe ICD — the probe confirmed it lives at lvp_icd.json
-          # (NOT lvp_icd.x86_64.json; that wrong path caused the round-19
-          # ERROR_INCOMPATIBLE_DRIVER) — so no real GPU/driver is needed.
-          ANGLE_DEFAULT_PLATFORM: "vulkan"
-          VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/lvp_icd.json
+          # ANGLE backend investigation result (ISS-538 clause 2, cross-window
+          # EGL sharing):
+          #   - default GL-over-llvmpipe: all checks green EXCEPT clause 2 — the
+          #     ANGLE GL backend does not honour shared EGL contexts under
+          #     llvmpipe (texture invalid even in its own context).
+          #   - Vulkan-over-lavapipe (ANGLE_DEFAULT_PLATFORM=vulkan, correct
+          #     lvp_icd.json): lavapipe loads (Vulkan 1.3.275) but ANGLE's Vulkan
+          #     device init fails — "Internal Vulkan error (-3)" at
+          #     vk_renderer.cpp initialize:2318 — so NO context is created (worse:
+          #     5/7 fail). lavapipe does not satisfy ANGLE's Vulkan requirements.
+          # Run the GL backend (best available: 6/7) pending the clause-2
+          # decision.
 
   # ─── JVM Platform IT tests (Panama, Android ops) ───────────────
 
