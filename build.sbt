@@ -501,6 +501,16 @@ val `sge-ecs` = (projectMatrix in file("sge-extension/ecs"))
   .settings(publishSettings)
   .settings(mimaSettings)
   .settings(name := "sge-extension-ecs")
+  // ComponentType.assignedComponentTypes is a process-global registry (a static
+  // index map, faithful to Ashley's single-threaded ECS design). Running JVM
+  // suites concurrently races its first-registration (getOrElseUpdate + typeIndex++
+  // are not atomic), so component-type indices diverge between a Family's matcher
+  // bits and an entity's component bits — family membership then fails
+  // intermittently and platform-dependently (PooledEngineSuite.resetEntity,
+  // IteratingSystemSuite "correct family"). Run the suites sequentially, the same
+  // remedy sge-extension-visui uses for its VisUI._skin global. JS/Native are
+  // single-threaded and unaffected.
+  .settings(Test / parallelExecution := false)
   .dependsOn(sge)
 
 val `sge-freetype` = (projectMatrix in file("sge-extension/freetype"))
