@@ -940,7 +940,7 @@ val `sge-android-robolectric` = (projectMatrix in file("sge-test/android-robolec
       "org.robolectric" % "sandbox"                  % "4.16.1"                     % Provided,
       "com.github.sbt"  % "junit-interface"          % "0.13.3"                     % Test,
       "junit"           % "junit"                    % "4.13.2"                     % Test,
-      ("androidx.test"    % "monitor" % "1.7.2" % Aar)
+      ("androidx.test"    % "monitor" % "1.8.0" % Aar)
         .intransitive()
         .artifacts(Artifact("monitor", "aar", "aar")),
       ("androidx.tracing" % "tracing" % "1.1.0" % Aar)
