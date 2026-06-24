@@ -189,6 +189,11 @@ class AssetManagerAsyncISS561Test extends FunSuite {
     while (!done && iterations < 1000) {
       done = manager.update()
       iterations += 1
+      // The async load runs on a background executor; without a tiny pause this is
+      // a microsecond-scale busy-loop that can exhaust all 1000 iterations before
+      // the loader thread is even scheduled under CI load (an intermittent
+      // "did not finish" flake). Poll over real time so the loader can run.
+      if (!done) Thread.sleep(2)
     }
     assert(done, s"async load did not finish in $iterations iterations")
     assert(
