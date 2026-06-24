@@ -453,9 +453,15 @@ jobs:
             libxkbcommon0 libwayland-client0
 
       - name: Probe software Vulkan (lavapipe)
-        run: vulkaninfo --summary 2>&1 | head -40 || true
-        env:
-          VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/lvp_icd.x86_64.json
+        run: |
+          echo "--- vulkan packages ---"; dpkg -l | grep -iE 'vulkan|mesa' || true
+          echo "--- ICD dir ---"; ls -la /usr/share/vulkan/icd.d/ 2>&1 || true
+          echo "--- lavapipe ICD json ---"; cat /usr/share/vulkan/icd.d/lvp_icd.x86_64.json 2>&1 || true
+          echo "--- lavapipe lib ---"; ls -la /usr/lib/x86_64-linux-gnu/libvulkan_lvp.so* 2>&1 || true
+          echo "--- vulkaninfo (loader auto-discovery) ---"
+          vulkaninfo --summary 2>&1 | head -40 || true
+          echo "--- vulkaninfo (pinned lavapipe ICD) ---"
+          VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.x86_64.json vulkaninfo --summary 2>&1 | head -30 || true
 
       - name: Run Desktop integration tests (under xvfb)
         run: |
@@ -470,12 +476,12 @@ jobs:
           # no GPU present on the runner.
           LIBGL_ALWAYS_SOFTWARE: "true"
           GALLIUM_DRIVER: "llvmpipe"
-          # Drive ANGLE's Vulkan backend over mesa lavapipe (software Vulkan).
-          # ANGLE reads ANGLE_DEFAULT_PLATFORM when the display is requested as
-          # EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE (GlOpsJvm does). Pin the
-          # lavapipe ICD so no real GPU/driver is required.
-          ANGLE_DEFAULT_PLATFORM: "vulkan"
-          VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/lvp_icd.x86_64.json
+          # NOTE: ANGLE_DEFAULT_PLATFORM=vulkan over lavapipe is the target for
+          # ISS-538 clause 2 (cross-window sharing), but the lavapipe ICD did
+          # not load on the runner (vulkaninfo: ERROR_INCOMPATIBLE_DRIVER). The
+          # probe step above now dumps the real ICD layout; re-enable Vulkan
+          # here once the correct VK_ICD_FILENAMES path is confirmed. Until then
+          # run the default ANGLE GL backend (all checks green except clause 2).
 
   # ─── JVM Platform IT tests (Panama, Android ops) ───────────────
 
