@@ -13,4 +13,4 @@ ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" 
 // intransitive — its scalajs-js-envs / scalajs-env-nodejs / scalajs-logging
 // deps are already provided as _3 by sbt-scalajs 1.22, and pulling their _2.13
 // variants triggers a conflicting-cross-version-suffix error.
-libraryDependencies += ("org.scala-js" % "scalajs-env-jsdom-nodejs_2.13" % "1.1.0").intransitive()
+libraryDependencies += ("org.scala-js" % "scalajs-env-jsdom-nodejs_2.13" % "1.1.1").intransitive()
