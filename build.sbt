@@ -930,7 +930,7 @@ val `sge-android-robolectric` = (projectMatrix in file("sge-test/android-robolec
       // classpath so the impl sources type-check, and on the test classpath at
       // runtime. Provided keeps it off any published artifact (this module is
       // non-published anyway).
-      "org.robolectric" % "android-all-instrumented" % "14-robolectric-10818077-i6" % Provided,
+      "org.robolectric" % "android-all-instrumented" % "14-robolectric-10818077-i7" % Provided,
       // The classes in android-all-instrumented implement Robolectric's
       // org.robolectric.internal.bytecode.{InstrumentedInterface,ShadowedObject}
       // (these live in the `sandbox` artifact). The Scala compiler reads those
