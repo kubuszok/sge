@@ -34,40 +34,34 @@ private[graphics] object NativeGlHelper {
   // Detected at init time by probing a known direct ByteBuffer.
   private val RawAddressOffset: Int = detectRawAddressOffset()
 
-  /** Probe a direct ByteBuffer to find the offset of _rawAddress within the object.
+  /** Probe two direct ByteBuffers to find the offset of _rawAddress within the object.
     *
-    * We allocate a direct ByteBuffer, stamp a unique marker into its data, then
-    * scan the object's 8-byte-aligned fields for the one whose value — treated as
-    * a pointer and dereferenced — reads the marker back. That field is the
-    * `_rawAddress` pointer to the malloc'd data.
+    * Two same-class, same-size direct ByteBuffers differ in EXACTLY one field: `_rawAddress`, since each wraps a distinct malloc'd region. Every other field — `_capacity`, `_limit`, `_position`,
+    * `_mark`, and the rtti/lock-word header — is identical between them. So `_rawAddress` is the 8-byte-aligned object offset whose value differs between the two buffers AND looks like a heap pointer
+    * (> 64KB).
     *
-    * A magnitude-only heuristic ("address > 4GB") is NOT portable: on Windows the
-    * native heap address can be below 4GB, so it mis-detects the field (the
-    * Windows-native NativeGlHelperElementSize failures). The marker is
-    * deterministic regardless of address range. We still guard the dereference
-    * with a `> 64KB, 8-byte-aligned` check so small int fields (capacity, limit,
-    * position, ...) are never dereferenced as pointers.
+    * Crucially this NEVER dereferences a candidate value. An earlier version that dereferenced a "plausible pointer" field to confirm a marker segfaulted on Windows-native (0xc0000005) when a
+    * non-`_rawAddress` field held a > 64KB value pointing at unmapped memory; and a magnitude-only threshold of 4GB mis-detected the field when the heap address is below 4GB. Comparing two buffers
+    * needs neither a dereference nor a fixed address range. The scan is bounded to 8..32 — `_rawAddress` is at header(8 or 16) + 8 = 16 or 24 — so every read stays within the object's own fields.
     */
   private def detectRawAddressOffset(): Int = {
-    val probe = ByteBuffer.allocateDirect(64)
-    // Stamp in native byte order so the marker bytes match a native raw load.
-    probe.order(ByteOrder.nativeOrder())
-    val marker = 0x5347_4548_5052_4245L // 'SGEHPRBE'
-    probe.putLong(0, marker)
-    val rawObj = Intrinsics.castObjectToRawPtr(probe)
+    val bufA   = ByteBuffer.allocateDirect(64)
+    val bufB   = ByteBuffer.allocateDirect(64)
+    val rawA   = Intrinsics.castObjectToRawPtr(bufA)
+    val rawB   = Intrinsics.castObjectToRawPtr(bufB)
     var offset = 8
     var found  = -1
-    while (offset <= 48 && found < 0) {
-      val fieldPtr  = Intrinsics.elemRawPtr(rawObj, Intrinsics.castIntToRawSizeUnsigned(offset))
-      val candidate = Intrinsics.loadRawPtr(fieldPtr)
-      val addr      = Intrinsics.castRawPtrToLong(candidate)
-      // Only dereference plausible, aligned pointers (skip small int fields).
-      if (addr > 0x10000L && (addr & 0x7L) == 0L) {
-        val derefed = Intrinsics.castRawPtrToLong(Intrinsics.loadRawPtr(candidate))
-        if (derefed == marker) found = offset
-      }
+    while (offset <= 32 && found < 0) {
+      val size = Intrinsics.castIntToRawSizeUnsigned(offset)
+      val va   = Intrinsics.castRawPtrToLong(Intrinsics.loadRawPtr(Intrinsics.elemRawPtr(rawA, size)))
+      val vb   = Intrinsics.castRawPtrToLong(Intrinsics.loadRawPtr(Intrinsics.elemRawPtr(rawB, size)))
+      // _rawAddress: differs between the two buffers and is an aligned heap pointer.
+      if (va != vb && va > 0x10000L && (va & 0x7L) == 0L) found = offset
       offset += 8
     }
+    // Keep both buffers reachable across the raw-pointer reads above (the GC must
+    // not reclaim them while rawA/rawB — untracked raw pointers — are in use).
+    if (bufA.capacity() != 64 || bufB.capacity() != 64) found = -1
     // Fallback: the documented layout (16-byte header + 8 = 24).
     if (found >= 0) found else 24
   }
