@@ -452,16 +452,44 @@ jobs:
             libx11-6 libxext6 libxrandr2 libxinerama1 libxcursor1 libxi6 \
             libxkbcommon0 libwayland-client0
 
-      - name: Probe software Vulkan (lavapipe)
+      # ANGLE's Vulkan backend over mesa lavapipe fails device init ("Internal
+      # Vulkan error (-3)") — lavapipe does not satisfy ANGLE's requirements.
+      # SwiftShader IS ANGLE's companion software Vulkan (ANGLE is conformance-
+      # tested against it, shared contexts included), and Google Chrome — present
+      # on the runner image — bundles it (libvk_swiftshader.so +
+      # vk_swiftshader_icd.json). Locate that ICD and, if found, export it +
+      # ANGLE_DEFAULT_PLATFORM=vulkan for the run step via $GITHUB_ENV so ANGLE
+      # drives SwiftShader (fixes ISS-538 clause 2). Fall back to the GL backend
+      # (6/7 green) if SwiftShader cannot be located.
+      - name: Locate SwiftShader Vulkan ICD (ANGLE backend for clause 2)
         run: |
-          echo "--- vulkan packages ---"; dpkg -l | grep -iE 'vulkan|mesa' || true
-          echo "--- ICD dir ---"; ls -la /usr/share/vulkan/icd.d/ 2>&1 || true
-          echo "--- lavapipe ICD json ---"; cat /usr/share/vulkan/icd.d/lvp_icd.x86_64.json 2>&1 || true
-          echo "--- lavapipe lib ---"; ls -la /usr/lib/x86_64-linux-gnu/libvulkan_lvp.so* 2>&1 || true
-          echo "--- vulkaninfo (loader auto-discovery) ---"
-          vulkaninfo --summary 2>&1 | head -40 || true
-          echo "--- vulkaninfo (pinned lavapipe ICD) ---"
-          VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.x86_64.json vulkaninfo --summary 2>&1 | head -30 || true
+          set -x
+          icd=""
+          for c in \
+            /opt/google/chrome/vk_swiftshader_icd.json \
+            /opt/google/chrome-*/vk_swiftshader_icd.json \
+            /usr/lib/chromium/vk_swiftshader_icd.json \
+            /usr/lib/chromium-browser/vk_swiftshader_icd.json \
+            /usr/bin/chrome/vk_swiftshader_icd.json; do
+            if [ -f "$c" ]; then icd="$c"; break; fi
+          done
+          if [ -z "$icd" ]; then
+            icd="$(find / -name vk_swiftshader_icd.json 2>/dev/null | head -1)"
+          fi
+          echo "located SwiftShader ICD: '${icd:-<none>}'"
+          echo "--- swiftshader libs nearby ---"
+          [ -n "$icd" ] && ls -la "$(dirname "$icd")"/libvk_swiftshader.so* 2>&1 || true
+          echo "--- any swiftshader libs on system ---"
+          find / -name 'libvk_swiftshader.so*' 2>/dev/null | head || true
+          if [ -n "$icd" ] && [ -f "$icd" ]; then
+            cat "$icd" || true
+            echo "VK_ICD_FILENAMES=$icd" >> "$GITHUB_ENV"
+            echo "ANGLE_DEFAULT_PLATFORM=vulkan" >> "$GITHUB_ENV"
+            echo "--- vulkaninfo via SwiftShader ---"
+            VK_ICD_FILENAMES="$icd" vulkaninfo --summary 2>&1 | head -30 || true
+          else
+            echo "WARNING: SwiftShader ICD not found — Desktop IT will run the ANGLE GL backend (ISS-538 clause 2 will fail)."
+          fi
 
       - name: Run Desktop integration tests (under xvfb)
         run: |
@@ -476,18 +504,13 @@ jobs:
           # no GPU present on the runner.
           LIBGL_ALWAYS_SOFTWARE: "true"
           GALLIUM_DRIVER: "llvmpipe"
-          # ANGLE backend investigation result (ISS-538 clause 2, cross-window
-          # EGL sharing):
-          #   - default GL-over-llvmpipe: all checks green EXCEPT clause 2 — the
-          #     ANGLE GL backend does not honour shared EGL contexts under
-          #     llvmpipe (texture invalid even in its own context).
-          #   - Vulkan-over-lavapipe (ANGLE_DEFAULT_PLATFORM=vulkan, correct
-          #     lvp_icd.json): lavapipe loads (Vulkan 1.3.275) but ANGLE's Vulkan
-          #     device init fails — "Internal Vulkan error (-3)" at
-          #     vk_renderer.cpp initialize:2318 — so NO context is created (worse:
-          #     5/7 fail). lavapipe does not satisfy ANGLE's Vulkan requirements.
-          # Run the GL backend (best available: 6/7) pending the clause-2
-          # decision.
+          # ANGLE_DEFAULT_PLATFORM + VK_ICD_FILENAMES are exported by the
+          # "Locate SwiftShader" step above via $GITHUB_ENV when SwiftShader is
+          # found (→ ANGLE Vulkan/SwiftShader, which honours shared EGL contexts
+          # so ISS-538 clause 2 passes). If SwiftShader is absent they stay unset
+          # and ANGLE uses its default GL-over-llvmpipe backend (6/7; clause 2
+          # fails). lavapipe was ruled out: ANGLE Vulkan device init fails on it
+          # ("Internal Vulkan error (-3)", vk_renderer.cpp:2318).
 
   # ─── JVM Platform IT tests (Panama, Android ops) ───────────────
 
