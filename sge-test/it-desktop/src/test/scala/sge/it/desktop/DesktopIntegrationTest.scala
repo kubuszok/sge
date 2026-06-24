@@ -179,34 +179,17 @@ class DesktopIntegrationTest extends FunSuite {
     // The harness must have executed its full check list — never a subset.
     assert(checks.size >= 23, s"Expected at least 23 checks, got ${checks.size}")
 
-    // TEMPORARY EXCLUSION — the `fbo` check exercises a genuine product bug,
-    // not a harness defect: sge.utils.createRef backs a DynamicArray[T] with
-    // an Array[Object] (MkArray.anyRef[AnyRef]), but DynamicArray.foreach's
-    // MkArray.withResolved fallback specializes castArray(_items) to Array[T]
-    // for a concrete reference T (GLTexture), inserting an invalid checkcast
-    // -> ClassCastException "[Ljava.lang.Object; cannot be cast to
-    // [Lsge.graphics.GLTexture;" at GLFrameBuffer.foreach (GLFrameBuffer.scala:302).
-    // Reproduced in isolation against lls 0.1.0. This is lowlevel.* behaviour
-    // (lls), out of ISS-485's scope; filed as a candidate issue (see the
-    // ISS-485 implementer report). The check still RUNS and its result is
-    // asserted-on below — it is only excluded from the pass requirement while
-    // the underlying lls/createRef bug is open, and the exclusion is visible
-    // here in the diff so the orchestrator can track it.
-    val excludedByOpenBug = Set("fbo")
-
-    // The excluded check must still have executed and must still be failing for
-    // the documented reason. If it starts passing (bug fixed), this assertion
-    // fires so the exclusion is removed rather than silently masking a
-    // regression.
+    // The `fbo` check exercised a genuine product bug (ISS-572): the
+    // GLFrameBuffer.textureAttachments createRef-backed DynamicArray[GLTexture]
+    // threw a ClassCastException at GLFrameBuffer.foreach (GLFrameBuffer.scala:302)
+    // — "[Ljava.lang.Object; cannot be cast to [Lsge.graphics.GLTexture;" — from
+    // the lowlevel.* MkArray.withResolved castArray fallback. That lls/createRef
+    // bug is fixed in lls 0.2.0, so the check now passes and is no longer
+    // excluded: the harness must run its full check list with every check green.
     val fboResult = checks.find(_.name == "fbo")
     assert(fboResult.isDefined, "fbo check did not execute — harness did not run all checks")
-    assert(
-      !fboResult.get.passed,
-      "fbo check now PASSES — the createRef/foreach ClassCastException appears fixed; " +
-        "remove the temporary `excludedByOpenBug` exclusion in DesktopIntegrationTest."
-    )
 
-    val failed = checks.filterNot(c => c.passed || excludedByOpenBug(c.name))
+    val failed = checks.filterNot(_.passed)
     if (failed.nonEmpty) {
       val details = failed.map(c => s"  ${c.name}: ${c.message}").mkString("\n")
       fail(s"${failed.size} subsystem check(s) failed:\n$details")
