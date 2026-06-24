@@ -1081,10 +1081,23 @@ val `sge-it-desktop` = (projectMatrix in file("sge-test/it-desktop"))
       // Don't pass -XstartOnFirstThread — the windowed test launches a
       // subprocess with that flag.
       //
+      // Keep the Android SDK stub jar off the Test fork classpath. It arrives
+      // transitively via sge's Compile classpath (sge adds it as unmanagedJars
+      // for SgeActivity), but multiarch's NativeLibLoader detects the host as
+      // Android purely by Class.forName("android.app.Activity") — so android.jar
+      // on the test runtime makes every native-lib lookup resolve the wrong
+      // android-<arch> path (the harness then exits 2, UnsatisfiedLinkError).
+      // sge-core applies the same filter to its own Test classpath; sge-it-desktop
+      // must repeat it because the jar re-enters through the dependsOn edge.
+      Test / fullClasspath := Def.uncached {
+        val conv = fileConverter.value
+        (Test / fullClasspath).value.filterNot(e => conv.toPath(e.data).getFileName.toString == "android.jar")
+      },
       // Inject the real Test/fullClasspath as a system property: sbt 2.0 forks
       // tests via sbt.ForkMain with only agent jars on the JVM -cp, so the
       // harness subprocesses can no longer read the app classpath from
       // java.class.path (DesktopIntegrationTest.harnessClasspath consumes this).
+      // Reads the android.jar-filtered fullClasspath above.
       Test / javaOptions := Def.uncached {
         val conv = fileConverter.value
         val cp   = (Test / fullClasspath).value.map(e => conv.toPath(e.data).toFile.getAbsolutePath).mkString(java.io.File.pathSeparator)
