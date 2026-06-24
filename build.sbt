@@ -1080,7 +1080,16 @@ val `sge-it-desktop` = (projectMatrix in file("sge-test/it-desktop"))
       // made the headless symbol test assume-skip, see ISS-485).
       // Don't pass -XstartOnFirstThread — the windowed test launches a
       // subprocess with that flag.
-      Test / javaOptions := Seq("--enable-native-access=ALL-UNNAMED")
+      //
+      // Inject the real Test/fullClasspath as a system property: sbt 2.0 forks
+      // tests via sbt.ForkMain with only agent jars on the JVM -cp, so the
+      // harness subprocesses can no longer read the app classpath from
+      // java.class.path (DesktopIntegrationTest.harnessClasspath consumes this).
+      Test / javaOptions := Def.uncached {
+        val conv = fileConverter.value
+        val cp   = (Test / fullClasspath).value.map(e => conv.toPath(e.data).toFile.getAbsolutePath).mkString(java.io.File.pathSeparator)
+        Seq("--enable-native-access=ALL-UNNAMED", s"-Dsge.it.classpath=$cp")
+      }
     ) *)),
     MatrixAction.ForAll.Configure(_.settings(SgePlugin.relaxedSettings *))
   )) *)

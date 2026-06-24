@@ -49,6 +49,15 @@ class DesktopIntegrationTest extends FunSuite {
     if (requireDisplay) assert(cond, s"SGE_CI_REQUIRE_DISPLAY=1 but precondition failed: $clue")
     else assume(cond, clue)
 
+  /** Classpath for the harness subprocesses.
+    *
+    * Under sbt 2.0, forked tests are launched by `sbt.ForkMain` with only sbt's agent jars on the JVM `-cp`; the application/test classpath is loaded through a separate classloader, so
+    * `System.getProperty("java.class.path")` no longer lists the harness main classes (under sbt 1.x it did). The build injects the real `Test/fullClasspath` via `-Dsge.it.classpath=…`; fall back to
+    * `java.class.path` for any non-forked/non-sbt invocation.
+    */
+  private val harnessClasspath: String =
+    Option(System.getProperty("sge.it.classpath")).filter(_.nonEmpty).getOrElse(System.getProperty("java.class.path"))
+
   // ── Headless test: runs on CI without a display server ──────────────
   // Validates that native libraries load and key FFI symbols exist.
   // This catches broken library paths, missing symbols, and linking issues.
@@ -136,7 +145,7 @@ class DesktopIntegrationTest extends FunSuite {
     // Build subprocess command using same JVM and classpath as this test
     val javaHome = System.getProperty("java.home")
     val javaBin  = s"$javaHome/bin/java"
-    val cp       = System.getProperty("java.class.path")
+    val cp       = harnessClasspath
 
     val cmd = new java.util.ArrayList[String]()
     cmd.add(javaBin)
@@ -232,7 +241,7 @@ class DesktopIntegrationTest extends FunSuite {
 
     val javaHome = System.getProperty("java.home")
     val javaBin  = s"$javaHome/bin/java"
-    val cp       = System.getProperty("java.class.path")
+    val cp       = harnessClasspath
 
     val cmd = new java.util.ArrayList[String]()
     cmd.add(javaBin)
@@ -295,7 +304,7 @@ class DesktopIntegrationTest extends FunSuite {
 
     val javaHome = System.getProperty("java.home")
     val javaBin  = s"$javaHome/bin/java"
-    val cp       = System.getProperty("java.class.path")
+    val cp       = harnessClasspath
 
     val cmd = new java.util.ArrayList[String]()
     cmd.add(javaBin)
@@ -362,7 +371,7 @@ class DesktopIntegrationTest extends FunSuite {
 
     val javaHome = System.getProperty("java.home")
     val javaBin  = s"$javaHome/bin/java"
-    val cp       = System.getProperty("java.class.path")
+    val cp       = harnessClasspath
 
     val cmd = new java.util.ArrayList[String]()
     cmd.add(javaBin)
@@ -447,7 +456,7 @@ class DesktopIntegrationTest extends FunSuite {
 
     val javaHome = System.getProperty("java.home")
     val javaBin  = s"$javaHome/bin/java"
-    val cp       = System.getProperty("java.class.path")
+    val cp       = harnessClasspath
 
     val cmd = new java.util.ArrayList[String]()
     cmd.add(javaBin)
@@ -523,7 +532,7 @@ class DesktopIntegrationTest extends FunSuite {
 
     val javaHome = System.getProperty("java.home")
     val javaBin  = s"$javaHome/bin/java"
-    val cp       = System.getProperty("java.class.path")
+    val cp       = harnessClasspath
 
     val cmd = new java.util.ArrayList[String]()
     cmd.add(javaBin)
