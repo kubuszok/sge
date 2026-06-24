@@ -179,7 +179,7 @@ jobs:
         # Coverage upload is reporting-only — keep it non-fatal until scoverage
         # report generation is restored (tracked follow-up).
         continue-on-error: true
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           files: target/scala-3.8.3/scoverage-report/scoverage.xml
           flags: ${{ matrix.platform }}
