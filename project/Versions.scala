@@ -29,10 +29,14 @@ object Versions {
 
   // Native component providers (from sge-native-providers repo)
   val multiarch = "0.3.0"
-  // 0.1.2-30-g14bab58-SNAPSHOT carries the Windows sge_audio.dll/glfw3.dll +
-  // macos-x86_64 real dylibs + ANGLE EGL/GLESv2 naming fix (sge-native-providers
-  // PR #11). 0.1.2 lacked the Windows audio/glfw DLLs (sgeValidateNativeLibs gate)
-  // and shipped non-functional 16KB macos-x86_64 stubs.
-  val nativeComponents = "0.1.2-30-g14bab58-SNAPSHOT"
+  // 0.1.2-31-g98d4399-SNAPSHOT additionally ships a REAL Windows glfw3.lib
+  // import library (sge-native-providers PR #11, commit 1dda883): build.rs now
+  // emits glfw3.dll.lib via clang-cl /implib: and cross-all.sh renames it to
+  // glfw3.lib, replacing the old bogus stub (a copy of sge_native_ops.lib) that
+  // exported the wrong symbols and broke Scala Native @link("glfw3") on Windows
+  // (Native FFI IT windows-x86_64 LNK2019 unresolved glfwInit x48). Earlier
+  // 0.1.2-30-g14bab58 carried the Windows sge_audio.dll/glfw3.dll + macos-x86_64
+  // real dylibs + ANGLE EGL/GLESv2 naming fix.
+  val nativeComponents = "0.1.2-31-g98d4399-SNAPSHOT"
   val curlProvider     = multiarch
 }
