@@ -1,4 +1,7 @@
 {
+  "env": {
+    "CLAUDE_CODE_SUPPRESS_SESSION_ATTRIBUTION": "1"
+  },
   "permissions": {
     "allow": ["Bash", "mcp__metals__*", "WebFetch", "WebSearch"]
   },
