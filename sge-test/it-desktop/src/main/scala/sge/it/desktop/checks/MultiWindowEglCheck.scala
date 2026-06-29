@@ -1,26 +1,23 @@
 // SGE — Desktop integration check: multi-window EGL (ISS-538)
 //
-// Pins TWO structural defects of the desktop multi-window EGL path, both
-// living in GlOpsJvm (mirror bug in GlOpsNative):
+// Regression-guards TWO multi-window EGL contracts of the desktop path, both
+// living in GlOpsJvm (mirrored in GlOpsNative). Both were once broken and are
+// now fixed; this check keeps them fixed:
 //
-//   1. eglTerminate tears down ALL windows. GlOpsJvm.destroyContext does
-//        eglMakeCurrent(none) -> eglDestroySurface -> eglDestroyContext ->
-//        eglTerminate(display)
-//      but eglTerminate terminates the ENTIRE shared EGL display connection,
-//      invalidating every OTHER window's context/surface on that display.
-//      Closing ONE window kills GL for ALL windows. Correct: destroy only this
-//      window's surface+context; eglTerminate only when the LAST context goes
-//      (or at app shutdown).
+//   1. destroyContext must NOT tear down ALL windows. The EGL display is shared
+//      across windows, so a naive eglTerminate(display) on every destroyContext
+//      would invalidate every OTHER window's context/surface. GlOpsJvm refcounts
+//      live contexts per display and only eglTerminates when the LAST context on
+//      that display goes — so closing ONE window keeps GL alive for the others.
 //
-//   2. sharedContext is ignored, so there is no cross-window GL resource
-//      sharing. GlOpsJvm.createContext always passes EGL_NO_CONTEXT as the
-//      eglCreateContext share argument, and its trait signature has no
-//      sharedContext parameter at all. DesktopApplication threads a
-//      `sharedContext` Long all the way into setupWindow() ->
-//      createGlfwWindow(config, sharedContext) and then DROPS it: it never
-//      reaches glOps.createContext (DesktopApplication.scala:290 calls
-//      createContext with NO share arg). So textures/buffers created in one
-//      window's context are invisible in another.
+//   2. contexts on a display must SHARE a GL resource namespace. GlOpsJvm.create-
+//      Context threads the share context into eglCreateContext — an explicit
+//      sharedContextHandle (which DesktopApplication plumbs from the first window
+//      via setupWindow), else the display's recorded primary (first) context — so
+//      textures/buffers created in one window's context are visible in another.
+//      This passes on real GL; a clause-2 RED here means the GL driver does not
+//      honour shared contexts (ANGLE GL-over-llvmpipe on a GPU-less CI runner,
+//      ISS-691), NOT a code defect.
 //
 // Crash-safe, in-process, NO ApplicationListener: we drive the exact SGE
 // platform seams the desktop backend uses (WindowingOpsJvm + GlOpsJvm — the
@@ -233,9 +230,9 @@ object MultiWindowEglCheck {
 
   /** Clause 2: a texture created in window 1's context must be recognized in window 2's context (shared namespace).
     *
-    * Pre-fix the two contexts are created with eglCreateContext(..., EGL_NO_CONTEXT, ...) — no sharing — so the id is NOT a texture in ctx2 → RED. The fix threads window 1's context into
-    * createContext and passes it as the eglCreateContext share argument (the `sharedContext` DesktopApplication already plumbs into setupWindow but currently drops before glOps.createContext); with
-    * sharing, the same two-window setup makes the id valid in ctx2 and this assertion flips to green.
+    * The engine shares contexts: GlOpsJvm.createContext threads window 1's context — an explicit sharedContextHandle (which DesktopApplication plumbs from the first window via setupWindow), else the
+    * display's recorded primary context — as the eglCreateContext share argument, so on real GL the texture id created in ctx1 is valid in ctx2 → green. A failure here therefore indicates the GL
+    * driver does not honour cross-context resource sharing (e.g. ANGLE GL-over-llvmpipe on a GPU-less CI runner, ISS-691), not a dropped/missing share arg.
     */
   private def sharingClause(glOps: GlOpsJvm, gl: Gl, ctx1: Long, ctx2: Long): CheckResult = {
     // Create + allocate a real texture object in window 1's context.
@@ -273,10 +270,11 @@ object MultiWindowEglCheck {
         passed = false,
         s"texture id $texId created in ctx1 is NOT recognized in ctx2 (glIsTexture=$validInCtx2, " +
           s"validInCtx1=$validInCtx1, glGetError=0x${errQuery.toHexString}): the two EGL contexts do not share a " +
-          "resource namespace. GlOpsJvm.createContext passes EGL_NO_CONTEXT as the eglCreateContext share arg and " +
-          "has no sharedContext parameter, so the sharedContext DesktopApplication threads into setupWindow is " +
-          "dropped before reaching eglCreateContext (ISS-538 clause 2). Once createContext threads + passes the " +
-          "first window's context as the share context, this same setup makes the texture shared and flips green."
+          "resource namespace. NOTE: the engine threads the share context correctly — GlOpsJvm.createContext passes " +
+          "ctx1 (an explicit sharedContextHandle, else the display's recorded primary context) as the " +
+          "eglCreateContext share arg — so this clause PASSES on real GL. A failure HERE means the GL driver does " +
+          "not honour cross-context resource sharing in this environment: ANGLE's GL-over-llvmpipe software backend " +
+          "on a GPU-less CI runner does not (ISS-691). It is a driver/environment limitation, not a code defect."
       )
     }
   }

@@ -17,17 +17,18 @@
 // by exactly the production code path under test (GlOpsJvm.createContext /
 // destroyContext / makeCurrent).
 //
-// Two clauses, two result files (args(0) = clause-1 file, args(1) = clause-2):
-//   Clause 1 (eglTerminate kills all contexts): create TWO GLFW windows +
-//     TWO EGL contexts on the shared display, destroyContext(ctx1),
-//     makeCurrent(ctx2), do a GL call → ctx2 must still be valid. Against the
-//     bug, destroyContext calls eglTerminate(display) which tears down the
-//     ENTIRE shared display, invalidating ctx2 → GL call fails → RED.
-//   Clause 2 (no cross-window GL sharing): create a texture in window 1's
-//     context, make window 2 current, query the texture id → it must be
-//     recognized (shared namespace). Against the bug, createContext passes
-//     EGL_NO_CONTEXT as the share context, so the id is unknown in window 2 →
-//     RED. See MultiWindowEglCheck for how the fix flips this green.
+// Two clauses, two result files (args(0) = clause-1 file, args(1) = clause-2).
+// Both contracts hold in the engine today; the harness regression-guards them:
+//   Clause 1 (display isolation): create TWO GLFW windows + TWO EGL contexts on
+//     the shared display, destroyContext(ctx1), makeCurrent(ctx2), do a GL call
+//     → ctx2 must still be valid. GlOpsJvm refcounts contexts per display and
+//     only eglTerminates on the LAST one, so this holds; a RED is a regression.
+//   Clause 2 (cross-window GL sharing): create a texture in window 1's context,
+//     make window 2 current, query the texture id → it must be recognized
+//     (shared namespace). GlOpsJvm passes ctx1 as the eglCreateContext share
+//     arg, so this PASSES on real GL; a RED means the GL driver does not honour
+//     shared contexts (ANGLE GL-over-llvmpipe on GPU-less CI, ISS-691), not a
+//     code defect. See MultiWindowEglCheck for details.
 
 package sge.it.desktop
 
