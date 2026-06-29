@@ -943,9 +943,18 @@ val `sge-android-robolectric` = (projectMatrix in file("sge-test/android-robolec
       ("androidx.test"    % "monitor" % "1.8.0" % Aar)
         .intransitive()
         .artifacts(Artifact("monitor", "aar", "aar")),
-      ("androidx.tracing" % "tracing" % "1.1.0" % Aar)
+      // androidx.tracing 1.3.0 migrated to Kotlin Multiplatform: the bare
+      // `tracing` coordinate became a manifest-only grouping stub (no classes.jar),
+      // and the real androidx.tracing.Trace classes (which androidx.test:monitor's
+      // InstrumentationRegistry calls into, e.g. Trace.forceEnableAppTracing) now
+      // ship in the `tracing-android` platform variant. coursier with our
+      // intransitive/explicit-artifact pin does not perform Gradle-metadata variant
+      // selection, so depend on tracing-android directly to get the classes.jar.
+      // (extractAars additionally tolerates manifest-only AARs, so the bare stub
+      // would be skipped harmlessly if it ever entered the resolution.)
+      ("androidx.tracing" % "tracing-android" % "1.3.0" % Aar)
         .intransitive()
-        .artifacts(Artifact("tracing", "aar", "aar"))
+        .artifacts(Artifact("tracing-android", "aar", "aar"))
     ),
 
     // Compile the impl layer here, against the Robolectric framework jar. The
@@ -1001,18 +1010,30 @@ val `sge-android-robolectric` = (projectMatrix in file("sge-test/android-robolec
       IO.createDirectory(outDir)
       val aars = report.select(configurationFilter(Aar.name)).filter(_.getName.endsWith(".aar"))
       log.info(s"extractAars: ${aars.size} AAR(s) -> $outDir")
-      aars.toSeq.map { aar =>
+      aars.toSeq.flatMap { aar =>
         val baseName    = aar.getName.stripSuffix(".aar")
         val outJar      = outDir / s"$baseName-classes.jar"
         val tmp         = IO.createTemporaryDirectory
         IO.unzip(aar, tmp)
         val classesJar  = tmp / "classes.jar"
-        if (!classesJar.exists)
-          sys.error(s"AAR ${aar.getName} has no classes.jar (found: ${IO.listFiles(tmp).map(_.getName).mkString(", ")})")
-        IO.copyFile(classesJar, outJar)
-        IO.delete(tmp)
-        log.info(s"extractAars: ${aar.getName} -> ${outJar.getName}")
-        outJar
+        if (!classesJar.exists) {
+          // Manifest-only AAR: no code to put on the classpath. Newer androidx
+          // artifacts migrated to Kotlin Multiplatform and publish the bare
+          // coordinate (e.g. androidx.tracing:tracing >= 1.3.0) as a "grouping"
+          // stub whose only payload is AndroidManifest.xml + META-INF — the real
+          // classes ship in the platform variant (…:tracing-android). Skipping is
+          // correct (nothing to extract); a hard error here would wrongly break
+          // the build on every such bump. The platform-variant AAR, when present
+          // in the resolution, still yields its classes.jar through this same loop.
+          log.warn(s"extractAars: ${aar.getName} has no classes.jar (found: ${IO.listFiles(tmp).map(_.getName).mkString(", ")}); skipping (manifest-only AAR)")
+          IO.delete(tmp)
+          None
+        } else {
+          IO.copyFile(classesJar, outJar)
+          IO.delete(tmp)
+          log.info(s"extractAars: ${aar.getName} -> ${outJar.getName}")
+          Some(outJar)
+        }
       }
     },
     Test / unmanagedJars ++= Def.uncached {
