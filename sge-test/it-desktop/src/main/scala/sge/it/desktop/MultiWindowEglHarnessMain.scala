@@ -38,10 +38,12 @@ import java.io.{ File, PrintWriter }
 
 object MultiWindowEglHarnessMain {
 
+  private def statusOf(result: CheckResult): String =
+    if (result.skipped) "SKIP" else if (result.passed) "PASS" else "FAIL"
+
   private def writeResult(file: File, result: CheckResult): Unit = {
-    val status = if (result.passed) "PASS" else "FAIL"
     val writer = new PrintWriter(file)
-    try writer.write(s"$status:${result.message}")
+    try writer.write(s"${statusOf(result)}:${result.message}")
     finally writer.close()
   }
 
@@ -56,8 +58,8 @@ object MultiWindowEglHarnessMain {
 
     try {
       val (clause1, clause2) = MultiWindowEglCheck.run()
-      System.err.println(s"SGE-IT:MULTIWINDOWEGL-TERMINATE:${if (clause1.passed) "PASS" else "FAIL"}:${clause1.message}")
-      System.err.println(s"SGE-IT:MULTIWINDOWEGL-SHARING:${if (clause2.passed) "PASS" else "FAIL"}:${clause2.message}")
+      System.err.println(s"SGE-IT:MULTIWINDOWEGL-TERMINATE:${statusOf(clause1)}:${clause1.message}")
+      System.err.println(s"SGE-IT:MULTIWINDOWEGL-SHARING:${statusOf(clause2)}:${clause2.message}")
       writeResult(clause1File, clause1)
       writeResult(clause2File, clause2)
     } catch {

@@ -50,6 +50,7 @@ object MultiWindowEglCheck {
   // ─── GL constants we need ──────────────────────────────────────────────
   private val GL_NO_ERROR:      Int = 0x0000
   private val GL_VERSION:       Int = 0x1f02
+  private val GL_RENDERER:      Int = 0x1f01
   private val GL_TEXTURE_2D:    Int = 0x0de1
   private val GL_RGBA:          Int = 0x1908
   private val GL_UNSIGNED_BYTE: Int = 0x1401
@@ -57,6 +58,20 @@ object MultiWindowEglCheck {
 
   private val I: ValueLayout.OfInt = JAVA_INT
   private val P: AddressLayout     = ADDRESS
+
+  // Software-rasterizer markers that may appear in GL_RENDERER (ANGLE embeds the
+  // backend, e.g. "ANGLE (Mesa, llvmpipe (LLVM 15.0.6, 256 bits), OpenGL ES 3.0)"
+  // or "ANGLE (…, SwiftShader Device …)"). A software rasterizer has no GPU and
+  // does not implement cross-context EGL resource sharing — clause 2 is GPU-reliant
+  // and is SKIPPED (not failed) when one is detected (ISS-691).
+  private val SoftwareRendererMarkers: Seq[String] =
+    Seq("llvmpipe", "softpipe", "swrast", "swiftshader", "lavapipe", "software")
+
+  /** True if `renderer` (a GL_RENDERER string) identifies a software rasterizer — i.e. no GPU is present. */
+  private[checks] def isSoftwareRenderer(renderer: String): Boolean = {
+    val r = renderer.toLowerCase
+    SoftwareRendererMarkers.exists(r.contains)
+  }
 
   /** Bound GLESv2 entry points. Resolved once against the same shared library + loader the engine uses. */
   final private class Gl(lookup: SymbolLookup) {
@@ -79,6 +94,13 @@ object MultiWindowEglCheck {
     /** glGetString(GL_VERSION); returns the version string, or "" if NULL (no current context / invalid display). */
     def getVersion(): String = {
       val seg = hGetString.invoke(GL_VERSION).asInstanceOf[MemorySegment]
+      if (seg == MemorySegment.NULL || seg.address() == 0L) ""
+      else seg.reinterpret(Long.MaxValue).getString(0)
+    }
+
+    /** glGetString(GL_RENDERER); the driver/device string (e.g. "ANGLE (Mesa, llvmpipe …)"), or "" if NULL. */
+    def getRenderer(): String = {
+      val seg = hGetString.invoke(GL_RENDERER).asInstanceOf[MemorySegment]
       if (seg == MemorySegment.NULL || seg.address() == 0L) ""
       else seg.reinterpret(Long.MaxValue).getString(0)
     }
@@ -235,8 +257,31 @@ object MultiWindowEglCheck {
     * driver does not honour cross-context resource sharing (e.g. ANGLE GL-over-llvmpipe on a GPU-less CI runner, ISS-691), not a dropped/missing share arg.
     */
   private def sharingClause(glOps: GlOpsJvm, gl: Gl, ctx1: Long, ctx2: Long): CheckResult = {
-    // Create + allocate a real texture object in window 1's context.
     glOps.makeCurrent(ctx1)
+
+    // Clause 2 is GPU-reliant: cross-context EGL resource sharing is not
+    // implemented by software rasterizers (llvmpipe / SwiftShader / …). On a
+    // GPU-less runner the engine still requests sharing correctly (it passes ctx1
+    // as the eglCreateContext share arg — verified on real GL), but the driver
+    // cannot honour it. So when GL_RENDERER identifies a software rasterizer, SKIP
+    // this check rather than FAIL it (ISS-691). Detection is from the live
+    // renderer string — never assumed — so a real GPU always runs the assertion.
+    val renderer = gl.getRenderer()
+    // Always surface the renderer so CI logs show why clause 2 ran/skipped (and,
+    // if a software backend ever slips past SoftwareRendererMarkers, what to add).
+    System.err.println(s"SGE-IT:MULTIWINDOWEGL-RENDERER:'$renderer'")
+    if (isSoftwareRenderer(renderer)) {
+      return CheckResult(
+        "multiwindowegl_sharing",
+        passed = false,
+        skipped = true,
+        message = s"skipped: cross-context EGL sharing is GPU-reliant and unsupported by software rasterizer " +
+          s"GL_RENDERER='$renderer' (no GPU on this runner). The engine requests sharing correctly and clause 2 " +
+          "PASSES on real GL; this check asserts it only where the driver can honour it (ISS-691)."
+      )
+    }
+
+    // Create + allocate a real texture object in window 1's context.
     val texId = gl.genTexture()
     gl.bindTexture(texId)
     gl.texImage1x1()
