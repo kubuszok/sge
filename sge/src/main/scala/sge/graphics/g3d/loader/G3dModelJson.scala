@@ -121,7 +121,7 @@ final case class G3dKeyframeV2Json(
 )
 
 object G3dModelJson {
-  given codec: sge.utils.JsonCodec[G3dModelJson] = JsonCodec.derive[G3dModelJson]
+  given codec: sge.utils.JsonCodec[G3dModelJson] = JsonCodec.derived[G3dModelJson]
 
-  given ubJsonCodec: sge.utils.UBJsonCodec[G3dModelJson] = UBJsonCodec.derive[G3dModelJson]
+  given ubJsonCodec: sge.utils.UBJsonCodec[G3dModelJson] = UBJsonCodec.derived[G3dModelJson]
 }

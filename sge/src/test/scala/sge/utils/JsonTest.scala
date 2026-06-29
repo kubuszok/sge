@@ -14,7 +14,7 @@ class JsonTest extends munit.FunSuite {
   // ---- Typed codec (JsonReader equivalent) ----
 
   final private case class SimpleModel(name: String, version: Int, active: Boolean)
-  private given JsonCodec[SimpleModel] = JsonCodec.derive
+  private given JsonCodec[SimpleModel] = JsonCodec.derived
 
   test("parse simple object via typed codec") {
     val json = """{"name":"sge","version":2,"active":true}"""
@@ -32,7 +32,7 @@ class JsonTest extends munit.FunSuite {
   }
 
   final private case class Nested(label: String, child: SimpleModel)
-  private given JsonCodec[Nested] = JsonCodec.derive
+  private given JsonCodec[Nested] = JsonCodec.derived
 
   test("parse nested objects via typed codec") {
     val json = """{"label":"outer","child":{"name":"inner","version":1,"active":false}}"""
@@ -44,7 +44,7 @@ class JsonTest extends munit.FunSuite {
   }
 
   final private case class WithList(items: List[Int])
-  private given JsonCodec[WithList] = JsonCodec.derive
+  private given JsonCodec[WithList] = JsonCodec.derived
 
   test("parse array via typed codec") {
     val json = """{"items":[10,20,30]}"""

@@ -172,13 +172,13 @@ final case class TmjTemplateJson(
 )
 
 object TmjMapJson {
-  given codec: sge.utils.JsonCodec[TmjMapJson] = sge.utils.JsonCodec.derive[TmjMapJson]
+  given codec: sge.utils.JsonCodec[TmjMapJson] = sge.utils.JsonCodec.derived[TmjMapJson]
 }
 
 object TmjTilesetRefJson {
-  given codec: sge.utils.JsonCodec[TmjTilesetRefJson] = sge.utils.JsonCodec.derive[TmjTilesetRefJson]
+  given codec: sge.utils.JsonCodec[TmjTilesetRefJson] = sge.utils.JsonCodec.derived[TmjTilesetRefJson]
 }
 
 object TmjTemplateJson {
-  given codec: sge.utils.JsonCodec[TmjTemplateJson] = sge.utils.JsonCodec.derive[TmjTemplateJson]
+  given codec: sge.utils.JsonCodec[TmjTemplateJson] = sge.utils.JsonCodec.derived[TmjTemplateJson]
 }

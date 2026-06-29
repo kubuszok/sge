@@ -45,5 +45,5 @@ final case class TiledProjectMemberJson(
 )
 
 object TiledProjectJson {
-  given codec: sge.utils.JsonCodec[TiledProjectJson] = sge.utils.JsonCodec.derive[TiledProjectJson]
+  given codec: sge.utils.JsonCodec[TiledProjectJson] = sge.utils.JsonCodec.derived[TiledProjectJson]
 }

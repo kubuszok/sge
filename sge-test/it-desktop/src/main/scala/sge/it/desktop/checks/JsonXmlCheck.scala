@@ -14,7 +14,7 @@ import sge.it.desktop.CheckResult
 object JsonXmlCheck {
 
   final private case class TestModel(name: String, version: Int, features: List[String])
-  private given JsonCodec[TestModel] = JsonCodec.derive
+  private given JsonCodec[TestModel] = JsonCodec.derived
 
   def run()(using Sge): CheckResult =
     try {

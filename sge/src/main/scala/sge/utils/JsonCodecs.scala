@@ -28,7 +28,7 @@ given JsonCodec[Json] = hearth.kindlings.jsoniterjson.codec.JsonCodec.jsonValueC
 
 /** Type alias for jsoniter-scala's codec. Consumers derive codecs with:
   * {{{
-  *   given JsonCodec[MyType] = JsonCodec.derive[MyType]
+  *   given JsonCodec[MyType] = JsonCodec.derived[MyType]
   * }}}
   */
 type JsonCodec[A] = JsonValueCodec[A]
@@ -84,7 +84,7 @@ val JsonObject: hearth.kindlings.jsoniterjson.JsonObject.type = hearth.kindlings
 
 /** Type alias for kindlings' UBJSON codec. Consumers derive codecs with:
   * {{{
-  *   given UBJsonCodec[MyType] = UBJsonCodec.derive[MyType]
+  *   given UBJsonCodec[MyType] = UBJsonCodec.derived[MyType]
   * }}}
   */
 type UBJsonCodec[A] = UBJsonValueCodec[A]
@@ -97,7 +97,7 @@ extension (fh: sge.files.FileHandle) {
   /** Decodes JSON content of this file directly into a typed value.
     *
     * {{{
-    *   given JsonCodec[MyModel] = JsonCodec.derive[MyModel]
+    *   given JsonCodec[MyModel] = JsonCodec.derived[MyModel]
     *   val model = fileHandle.readJson[MyModel]
     * }}}
     */
@@ -110,7 +110,7 @@ extension (fh: sge.files.FileHandle) {
   /** Decodes UBJSON (Universal Binary JSON) content of this file directly into a typed value.
     *
     * {{{
-    *   given UBJsonCodec[MyModel] = UBJsonCodec.derive[MyModel]
+    *   given UBJsonCodec[MyModel] = UBJsonCodec.derived[MyModel]
     *   val model = fileHandle.readUBJson[MyModel]
     * }}}
     */
@@ -122,7 +122,7 @@ extension (fh: sge.files.FileHandle) {
   /** Encodes a typed value as UBJSON (Universal Binary JSON) and writes it to this file.
     *
     * {{{
-    *   given UBJsonCodec[MyModel] = UBJsonCodec.derive[MyModel]
+    *   given UBJsonCodec[MyModel] = UBJsonCodec.derived[MyModel]
     *   fileHandle.writeUBJson(model)
     * }}}
     */
