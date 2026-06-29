@@ -498,9 +498,37 @@ jobs:
 
       - name: Run Desktop integration tests (under xvfb)
         run: |
+          # ISS-690 guard: never trust testFull's exit code alone. Under sbt 2.0
+          # a forked test JVM that dies uncleanly (native GL/Vulkan crash) can
+          # exit 0 while hiding munit failures. Gate the job on THREE independent
+          # signals: (a) testFull's own exit code, (b) the completion sentinel the
+          # suite writes in afterAll (absent => the JVM crashed mid-run), and
+          # (c) the absence of any munit failure marker in the captured output.
+          rm -f "$SGE_IT_SENTINEL"
+          set +e
           xvfb-run -a --server-args="-screen 0 1280x1024x24" \
-            sbt 'sge-it-desktop/testFull'
+            sbt 'sge-it-desktop/testFull' 2>&1 | tee /tmp/desktop-it.log
+          code=${PIPESTATUS[0]}
+          set -e
+          fail=0
+          if [ ! -f "$SGE_IT_SENTINEL" ]; then
+            echo "::error::ISS-690 guard: completion sentinel missing — the forked test JVM died uncleanly (crash), not a clean fail"
+            fail=1
+          fi
+          if grep -qE '==> X ' /tmp/desktop-it.log; then
+            echo "::error::ISS-690 guard: munit failure marker present in output (failures cannot hide behind exit 0)"
+            fail=1
+          fi
+          if [ "$code" -ne 0 ]; then
+            echo "::error::testFull exited with code $code"
+            fail=1
+          fi
+          if [ "$fail" -eq 0 ]; then echo "Desktop IT: ran to completion, all checks passed"; fi
+          exit "$fail"
         env:
+          # Liveness sentinel for the ISS-690 guard (written by the suite's
+          # afterAll; checked above). Lives in the runner temp dir.
+          SGE_IT_SENTINEL: ${{ runner.temp }}/desktop-it-sentinel
           # Hard-fail (do not assume-skip) if the display or native libs are
           # unavailable — this job must never silently return to zero executed
           # checks. See requireOrAssume in DesktopIntegrationTest (ISS-485).

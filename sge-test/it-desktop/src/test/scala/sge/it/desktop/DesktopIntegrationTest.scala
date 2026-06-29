@@ -58,6 +58,22 @@ class DesktopIntegrationTest extends FunSuite {
   private val harnessClasspath: String =
     Option(System.getProperty("sge.it.classpath")).filter(_.nonEmpty).getOrElse(System.getProperty("java.class.path"))
 
+  // ── ISS-690: forked-JVM-crash guard ────────────────────────────────
+  // sbt 2.0's `testFull` can exit 0 when the forked test JVM dies uncleanly
+  // (e.g. a native GL/Vulkan crash on a GPU-less runner), hiding real munit
+  // failures behind a false green. As a JVM-level liveness proof, write a
+  // completion sentinel once the whole suite has finished. `afterAll` runs
+  // after every test — pass OR clean fail — as long as the JVM is still alive,
+  // so the sentinel's ABSENCE specifically signals an unclean death (a crash),
+  // not an ordinary failure. CI deletes the sentinel before the run and, after
+  // `testFull`, fails the job if it is missing — independent of the exit code.
+  override def afterAll(): Unit = {
+    super.afterAll()
+    Option(System.getenv("SGE_IT_SENTINEL")).filter(_.nonEmpty).foreach { path =>
+      Files.write(java.nio.file.Paths.get(path), "DONE\n".getBytes)
+    }
+  }
+
   // ── Headless test: runs on CI without a display server ──────────────
   // Validates that native libraries load and key FFI symbols exist.
   // This catches broken library paths, missing symbols, and linking issues.
