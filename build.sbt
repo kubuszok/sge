@@ -1288,7 +1288,7 @@ val `sge-it-browser` = (projectMatrix in file("sge-test/it-browser"))
   .settings(mimaSettings)
   .settings(
     Test / baseDirectory := (ThisBuild / baseDirectory).value,
-    libraryDependencies += "com.microsoft.playwright" % "playwright" % "1.60.0" % Test,
+    libraryDependencies += "com.microsoft.playwright" % "playwright" % "1.61.0" % Test,
     Test / resourceGenerators += Def.task {
       Def.uncached {
         val _ = (sge.js(Versions.scala3) / Compile / fullClasspath).value
