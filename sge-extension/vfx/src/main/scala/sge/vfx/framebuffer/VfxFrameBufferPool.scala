@@ -6,10 +6,10 @@
  *
  * Covenant: partial-port
  * Covenant-source-reference: com/crashinvaders/vfx/framebuffer/VfxFrameBufferPool.java
- * Covenant-verified: 2026-04-08
+ * Covenant-verified: 2026-06-30
  *
  * Partial-port debt:
- *   - Inherited TODO: missing scaladoc on the public API. Functional but not documented.
+ *   - Class-level scaladoc is present; public-method scaladoc still pending.
  *
  * upstream-commit: ece6757aa75974d6396325d9b8e0d0b8c8b5c28e
  */
@@ -21,7 +21,11 @@ import sge.graphics.{ Pixmap, Texture }
 
 import scala.collection.mutable.ArrayBuffer
 
-//TODO Add scaladoc.
+/** An object pool of [[VfxFrameBuffer]] instances sharing the same pixel format and size.
+  *
+  * [[obtain]] hands out a ready buffer, reusing a previously [[free freed]] one when the spare pool is non-empty and otherwise creating and initializing a new one. [[free]] returns a buffer to the
+  * spare pool, and [[freePeak]] records the high-water mark of spare buffers. The pool owns every buffer it creates and disposes them on [[close]].
+  */
 class VfxFrameBufferPool(
   var pixelFormat:     Pixmap.Format,
   private var _width:  Int,

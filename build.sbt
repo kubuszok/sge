@@ -769,11 +769,52 @@ val `sge-tools` = (projectMatrix in file("sge-extension/tools"))
 
 val `sge-vfx` = (projectMatrix in file("sge-extension/vfx"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(Versions.scala3))
-  .someVariations(Versions.scalas, Versions.platforms)((commonSettings("sge-extension/vfx") ++ dev.only1VersionInIDE ++ Seq(jvmPlatformApiClasspath)) *)
+  .someVariations(Versions.scalas, Versions.platforms)((commonSettings("sge-extension/vfx") ++ dev.only1VersionInIDE ++ Seq(
+    // ISS-533: vfx's own native test binary links sge_native_ops symbols (its
+    // ViewportQuadMesh -> Mesh -> VBO -> BufferUtils path pulls sge core's
+    // @link-annotated native ops), so the native axis needs the
+    // NativeProviderPlugin wiring (manifest discovery, extraction, -L linker
+    // flags) plus the sn-provider-sge native artifact — mirroring `sge`,
+    // `sge-gltf`, and `sge-physics`. nativeProviderSettings stays first so its
+    // nativeConfig override survives (see the sge-gltf note on Configure order).
+    nativeProviderSettings,
+    MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
+      libraryDependencies += "com.kubuszok" % "sn-provider-sge" % Versions.nativeComponents
+    )),
+    jvmPlatformApiClasspath,
+    // ISS-531: vfx's JVM tests construct a ViewportQuadMesh -> Mesh -> VBO,
+    // which allocates unsafe ByteBuffers via BufferOpsPanama ->
+    // NativeLibLoader.load("sge_native_ops"). The `pnm-provider-sge-desktop`
+    // Panama provider (the JAR carrying libsge_native_ops for desktop) is NOT
+    // transitive from `sge` core, so add it on the JVM axis (mirroring sge-gltf /
+    // sge-physics / sge-visui) and filter the android.jar stub from the test
+    // classpath (its presence makes multiarch's NativeLibLoader mis-detect the
+    // host as Android and resolve the wrong native-lib path).
+    MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(
+      libraryDependencies += "com.kubuszok" % "pnm-provider-sge-desktop" % Versions.nativeComponents,
+      Test / fullClasspath := Def.uncached {
+        val conv = fileConverter.value
+        (Test / fullClasspath).value.filterNot(e => conv.toPath(e.data).getFileName.toString == "android.jar")
+      },
+      // The vfx framebuffer/geometry classes are faithful ports of gdx-vfx's
+      // single-threaded-by-design types: VfxFrameBuffer.bufferNesting is a static
+      // nesting counter, VfxGLUtils.{tmpIntBuf,tmpViewport,glExtension} are shared
+      // scratch, and VfxFrameBuffer.initialize routes through the engine's shared
+      // Matrix4/BufferUtils scratch (camera.combined inversion). Running the JVM
+      // suites concurrently races that process-global scratch ("non-invertible
+      // matrix" / buffer-limit faults) intermittently. Run the suites sequentially,
+      // the same remedy sge-extension-ecs and sge-extension-visui use for their own
+      // global state. JS/Native are single-threaded and unaffected.
+      Test / parallelExecution := false
+    ))
+  )) *)
   .settings(publishSettings)
   .settings(mimaSettings)
   .settings(name := "sge-extension-vfx")
-  .dependsOn(sge)
+  // test->test puts sge's SgeTestFixture (its shared noop-Sge test helper) on
+  // the vfx test classpath so the vfx suites reuse it instead of re-deriving
+  // (and re-counting) the same noop Application/Files/Net stubs.
+  .dependsOn(sge % "compile->compile;test->test")
 
 val `sge-visui` = (projectMatrix in file("sge-extension/visui"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(Versions.scala3))

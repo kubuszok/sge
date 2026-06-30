@@ -7,9 +7,9 @@
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 148
- * Covenant-baseline-methods: VfxPingPongWrapper,_capturing,begin,bufDst,bufSrc,bufferPool,capturing,cleanUpBuffers,dst,dstBuffer,dstTexture,end,gl,initialize,isInitialized,reset,src,srcBuffer,srcTexture,swap,this,tmp,wasCapturing
+ * Covenant-baseline-methods: VfxPingPongWrapper,_capturing,begin,bufDst,bufSrc,bufferPool,capturing,cleanUpBuffers,dstBuffer,dstTexture,end,gl,initialize,isInitialized,reset,srcBuffer,srcTexture,swap,this,tmp,wasCapturing
  * Covenant-source-reference: com/crashinvaders/vfx/framebuffer/VfxPingPongWrapper.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-06-30
  */
 package sge
 package vfx
@@ -40,16 +40,16 @@ class VfxPingPongWrapper(using Sge) {
     initialize(pool)
   }
 
-  def this(src: VfxFrameBuffer, dst: VfxFrameBuffer)(using Sge) = {
+  def this(bufDst: VfxFrameBuffer, bufSrc: VfxFrameBuffer)(using Sge) = {
     this()
-    initialize(src, dst)
+    initialize(bufSrc, bufDst)
   }
 
   def initialize(pool: VfxFrameBufferPool): VfxPingPongWrapper = {
     this.bufferPool = Nullable(pool)
-    val dst = pool.obtain()
-    val src = pool.obtain()
-    initialize(src, dst)
+    val bufDst = pool.obtain()
+    val bufSrc = pool.obtain()
+    initialize(bufDst, bufSrc)
   }
 
   def initialize(src: VfxFrameBuffer, dst: VfxFrameBuffer): VfxPingPongWrapper = {
