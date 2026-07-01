@@ -5,7 +5,29 @@ Purpose: an Opus-tier orchestrator must be able to resume from this file +
 Ledger: `memory/remediation-progress.md`. Sibling SSG handoff:
 `../ssg/docs/plans/HANDOFF-CAMPAIGN.md`.
 
-## Current state (2026-07-01, iteration 2 of the 5-day takeover, in flight)
+## Iteration 2 result (2026-07-01): ALL 4 bounce records CLOSED
+
+All four verification audits returned PASS with mutation-kill evidence; resolve
+notes carry the full chains (commit 6d0633fe). `review-fable` = 0 AND `bounce`
+= 0 → **Phase-5 exit criteria are the remaining campaign work**:
+- Item 5 (random re-audit of 10 resolved issues): IN FLIGHT since 2026-07-01
+  (two Opus 4.8 auditors, 5 issues each, worktree-isolated, re-executing
+  resolve-note evidence: red-sha fails / fix-sha passes / red..fix diff empty).
+  Any failure ⇒ reopen the issue + sweep that implementer's other resolutions.
+- Item 4 (fresh blind adversarial re-review): NEXT SGE iteration — multi-agent,
+  reviewers get module lists only (NOT what was fixed), fresh contexts; during
+  the Fable window run reviewers on `model: "fable"`. Zero critical findings
+  required.
+- Items 2+3 (blocking enforce CI on master; canary branches trip CI red):
+  require the `more-improvements-2` → master merge first, which is sanctioned
+  by ../SGE_SSG_SBT2_HANDOFF.md (PR → CI green → merge per repo process — the
+  dedicated agents' merge authority transferred to this takeover). Treat as its
+  own iteration; CI roundtrips are slow.
+- Old worktrees under .claude/worktrees/ (fix/ISS-558/559/560/561/562,
+  canary/iss587, fix/phase5-cleanup) predate the takeover — verify branches
+  merged before removing; canary branches are NEEDED for exit item 3.
+
+## Original state assessment (2026-07-01, iteration 2 start)
 
 - Branch `more-improvements-2`. **review-fable queue: ZERO open.** Campaign is
   at the Phase-5 exit-criteria stage, blocked by criterion 1's parenthetical:
