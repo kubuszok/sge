@@ -231,6 +231,44 @@ jobs:
       - name: Run browser integration tests
         run: sbt 'sge-it-browser/testFull'
 
+  # ─── sge-build plugin scripted tests (ISS-562) ─────────────────────
+  #
+  # The plugin's packaging tasks (sgePackageBrowser, releasePackage,
+  # androidSign) were verified only indirectly. These sbt scripted tests
+  # run a fresh hello-world game project against the locally published
+  # plugin and assert the packaged output directly (see
+  # sge-build/src/sbt-test/packaging/*). packaging/android exercises
+  # androidSign end-to-end (D8 -> aapt2 -> zipalign -> apksigner) and needs
+  # the SDK build-tools, so we provision one and export ANDROID_HOME, which
+  # the fixture's build.sbt resolves first.
+
+  test-sge-build-scripted:
+    name: sge-build scripted tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: false
+
+      - uses: coursier/setup-action@v3.0.0
+        with:
+          jvm: ${{ env.JVM_VERSION }}
+          apps: sbt
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Publish sge-build plugin to Ivy local
+        working-directory: sge-build
+        run: sbt publishLocal
+
+      - name: Run sge-build scripted tests
+        working-directory: sge-build
+        run: sbt 'scripted packaging/browser packaging/asset-manifest packaging/android'
+
   # ─── Scala Native tests (uses provider JARs from Sonatype) ──────────
 
   test-native:

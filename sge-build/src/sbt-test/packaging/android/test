@@ -1,0 +1,10 @@
+# ISS-562 - scripted test for the sge-build Android signing pipeline.
+# Exercises `androidSign` (androidDex → androidPackage → apksigner) against a
+# fresh hello-world project built on the locally-published sge-build plugin,
+# using a locally-installed Android SDK (no download).
+
+# Build + sign the APK and assert (via checkAndroidSign) that the output is a
+# structurally valid, cryptographically signed APK — verified by the SDK's own
+# apksigner. Consumes the actual androidSign task output, so it is robust to the
+# projectMatrix target layout.
+> checkAndroidSign
