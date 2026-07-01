@@ -11,9 +11,11 @@ package regression
   */
 object NativeMain {
 
-  def main(args: Array[String]): Unit = {
-    val app: Sge ?=> ApplicationListener = DesktopLauncher.createApp()
-    val config = DesktopLauncher.createConfig()
-    DesktopApplicationFactory(app, config)
-  }
+  def main(args: Array[String]): Unit =
+    if (args.contains("--headless")) DesktopLauncher.runHeadless()
+    else {
+      val app: Sge ?=> ApplicationListener = DesktopLauncher.createApp()
+      val config = DesktopLauncher.createConfig()
+      DesktopApplicationFactory(app, config)
+    }
 }

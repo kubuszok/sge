@@ -11,11 +11,13 @@ package regression
   */
 object DesktopMain {
 
-  def main(args: Array[String]): Unit = {
-    val app: Sge ?=> ApplicationListener = DesktopLauncher.createApp()
-    val config = DesktopLauncher.createConfig()
+  def main(args: Array[String]): Unit =
+    if (args.contains("--headless")) DesktopLauncher.runHeadless()
+    else {
+      val app: Sge ?=> ApplicationListener = DesktopLauncher.createApp()
+      val config = DesktopLauncher.createConfig()
 
-    // DesktopApplicationFactory blocks until the application exits.
-    DesktopApplicationFactory(app, config)
-  }
+      // DesktopApplicationFactory blocks until the application exits.
+      DesktopApplicationFactory(app, config)
+    }
 }

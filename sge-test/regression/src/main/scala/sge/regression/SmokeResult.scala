@@ -14,6 +14,10 @@ object SmokeResult {
   private var passed: Int = 0
   private var failed: Int = 0
 
+  /** Signals that [[summary]] has run — lets the headless launcher block until the app loop thread has finished, then derive the process exit code from [[allPassed]].
+    */
+  private val completion: java.util.concurrent.CountDownLatch = new java.util.concurrent.CountDownLatch(1)
+
   /** Log a single check result. */
   def logCheck(name: String, ok: Boolean, message: String): Unit = {
     val status = if (ok) "PASS" else "FAIL"
@@ -33,6 +37,10 @@ object SmokeResult {
     } else {
       System.out.println(s"SMOKE_TEST_FAILED ($failed/$total failed)")
     }
+    completion.countDown()
     failed == 0
   }
+
+  /** Blocks the calling thread until [[summary]] has been printed by the app loop thread. */
+  def await(): Unit = completion.await()
 }

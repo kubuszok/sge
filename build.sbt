@@ -362,6 +362,17 @@ val regressionTest = (projectMatrix in file("sge-test/regression"))
     MatrixAction.ForAll.Configure(_.settings(SgePlugin.relaxedSettings *)),
     MatrixAction.ForPlatforms(VirtualAxis.js).Configure(_.settings(
       scalaJSUseMainModuleInitializer := true
+    )),
+    // ISS-560: the native RegressionApp runs headless in CI and reads its bundled test
+    // assets (regression/test-data.txt, regression/test-texture.png) through FileHandle
+    // Internal, which falls back to `getResourceAsStream`. On Scala Native that only
+    // resolves when resources are embedded into the binary. Restrict the include patterns
+    // to just those two assets — embedding the whole transitive resource set OOMs the
+    // ResourceEmbedder. Applied last, via `~=`, so it composes with (rather than shadows)
+    // NativeProviderPlugin's `nativeConfig := ...`.
+    MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
+      nativeConfig ~= (_.withEmbedResources(true)
+        .withResourceIncludePatterns(Seq("**test-data.txt", "**test-texture.png")))
     ))
   )) *)
   .settings(noPublishSettings)
