@@ -268,10 +268,50 @@ class AndroidSmokeTest extends FunSuite {
       System.err.println("=== Logcat output ===")
       System.err.println(logcat)
 
-      // Check for success: either explicit marker or app rendered frames without crashing.
-      // SMOKE_TEST_PASSED only fires when ALL subsystem checks pass, but some are
-      // known-failing on CI (XML, external storage, touch, lifecycle).
-      val passed = logcat.contains("SMOKE_TEST_PASSED") || logcat.contains("SGE-SMOKE: Frame ")
+      // Parse structured subsystem check results emitted by SmokeListener as
+      //   SGE-IT:<SUBSYSTEM>:<PASS|FAIL>:<message>
+      // Parsed up-front because the tightened pass condition below depends on
+      // the full set of checks having been reported.
+      val checkPattern = """SGE-IT:(\w+):(PASS|FAIL):(.*)""".r
+      val checkResults = logcat.linesIterator.flatMap { line =>
+        checkPattern.findFirstMatchIn(line).map { m =>
+          (m.group(1), m.group(2), m.group(3))
+        }
+      }.toSeq
+      val reportedChecks = checkResults.map(_._1).toSet
+
+      // The full subsystem-check cycle SmokeListener runs. The first 13 are
+      // emitted on frame 5 (runSubsystemChecks + setupTouchTracking); the last 3
+      // are emitted only after the render loop has run for >= 6s
+      // (runPostAdbChecks). Requiring the WHOLE set proves the app completed its
+      // check cycle without crashing mid-run: the post-adb checks cannot appear
+      // unless the loop survived 6 continuous seconds, which rules out the
+      // "rendered one frame then died" case the old condition accepted.
+      val expectedChecks = Set(
+        "BOOTSTRAP",
+        "GL2D",
+        "GL3D",
+        "FILEIO",
+        "JSON_XML",
+        "AUDIO",
+        "INPUT",
+        "PREFERENCES",
+        "CLIPBOARD",
+        "DISPLAY",
+        "FILEHANDLE_TYPES",
+        "SENSORS",
+        "TOUCH_SETUP",
+        "TOUCH_DISPATCH",
+        "LIFECYCLE",
+        "SENSOR_INJECT"
+      )
+      val missingChecks     = expectedChecks -- reportedChecks
+      val allChecksReported = missingChecks.isEmpty
+
+      // Count sustained-render markers. SmokeActivity logs "SGE-SMOKE: Frame N"
+      // every 10th frame, so several distinct markers prove the loop advanced
+      // well past a single frame rather than crashing early.
+      val frameMarkers = logcat.linesIterator.count(_.contains("SGE-SMOKE: Frame "))
 
       // Check for fatal errors (but filter known non-fatal AndroidRuntime lines)
       val fatalLines = logcat.linesIterator
@@ -299,18 +339,25 @@ class AndroidSmokeTest extends FunSuite {
         )
       }
 
-      assert(passed,
-             s"SMOKE_TEST_PASSED marker not found in logcat. App may have crashed silently.\n" +
-               s"Logcat:\n$logcat"
+      // Tightened pass condition: the app must have reported EVERY subsystem
+      // check (so nothing crashed mid-cycle) AND rendered enough frames to prove
+      // the loop sustained itself. We deliberately do NOT require
+      // SMOKE_TEST_PASSED: that marker only fires when ALL checks pass, but
+      // JSON_XML / FILEHANDLE_TYPES / CLIPBOARD legitimately fail on the headless
+      // CI emulator (see below), so it never fires on CI. The full check set +
+      // frame floor is a stronger, honest signal than the old
+      // "SMOKE_TEST_PASSED || any single frame" condition.
+      val MinFrameMarkers = 3
+      assert(
+        allChecksReported,
+        s"App did not report the full subsystem-check cycle; missing: ${missingChecks.toSeq.sorted.mkString(", ")}. " +
+          s"The app likely crashed or hung mid-run.\nLogcat:\n$logcat"
       )
-
-      // Parse structured subsystem check results
-      val checkPattern = """SGE-IT:(\w+):(PASS|FAIL):(.*)""".r
-      val checkResults = logcat.linesIterator.flatMap { line =>
-        checkPattern.findFirstMatchIn(line).map { m =>
-          (m.group(1), m.group(2), m.group(3))
-        }
-      }.toSeq
+      assert(
+        frameMarkers >= MinFrameMarkers,
+        s"Only $frameMarkers 'SGE-SMOKE: Frame ' marker(s) found (need >= $MinFrameMarkers); " +
+          s"the render loop did not sustain.\nLogcat:\n$logcat"
+      )
 
       if (checkResults.nonEmpty) {
         System.err.println(s"=== Subsystem check results (${checkResults.size}) ===")
@@ -318,13 +365,19 @@ class AndroidSmokeTest extends FunSuite {
           System.err.println(s"  $name: $status — $msg")
         }
 
-        // Known CI limitations:
-        // - JSON_XML: XML secure-processing feature not available on API 36 emulator
-        // - FILEHANDLE_TYPES: external storage write needs runtime permission grant
-        // - TOUCH_DISPATCH: adb input tap timing unreliable on emulator
-        // - LIFECYCLE: pause/resume listener not yet set during first Activity lifecycle
-        // - CLIPBOARD: clipboard readback empty on headless CI emulator (no window manager)
-        val knownFailures = Set("JSON_XML", "FILEHANDLE_TYPES", "TOUCH_DISPATCH", "LIFECYCLE", "CLIPBOARD")
+        // Excused CI limitations — these genuinely fail on the headless emulator
+        // (not regressions), and are tracked as ISS-694 in the campaign issues DB
+        // rather than enforced here:
+        // - JSON_XML: XML secure-processing feature is unavailable on the emulator
+        //   image, so XmlReader.parse throws before returning.
+        // - FILEHANDLE_TYPES: external-storage write needs a runtime
+        //   WRITE_EXTERNAL_STORAGE grant the headless emulator does not provide.
+        // - CLIPBOARD: the headless emulator has no window manager, so clipboard
+        //   readback comes back empty.
+        // TOUCH_DISPATCH and LIFECYCLE are NO LONGER excused: ISS-518
+        // (AndroidApplication lifecycle) and ISS-519 (AndroidInput dispatch) are
+        // resolved, so both must now PASS on the emulator — a FAIL fails the test.
+        val knownFailures = Set("JSON_XML", "FILEHANDLE_TYPES", "CLIPBOARD")
         val failedChecks  = checkResults.filter { case (name, status, _) =>
           status == "FAIL" && !knownFailures.contains(name)
         }
