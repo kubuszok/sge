@@ -114,12 +114,29 @@ class DemoSmokeTest extends FunSuite {
     (server, port)
   }
 
-  /** Create a minimal HTML page that loads the demo JS and provides a canvas. */
+  /** Create a minimal HTML page that loads the demo JS and provides a canvas.
+    *
+    * The inline patch script (which must run BEFORE `main.js` creates the GL context) forces `preserveDrawingBuffer: true` on every WebGL context the app requests. Without it a WebGL drawing buffer
+    * is cleared right after compositing, so any later `toDataURL`/`drawImage`/`readPixels` reads an empty (transparent) buffer — which is exactly why the older non-blank heuristic was weak and why
+    * the exact-pixel golden read (ISS-563) needs the buffer to persist. It only affects this test harness page, never production.
+    */
   private def createTestHtml(jsDir: Path, width: Int = 800, height: Int = 600): Path = {
     val html =
       s"""<!DOCTYPE html>
          |<html>
-         |<head><meta charset="utf-8"><title>SGE Demo Smoke Test</title></head>
+         |<head><meta charset="utf-8"><title>SGE Demo Smoke Test</title>
+         |<script type="text/javascript">
+         |(function() {
+         |  var orig = HTMLCanvasElement.prototype.getContext;
+         |  HTMLCanvasElement.prototype.getContext = function(type, attrs) {
+         |    if (type === 'webgl' || type === 'webgl2' || type === 'experimental-webgl') {
+         |      attrs = Object.assign({}, attrs || {}, { preserveDrawingBuffer: true });
+         |    }
+         |    return orig.call(this, type, attrs);
+         |  };
+         |})();
+         |</script>
+         |</head>
          |<body style="margin:0;overflow:hidden">
          |<canvas id="canvas" width="$width" height="$height" style="display:block"></canvas>
          |<script type="text/javascript" src="main.js"></script>
@@ -130,6 +147,9 @@ class DemoSmokeTest extends FunSuite {
     htmlPath
   }
 
+  /** A golden pixel-readback expectation (ISS-563): the canvas pixel at (x, y) must equal RGB (r, g, b) within `tol` per channel and be fully opaque. */
+  final private case class PixelGolden(x: Int, y: Int, r: Int, g: Int, b: Int, tol: Int)
+
   /** Run a full demo smoke test: load, wait for RAF frames, check for errors and rendering.
     *
     * @param jsDir
@@ -138,12 +158,15 @@ class DemoSmokeTest extends FunSuite {
     *   fullLinkJS `main.js` with embedded base64 assets plus a generated `index.html`, so we serve that packaged `index.html` (the app creates its own canvas) rather than overwriting it with the
     *   synthetic harness. Serving the real packaged output is the point of this override — assets are loaded through BrowserFileHandle/PlatformResources at startup, so a missing/broken asset surfaces
     *   as a console.error and fails the test.
+    * @param pixelGolden
+    *   when `Some` (ISS-563), after the RAF frames the canvas pixel at the given coords must match the expected RGBA — proving the scene rendered at the pixel level, not just "non-blank".
     */
   private def smokeTestDemo(
     demoName:     String,
     artifactName: String,
     waitMs:       Int = 5000,
-    jsDir:        Option[Path] = None
+    jsDir:        Option[Path] = None,
+    pixelGolden:  Option[PixelGolden] = None
   ): Unit = {
     val servedDir = jsDir.getOrElse(findDemoJsDir(demoName, artifactName))
     // Only synthesize a canvas harness when the served directory has no index.html
@@ -221,6 +244,48 @@ class DemoSmokeTest extends FunSuite {
 
       assert(frameCount >= 60, s"$demoName only rendered $frameCount frames (expected >=60)")
 
+      // ── Pixel-level golden readback (ISS-563) ──────────────────────────
+      // Beyond the non-blank heuristic above, prove an EXACT pixel value. We
+      // snapshot the live WebGL canvas onto an offscreen 2D canvas via
+      // drawImage (the drawing buffer is kept readable by the
+      // preserveDrawingBuffer patch in createTestHtml) and read one pixel with
+      // getImageData. The caller picks a pixel whose color is deterministic —
+      // e.g. a corner that stays the scene's clear/background color every frame.
+      //
+      // BrowserApplication creates its OWN canvas and appends it to <body> when
+      // config.canvasId is unset (which every demo's BrowserLauncher leaves
+      // empty), so the rendered canvas is the LAST <canvas>, not the harness
+      // '#canvas' that document.querySelector('canvas') would return first.
+      pixelGolden.foreach { g =>
+        val raw = page
+          .evaluate(
+            s"""(() => {
+               |  const cs = document.querySelectorAll('canvas');
+               |  if (cs.length === 0) return 'no_canvas';
+               |  const canvas = cs[cs.length - 1];
+               |  const off = document.createElement('canvas');
+               |  off.width = canvas.width; off.height = canvas.height;
+               |  const ctx = off.getContext('2d', { willReadFrequently: true });
+               |  ctx.drawImage(canvas, 0, 0);
+               |  const p = ctx.getImageData(${g.x}, ${g.y}, 1, 1).data;
+               |  return p[0] + ',' + p[1] + ',' + p[2] + ',' + p[3];
+               |})()""".stripMargin
+          )
+          .toString
+
+        assert(raw != "no_canvas", s"$demoName: no canvas for pixel readback")
+        val parts            = raw.split(',').map(_.toInt)
+        val (pr, pg, pb, pa) = (parts(0), parts(1), parts(2), parts(3))
+        val ok               =
+          math.abs(pr - g.r) <= g.tol && math.abs(pg - g.g) <= g.tol &&
+            math.abs(pb - g.b) <= g.tol && pa >= 250
+        assert(
+          ok,
+          s"$demoName golden pixel mismatch at (${g.x},${g.y}): " +
+            s"expected RGBA(${g.r},${g.g},${g.b},255) +/-${g.tol}, got RGBA($pr,$pg,$pb,$pa)"
+        )
+      }
+
       browser.close()
       pw.close()
     } finally
@@ -231,6 +296,23 @@ class DemoSmokeTest extends FunSuite {
 
   test("Pong demo runs without errors and renders frames") {
     smokeTestDemo("pong", "sge-demo-pong")
+  }
+
+  // Pixel-level golden (ISS-563): Pong clears the whole backbuffer every frame
+  // with ScreenUtils.clear(0.05, 0.05, 0.1, 1) (PongGame.scala:130) and its
+  // paddles start at x>=30 with score digits near center, so a top-left corner
+  // pixel is deterministically the background color across every frame:
+  // 0.05*255≈13, 0.1*255≈26 → RGBA(13,13,26,255). This asserts the EXACT
+  // background color reached the composited canvas — not just that it is
+  // non-blank. Corner (4,4) with a small per-channel tolerance for 8-bit
+  // rounding; the tolerance is far narrower than the distance to black (0) or
+  // white (255), so a blank or wrong-color canvas still fails.
+  test("Pong demo renders the exact background clear color at a corner (ISS-563)") {
+    smokeTestDemo(
+      "pong",
+      "sge-demo-pong",
+      pixelGolden = Some(PixelGolden(x = 4, y = 4, r = 13, g = 13, b = 26, tol = 8))
+    )
   }
 
   test("SpaceShooter demo runs without errors and renders frames") {
