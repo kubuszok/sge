@@ -1,0 +1,9 @@
+# SGE remediation campaign — progress ledger
+
+One line per /goal iteration (`date | phase | attempted | resolved | bounced | notes`).
+NOTE: iterations before 2026-07-01 were logged in the dedicated agent's session
+memory (not in-repo); their evidence lives in the issues DB resolve notes
+(`re-scale db issues list --status resolved --category review-fable`). Ledger
+is in-repo from the 5-day takeover onward (see docs/plans/HANDOFF-CAMPAIGN.md).
+
+- 2026-07-01 | exit-prep | ISS-620+ISS-638+ISS-646+ISS-650 (all 4 open bounce records) | ALL RESOLVED — 4 parallel worktree verification audits (opus-4.8, fresh contexts, mutation probes) | 0 | Each audit re-executed the recorded defect empirically at HEAD: ISS-620 SaveDataCodecSuite load-only decode + genuine inline-field legacy shape both covered, 2 mutations killed (5/8, 3/8 fail); ISS-638 BlenderShapeKeys numberToString faithfully replicates JsonReader.java:220-263 + JsonValue.java:387-415, 32/32 JVM, naive-passthrough mutation 5/32 fail, -0.0 codec divergence honestly tracked (ISS-640); ISS-646 covenant restored + sgeContext constructor-captured writer + LINK registered, markup-sever mutation kills TextraMarkupLinkSuite, 150/150; ISS-650 auditor restamp 050f2b69 proven legitimate (parent pre-fix), MISSING content audit performed (compare 0-missing vs gdx-ai 6726e34), timepiece mutation kills 3/3 red suite. Ratchet CLEAN; baseline folded ignored_tests 2->1, exception_swallows_main 40->37. review-fable=0 AND bounce=0 -> Phase-5 exit criteria now executable: (2) blocking enforce CI on master, (3) canary branches still trip CI red, (4) fresh blind adversarial re-review (multi-agent; Fable window through 07-06 — use it), (5) random re-audit of 10 resolved issues. Orchestrated under the 5-day takeover (docs/plans/HANDOFF-CAMPAIGN.md).
