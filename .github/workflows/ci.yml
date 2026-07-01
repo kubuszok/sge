@@ -452,6 +452,54 @@ jobs:
       - name: Run native FFI validation (headless)
         run: sbt 'sge-it-native-ffi/run -- --headless'
 
+  # ─── Native app runtime (execute a Scala Native binary) ────────────
+  #
+  # ISS-560: prove app-level Scala Native runtime, not just nativeLink. Links
+  # the RegressionApp native binary and EXECUTES it headless (Sge lifecycle ->
+  # file/asset FFI -> render loop -> clean exit under HeadlessApplication),
+  # asserting SMOKE_TEST_PASSED and exit 0. Shader/Model3D scenes and the
+  # JVM-only ASSET_LOAD path (ISS-693) are not exercised here; native ASSET_LOAD
+  # is asserted for real.
+
+  test-native-runtime:
+    name: Native runtime (linux-x86_64)
+    needs: [test-native]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: false
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: sbt
+
+      - uses: sbt/setup-sbt@v1
+
+      - name: Install Scala Native system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang
+          sudo apt-get install -y libstdc++-12-dev || sudo apt-get install -y libstdc++-14-dev || true
+
+      - name: Link + execute RegressionApp native binary (headless)
+        run: |
+          set -euo pipefail
+          sbt 'regressionTestNative/nativeLink'
+          BIN=$(find target/out/native0.5 -maxdepth 3 -type f -name 'sge-test-regression' | head -1)
+          echo "native binary: $BIN"
+          test -x "$BIN" || { echo "native binary not found or not executable"; exit 1; }
+          BINDIR=$(dirname "$BIN")
+          set +e
+          ( cd "$BINDIR" && LD_LIBRARY_PATH="$BINDIR:${LD_LIBRARY_PATH:-}" ./sge-test-regression --headless ) 2>&1 | tee /tmp/native-run.log
+          RC=${PIPESTATUS[0]}
+          set -e
+          grep -q 'SMOKE_TEST_PASSED' /tmp/native-run.log || { echo "FAIL: SMOKE_TEST_PASSED not in output"; exit 1; }
+          test "$RC" -eq 0 || { echo "FAIL: native binary exited $RC"; exit 1; }
+          echo "OK: native RegressionApp ran headless, SMOKE_TEST_PASSED, exit 0"
+
   # ─── Desktop IT tests (GLFW + native libs) ─────────────────────
 
   test-desktop-it:
