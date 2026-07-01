@@ -53,13 +53,16 @@ object DesktopLauncher {
   /** Runs the regression app under a [[HeadlessApplication]] (no GL context, NoopGraphics/NoopGL20) and terminates the process with exit code 0 on `SMOKE_TEST_PASSED`, non-zero otherwise.
     *
     * Shared by both the JVM (`DesktopMain`) and Native (`NativeMain`) `--headless` entry points. The HeadlessApplication runs its render loop on a background (non-daemon) thread; this call blocks on
-    * [[SmokeResult.await]] until the app has printed its summary, then exits with the derived code.
+    * a latch released by [[SmokeResult]]'s completion hook until the app has printed its summary, then exits with the derived code. The latch lives here (desktop-only, JVM/Native) rather than in the
+    * shared SmokeResult so that source still links on Scala.js.
     */
   def runHeadless(): Unit = {
     logHeadlessExclusions()
+    val completion = new java.util.concurrent.CountDownLatch(1)
+    SmokeResult.setOnComplete(() => completion.countDown())
     val config = HeadlessApplicationConfig()
     val _      = new HeadlessApplication(createApp(headless = true), config)
-    SmokeResult.await()
+    completion.await()
     System.exit(if (SmokeResult.allPassed) 0 else 1)
   }
 

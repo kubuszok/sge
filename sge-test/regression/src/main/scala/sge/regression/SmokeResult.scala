@@ -14,9 +14,13 @@ object SmokeResult {
   private var passed: Int = 0
   private var failed: Int = 0
 
-  /** Signals that [[summary]] has run — lets the headless launcher block until the app loop thread has finished, then derive the process exit code from [[allPassed]].
+  /** Optional hook fired once [[summary]] has run. The headless desktop launcher installs this to release its own (JVM/Native) latch and derive the process exit code from [[allPassed]]. Kept as a
+    * plain callback — not a `java.util.concurrent` primitive — so this shared source still links on Scala.js (browser), where the headless launcher and its threading do not exist.
     */
-  private val completion: java.util.concurrent.CountDownLatch = new java.util.concurrent.CountDownLatch(1)
+  private var onComplete: () => Unit = () => ()
+
+  /** Installs the completion hook (see [[onComplete]]). Called by the headless desktop launcher before the app loop starts. */
+  def setOnComplete(hook: () => Unit): Unit = onComplete = hook
 
   /** Log a single check result. */
   def logCheck(name: String, ok: Boolean, message: String): Unit = {
@@ -37,10 +41,7 @@ object SmokeResult {
     } else {
       System.out.println(s"SMOKE_TEST_FAILED ($failed/$total failed)")
     }
-    completion.countDown()
+    onComplete()
     failed == 0
   }
-
-  /** Blocks the calling thread until [[summary]] has been printed by the app loop thread. */
-  def await(): Unit = completion.await()
 }
