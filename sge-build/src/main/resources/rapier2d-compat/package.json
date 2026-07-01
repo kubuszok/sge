@@ -1,0 +1,16 @@
+{
+  "name": "sge-rapier2d-compat-global",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Build wrapper that bundles @dimforge/rapier2d-compat into a global (window.RAPIER) IIFE for SGE bundler-free browser packaging (ISS-679).",
+  "type": "module",
+  "dependencies": {
+    "@dimforge/rapier2d-compat": "0.19.3"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  },
+  "scripts": {
+    "build": "esbuild wrapper.mjs --bundle --format=iife --outfile=rapier2d-compat.umd.js"
+  }
+}

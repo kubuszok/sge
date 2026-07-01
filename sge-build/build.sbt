@@ -40,6 +40,17 @@ lazy val root = (project in file("."))
       IO.write(file, s"sge.version=${version.value}\n")
       Seq(file)
     }.taskValue,
+    // ISS-679: the vendored rapier2d-compat regeneration workspace lives under
+    // src/main/resources/rapier2d-compat/. Its `npm install` writes a local
+    // node_modules/ (gitignored, never committed) — keep it OUT of the plugin
+    // JAR so a dev machine that regenerated the bundle does not ship ~30MB of
+    // node_modules (incl. the esbuild binary). Only the committed inputs
+    // (wrapper.mjs, package.json, README.md) and the built rapier2d-compat.umd.js
+    // are packaged. Filter the final JAR mappings by in-jar path so the whole
+    // node_modules subtree is dropped regardless of how it was collected.
+    Compile / packageBin / mappings := (Compile / packageBin / mappings).value.filterNot { case (_, path) =>
+      path.split('/').contains("node_modules")
+    },
     // Plugin dependencies — these are available to projects that enable SgePlugin.
     // sbt-projectmatrix is merged into sbt 2.0 (no longer added separately).
     addSbtPlugin("org.scala-js"     % "sbt-scalajs"        % "1.22.0"),

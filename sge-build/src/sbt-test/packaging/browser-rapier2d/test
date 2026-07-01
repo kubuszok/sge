@@ -1,0 +1,11 @@
+# ISS-679 - scripted test for the sge-build BROWSER packaging opt-in that ships
+# the vendored rapier2d-compat global build (window.RAPIER) for physics-using
+# games. Exercises SgePackaging.sgeBrowserIncludeRapier2d on both sides:
+#   - true  (gameOn):  rapier2d-compat.umd.js is copied into the package AND its
+#                      <script> is injected BEFORE <script src="main.js">.
+#   - false (gameOff): CANARY — neither the umd file nor the rapier <script> tag
+#                      appears (non-physics games stay lean; existing packages
+#                      remain byte-identical).
+# The fullLinkJS step is bypassed by overriding sgeJsOutputDir to a stub
+# directory containing a fake main.js (see build.sbt).
+> checkRapier2d

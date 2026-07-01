@@ -41,6 +41,22 @@ object SgePackaging {
   val sgePackageBrowser = taskKey[File]("Package Scala.js output as a browser-ready directory with HTML")
   val sgeBrowserTitle   = settingKey[String]("HTML page title for the browser package")
 
+  /** Opt-in flag: when `true`, the browser package ships a vendored global build of `@dimforge/rapier2d-compat` (`rapier2d-compat.umd.js`, exposing `window.RAPIER`) and injects a `<script>` tag for
+    * it BEFORE `main.js` in `index.html`. Physics-using JS games must set this so the bundler-free package can load the Rapier2D WASM backend (see PhysicsExtension.scala, which reads the `RAPIER`
+    * global in the browser). Defaults to `false` so non-physics games are not bloated with the ~1.7MB Rapier bundle. ISS-679.
+    *
+    * Scope: this covers 2D physics (`rapier2d`) only. The 3D physics extension (`@dimforge/rapier3d-compat`) needs the same treatment as a follow-up under ISS-677.
+    */
+  val sgeBrowserIncludeRapier2d = settingKey[Boolean](
+    "Ship the vendored rapier2d-compat global build (window.RAPIER) and inject its <script> before main.js — required for physics-using browser games (ISS-679)"
+  )
+
+  /** Classpath location (inside the sge-build plugin JAR) of the vendored rapier2d-compat global build. */
+  private val Rapier2dUmdResource = "/rapier2d-compat/rapier2d-compat.umd.js"
+
+  /** File name the vendored rapier2d-compat global build is copied to in the browser package. */
+  private val Rapier2dUmdName = "rapier2d-compat.umd.js"
+
   /** The fullLinkJS output directory must be provided by the caller, since sbt-scalajs types are not on this plugin's classpath. Wire it in build.sbt:
     * {{{
     * SgePackaging.sgeJsOutputDir := (Compile / fullLinkJS / scalaJSLinkerOutputDirectory).value
@@ -54,11 +70,12 @@ object SgePackaging {
     // synchronously at runtime via multiarch.resources.PlatformResources — there
     // is no assets.txt manifest and no fetch/preload step. This task only emits
     // index.html + the fullLinkJS output (main.js).
-    val log     = streams.value.log
-    val appName = JvmPackaging.releaseAppName.value
-    val title   = sgeBrowserTitle.value
-    val jsDir   = sgeJsOutputDir.value
-    val outDir  = target.value / "sge-browser" / appName
+    val log             = streams.value.log
+    val appName         = JvmPackaging.releaseAppName.value
+    val title           = sgeBrowserTitle.value
+    val jsDir           = sgeJsOutputDir.value
+    val includeRapier2d = sgeBrowserIncludeRapier2d.value
+    val outDir          = target.value / "sge-browser" / appName
 
     IO.delete(outDir)
     IO.createDirectory(outDir)
@@ -68,8 +85,14 @@ object SgePackaging {
       IO.copyFile(f, outDir / f.getName)
     }
 
+    // Opt-in (ISS-679): ship the vendored rapier2d-compat global build so a
+    // bundler-free physics game can load the Rapier2D WASM backend from the
+    // `window.RAPIER` global. The compat variant inlines its WASM as base64, so
+    // this single file is self-contained (no separate .wasm to serve).
+    if (includeRapier2d) copyRapier2dUmd(outDir, log)
+
     // Generate index.html
-    val html = generateHtml(title, appName)
+    val html = generateHtml(title, appName, includeRapier2d)
     IO.write(outDir / "index.html", html)
 
     log.info(s"[sge] Browser package: ${outDir.getAbsolutePath}")
@@ -77,7 +100,12 @@ object SgePackaging {
     outDir
   }
 
-  private def generateHtml(title: String, appName: String): String =
+  private def generateHtml(title: String, appName: String, includeRapier2d: Boolean): String = {
+    // ISS-679: the Rapier2D global build must load BEFORE main.js so that
+    // PhysicsExtension.load() finds `window.RAPIER` already defined.
+    val rapierScript =
+      if (includeRapier2d) s"""  <script src="$Rapier2dUmdName"></script>\n"""
+      else ""
     s"""<!DOCTYPE html>
        |<html lang="en">
        |<head>
@@ -97,15 +125,35 @@ object SgePackaging {
        |</head>
        |<body>
        |  <div id="loading">Loading $appName&#8230;</div>
-       |  <script src="main.js"></script>
+       |$rapierScript  <script src="main.js"></script>
        |</body>
        |</html>
        |""".stripMargin
+  }
+
+  /** Copy the vendored rapier2d-compat global build from the plugin JAR resources into `outDir`. The bundler-free browser package injects a `<script>` for it before `main.js`. ISS-679. */
+  private def copyRapier2dUmd(outDir: File, log: sbt.util.Logger): Unit = {
+    val in = getClass.getResourceAsStream(Rapier2dUmdResource)
+    if (in == null) {
+      sys.error(
+        s"[sge] rapier2d-compat global build not found on the plugin classpath at $Rapier2dUmdResource — the sge-build plugin JAR is missing the vendored bundle (regenerate per sge-build/src/main/resources/rapier2d-compat/README.md)"
+      )
+    }
+    try {
+      val dest  = outDir / Rapier2dUmdName
+      val bytes = in.readAllBytes()
+      IO.write(dest, bytes)
+      log.info(s"[sge] Bundled rapier2d-compat global build: ${dest.getName} (${bytes.length / 1024} KB)")
+    } finally in.close()
+  }
 
   /** Browser packaging settings. Apply to JS platform projects. Requires the caller to wire `sgeJsOutputDir` to `fullLinkJS / scalaJSLinkerOutputDirectory`.
     */
   lazy val browserSettings: Seq[Setting[_]] = Seq(
     sgeBrowserTitle := JvmPackaging.releaseAppName.value,
+    // ISS-679: default off — non-physics games are not bloated with the ~1.7MB
+    // Rapier2D bundle. Physics-using JS projects set this to true.
+    sgeBrowserIncludeRapier2d := false,
     // sbt 2.0 caches task results and refuses to cache a File/Path output; this
     // packaging task produces a directory as a side effect, so opt out.
     sgePackageBrowser := Def.uncached(packageBrowserTask.value)
