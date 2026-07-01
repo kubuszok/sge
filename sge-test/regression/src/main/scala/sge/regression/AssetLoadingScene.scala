@@ -58,12 +58,17 @@ object AssetLoadingScene extends RegressionScene {
       pixmap.fill()
       pixmapTex = new Texture(pixmap)
       val handle = pixmapTex.textureObjectHandle
-      // Headless (NoopGL20): glGenTexture returns 0, so the GL-allocated handle cannot be asserted.
-      // The Pixmap fill + Texture upload code path is still exercised; only the GPU-output assertion
-      // is skipped (not faked) so the smoke result stays honest.
+      // Headless uses NoopGL20 on BOTH JVM and native (runHeadless → HeadlessApplication/NoopGraphics),
+      // and NoopGL20.glGenTexture() returns 0, so the real assertion (GL handle > 0) can never be truly
+      // evaluated headless. The Pixmap fill + Texture upload code path is still exercised; only the
+      // GPU-handle assertion is skipped. Emit an UNCOUNTED SKIP (printed directly, not via SmokeResult)
+      // — same mechanism as ASSET_LOAD's headless skip — so the total stays honest; logging it as a
+      // counted PASS would fabricate a result.
       val isHeadless = Sge().application.applicationType == Application.ApplicationType.HeadlessDesktop
       if (isHeadless) {
-        SmokeResult.logCheck("PIXMAP_TEXTURE", true, s"headless: GL handle assertion skipped (constructed, handle=$handle)")
+        System.out.println(
+          s"SGE-IT:PIXMAP_TEXTURE:SKIP:headless NoopGL20 returns texture handle 0 — GL-handle assertion not meaningful (Pixmap fill + Texture upload still exercised, handle=$handle); real GL asserts this for real"
+        )
       } else {
         val ok = handle.toInt > 0
         SmokeResult.logCheck("PIXMAP_TEXTURE", ok, s"GL handle=$handle")

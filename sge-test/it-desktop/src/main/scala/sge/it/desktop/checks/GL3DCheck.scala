@@ -49,118 +49,120 @@ object GL3DCheck {
       |}""".stripMargin
 
   def run()(using Sge): CheckResult =
-    try {
-      val gl = Sge().graphics.gl20
+    try
+      scala.util.boundary {
+        val gl = Sge().graphics.gl20
 
-      // Enable depth testing for 3D verification
-      gl.glEnable(sge.graphics.EnableCap.DepthTest)
-      gl.glClearColor(0f, 0f, 0f, 1f)
-      gl.glClear(ClearMask.ColorBufferBit | ClearMask.DepthBufferBit)
+        // Enable depth testing for 3D verification
+        gl.glEnable(sge.graphics.EnableCap.DepthTest)
+        gl.glClearColor(0f, 0f, 0f, 1f)
+        gl.glClear(ClearMask.ColorBufferBit | ClearMask.DepthBufferBit)
 
-      // Compile shader with uniform
-      val shader = new ShaderProgram(vertexShader, fragmentShader)
-      if (!shader.compiled) {
-        val log = shader.log
-        shader.close()
-        return CheckResult("gl3d", passed = false, s"Shader compilation failed: $log")
-      }
+        // Compile shader with uniform
+        val shader = new ShaderProgram(vertexShader, fragmentShader)
+        if (!shader.compiled) {
+          val log = shader.log
+          shader.close()
+          scala.util.boundary.break(CheckResult("gl3d", passed = false, s"Shader compilation failed: $log"))
+        }
 
-      // Verify uniform lookup works
-      shader.bind()
-      val loc = shader.fetchUniformLocation("u_projTrans", false)
-      if (loc < 0) {
-        shader.close()
-        return CheckResult("gl3d", passed = false, s"Uniform u_projTrans not found (loc=$loc)")
-      }
+        // Verify uniform lookup works
+        shader.bind()
+        val loc = shader.fetchUniformLocation("u_projTrans", false)
+        if (loc < 0) {
+          shader.close()
+          scala.util.boundary.break(CheckResult("gl3d", passed = false, s"Uniform u_projTrans not found (loc=$loc)"))
+        }
 
-      // Set identity-like projection matrix
-      val matrix = new sge.math.Matrix4()
-      shader.setUniformMatrix("u_projTrans", matrix)
+        // Set identity-like projection matrix
+        val matrix = new sge.math.Matrix4()
+        shader.setUniformMatrix("u_projTrans", matrix)
 
-      // Create mesh with position + color
-      val mesh = new sge.graphics.Mesh(true, 3, 0)(
-        VertexAttribute.Position(),
-        VertexAttribute.ColorPacked()
-      )
-      val green = java.lang.Float.intBitsToFloat(0xff00ff00.toInt)
-      mesh.setVertices(
-        Array[Float](
-          -0.5f,
-          -0.5f,
-          0f,
-          green,
-          0.5f,
-          -0.5f,
-          0f,
-          green,
-          0f,
-          0.5f,
-          0f,
-          green
+        // Create mesh with position + color
+        val mesh = new sge.graphics.Mesh(true, 3, 0)(
+          VertexAttribute.Position(),
+          VertexAttribute.ColorPacked()
         )
-      )
+        val green = java.lang.Float.intBitsToFloat(0xff00ff00.toInt)
+        mesh.setVertices(
+          Array[Float](
+            -0.5f,
+            -0.5f,
+            0f,
+            green,
+            0.5f,
+            -0.5f,
+            0f,
+            green,
+            0f,
+            0.5f,
+            0f,
+            green
+          )
+        )
 
-      mesh.render(shader, PrimitiveMode.Triangles)
+        mesh.render(shader, PrimitiveMode.Triangles)
 
-      val drawErr = gl.glGetError()
-      if (drawErr != 0) {
+        val drawErr = gl.glGetError()
+        if (drawErr != 0) {
+          gl.glDisable(sge.graphics.EnableCap.DepthTest)
+          mesh.close()
+          shader.close()
+          scala.util.boundary.break(CheckResult("gl3d", passed = false, s"GL error after 3D draw: 0x${drawErr.toHexString}"))
+        }
+
+        // ── Pixel-level golden readback (ISS-563) ──────────────────────────
+        // Prove pixels actually reach the framebuffer, not just that GL raised
+        // no error. Render the same green triangle (identity projection, depth
+        // test on) over a known RED clear into a 32x32 depth-backed FBO and read
+        // exact pixels: the (0,0) corner is outside the triangle so it must
+        // equal the red clear (255,0,0,255); the (16,16) center is inside the
+        // triangle so it must equal the triangle's flat green (0,255,0,255).
+        // Both colors are exact 8-bit (0 or 255), so there is no rounding
+        // tolerance and no transcendental drift.
+        val fbo              = new FrameBuffer(Pixmap.Format.RGBA8888, Pixels(32), Pixels(32), true)
+        val (corner, center) = fbo.use {
+          while (gl.glGetError() != 0) {}
+          gl.glClearColor(1f, 0f, 0f, 1f) // red
+          gl.glClear(ClearMask.ColorBufferBit | ClearMask.DepthBufferBit)
+          shader.setUniformMatrix("u_projTrans", matrix)
+          mesh.render(shader, PrimitiveMode.Triangles)
+          (readPixel(gl, 0, 0), readPixel(gl, 16, 16))
+        }
+        fbo.close()
+
+        val err = gl.glGetError()
+
         gl.glDisable(sge.graphics.EnableCap.DepthTest)
         mesh.close()
         shader.close()
-        return CheckResult("gl3d", passed = false, s"GL error after 3D draw: 0x${drawErr.toHexString}")
+
+        val (cr, cg, cb, ca) = corner
+        val (mr, mg, mb, ma) = center
+
+        if (err != 0) {
+          CheckResult("gl3d", passed = false, s"GL error after readback: 0x${err.toHexString}")
+        } else if (cr < 215 || cg > 40 || cb > 40 || ca < 215) {
+          CheckResult(
+            "gl3d",
+            passed = false,
+            s"FBO corner pixel: expected red clear RGBA(255,0,0,255), got RGBA($cr,$cg,$cb,$ca)"
+          )
+        } else if (mr > 40 || mg < 215 || mb > 40 || ma < 215) {
+          CheckResult(
+            "gl3d",
+            passed = false,
+            s"FBO center pixel: expected green triangle RGBA(0,255,0,255), got RGBA($mr,$mg,$mb,$ma)"
+          )
+        } else {
+          CheckResult(
+            "gl3d",
+            passed = true,
+            s"Shader + uniform + depth + mesh render OK; golden readback OK: corner RGBA($cr,$cg,$cb,$ca) center RGBA($mr,$mg,$mb,$ma)"
+          )
+        }
       }
-
-      // ── Pixel-level golden readback (ISS-563) ──────────────────────────
-      // Prove pixels actually reach the framebuffer, not just that GL raised
-      // no error. Render the same green triangle (identity projection, depth
-      // test on) over a known RED clear into a 32x32 depth-backed FBO and read
-      // exact pixels: the (0,0) corner is outside the triangle so it must
-      // equal the red clear (255,0,0,255); the (16,16) center is inside the
-      // triangle so it must equal the triangle's flat green (0,255,0,255).
-      // Both colors are exact 8-bit (0 or 255), so there is no rounding
-      // tolerance and no transcendental drift.
-      val fbo              = new FrameBuffer(Pixmap.Format.RGBA8888, Pixels(32), Pixels(32), true)
-      val (corner, center) = fbo.use {
-        while (gl.glGetError() != 0) {}
-        gl.glClearColor(1f, 0f, 0f, 1f) // red
-        gl.glClear(ClearMask.ColorBufferBit | ClearMask.DepthBufferBit)
-        shader.setUniformMatrix("u_projTrans", matrix)
-        mesh.render(shader, PrimitiveMode.Triangles)
-        (readPixel(gl, 0, 0), readPixel(gl, 16, 16))
-      }
-      fbo.close()
-
-      val err = gl.glGetError()
-
-      gl.glDisable(sge.graphics.EnableCap.DepthTest)
-      mesh.close()
-      shader.close()
-
-      val (cr, cg, cb, ca) = corner
-      val (mr, mg, mb, ma) = center
-
-      if (err != 0) {
-        CheckResult("gl3d", passed = false, s"GL error after readback: 0x${err.toHexString}")
-      } else if (cr < 215 || cg > 40 || cb > 40 || ca < 215) {
-        CheckResult(
-          "gl3d",
-          passed = false,
-          s"FBO corner pixel: expected red clear RGBA(255,0,0,255), got RGBA($cr,$cg,$cb,$ca)"
-        )
-      } else if (mr > 40 || mg < 215 || mb > 40 || ma < 215) {
-        CheckResult(
-          "gl3d",
-          passed = false,
-          s"FBO center pixel: expected green triangle RGBA(0,255,0,255), got RGBA($mr,$mg,$mb,$ma)"
-        )
-      } else {
-        CheckResult(
-          "gl3d",
-          passed = true,
-          s"Shader + uniform + depth + mesh render OK; golden readback OK: corner RGBA($cr,$cg,$cb,$ca) center RGBA($mr,$mg,$mb,$ma)"
-        )
-      }
-    } catch {
+    catch {
       case e: Exception =>
         CheckResult("gl3d", passed = false, s"Exception: ${e.getClass.getSimpleName}: ${e.getMessage}")
     }

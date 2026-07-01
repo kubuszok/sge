@@ -47,103 +47,105 @@ object GL2DCheck {
       |}""".stripMargin
 
   def run()(using Sge): CheckResult =
-    try {
-      val gl = Sge().graphics.gl20
+    try
+      scala.util.boundary {
+        val gl = Sge().graphics.gl20
 
-      // Clear screen to verify basic GL calls work
-      gl.glClearColor(0.1f, 0.2f, 0.3f, 1f)
-      gl.glClear(ClearMask.ColorBufferBit)
+        // Clear screen to verify basic GL calls work
+        gl.glClearColor(0.1f, 0.2f, 0.3f, 1f)
+        gl.glClear(ClearMask.ColorBufferBit)
 
-      // Compile shader
-      val shader = new ShaderProgram(vertexShader, fragmentShader)
-      if (!shader.compiled) {
-        val log = shader.log
-        shader.close()
-        return CheckResult("gl2d", passed = false, s"Shader compilation failed: $log")
-      }
+        // Compile shader
+        val shader = new ShaderProgram(vertexShader, fragmentShader)
+        if (!shader.compiled) {
+          val log = shader.log
+          shader.close()
+          scala.util.boundary.break(CheckResult("gl2d", passed = false, s"Shader compilation failed: $log"))
+        }
 
-      // Create mesh with position + color, render a triangle
-      val mesh = new sge.graphics.Mesh(true, 3, 0)(
-        VertexAttribute.Position(),
-        VertexAttribute.ColorPacked()
-      )
-      val white = java.lang.Float.intBitsToFloat(0xffffffff.toInt)
-      mesh.setVertices(
-        Array[Float](
-          -0.5f,
-          -0.5f,
-          0f,
-          white,
-          0.5f,
-          -0.5f,
-          0f,
-          white,
-          0f,
-          0.5f,
-          0f,
-          white
+        // Create mesh with position + color, render a triangle
+        val mesh = new sge.graphics.Mesh(true, 3, 0)(
+          VertexAttribute.Position(),
+          VertexAttribute.ColorPacked()
         )
-      )
+        val white = java.lang.Float.intBitsToFloat(0xffffffff.toInt)
+        mesh.setVertices(
+          Array[Float](
+            -0.5f,
+            -0.5f,
+            0f,
+            white,
+            0.5f,
+            -0.5f,
+            0f,
+            white,
+            0f,
+            0.5f,
+            0f,
+            white
+          )
+        )
 
-      shader.bind()
-      mesh.render(shader, PrimitiveMode.Triangles)
+        shader.bind()
+        mesh.render(shader, PrimitiveMode.Triangles)
 
-      // Check for GL errors after the backbuffer draw
-      val drawErr = gl.glGetError()
-      if (drawErr != 0) {
+        // Check for GL errors after the backbuffer draw
+        val drawErr = gl.glGetError()
+        if (drawErr != 0) {
+          mesh.close()
+          shader.close()
+          scala.util.boundary.break(CheckResult("gl2d", passed = false, s"GL error after draw: 0x${drawErr.toHexString}"))
+        }
+
+        // ── Pixel-level golden readback (ISS-563) ──────────────────────────
+        // Prove pixels actually reach the framebuffer, not just that GL raised
+        // no error. Render the same white triangle over a known BLUE clear into
+        // a 32x32 FBO and read exact pixels: the (0,0) corner is outside the
+        // triangle so it must equal the blue clear (0,0,255,255); the (16,16)
+        // center is inside the triangle so it must equal the triangle's flat
+        // white (255,255,255,255). Both colors are exact 8-bit (0 or 255), so
+        // there is no rounding tolerance and no transcendental drift.
+        val fbo              = new FrameBuffer(Pixmap.Format.RGBA8888, Pixels(32), Pixels(32), false)
+        val (corner, center) = fbo.use {
+          while (gl.glGetError() != 0) {}
+          gl.glClearColor(0f, 0f, 1f, 1f) // blue
+          gl.glClear(ClearMask.ColorBufferBit)
+          mesh.render(shader, PrimitiveMode.Triangles)
+          (readPixel(gl, 0, 0), readPixel(gl, 16, 16))
+        }
+        fbo.close()
+
+        val err = gl.glGetError()
+
         mesh.close()
         shader.close()
-        return CheckResult("gl2d", passed = false, s"GL error after draw: 0x${drawErr.toHexString}")
+
+        val (cr, cg, cb, ca) = corner
+        val (mr, mg, mb, ma) = center
+
+        if (err != 0) {
+          CheckResult("gl2d", passed = false, s"GL error after readback: 0x${err.toHexString}")
+        } else if (cr > 40 || cg > 40 || cb < 215 || ca < 215) {
+          CheckResult(
+            "gl2d",
+            passed = false,
+            s"FBO corner pixel: expected blue clear RGBA(0,0,255,255), got RGBA($cr,$cg,$cb,$ca)"
+          )
+        } else if (mr < 215 || mg < 215 || mb < 215 || ma < 215) {
+          CheckResult(
+            "gl2d",
+            passed = false,
+            s"FBO center pixel: expected white triangle RGBA(255,255,255,255), got RGBA($mr,$mg,$mb,$ma)"
+          )
+        } else {
+          CheckResult(
+            "gl2d",
+            passed = true,
+            s"Shader compile + mesh draw OK; golden readback OK: corner RGBA($cr,$cg,$cb,$ca) center RGBA($mr,$mg,$mb,$ma)"
+          )
+        }
       }
-
-      // ── Pixel-level golden readback (ISS-563) ──────────────────────────
-      // Prove pixels actually reach the framebuffer, not just that GL raised
-      // no error. Render the same white triangle over a known BLUE clear into
-      // a 32x32 FBO and read exact pixels: the (0,0) corner is outside the
-      // triangle so it must equal the blue clear (0,0,255,255); the (16,16)
-      // center is inside the triangle so it must equal the triangle's flat
-      // white (255,255,255,255). Both colors are exact 8-bit (0 or 255), so
-      // there is no rounding tolerance and no transcendental drift.
-      val fbo              = new FrameBuffer(Pixmap.Format.RGBA8888, Pixels(32), Pixels(32), false)
-      val (corner, center) = fbo.use {
-        while (gl.glGetError() != 0) {}
-        gl.glClearColor(0f, 0f, 1f, 1f) // blue
-        gl.glClear(ClearMask.ColorBufferBit)
-        mesh.render(shader, PrimitiveMode.Triangles)
-        (readPixel(gl, 0, 0), readPixel(gl, 16, 16))
-      }
-      fbo.close()
-
-      val err = gl.glGetError()
-
-      mesh.close()
-      shader.close()
-
-      val (cr, cg, cb, ca) = corner
-      val (mr, mg, mb, ma) = center
-
-      if (err != 0) {
-        CheckResult("gl2d", passed = false, s"GL error after readback: 0x${err.toHexString}")
-      } else if (cr > 40 || cg > 40 || cb < 215 || ca < 215) {
-        CheckResult(
-          "gl2d",
-          passed = false,
-          s"FBO corner pixel: expected blue clear RGBA(0,0,255,255), got RGBA($cr,$cg,$cb,$ca)"
-        )
-      } else if (mr < 215 || mg < 215 || mb < 215 || ma < 215) {
-        CheckResult(
-          "gl2d",
-          passed = false,
-          s"FBO center pixel: expected white triangle RGBA(255,255,255,255), got RGBA($mr,$mg,$mb,$ma)"
-        )
-      } else {
-        CheckResult(
-          "gl2d",
-          passed = true,
-          s"Shader compile + mesh draw OK; golden readback OK: corner RGBA($cr,$cg,$cb,$ca) center RGBA($mr,$mg,$mb,$ma)"
-        )
-      }
-    } catch {
+    catch {
       case e: Exception =>
         CheckResult("gl2d", passed = false, s"Exception: ${e.getClass.getSimpleName}: ${e.getMessage}")
     }
