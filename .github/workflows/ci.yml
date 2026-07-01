@@ -233,7 +233,20 @@ jobs:
       # BrowserFileHandle/AssetManager on JS (previously .ignore'd for lack of this).
       - name: Package AssetShowcase browser (fullLinkJS + embedded resources)
         working-directory: demos
-        run: sbt 'assetShowcaseJS/sgePackageBrowser'
+        # Retry: fullLinkJS + plugin resolution occasionally hits a transient sbt
+        # launcher / coursier cross-version resolution flake (seen once as an
+        # empty 0.7s exit-1). Retry up to 3x so a transient fetch/resolution blip
+        # doesn't red the packaged-output asset coverage; a genuine failure still
+        # fails after the retries with full output.
+        run: |
+          for attempt in 1 2 3; do
+            echo "::group::assetShowcaseJS/sgePackageBrowser (attempt $attempt)"
+            if sbt 'assetShowcaseJS/sgePackageBrowser'; then
+              echo "::endgroup::"; echo "packaged on attempt $attempt"; exit 0
+            fi
+            echo "::endgroup::"; echo "attempt $attempt failed"; sleep 5
+          done
+          echo "sgePackageBrowser failed after 3 attempts"; exit 1
 
       - name: Install Playwright
         run: npx --yes playwright install --with-deps chromium
