@@ -223,7 +223,17 @@ jobs:
 
       - name: Compile demo JS for browser smoke tests
         working-directory: demos
-        run: sbt 'pongJS/fastLinkJS; spaceShooterJS/fastLinkJS; curvePlaygroundJS/fastLinkJS; viewportGalleryJS/fastLinkJS; shaderLabJS/fastLinkJS; tileWorldJS/fastLinkJS; hexTacticsJS/fastLinkJS; netChatJS/fastLinkJS; viewer3dJS/fastLinkJS; assetShowcaseJS/fastLinkJS; particleShowJS/fastLinkJS'
+        run: sbt 'pongJS/fastLinkJS; spaceShooterJS/fastLinkJS; curvePlaygroundJS/fastLinkJS; viewportGalleryJS/fastLinkJS; shaderLabJS/fastLinkJS; tileWorldJS/fastLinkJS; hexTacticsJS/fastLinkJS; netChatJS/fastLinkJS; viewer3dJS/fastLinkJS; particleShowJS/fastLinkJS'
+
+      # ISS-558: real browser-packaging coverage. Unlike the fastLinkJS demos above
+      # (dev build, synthetic HTML, no embedded assets), package AssetShowcase via
+      # sgePackageBrowser — which runs fullLinkJS AND the multiarch-resources
+      # embedded-resources sourceGenerator (base64) AND generates index.html — so
+      # the AssetShowcase smoke test loads REAL assets over HTTP through
+      # BrowserFileHandle/AssetManager on JS (previously .ignore'd for lack of this).
+      - name: Package AssetShowcase browser (fullLinkJS + embedded resources)
+        working-directory: demos
+        run: sbt 'assetShowcaseJS/sgePackageBrowser'
 
       - name: Install Playwright
         run: npx --yes playwright install --with-deps chromium

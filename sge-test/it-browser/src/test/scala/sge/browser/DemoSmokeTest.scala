@@ -59,6 +59,28 @@ class DemoSmokeTest extends FunSuite {
       } finally stream.close()
     }
 
+  /** Locate the packaged browser output for a demo produced by `sgePackageBrowser` (fullLinkJS + embedded resources + generated `index.html`). The task emits into
+    * `<demoBase>/target/<js-segment>/sge-browser/<appName>/`, where `<appName>` is the demo's `releaseAppName` and `<js-segment>` (`js-3` vs `scala-3.x`) varies by toolchain — so we walk the demos
+    * tree for a `main.js` whose parent directory is `<appName>` and whose grandparent is `sge-browser`, rather than hardcoding the version segment or an absolute path.
+    */
+  private def findPackagedBrowserDir(appName: String): Option[Path] = {
+    val root = Paths.get(System.getProperty("user.dir")).resolve("demos")
+    if (!Files.isDirectory(root)) None
+    else {
+      val stream = Files.walk(root)
+      try {
+        val found = stream
+          .filter(p =>
+            Files.isRegularFile(p) && p.getFileName.toString == "main.js" &&
+              p.getParent.getFileName.toString == appName &&
+              p.getParent.getParent.getFileName.toString == "sge-browser"
+          )
+          .findFirst()
+        if (found.isPresent) Some(found.get.getParent) else None
+      } finally stream.close()
+    }
+  }
+
   /** Start a simple HTTP server serving files from the given directory. */
   private def startServer(rootDir: Path): (HttpServer, Int) = {
     val server = HttpServer.create(new InetSocketAddress(0), 0)
@@ -108,11 +130,27 @@ class DemoSmokeTest extends FunSuite {
     htmlPath
   }
 
-  /** Run a full demo smoke test: load, wait for RAF frames, check for errors and rendering. */
-  private def smokeTestDemo(demoName: String, artifactName: String, waitMs: Int = 5000): Unit = {
-    val jsDir = findDemoJsDir(demoName, artifactName)
-    createTestHtml(jsDir)
-    val (server, port) = startServer(jsDir)
+  /** Run a full demo smoke test: load, wait for RAF frames, check for errors and rendering.
+    *
+    * @param jsDir
+    *   when `None` (the default for every procedural demo), the served directory is located via [[findDemoJsDir]] (a raw fastLinkJS `<artifact>-fastopt` dir with no `index.html`), and a synthetic
+    *   canvas harness [[createTestHtml]] is written there. When `Some(dir)` (used by the packaged AssetShowcase run), `dir` is served as-is: it is the real `sgePackageBrowser` output containing
+    *   fullLinkJS `main.js` with embedded base64 assets plus a generated `index.html`, so we serve that packaged `index.html` (the app creates its own canvas) rather than overwriting it with the
+    *   synthetic harness. Serving the real packaged output is the point of this override — assets are loaded through BrowserFileHandle/PlatformResources at startup, so a missing/broken asset surfaces
+    *   as a console.error and fails the test.
+    */
+  private def smokeTestDemo(
+    demoName:     String,
+    artifactName: String,
+    waitMs:       Int = 5000,
+    jsDir:        Option[Path] = None
+  ): Unit = {
+    val servedDir = jsDir.getOrElse(findDemoJsDir(demoName, artifactName))
+    // Only synthesize a canvas harness when the served directory has no index.html
+    // (the raw fastLinkJS output). The packaged sgePackageBrowser output already
+    // ships its own generated index.html, which we serve unchanged.
+    if (!Files.exists(servedDir.resolve("index.html"))) createTestHtml(servedDir)
+    val (server, port) = startServer(servedDir)
 
     try {
       val pw      = Playwright.create()
@@ -231,9 +269,20 @@ class DemoSmokeTest extends FunSuite {
     smokeTestDemo("net-chat", "sge-demo-netchat")
   }
 
-  // AssetShowcase requires texture/model assets served alongside the JS bundle.
-  // In CI, fastLinkJS output doesn't include assets — skip until asset packaging is integrated.
-  test("AssetShowcase demo runs without errors and renders frames".ignore) {
-    smokeTestDemo("asset-showcase", "sge-demo-assets")
+  // ─── Asset-backed demo (packaged fullLinkJS + embedded assets) ──────
+
+  // AssetShowcase needs texture/audio assets. They are embedded (base64) into the
+  // fullLinkJS `main.js` by `sgePackageBrowser` and loaded synchronously at startup
+  // through BrowserFileHandle/PlatformResources — so this exercises the packaged
+  // output AND real asset loading on JS (ISS-558). A missing/broken asset makes
+  // BrowserFileHandle throw → console.error → this test fails (that is its canary).
+  test("AssetShowcase demo (packaged fullLinkJS + embedded assets) runs without errors and renders frames") {
+    val packaged = findPackagedBrowserDir("SGE Asset Showcase").getOrElse {
+      fail(
+        "Packaged browser output (sge-browser/SGE Asset Showcase/main.js) not found under demos. " +
+          "Run 'assetShowcaseJS/sgePackageBrowser' first."
+      )
+    }
+    smokeTestDemo("asset-showcase", "sge-demo-assets", jsDir = Some(packaged))
   }
 }
