@@ -86,3 +86,20 @@ notes carry the full chains (commit 6d0633fe). `review-fable` = 0 AND `bounce`
   + `git worktree prune`. NEVER touch sbt servers under ~/Workspaces/ChiliPiper
   (other projects).
 - `re-scale build kill-sbt` in the repo root at iteration end.
+
+## Re-review status (2026-07-02, exit criterion 4)
+
+- Infra reviewer (Fable, blind): **3 CRITICAL + 6 MAJOR filed as ISS-695..703**
+  (category review-fable, tag [re-review-0702]) → criterion 4 currently FAILS;
+  the campaign queue is re-opened until these are fixed via the normal
+  red-commit pipeline and a follow-up blind review finds zero criticals.
+  8 additional MINOR findings not yet filed (floor-count rot, browser 404
+  excusal, proxy-tests, format-scope demos/sge-build, re-scale tag-pin vs sha,
+  runners testQuick false-green, master-snapshot-not-CI-gated, covenant-gate
+  regex escaping) — file next iteration; 2 findings already tracked (ISS-691
+  clause-2, ISS-694 excusals superseded by ISS-701).
+- Canary answers (criterion 3 evidence): stubbed covenanted file → RED on
+  master/PR with 4 escape hatches (all now filed: ISS-695 tags, ISS-700
+  baseline growth/deletion); broken GL → RED for JVM desktop via ISS-690
+  triple-guard, GREEN for native GL (ISS-702).
+- Core + extensions blind reviewers still running.
