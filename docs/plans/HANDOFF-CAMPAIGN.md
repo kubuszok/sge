@@ -69,11 +69,14 @@ notes carry the full chains (commit 6d0633fe). `review-fable` = 0 AND `bounce`
 
 ## Model routing (this takeover window)
 
-- SGE plan already runs all roles on `model: "opus"` (4.8) with same-model-void
-  SUSPENDED (user decision, compensations: fresh contexts, full adversarial
-  checklist, orchestrator re-runs gates). Restore `model: "fable"` for
-  reproducer/auditor only if a durable Fable becomes available — the current
-  window ends 2026-07-06 and mid-campaign flip-flops are not worth it.
+- **Two-tier policy (user decision 2026-07-03)**: Fable-per-review exhausts
+  session limits, so ALL per-chunk work (reproducer/implementer/per-issue
+  auditor/dry-run gates/blind per-module reviewers) runs `model: "opus"`
+  (4.8) with same-model-void SUSPENDED (compensations: fresh contexts, full
+  adversarial checklist, orchestrator re-runs gates). `model: "fable"` is
+  reserved for MILESTONE reviews only: a whole milestone landed AND already
+  Opus-approved → one Fable review over the milestone; its findings reopen
+  issues like any audit FAIL. Do not dispatch Fable for anything smaller.
 - Verification auditors this iteration run Opus 4.8 in worktree isolation.
 - Never dispatch versioned model IDs via the Agent tool `model` param (enum
   only); frontmatter is the only pin. Probe availability with
@@ -102,4 +105,19 @@ notes carry the full chains (commit 6d0633fe). `review-fable` = 0 AND `bounce`
   master/PR with 4 escape hatches (all now filed: ISS-695 tags, ISS-700
   baseline growth/deletion); broken GL → RED for JVM desktop via ISS-690
   triple-guard, GREEN for native GL (ISS-702).
-- Core + extensions blind reviewers still running.
+- 2026-07-03: core/extensions/test-theater reviewers wrapped up after the
+  session-limit outage (two-tier model policy). Filed: **ISS-704..707**
+  (core: Stage.drawDebug inversion; covenant red at master; Gdx2dOps doc;
+  Intersector UNVERIFIED lead) and **ISS-708..726** (extensions criticals
+  ISS-708 textra selection subsystem end-to-end + ISS-709 gltf
+  TransmissionSource pool; textra/gltf majors 710-720; test-theater
+  721-722+725; minors umbrellas 723/724/726). Re-review criticals to date:
+  ISS-695..697 (infra), ISS-708..709 (extensions) + confirmed-open ISS-572.
+- **Reviewer-reliability note**: the core reviewer's own subagents fabricated
+  3 of 5 findings (disproved side-by-side). All successor reviewers carry an
+  anti-fabrication rule: findings require quoted port+original lines.
+- Successor OPUS reviewers dispatched 2026-07-03 for the uncovered remainder:
+  core (dead-code sweep, g2d/glutils + assets deep diffs, untouched packages,
+  ISS-707 verification, fixture-self-assertion audit) and extensions (ai,
+  visui, vfx/freetype/physics/tools, jvm-platform, small-extension depth).
+  Their wrap-ups name what still remains for per-repo sessions.
