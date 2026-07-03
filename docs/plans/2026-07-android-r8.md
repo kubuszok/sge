@@ -33,7 +33,12 @@ extracted to multiarch-scala (commit `9b81523` there) and sge consumes the publi
   `build-tools/35.0.0/lib/d8.jar` (lines 86-90; the same JAR contains both the
   `com.android.tools.r8.D8` and `com.android.tools.r8.R8` entry points).
 
-Flow: change multiarch-scala → release `0.3.1` → bump sge pins → sge CI proves it.
+Flow: change multiarch-scala → release `0.5.0` → bump sge pins → sge CI proves it.
+
+> **(COORD-FIX 2026-07-03)** The R8 work releases as **`0.5.0`**, not `0.3.1`: 0.4.0 landed
+> the manifest-v2 binary break on master; a 0.3.1 patch cannot be cut from master and no
+> 0.3.x maintenance branch is planned; R8 keys/pipeline are additive on top of 0.4.0 → next
+> minor 0.5.0 per early-semver.
 
 ### Current empirical state (verified 2026-07-01) — read this before believing any doc
 
@@ -420,8 +425,8 @@ Also ALWAYS keep the app's entry points (they're loaded reflectively by ART/our 
 | 1 | multiarch-scala | `plugin/.../AndroidDeps.scala:92-133` | extract + expose consumer `proguard.txt` |
 | 2 | multiarch-scala | `plugin/.../AndroidBuild.scala` | new keys (§1); `androidR8Jar` pinned-download resolver; `androidR8RuleFiles`; `androidDex` branches on `androidUseR8`: R8 command from §2 vs existing D8 lines 159-171 |
 | 3 | multiarch-scala | `plugin/src/main/resources/multiarch/android/{baseline,scala-baseline}.pro` | NEW resources (§2) |
-| 4 | multiarch-scala | release | tag `0.3.1`, `ci-release` |
-| 5 | sge | `project/plugins.sbt:5`, `sge-build/build.sbt:60`, `project/Versions.scala:31` | bump `0.3.0` → `0.3.1` |
+| 4 | multiarch-scala | release | tag `0.5.0` (COORD-FIX 2026-07-03; was 0.3.1), `ci-release` |
+| 5 | sge | `project/plugins.sbt:5`, `sge-build/build.sbt:60`, `project/Versions.scala:31` | bump `0.3.0` → `0.5.0` (COORD-FIX 2026-07-03) |
 | 6 | sge | `.github/workflows/ci.yml` (test-android / test-android-it, lines 678-765) | API-26 matrix leg (§4 step 6) |
 | 7 | sge | `docs/architecture/android-native-constraints.md`, `docs/architecture/platform-targets.md:98`, `.claude/skills/arch-android/SKILL.md` | corrections (§6) |
 | 8 | sge | issue #5 | reply (§7) |
@@ -599,13 +604,13 @@ resolution notes.
 - Honor `androidR8Rules` in the merge (append last, so user rules win notes-wise).
 - Scaladoc on `androidUseR8`/`androidR8Rules` updated to describe the real behavior
   (current scaladoc lies — see §0).
-- multiarch-scala: PR, review, tag `0.3.1`, `ci-release`.
+- multiarch-scala: PR, review, tag `0.5.0` (COORD-FIX 2026-07-03; was 0.3.1), `ci-release`.
 
 ```
 sbt> +plugin/publishLocal   # for final local verification
-# then: git tag 0.3.1 && push → CI ci-release publishes to Maven Central
+# then: git tag 0.5.0 && push → CI ci-release publishes to Maven Central  (COORD-FIX 2026-07-03; was 0.3.1)
 ```
-Expected: Sonatype release visible; `com.kubuszok:sbt-multiarch-scala:0.3.1` resolvable.
+Expected: Sonatype release visible; `com.kubuszok:sbt-multiarch-scala:0.5.0` resolvable. (COORD-FIX 2026-07-03; was 0.3.1)
 Fail (release pipeline): this repo's standard release flow is git-tag-driven
 (`build.sbt:57-71`); any failure here is handled per that repo's norms, not this plan.
 
@@ -782,13 +787,13 @@ multiarch-scala (GitHub issues):
 |---|---|---|---|
 | R8-1 | AndroidDeps: extract + expose consumer proguard.txt (+ unit test) | §4 step 1 | — |
 | R8-2 | AndroidBuild: androidUseR8/androidR8Version/androidR8Jar/androidR8RuleFiles + pinned-R8 resolver + R8 invocation + baseline .pro resources + honor androidR8Rules | §1, §2, §4 steps 2+4 | R8-1 |
-| R8-3 | Release 0.3.1 | §4 step 4 | R8-2 |
+| R8-3 | Release 0.5.0 (COORD-FIX 2026-07-03; was 0.3.1 — 0.4.0 landed the manifest-v2 binary break on master, a 0.3.1 patch cannot be cut from master and no 0.3.x maintenance branch is planned, R8 keys/pipeline are additive on top of 0.4.0 → next minor 0.5.0 per early-semver) | §4 step 4 | R8-2 |
 
 sge (`re-scale db issues add`, self-contained bodies quoting the plan sections):
 
 | ID | Title | Plan refs | Depends |
 |---|---|---|---|
-| R8-4 | Bump sbt-multiarch-scala to 0.3.1 + full verification sweep + scripted grep for consumer-rules lines | §4 steps 3+5, gates 2-4 | R8-3 |
+| R8-4 | Bump sbt-multiarch-scala to 0.5.0 (COORD-FIX 2026-07-03; was 0.3.1) + full verification sweep + scripted grep for consumer-rules lines | §4 steps 3+5, gates 2-4 | R8-3 |
 | R8-5 | CI: API-26 emulator matrix leg (+ API-aware excusal map in AndroidSmokeTest if F5 hits) | §4 step 6 | R8-4 |
 | R8-6 | Docs corrections (3 files) + arch-android skill | §6 | R8-5 green |
 | R8-7 | Reply on issue #5 | §7 | R8-5 outcome known |
