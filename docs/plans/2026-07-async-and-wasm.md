@@ -506,7 +506,9 @@ All work (GATE-FIX 2026-07-03) bases on current master (the migration merged as 
 - **Verify**: the demo-compilation runner from `.rescale/runners.yaml` (exact name via
   `re-scale runner list`) + the browser smoke runner.
 - **Failure branches**: demos consume the *published* sge (see `CLAUDE.md` CI notes) —
-  run `re-scale build publish-local --module sge --all` first; if the demo still
+  run `re-scale build publish-local --module sge --jvm`, `--js`, `--native` as three
+  invocations (GATE-FIX 2026-07-03: `--all` degrades to JVM-only per-module — ISS-598 —
+  which would publish JVM artifacts only and break JS/Native demo adoption); if the demo still
   resolves a stale artifact, check `demos/` build's version pin and STOP if it pins a
   released version (note it in the issue; do not bump pins ad hoc).
 

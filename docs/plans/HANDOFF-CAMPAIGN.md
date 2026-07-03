@@ -116,8 +116,22 @@ notes carry the full chains (commit 6d0633fe). `review-fable` = 0 AND `bounce`
 - **Reviewer-reliability note**: the core reviewer's own subagents fabricated
   3 of 5 findings (disproved side-by-side). All successor reviewers carry an
   anti-fabrication rule: findings require quoted port+original lines.
-- Successor OPUS reviewers dispatched 2026-07-03 for the uncovered remainder:
-  core (dead-code sweep, g2d/glutils + assets deep diffs, untouched packages,
-  ISS-707 verification, fixture-self-assertion audit) and extensions (ai,
-  visui, vfx/freetype/physics/tools, jvm-platform, small-extension depth).
-  Their wrap-ups name what still remains for per-repo sessions.
+- Successor OPUS reviewers COMPLETE 2026-07-03 (both-side-quote protocol held):
+  - Extensions: **ISS-727..731** (freetype generateGlyphAndBitmap dropped;
+    Android APK-expansion/OBB pathway missing; gdx-ai broadcast dispatch lost;
+    minors umbrella; stale-adjudication candidates — ISS-608 looks 25/25 wired
+    now, physics-JS red-suite comment describes pre-ISS-676 code).
+  - Core: **ISS-732..736** (BitmapFont page images always classpath-resolved;
+    AssetManager public logger API dropped; minors umbrella #2; test-theater
+    umbrella #3; informational intended-divergence notes). Dead-wiring sweep
+    NEGATIVE (all listener/config/hook paths live — enumerated in the report).
+    **ISS-707 RESOLVED as FABRICATED** (both sides use float; Java:882-919 is
+    intersectRayTriangles).
+  - Still-unexamined scope is enumerated at the end of both reports
+    (tasks a055c46b/afea902e outputs): visui behavior code, vfx shader
+    uniforms, TexturePacker, anim8 dithering, physics Native/Panama backends,
+    g3d shaders, BitmapFontCache internals, platform config field-readers,
+    MiniaudioEngine, several test dirs. Per-repo sessions own the remainder.
+  - Re-review critical tally: ISS-695/696/697 (infra) + ISS-708/709
+    (extensions) + confirmed-open ISS-572. Criterion 4 FAILS until fixed +
+    a follow-up blind review finds zero criticals.
