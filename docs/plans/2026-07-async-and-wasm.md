@@ -337,23 +337,31 @@ from the recorded sketch instead of re-deriving it.
 Build change (issue E): delete `build.sbt:215`
 (`libraryDependencies += "ch.epfl.lamp" %% "gears" % Versions.gears,`), delete
 `project/Versions.scala:15` (`val gears = "0.3.1"`), delete the
-`gears — Apache-2.0` line at `THIRD-PARTY-LICENSES:240`, and rewrite
-`docs/improvements/dependencies.md` §B3's status paragraph to match reality (JVM timer
-= daemon thread + `wait`/`notifyAll` faithful port; gears dependency removed 2026-07,
-see this plan).
+`gears — Apache-2.0` line at `THIRD-PARTY-LICENSES:240`, and rewrite ALL
+gears-adoption-as-fact text in `docs/improvements/dependencies.md` to
+historical/decided-against form (GATE-FIX 2026-07-03: the correction is NOT limited to
+§B3's status paragraph — it must also rewrite §B3 lines ~79-109 (Library: gears 0.2.0 /
+"only cross-platform structured concurrency" / "Accept RC status risk" / "Redesign Timer
+as Gears-based scheduler") AND §C3 lines ~251-256 ("Timer redesigned as Gears-based
+scheduler" / "TimerThread eliminated") to record that gears was evaluated and decided
+against, dependency removed 2026-07, see this plan; and it must fix BOTH platform lines:
+JVM is a daemon-thread `wait`/`notifyAll` faithful port AND Native is the SAME port — the
+old text falsely says plain `Thread.sleep` for Native — while JS is `setTimeout`).
 
 ---
 
 ## 5. Issue decomposition (one implementer session each)
 
-File each into `.rescale/data/issues.tsv` with `re-scale db issues add` (run
-`re-scale db issues add --help` first; if the flag set differs from expectations, use
-the help text — do not hand-edit the TSV). Category `improvement` unless stated;
-severity as given. Reference this document in every description.
+File each into `.rescale/data/issues.tsv` with `re-scale db issues add` (GATE-FIX
+2026-07-03: consult CLAUDE.md's re-scale table for the flag set; do not probe with
+`--help` — on re-scale 0.1.5 `--help` EXECUTES the real command; do not hand-edit the
+TSV). (GATE-FIX 2026-07-03: filing via `re-scale db issues add` is orchestrator-side;
+implementers list candidate issues in their report instead.) Category `improvement`
+unless stated; severity as given. Reference this document in every description.
 
 Order: **A → B → C → D**; **E** is independent (may run first or in parallel).
-All work happens on top of `more-improvements-2` (or its merge result); if that branch
-is gone, STOP and confirm the merge landed on the default branch before proceeding.
+All work (GATE-FIX 2026-07-03) bases on current master (the migration merged as PR #57;
+`more-improvements-2` is stale — do NOT base on it).
 
 ### Issue A — JS pump fidelity: synchronous owned executor (severity: major, category: fidelity)
 
@@ -379,8 +387,10 @@ is gone, STOP and confirm the merge landed on the default branch before proceedi
   time out a busy loop). Add a second test that `finishLoading()` returns, enabled
   only after the fix is in (same commit as the fix).
 - **Done criteria**: both tests green on JS; JVM + Native suites unchanged.
-- **Verify**: `re-scale test unit --module sge --js`, then
-  `re-scale test unit --module sge --all`, then `re-scale build compile --all`.
+- **Verify** (GATE-FIX 2026-07-03: `--all` aborts at sge-build/compile — open ISS-586/ISS-609 — and silently degrades to JVM-only for per-module commands — open ISS-598; per-platform invocations are the working substitute): `re-scale test unit --module sge --js`, then
+  `re-scale test unit --module sge --jvm`, `re-scale test unit --module sge --native`,
+  then `re-scale build compile --jvm`, `re-scale build compile --js`,
+  `re-scale build compile --native`.
 - **Failure branches**: if any existing JS test breaks because it relied on deferred
   executor semantics, list the test(s) in the issue and check whether they exercise
   `createExecutor()` (only `AssetManager` does today) — if something else acquired the
@@ -406,9 +416,10 @@ is gone, STOP and confirm the merge landed on the default branch before proceedi
   `sge-test`/`sge/src/test`); `await()` with an advanceable promise; `await()` on
   WebGL app-type with `advanceable = false` throws `SgeError.InvalidInput`.
 - **Done criteria**: suite green on JVM + JS + Native.
-- **Verify**: `re-scale test unit --module sge --all --only sge.async.LoadingTest`
-  (if `--only` needs a different suite-name form, check `re-scale test unit --help`);
-  then `re-scale build compile --all`.
+- **Verify** (GATE-FIX 2026-07-03: `--all` aborts at sge-build/compile — open ISS-586/ISS-609 — and silently degrades to JVM-only for per-module commands — open ISS-598; per-platform invocations are the working substitute): `re-scale test unit --module sge --jvm --only sge.async.LoadingTest`, same with `--js` and `--native`
+  (GATE-FIX 2026-07-03: if `--only` needs a different suite-name form, consult CLAUDE.md's re-scale table; do not probe with --help — on re-scale 0.1.5 `--help` EXECUTES the real command);
+  then `re-scale build compile --jvm`, `re-scale build compile --js`,
+  `re-scale build compile --native`.
 - **Failure branches**: if a fake `Application` is impractical to construct (too many
   abstract members), build a narrow test double implementing only
   `postRunnable` + `applicationType` and throwing `SgeError.InvalidInput` from the
@@ -429,8 +440,9 @@ is gone, STOP and confirm the merge landed on the default branch before proceedi
   driving `update()` in a loop (possible because of issue A).
 - **Done criteria**: tests green on JVM + JS; `re-scale enforce verify --all` green
   with NO re-baseline of the two covenanted asset files.
-- **Verify**: `re-scale test unit --module sge --jvm --only sge.async.AssetHandlesTest`,
-  same `--js`; `re-scale enforce verify --all`; `re-scale build compile --all`.
+- **Verify** (GATE-FIX 2026-07-03: `--all` aborts at sge-build/compile — open ISS-586/ISS-609 — and silently degrades to JVM-only for per-module commands — open ISS-598; per-platform invocations are the working substitute): `re-scale test unit --module sge --jvm --only sge.async.AssetHandlesTest`,
+  same `--js`; `re-scale enforce verify --all`; `re-scale build compile --jvm`,
+  `re-scale build compile --js`, `re-scale build compile --native`.
 - **Failure branches**: if failure routing cannot key reliably on
   `assetDesc.fileName` (dependency failure surfaces under the dependency's name —
   `handleTaskError` clears the whole task stack, `AssetManager.scala:712-739`), then:
@@ -451,8 +463,9 @@ is gone, STOP and confirm the merge landed on the default branch before proceedi
   `client.cancel(request)` fails the handle with the documented error; `await()` on a
   WebGL-typed fake application throws.
 - **Done criteria**: suite green on JVM + JS + Native.
-- **Verify**: `re-scale test unit --module sge --all --only sge.async.HttpHandlesTest`;
-  `re-scale build compile --all`.
+- **Verify** (GATE-FIX 2026-07-03: `--all` aborts at sge-build/compile — open ISS-586/ISS-609 — and silently degrades to JVM-only for per-module commands — open ISS-598; per-platform invocations are the working substitute): `re-scale test unit --module sge --jvm --only sge.async.HttpHandlesTest`, same with `--js` and `--native`;
+  `re-scale build compile --jvm`, `re-scale build compile --js`,
+  `re-scale build compile --native`.
 - **Failure branches**: if the fake backend cannot complete the returned `Future` on a
   chosen thread deterministically, use `scala.concurrent.Promise` completed explicitly
   by the test body — never `Thread.sleep` timing. If listener callbacks arrive before
@@ -464,14 +477,21 @@ is gone, STOP and confirm the merge landed on the default branch before proceedi
 
 - **Change**: the four deletions/corrections listed at the end of §4.
 - **Done criteria**: `grep -rn gears build.sbt project/ THIRD-PARTY-LICENSES` → no
-  matches; `docs/improvements/dependencies.md` §B3 status matches the shipped
-  `TimerPlatformOps` implementations.
-- **Verify**: `re-scale build compile --all`; `re-scale test verify` (compiles every
-  module × platform). Expect zero diffs outside the four files.
+  matches; `docs/improvements/dependencies.md` §B3 AND §C3 carry no gears-adoption-as-fact
+  text (GATE-FIX 2026-07-03: both §B3 lines ~79-109 and §C3 lines ~251-256 rewritten to
+  historical/decided-against form) and both platform lines match the shipped
+  `TimerPlatformOps` implementations (JVM = daemon-thread `wait`/`notifyAll` port, Native
+  = the same port — NOT `Thread.sleep` — JS = `setTimeout`).
+- **Verify** (GATE-FIX 2026-07-03: `--all` aborts at sge-build/compile — open ISS-586/ISS-609 — and silently degrades to JVM-only for per-module commands — open ISS-598; per-platform invocations are the working substitute): `re-scale build compile --jvm`, `re-scale build compile --js`,
+  `re-scale build compile --native` (per-platform substitute for `re-scale test verify`'s
+  every-module × platform compile). Expect zero diffs outside the four files.
 - **Failure branches**: if compilation fails after removal, someone introduced a gears
   usage after 2026-07-01 — STOP, do not re-add the dependency silently; file an issue
   quoting the usage site and this section, and let the orchestrator decide (the §4
   posture says such usage belongs in an optional artifact, not core).
+  (GATE-FIX 2026-07-03: EXCEPTION — an abort at sge-build/compile saying `Not a valid
+  command` is pre-existing ISS-586/609, NOT a gears usage — continue with per-module
+  per-platform compiles.)
 
 ### Issue F — demo adoption + docs (severity: minor; depends on C, D)
 
@@ -492,10 +512,13 @@ is gone, STOP and confirm the merge landed on the default branch before proceedi
 
 ### Gates the orchestrator re-runs independently
 
-After each issue: `re-scale build compile --all`, the issue's test commands,
+After each issue (GATE-FIX 2026-07-03: `--all` aborts at sge-build/compile — open ISS-586/ISS-609 — and silently degrades to JVM-only for per-module commands — open ISS-598; per-platform invocations are the working substitute): `re-scale build compile --jvm`, `re-scale build compile --js`,
+`re-scale build compile --native`, the issue's test commands,
 `re-scale enforce verify --all`, `re-scale enforce shortcuts --covenanted`, and the
 campaign ratchet (`/sge:ratchet-check`). Before closing the plan:
-`re-scale test verify`. Opus dry-run gate (roadmap Topic 8): a fresh Opus subagent
+`re-scale build compile --jvm`, `re-scale build compile --js`,
+`re-scale build compile --native` (per-platform substitute for `re-scale test verify`).
+Opus dry-run gate (roadmap Topic 8): a fresh Opus subagent
 restates §5 and executes Issue E (the smallest) in a scratch worktree; every ambiguity
 it hits is a defect in THIS document — fix here and re-gate.
 
