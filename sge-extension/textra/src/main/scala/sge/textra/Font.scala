@@ -2653,6 +2653,21 @@ class Font {
       if (!font.isMono) changedW *= 0.5f
     }
 
+    // Background color drawn as a solid block behind every regular glyph
+    if (backgroundColor != 0) {
+      drawBlockSequence(
+        batch,
+        utils.BlockUtils.BOX_DRAWING(0x88),
+        font.mapping.getOrElse(font.solidBlock.toInt, tr),
+        java.lang.Float.intBitsToFloat(Integer.reverseBytes(backgroundColor & -2)),
+        x - font.cellWidth * scale * 0.5f,
+        y + font.descent * scaleYLocal * sizingY,
+        xAdvance * scaleXLocal * sizingX + 5f,
+        font.cellHeight * scale * sizingY,
+        rotation
+      )
+    }
+
     // Compute quad vertices
     var p0x = xc + x0
     val p0y = yt + y0 + h

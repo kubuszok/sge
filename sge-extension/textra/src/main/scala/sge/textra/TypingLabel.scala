@@ -22,11 +22,6 @@
  * Covenant-source-reference: com/github/tommyettinger/textra/TypingLabel.java
  * Covenant-verified: 2026-06-15
  *
- * Partial-port debt:
- *   - Clipboard integration pending SGE Clipboard backend.
- *   - Input tracking (trackingInput / selectable) partial —
- *     screenToLocalCoordinates, justTouched, isTouched require scene2d wiring.
- *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
 package sge
@@ -38,8 +33,11 @@ import scala.util.boundary.break
 
 import sge.graphics.Color
 import sge.graphics.g2d.Batch
+import sge.graphics.g2d.Sprite
 import lowlevel.math.MathUtils
+import sge.math.Vector2
 import sge.scenes.scene2d.utils.Drawable
+import sge.scenes.scene2d.utils.SpriteDrawable
 import sge.scenes.scene2d.utils.TransformDrawable
 import sge.textra.utils.ColorUtils
 import sge.utils.Align
@@ -63,6 +61,9 @@ class TypingLabel(using Sge) extends TextraLabel {
   private val originalText:     StringBuilder = new StringBuilder()
   private val intermediateText: StringBuilder = new StringBuilder()
   val workingLayout:            Layout        = new Layout()
+
+  /** Reused scratch vector for input tracking coordinate conversions. */
+  final private val temp: Vector2 = new Vector2(0f, 0f)
 
   protected var defaultJustify: Justify = Justify.NONE
 
@@ -470,10 +471,22 @@ class TypingLabel(using Sge) extends TextraLabel {
   /** Returns true if and only if selectable is true and trackingInput is true. */
   def isSelectable: Boolean = selectable && trackingInput
 
-  /** If given true, makes the text selectable and ensures trackingInput is true. */
+  /** If given `true`, this makes the text of this label selectable and ensures trackingInput is true. Otherwise, this makes the label not-selectable and doesn't change trackingInput. The application
+    * should usually be set to copy the selected text using copySelectedText() when the user expects it to be copied. Often, a TypingListener that checks for the event "*SELECTED" works. This also
+    * sets the selectionDrawable to something nicer-looking than the default, but it can only do this if font has a Font#solidBlock.
+    * @param selectable
+    *   true if the text of this label should be selectable
+    * @return
+    *   this, for chaining
+    */
   def setSelectable(selectable: Boolean): TypingLabel = {
     this.selectable = selectable
     this.trackingInput |= selectable
+    if (selectable && font.mapping.contains(font.solidBlock.toInt)) {
+      val spr = new Sprite(font.mapping(font.solidBlock.toInt))
+      spr.setColor(0.5f, 0.5f, 0.5f, 0.5f)
+      selectionDrawable = Nullable(new SpriteDrawable(spr))
+    }
     this
   }
 
@@ -730,13 +743,15 @@ class TypingLabel(using Sge) extends TextraLabel {
     if (!selectable || selectionStart < 0 || selectionEnd < 0) ""
     else substring(selectionStart, selectionEnd + 1)
 
-  /** If this label is selectable and there is a selected range, copies it to the clipboard. Returns false when Clipboard integration is unavailable.
+  /** If this label is selectable and there is a selected range of text, this copies that range of text to the clipboard and returns true; otherwise, it returns false.
+    * @return
+    *   true if text was copied, or false if the clipboard hasn't received any text
     */
   def copySelectedText(): Boolean =
     if (!selectable || selectionStart < 0 || selectionEnd < 0) false
     else {
-      // Clipboard integration depends on SGE Clipboard backend (see partial-port debt)
-      false
+      Sge().application.clipboard.contents = Nullable(substring(selectionStart, selectionEnd + 1))
+      true
     }
 
   /** If this label is selectable and there is a selected range of text, returns true. */
@@ -1220,6 +1235,214 @@ class TypingLabel(using Sge) extends TextraLabel {
     var curly       = false
     var toSkip      = 0
 
+    var inX = 0f
+    var inY = 0f
+    if (trackingInput) {
+      if (hasParent) {
+        Nullable.foreach(parent)(_.screenToLocalCoordinates(temp.set(Sge().input.x.toFloat, Sge().input.y.toFloat)))
+      } else {
+        // I have no idea why the y has to be flipped here, but not above.
+        screenToLocalCoordinates(temp.set(Sge().input.x.toFloat, (Sge().graphics.height - Sge().input.y).toFloat))
+      }
+
+      inX = temp.x
+      inY = temp.y
+
+      if (!Sge().input.touched) {
+        lastTouchedIndex =
+          if (inY < getY) -2
+          else if (inY > getY + getHeight) -1
+          else if (inX < getX) -1
+          else if (inX > getX + getWidth) -2
+          else -1
+      }
+      overIndex = -1
+    }
+
+    var tempBaseX = baseX
+    var tempBaseY = baseY
+
+    // --- Selection rendering loop ---
+    if (selectable && selectionDrawable.isDefined) {
+      if (selectionEnd >= 0 && selectionEnd >= selectionStart) {
+        var lnSel               = 0
+        var breakSelectionLines = false
+        while (lnSel < lines && !breakSelectionLines) {
+          val line = workingLayout.lines(lnSel)
+
+          if (line.glyphs.nonEmpty) {
+            toSkip += line.glyphs.size
+            if (toSkip >= startIndex) {
+              var selectionDrawStartX = 0f
+              var selectionDrawStartY = 0f
+              var selectionWidth      = 0f
+
+              val lineWidth  = line.width * getScaleX
+              val lineHeight = line.height * getScaleY
+              tempBaseX += sn * lineHeight
+              tempBaseY -= cs * lineHeight
+
+              var x = tempBaseX
+              var y = tempBaseY
+
+              val worldOriginX = x + originX
+              val worldOriginY = y + originY
+              val fx           = -originX
+              val fy           = -originY
+              x = cs * fx - sn * fy + worldOriginX
+              y = sn * fx + cs * fy + worldOriginY
+
+              var xChange = 0f
+              var yChange = 0f
+
+              if (align.isCenterHorizontal) {
+                x -= cs * (lineWidth * 0.5f)
+                y -= sn * (lineWidth * 0.5f)
+              } else if (align.isRight) {
+                x -= cs * lineWidth
+                y -= sn * lineWidth
+              }
+
+              var f: Nullable[Font] = Nullable.empty
+              var kern        = -1
+              var start       = if (toSkip - line.glyphs.size < startIndex) startIndex - (toSkip - line.glyphs.size) else 0
+              val end         = if (endIndex < 0) glyphCharIndex else Math.min(glyphCharIndex, endIndex - 1)
+              val lim         = Math.min(Math.min(Math.min(getRotations.size, getAdvances.size), getOffsets.size >> 1), getSizing.size >> 1)
+              var i           = start
+              val n           = line.glyphs.size
+              var breakGlyphs = false
+              while (i < n && r < lim && !breakSelectionLines && !breakGlyphs)
+                if (gi > end) {
+                  breakSelectionLines = true
+                } else {
+                  val glyph = line.glyphs(i)
+                  val ch    = (glyph & 0xffff).toChar
+                  Nullable.foreach(font.family) { fam =>
+                    f = Nullable(fam.connected((glyph >>> 16 & 15).toInt))
+                  }
+                  val fFont   = Nullable.getOrElse(f)(font)
+                  val descent = fFont.descent * fFont.scaleY * getScaleY
+
+                  var skipGlyph = false
+                  if (font.omitCurlyBraces) {
+                    if (curly) {
+                      if (i == start) {
+                        start += 1
+                      }
+                      if (ch == '}') {
+                        curly = false
+                        skipGlyph = true
+                      } else if (ch == '{') {
+                        curly = false
+                      } else {
+                        skipGlyph = true
+                      }
+                    } else if (ch == '{') {
+                      curly = true
+                      if (i == start) {
+                        start += 1
+                      }
+                      skipGlyph = true
+                    }
+                  }
+
+                  if (!skipGlyph) {
+                    val a   = getAdvances.get(r) * getScaleX
+                    var reg = fFont.mapping.getOrElse(ch.toInt, null) // @nowarn — Java interop: HashMap getOrElse default
+                    if (reg == null) reg = fFont.mapping.getOrElse(' '.toInt, null) // @nowarn — Java interop: HashMap getOrElse default
+                    if (reg == null) {
+                      skipGlyph = true
+                    } else {
+                      if (i == start) {
+                        val halfWidth = fFont.cellWidth * 0.5f * getScaleX
+                        x -= halfWidth
+
+                        x += cs * halfWidth
+                        y += sn * halfWidth
+
+                        y += descent
+                        x += sn * descent
+                        y -= cs * descent
+
+                        if (reg.offsetX < 0 && !fFont.isMono && !(ch >= '' && ch < '')) {
+                          val ox = reg.offsetX * fFont.scaleX * a
+                          if (ox < 0) {
+                            xChange -= cs * ox
+                            yChange -= sn * ox
+                          }
+                        }
+                      }
+
+                      Nullable.foreach(fFont.kerning) { kernMap =>
+                        kern = kern << 16 | (ch & 0xffff)
+                        val amt = kernMap.getOrElse(kern, 0f) * fFont.scaleX * a
+                        xChange += cs * amt
+                        yChange += sn * amt
+                      }
+                      if (Nullable.isEmpty(fFont.kerning)) {
+                        kern = -1
+                      }
+                      globalIndex += 1
+                      if (selectionEnd < globalIndex) {
+                        breakGlyphs = true
+                      } else {
+                        var xx = x + xChange + getOffsets.get(o) * getScaleX
+                        o += 1
+                        var yy = y + yChange + getOffsets.get(o) * getScaleY
+                        o += 1
+                        if (fFont.integerPosition) {
+                          xx = xx.toInt.toFloat
+                          yy = yy.toInt.toFloat
+                        }
+
+                        val scaleXGlyph =
+                          if (ch >= 0xe000 && ch < 0xf800) a * fFont.cellHeight / reg.maxDimension * fFont.inlineImageStretch
+                          else fFont.scaleX * a * (if ((glyph & Font.SUPERSCRIPT) != 0L && !fFont.isMono) 0.5f else 1.0f)
+                        var single = reg.xAdvance * scaleXGlyph
+                        if (java.lang.Float.isNaN(reg.offsetX)) {
+                          single = fFont.cellWidth * a
+                        } else if (i == start && !fFont.isMono) {
+                          val ox = reg.offsetX * scaleXGlyph
+                          if (ox < 0) single -= ox
+                        }
+
+                        r += 1
+                        if (selectionWidth == 0f) {
+                          selectionDrawStartX = xx
+                          selectionDrawStartY = yy
+                        }
+                        if (selectionStart <= globalIndex) {
+                          selectionWidth += single
+                        }
+                        xChange += cs * single
+                        yChange += sn * single
+                      }
+                    }
+                  }
+
+                  if (!breakGlyphs) {
+                    gi += 1
+                    i += 1
+                  }
+                }
+
+              // draw one selection drawable
+              if (!breakSelectionLines && selectionWidth > 0f) {
+                Nullable.foreach(selectionDrawable)(_.draw(batch, selectionDrawStartX, selectionDrawStartY, selectionWidth, line.height))
+              }
+            }
+          }
+          lnSel += 1
+        }
+      }
+    }
+
+    o = 0
+    r = 0
+    gi = 0
+    globalIndex = startIndex - 1
+    curly = false
+
     // --- Main glyph rendering loop ---
     var ln            = 0
     var breakAllLines = false
@@ -1356,7 +1579,38 @@ class TypingLabel(using Sge) extends TextraLabel {
                   val single = fFont.drawGlyph(batch, glyph, xx, yy, getRotations.get(r) + rot, getSizing.get(s) * getScaleX, getSizing.get(s + 1) * getScaleY, bgc, a)
                   s += 2
                   r += 1
-
+                  if (trackingInput) {
+                    if (xx <= inX && inX <= xx + single && yy - halfHeight <= inY && inY <= yy + halfHeight) {
+                      overIndex = globalIndex
+                      if (isTouchable) {
+                        if (Sge().input.justTouched()) {
+                          lastTouchedIndex = globalIndex
+                          selectionStart = -1
+                          selectionEnd = -1
+                        } else if (selectable) {
+                          if (Sge().input.touched) {
+                            if (lastTouchedIndex == -2) {
+                              selectionStart = globalIndex
+                              selectionEnd = workingLayout.countGlyphs - 1
+                            } else {
+                              selectionStart = Math.min(lastTouchedIndex, globalIndex)
+                              selectionEnd = Math.max(lastTouchedIndex, globalIndex)
+                            }
+                            if (overIndex != lastTouchedIndex) dragging = true
+                            else if (!dragging) selectionEnd -= 1
+                          } else if (dragging) {
+                            dragging = false
+                            if (selectionEnd >= 0 && selectionEnd >= selectionStart) {
+                              triggerEvent("*SELECTED", true)
+                            } else {
+                              selectionStart = -1
+                              selectionEnd = -1
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
                   xChange += cs * single
                   yChange += sn * single
                 }
