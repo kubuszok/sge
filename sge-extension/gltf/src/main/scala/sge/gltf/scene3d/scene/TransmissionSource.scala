@@ -22,7 +22,7 @@ package scene
 
 import sge.{ Pixels, Sge }
 import sge.gltf.scene3d.attributes.{ PBRFloatAttribute, PBRTextureAttribute }
-import sge.graphics.{ Camera, ClearMask, Pixmap, Texture, TextureTarget }
+import sge.graphics.{ Camera, ClearMask, Pixmap, PrimitiveMode, Texture, TextureTarget }
 import sge.graphics.g3d.{ Environment, ModelBatch, Renderable, RenderableProvider }
 import sge.graphics.g3d.utils.{ RenderableSorter, ShaderProvider }
 import sge.graphics.glutils.FrameBuffer
@@ -44,12 +44,21 @@ class TransmissionSource(shaderProvider: ShaderProvider, sorter: RenderableSorte
 
   val attribute: PBRTextureAttribute = PBRTextureAttribute(PBRTextureAttribute.TransmissionSourceTexture)
 
-  private val allRenderables:      DynamicArray[Renderable] = DynamicArray[Renderable]()
-  private val selectedRenderables: DynamicArray[Renderable] = DynamicArray[Renderable]()
-  private val renderablePool:      Pool[Renderable]         = new Pool[Renderable] {
+  private val allRenderables:      DynamicArray[Renderable]   = DynamicArray[Renderable]()
+  private val selectedRenderables: DynamicArray[Renderable]   = DynamicArray[Renderable]()
+  private val renderablePool:      Pool.Flushable[Renderable] = new Pool.Flushable[Renderable] {
     override protected val initialCapacity: Int        = 16
     override protected val max:             Int        = Int.MaxValue
     override protected def newObject():     Renderable = Renderable()
+    override def obtain():                  Renderable = {
+      val renderable = super.obtain()
+      renderable.environment = Nullable.empty
+      renderable.material = Nullable.empty
+      renderable.meshPart.set(Nullable.empty, null, 0, 0, PrimitiveMode(0))
+      renderable.shader = Nullable.empty
+      renderable.userData = Nullable.empty
+      renderable
+    }
   }
 
   attribute.textureDescription.minFilter = Texture.TextureFilter.MipMap
@@ -118,7 +127,7 @@ class TransmissionSource(shaderProvider: ShaderProvider, sorter: RenderableSorte
       sge.graphics.gl.glGenerateMipmap(TextureTarget.Texture2D)
     }
     attribute.textureDescription.texture = Nullable(fbo.colorBufferTexture)
-    renderablePool.clear()
+    renderablePool.flush()
     selectedRenderables.clear()
     allRenderables.clear()
   }
