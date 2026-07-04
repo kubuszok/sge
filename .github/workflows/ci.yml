@@ -158,6 +158,20 @@ jobs:
         with:
           submodules: false
 
+      # JDK 21 for the sge-android-robolectric test fork (Robolectric 4.16's ASM
+      # cannot run on JDK 25). Installed FIRST so the JDK 25 step below wins as the
+      # final JAVA_HOME (the primary build JDK); we only need 21's install path,
+      # captured via this step's `path` output and handed to the build as
+      # JAVA21_HOME. Using setup-java (not the hosted JAVA_HOME_21_X64 var) makes
+      # this work on every leg — the aarch64 and macOS legs do not expose an x64
+      # JDK-21 var, and the Rosetta x86_64 leg needs an x64 build.
+      - uses: actions/setup-java@v5
+        id: setup-jdk21
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: '21'
+          architecture: ${{ matrix.architecture || '' }}
+
       - uses: actions/setup-java@v5
         with:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -169,6 +183,13 @@ jobs:
 
       - name: Run JVM tests with coverage (core + all extensions)
         run: sbt ci-jvm-3
+        env:
+          # Point the Robolectric test fork at the JDK 21 installed above.
+          JAVA21_HOME: ${{ steps.setup-jdk21.outputs.path }}
+          # Hard-fail the build if that JDK 21 is somehow not resolvable, so this
+          # module can never silently degrade to a green run with zero Robolectric
+          # tests executed. Mirrors SGE_CI_REQUIRE_DISPLAY (ISS-485). See build.sbt.
+          SGE_CI_REQUIRE_JDK21: "1"
 
       - name: Upload coverage to Codecov
         if: always()
