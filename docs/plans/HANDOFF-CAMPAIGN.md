@@ -135,3 +135,10 @@ notes carry the full chains (commit 6d0633fe). `review-fable` = 0 AND `bounce`
   - Re-review critical tally: ISS-695/696/697 (infra) + ISS-708/709
     (extensions) + confirmed-open ISS-572. Criterion 4 FAILS until fixed +
     a follow-up blind review finds zero criticals.
+
+## Window cut short 2026-07-04 — resume pointer
+
+Master handoff: `../FABLE5_HANDOFF-2026-07-04.md` (window state, pending user
+decisions, in-flight ISS-696 PR #58 with aarch64 conscrypt diagnosis, queue
+order). ISS-708+709 resolved (master e80a2d47). Check worktree
+`.claude/worktrees/fix-696` for a partial follow-up commit before redoing.
