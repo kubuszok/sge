@@ -953,6 +953,12 @@ lazy val robolectricJdk21Home: Option[File] = {
   fromEnv.orElse(fromSdkman)
 }
 
+// CI hard-fail switch, mirroring SGE_CI_REQUIRE_DISPLAY. When set on a runner
+// that is supposed to guarantee a JDK 21 is resolvable, an absent JDK 21 must
+// FAIL the build rather than silently empty this module's test source set —
+// otherwise AndroidImplRobolectricTest reports green while executing zero tests.
+lazy val requireJdk21: Boolean = sys.env.get("SGE_CI_REQUIRE_JDK21").contains("1")
+
 val `sge-android-robolectric` = (projectMatrix in file("sge-test/android-robolectric"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(Versions.scala3))
   .someVariations(Versions.scalas, List(VirtualAxis.jvm))((commonSettings("sge-test/android-robolectric") ++ dev.only1VersionInIDE ++ Seq(
@@ -1096,9 +1102,10 @@ val `sge-android-robolectric` = (projectMatrix in file("sge-test/android-robolec
     // The impl classes compiled here live in this module's product dir, which
     // is already on the test classpath; the test instantiates them directly.
 
-    // JDK-21 handling — graceful, never hard-breaks the build.
-    //   present: run the test fork on JDK 21.
-    //   absent : skip this module's tests (empty test source set) + warn.
+    // JDK-21 handling.
+    //   present                         : run the test fork on JDK 21.
+    //   absent, SGE_CI_REQUIRE_JDK21 set : hard-fail the build (see below).
+    //   absent, otherwise               : skip this module's tests + warn.
     Test / fork := robolectricJdk21Home.isDefined,
     Test / javaHome := robolectricJdk21Home,
     Test / javaOptions ++= Seq(
@@ -1109,6 +1116,17 @@ val `sge-android-robolectric` = (projectMatrix in file("sge-test/android-robolec
     Test / sources := {
       val log = sLog.value
       if (robolectricJdk21Home.isDefined) (Test / sources).value
+      else if (requireJdk21)
+        // The runner promised a JDK 21 (SGE_CI_REQUIRE_JDK21=1) but none was
+        // resolvable. Emptying the source set here would let this module report
+        // green while executing zero tests — the exact vacuous-green failure mode
+        // this switch exists to prevent. Fail the build instead.
+        sys.error(
+          "[sge-android-robolectric] SGE_CI_REQUIRE_JDK21=1 but no JDK 21 could be resolved " +
+            "(set JAVA21_HOME to a JDK 21 home, or install a 21.* JDK via sdkman). Refusing to " +
+            "empty the Robolectric test source set, which would let AndroidImplRobolectricTest " +
+            "pass while running nothing. Failing the build."
+        )
       else {
         log.warn(
           "[sge-android-robolectric] JDK 21 not found (set JAVA21_HOME or install via sdkman) — " +
