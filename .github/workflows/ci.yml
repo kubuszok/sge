@@ -282,7 +282,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v4
 
       - name: Publish sge-build plugin to Ivy local
         working-directory: sge-build
