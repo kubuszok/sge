@@ -1111,8 +1111,30 @@ val `sge-android-robolectric` = (projectMatrix in file("sge-test/android-robolec
     Test / javaOptions ++= Seq(
       "--add-opens=java.base/java.lang=ALL-UNNAMED",
       "--add-opens=java.base/java.util=ALL-UNNAMED",
-      "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED"
+      "--add-opens=java.base/java.lang.invoke=ALL-UNNAMED",
+      // ISS-737: Robolectric's AndroidTestEnvironment.setUpApplicationState installs
+      // Conscrypt as the OpenSSL security provider (new OpenSSLProvider()), whose
+      // static init System.loadLibrary's conscrypt_openjdk_jni-<os>-<arch>.
+      // conscrypt-openjdk-uber 2.5.2 bundles a native only for
+      // {linux,osx,windows}-x86_64 (+ windows-x86) — there is NO aarch64 native for
+      // ANY OS. Robolectric's own ConscryptModeConfigurer already defaults
+      // ConscryptMode=OFF on macos-aarch64 for exactly this reason (that leg is
+      // green); linux-aarch64 and windows-aarch64 default ON and die with
+      // UnsatisfiedLinkError in beforeTest. These tests exercise the Android
+      // SharedPreferences/Clipboard impls, not TLS, so Conscrypt is unnecessary —
+      // force it OFF on every platform (BouncyCastle is installed either way). This
+      // makes the aarch64 legs behave like the already-green macos-aarch64 leg.
+      "-Drobolectric.conscryptMode=OFF"
     ),
+    // ISS-737: the JVM MatrixAction in commonSettings sets -Djava.library.path to
+    // the sge-deps rust build dir so sge-core native tests find their .so/.dylib.
+    // This Robolectric harness runs no sge rust natives (it tests the SDK-independent
+    // Android impl subset), so strip that entry — it clobbered the JVM default
+    // library path to a dir CI never creates. --enable-native-access=ALL-UNNAMED and
+    // the mac -XstartOnFirstThread flag are preserved. With Conscrypt off nothing in
+    // this fork calls System.loadLibrary, so this is defence in depth against future
+    // native lookups landing on the wrong path.
+    Test / javaOptions := (Test / javaOptions).value.filterNot(_.startsWith("-Djava.library.path=")),
     Test / sources := {
       val log = sLog.value
       if (robolectricJdk21Home.isDefined) (Test / sources).value
