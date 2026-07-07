@@ -41,13 +41,11 @@ class AssetManagerLoggerIss733Suite extends FunSuite {
 
   /** Public accessor: Java `getLogger` OR Scala property `logger`. */
   private def accessorMethod: Option[java.lang.reflect.Method] =
-    classOf[AssetManager].getMethods
-      .find(m => (m.getName == "getLogger" || m.getName == "logger") && m.getParameterCount == 0 && m.getReturnType != java.lang.Void.TYPE)
+    classOf[AssetManager].getMethods.find(m => (m.getName == "getLogger" || m.getName == "logger") && m.getParameterCount == 0 && m.getReturnType != java.lang.Void.TYPE)
 
   /** Public setter: Java `setLogger(x)` OR Scala property setter `logger_=`. */
   private def setterMethod: Option[java.lang.reflect.Method] =
-    classOf[AssetManager].getMethods
-      .find(m => (m.getName == "setLogger" || m.getName == "logger_$eq") && m.getParameterCount == 1)
+    classOf[AssetManager].getMethods.find(m => (m.getName == "setLogger" || m.getName == "logger_$eq") && m.getParameterCount == 1)
 
   // (a) AssetManager.java:747 — `public Logger getLogger ()`
   test("ISS-733: AssetManager exposes a public logger/getLogger accessor (AssetManager.java:747)") {
