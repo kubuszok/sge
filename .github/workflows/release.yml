@@ -20,8 +20,117 @@ env:
   JVM_VERSION: "zulu:25"
 
 jobs:
+  # ─── Release gate (ISS-695) ─────────────────────────────────────────
+  #
+  # A tag can point at ANY commit — including one that never landed on master
+  # and therefore never went through ci.yml (format / enforce / tests). ci.yml
+  # does not run on tags at all, so before this gate the ONLY pre-publish check
+  # was sgeValidateNativeLibs: `git tag <sha> && git push --tags` could publish a
+  # full Sonatype release from unformatted / covenant-breaking / failing-test
+  # code. This job re-runs the blocking ci.yml checks (format, enforce, JVM
+  # tests) plus an ancestor check, and build-and-publish `needs: [gate]` — so a
+  # broken commit turns the release run RED here and publish is SKIPPED, never
+  # reaching ci-release. Secrets (GPG / Sonatype) live ONLY in build-and-publish,
+  # never in this job.
+  gate:
+    name: Validate release commit
+    runs-on: ubuntu-latest
+
+    # Same fork-secret guard as build-and-publish (ISS-484): external-fork PRs
+    # must not run this heavy validation. Push events (master / tags) always run.
+    if: >-
+      github.event_name != 'pull_request' ||
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: false
+          # Full history so the ancestor check below can decide whether the
+          # tagged commit is reachable from origin/master (the default shallow
+          # checkout cannot answer that).
+          fetch-depth: 0
+
+      # JDK 21 for the sge-android-robolectric leg of ci-jvm-3 (Robolectric
+      # 4.16's ASM cannot run on JDK 25). Installed FIRST so the coursier JVM
+      # below wins as the final JAVA_HOME (the primary build JDK); we only need
+      # 21's install path, captured via this step's `path` output and handed to
+      # the build as JAVA21_HOME. Mirrors ci.yml's test-jvm job.
+      - uses: actions/setup-java@v5
+        id: setup-jdk21
+        with:
+          distribution: zulu
+          java-version: "21"
+
+      - uses: coursier/setup-action@v3.0.0
+        with:
+          jvm: ${{ env.JVM_VERSION }}
+          apps: sbt
+
+      # ANCESTOR CHECK (tag events only). Guards "tag on a commit that was never
+      # on master": require the tagged commit to be an ancestor of origin/master,
+      # so only reviewed, already-CI'd history can be released. On master pushes
+      # GITHUB_SHA is already on master; on PRs GITHUB_SHA is the PR head — both
+      # would spuriously fail this check, so it runs on tag pushes only.
+      - name: Require tagged commit to be an ancestor of master
+        if: github.ref_type == 'tag'
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin master:refs/remotes/origin/master
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" refs/remotes/origin/master; then
+            echo "::error::Tagged commit $GITHUB_SHA is not an ancestor of origin/master — refusing to release an un-merged / un-CI'd commit (ISS-695)"
+            exit 1
+          fi
+          echo "OK: $GITHUB_SHA is an ancestor of origin/master"
+
+      # FORMAT (ci.yml format job).
+      - name: Check formatting
+        run: sbt "scalafmtCheckAll; scalafmtSbtCheck"
+
+      # ENFORCE (ci.yml enforce job): install clang + the pinned re-scale 0.1.5,
+      # then run the covenant + shortcut ratchet gate.
+      - name: Install Scala Native deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang
+
+      - name: Install re-scale
+        run: |
+          set -euo pipefail
+          # Pin to the SAME tag the committed covenant-gate baseline was built
+          # with (0.1.5) — re-scale's covenant computation drifts between
+          # releases, so an unpinned clone makes the gate non-reproducible.
+          git clone --depth=1 --branch 0.1.5 https://github.com/kubuszok/re-scale.git "$RUNNER_TEMP/re-scale"
+          cd "$RUNNER_TEMP/re-scale"
+          sbt install
+          echo "$RUNNER_TEMP/re-scale/bin" >> "$GITHUB_PATH"
+
+      - name: Print re-scale version
+        run: re-scale version
+
+      - name: Covenant + shortcut ratchet gate
+        run: .rescale/scripts/covenant-gate.sh
+
+      # TESTS (ci.yml:185). One representative gate leg (JVM 3) is enough here —
+      # the ancestor check guarantees the commit already went through the full
+      # ci.yml matrix on master.
+      - name: Run JVM tests (core + all extensions)
+        run: sbt ci-jvm-3
+        env:
+          # Point the Robolectric test fork at the JDK 21 installed above.
+          JAVA21_HOME: ${{ steps.setup-jdk21.outputs.path }}
+          # Hard-fail if that JDK 21 is somehow not resolvable, so this leg can
+          # never silently degrade to a green run with zero Robolectric tests
+          # executed (mirrors ci.yml test-jvm; ISS-485).
+          SGE_CI_REQUIRE_JDK21: "1"
+
   build-and-publish:
     runs-on: macos-latest
+
+    # Publish only after the gate passes — GitHub skips this job whenever `gate`
+    # fails (or is itself skipped), so an unvalidated / broken commit can never
+    # reach ci-release. ISS-695.
+    needs: [gate]
 
     # Push events (master / tags) always run. Pull-request events publish a
     # snapshot ONLY when the PR author is an org member/owner/collaborator —
