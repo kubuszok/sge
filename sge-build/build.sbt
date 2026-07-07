@@ -4,19 +4,24 @@
 lazy val root = (project in file("."))
   .enablePlugins(SbtPlugin)
   .settings(
-    // sbt 2.0 plugins are Scala 3, but some transitive plugin deps (e.g.
-    // sbt-scalafmt → scalafmt-dynamic) still pull Scala-2.13 builds of
-    // scala-xml / scala-collection-compat alongside the Scala-3 ones, tripping
-    // the conflicting-cross-version-suffix guard. These are runtime-compatible
-    // here (plugin classpath), so don't fail the build on the mixed suffixes.
+    // sbt 2.0 plugins are Scala 3, and sbt's own metabuild classpath supplies
+    // the Scala-3 builds of scala-xml / scala-collection-compat (via
+    // org.scala-sbt:librarymanagement-core_3 / main_3). But sbt-scalafmt drags
+    // scalafmt-dynamic — a Scala-2.13 artifact — which transitively pulls
+    // coursier_2.13 → scala-xml_2.13 / scala-collection-compat_2.13. The two
+    // suffixes (_3 from sbt core, _2.13 from the scalafmt chain) coexist on the
+    // plugin classpath and trip sbt 2.0's "conflicting cross-version suffixes"
+    // guard (ISS-738). That guard is NOT silenced by conflictWarning or by a
+    // VersionScheme.Always scheme (both were tried and the error still printed).
+    //
+    // The _3 and _2.13 builds of these two modules are runtime-compatible here,
+    // and only sbt core genuinely needs its copy, so drop the intruding _2.13
+    // variants and let coursier_2.13 use the sbt-core-supplied _3 build. This
+    // leaves a single consistent suffix (_3), removing the conflict at its root.
     conflictWarning := conflictWarning.value.copy(failOnConflict = false),
-    // conflictWarning above does NOT cover sbt 2.0's separate "conflicting
-    // cross-version suffixes" guard (it hard-fails when both _3 and _2.13 builds
-    // of scala-xml / scala-collection-compat appear). Declare the Always scheme so
-    // the runtime-compatible mixed suffixes are allowed.
-    libraryDependencySchemes ++= Seq(
-      "org.scala-lang.modules" %% "scala-xml"               % VersionScheme.Always,
-      "org.scala-lang.modules" %% "scala-collection-compat" % VersionScheme.Always
+    excludeDependencies ++= Seq(
+      "org.scala-lang.modules" % "scala-xml_2.13",
+      "org.scala-lang.modules" % "scala-collection-compat_2.13"
     ),
     name         := "sge-build",
     organization := "com.kubuszok",
