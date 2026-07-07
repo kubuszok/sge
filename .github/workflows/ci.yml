@@ -679,7 +679,17 @@ jobs:
 
   test-jvm-platform-it:
     name: JVM Platform IT tests
-    needs: [test-jvm]
+    # No `needs:` (ISS-740). This job self-contains its build — a fresh checkout
+    # plus coursier JVM plus `sbt sge-it-jvm-platform/testFull` — and consumes NO
+    # artifact from any other job (test-jvm publishes only to Codecov; there are
+    # no upload/download-artifact steps in this workflow). Gating it on test-jvm
+    # was pure ordering, but `needs:` waits on the WHOLE 6-OS matrix including the
+    # macos-x86_64/macos-aarch64 legs, whose runners are effectively unavailable
+    # (jobs sit status:queued for hours and are never assigned). That kept the
+    # ISS-697 panama FFI suite (SGE_CI_REQUIRE_PANAMA below) from ever running on
+    # CI. Decoupling lets it run as soon as the ubuntu runner is free.
+    # (Follow-up, out of scope here: the macOS JVM legs should be marked
+    # non-required so PRs are not blocked on those queued-forever runners.)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
