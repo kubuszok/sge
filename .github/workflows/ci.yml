@@ -693,6 +693,12 @@ jobs:
 
       - name: Run JVM Platform integration tests
         run: sbt 'sge-it-jvm-platform/testFull'
+        env:
+          # Hard-fail (do not assume-skip) if the native libs are not resolvable
+          # from the provider JAR — this job must never silently return to zero
+          # executed FFI checks. See requireOrAssume in
+          # PanamaBufferOpsIntegrationTest (ISS-697).
+          SGE_CI_REQUIRE_PANAMA: "1"
 
   # ─── Android IT tests (emulator) ──────────────────────────────
 

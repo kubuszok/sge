@@ -1241,7 +1241,32 @@ val `sge-it-jvm-platform` = (projectMatrix in file("sge-test/it-jvm-platform"))
   .settings(noPublishSettings)
   .settings(mimaSettings)
   .settings(
-    libraryDependencies += "com.kubuszok" %% "multiarch-panama-jdk" % Versions.multiarch
+    // Versions.nativeComponents is a SNAPSHOT — the provider JAR carrying
+    // libsge_native_ops lives on Maven Central Snapshots (mirror sge-it-desktop).
+    resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
+    libraryDependencies += "com.kubuszok" %% "multiarch-panama-jdk" % Versions.multiarch,
+    // multiarch.core.NativeLibLoader (the provider-JAR loader used below) lives
+    // in multiarch-core, which is not transitive from multiarch-panama-jdk on
+    // this module — add it explicitly (mirror sge-core ~:216).
+    libraryDependencies += "com.kubuszok" %% "multiarch-core" % Versions.multiarch,
+    // ISS-697: PanamaBufferOpsIntegrationTest resolves libsge_native_ops from
+    // this Panama provider JAR at runtime via multiarch.core.NativeLibLoader
+    // (classpath extraction) — the same loading path sge-it-desktop uses. It is
+    // NOT transitive from the platform modules, so add it explicitly (mirror the
+    // sge-core / sge-gltf / sge-physics deps).
+    libraryDependencies += "com.kubuszok" % "pnm-provider-sge-desktop" % Versions.nativeComponents,
+    // ISS-697: keep the Android SDK stub jar OFF the forked Test classpath. It
+    // arrives transitively through dependsOn(sge-jvm-platform-android), but
+    // multiarch's NativeLibLoader detects the host as Android purely by
+    // Class.forName("android.app.Activity") — so android.jar on the test runtime
+    // makes every native-lib lookup resolve the WRONG android-<arch> classifier
+    // (a wrong-reason UnsatisfiedLinkError). sge-core / sge-it-desktop apply the
+    // same filter; this module must repeat it because the jar re-enters through
+    // the dependsOn edge.
+    Test / fullClasspath := Def.uncached {
+      val conv = fileConverter.value
+      (Test / fullClasspath).value.filterNot(e => conv.toPath(e.data).getFileName.toString == "android.jar")
+    }
   )
   .dependsOn(`sge-jvm-platform-api`, `sge-jvm-platform-android`)
 

@@ -1,7 +1,17 @@
 // SGE — Integration test: Panama FFI with real Rust native library
 //
 // Tests the full FFI roundtrip: JVM -> Panama downcall -> Rust C ABI -> return.
-// Requires libsge_native_ops on java.library.path (skipped otherwise).
+//
+// The native library ships in the published provider JAR (pnm-provider-sge-desktop,
+// resolved on the test classpath) and is loaded at runtime by
+// multiarch.core.NativeLibLoader — the same classpath-extraction path the engine
+// uses (see sge.platform.*Jvm). No java.library.path wiring (a local Rust build
+// dir CI never creates, which made this suite assume-skip wholesale, ISS-697).
+//
+// CI hard-fail switch:
+//   When SGE_CI_REQUIRE_PANAMA=1 every skip in this suite becomes a hard
+//   assertion (FAIL, not skip), so the job can never silently degrade to a
+//   vacuous green where every test assume-skips. See requireOrAssume.
 //
 // Symbol names match native-components/src/buffer_ops.rs C ABI:
 //   sge_alloc_memory, sge_free_memory, sge_copy_bytes, sge_copy_floats,
@@ -17,30 +27,48 @@ import munit.FunSuite
 class PanamaBufferOpsIntegrationTest extends FunSuite {
   import multiarch.panama.JdkPanama.*
 
-  private def nativeLibAvailable: Boolean =
-    try {
-      val libName = System.mapLibraryName("sge_native_ops")
-      val libPath = System.getProperty("java.library.path", "")
-      val paths   = libPath.split(java.io.File.pathSeparator)
-      paths.exists { dir =>
-        java.nio.file.Files.exists(java.nio.file.Path.of(dir, libName))
-      }
-    } catch {
-      case _: Exception => false
+  // ── CI hard-fail switch ─────────────────────────────────────────────
+  // SGE_CI_REQUIRE_PANAMA=1 (set in the CI job env) flips every skip in this
+  // suite into a hard failure. A precondition the job is supposed to guarantee
+  // (native libs resolvable from the provider JAR) must never silently skip on
+  // CI — that is exactly the vacuous-green failure mode ISS-697 documents.
+  // Locally the var is unset, so developers without the provider JAR resolved
+  // still get the usual skip.
+  private val requirePanama: Boolean =
+    System.getenv("SGE_CI_REQUIRE_PANAMA") == "1"
+
+  /** Like munit's `assume`, but hard-fails instead of skipping when SGE_CI_REQUIRE_PANAMA=1. Use everywhere a precondition would otherwise skip the test, so CI cannot return to zero executed
+    * assertions.
+    */
+  private def requireOrAssume(cond: Boolean, clue: => String): Unit =
+    if (requirePanama) assert(cond, s"SGE_CI_REQUIRE_PANAMA=1 but precondition failed: $clue")
+    else assume(cond, clue)
+
+  /** Resolve a native library via the multiarch-core loader (provider-JAR classpath extraction, the engine's real loading path). Returns Right with the extracted library Path, or Left with the
+    * loader's diagnostic message when the library cannot be resolved on this platform.
+    */
+  private def loadNative(name: String): Either[String, java.nio.file.Path] =
+    try Right(multiarch.core.NativeLibLoader.load(name))
+    catch {
+      case e: UnsatisfiedLinkError => Left(e.getMessage)
+      case e: LinkageError         => Left(s"${e.getClass.getSimpleName}: ${e.getMessage}")
     }
 
   private lazy val panama = multiarch.panama.JdkPanama
   private lazy val lib: panama.SymbolLookup = {
     import panama.*
-    val libName = System.mapLibraryName("sge_native_ops")
-    val libPath = System.getProperty("java.library.path", "")
-    val paths   = libPath.split(java.io.File.pathSeparator)
-    val found   = paths.iterator.map(dir => java.nio.file.Path.of(dir, libName)).find(java.nio.file.Files.exists(_)).getOrElse(throw new UnsatisfiedLinkError(s"Cannot find $libName"))
+    // Resolve libsge_native_ops from the provider JAR on the classpath via
+    // NativeLibLoader (host detection + native/<classifier>/<lib> extraction),
+    // then open it with Panama's SymbolLookup. beforeEach has already gated
+    // every test on this succeeding, so `.toOption.get` here is safe.
+    val found = loadNative("sge_native_ops").toOption.get
     SymbolLookup.libraryLookup(found, Arena.global())
   }
 
-  private def requireNative(): Unit =
-    assume(nativeLibAvailable, "sge_native_ops not on java.library.path — skipping")
+  private def requireNative(): Unit = {
+    val loaded = loadNative("sge_native_ops")
+    requireOrAssume(loaded.isRight, s"libsge_native_ops not resolvable via provider JARs: ${loaded.left.toOption.getOrElse("")}")
+  }
 
   override def beforeEach(context: BeforeEach): Unit =
     requireNative()
