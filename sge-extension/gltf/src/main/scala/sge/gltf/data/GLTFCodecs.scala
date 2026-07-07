@@ -1211,8 +1211,20 @@ object GLTFCodecs {
   given khrUnlitCodec: JsonValueCodec[KHRMaterialsUnlit] = new JsonValueCodec[KHRMaterialsUnlit] {
     override def decodeValue(in: JsonReader, default: KHRMaterialsUnlit): KHRMaterialsUnlit = {
       // KHR_materials_unlit is an empty object {}
-      if (in.isNextToken('{')) { while (!in.isNextToken('}')) { in.readKeyAsString(); in.skip() } }
-      else in.readNullOrTokenError(null.asInstanceOf[KHRMaterialsUnlit], '{')
+      // Skip any contents mirroring the readFields sibling scan (rollback the
+      // probed token before re-reading the key) so the reader stays positioned
+      // to parse the following sibling extension.
+      if (in.isNextToken('{')) {
+        if (!in.isNextToken('}')) {
+          in.rollbackToken()
+          var continue = true
+          while (continue) {
+            in.readKeyAsString()
+            in.skip()
+            continue = in.isNextToken(',')
+          }
+        }
+      } else in.readNullOrTokenError(null.asInstanceOf[KHRMaterialsUnlit], '{')
       if (default != null) default else new KHRMaterialsUnlit()
     }
     override def encodeValue(x: KHRMaterialsUnlit, out: JsonWriter): Unit = {
