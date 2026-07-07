@@ -153,8 +153,9 @@ class Stage(private var _viewport: Viewport, val batch: Batch, private val ownsB
               actor.foreach { a =>
                 a match {
                   case t: Table =>
+                    // FOUND: `break` preserves the found Table in `actor` (Java Stage.java:156)
                     t.debug(debugTableUnderMouse)
-                    actor = Nullable.empty
+                    actor = Nullable(t)
                     scala.util.boundary.break(())
                   case _ =>
                     actor = a.parent.asInstanceOf[Nullable[Actor]]
