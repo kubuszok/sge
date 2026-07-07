@@ -13,7 +13,10 @@
  *     synchronized methods preserved; Thread.yield() via backtick escaping
  *   Idiom: boundary/break (multiple return), Nullable (listener, assetFileName, loader),
  *     split packages
- *   Fixes: Java-style getters/setters → Scala property accessors
+ *   Fixes: Java-style getters/setters → Scala property accessors;
+ *     getLogger()/setLogger() → public `var logger` (a per-instance
+ *     sge.utils.Logger tagged "AssetManager" at Logger.NONE, silent by default,
+ *     gating its output before forwarding to the global sge.utils.Log sink)
  *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -74,12 +77,11 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
   private var toLoad:    Int                            = 0
   private var peakTasks: Int                            = 0
 
-  private object log {
-    inline def info(msg:  => String):               Unit = utils.Log.info(msg)
-    inline def debug(msg: => String):               Unit = utils.Log.debug(msg)
-    inline def error(msg: => String):               Unit = utils.Log.error(msg)
-    inline def error(msg: => String, t: Throwable): Unit = utils.Log.error(msg, t)
-  }
+  /** The logger used by this AssetManager. Defaults to a per-instance logger tagged "AssetManager" at [[sge.utils.Logger.NONE]] — SILENT by default (mirrors AssetManager.java:87
+    * `new Logger("AssetManager", Application.LOG_NONE)`). Callers may read it to raise its level, or replace it to inject/silence the manager's logging (mirrors AssetManager.java:747/751
+    * getLogger/setLogger), while the global [[sge.utils.Log]] remains the actual sink.
+    */
+  var logger: utils.Logger = utils.Logger("AssetManager", utils.Logger.NONE)
 
   if (defaultLoaders) {
     setLoader[sge.graphics.g2d.BitmapFont](BitmapFontLoader(resolver))
@@ -224,7 +226,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
       if (tasks.size > 0) {
         val currentTask = tasks.first
         if (currentTask.assetDesc.fileName == fileName) {
-          log.info("Unload (from tasks): " + fileName)
+          logger.info("Unload (from tasks): " + fileName)
           currentTask.cancel = true
           currentTask.unload()
           boundary.break(())
@@ -249,7 +251,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
       if (foundIndex != -1) {
         toLoad -= 1
         val desc = loadQueue.removeIndex(foundIndex)
-        log.info("Unload (from queue): " + fileName)
+        logger.info("Unload (from queue): " + fileName)
 
         // if the queued asset was already loaded, let the callback know it is available.
         if (hasType) {
@@ -271,7 +273,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
       // if it is reference counted, decrement ref count and check if we can really get rid of it.
       assetRef.refCount -= 1
       if (assetRef.refCount <= 0) {
-        log.info("Unload (dispose): " + fileName)
+        logger.info("Unload (dispose): " + fileName)
 
         // if it is disposable dispose it
         assetRef.obj match {
@@ -283,7 +285,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
         assetTypes.remove(fileName)
         assets.get(loadedType).foreach(_.remove(fileName))
       } else {
-        log.info("Unload (decrement): " + fileName)
+        logger.info("Unload (decrement): " + fileName)
       }
 
       // remove any dependencies (or just decrement their ref count).
@@ -433,7 +435,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
     toLoad += 1
     val assetDesc = AssetDescriptor(fileName, `type`, parameter)
     loadQueue.add(assetDesc)
-    log.debug("Queued: " + assetDesc)
+    logger.debug("Queued: " + assetDesc)
   }
 
   /** Adds the given asset to the loading queue of the AssetManager. */
@@ -491,10 +493,10 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
 
   /** Blocks until all assets are loaded. */
   def finishLoading(): Unit = {
-    log.debug("Waiting for loading to complete...")
+    logger.debug("Waiting for loading to complete...")
     while (!update())
       concurrency.yieldThread()
-    log.debug("Loading complete.")
+    logger.debug("Loading complete.")
   }
 
   /** Blocks until the specified asset is loaded. */
@@ -503,7 +505,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
 
   /** Blocks until the specified asset is loaded. */
   def finishLoadingAsset[T](fileName: String): T = {
-    log.debug("Waiting for asset to be loaded: " + fileName)
+    logger.debug("Waiting for asset to be loaded: " + fileName)
     boundary {
       while (true) {
         // NOTE: do not break out of the synchronized block directly — unwinding boundary.break
@@ -512,7 +514,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
         val resolved: Nullable[T] = synchronized {
           val result = lookup[T](fileName, Nullable.empty)
           if (result.isDefined) {
-            log.debug("Asset loaded: " + fileName)
+            logger.debug("Asset loaded: " + fileName)
             result
           } else if (update()) {
             // If update() returns true, all queues are empty. The asset either loaded (caught above)
@@ -559,7 +561,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
 
       // if the asset is already loaded, increase its reference count.
       if (isLoaded(dependendAssetDesc.fileName)) {
-        log.debug("Dependency already loaded: " + dependendAssetDesc)
+        logger.debug("Dependency already loaded: " + dependendAssetDesc)
         // NOTE: Use containsKey + get(key, default) instead of get(key) which returns Nullable[Class[?]].
         // On Scala Native, wrapping Class[?] in Nullable's union type causes ClassCastException.
         if (assetTypes.containsKey(dependendAssetDesc.fileName)) {
@@ -573,7 +575,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
         incrementRefCountedDependencies(dependendAssetDesc.fileName)
       } else {
         // else add a new task for the asset.
-        log.info("Loading dependency: " + dependendAssetDesc)
+        logger.info("Loading dependency: " + dependendAssetDesc)
         addTask(dependendAssetDesc)
       }
     }
@@ -586,7 +588,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
 
     // if the asset not meant to be reloaded and is already loaded, increase its reference count
     if (isLoaded(assetDesc.fileName)) {
-      log.debug("Already loaded: " + assetDesc)
+      logger.debug("Already loaded: " + assetDesc)
       // NOTE: Use containsKey + get(key, default) instead of get(key) which returns Nullable[Class[?]].
       // On Scala Native, wrapping Class[?] in Nullable's union type causes ClassCastException.
       if (assetTypes.containsKey(assetDesc.fileName)) {
@@ -606,7 +608,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
       loaded += 1
     } else {
       // else add a new task for the asset.
-      log.info("Loading: " + assetDesc)
+      logger.info("Loading: " + assetDesc)
       addTask(assetDesc)
     }
   }
@@ -677,7 +679,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
       }
 
       val endTime = TimeUtils.nanoTime()
-      log.debug("Loaded: " + (endTime - task.startTime).toFloat / 1000000f + "ms " + task.assetDesc)
+      logger.debug("Loaded: " + (endTime - task.startTime).toFloat / 1000000f + "ms " + task.assetDesc)
 
       true
     } else {
@@ -710,7 +712,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
 
   /** Handles a runtime/loading error in update() by optionally invoking the AssetErrorListener. */
   private def handleTaskError(t: Throwable): Unit = {
-    log.error("Error loading asset.", t)
+    logger.error("Error loading asset.", t)
 
     if (tasks.isEmpty) throw SgeError.InvalidInput("Error loading asset", Some(t))
 
@@ -755,7 +757,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
 
   /** Sets a new AssetLoader for the given type. */
   def setLoader[T](`type`: Class[T], suffix: Nullable[String], loader: AssetLoader[?, ?]): Unit = synchronized {
-    log.debug("Loader set: " + `type`.getSimpleName + " -> " + loader.getClass.getSimpleName)
+    logger.debug("Loader set: " + `type`.getSimpleName + " -> " + loader.getClass.getSimpleName)
     var typeLoaders = this.loaders.get(`type`)
     if (typeLoaders.isEmpty) {
       val newMap = ObjectMap[String, AssetLoader[?, ?]]()
@@ -795,7 +797,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
 
   /** Disposes all assets in the manager and stops all asynchronous loading. */
   override def close(): Unit = {
-    log.debug("Disposing.")
+    logger.debug("Disposing.")
     clear()
     ownedExecutor.shutdown()
   }
