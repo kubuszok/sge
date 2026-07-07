@@ -17,13 +17,9 @@
 package sge
 package utils
 
-/** Per-instance logger with a tag and a log level that filters messages before
-  * forwarding the survivors to the global [[Log]] sink. Mirrors libGDX's
-  * `com.badlogic.gdx.utils.Logger`: a level of [[Logger.NONE]] suppresses every
-  * message (silent), [[Logger.ERROR]] permits only errors, [[Logger.INFO]]
-  * permits info and errors, and [[Logger.DEBUG]] permits everything. Callers own
-  * an instance and adjust its [[level]] to raise or silence its output without
-  * touching the shared [[Log]] configuration.
+/** Per-instance logger with a tag and a log level that filters messages before forwarding the survivors to the global [[Log]] sink. Mirrors libGDX's `com.badlogic.gdx.utils.Logger`: a level of
+  * [[Logger.NONE]] suppresses every message (silent), [[Logger.ERROR]] permits only errors, [[Logger.INFO]] permits info and errors, and [[Logger.DEBUG]] permits everything. Callers own an instance
+  * and adjust its [[level]] to raise or silence its output without touching the shared [[Log]] configuration.
   *
   * @author
   *   Nathan Sweet (original implementation)
