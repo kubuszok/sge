@@ -123,7 +123,7 @@ private[exporters] class GLTFMaterialExporter(private val base: GLTFExporter)(us
           extSpecular(m).specularColorFactor = Array(v.r, v.g, v.b)
         } else if (a.`type` == PBRTextureAttribute.SpecularFactorTexture) {
           extSpecular(m).specularTexture = Nullable(texture(a.asInstanceOf[PBRTextureAttribute]))
-        } else if (a.`type` == PBRTextureAttribute.SpecularColorTexture) {
+        } else if (a.`type` == TextureAttribute.Specular) {
           extSpecular(m).specularColorTexture = Nullable(texture(a.asInstanceOf[TextureAttribute]))
         }
         // Iridescence
