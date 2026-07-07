@@ -102,7 +102,14 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
       val n          = paths.length
       val newRegions = DynamicArray[TextureRegion]()
       for (i <- 0 until n)
-        newRegions.add(TextureRegion(Texture(paths(i))))
+        // When the font data was loaded from a non-null .fnt handle, resolve
+        // each page image relative to that handle's FileType (External / Local
+        // / Absolute); otherwise fall back to internal (classpath).
+        newRegions.add(
+          TextureRegion(
+            data.fontFile.fold(Texture(paths(i)))(ff => Texture(Sge().files.getFileHandle(paths(i), ff.fileType), false))
+          )
+        )
       ownsTexture = true
       newRegions
     }
