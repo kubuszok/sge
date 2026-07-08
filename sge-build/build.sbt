@@ -62,7 +62,7 @@ lazy val root = (project in file("."))
     addSbtPlugin("org.scala-native" % "sbt-scala-native"   % "0.5.12"),
     addSbtPlugin("org.scalameta"    % "sbt-scalafmt"       % "2.5.6"),
     // multiarch-scala — provides Platform, NativeProviderPlugin, ZigCross, JvmPackaging
-    addSbtPlugin("com.kubuszok"     % "sbt-multiarch-scala" % "0.3.0"),
+    addSbtPlugin("com.kubuszok"     % "sbt-multiarch-scala" % "0.4.0"),
     // Sonatype snapshots for sbt-multi-arch-release
     resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
     // Test scope for unit-testing pure plugin data (e.g. the strict/lenient

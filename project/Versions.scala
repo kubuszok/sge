@@ -28,7 +28,7 @@ object Versions {
   val munitScalacheck = "1.3.0"
 
   // Native component providers (from sge-native-providers repo)
-  val multiarch = "0.3.0"
+  val multiarch = "0.4.0"
   // 0.1.2-33-gcf10406-SNAPSHOT completes Windows Scala Native support for the
   // manually-linked C DLLs (sge-native-providers PR #11, commits 1dda883 +
   // e521b92 + f3f34d6): (1) REAL import libraries glfw3.lib AND sge_audio.lib

@@ -2,7 +2,7 @@
 // sbt-projectmatrix is merged into sbt 2.0 (no longer added separately).
 addSbtPlugin("com.kubuszok" % "sbt-kubuszok" % "0.2.3")
 // multiarch-scala (Platform, NativeProviderPlugin, ZigCross, JvmPackaging)
-addSbtPlugin("com.kubuszok" % "sbt-multiarch-scala" % "0.3.0")
+addSbtPlugin("com.kubuszok" % "sbt-multiarch-scala" % "0.4.0")
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 // jsdom DOM environment for Scala.js unit tests of browser components (ISS-672/ISS-536):
 // the default Node.js Scala.js env has no document/window, so DOM-touching tests (e.g.
