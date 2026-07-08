@@ -38,7 +38,7 @@ lazy val game = (projectMatrix in file("game"))
     // The generated embedded-resources object imports
     // multiarch.resources.EmbeddedResources, so the runtime library must be on
     // the classpath (sge-core depends on it the same way).
-    libraryDependencies += "com.kubuszok" %% "multiarch-resources" % "0.3.0",
+    libraryDependencies += "com.kubuszok" %% "multiarch-resources" % "0.4.0",
     Compile / mainClass := Some("com.example.HelloGame"),
     // A known HTML title we can assert on in checkBrowserPackage.
     SgePackaging.sgeBrowserTitle := "Hello SGE Browser",
