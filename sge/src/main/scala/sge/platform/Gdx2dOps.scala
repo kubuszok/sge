@@ -1,9 +1,9 @@
 // SGE Native Ops — Gdx2D image decoding API
 //
-// Platform implementations:
-//   JVM:    Gdx2dOpsJvm    (delegates to javax.imageio.ImageIO)
-//   JS:     Gdx2dOpsJs     (stub — browser image decode is async)
-//   Native: Gdx2dOpsNative (stub — needs stb_image via Rust FFI)
+// Platform implementations (all complete):
+//   JVM:    Gdx2dOpsJvm    (javax.imageio.ImageIO on desktop; android.graphics.BitmapFactory via reflection on Android)
+//   JS:     Gdx2dOpsJs     (synchronous pure-Scala decoders — PNG, BMP, GIF, baseline JPEG; ISS-533/ISS-651)
+//   Native: Gdx2dOpsNative (Rust FFI to sge_native_ops, which decodes via the pure-Rust `image` crate)
 
 /*
  * Migration notes:
