@@ -12,6 +12,12 @@
  *   Idiom: by-name message parameters defer string construction until the
  *     level gate passes (matches sge.utils.Log)
  *
+ * Covenant: full-port
+ * Covenant-baseline-loc: 70
+ * Covenant-baseline-methods: DEBUG,ERROR,INFO,Logger,NONE,debug,error,info
+ * Covenant-source-reference: com/badlogic/gdx/utils/Logger.java
+ * Covenant-verified: 2026-07-10
+ *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
