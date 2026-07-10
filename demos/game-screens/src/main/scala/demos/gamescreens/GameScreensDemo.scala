@@ -25,8 +25,7 @@ import sge.utils.viewport.FitViewport
 
 /** Root application: a `Game` built on the public `Game` / `Screen` API.
   *
-  * The launcher hands us an `Sge` context (via the `(using Sge)` constructor
-  * parameter); we thread it into every screen we create.
+  * The launcher hands us an `Sge` context (via the `(using Sge)` constructor parameter); we thread it into every screen we create.
   */
 class GameScreensDemo()(using Sge) extends Game {
 
