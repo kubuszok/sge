@@ -11,7 +11,10 @@ import sbt.Keys._
   *   - Release-time validation that the resolved `pnm-provider-sge-*` dependency actually carries every native binary its manifest promises, for every desktop platform (ISS-484)
   *   - The `sgeNativeLibDir` key for local development overrides
   *
-  * Why the resolved dependency and not the sge JAR's own `native/` mappings: the desktop native libs are delivered to users through the `pnm-provider-sge-desktop` JAR, which sge declares as a POM dependency. A release could bundle (or extract) libs into the sge JAR and still ship a POM that omits the provider — leaving users with no natives. So the gate validates the dependency users actually resolve. It is invoked explicitly before the Sonatype publish (`sbt "sge / sgeValidateNativeLibs" ci-release` in release.yml) rather than auto-wired onto `makePom`/`publishLocal`, so local/demo `publishLocal` in CI is not blocked by a runtime-only provider gap — only the actual release is gated.
+  * Why the resolved dependency and not the sge JAR's own `native/` mappings: the desktop native libs are delivered to users through the `pnm-provider-sge-desktop` JAR, which sge declares as a POM
+  * dependency. A release could bundle (or extract) libs into the sge JAR and still ship a POM that omits the provider — leaving users with no natives. So the gate validates the dependency users
+  * actually resolve. It is invoked explicitly before the Sonatype publish (`sbt "sge / sgeValidateNativeLibs" ci-release` in release.yml) rather than auto-wired onto `makePom`/`publishLocal`, so
+  * local/demo `publishLocal` in CI is not blocked by a runtime-only provider gap — only the actual release is gated.
   *
   * Covenant: full-port Covenant-baseline-spec-pass: 0 Covenant-baseline-loc: 91 Covenant-baseline-methods: SgeNativeLibs,sgeValidateNativeLibs,validationSettings Covenant-source-reference:
   * SGE-original Covenant-verified: 2026-04-19
@@ -24,7 +27,9 @@ object SgeNativeLibs {
     "Validate the resolved pnm-provider-sge-* dependency carries every native binary its manifest promises, for all desktop platforms"
   )
 
-  /** Minimum size (bytes) for a provider binary to count as a real shared library rather than an undersized non-functional one. The sge desktop natives (glfw/audio/native_ops) are hundreds of KB on every platform; the known Rosetta no-op binaries are ~16 KB, so 32 KB cleanly separates them. */
+  /** Minimum size (bytes) for a provider binary to count as a real shared library rather than an undersized non-functional one. The sge desktop natives (glfw/audio/native_ops) are hundreds of KB on
+    * every platform; the known Rosetta no-op binaries are ~16 KB, so 32 KB cleanly separates them.
+    */
   private val MinLibBytes: Long = 32L * 1024L
 
   /** Read a provider JAR's `pnm-provider.json` content (empty string if absent) and the uncompressed size of every `native/...` entry. */
@@ -50,7 +55,8 @@ object SgeNativeLibs {
     } finally zf.close()
   }
 
-  /** Validation settings for the sge JVM axis. Defines the `sgeValidateNativeLibs` task; release.yml invokes it explicitly before `ci-release` so a failure blocks the Sonatype publish (sbt runs commands sequentially and stops on the first failure).
+  /** Validation settings for the sge JVM axis. Defines the `sgeValidateNativeLibs` task; release.yml invokes it explicitly before `ci-release` so a failure blocks the Sonatype publish (sbt runs
+    * commands sequentially and stops on the first failure).
     */
   lazy val validationSettings: Seq[Setting[_]] = Seq(
     sgeValidateNativeLibs := Def.uncached {
@@ -58,9 +64,7 @@ object SgeNativeLibs {
       val report   = update.value
       val required = Platform.desktop.map(_.classifier).toSet
 
-      val providerFiles = report
-        .matching(moduleFilter(organization = "com.kubuszok", name = "pnm-provider-sge*"))
-        .filter(_.getName.endsWith(".jar"))
+      val providerFiles = report.matching(moduleFilter(organization = "com.kubuszok", name = "pnm-provider-sge*")).filter(_.getName.endsWith(".jar"))
 
       if (providerFiles.isEmpty) {
         sys.error(
