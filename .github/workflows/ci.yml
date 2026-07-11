@@ -40,6 +40,13 @@ jobs:
       - name: Check formatting
         run: sbt "scalafmtCheckAll; scalafmtSbtCheck"
 
+      # ISS-750: sge-build is a SEPARATE sbt build, so the main-build
+      # scalafmtCheckAll above does not cover its sources. Check them here too
+      # (its scalafmtConfig points at the repo-root .scalafmt.conf).
+      - name: Check formatting (sge-build)
+        working-directory: sge-build
+        run: sbt "scalafmtCheckAll; scalafmtSbtCheck"
+
   # ─── re-scale enforce gate (covenant verify + shortcut budget) ──────
   #
   # BLOCKING (ISS-483). Validates that every file with a `Covenant: full-port`

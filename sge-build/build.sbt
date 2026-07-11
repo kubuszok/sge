@@ -25,6 +25,12 @@ lazy val root = (project in file("."))
     ),
     name         := "sge-build",
     organization := "com.kubuszok",
+    // ISS-750: sge-build is a SEPARATE sbt build, so its scalafmt looks for a
+    // config in this directory and finds none — leaving sge-build's own sources
+    // unchecked (SgePlugins.scala shipped misformatted). Point at the repo-root
+    // .scalafmt.conf so there is a single source of truth (no drift) and
+    // `scalafmtCheckAll` here enforces the same rules as the main build.
+    scalafmtConfig := Def.uncached(file("../.scalafmt.conf")),
     // Version matches the SGE library. Read from ../.sge-version (written by
     // root build's writeDemoVersion task) or fall back to git SHA snapshot.
     version := {
