@@ -136,11 +136,8 @@ object SgeDesktopNativePlatform extends AutoPlugin {
         // gate. Strip the JVM-only com.kubuszok artifacts from the Native row (the
         // JS row does the analogous JVM-default override above).
         libraryDependencies := {
-          val bin = scalaBinaryVersion.value
-          val jvmArtifactNames = SgeExtension
-            .jvmDeps(SgePlugin.autoImport.sgeExtensions.value, bin, SgePlugin.sgeVersion)
-            .map(_.name)
-            .toSet + s"sge_$bin"
+          val bin              = scalaBinaryVersion.value
+          val jvmArtifactNames = SgeExtension.jvmDeps(SgePlugin.autoImport.sgeExtensions.value, bin, SgePlugin.sgeVersion).map(_.name).toSet + s"sge_$bin"
           libraryDependencies.value.filterNot(m => m.organization == "com.kubuszok" && jvmArtifactNames(m.name))
         },
         NativeExtractSettings.nativeLibSourceDir := SgePlugin.autoImport.sgeNativeLibLocalDir.value,
