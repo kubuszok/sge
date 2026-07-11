@@ -110,8 +110,11 @@ object SgeBrowserPlatform extends AutoPlugin {
   */
 object SgeDesktopNativePlatform extends AutoPlugin {
 
-  override def trigger  = allRequirements
-  override def requires = SgePlugin && ScalaNativePlugin
+  override def trigger = allRequirements
+  // Requiring SgeDesktopJvmPlatform (which itself requires SgePlugin) instead of
+  // SgePlugin directly forces this plugin's settings to be applied AFTER the JVM
+  // platform's, so the JVM-dep strip below sees the JVM artifacts it must remove.
+  override def requires = SgeDesktopJvmPlatform && ScalaNativePlugin
 
   // scaladesktop source dir is already added by SgeDesktopJvmPlatform (which auto-triggers
   // on all SgePlugin projects). No need to add it again here.
@@ -124,6 +127,22 @@ object SgeDesktopNativePlatform extends AutoPlugin {
           scalaBinaryVersion.value,
           SgePlugin.sgeVersion
         ),
+        // SgeDesktopJvmPlatform auto-triggers on EVERY SgePlugin row (JvmPlugin is
+        // always present in sbt) and adds the JVM `sge_<bin>` core + JVM extension
+        // artifacts. On the Native row those are the wrong artifacts: `sge_<bin>`
+        // transitively pulls pnm-provider-sge-desktop -> pnm-provider-sge-angle,
+        // whose libEGL.so / libGLESv2.so collide with the native
+        // sn-provider-sge-angle under multiarch 0.4.0's nativeLibExtract collision
+        // gate. Strip the JVM-only com.kubuszok artifacts from the Native row (the
+        // JS row does the analogous JVM-default override above).
+        libraryDependencies := {
+          val bin = scalaBinaryVersion.value
+          val jvmArtifactNames = SgeExtension
+            .jvmDeps(SgePlugin.autoImport.sgeExtensions.value, bin, SgePlugin.sgeVersion)
+            .map(_.name)
+            .toSet + s"sge_$bin"
+          libraryDependencies.value.filterNot(m => m.organization == "com.kubuszok" && jvmArtifactNames(m.name))
+        },
         NativeExtractSettings.nativeLibSourceDir := SgePlugin.autoImport.sgeNativeLibLocalDir.value,
         // sbt 2.0: nativeLink yields a HashedVirtualFileRef; materialize it to a
         // real File through the build's FileConverter.
