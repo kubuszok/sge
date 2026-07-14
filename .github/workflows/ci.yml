@@ -316,6 +316,13 @@ jobs:
         working-directory: sge-build
         run: sbt publishLocal
 
+      # ISS-703: sge-build's own unit tests (e.g. SgePluginFlagsSuite, ISS-556)
+      # were never executed in CI — every sge-build step ran only publishLocal or
+      # scripted. Run them here so plugin-logic regressions are caught.
+      - name: Run sge-build unit tests
+        working-directory: sge-build
+        run: sbt test
+
       - name: Run sge-build scripted tests
         working-directory: sge-build
         run: sbt 'scripted packaging/browser packaging/browser-rapier2d packaging/asset-manifest packaging/android'
