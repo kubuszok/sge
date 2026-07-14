@@ -85,9 +85,7 @@ class PathFinderQueue[N](
   override def handleMessage(msg: Telegram): Boolean = {
     msg.extraInfo.foreach { info =>
       val pfr = info.asInstanceOf[PathFinderRequest[N]]
-      msg.sender.foreach { sender =>
-        pfr.client = Nullable(sender) // set the client to be notified once the request has completed
-      }
+      pfr.client = msg.sender // set the client to be notified once the request has completed (empty when broadcast)
       pfr.status = PathFinderRequest.SEARCH_NEW // Reset status
       pfr.statusChanged = true // Status has just changed
       pfr.executionFrames = 0 // Reset execution frames counter

@@ -94,14 +94,15 @@ class PathFinderRequestControl[N] {
           server.foreach { srv =>
             timepiece.foreach { implicit tp: Timepiece =>
               val disp = request.dispatcher.getOrElse(MessageManager)
-              request.client.foreach { client =>
-                disp.dispatchMessage(
-                  msg = request.responseMessageCode,
-                  sender = Nullable(srv),
-                  receiver = Nullable(client),
-                  extraInfo = Nullable(request)
-                )(using tp)
-              }
+              // Dispatch unconditionally; `request.client` may be empty, in which case an empty
+              // receiver broadcasts the result to every listener registered for the response code
+              // (standard MessageDispatcher semantics).
+              disp.dispatchMessage(
+                msg = request.responseMessageCode,
+                sender = Nullable(srv),
+                receiver = request.client,
+                extraInfo = Nullable(request)
+              )(using tp)
             }
           }
 
