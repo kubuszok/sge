@@ -725,49 +725,15 @@ jobs:
           SGE_CI_REQUIRE_PANAMA: "1"
 
   # ─── Android IT tests (emulator) ──────────────────────────────
-
-  test-android:
-    name: Android tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          submodules: false
-
-      - uses: coursier/setup-action@v3.0.0
-        with:
-          jvm: ${{ env.JVM_VERSION }}
-          apps: sbt
-
-      - name: Publish SGE to local Maven (all platforms)
-        run: sbt 'sge/publishM2; writeDemoVersion'
-
-      - name: Publish sge-build plugin to Ivy local
-        working-directory: sge-build
-        run: sbt publishLocal
-
-      - name: Enable KVM
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-
-      - name: Android smoke tests
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 35
-          target: google_apis
-          arch: x86_64
-          force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -no-metrics
-          disable-animations: true
-          script: sbt 'sge-android-smoke/testFull'
-
-  # ─── Android IT tests (emulator, depends on unit tests) ────────
+  #
+  # ISS-698: a former `test-android` job here ran `sge-android-smoke/testFull` on
+  # a booted emulator, but sge-android-smoke has NO test sources — a vacuous
+  # 0-test pass that also gated this job via `needs`. Deleted; `test-android-it`
+  # below independently builds the smoke APK and runs the real smoke IT in its own
+  # emulator, so it is the actual Android coverage and needs no separate gate.
 
   test-android-it:
     name: Android IT tests
-    needs: [test-android]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
