@@ -142,11 +142,13 @@ private object GlfwC {
   // Time
   def glfwGetTime(): CDouble = extern
 
-  // Native window handle (glfw3native.h) — platform-specific, may not be available on all targets
-  def glfwGetCocoaWindow(window:   Ptr[Byte]): Ptr[Byte]         = extern
-  def glfwGetX11Window(window:     Ptr[Byte]): CUnsignedLongLong = extern
-  def glfwGetWin32Window(window:   Ptr[Byte]): Ptr[Byte]         = extern
-  def glfwGetWaylandWindow(window: Ptr[Byte]): Ptr[Byte]         = extern
+  // Native window handle (glfw3native.h) — platform-specific, may not be available on all targets.
+  // NOTE: glfwGetWaylandWindow is intentionally NOT declared here — the shipped sn-provider GLFW
+  // build lacks Wayland support, and Scala Native links @extern symbols eagerly at nativeLink time,
+  // so binding it would break every native link with an undefined reference (ISS-761).
+  def glfwGetCocoaWindow(window: Ptr[Byte]): Ptr[Byte]         = extern
+  def glfwGetX11Window(window:   Ptr[Byte]): CUnsignedLongLong = extern
+  def glfwGetWin32Window(window: Ptr[Byte]): Ptr[Byte]         = extern
 }
 
 // ─── Objective-C runtime bindings (macOS only) ───────────────────────────────
@@ -314,10 +316,16 @@ private[sge] object WindowingOpsNative extends WindowingOps {
     else if (platform == WindowingOps.GLFW_PLATFORM_WIN32)
       longFromPtr(GlfwC.glfwGetWin32Window(ptrFromLong(windowHandle)))
     else if (platform == WindowingOps.GLFW_PLATFORM_WAYLAND)
-      // Wayland (ISS-761): return the wl_surface* for EGL. SGE forces the X11 GLFW platform on
-      // Linux in init() (see above), so this branch normally stays dormant on the ANGLE/EGL path;
-      // it exists so getNativeWindowHandle is total under a Wayland session GLFW is built for.
-      longFromPtr(GlfwC.glfwGetWaylandWindow(ptrFromLong(windowHandle)))
+      // Wayland (ISS-761): a Wayland session would need the wl_surface* (glfwGetWaylandWindow) for
+      // EGL. The shipped sn-provider GLFW build does NOT include Wayland support, so that extern
+      // symbol is absent — and Scala Native links @extern symbols EAGERLY at nativeLink time, which
+      // would break every native link (undefined reference to glfwGetWaylandWindow). We therefore do
+      // NOT bind that extern here. SGE forces the X11 GLFW platform on Linux in init() (see above),
+      // so this branch stays dormant on the ANGLE/EGL path; keeping it total (ISS-761's contract)
+      // means throwing rather than silently mislinking.
+      throw new UnsupportedOperationException(
+        "Wayland window handles require a Wayland-enabled GLFW build, which the shipped sn-provider does not include (ISS-761); the X11 init hint keeps GLFW off Wayland by default"
+      )
     else
       throw new UnsupportedOperationException(s"getNativeWindowHandle not supported on platform $platform")
   }
