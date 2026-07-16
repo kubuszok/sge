@@ -695,6 +695,48 @@ jobs:
           test "$RC" -eq 0 || { echo "FAIL: native binary exited $RC"; exit 1; }
           echo "OK: native RegressionApp ran headless, SMOKE_TEST_PASSED, exit 0"
 
+  # ─── Gauntlet (headless feature probes, ISS-766) ───────────────
+  #
+  # Runs the sge-test/gauntlet feature-verification app in --headless mode:
+  # non-GPU probes (files, assets, json/xml, net loopback, jbump, ai fsm,
+  # audio lifecycle) execute and must pass; requiresGpu probes are reported
+  # as skipped_gpu — the honest partial verification a display-less runner
+  # can do. The report (report.json + report.md) is uploaded as an artifact.
+  # Exit code = hard failures (failed + unexpected_pass).
+
+  gauntlet-headless:
+    name: Gauntlet (headless probes)
+    needs: [compile-gate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: false
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: sbt
+
+      - uses: sbt/setup-sbt@v1
+
+      - name: Run gauntlet (headless)
+        run: sbt "sge-gauntlet/run --headless --report ${{ github.workspace }}/target/gauntlet"
+
+      - name: Print gauntlet summary
+        if: always()
+        run: cat target/gauntlet/report.md || true
+
+      - name: Upload gauntlet report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gauntlet-report
+          path: target/gauntlet
+          if-no-files-found: warn
+
   # ─── Desktop IT tests (GLFW + native libs) ─────────────────────
 
   test-desktop-it:
