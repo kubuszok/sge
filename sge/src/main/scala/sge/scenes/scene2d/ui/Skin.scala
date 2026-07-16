@@ -224,11 +224,7 @@ class Skin()(using Sge) extends AutoCloseable {
       font.data.markupEnabled = markupEnabled
       font.integerPositions = useIntPositions
       // Scaled size is the desired cap height to scale the font to.
-      if (scaledSize != -1) {
-        val s = scaledSize / font.capHeight
-        font.data.scaleX = s
-        font.data.scaleY = s
-      }
+      if (scaledSize != -1) font.data.setScale(scaledSize / font.capHeight)
       font
     } catch {
       case ex: RuntimeException =>

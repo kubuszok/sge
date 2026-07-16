@@ -152,17 +152,11 @@ class Label(initialText: Nullable[CharSequence], initialStyle: Label.LabelStyle)
     val font      = _cache.font
     val oldScaleX = font.scaleX
     val oldScaleY = font.scaleY
-    if (fontScaleChanged) {
-      font.data.scaleX = _fontScaleX
-      font.data.scaleY = _fontScaleY
-    }
+    if (fontScaleChanged) font.data.setScale(_fontScaleX, _fontScaleY)
 
     computePrefSize(Label.prefSizeLayout)
 
-    if (fontScaleChanged) {
-      font.data.scaleX = oldScaleX
-      font.data.scaleY = oldScaleY
-    }
+    if (fontScaleChanged) font.data.setScale(oldScaleX, oldScaleY)
   }
 
   protected def computePrefSize(layout: GlyphLayout): Unit = {
@@ -185,10 +179,7 @@ class Label(initialText: Nullable[CharSequence], initialStyle: Label.LabelStyle)
     val font      = _cache.font
     val oldScaleX = font.scaleX
     val oldScaleY = font.scaleY
-    if (fontScaleChanged) {
-      font.data.scaleX = _fontScaleX
-      font.data.scaleY = _fontScaleY
-    }
+    if (fontScaleChanged) font.data.setScale(_fontScaleX, _fontScaleY)
 
     val doWrap = this._wrap && ellipsis.isEmpty
     if (doWrap) {
@@ -246,10 +237,7 @@ class Label(initialText: Nullable[CharSequence], initialStyle: Label.LabelStyle)
     layout.setText(font, textStr, 0, textStr.length, Color.WHITE, textWidth, _lineAlign.asInstanceOf[Int], doWrap, ellipsis)
     _cache.setText(layout, x, y)
 
-    if (fontScaleChanged) {
-      font.data.scaleX = oldScaleX
-      font.data.scaleY = oldScaleY
-    }
+    if (fontScaleChanged) font.data.setScale(oldScaleX, oldScaleY)
   }
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
