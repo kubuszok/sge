@@ -24,8 +24,6 @@ object FontDrawProbe extends FeatureProbe {
 
   override def requiresGpu: Boolean = true
 
-  override def knownIssue: Option[String] = Some("ISS-584")
-
   override def frames: Int = 1
 
   private val checks = ListBuffer.empty[Check]

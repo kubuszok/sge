@@ -339,7 +339,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
 
   def setText(str: CharSequence, x: Float, y: Float): GlyphLayout = {
     clear()
-    addText(str, x, y, 0, str.length(), 0, 0, false) // Align.left = 0
+    addText(str, x, y, 0, str.length(), 0, sge.utils.Align.left.toInt, false) // Align.left = 1 << 3
   }
 
   def setText(str: CharSequence, x: Float, y: Float, targetWidth: Float, halign: Int, wrap: Boolean): GlyphLayout = {
@@ -363,7 +363,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   }
 
   def addText(str: CharSequence, x: Float, y: Float): GlyphLayout =
-    addText(str, x, y, 0, str.length(), 0, 0, false, Nullable.empty) // Align.left = 0
+    addText(str, x, y, 0, str.length(), 0, sge.utils.Align.left.toInt, false, Nullable.empty) // Align.left = 1 << 3
 
   def addText(str: CharSequence, x: Float, y: Float, targetWidth: Float, halign: Int, wrap: Boolean): GlyphLayout =
     addText(str, x, y, 0, str.length(), targetWidth, halign, wrap, Nullable.empty)
