@@ -79,8 +79,12 @@ object RemoteCacheSetup {
   val instanceName: String = s"sge-$context-$osFamily-$osArch"
 
   /** Value for `Global / remoteCache`. `None` (cache off) unless a key was resolved. */
+  // Host is the org subdomain (kubuszok.buildbuddy.io, set by the maintainer
+  // 2026-07-16) rather than the generic remote.buildbuddy.io endpoint —
+  // BuildBuddy routes/authenticates org traffic on the subdomain once one is
+  // configured, and it scopes cache/observability to the org.
   val endpoint: Option[URI] =
-    apiKey.map(_ => uri(s"grpcs://remote.buildbuddy.io/$instanceName"))
+    apiKey.map(_ => uri(s"grpcs://kubuszok.buildbuddy.io/$instanceName"))
 
   /** Values for `Global / remoteCacheHeaders`: the BuildBuddy auth header, when enabled. */
   val headers: Seq[String] =
