@@ -128,6 +128,9 @@ object ButtonBar {
 
     def text(using Sge): String = Locales.getButtonBarBundle.get(key)
 
-    override def toString: String = key
+    // Upstream ButtonBar.java:184-186 returns the localized text, not the raw
+    // key. toString cannot take (using Sge), so resolve it from the loaded
+    // VisUI instance (same seam Locales.CommonText.toString uses).
+    override def toString: String = text(using VisUI.sgeInstance)
   }
 }

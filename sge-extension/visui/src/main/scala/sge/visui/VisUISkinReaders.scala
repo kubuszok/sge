@@ -58,9 +58,12 @@ import sge.visui.widget.toast.Toast
   * sets fields reflectively; the SGE Skin uses an explicit, reflection-free registry instead, so VisUI registers the mappings here before any [[Skin]] is constructed (mirrors the implicit
   * registration libGDX got for free via reflection).
   *
-  * This currently wires the style types the VisUI runtime relies on for its core skin contract: [[Sizes]] (resolved by [[VisUI.getSizes]] for both [[VisUI.SkinScale.X1]] and [[VisUI.SkinScale.X2]])
-  * and [[VisTextButton.VisTextButtonStyle]] (every no-arg / style-name [[VisTextButton]] constructor resolves it from the skin). Additional VisUI widget styles get their readers added incrementally
-  * under the same seam (see ISS-534 for the general mechanism).
+  * [[register]] wires the full set of 25 VisUI style readers (see the [[SkinStyleReader.register]] map): [[Sizes]], [[SimpleListAdapter.SimpleListAdapterStyle]],
+  * [[SimpleFormValidator.FormValidatorStyle]], [[BusyBar.BusyBarStyle]], [[LinkLabel.LinkLabelStyle]], [[ListViewStyle]], [[Menu.MenuStyle]], [[MenuBar.MenuBarStyle]], [[MenuItem.MenuItemStyle]],
+  * [[MultiSplitPane.MultiSplitPaneStyle]], [[PopupMenu.PopupMenuStyle]], [[Separator.SeparatorStyle]], [[Tooltip.TooltipStyle]], [[VisCheckBox.VisCheckBoxStyle]],
+  * [[VisImageButton.VisImageButtonStyle]], [[VisImageTextButton.VisImageTextButtonStyle]], [[VisSplitPane.VisSplitPaneStyle]], [[VisTextButton.VisTextButtonStyle]],
+  * [[VisTextField.VisTextFieldStyle]], [[ColorPickerStyle]], [[ColorPickerWidgetStyle]], [[FileChooserStyle]], [[Spinner.SpinnerStyle]], [[TabbedPane.TabbedPaneStyle]] and [[Toast.ToastStyle]] — the
+  * complete VisUI skin contract, alongside their JSON class tags and style-parent hierarchies (see ISS-534 for the general mechanism).
   */
 private[visui] object VisUISkinReaders {
 

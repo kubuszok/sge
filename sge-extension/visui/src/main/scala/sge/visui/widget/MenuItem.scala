@@ -20,7 +20,7 @@ package widget
 
 import scala.language.implicitConversions
 
-import sge.Input.Key
+import sge.Input.{ Key, Keys }
 import sge.graphics.Color
 import sge.graphics.g2d.Batch
 import sge.math.Vector2
@@ -174,8 +174,9 @@ class MenuItem private (text: String, initImage: Nullable[Image], initStyle: Men
     }
 
   private[widget] def fireChangeEvent(): Unit = {
-    val changeEvent = new ChangeListener.ChangeEvent()
+    val changeEvent = Actor.POOLS.obtain[ChangeListener.ChangeEvent]
     fire(changeEvent)
+    Actor.POOLS.free(changeEvent)
   }
 
   override def style: MenuItem.MenuItemStyle = _style
@@ -228,20 +229,31 @@ class MenuItem private (text: String, initImage: Nullable[Image], initStyle: Men
   }
 
   override def isOver: Boolean =
-    if (containerMenu.isEmpty || containerMenu.get.getActiveItem.isEmpty) super.isOver
+    // containerMenu may still be JVM-null here: isOver is reached through the
+    // Button superclass constructor (setStyle -> backgroundDrawable) BEFORE this
+    // subclass's field initializers assign Nullable.empty (same super-init
+    // hazard the `_label != null` guard in setStyle handles). Java guards it
+    // with `containerMenu == null` (MenuItem.java:282); a JVM-null field is not
+    // eq the Nullable.empty sentinel, so treat it explicitly as "no container".
+    if ((containerMenu.asInstanceOf[AnyRef] eq null) || containerMenu.isEmpty || containerMenu.get.getActiveItem.isEmpty) super.isOver
     else containerMenu.get.getActiveItem.get == this
 
   def generateDisabledImage:                   Boolean = _generateDisabledImage
   def generateDisabledImage_=(value: Boolean): Unit    = _generateDisabledImage = value
 
-  def setShortcut(keycode: Key): MenuItem = {
-    val keyName: String = OsUtils.getShortcutFor(keycode)
-    _shortcutLabel.setText(Nullable[CharSequence](keyName))
-    packContainerMenu()
-    this
-  }
+  def setShortcut(keycode: Key): MenuItem =
+    // Upstream MenuItem.java:306-308 routes the single-keycode overload through
+    // Keys.toString (raw key name), NOT OsUtils.getShortcutFor: modifier
+    // keycodes (e.g. CONTROL_LEFT) must render as their key name here, only the
+    // varargs overload below maps them to Ctrl/Alt/Shift. Keys.toString yields
+    // Nullable[String]; getOrElse("") matches upstream's null -> empty label.
+    setShortcut(Keys.toString(keycode).getOrElse(""))
 
-  def getShortcut: String = _shortcutLabel.text.toString
+  // Upstream returns shortcutLabel.getText() (a CharSequence). Label.text is a
+  // DynamicArray[Char], whose toString is a bracketed element list ("[L, -, C,
+  // t, r, l]"), so build the String from its chars — the same conversion Label
+  // uses internally (new String(_text.toArray)).
+  def getShortcut: String = new String(_shortcutLabel.text.toArray)
 
   def setShortcut(text: String): MenuItem = {
     _shortcutLabel.setText(text)
@@ -264,7 +276,7 @@ class MenuItem private (text: String, initImage: Nullable[Image], initStyle: Men
   def getImageCell:          Cell[Image]              = imageCell
   def getLabel:              Label                    = _label
   def getLabelCell:          Nullable[Cell[Label]]    = getCell(_label)
-  def getText:               String                   = _label.text.toString
+  def getText:               String                   = new String(_label.text.toArray)
   def setText(text: String): Unit                     = _label.setText(text)
   def getSubMenuIconCell:    Cell[Image]              = subMenuIconCell
   def getShortcutCell:       Nullable[Cell[VisLabel]] = getCell(_shortcutLabel)
