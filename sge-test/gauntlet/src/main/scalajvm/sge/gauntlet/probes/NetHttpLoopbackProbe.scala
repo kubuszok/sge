@@ -27,7 +27,7 @@ object NetHttpLoopbackProbe extends FeatureProbe {
   override def init(ctx: ProbeContext): Unit =
     checks.clear()
 
-  private final class RecordingListener(record: (String, Int) => Unit, done: CountDownLatch) extends HttpResponseListener {
+  final private class RecordingListener(record: (String, Int) => Unit, done: CountDownLatch) extends HttpResponseListener {
 
     override def handleHttpResponse(httpResponse: HttpResponse): Unit = {
       record(httpResponse.resultAsString, httpResponse.status.statusCode)

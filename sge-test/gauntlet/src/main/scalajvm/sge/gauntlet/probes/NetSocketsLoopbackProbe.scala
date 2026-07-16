@@ -44,9 +44,9 @@ object NetSocketsLoopbackProbe extends FeatureProbe {
       val serverHints = new ServerSocketHints()
       val server      = net.newServerSocket(Protocol.TCP, "127.0.0.1", port, serverHints)
       try {
-        val accepted = new java.util.concurrent.CountDownLatch(1)
+        val accepted               = new java.util.concurrent.CountDownLatch(1)
         @volatile var serverSideOk = false
-        val serverThread = new Thread(
+        val serverThread           = new Thread(
           () => {
             val socket = server.accept(new SocketHints())
             try {

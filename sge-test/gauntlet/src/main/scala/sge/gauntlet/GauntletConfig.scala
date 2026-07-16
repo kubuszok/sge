@@ -28,9 +28,7 @@ final case class GauntletConfig(
 
   /** Applies `--only` / `--area` filtering to a probe list. */
   def select(probes: List[FeatureProbe]): List[FeatureProbe] =
-    probes
-      .filter(p => onlyPrefix.forall(p.id.startsWith))
-      .filter(p => areaFilter.forall(_ == p.area))
+    probes.filter(p => onlyPrefix.forall(p.id.startsWith)).filter(p => areaFilter.forall(_ == p.area))
 }
 
 object GauntletConfig {
@@ -48,15 +46,15 @@ object GauntletConfig {
   def parse(args: Array[String]): Either[String, GauntletConfig] = {
     def loop(rest: List[String], acc: GauntletConfig): Either[String, GauntletConfig] =
       rest match {
-        case Nil                      => Right(acc)
-        case "--all" :: tail          => loop(tail, acc.copy(onlyPrefix = None, areaFilter = None))
-        case "--only" :: p :: tail    => loop(tail, acc.copy(onlyPrefix = Some(p)))
-        case "--area" :: a :: tail    => loop(tail, acc.copy(areaFilter = Some(a)))
-        case "--headless" :: tail     => loop(tail, acc.copy(headless = true))
-        case "--interactive" :: tail  => loop(tail, acc.copy(interactive = true))
-        case "--report" :: d :: tail  => loop(tail, acc.copy(reportDir = d))
+        case Nil                                       => Right(acc)
+        case "--all" :: tail                           => loop(tail, acc.copy(onlyPrefix = None, areaFilter = None))
+        case "--only" :: p :: tail                     => loop(tail, acc.copy(onlyPrefix = Some(p)))
+        case "--area" :: a :: tail                     => loop(tail, acc.copy(areaFilter = Some(a)))
+        case "--headless" :: tail                      => loop(tail, acc.copy(headless = true))
+        case "--interactive" :: tail                   => loop(tail, acc.copy(interactive = true))
+        case "--report" :: d :: tail                   => loop(tail, acc.copy(reportDir = d))
         case ("--only" | "--area" | "--report") :: Nil => Left(s"missing value for ${rest.head}\n$usage")
-        case other :: _               => Left(s"unknown argument: $other\n$usage")
+        case other :: _                                => Left(s"unknown argument: $other\n$usage")
       }
     loop(args.toList, GauntletConfig()).flatMap { cfg =>
       if (cfg.headless && cfg.interactive) Left("--headless and --interactive are mutually exclusive")

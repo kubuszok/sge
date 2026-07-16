@@ -24,7 +24,7 @@ object MusicOnCompleteProbe extends FeatureProbe {
 
   override def knownIssue: Option[String] = Some("ISS-760")
 
-  override def frames: Int = 150
+  override def frames: Int = 10
 
   private val checks = ListBuffer.empty[Check]
 
@@ -49,6 +49,14 @@ object MusicOnCompleteProbe extends FeatureProbe {
     music.foreach { m =>
       if (m.playing) {
         playingObserved = true
+      }
+      // The frame loop is unthrottled (no vsync guarantee), so frame count is not
+      // wall time — and track completion IS wall-time-driven. On the last frame,
+      // wait (bounded) for the 0.3s clip to actually end before verify runs.
+      if (frame >= frames) {
+        val deadline = System.currentTimeMillis() + 3000L
+        while ((m.playing || !fired) && System.currentTimeMillis() < deadline)
+          Thread.sleep(20L)
       }
     }
 

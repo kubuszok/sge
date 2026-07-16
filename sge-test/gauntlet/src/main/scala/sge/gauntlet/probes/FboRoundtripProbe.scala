@@ -28,7 +28,7 @@ object FboRoundtripProbe extends FeatureProbe {
 
   private val checks = ListBuffer.empty[Check]
 
-  private var inner:    Option[FrameBuffer]        = None
+  private var inner:    Option[FrameBuffer]          = None
   private var readback: Option[(Int, Int, Int, Int)] = None
 
   override def init(ctx: ProbeContext): Unit = {

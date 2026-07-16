@@ -12,15 +12,16 @@ import scala.collection.mutable.ListBuffer
 
 /** Runs the selected probes one after another, a few frames each, then writes the report and exits (or, with `--interactive`, stays open on the results grid).
   *
-  * Per app frame the state machine advances the current probe by exactly one phase step: frame 0 runs `init`, frames 1..N run `render(frame)`, frame N+1 runs `verify` plus the FBO screenshot
-  * capture. GPU probes execute every phase inside the shared 1280x720 FBO so pixel readbacks and screenshots observe exactly what the probe drew; in windowed mode the default framebuffer then shows
-  * the live results grid.
+  * Per app frame the state machine advances the current probe by exactly one phase step: frame 0 runs `init`, frames 1..N run `render(frame)`, frame N+1 runs `verify` plus the FBO screenshot capture.
+  * GPU probes execute every phase inside the shared 1280x720 FBO so pixel readbacks and screenshots observe exactly what the probe drew; in windowed mode the default framebuffer then shows the live
+  * results grid.
   */
 class GauntletApp(
   probes: List[FeatureProbe],
   cfg:    GauntletConfig,
   onDone: List[ProbeResult] => Unit
-)(using sge: Sge) extends ApplicationListener {
+)(using sge: Sge)
+    extends ApplicationListener {
 
   private val queue = probes.toArray
 
@@ -83,10 +84,10 @@ class GauntletApp(
 
   /** Runs one phase body, inside the FBO for GPU probes, converting exceptions into an aborting check. */
   private def runPhase(probe: FeatureProbe, phase: String)(body: => Unit): Unit =
-    try {
+    try
       if (probe.requiresGpu) ensureGpu().fbo.use(body)
       else body
-    } catch {
+    catch {
       case scala.util.control.NonFatal(e) =>
         ctx.foreach(_.log(s"exception in $phase: $e"))
         e.getStackTrace.take(5).foreach(el => ctx.foreach(_.log(s"  at $el")))
@@ -131,8 +132,8 @@ class GauntletApp(
       if (aborted.isEmpty && checks.isEmpty)
         List(Check("produced-checks", passed = false, "at least one check", "probe returned no checks"))
       else checks ++ aborted.toList
-    val allPassed  = effective.nonEmpty && effective.forall(_.passed)
-    val status = (probe.knownIssue, allPassed) match {
+    val allPassed = effective.nonEmpty && effective.forall(_.passed)
+    val status    = (probe.knownIssue, allPassed) match {
       case (Some(_), true)  => ProbeStatus.UnexpectedPass
       case (Some(_), false) => ProbeStatus.KnownFail
       case (None, true)     => ProbeStatus.Passed

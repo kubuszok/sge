@@ -25,16 +25,16 @@ object ModelBatchCubeProbe extends FeatureProbe {
 
   private val checks = ListBuffer.empty[Check]
 
-  private var model:      Option[Model]         = None
-  private var instance:   Option[ModelInstance] = None
-  private var modelBatch: Option[ModelBatch]    = None
+  private var model:      Option[Model]             = None
+  private var instance:   Option[ModelInstance]     = None
+  private var modelBatch: Option[ModelBatch]        = None
   private var camera:     Option[PerspectiveCamera] = None
 
   override def init(ctx: ProbeContext): Unit = {
     checks.clear()
-    given Sge = ctx.sgeCtx
+    given Sge   = ctx.sgeCtx
     val builder = new sge.graphics.g3d.utils.ModelBuilder()
-    val m = builder.createBox(
+    val m       = builder.createBox(
       2f,
       2f,
       2f,

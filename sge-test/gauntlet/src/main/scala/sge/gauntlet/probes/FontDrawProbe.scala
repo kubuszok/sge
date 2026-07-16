@@ -37,7 +37,7 @@ object FontDrawProbe extends FeatureProbe {
     checks.clear()
     layout = None
     given Sge = ctx.sgeCtx
-    val f = GauntletFont.create()
+    val f     = GauntletFont.create()
     f.data.setScale(2f)
     font = Some(f)
     ctx.clear(0f, 0f, 0f, 1f)

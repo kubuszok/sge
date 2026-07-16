@@ -12,9 +12,9 @@ object HeadlessRunner {
 
   /** Blocks until the run completes and returns the process exit code (the hard-failure count). */
   def run(cfg: GauntletConfig, probes: List[FeatureProbe]): Int = {
-    val completion              = new java.util.concurrent.CountDownLatch(1)
-    @volatile var exitCode: Int = 255
-    val app: Sge ?=> ApplicationListener = new GauntletApp(
+    val completion = new java.util.concurrent.CountDownLatch(1)
+    @volatile var exitCode: Int                         = 255
+    val app:                Sge ?=> ApplicationListener = new GauntletApp(
       probes,
       cfg,
       results => {

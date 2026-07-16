@@ -33,8 +33,8 @@ object GauntletMain {
         } else if (cfg.headless) {
           System.exit(HeadlessRunner.run(cfg, selected))
         } else {
-          @volatile var exitCode: Int = 255
-          val app: Sge ?=> ApplicationListener =
+          @volatile var exitCode: Int                         = 255
+          val app:                Sge ?=> ApplicationListener =
             new GauntletApp(selected, cfg, results => exitCode = ProbeResult.hardFailures(results))
           val config = DesktopApplicationConfig()
           config.title = "SGE Gauntlet"

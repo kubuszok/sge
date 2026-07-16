@@ -88,8 +88,7 @@ object JsonXmlProbe extends FeatureProbe {
     checks += Check.eq(
       "json-nested-number",
       3.5d,
-      field(json, "nested")
-        .flatMap(nested => field(nested, "pi")) match {
+      field(json, "nested").flatMap(nested => field(nested, "pi")) match {
         case Some(Json.Num(n)) => n.toDouble.getOrElse(Double.NaN)
         case _                 => Double.NaN
       }

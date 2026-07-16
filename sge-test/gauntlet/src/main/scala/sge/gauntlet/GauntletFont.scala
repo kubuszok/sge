@@ -10,8 +10,8 @@ import sge.graphics.g2d.{ BitmapFont, BitmapFontData, TextureRegion }
 import lowlevel.Nullable
 import lowlevel.util.DynamicArray
 
-/** Builds a [[BitmapFont]] entirely in code: a classic 5x7 pixel font baked into a 128x64 texture at runtime. Uppercase letters, digits and common punctuation; lowercase input maps onto the
-  * uppercase glyphs. Used by the interactive results UI and the font probes — the engine ships no default font (lsans-15 is unported), so the gauntlet brings its own.
+/** Builds a [[BitmapFont]] entirely in code: a classic 5x7 pixel font baked into a 128x64 texture at runtime. Uppercase letters, digits and common punctuation; lowercase input maps onto the uppercase
+  * glyphs. Used by the interactive results UI and the font probes — the engine ships no default font (lsans-15 is unported), so the gauntlet brings its own.
   */
 object GauntletFont {
 

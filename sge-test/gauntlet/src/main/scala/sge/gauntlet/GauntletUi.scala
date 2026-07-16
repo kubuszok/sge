@@ -30,30 +30,32 @@ final class GauntletUi(onExit: () => Unit)(using sge: Sge) {
 
   private val stage = new Stage()
 
-  private var results:   List[ProbeResult] = Nil
-  private var running:   Option[String]    = None
-  private var selected:  Int               = 0
-  private var dirty:     Boolean           = true
+  private var results:   List[ProbeResult]                  = Nil
+  private var running:   Option[String]                     = None
+  private var selected:  Int                                = 0
+  private var dirty:     Boolean                            = true
   private val shots:     mutable.Map[String, TextureRegion] = mutable.Map.empty
   private val shotOwned: mutable.ListBuffer[Texture]        = mutable.ListBuffer.empty
 
   sge.input.setInputProcessor(stage)
 
-  stage.addListener(new InputListener() {
-    override def keyDown(event: InputEvent, keycode: Key): Boolean =
-      keycode match {
-        case Keys.UP =>
-          select(selected - 1)
-          true
-        case Keys.DOWN =>
-          select(selected + 1)
-          true
-        case Keys.ESCAPE =>
-          onExit()
-          true
-        case _ => false
-      }
-  })
+  stage.addListener(
+    new InputListener() {
+      override def keyDown(event: InputEvent, keycode: Key): Boolean =
+        keycode match {
+          case Keys.UP =>
+            select(selected - 1)
+            true
+          case Keys.DOWN =>
+            select(selected + 1)
+            true
+          case Keys.ESCAPE =>
+            onExit()
+            true
+          case _ => false
+        }
+    }
+  )
 
   def setResults(newResults: List[ProbeResult]): Unit = {
     results = newResults
@@ -74,12 +76,11 @@ final class GauntletUi(onExit: () => Unit)(using sge: Sge) {
     dirty = true
   }
 
-  private def select(index: Int): Unit = {
+  private def select(index: Int): Unit =
     if (results.nonEmpty) {
       selected = Math.max(0, Math.min(results.length - 1, index))
       dirty = true
     }
-  }
 
   private def statusColor(status: ProbeStatus): Color = status match {
     case ProbeStatus.Passed         => new Color(0.25f, 0.85f, 0.35f, 1f)

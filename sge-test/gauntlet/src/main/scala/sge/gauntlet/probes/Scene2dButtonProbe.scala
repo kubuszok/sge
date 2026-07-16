@@ -16,15 +16,15 @@ import lowlevel.Nullable
 
 import scala.collection.mutable.ListBuffer
 
-/** Builds a Button from a minimal programmatic Skin, drives it with synthetic hover/click events through the Stage's input-processor interface, and asserts the state flags and the background
-  * drawable cascade.
+/** Builds a Button from a minimal programmatic Skin, drives it with synthetic hover/click events through the Stage's input-processor interface, and asserts the state flags and the background drawable
+  * cascade.
   *
   * knownIssue ISS-758: `Button.backgroundDrawable` turned the original fall-through into closed if/else nesting — a checked+hovered button whose style has no `checkedOver` must fall back to
   * `checked`, but renders `up` instead.
   */
 object Scene2dButtonProbe extends FeatureProbe {
 
-  private final class ProbeButton(style: Button.ButtonStyle)(using Sge) extends Button(style) {
+  final private class ProbeButton(style: Button.ButtonStyle)(using Sge) extends Button(style) {
     def bg: Nullable[Drawable] = backgroundDrawable
   }
 
@@ -132,9 +132,17 @@ object Scene2dButtonProbe extends FeatureProbe {
             val _ = ctx.injectTouchUp(CenterScreenX, CenterScreenY)
             checkedAfterClick = b.isChecked
           case 5 =>
-            // move the pointer away: checked, not hovered
+            // move the pointer away: checked, not hovered. ClickListener keeps the
+            // button "visually pressed" for 0.1s wall time after touchUp — wait it
+            // out (bounded) so we sample the settled checked state, not the tail of
+            // the press.
             val _ = ctx.injectMouseMoved(1200, 20)
             st.act(Seconds(ctx.fixedDelta))
+            val deadline = System.currentTimeMillis() + 1000L
+            while (b.isPressed && System.currentTimeMillis() < deadline) {
+              Thread.sleep(20L)
+              st.act(Seconds(ctx.fixedDelta))
+            }
             bgCheckedNoHover = Some(describe(b.bg))
           case _ =>
             // hover again: checked + over without checkedOver must fall back to checked (ISS-758)

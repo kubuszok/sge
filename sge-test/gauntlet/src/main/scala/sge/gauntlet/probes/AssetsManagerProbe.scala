@@ -20,8 +20,7 @@ object AssetsManagerProbe extends FeatureProbe {
   /** Minimal text asset for the custom loader. */
   final case class TextFixture(content: String)
 
-  private final class TextFixtureLoader(resolver: FileHandleResolver)
-      extends SynchronousAssetLoader[TextFixture, AssetLoaderParameters[TextFixture]](resolver) {
+  final private class TextFixtureLoader(resolver: FileHandleResolver) extends SynchronousAssetLoader[TextFixture, AssetLoaderParameters[TextFixture]](resolver) {
 
     override def load(assetManager: AssetManager, fileName: String, file: FileHandle, parameter: AssetLoaderParameters[TextFixture]): TextFixture =
       TextFixture(file.readString())
@@ -41,13 +40,13 @@ object AssetsManagerProbe extends FeatureProbe {
   private val checks = ListBuffer.empty[Check]
 
   private var manager: Option[AssetManager] = None
-  private var path                          = ""
-  private var loadedAtFrame                 = -1
+  private var path          = ""
+  private var loadedAtFrame = -1
 
   override def init(ctx: ProbeContext): Unit = {
     checks.clear()
     loadedAtFrame = -1
-    given Sge = ctx.sgeCtx
+    given Sge   = ctx.sgeCtx
     val fixture = ctx.tempDir.child("fixture.txt")
     fixture.writeString("gauntlet-fixture-content", false)
     path = fixture.path

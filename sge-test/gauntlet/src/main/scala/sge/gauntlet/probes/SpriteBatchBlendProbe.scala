@@ -27,7 +27,7 @@ object SpriteBatchBlendProbe extends FeatureProbe {
 
   override def init(ctx: ProbeContext): Unit = {
     checks.clear()
-    given Sge = ctx.sgeCtx
+    given Sge  = ctx.sgeCtx
     val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888)
     pixmap.setColor(0xffffffff)
     pixmap.fill()

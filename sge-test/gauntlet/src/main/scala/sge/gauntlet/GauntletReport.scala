@@ -11,13 +11,13 @@ object GauntletReport {
   private def jsonEscape(s: String): String = {
     val sb = new StringBuilder
     s.foreach {
-      case '"'                => sb.append("\\\"")
-      case '\\'               => sb.append("\\\\")
-      case '\n'               => sb.append("\\n")
-      case '\r'               => sb.append("\\r")
-      case '\t'               => sb.append("\\t")
-      case c if c.toInt < 32  => sb.append(f"\\u${c.toInt}%04x")
-      case c                  => sb.append(c)
+      case '"'               => sb.append("\\\"")
+      case '\\'              => sb.append("\\\\")
+      case '\n'              => sb.append("\\n")
+      case '\r'              => sb.append("\\r")
+      case '\t'              => sb.append("\\t")
+      case c if c.toInt < 32 => sb.append(f"\\u${c.toInt}%04x")
+      case c                 => sb.append(c)
     }
     sb.toString
   }
@@ -27,9 +27,7 @@ object GauntletReport {
   def toJson(results: List[ProbeResult], mode: String): String = {
     val probes = results
       .map { r =>
-        val checks = r.checks
-          .map(c => s"""        {"name":${q(c.name)},"passed":${c.passed},"expected":${q(c.expected)},"actual":${q(c.actual)}}""")
-          .mkString("[\n", ",\n", "\n      ]")
+        val checks     = r.checks.map(c => s"""        {"name":${q(c.name)},"passed":${c.passed},"expected":${q(c.expected)},"actual":${q(c.actual)}}""").mkString("[\n", ",\n", "\n      ]")
         val checksJson = if (r.checks.isEmpty) "[]" else checks
         val screenshot = r.screenshotPath.fold("")(p => s"""      "screenshotPath": ${q(p)},\n""")
         val logs       = r.logLines.map(l => s"        ${q(l)}").mkString("[\n", ",\n", "\n      ]")
@@ -54,16 +52,12 @@ object GauntletReport {
   }
 
   def toMarkdown(results: List[ProbeResult], mode: String): String = {
-    val counts = ProbeStatus.values.toList
-      .map(s => s -> results.count(_.status == s))
-      .filter(_._2 > 0)
-      .map { case (s, n) => s"${s.wireName}: $n" }
-      .mkString(", ")
-    val rows = results
+    val counts = ProbeStatus.values.toList.map(s => s -> results.count(_.status == s)).filter(_._2 > 0).map { case (s, n) => s"${s.wireName}: $n" }.mkString(", ")
+    val rows   = results
       .map { r =>
         val passedChecks = r.checks.count(_.passed)
-        val failedNames = r.checks.filterNot(_.passed).map(_.name).mkString(", ")
-        val detail =
+        val failedNames  = r.checks.filterNot(_.passed).map(_.name).mkString(", ")
+        val detail       =
           if (r.status == ProbeStatus.SkippedGpu) "requires GPU — skipped in headless mode"
           else if (failedNames.isEmpty) ""
           else s"failed: $failedNames"

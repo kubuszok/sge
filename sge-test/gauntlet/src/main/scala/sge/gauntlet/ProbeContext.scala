@@ -16,8 +16,8 @@ import scala.collection.mutable.ArrayBuffer
 
 /** Per-probe execution context handed to every [[FeatureProbe]] callback.
   *
-  * Determinism helpers: fixed 1280x720 target size, a fixed timestep ([[fixedDelta]]) and a per-probe seeded RNG ([[rng]]). GPU accessors ([[batch]], [[shapes]], [[camera]], [[pixel]], [[clear]])
-  * are backed by the shared [[GpuHarness]] and only valid for `requiresGpu` probes in a windowed run; touching them in headless mode throws.
+  * Determinism helpers: fixed 1280x720 target size, a fixed timestep ([[fixedDelta]]) and a per-probe seeded RNG ([[rng]]). GPU accessors ([[batch]], [[shapes]], [[camera]], [[pixel]], [[clear]]) are
+  * backed by the shared [[GpuHarness]] and only valid for `requiresGpu` probes in a windowed run; touching them in headless mode throws.
   *
   * Synthetic input is injected by dispatching through the [[sge.InputProcessor]] the probe registered with [[setInputTarget]] — the same interface the real backends dispatch through, so scene2d
   * Stages observe the events exactly as they would real ones.

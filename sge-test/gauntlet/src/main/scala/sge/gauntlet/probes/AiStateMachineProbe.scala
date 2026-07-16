@@ -15,18 +15,18 @@ import scala.collection.mutable.ListBuffer
 /** Drives a DefaultStateMachine through update / changeState / revertToPreviousState and asserts the exact enter/update/exit call sequence. */
 object AiStateMachineProbe extends FeatureProbe {
 
-  private final class Bot {
+  final private class Bot {
     val journal: ListBuffer[String] = ListBuffer.empty[String]
   }
 
-  private sealed abstract class BotState(name: String) extends State[Bot] {
-    override def enter(entity: Bot):  Unit = entity.journal += s"$name-enter"
-    override def update(entity: Bot): Unit = entity.journal += s"$name-update"
-    override def exit(entity: Bot):   Unit = entity.journal += s"$name-exit"
+  sealed abstract private class BotState(name: String) extends State[Bot] {
+    override def enter(entity:     Bot):                     Unit    = entity.journal += s"$name-enter"
+    override def update(entity:    Bot):                     Unit    = entity.journal += s"$name-update"
+    override def exit(entity:      Bot):                     Unit    = entity.journal += s"$name-exit"
     override def onMessage(entity: Bot, telegram: Telegram): Boolean = false
   }
 
-  private object IdleState   extends BotState("idle")
+  private object IdleState extends BotState("idle")
   private object ActiveState extends BotState("active")
 
   override def id: String = "ext/ai-statemachine"
