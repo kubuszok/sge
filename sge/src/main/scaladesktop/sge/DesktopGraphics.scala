@@ -312,7 +312,7 @@ class DesktopGraphics private[sge] (
   // MUST be keyed by reference identity, not equals/hashCode: Graphics.DisplayMode has structural
   // equality and two monitors routinely expose structurally-equal modes (any dual same-model
   // monitor setup), which an equality-keyed map would collide onto one monitor. Keys are held
-  // weakly so handed-out modes can be collected once callers drop them; stale entries are expunged
+  // weakly so handed-out modes can be collected once callers drop them; cleared entries are removed
   // from the reference queue on every access.
 
   /** A weak, identity-compared key for [[modeMonitorHandles]]: hashes by `System.identityHashCode` of the referent and equates only when both referents are the same live instance (`eq`). */
