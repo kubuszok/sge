@@ -304,28 +304,64 @@ class DesktopGraphics private[sge] (
     DesktopDisplayMode(monitor.monitorHandle, w, h, rr, rb + gb + bb)
   }
 
-  // Maps every core Graphics.DisplayMode this Graphics has handed out back to the native monitor
-  // handle it was queried from. The original Lwjgl3Graphics carries the monitor inside a
+  // Maps every core Graphics.DisplayMode INSTANCE this Graphics has handed out back to the native
+  // monitor handle it was queried from. The original Lwjgl3Graphics carries the monitor inside a
   // Lwjgl3DisplayMode subclass and recovers it by casting the DisplayMode passed to
   // setFullscreenMode (Lwjgl3Graphics.java:415/416). Graphics.DisplayMode is a final case class and
-  // cannot be subclassed, so we record the monitor by mode identity here instead. Weak keys let
-  // handed-out modes be collected once callers drop them.
-  private val modeMonitorHandles: java.util.Map[Graphics.DisplayMode, java.lang.Long] =
-    java.util.Collections.synchronizedMap(new java.util.WeakHashMap[Graphics.DisplayMode, java.lang.Long]())
+  // cannot be subclassed, so we record the monitor per handed-out instance here instead. The table
+  // MUST be keyed by reference identity, not equals/hashCode: Graphics.DisplayMode has structural
+  // equality and two monitors routinely expose structurally-equal modes (any dual same-model
+  // monitor setup), which an equality-keyed map would collide onto one monitor. Keys are held
+  // weakly so handed-out modes can be collected once callers drop them; stale entries are expunged
+  // from the reference queue on every access.
+
+  /** A weak, identity-compared key for [[modeMonitorHandles]]: hashes by `System.identityHashCode` of the referent and equates only when both referents are the same live instance (`eq`). */
+  final private class ModeKey(mode: Graphics.DisplayMode) extends java.lang.ref.WeakReference[Graphics.DisplayMode](mode, modeKeyQueue) {
+    private val identityHash: Int = System.identityHashCode(mode)
+
+    override def hashCode(): Int = identityHash
+
+    override def equals(other: Any): Boolean = other match {
+      case that: ModeKey =>
+        (this eq that) || {
+          val mode = get // WeakReference.get — Java interop boundary, may be null once collected
+          (mode ne null) && (mode eq that.get)
+        }
+      case _ => false
+    }
+  }
+
+  private val modeKeyQueue:       java.lang.ref.ReferenceQueue[Graphics.DisplayMode] = new java.lang.ref.ReferenceQueue()
+  private val modeMonitorHandles: java.util.HashMap[ModeKey, java.lang.Long]         = new java.util.HashMap()
+
+  /** Drops entries whose mode instance has been garbage-collected. Must be called with [[modeMonitorHandles]]'s lock held. */
+  private def expungeStaleModeKeys(): Unit = {
+    var ref = modeKeyQueue.poll()
+    while (ref ne null) { // ReferenceQueue.poll — Java interop boundary, null when empty
+      modeMonitorHandles.remove(ref)
+      ref = modeKeyQueue.poll()
+    }
+  }
 
   /** Converts a desktop display mode to the core representation and records the monitor it belongs to, so [[setFullscreenMode]] can later target that same monitor. */
   private def registerMode(desktopMode: DesktopDisplayMode): Graphics.DisplayMode = {
     val mode = desktopMode.toDisplayMode
-    modeMonitorHandles.put(mode, desktopMode.monitorHandle)
+    modeMonitorHandles.synchronized {
+      expungeStaleModeKeys()
+      modeMonitorHandles.put(new ModeKey(mode), java.lang.Long.valueOf(desktopMode.monitorHandle))
+    }
     mode
   }
 
   /** Recovers the desktop display mode (with its monitor handle) for a core [[Graphics.DisplayMode]] passed back to [[setFullscreenMode]]. Mirrors the original's `(Lwjgl3DisplayMode)displayMode` cast
-    * (Lwjgl3Graphics.java:416): the monitor is the one the mode was queried from. A mode the caller constructed directly (never obtained from a query) has no recorded handle, so it falls back to the
-    * current monitor.
+    * (Lwjgl3Graphics.java:416): the monitor is the one this exact mode instance was queried from. A mode the caller constructed directly (never obtained from a query) has no recorded handle, so it
+    * falls back to the current monitor.
     */
   private def resolveDesktopMode(displayMode: Graphics.DisplayMode): DesktopDisplayMode = {
-    val handle = Nullable(modeMonitorHandles.get(displayMode)).fold(currentDesktopMonitor.monitorHandle)(_.longValue)
+    val handle = modeMonitorHandles.synchronized {
+      expungeStaleModeKeys()
+      Nullable(modeMonitorHandles.get(new ModeKey(displayMode))).fold(currentDesktopMonitor.monitorHandle)(_.longValue)
+    }
     DesktopDisplayMode(handle, displayMode.width, displayMode.height, displayMode.refreshRate, displayMode.bitsPerPixel)
   }
 

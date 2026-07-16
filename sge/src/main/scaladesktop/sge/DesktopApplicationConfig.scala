@@ -246,6 +246,15 @@ object DesktopApplicationConfig {
   // reusing a running application's windowing FFI when one is already installed in PlatformOps.
   // SGE naming: the original Java-style getX() statics become no-`get` accessors (project rule:
   // no Java-style getters); they carry FFI logic, so they are defs, not vars.
+  //
+  // Return types: the original statics DECLARE core Monitor/DisplayMode but covertly RETURN
+  // handle-carrying Lwjgl3Monitor/Lwjgl3DisplayMode instances, which is what makes the canonical
+  // recipe `config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode())` work —
+  // setFullscreenMode/fullscreenMode recover the handle by downcast. SGE's core types are final
+  // case classes (no covert subtype possible), so these queries return the desktop types
+  // DesktopMonitor/DesktopDisplayMode directly: faithful to the original's actual runtime behavior,
+  // and `config.fullscreenMode = Nullable(DesktopApplicationConfig.displayMode(monitor))` works
+  // with no handle fabrication.
 
   /** Lazily obtains a windowing ops, reusing the running application's FFI or booting the platform default (equivalent to `Lwjgl3Application.initializeGlfw()`). */
   private def windowingOps: WindowingOps =
@@ -260,64 +269,55 @@ object DesktopApplicationConfig {
       }
     }(identity)
 
-  private def toMonitor(ops: WindowingOps, handle: Long): Graphics.Monitor = {
+  private def toDesktopMonitor(ops: WindowingOps, handle: Long): DesktopMonitor = {
     val (x, y) = ops.getMonitorPos(handle)
-    DesktopMonitor(handle, x, y, ops.getMonitorName(handle)).toMonitor
+    DesktopMonitor(handle, x, y, ops.getMonitorName(handle))
   }
 
-  private def toDisplayMode(handle: Long, mode: (Int, Int, Int, Int, Int, Int)): Graphics.DisplayMode = {
+  private def toDesktopDisplayMode(handle: Long, mode: (Int, Int, Int, Int, Int, Int)): DesktopDisplayMode = {
     val (w, h, rr, rb, gb, bb) = mode
-    DesktopDisplayMode(handle, w, h, rr, rb + gb + bb).toDisplayMode
+    DesktopDisplayMode(handle, w, h, rr, rb + gb + bb)
   }
 
-  /** Resolves the native handle of the given core monitor by matching name and virtual position (the core [[Graphics.Monitor]] carries no handle, unlike the original `Lwjgl3Monitor`). Falls back to
-    * the primary monitor when no match is found.
+  /** The connected monitors (original: static `Monitor[] getMonitors()`, actually returning `Lwjgl3Monitor[]`). */
+  def monitors: Array[DesktopMonitor] = {
+    val ops = windowingOps
+    ops.monitors.map(h => toDesktopMonitor(ops, h))
+  }
+
+  /** The primary monitor (original: static `Monitor getPrimaryMonitor()`, actually returning an `Lwjgl3Monitor`). */
+  def primaryMonitor: DesktopMonitor = {
+    val ops = windowingOps
+    toDesktopMonitor(ops, ops.primaryMonitor)
+  }
+
+  /** The currently active display mode of the primary monitor (original: static `DisplayMode getDisplayMode()`, actually returning an `Lwjgl3DisplayMode`). Suitable for
+    * `config.fullscreenMode = Nullable(...)` directly.
     */
-  private def monitorHandleOf(ops: WindowingOps, monitor: Graphics.Monitor): Long =
-    ops.monitors
-      .find { h =>
-        val (x, y) = ops.getMonitorPos(h)
-        ops.getMonitorName(h) == monitor.name && x == monitor.virtualX && y == monitor.virtualY
-      }
-      .getOrElse(ops.primaryMonitor)
-
-  /** The connected monitors (original: static `Monitor[] getMonitors()`). */
-  def monitors: Array[Graphics.Monitor] = {
-    val ops = windowingOps
-    ops.monitors.map(h => toMonitor(ops, h))
-  }
-
-  /** The primary monitor (original: static `Monitor getPrimaryMonitor()`). */
-  def primaryMonitor: Graphics.Monitor = {
-    val ops = windowingOps
-    toMonitor(ops, ops.primaryMonitor)
-  }
-
-  /** The currently active display mode of the primary monitor (original: static `DisplayMode getDisplayMode()`). */
-  def displayMode: Graphics.DisplayMode = {
+  def displayMode: DesktopDisplayMode = {
     val ops    = windowingOps
     val handle = ops.primaryMonitor
-    toDisplayMode(handle, ops.getVideoMode(handle))
+    toDesktopDisplayMode(handle, ops.getVideoMode(handle))
   }
 
-  /** The currently active display mode of the given monitor (original: static `DisplayMode getDisplayMode(Monitor)`). */
-  def displayMode(monitor: Graphics.Monitor): Graphics.DisplayMode = {
-    val ops    = windowingOps
-    val handle = monitorHandleOf(ops, monitor)
-    toDisplayMode(handle, ops.getVideoMode(handle))
+  /** The currently active display mode of the given monitor (original: static `DisplayMode getDisplayMode(Monitor)`, actually returning an `Lwjgl3DisplayMode`). Suitable for
+    * `config.fullscreenMode = Nullable(...)` directly.
+    */
+  def displayMode(monitor: DesktopMonitor): DesktopDisplayMode = {
+    val ops = windowingOps
+    toDesktopDisplayMode(monitor.monitorHandle, ops.getVideoMode(monitor.monitorHandle))
   }
 
-  /** The available display modes of the primary monitor (original: static `DisplayMode[] getDisplayModes()`). */
-  def displayModes: Array[Graphics.DisplayMode] = {
+  /** The available display modes of the primary monitor (original: static `DisplayMode[] getDisplayModes()`, actually returning `Lwjgl3DisplayMode[]`). */
+  def displayModes: Array[DesktopDisplayMode] = {
     val ops    = windowingOps
     val handle = ops.primaryMonitor
-    ops.getVideoModes(handle).map(m => toDisplayMode(handle, m))
+    ops.getVideoModes(handle).map(m => toDesktopDisplayMode(handle, m))
   }
 
-  /** The available display modes of the given monitor (original: static `DisplayMode[] getDisplayModes(Monitor)`). */
-  def displayModes(monitor: Graphics.Monitor): Array[Graphics.DisplayMode] = {
-    val ops    = windowingOps
-    val handle = monitorHandleOf(ops, monitor)
-    ops.getVideoModes(handle).map(m => toDisplayMode(handle, m))
+  /** The available display modes of the given monitor (original: static `DisplayMode[] getDisplayModes(Monitor)`, actually returning `Lwjgl3DisplayMode[]`). */
+  def displayModes(monitor: DesktopMonitor): Array[DesktopDisplayMode] = {
+    val ops = windowingOps
+    ops.getVideoModes(monitor.monitorHandle).map(m => toDesktopDisplayMode(monitor.monitorHandle, m))
   }
 }

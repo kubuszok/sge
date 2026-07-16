@@ -315,7 +315,7 @@ private[sge] object WindowingOpsNative extends WindowingOps {
       longFromPtr(GlfwC.glfwGetWin32Window(ptrFromLong(windowHandle)))
     else if (platform == WindowingOps.GLFW_PLATFORM_WAYLAND)
       // Wayland (ISS-761): return the wl_surface* for EGL. SGE forces the X11 GLFW platform on
-      // Linux in init() (see below), so this branch normally stays dormant on the ANGLE/EGL path;
+      // Linux in init() (see above), so this branch normally stays dormant on the ANGLE/EGL path;
       // it exists so getNativeWindowHandle is total under a Wayland session GLFW is built for.
       longFromPtr(GlfwC.glfwGetWaylandWindow(ptrFromLong(windowHandle)))
     else

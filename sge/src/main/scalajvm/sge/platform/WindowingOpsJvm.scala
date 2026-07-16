@@ -413,7 +413,7 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
         .getOrElse(throw new UnsupportedOperationException("glfwGetWin32Window not available"))
     } else if (currentPlatform == WindowingOps.GLFW_PLATFORM_WAYLAND) {
       // Wayland (ISS-761): return the wl_surface* for EGL. SGE forces the X11 GLFW platform on
-      // Linux in init() (see below), so this branch normally stays dormant on the ANGLE/EGL path;
+      // Linux in init() (see above), so this branch normally stays dormant on the ANGLE/EGL path;
       // it exists so getNativeWindowHandle is total under a Wayland session GLFW is built for.
       hGetWaylandWindow
         .map { mh =>
