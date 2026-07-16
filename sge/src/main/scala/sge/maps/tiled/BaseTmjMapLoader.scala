@@ -749,13 +749,18 @@ object BaseTmjMapLoader {
         case Some(Json.Arr(values)) =>
           val result = new Array[Int](width * height)
           var i      = 0
-          values.foreach {
-            case Json.Num(n) =>
-              result(i) = n.toLong.map(_.toInt).getOrElse(n.toDouble.map(_.toInt).getOrElse(0))
-              i += 1
-            case _ =>
-              result(i) = 0
-              i += 1
+          // Mirrors LibGDX JsonValue.asIntArray: a non-numeric element must fail
+          // loudly (Integer.parseInt on strings, IllegalStateException otherwise)
+          // rather than silently decoding to gid 0.
+          values.foreach { value =>
+            result(i) = value match {
+              case Json.Num(n) =>
+                n.toLong.map(_.toInt).getOrElse(n.toDouble.map(_.toInt).getOrElse(throw new IllegalStateException("Value cannot be converted to int: " + n)))
+              case Json.Str(s)  => Integer.parseInt(s)
+              case Json.Bool(b) => if (b) 1 else 0
+              case _            => throw new IllegalStateException("Value cannot be converted to int: " + value)
+            }
+            i += 1
           }
           result
         case _ => throw new IllegalStateException("missing tile data")
