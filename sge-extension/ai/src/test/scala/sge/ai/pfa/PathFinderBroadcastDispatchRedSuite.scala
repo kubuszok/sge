@@ -164,7 +164,7 @@ class PathFinderBroadcastDispatchRedSuite extends munit.FunSuite {
 
     assertEquals(f.request.status, PathFinderRequest.SEARCH_FINALIZED, "re-served request should be finalized")
 
-    // 3. The completion must now broadcast to the registered listener and NOT re-notify the stale directed client.
+    // 3. The completion broadcasts to the registered listener without re-notifying the previously-directed client.
     //    If PathFinderQueue regresses to `msg.sender.foreach { ... }`, the empty sender skips the assignment,
     //    request.client stays the old directed client, the telegram is directed there again, and the broadcast
     //    listener obtains Nil.
