@@ -18,6 +18,28 @@ Execute ONE iteration of the plan §5 protocol:
    the gates must be real before fixes can be trusted. Otherwise pick up to 3
    issues, preferring batch B, then C, then D/E/F/G; never two issues touching
    the same file concurrently. Announce your picks and why.
+   (2026-07-16 re-scope: the `review-release` 0.1.0 track takes precedence —
+   see docs/reviews/velocity-plan-2026-07-16.md and campaign-state memory.)
+
+2b. WAVE MODE (parallel dispatch — MANDATORY policy, user directive
+   2026-07-16): when dispatching more than one implementation agent
+   concurrently, follow docs/contributing/parallel-agents.md verbatim:
+   - Assign pairwise-DISJOINT territories (ideally one module per agent);
+     every prompt carries an explicit OWNED PATHS list + the prohibition on
+     editing anything else.
+   - Global files (build.sbt, project/**, .github/**, .rescale/**,
+     cross-cutting core traits) are orchestrator-owned or under an exclusive
+     single-agent lock; cross-cutting API changes are sequenced BEFORE their
+     dependents, never parallel with them.
+   - Agents must request permission (SendMessage to main) for any
+     out-of-territory edit; you check the wave ledger + live worktree state
+     (`git -C .claude/worktrees/agent-*/ status --porcelain`) and
+     grant/deny/take-over. Default-deny. Keep the ledger in the scratchpad.
+   - Stack trains by cherry-picking in ledger order; on conflict SALVAGE
+     (cherry-pick disjoint commits, re-dispatch only the conflicting slice)
+     — discarding a worktree wholesale is an orchestration failure.
+   - Before stacking, diff each worktree's touched files against its
+     territory; ungranted out-of-territory edits are dropped and bounced.
 
 3. Per issue, run the pipeline (worktree branch `fix/ISS-NNN-<slug>`):
    a. REPRODUCER — general-purpose agent, **`model: "opus"`**
