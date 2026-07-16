@@ -10,6 +10,7 @@ project/*
 !project/build.sbt
 !project/TestAssets.scala
 !project/Versions.scala
+!project/RemoteCacheSetup.scala
 target/
 .sbt/
 

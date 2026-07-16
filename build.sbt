@@ -110,8 +110,25 @@ lazy val sgeCommandAliases: Seq[Def.Setting[State => State]] =
       addCommandAlias(
         sgeAliasName("doc", platform, scalaBin),
         al.publishLocal(platform, scalaBin).map(_.replace("/publishLocal", "/doc")).mkString(" ; ")
+      ) ++
+      // testCompile-<platform>-3: Test/compile for exactly the PUBLISHED modules
+      // (derived from the publishLocal command list, like doc-*-3 above). Used by
+      // the `compile-gate` CI job (ISS-792): a cheap ubuntu fail-fast gate that
+      // also seeds the BuildBuddy remote cache for every downstream sbt job.
+      addCommandAlias(
+        sgeAliasName("testCompile", platform, scalaBin),
+        al.publishLocal(platform, scalaBin).map(_.replace("/publishLocal", "/Test/compile")).mkString(" ; ")
       )
   }
+
+// ── Remote cache (BuildBuddy, ISS-792) ──────────────────────────────
+// sbt 2's native Bazel-gRPC remote cache. Enabled ONLY when a BuildBuddy API
+// key is available (env BUILDBUDDY_API_KEY, else ~/.config/sge/buildbuddy-api-key);
+// with no key these settings resolve to None/Nil and the build behaves exactly
+// as before (contributors + CI forks unaffected). Key resolution, security and
+// read/write policy live in project/RemoteCacheSetup.scala.
+Global / remoteCache := RemoteCacheSetup.endpoint
+Global / remoteCacheHeaders ++= RemoteCacheSetup.headers
 
 def commonSettings(
   projectDir: String = "sge",

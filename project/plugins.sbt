@@ -1,3 +1,9 @@
+// sbt 2 Bazel-compatible gRPC remote-cache client (ISS-792). Inert unless
+// `Global / remoteCache` is set to an endpoint — see project/RemoteCacheSetup.scala
+// (BuildBuddy wiring, enabled only when an API key is available).
+// https://www.scala-sbt.org/2.x/docs/en/reference/remote-cache-setup.html
+addRemoteCachePlugin
+
 // kubuszok plugin (bundles: sbt-git, sbt-scalafmt, sbt-scoverage, sbt-scalajs, sbt-scala-native, sbt-commandmatrix, sbt-pgp, and more)
 // sbt-projectmatrix is merged into sbt 2.0 (no longer added separately).
 addSbtPlugin("com.kubuszok" % "sbt-kubuszok" % "0.2.3")
