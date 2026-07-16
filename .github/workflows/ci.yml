@@ -7,10 +7,13 @@ on:
     branches: [master]
   workflow_dispatch:
 
-# Cancel in-progress runs for the same branch/PR
+# Cancel in-progress runs for the same PR only (ISS-792): a force-push to a PR
+# obsoletes the running validation, but master pushes must QUEUE, not cancel —
+# cancelling a running full-matrix master validation leaves master unverified
+# (each push would kill the previous push's still-running required legs).
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   # Zulu 25 — Panama FFM stable since JDK 22, all 6 desktop platforms
@@ -20,6 +23,17 @@ env:
   JAVA_VERSION: "25"
   JAVA_DISTRIBUTION: "zulu"
   NODE_VERSION: "24"
+  # BuildBuddy remote cache for sbt 2's Bazel-gRPC cache client (ISS-792).
+  # Workflow-level so EVERY sbt-running job reads/writes the shared cache
+  # (org-level Actions secret; secrets are valid in workflow-level `env`).
+  # On fork PRs the secret is unavailable → the env var is empty → the build's
+  # key-gated wiring (project/RemoteCacheSetup.scala) leaves the remote cache
+  # OFF and the build behaves exactly as before. Same-repo PRs and master both
+  # get read-write access (see RemoteCacheSetup.scala for the policy note).
+  # NOTE: deliberately NO actions/cache for ~/.cache/sbt/v2 (the investigated
+  # Phase 1 of docs/reviews/ci-cache-investigation-2026-07-16.md) — the
+  # persistent remote cache supersedes per-OS actions/cache keying entirely.
+  BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
 
 jobs:
   # ─── Plan: compute platform matrices per event (ISS-790) ───────────
@@ -92,6 +106,44 @@ jobs:
           emit ffi "$ffi"
           emit release "$release"
           echo "matrices written (PR mode: $IS_PR)"; cat "$GITHUB_OUTPUT"
+
+  # ─── Compile gate (ISS-792 phase 2) ─────────────────────────────────
+  #
+  # One cheap ubuntu job that Test/compiles every published module on all
+  # three platform rows (testCompile-{jvm,js,native}-3 aliases in build.sbt,
+  # derived from al.publishLocal exactly like doc-*-3). Two purposes:
+  #   1. Fail fast: a compile error reds ONE small job instead of surfacing
+  #      minutes later inside 6+ expensive matrix/IT legs.
+  #   2. Seed the BuildBuddy remote cache: downstream sbt jobs (same env var)
+  #      restore compile outputs instead of recompiling from scratch.
+  # The heavyweight fan-in jobs below are repointed from `needs: [test-jvm]`/
+  # `[test-js]`/`[test-native]` to `needs: [compile-gate]` — those edges never
+  # transferred artifacts (pure ordering), so gating on the matrix jobs only
+  # serialized the pipeline (23.5 min PR wall). The matrix test jobs themselves
+  # stay ungated (they ARE the merge gate; see the investigation doc).
+  # Test/compile alone needs no clang/node: linking (nativeLink/fastLinkJS)
+  # and test execution stay in the downstream jobs (same as the `docs` job,
+  # which compiles native rows for scaladoc without clang).
+
+  compile-gate:
+    name: Compile gate (JVM + JS + Native)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: false
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: sbt
+
+      - uses: sbt/setup-sbt@v1
+
+      - name: Test/compile all published modules (JVM + JS + Native)
+        run: sbt 'testCompile-jvm-3; testCompile-js-3; testCompile-native-3'
 
   # ─── Scaladoc (published modules) ───────────────────────────────────
   #
@@ -308,7 +360,9 @@ jobs:
 
   test-browser-it:
     name: Browser IT tests
-    needs: [test-js]
+    # ISS-792: gated on the cheap compile-gate (fail-fast + warm remote cache)
+    # instead of test-js — the old edge transferred nothing, only ordering.
+    needs: [compile-gate]
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -502,7 +556,9 @@ jobs:
 
   test-native-ffi-it:
     name: Native FFI IT tests (${{ matrix.label }})
-    needs: [test-native, plan]
+    # ISS-792: gated on compile-gate instead of the full test-native matrix
+    # (pure-ordering edge). `plan` stays — this job consumes its matrix output.
+    needs: [plan, compile-gate]
     runs-on: ${{ matrix.os }}
     timeout-minutes: ${{ matrix.timeout }}
     strategy:
@@ -589,7 +645,9 @@ jobs:
 
   test-native-runtime:
     name: Native runtime (linux-x86_64)
-    needs: [test-native]
+    # ISS-792: gated on compile-gate instead of the full test-native matrix
+    # (pure-ordering edge; nothing was handed off).
+    needs: [compile-gate]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -631,7 +689,10 @@ jobs:
 
   test-desktop-it:
     name: Desktop IT tests
-    needs: [test-jvm]
+    # ISS-792: gated on compile-gate instead of the full 6-OS test-jvm matrix
+    # (pure-ordering edge; the macOS legs' runner scarcity — ISS-740 — made
+    # this job start hours late for no benefit).
+    needs: [compile-gate]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -857,7 +918,9 @@ jobs:
 
   demo-smoke-js:
     name: Demo smoke (JS)
-    needs: [test-js]
+    # ISS-792: gated on compile-gate (fail-fast + warm remote cache) instead
+    # of test-js (pure-ordering edge).
+    needs: [compile-gate]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -892,7 +955,9 @@ jobs:
 
   demo-compile-all:
     name: Demo compile all
-    needs: [test-js]
+    # ISS-792: gated on compile-gate (fail-fast + warm remote cache) instead
+    # of test-js (pure-ordering edge).
+    needs: [compile-gate]
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -935,7 +1000,10 @@ jobs:
 
   verify-release:
     name: Verify release (${{ matrix.label }})
-    needs: [test-jvm, test-native, plan]
+    # ISS-792: gated on plan (matrix source) + compile-gate instead of the
+    # full test-jvm AND test-native matrices — those edges were pure ordering
+    # and serialized ~20 min of release verification behind the slowest legs.
+    needs: [plan, compile-gate]
     runs-on: ${{ matrix.os }}
     timeout-minutes: ${{ matrix.timeout }}
     strategy:
