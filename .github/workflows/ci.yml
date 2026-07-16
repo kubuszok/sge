@@ -181,6 +181,14 @@ jobs:
       - uses: sbt/setup-sbt@v1
 
       - name: Generate scaladoc for all published modules (JVM + JS + Native)
+        # SGE_REMOTE_CACHE=off: dotty scaladoc intermittently crashes
+        # (InvocationTargetException / SignatureBuilder NPE) when `doc` runs
+        # over remote-cache-RESTORED compile outputs instead of locally
+        # produced ones (observed on PR #94 attempt 1 and PR #97 run
+        # 29537430503; local doc over local outputs always passes). This job
+        # compiles for itself — costs ~6-8m instead of ~2m, buys determinism.
+        env:
+          SGE_REMOTE_CACHE: "off"
         run: sbt 'doc-jvm-3; doc-js-3; doc-native-3'
 
   # ─── Scalafmt check ────────────────────────────────────────────────
