@@ -30,6 +30,11 @@ env:
   # key-gated wiring (project/RemoteCacheSetup.scala) leaves the remote cache
   # OFF and the build behaves exactly as before. Same-repo PRs and master both
   # get read-write access (see RemoteCacheSetup.scala for the policy note).
+  # The cache is namespaced per (ci|dev) × os × arch via the Bazel instance
+  # name (RemoteCacheSetup.scala): run 29498350131 showed machine-specific
+  # task outputs (discovered clang paths, dev-Mac compile seeds) poisoning
+  # other OSes, so only same-OS/arch CI jobs share entries — the linux-x64
+  # namespace (compile-gate + the whole ubuntu fan-out) is the main win.
   # NOTE: deliberately NO actions/cache for ~/.cache/sbt/v2 (the investigated
   # Phase 1 of docs/reviews/ci-cache-investigation-2026-07-16.md) — the
   # persistent remote cache supersedes per-OS actions/cache keying entirely.

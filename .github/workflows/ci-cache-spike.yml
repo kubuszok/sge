@@ -6,9 +6,15 @@
 #   1. Real hit-rates on GH runners: job A seeds the cache, job B (fresh
 #      ubuntu runner, empty disk cache) recompiles and counts zinc
 #      "compiling" lines — expect ~0 if remote hits work.
-#   2. Cross-OS hits: job C repeats job B on macos (aarch64) — a red job C
-#      with a green job B documents the cross-OS miss precisely.
-#   3. Nondeterministic misses: any nonzero count in B/C is itemized in the
+#   2. Cross-OS: ANSWERED by run 29498350131 — cross-OS hits DID happen and
+#      POISONED consumers (machine-specific outputs, e.g. discovered clang
+#      paths, virtualized onto the wrong OS). The cache is now namespaced per
+#      (ci|dev) × os × arch (RemoteCacheSetup.scala), so job C's role flipped:
+#      it verifies ISOLATION — a fresh macos-aarch64 runner must NOT hit
+#      linux-seeded entries. Its count is informational (full recompile
+#      expected on the first dispatch; later dispatches may legitimately hit
+#      macos-aarch64-namespace seeds from previous spike runs).
+#   3. Nondeterministic misses: any nonzero count in B is itemized in the
 #      step summary for comparison against the local findings (Test-scope
 #      row misses; Compile-scope hits proven stable).
 #
@@ -106,7 +112,7 @@ jobs:
           echo "SPIKE: jobB — full remote-cache hit on same OS" | tee -a "$GITHUB_STEP_SUMMARY"
 
   hit-cross-os:
-    name: "Job C: fresh macos-aarch64 runner (cross-OS probe)"
+    name: "Job C: fresh macos-aarch64 runner (namespace-isolation probe)"
     needs: [seed]
     runs-on: macos-latest
     timeout-minutes: 90
@@ -130,7 +136,7 @@ jobs:
             exit 1
           fi
 
-      - name: Compile all rows (fresh macOS runner, warm remote)
+      - name: Compile all rows (fresh macOS runner, isolated namespace)
         run: |
           set -euo pipefail
           start=$(date +%s)
@@ -139,11 +145,10 @@ jobs:
           end=$(date +%s)
           [ "$rc" -eq 0 ] || { echo "::error::compile itself failed (rc=$rc)"; exit "$rc"; }
           n=$(grep -c '\[info\] compiling ' /tmp/spike-c.log || true)
-          echo "SPIKE: jobC (macos-aarch64) compile $((end - start))s, $n module compilations (expect ~0 if cache is cross-OS)" | tee -a "$GITHUB_STEP_SUMMARY"
-          if [ "$n" -gt 0 ]; then
-            echo "modules that recompiled (cross-OS misses):" | tee -a "$GITHUB_STEP_SUMMARY"
-            grep '\[info\] compiling ' /tmp/spike-c.log | sed 's/^/  /' | tee -a "$GITHUB_STEP_SUMMARY"
-            echo "::error::SPIKE: $n compile invocations — linux→macos cross-OS hits are incomplete (documented in summary; this is evidence, not a regression)"
-            exit 1
-          fi
-          echo "SPIKE: jobC — full remote-cache hit across OS (linux seed → macos consumer)" | tee -a "$GITHUB_STEP_SUMMARY"
+          # Cross-OS sharing is deliberately impossible now (per-os/arch
+          # instance namespace — see RemoteCacheSetup.scala). On the FIRST
+          # dispatch after a commit this job should recompile everything
+          # (isolation working); ~0 compilations here can only mean either a
+          # previous dispatch already seeded the macos-aarch64 namespace at
+          # this commit, or namespace bleed. Informational — no hard assert.
+          echo "SPIKE: jobC (macos-aarch64, own namespace) compile $((end - start))s, $n module compilations (full recompile expected on first dispatch — isolation check)" | tee -a "$GITHUB_STEP_SUMMARY"

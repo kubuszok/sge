@@ -169,9 +169,35 @@ def commonSettings(
     // scalacheck 1.19 pulls scala-native test-interface 0.5.8 while scala-native
     // 0.5.12 brings 0.5.12 (strict eviction). They are compatible in practice;
     // downgrade the eviction error to a warning on the native test classpath.
-    evictionErrorLevel := Level.Warn
+    evictionErrorLevel := Level.Warn,
+    // ISS-792: uncache the machine-specific toolchain config (see
+    // uncachedNativeToolchainSettings below). This copy is LAST — and thus
+    // effective — only for projects that never rebind nativeConfig afterwards
+    // (the plain extensions); projects applying nativeProviderSettings append
+    // uncachedNativeToolchainSettings at the END of their settings list
+    // instead, because the provider's `nativeConfig :=` would shadow this one.
+    nativeConfig := Def.uncached(nativeConfig.value)
   ))
 )
+
+// ISS-792 (CI run 29498350131): nativeConfig carries the MACHINE-SPECIFIC
+// discovered toolchain (clang/clang++ absolute paths). Under sbt 2's automatic
+// task caching that value was remote-cached and restored onto other machines —
+// path-virtualized to 'D:\usr\bin\clang' on the windows legs, failing
+// nativeLink. This wrapper makes the finally-composed nativeConfig task
+// uncached (same pattern as the Test/fullClasspath Def.uncached wirings), so
+// the composed toolchain config is never stored/restored. It must be applied
+// LAST — after nativeProviderSettings, whose `nativeConfig :=` would otherwise
+// shadow it (see the ORDER MATTERS note on the sge-gltf block) — hence it is
+// appended at the END of every native-row project's settings list rather than
+// placed in commonSettings. Referencing the previous value (compose, not
+// shadow) keeps the provider's -L flags and embed patterns intact.
+// Defense-in-depth alongside the per-(ci|dev)/os/arch remote-cache instance
+// namespacing in project/RemoteCacheSetup.scala, which is what actually
+// isolates machine classes from each other.
+val uncachedNativeToolchainSettings = MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
+  nativeConfig := Def.uncached(nativeConfig.value)
+))
 
 val publishSettings = Seq(
   organization := "com.kubuszok",
@@ -365,7 +391,8 @@ val sge: sbt.ProjectMatrix = (projectMatrix in file("sge"))
         "com.kubuszok" % "sn-provider-sge"  % Versions.nativeComponents,
         "com.kubuszok" % "sn-provider-curl" % Versions.curlProvider
       )
-    ))
+    )),
+    uncachedNativeToolchainSettings // ISS-792: LAST, so nothing re-caches nativeConfig
   )) *)
   .settings(publishSettings)
   .settings(mimaSettings)
@@ -406,7 +433,8 @@ val regressionTest = (projectMatrix in file("sge-test/regression"))
     MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
       nativeConfig ~= (_.withEmbedResources(true)
         .withResourceIncludePatterns(Seq("**test-data.txt", "**test-texture.png")))
-    ))
+    )),
+    uncachedNativeToolchainSettings // ISS-792: LAST, so nothing re-caches nativeConfig
   )) *)
   .settings(noPublishSettings)
   .settings(mimaSettings)
@@ -595,7 +623,8 @@ val `sge-freetype` = (projectMatrix in file("sge-extension/freetype"))
     )),
     MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
       libraryDependencies += "com.kubuszok" % "sn-provider-sge-freetype" % Versions.nativeComponents
-    ))
+    )),
+    uncachedNativeToolchainSettings // ISS-792: LAST, so nothing re-caches nativeConfig
   )) *)
   .settings(publishSettings)
   .settings(mimaSettings)
@@ -648,7 +677,8 @@ val `sge-gltf` = (projectMatrix in file("sge-extension/gltf"))
       }
     )),
     MatrixAction.ForAll.Configure(_.settings(SgePlugin.relaxedSettings *)),
-    jvmPlatformApiClasspath
+    jvmPlatformApiClasspath,
+    uncachedNativeToolchainSettings // ISS-792: LAST, so nothing re-caches nativeConfig
   )) *)
   .settings(publishSettings)
   .settings(mimaSettings)
@@ -722,7 +752,8 @@ val `sge-physics` = (projectMatrix in file("sge-extension/physics"))
     ) *)),
     MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
       libraryDependencies += "com.kubuszok" % "sn-provider-sge-physics" % Versions.nativeComponents
-    ))
+    )),
+    uncachedNativeToolchainSettings // ISS-792: LAST, so nothing re-caches nativeConfig
   )) *)
   .settings(publishSettings)
   .settings(mimaSettings)
@@ -767,7 +798,8 @@ val `sge-physics3d` = (projectMatrix in file("sge-extension/physics3d"))
     ) *)),
     MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
       libraryDependencies += "com.kubuszok" % "sn-provider-sge-physics3d" % Versions.nativeComponents
-    ))
+    )),
+    uncachedNativeToolchainSettings // ISS-792: LAST, so nothing re-caches nativeConfig
   )) *)
   .settings(publishSettings)
   .settings(mimaSettings)
@@ -850,7 +882,8 @@ val `sge-vfx` = (projectMatrix in file("sge-extension/vfx"))
       // the same remedy sge-extension-ecs and sge-extension-visui use for their own
       // global state. JS/Native are single-threaded and unaffected.
       Test / parallelExecution := false
-    ))
+    )),
+    uncachedNativeToolchainSettings // ISS-792: LAST, so nothing re-caches nativeConfig
   )) *)
   .settings(publishSettings)
   .settings(mimaSettings)
@@ -1363,7 +1396,8 @@ val `sge-it-native-ffi` = (projectMatrix in file("sge-test/it-native-ffi"))
   .defaultAxes(VirtualAxis.native, VirtualAxis.scalaABIVersion(Versions.scala3))
   .someVariations(Versions.scalas, List(VirtualAxis.native))((commonSettings("sge-test/it-native-ffi") ++ dev.only1VersionInIDE ++ Seq(
     MatrixAction.ForAll.Configure(_.settings(SgePlugin.relaxedSettings *)),
-    nativeProviderSettings
+    nativeProviderSettings,
+    uncachedNativeToolchainSettings // ISS-792: LAST, so nothing re-caches nativeConfig
   )) *)
   .settings(noPublishSettings)
   .settings(mimaSettings)
