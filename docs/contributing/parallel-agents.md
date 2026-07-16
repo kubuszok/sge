@@ -95,6 +95,11 @@ agent has actually touched, catching drift from the declared territory.
 
 ## 6. Dispatch checklist (orchestrator)
 
+0. **Cluster by root cause first** (maintainer directive 2026-07-16): issues
+   sharing a systemic cause (a missing convention, a design flaw) are ONE
+   territory fixing the design once — not N patch territories. Only genuine
+   oversights/gaps/bugs get direct per-issue fixes. A theme with 3+ related
+   issues is a design-fix candidate.
 1. Group candidate issues by module/path; verify pairwise disjointness.
 2. Sequence cross-cutting API work first (its own stage), dependents after.
 3. Write the ledger; put OWNED PATHS + escalation instructions (§3) into
@@ -103,3 +108,9 @@ agent has actually touched, catching drift from the declared territory.
 5. On completion: check each worktree's actually-touched files against its
    territory before stacking; out-of-territory edits without a ledger grant
    are dropped and bounced back.
+6. **Saturate within memory**: if free memory allows another worktree sbt
+   server (~1-3GB each; check `re-scale proc list --kind sbt` + OS memory),
+   dispatch additional non-colliding territories rather than idling.
+7. **Wave close-out**: sweep worktree sbt servers
+   (`re-scale proc list --kind sbt` → targeted `re-scale proc kill`) — agents
+   are told to kill their own, but verify; orphaned servers cost gigabytes.
