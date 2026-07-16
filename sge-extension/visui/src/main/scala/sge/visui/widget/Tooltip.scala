@@ -245,7 +245,7 @@ object Tooltip {
       }
 
     override def mouseMoved(event: InputEvent, x: Float, y: Float): Boolean = {
-      if (tooltip._mouseMoveFadeOut && tooltip.visible) tooltip.doFadeOut()
+      if (tooltip._mouseMoveFadeOut && tooltip.visible && tooltip.actions.size == 0) tooltip.doFadeOut()
       false
     }
   }
