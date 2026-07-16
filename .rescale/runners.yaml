@@ -184,3 +184,29 @@ runners:
     invoke:
       command: re-scale
       args: [enforce, verify, --all, --src, sge-extension]
+
+  # ── Gauntlet (ISS-766) ────────────────────────────────────────────
+  # Feature-verification app (docs/architecture/gauntlet.md).
+  #   re-scale runner gauntlet       — headless (GPU probes skipped; CI parity)
+  #   re-scale runner gauntlet-gpu   — full windowed run (needs a display)
+  # Report: target/gauntlet/report.{json,md} + per-probe screenshots.
+
+  gauntlet:
+    description: "Gauntlet feature probes, headless (report: target/gauntlet)"
+    invoke:
+      command: sbt
+      args: [--client, "sge-gauntlet/run --headless --report target/gauntlet"]
+    output:
+      failure:
+        keep-lines-matching: ["FAILED", "UNEXPECTED_PASS", "SGE-GAUNTLET", "hard failures"]
+        max-lines: 40
+
+  gauntlet-gpu:
+    description: "Gauntlet feature probes, full windowed GPU run (needs a display)"
+    invoke:
+      command: sbt
+      args: [--client, "sge-gauntlet/run --all --report target/gauntlet"]
+    output:
+      failure:
+        keep-lines-matching: ["FAILED", "UNEXPECTED_PASS", "SGE-GAUNTLET", "hard failures"]
+        max-lines: 40
