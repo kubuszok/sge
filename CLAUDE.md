@@ -217,16 +217,16 @@ gate.
 
 | Job group | Platforms |
 |-----------|-----------|
-| JVM tests + coverage | linux-x86_64, linux-aarch64, macos-aarch64, macos-x86_64 (Rosetta), windows-x86_64, windows-aarch64 |
-| Scala Native tests | linux-x86_64, linux-aarch64, macos-aarch64, macos-x86_64 (Rosetta), windows-x86_64 |
-| Native FFI IT | linux-x86_64, linux-aarch64, macos-aarch64, macos-x86_64 (Rosetta), windows-x86_64 |
-| Release verification | all JVM platforms + native on Linux, macOS (both archs) |
+| JVM tests + coverage | linux-x86_64, linux-aarch64, macos-aarch64, windows-x86_64 |
+| Scala Native tests | linux-x86_64, linux-aarch64, macos-aarch64, windows-x86_64 |
+| Native FFI IT | linux-x86_64, linux-aarch64, macos-aarch64, windows-x86_64 |
+| Release verification | linux (both archs, native), macos-aarch64 (native), windows-x86_64 (JVM) |
 | Android tests | ubuntu-latest (x86_64 emulator) — smoke + Pong demo APK |
 | Browser/JS | ubuntu-latest — Scala.js tests, Playwright smoke, browser packaging |
 | Demo compilation | ubuntu-latest — all 11 demos × JVM + JS + Native |
 
 **CI-specific mechanisms:**
-- macOS x86_64 via Rosetta: `actions/setup-java` with `architecture: x64` on ARM runners
+- **Withdrawn platforms (2026-07-16, revisit post-0.1.0)**: macos-x86_64 (Apple ended Intel support) and windows-aarch64 (Scala Native can't target it; tiny JVM user share) are no longer tested on CI. Release artifacts still ship untested. See docs/architecture/platform-targets.md.
 - Demos always consume published sge-build plugin (`sbt publishLocal` in sge-build/ required after plugin changes)
 - `SGE_SKIP_NATIVE_VALIDATION=true` — skip native lib validation when only Android/subset libs present
 - `matrix.native` flag — controls which verify-release steps run per platform (native link, static curl)
@@ -236,7 +236,7 @@ gate.
 
 **Known CI limitations (excluded from pass/fail):**
 - Android: JSON_XML, FILEHANDLE_TYPES, TOUCH_DISPATCH, LIFECYCLE, CLIPBOARD
-- Windows aarch64: Scala Native unsupported (generates x64 code); JVM tests pass
+- Windows aarch64 + macOS x86_64: testing withdrawn entirely (see above)
 - Scaladoc: disabled (`packageDoc/publishArtifact := false`); non-blocking probe monitors upstream fix
 
 ## Documentation

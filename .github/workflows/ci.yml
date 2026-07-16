@@ -43,14 +43,21 @@ env:
 jobs:
   # ─── Plan: compute platform matrices per event (ISS-790) ───────────
   #
-  # The four Rosetta macos-x86_64 legs (setup-java architecture: x64 on ARM
-  # runners) are 3-5x slower than every sibling leg (Scala Native tests alone:
-  # ~50m of the ~73m wall) and are a compatibility check, not fast feedback.
-  # Per the merge-train protocol (docs/reviews/velocity-plan-2026-07-16.md,
-  # user decision 2026-07-16) pull_request runs drop the macos-x86_64 rows;
-  # master pushes, workflow_dispatch, and nightly runs keep the full matrix.
-  # Every row carries a `timeout` (minutes, ~2-3x observed duration) consumed
-  # via `timeout-minutes: ${{ matrix.timeout }}` so a hung runner fails fast
+  # PLATFORM WITHDRAWAL (user decision 2026-07-16, see
+  # docs/architecture/platform-targets.md "Withdrawn (for now)"):
+  # macos-x86_64 (Rosetta) and windows-aarch64 legs are REMOVED from all
+  # matrices — Apple has ended Intel support (gamers on outdated MacBooks are
+  # a sliver of an already-small userbase) and Scala Native cannot target
+  # windows-aarch64 (its JVM users are similarly rare). Release artifacts for
+  # these platforms still ship (untested); revisit once everything else works.
+  # The Rosetta legs were also 3-5x slower than every sibling (Scala Native
+  # alone: ~50m of the old ~73m wall).
+  #
+  # The IS_PR filter below is currently a no-op (kept as the tiering
+  # mechanism: give a row `"tier":"master"` and extend the jq filter to
+  # re-introduce master-only legs). Every row carries a `timeout` (minutes,
+  # ~2-3x observed duration) consumed via
+  # `timeout-minutes: ${{ matrix.timeout }}` so a hung runner fails fast
   # instead of burning the 6h default (see ci-babysitter.yml for the retry).
 
   plan:
@@ -72,22 +79,18 @@ jobs:
           jvm='[
             {"os":"ubuntu-latest","label":"linux-x86_64","platform":"linux-x86_64","timeout":30},
             {"os":"ubuntu-24.04-arm","label":"linux-aarch64","platform":"linux-aarch64","timeout":30},
-            {"os":"macos-latest","label":"macos-x86_64","platform":"macos-x86_64","architecture":"x64","timeout":60},
             {"os":"macos-latest","label":"macos-aarch64","platform":"macos-aarch64","timeout":30},
-            {"os":"windows-latest","label":"windows-x86_64","platform":"windows-x86_64","timeout":30},
-            {"os":"windows-11-arm","label":"windows-aarch64","platform":"windows-aarch64","timeout":30}
+            {"os":"windows-latest","label":"windows-x86_64","platform":"windows-x86_64","timeout":30}
           ]'
           native='[
             {"os":"ubuntu-latest","label":"linux-x86_64","platform":"linux-x86_64","timeout":45},
             {"os":"ubuntu-24.04-arm","label":"linux-aarch64","platform":"linux-aarch64","timeout":45},
-            {"os":"macos-latest","label":"macos-x86_64","platform":"macos-x86_64","architecture":"x64","timeout":90},
             {"os":"macos-latest","label":"macos-aarch64","platform":"macos-aarch64","timeout":45},
             {"os":"windows-latest","label":"windows-x86_64","platform":"windows-x86_64","timeout":45}
           ]'
           ffi='[
             {"os":"ubuntu-latest","label":"linux-x86_64","timeout":30},
             {"os":"ubuntu-24.04-arm","label":"linux-aarch64","timeout":30},
-            {"os":"macos-latest","label":"macos-x86_64","architecture":"x64","timeout":45},
             {"os":"macos-latest","label":"macos-aarch64","timeout":30},
             {"os":"windows-latest","label":"windows-x86_64","timeout":30}
           ]'
@@ -95,9 +98,7 @@ jobs:
             {"os":"ubuntu-latest","label":"linux-x86_64","platform":"linux-x86_64","native":true,"timeout":45},
             {"os":"ubuntu-24.04-arm","label":"linux-aarch64","platform":"linux-aarch64","native":true,"timeout":45},
             {"os":"macos-latest","label":"macos-aarch64","platform":"macos-aarch64","native":true,"timeout":45},
-            {"os":"macos-latest","label":"macos-x86_64","platform":"macos-x86_64","native":true,"architecture":"x64","timeout":60},
-            {"os":"windows-latest","label":"windows-x86_64","platform":"windows-x86_64","native":false,"timeout":45},
-            {"os":"windows-11-arm","label":"windows-aarch64","platform":"windows-aarch64","native":false,"timeout":45}
+            {"os":"windows-latest","label":"windows-x86_64","platform":"windows-x86_64","native":false,"timeout":45}
           ]'
           emit() {
             if [ "$IS_PR" = "true" ]; then
@@ -304,7 +305,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Rows computed by the `plan` job (ISS-790): PR runs drop macos-x86_64.
+        # Rows computed by the `plan` job (ISS-790; macos-x86_64/windows-aarch64
+        # withdrawn 2026-07-16 — see the plan job's comment).
         include: ${{ fromJSON(needs.plan.outputs.matrix_jvm) }}
     steps:
       - uses: actions/checkout@v7
@@ -317,7 +319,8 @@ jobs:
       # captured via this step's `path` output and handed to the build as
       # JAVA21_HOME. Using setup-java (not the hosted JAVA_HOME_21_X64 var) makes
       # this work on every leg — the aarch64 and macOS legs do not expose an x64
-      # JDK-21 var, and the Rosetta x86_64 leg needs an x64 build.
+      # JDK-21 var. (matrix.architecture is unset on all current rows; it stays
+      # wired for any future row that needs a non-default JVM arch.)
       - uses: actions/setup-java@v5
         id: setup-jdk21
         with:
@@ -487,7 +490,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Rows computed by the `plan` job (ISS-790): PR runs drop macos-x86_64.
+        # Rows computed by the `plan` job (ISS-790; macos-x86_64/windows-aarch64
+        # withdrawn 2026-07-16 — see the plan job's comment).
         include: ${{ fromJSON(needs.plan.outputs.matrix_native) }}
     steps:
       - uses: actions/checkout@v7
@@ -569,7 +573,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Rows computed by the `plan` job (ISS-790): PR runs drop macos-x86_64.
+        # Rows computed by the `plan` job (ISS-790; macos-x86_64/windows-aarch64
+        # withdrawn 2026-07-16 — see the plan job's comment).
         include: ${{ fromJSON(needs.plan.outputs.matrix_native_ffi) }}
     steps:
       - uses: actions/checkout@v7
@@ -1014,7 +1019,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Rows computed by the `plan` job (ISS-790): PR runs drop macos-x86_64.
+        # Rows computed by the `plan` job (ISS-790; macos-x86_64/windows-aarch64
+        # withdrawn 2026-07-16 — see the plan job's comment).
         include: ${{ fromJSON(needs.plan.outputs.matrix_release) }}
     steps:
       - uses: actions/checkout@v7

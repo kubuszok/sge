@@ -16,6 +16,29 @@ SGE targets four compilation platforms via Scala's cross-compilation ecosystem.
 **All platforms passing**: JVM 1450 tests, JS 1096 tests, Native 1096 tests.
 11 demo applications build and run on all 4 active platforms.
 
+## Withdrawn (for now): macos-x86_64 and windows-aarch64 (2026-07-16)
+
+Decision by the maintainer, recorded here and reflected in `.github/workflows/ci.yml`
+(the `plan` job) and CLAUDE.md:
+
+- **macOS Intel (macos-x86_64)** — Apple has ended Intel-platform support, so
+  only users on outdated hardware remain, and people gaming on outdated
+  MacBooks are a small fraction of an already-small potential userbase. The
+  Rosetta CI legs were also 3-5x slower than every sibling leg (~50 min of
+  the old ~73 min wall for Scala Native tests alone).
+- **Windows ARM (windows-aarch64)** — Scala Native cannot target it (generates
+  x64 code), and its JVM users are a small fraction of Windows users.
+
+Consequences: no CI legs test these OS/arch combinations (JVM, Native, FFI IT,
+release verification all dropped their rows); release artifacts that include
+macos-x86_64 / windows-aarch64 native libraries still ship, **untested**.
+Local development on these platforms is unsupported but not deliberately
+broken.
+
+**Revisit condition**: once everything else works (post-0.1.0, first game
+running), reassess demand before investing test effort again. Tracked as an
+open `improvement` issue in the issues DB.
+
 ## Core (Platform-Agnostic)
 
 The `sge` module contains all platform-independent game logic as a `projectMatrix`
