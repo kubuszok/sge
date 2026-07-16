@@ -93,16 +93,20 @@ jobs:
           emit release "$release"
           echo "matrices written (PR mode: $IS_PR)"; cat "$GITHUB_OUTPUT"
 
-  # ─── Scaladoc (all modules) ─────────────────────────────────────────
+  # ─── Scaladoc (published modules) ───────────────────────────────────
   #
   # BLOCKING (ISS-753). Maven Central release validation rejects artifacts
-  # without javadoc JARs, and packageDoc/publishArtifact is re-enabled in
-  # build.sbt — so scaladoc must build for every published module. This
-  # replaces the former non-blocking `sge/doc` probe in the Scala.js job
-  # (the upstream compiler issue that motivated it is fixed).
+  # without javadoc JARs, and packageDoc/publishArtifact is re-enabled for
+  # release (non-snapshot) versions in build.sbt — so scaladoc must build for
+  # every PUBLISHED module. The doc-*-3 aliases cover exactly those modules
+  # (root `doc` would also aggregate test/IT modules, which never gate a
+  # release). This replaces the former non-blocking `sge/doc` probe in the
+  # Scala.js job (the upstream compiler issue that motivated it is fixed).
+  # NOTE: sge-build is a separate sbt build and is NOT covered here — its doc
+  # gate rides with its publishing work (ISS-752).
 
   docs:
-    name: Scaladoc (all modules)
+    name: Scaladoc (published modules)
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -110,13 +114,16 @@ jobs:
         with:
           submodules: false
 
-      - uses: coursier/setup-action@v3.0.0
+      - uses: actions/setup-java@v5
         with:
-          jvm: ${{ env.JVM_VERSION }}
-          apps: sbt
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: sbt
 
-      - name: Generate scaladoc for every module
-        run: sbt doc
+      - uses: sbt/setup-sbt@v1
+
+      - name: Generate scaladoc for all published modules (JVM + JS + Native)
+        run: sbt 'doc-jvm-3; doc-js-3; doc-native-3'
 
   # ─── Scalafmt check ────────────────────────────────────────────────
 

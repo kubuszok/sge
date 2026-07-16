@@ -102,7 +102,15 @@ lazy val sgeCommandAliases: Seq[Def.Setting[State => State]] =
   sgeAliasCombinations.flatMap { case (platform, scalaBin) =>
     addCommandAlias(sgeAliasName("ci", platform, scalaBin), dropCoverage(testFullify(al.ci(platform, scalaBin)))) ++
       addCommandAlias(sgeAliasName("test", platform, scalaBin), testFullify(al.test(platform, scalaBin))) ++
-      addCommandAlias(sgeAliasName("publishLocal", platform, scalaBin), al.publishLocal(platform, scalaBin).mkString(" ; "))
+      addCommandAlias(sgeAliasName("publishLocal", platform, scalaBin), al.publishLocal(platform, scalaBin).mkString(" ; ")) ++
+      // doc-<platform>-3: scaladoc for exactly the PUBLISHED modules (derived
+      // from the publishLocal command list). Used by the blocking `docs` CI job
+      // (ISS-753) — root `doc` would also aggregate test/IT modules, whose
+      // scaladoc must never gate a release.
+      addCommandAlias(
+        sgeAliasName("doc", platform, scalaBin),
+        al.publishLocal(platform, scalaBin).map(_.replace("/publishLocal", "/doc")).mkString(" ; ")
+      )
   }
 
 def commonSettings(
@@ -177,11 +185,16 @@ val noPublishSettings =
 
 val mimaSettings = Seq(
   mimaPreviousArtifacts := Set(),
-  mimaFailOnNoPrevious := false
-  // packageDoc/publishArtifact was false while an upstream scaladoc crash made
-  // `doc` fail; that is fixed (root `sbt doc` green across all modules) and
-  // Maven Central REQUIRES javadoc JARs on releases, so artifacts are back on
-  // (ISS-753). The blocking `docs` CI job keeps `doc` green.
+  mimaFailOnNoPrevious := false,
+  // Doc JARs are REQUIRED by Maven Central on releases (it rejects artifacts
+  // without javadoc), but building them on every publishLocal/publishM2 would
+  // add ~50 scaladoc runs to the CI jobs that publish snapshots locally for
+  // demos/IT consumers. Gate on the version: snapshots skip doc JARs, release
+  // (tag) builds include them. The blocking `docs` CI job (doc-*-3 aliases)
+  // keeps scaladoc green so the tag-time doc build cannot surprise-fail
+  // (ISS-753; the historical unconditional `false` predates the fixed
+  // upstream scaladoc crash).
+  packageDoc / publishArtifact := !isSnapshot.value
 )
 
 /** Collect all files from a class directory as (File, relative-path) pairs for JAR mappings. */

@@ -38,8 +38,14 @@ jobs:
           RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
           set -euo pipefail
-          # Collect check-run annotations of every failed job in the CI run and
-          # look for the two runner-infrastructure signatures.
+          # Scan the annotations of FAILED jobs only — rerun-failed-jobs can
+          # only retry failure-concluded jobs, so scanning cancelled ones would
+          # detect what we cannot act on. A job-level timeout concludes as
+          # `failure` with the "exceeded the maximum execution time" annotation,
+          # which is the hang signature this babysitter targets. (Known limit:
+          # a hosted-runner loss that surfaces as `cancelled`/"The operation
+          # was canceled." is NOT retried — indistinguishable from a human
+          # cancel, and fail-safe is preferred over a wrong retry.)
           infra=0
           while read -r job_id job_name; do
             annotations=$(gh api "repos/$REPO/check-runs/$job_id/annotations" \
@@ -49,8 +55,11 @@ jobs:
               infra=1
             fi
           done < <(gh api "repos/$REPO/actions/runs/$RUN_ID/jobs?per_page=100" --paginate \
-            --jq '.jobs[] | select(.conclusion == "failure" or .conclusion == "cancelled") | "\(.id) \(.name)"')
+            --jq '.jobs[] | select(.conclusion == "failure") | "\(.id) \(.name)"')
           if [ "$infra" -eq 1 ]; then
+            # rerun-failed-jobs retries ALL failed jobs, not only the
+            # infra-flagged one; bounded to a single retry by the
+            # run_attempt == 1 guard above.
             echo "Rerunning failed jobs of run $RUN_ID (attempt 2)"
             gh api -X POST "repos/$REPO/actions/runs/$RUN_ID/rerun-failed-jobs"
           else
