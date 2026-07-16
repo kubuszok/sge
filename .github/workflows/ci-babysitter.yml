@@ -1,0 +1,58 @@
+# CI babysitter (ISS-790b).
+#
+# GitHub-hosted runners intermittently hang (windows-x86_64 and linux-aarch64
+# especially): the job sits "in progress" doing nothing until cancelled. The
+# job-level timeout-minutes added across ci.yml converts such hangs into
+# failed jobs; this workflow then retries ONCE — and only when the failure
+# annotations prove an infrastructure death (job timeout / runner lost), so
+# genuine test failures are never masked by auto-retry.
+#
+# workflow_run workflows execute from the default branch, so changes here take
+# effect (and are testable) only after merge to master.
+
+name: CI babysitter
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+permissions:
+  actions: write
+  checks: read
+
+jobs:
+  rerun-infra-failures:
+    name: Rerun timed-out/lost jobs once
+    # Attempt 1 only: a retry that fails again is a real signal for a human.
+    if: >-
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.run_attempt == 1
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Rerun failed jobs if the failure was runner infrastructure
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          # Collect check-run annotations of every failed job in the CI run and
+          # look for the two runner-infrastructure signatures.
+          infra=0
+          while read -r job_id job_name; do
+            annotations=$(gh api "repos/$REPO/check-runs/$job_id/annotations" \
+              --jq '.[].message' 2>/dev/null || true)
+            if grep -qiE 'exceeded the maximum execution time|runner .* lost communication|received a shutdown signal' <<<"$annotations"; then
+              echo "infra failure detected in job: $job_name"
+              infra=1
+            fi
+          done < <(gh api "repos/$REPO/actions/runs/$RUN_ID/jobs?per_page=100" --paginate \
+            --jq '.jobs[] | select(.conclusion == "failure" or .conclusion == "cancelled") | "\(.id) \(.name)"')
+          if [ "$infra" -eq 1 ]; then
+            echo "Rerunning failed jobs of run $RUN_ID (attempt 2)"
+            gh api -X POST "repos/$REPO/actions/runs/$RUN_ID/rerun-failed-jobs"
+          else
+            echo "No infrastructure-failure annotation found — not retrying (real failures stay red)."
+          fi

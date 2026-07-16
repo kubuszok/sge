@@ -177,8 +177,11 @@ val noPublishSettings =
 
 val mimaSettings = Seq(
   mimaPreviousArtifacts := Set(),
-  mimaFailOnNoPrevious := false,
-  packageDoc / publishArtifact := false
+  mimaFailOnNoPrevious := false
+  // packageDoc/publishArtifact was false while an upstream scaladoc crash made
+  // `doc` fail; that is fixed (root `sbt doc` green across all modules) and
+  // Maven Central REQUIRES javadoc JARs on releases, so artifacts are back on
+  // (ISS-753). The blocking `docs` CI job keeps `doc` green.
 )
 
 /** Collect all files from a class directory as (File, relative-path) pairs for JAR mappings. */

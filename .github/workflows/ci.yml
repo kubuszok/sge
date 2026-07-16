@@ -22,11 +22,108 @@ env:
   NODE_VERSION: "24"
 
 jobs:
+  # ─── Plan: compute platform matrices per event (ISS-790) ───────────
+  #
+  # The four Rosetta macos-x86_64 legs (setup-java architecture: x64 on ARM
+  # runners) are 3-5x slower than every sibling leg (Scala Native tests alone:
+  # ~50m of the ~73m wall) and are a compatibility check, not fast feedback.
+  # Per the merge-train protocol (docs/reviews/velocity-plan-2026-07-16.md,
+  # user decision 2026-07-16) pull_request runs drop the macos-x86_64 rows;
+  # master pushes, workflow_dispatch, and nightly runs keep the full matrix.
+  # Every row carries a `timeout` (minutes, ~2-3x observed duration) consumed
+  # via `timeout-minutes: ${{ matrix.timeout }}` so a hung runner fails fast
+  # instead of burning the 6h default (see ci-babysitter.yml for the retry).
+
+  plan:
+    name: Plan matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix_jvm: ${{ steps.matrices.outputs.jvm }}
+      matrix_native: ${{ steps.matrices.outputs.native }}
+      matrix_native_ffi: ${{ steps.matrices.outputs.ffi }}
+      matrix_release: ${{ steps.matrices.outputs.release }}
+    steps:
+      - name: Compute platform matrices
+        id: matrices
+        env:
+          IS_PR: ${{ github.event_name == 'pull_request' }}
+        run: |
+          set -euo pipefail
+          jvm='[
+            {"os":"ubuntu-latest","label":"linux-x86_64","platform":"linux-x86_64","timeout":30},
+            {"os":"ubuntu-24.04-arm","label":"linux-aarch64","platform":"linux-aarch64","timeout":30},
+            {"os":"macos-latest","label":"macos-x86_64","platform":"macos-x86_64","architecture":"x64","timeout":60},
+            {"os":"macos-latest","label":"macos-aarch64","platform":"macos-aarch64","timeout":30},
+            {"os":"windows-latest","label":"windows-x86_64","platform":"windows-x86_64","timeout":30},
+            {"os":"windows-11-arm","label":"windows-aarch64","platform":"windows-aarch64","timeout":30}
+          ]'
+          native='[
+            {"os":"ubuntu-latest","label":"linux-x86_64","platform":"linux-x86_64","timeout":45},
+            {"os":"ubuntu-24.04-arm","label":"linux-aarch64","platform":"linux-aarch64","timeout":45},
+            {"os":"macos-latest","label":"macos-x86_64","platform":"macos-x86_64","architecture":"x64","timeout":90},
+            {"os":"macos-latest","label":"macos-aarch64","platform":"macos-aarch64","timeout":45},
+            {"os":"windows-latest","label":"windows-x86_64","platform":"windows-x86_64","timeout":45}
+          ]'
+          ffi='[
+            {"os":"ubuntu-latest","label":"linux-x86_64","timeout":30},
+            {"os":"ubuntu-24.04-arm","label":"linux-aarch64","timeout":30},
+            {"os":"macos-latest","label":"macos-x86_64","architecture":"x64","timeout":45},
+            {"os":"macos-latest","label":"macos-aarch64","timeout":30},
+            {"os":"windows-latest","label":"windows-x86_64","timeout":30}
+          ]'
+          release='[
+            {"os":"ubuntu-latest","label":"linux-x86_64","platform":"linux-x86_64","native":true,"timeout":45},
+            {"os":"ubuntu-24.04-arm","label":"linux-aarch64","platform":"linux-aarch64","native":true,"timeout":45},
+            {"os":"macos-latest","label":"macos-aarch64","platform":"macos-aarch64","native":true,"timeout":45},
+            {"os":"macos-latest","label":"macos-x86_64","platform":"macos-x86_64","native":true,"architecture":"x64","timeout":60},
+            {"os":"windows-latest","label":"windows-x86_64","platform":"windows-x86_64","native":false,"timeout":45},
+            {"os":"windows-11-arm","label":"windows-aarch64","platform":"windows-aarch64","native":false,"timeout":45}
+          ]'
+          emit() {
+            if [ "$IS_PR" = "true" ]; then
+              jq -c 'map(select(.label != "macos-x86_64"))' <<<"$2"
+            else
+              jq -c . <<<"$2"
+            fi | sed "s/^/$1=/" >> "$GITHUB_OUTPUT"
+          }
+          emit jvm "$jvm"
+          emit native "$native"
+          emit ffi "$ffi"
+          emit release "$release"
+          echo "matrices written (PR mode: $IS_PR)"; cat "$GITHUB_OUTPUT"
+
+  # ─── Scaladoc (all modules) ─────────────────────────────────────────
+  #
+  # BLOCKING (ISS-753). Maven Central release validation rejects artifacts
+  # without javadoc JARs, and packageDoc/publishArtifact is re-enabled in
+  # build.sbt — so scaladoc must build for every published module. This
+  # replaces the former non-blocking `sge/doc` probe in the Scala.js job
+  # (the upstream compiler issue that motivated it is fixed).
+
+  docs:
+    name: Scaladoc (all modules)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: false
+
+      - uses: coursier/setup-action@v3.0.0
+        with:
+          jvm: ${{ env.JVM_VERSION }}
+          apps: sbt
+
+      - name: Generate scaladoc for every module
+        run: sbt doc
+
   # ─── Scalafmt check ────────────────────────────────────────────────
 
   format:
     name: Scalafmt check
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
         with:
@@ -66,6 +163,7 @@ jobs:
   enforce:
     name: re-scale enforce
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
         with:
@@ -105,6 +203,7 @@ jobs:
   test-js:
     name: Scala.js tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
         with:
@@ -128,38 +227,21 @@ jobs:
       - name: Run Scala.js tests (core + all extensions)
         run: sbt test-js-3
 
-      - name: Test scaladoc generation (non-blocking)
-        continue-on-error: true
-        run: sbt 'sge/doc'
+      # The former non-blocking "Test scaladoc generation" probe moved to the
+      # dedicated BLOCKING `docs` job above (ISS-753).
 
   # ─── JVM compile + test (uses Panama provider JARs) ─────────────────
 
   test-jvm:
     name: JVM tests (${{ matrix.label }})
+    needs: [plan]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: ${{ matrix.timeout }}
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-latest
-            label: linux-x86_64
-            platform: linux-x86_64
-          - os: ubuntu-24.04-arm
-            label: linux-aarch64
-            platform: linux-aarch64
-          - os: macos-latest
-            label: macos-x86_64
-            platform: macos-x86_64
-            architecture: x64
-          - os: macos-latest
-            label: macos-aarch64
-            platform: macos-aarch64
-          - os: windows-latest
-            label: windows-x86_64
-            platform: windows-x86_64
-          - os: windows-11-arm
-            label: windows-aarch64
-            platform: windows-aarch64
+        # Rows computed by the `plan` job (ISS-790): PR runs drop macos-x86_64.
+        include: ${{ fromJSON(needs.plan.outputs.matrix_jvm) }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -221,6 +303,7 @@ jobs:
     name: Browser IT tests
     needs: [test-js]
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
         with:
@@ -296,6 +379,7 @@ jobs:
   test-sge-build-scripted:
     name: sge-build scripted tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
         with:
@@ -331,27 +415,14 @@ jobs:
 
   test-native:
     name: Scala Native tests (${{ matrix.label }})
+    needs: [plan]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: ${{ matrix.timeout }}
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-latest
-            label: linux-x86_64
-            platform: linux-x86_64
-          - os: ubuntu-24.04-arm
-            label: linux-aarch64
-            platform: linux-aarch64
-          - os: macos-latest
-            label: macos-x86_64
-            platform: macos-x86_64
-            architecture: x64
-          - os: macos-latest
-            label: macos-aarch64
-            platform: macos-aarch64
-          - os: windows-latest
-            label: windows-x86_64
-            platform: windows-x86_64
+        # Rows computed by the `plan` job (ISS-790): PR runs drop macos-x86_64.
+        include: ${{ fromJSON(needs.plan.outputs.matrix_native) }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -424,24 +495,14 @@ jobs:
 
   test-native-ffi-it:
     name: Native FFI IT tests (${{ matrix.label }})
-    needs: [test-native]
+    needs: [test-native, plan]
     runs-on: ${{ matrix.os }}
-
+    timeout-minutes: ${{ matrix.timeout }}
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-latest
-            label: linux-x86_64
-          - os: ubuntu-24.04-arm
-            label: linux-aarch64
-          - os: macos-latest
-            label: macos-x86_64
-            architecture: x64
-          - os: macos-latest
-            label: macos-aarch64
-          - os: windows-latest
-            label: windows-x86_64
+        # Rows computed by the `plan` job (ISS-790): PR runs drop macos-x86_64.
+        include: ${{ fromJSON(needs.plan.outputs.matrix_native_ffi) }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -523,6 +584,7 @@ jobs:
     name: Native runtime (linux-x86_64)
     needs: [test-native]
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
         with:
@@ -564,6 +626,7 @@ jobs:
     name: Desktop IT tests
     needs: [test-jvm]
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
         with:
@@ -705,6 +768,7 @@ jobs:
     # (Follow-up, out of scope here: the macOS JVM legs should be marked
     # non-required so PRs are not blocked on those queued-forever runners.)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
         with:
@@ -735,6 +799,7 @@ jobs:
   test-android-it:
     name: Android IT tests
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
         with:
@@ -787,6 +852,7 @@ jobs:
     name: Demo smoke (JS)
     needs: [test-js]
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
         with:
@@ -821,6 +887,7 @@ jobs:
     name: Demo compile all
     needs: [test-js]
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
         with:
@@ -861,37 +928,14 @@ jobs:
 
   verify-release:
     name: Verify release (${{ matrix.label }})
-    needs: [test-jvm, test-native]
+    needs: [test-jvm, test-native, plan]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: ${{ matrix.timeout }}
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-latest
-            label: linux-x86_64
-            platform: linux-x86_64
-            native: true
-          - os: ubuntu-24.04-arm
-            label: linux-aarch64
-            platform: linux-aarch64
-            native: true
-          - os: macos-latest
-            label: macos-aarch64
-            platform: macos-aarch64
-            native: true
-          - os: macos-latest
-            label: macos-x86_64
-            platform: macos-x86_64
-            native: true
-            architecture: x64
-          - os: windows-latest
-            label: windows-x86_64
-            platform: windows-x86_64
-            native: false
-          - os: windows-11-arm
-            label: windows-aarch64
-            platform: windows-aarch64
-            native: false
+        # Rows computed by the `plan` job (ISS-790): PR runs drop macos-x86_64.
+        include: ${{ fromJSON(needs.plan.outputs.matrix_release) }}
     steps:
       - uses: actions/checkout@v7
         with:
