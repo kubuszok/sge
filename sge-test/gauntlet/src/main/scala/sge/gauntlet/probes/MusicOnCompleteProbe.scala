@@ -12,7 +12,8 @@ import scala.collection.mutable.ListBuffer
 
 /** Plays a short generated WAV as streaming Music to its natural end and asserts that playback was observable and that the `onComplete` callback fired.
   *
-  * knownIssue ISS-760: `Music.onComplete` never fires on desktop (JVM+Native) — `MiniaudioMusic.fireOnComplete` has zero callers; JS and Android wire it.
+  * ISS-760 (fixed): desktop (JVM+Native) now wires `Music.onComplete` — `MiniaudioEngine.update()` drives each `MiniaudioMusic.update()` per frame, firing the completion listener at natural
+  * end-of-stream, matching JS and Android.
   */
 object MusicOnCompleteProbe extends FeatureProbe {
 
@@ -21,8 +22,6 @@ object MusicOnCompleteProbe extends FeatureProbe {
   override def area: String = "audio"
 
   override def requiresGpu: Boolean = true
-
-  override def knownIssue: Option[String] = Some("ISS-760")
 
   override def frames: Int = 10
 

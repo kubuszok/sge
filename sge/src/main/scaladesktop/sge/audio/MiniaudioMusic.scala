@@ -41,14 +41,31 @@ class MiniaudioMusic private[sge] (
 
   private var _onComplete: Nullable[Music => Unit] = Nullable.empty
 
-  override def play(): Unit =
+  // Completion detection state (ISS-760). The shipped miniaudio provider libraries expose no
+  // "at-end" symbol (ma_sound_at_end lives in the separate sge-native-providers repo and cannot
+  // be added here), so natural end-of-stream is detected via a played -> stopped transition where
+  // the cursor has reached the track duration. `playbackStarted` arms detection while the stream is
+  // active; `completed` is a one-shot latch so the listener fires exactly once per playback.
+  private var playbackStarted: Boolean = false
+  private var completed:       Boolean = false
+
+  override def play(): Unit = {
+    // A fresh playback re-arms detection so a replayed track can complete again.
+    completed = false
+    playbackStarted = true
     audioOps.playMusic(musicHandle)
+  }
 
   override def pause(): Unit =
+    // A user pause leaves the cursor mid-track (position < duration), so it is not mistaken for a
+    // natural end by update(); detection stays armed and resumes when play() is called again.
     audioOps.pauseMusic(musicHandle)
 
-  override def stop(): Unit =
+  override def stop(): Unit = {
+    // A user stop rewinds the cursor to 0, distinguishing it from a natural end; disarm detection.
+    playbackStarted = false
     audioOps.stopMusic(musicHandle)
+  }
 
   override def playing: Boolean =
     audioOps.isMusicPlaying(musicHandle)
@@ -84,6 +101,28 @@ class MiniaudioMusic private[sge] (
   /** Called by the engine during update to fire completion callbacks. */
   private[sge] def fireOnComplete(): Unit =
     _onComplete.foreach(_(this))
+
+  /** Drives completion detection for one frame, mirroring `OpenALMusic.update()`.
+    *
+    * Invoked once per frame by [[MiniaudioEngine.update]] (which is itself driven by the application loop's per-frame `audio.update()` tick, matching `OpenALLwjgl3Audio.update()`). When the stream
+    * reaches its natural end — it was playing and is now stopped with the cursor at the track duration — this stops the track and fires the completion listener exactly once. A user stop() (cursor
+    * rewound to 0) or pause() (cursor mid-track) is not a natural end and does not trigger completion; looping tracks never report stopped and so never complete.
+    */
+  private[sge] def update(): Unit =
+    if (!completed) {
+      if (audioOps.isMusicPlaying(musicHandle)) {
+        playbackStarted = true
+      } else if (playbackStarted) {
+        val position = audioOps.getMusicPosition(musicHandle)
+        val duration = audioOps.getMusicDuration(musicHandle)
+        if (duration > 0f && position >= duration) {
+          completed = true
+          // Mirror OpenALMusic.update(): stop the exhausted stream, then notify the listener.
+          stop()
+          fireOnComplete()
+        }
+      }
+    }
 
   override def close(): Unit = {
     audioOps.disposeMusic(musicHandle)

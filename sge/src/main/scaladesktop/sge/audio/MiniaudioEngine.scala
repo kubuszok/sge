@@ -130,7 +130,19 @@ class MiniaudioEngine private[sge] (
   // ─── DesktopAudio ──────────────────────────────────────────────────
 
   override def update(): Unit =
-    if (!noDevice) audioOps.updateEngine(engineHandle)
+    if (!noDevice) {
+      audioOps.updateEngine(engineHandle)
+      // Mirror OpenALLwjgl3Audio.update(): after advancing the engine, drive every music instance
+      // so a naturally-finished stream fires its completion listener (ISS-760). Index iteration
+      // matches the original ("for (int i = 0; i < music.size; i++) music.items[i].update()"); a
+      // listener that closes its track during the callback shrinks musicInstances, and the
+      // re-checked bound keeps the walk in range.
+      var i = 0
+      while (i < musicInstances.length) {
+        musicInstances(i).update()
+        i += 1
+      }
+    }
 
   override def close(): Unit =
     if (!noDevice) {
