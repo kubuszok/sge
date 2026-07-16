@@ -41,8 +41,8 @@ class TiledMapFileLoadingSuite extends munit.FunSuite {
   private given Sge = SgeTestFixture.testSge(graphics = new NoopGraphics(), files = DesktopFiles())
 
   /** Row-major 4x4 gids; each of tileset gids 1..4 appears exactly four times, so every cell is filled. */
-  private val gids: Array[Int]     = Array(1, 2, 3, 4, 4, 3, 2, 1, 1, 1, 2, 2, 3, 3, 4, 4)
-  private val expectedSorted: List[Int] = gids.toList.sorted
+  private val gids:           Array[Int] = Array(1, 2, 3, 4, 4, 3, 2, 1, 1, 1, 2, 2, 3, 3, 4, 4)
+  private val expectedSorted: List[Int]  = gids.toList.sorted
 
   /** Little-endian 4-byte-per-gid packing, exactly what the base64 layer decoders read back. */
   private def pack(ids: Array[Int]): Array[Byte] = {
@@ -115,7 +115,7 @@ class TiledMapFileLoadingSuite extends munit.FunSuite {
   private def tileLayer(map: TiledMap, name: String): TiledMapTileLayer =
     map.layers.get(name).getOrElse(fail(s"missing layer '$name'")) match {
       case l: TiledMapTileLayer => l
-      case other                => fail(s"layer '$name' is ${other.getClass.getSimpleName}, expected TiledMapTileLayer")
+      case other => fail(s"layer '$name' is ${other.getClass.getSimpleName}, expected TiledMapTileLayer")
     }
 
   test("TMX: external tileset + gzip + CSV layers + object layer with properties load end-to-end") {
