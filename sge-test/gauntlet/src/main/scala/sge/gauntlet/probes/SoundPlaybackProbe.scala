@@ -52,7 +52,9 @@ object SoundPlaybackProbe extends FeatureProbe {
       s.stop()
       s.close()
     }
-    checks += Check.cond("stop-and-dispose", passed = true, "no exception", "stopped and disposed")
+    // Sound has no queryable playback state after stop — this is honestly only a
+    // no-exception check (an exception above would abort the probe as failed).
+    checks += Check.cond("no-exception-on-stop-dispose", passed = true, "no exception", "stopped and disposed")
     sound = None
     checks.toList
   }

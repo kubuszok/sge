@@ -40,6 +40,10 @@ Modes:
 | `--interactive` | as windowed | as windowed | stays open on the results grid (arrow keys / click to inspect, each GPU probe's FBO capture shown in the panel; ESC exits) |
 
 Process exit code = number of **hard failures** = `failed` + `unexpected_pass`.
+False-green guard: if **no probe executed at all** (every selected probe was
+`skipped_gpu`, e.g. a GPU-only `--only` selection under `--headless`), the run
+exits **65** — a run that verified nothing must not look green. (Exit 64 =
+CLI usage error / empty filter selection.)
 
 ## Probe API
 

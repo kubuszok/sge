@@ -31,18 +31,21 @@ object AudioLifecycleProbe extends FeatureProbe {
     val wav   = WavFixture.write(ctx.tempDir.child("lifecycle.wav"), 0.1f)
     ctx.log(s"audio impl: ${audio.getClass.getName}")
 
+    // Sound exposes no queryable state, so creation/disposal are honestly only
+    // no-exception checks — named as such (any exception aborts the probe as a
+    // failing no-unhandled-exception check, so reaching these lines IS the assert).
     val sound = audio.newSound(wav)
     ctx.log(s"sound impl: ${sound.getClass.getName}")
-    checks += Check.cond("new-sound", passed = true, "no exception", sound.getClass.getSimpleName)
+    checks += Check.cond("new-sound-no-exception", passed = true, "no exception", sound.getClass.getSimpleName)
     sound.close()
-    checks += Check.cond("sound-dispose", passed = true, "no exception", "disposed")
+    checks += Check.cond("no-exception-on-sound-dispose", passed = true, "no exception", "disposed")
 
     val music = audio.newMusic(wav)
     ctx.log(s"music impl: ${music.getClass.getName}")
-    checks += Check.cond("new-music", passed = true, "no exception", music.getClass.getSimpleName)
+    checks += Check.cond("new-music-no-exception", passed = true, "no exception", music.getClass.getSimpleName)
     checks += Check.eq("music-not-playing-before-play", false, music.playing)
     music.close()
-    checks += Check.cond("music-dispose", passed = true, "no exception", "disposed")
+    checks += Check.cond("no-exception-on-music-dispose", passed = true, "no exception", "disposed")
   }
 
   override def verify(ctx: ProbeContext): List[Check] =

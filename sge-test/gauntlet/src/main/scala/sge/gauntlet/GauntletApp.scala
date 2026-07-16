@@ -172,6 +172,16 @@ class GauntletApp(
     val all = results.toList
     GauntletReport.write(all, mode, cfg.reportDir)
     scribe.info(s"SGE-GAUNTLET: report written to ${cfg.reportDir} (hard failures: ${ProbeResult.hardFailures(all)})")
+    // False-green guard: a run in which NO probe executed (all skipped_gpu, e.g.
+    // a GPU-only selection under --headless) verified nothing and must not exit 0.
+    // ProbeResult.exitCode turns this into ProbeResult.NothingExecutedExitCode.
+    if (ProbeResult.executed(all) == 0) {
+      scribe.error(
+        s"SGE-GAUNTLET: NO probe executed (${all.size} selected, all skipped_gpu) — " +
+          s"failing the run with exit ${ProbeResult.NothingExecutedExitCode}; " +
+          "run without --headless (or widen --only/--area) to execute these probes"
+      )
+    }
     onDone(all)
     if (!cfg.interactive) {
       sge.application.exit()

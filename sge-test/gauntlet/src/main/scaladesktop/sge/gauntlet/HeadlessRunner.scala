@@ -18,7 +18,7 @@ object HeadlessRunner {
       probes,
       cfg,
       results => {
-        exitCode = ProbeResult.hardFailures(results)
+        exitCode = ProbeResult.exitCode(results)
         completion.countDown()
       }
     )
