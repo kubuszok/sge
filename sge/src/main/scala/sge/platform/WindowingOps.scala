@@ -58,6 +58,27 @@ private[sge] trait WindowingOps {
     */
   def createWindow(width: Int, height: Int, title: String): Long
 
+  /** Creates a window directly on a specific monitor as a fullscreen window at the given refresh rate. Mirrors GLFW's `glfwCreateWindow(width, height, title, monitor, share)`, which produces a
+    * fullscreen window when a non-NULL monitor is passed (Lwjgl3Application.createGlfwWindow, Lwjgl3Application.java:515-518).
+    *
+    * The default implementation creates a windowed handle and then moves it fullscreen onto `monitorHandle` via [[setWindowMonitor]], so implementors that do not override it still honor the target
+    * monitor. Real GLFW/SDL3 backends override this to pass the monitor straight to the native window-creation call.
+    *
+    * @param monitorHandle
+    *   the monitor to create the fullscreen window on; 0 falls back to a plain windowed creation
+    * @param refreshRate
+    *   the fullscreen refresh rate in Hertz (GLFW_REFRESH_RATE)
+    * @return
+    *   a native window handle, or 0 on failure
+    */
+  def createWindow(width: Int, height: Int, title: String, monitorHandle: Long, refreshRate: Int): Long = {
+    val handle = createWindow(width, height, title)
+    if (handle != 0L && monitorHandle != 0L) {
+      setWindowMonitor(handle, monitorHandle, 0, 0, width, height, refreshRate)
+    }
+    handle
+  }
+
   /** Destroys a previously created window. */
   def destroyWindow(windowHandle: Long): Unit
 
@@ -361,6 +382,9 @@ object WindowingOps {
   val GLFW_MAXIMIZED:               Int = 0x00020008
   val GLFW_TRANSPARENT_FRAMEBUFFER: Int = 0x0002000a
   val GLFW_FOCUS_ON_SHOW:           Int = 0x0002000c
+
+  // GLFW window creation hint for fullscreen refresh rate
+  val GLFW_REFRESH_RATE: Int = 0x0002100f
 
   // GLFW context creation hints
   val GLFW_CLIENT_API:            Int = 0x00022001

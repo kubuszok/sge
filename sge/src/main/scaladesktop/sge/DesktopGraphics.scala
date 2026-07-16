@@ -240,20 +240,20 @@ class DesktopGraphics private[sge] (
     windowing.monitors.map(h => toDesktopMonitor(h).toMonitor)
 
   override def displayModes: Array[Graphics.DisplayMode] =
-    getDesktopDisplayModes(currentDesktopMonitor).map(_.toDisplayMode)
+    getDesktopDisplayModes(currentDesktopMonitor).map(registerMode)
 
   override def getDisplayModes(monitor: Graphics.Monitor): Array[Graphics.DisplayMode] = {
     // Find the desktop monitor matching by name and position
     val desktopMon = findDesktopMonitor(monitor)
-    getDesktopDisplayModes(desktopMon).map(_.toDisplayMode)
+    getDesktopDisplayModes(desktopMon).map(registerMode)
   }
 
   override def displayMode: Graphics.DisplayMode =
-    getDesktopDisplayMode(currentDesktopMonitor).toDisplayMode
+    registerMode(getDesktopDisplayMode(currentDesktopMonitor))
 
   override def getDisplayMode(monitor: Graphics.Monitor): Graphics.DisplayMode = {
     val desktopMon = findDesktopMonitor(monitor)
-    getDesktopDisplayMode(desktopMon).toDisplayMode
+    registerMode(getDesktopDisplayMode(desktopMon))
   }
 
   // ─── Desktop-specific monitor/display helpers ─────────────────────────
@@ -304,25 +304,50 @@ class DesktopGraphics private[sge] (
     DesktopDisplayMode(monitor.monitorHandle, w, h, rr, rb + gb + bb)
   }
 
+  // Maps every core Graphics.DisplayMode this Graphics has handed out back to the native monitor
+  // handle it was queried from. The original Lwjgl3Graphics carries the monitor inside a
+  // Lwjgl3DisplayMode subclass and recovers it by casting the DisplayMode passed to
+  // setFullscreenMode (Lwjgl3Graphics.java:415/416). Graphics.DisplayMode is a final case class and
+  // cannot be subclassed, so we record the monitor by mode identity here instead. Weak keys let
+  // handed-out modes be collected once callers drop them.
+  private val modeMonitorHandles: java.util.Map[Graphics.DisplayMode, java.lang.Long] =
+    java.util.Collections.synchronizedMap(new java.util.WeakHashMap[Graphics.DisplayMode, java.lang.Long]())
+
+  /** Converts a desktop display mode to the core representation and records the monitor it belongs to, so [[setFullscreenMode]] can later target that same monitor. */
+  private def registerMode(desktopMode: DesktopDisplayMode): Graphics.DisplayMode = {
+    val mode = desktopMode.toDisplayMode
+    modeMonitorHandles.put(mode, desktopMode.monitorHandle)
+    mode
+  }
+
+  /** Recovers the desktop display mode (with its monitor handle) for a core [[Graphics.DisplayMode]] passed back to [[setFullscreenMode]]. Mirrors the original's `(Lwjgl3DisplayMode)displayMode` cast
+    * (Lwjgl3Graphics.java:416): the monitor is the one the mode was queried from. A mode the caller constructed directly (never obtained from a query) has no recorded handle, so it falls back to the
+    * current monitor.
+    */
+  private def resolveDesktopMode(displayMode: Graphics.DisplayMode): DesktopDisplayMode = {
+    val handle = Nullable(modeMonitorHandles.get(displayMode)).fold(currentDesktopMonitor.monitorHandle)(_.longValue)
+    DesktopDisplayMode(handle, displayMode.width, displayMode.height, displayMode.refreshRate, displayMode.bitsPerPixel)
+  }
+
   // ─── Fullscreen / windowed ────────────────────────────────────────────
 
   override def setFullscreenMode(displayMode: Graphics.DisplayMode): Boolean = {
     window.input.resetPollingStates()
-    // Find the desktop display mode matching the requested one
-    val mon         = currentDesktopMonitor
-    val desktopMode = getDesktopDisplayModes(mon)
-      .find { dm =>
-        dm.width == displayMode.width && dm.height == displayMode.height && dm.refreshRate == displayMode.refreshRate
-      }
-      .getOrElse(
-        DesktopDisplayMode(mon.monitorHandle, displayMode.width, displayMode.height, displayMode.refreshRate, displayMode.bitsPerPixel)
-      )
-
+    val newMode = resolveDesktopMode(displayMode)
     if (fullscreen) {
-      windowing.setWindowMonitor(window.windowHandle, desktopMode.monitorHandle, 0, 0, desktopMode.width, desktopMode.height, desktopMode.refreshRate)
+      val currentMode = getDesktopDisplayMode(currentDesktopMonitor)
+      if (currentMode.monitorHandle == newMode.monitorHandle && currentMode.refreshRate == newMode.refreshRate) {
+        // same monitor and refresh rate
+        windowing.setWindowSize(window.windowHandle, newMode.width, newMode.height)
+      } else {
+        // different monitor and/or refresh rate
+        windowing.setWindowMonitor(window.windowHandle, newMode.monitorHandle, 0, 0, newMode.width, newMode.height, newMode.refreshRate)
+      }
     } else {
+      // store window position so we can restore it when switching from fullscreen to windowed later
       storeCurrentWindowPositionAndDisplayMode()
-      windowing.setWindowMonitor(window.windowHandle, desktopMode.monitorHandle, 0, 0, desktopMode.width, desktopMode.height, desktopMode.refreshRate)
+      // switch from windowed to fullscreen
+      windowing.setWindowMonitor(window.windowHandle, newMode.monitorHandle, 0, 0, newMode.width, newMode.height, newMode.refreshRate)
     }
     updateFramebufferInfo()
     setVSync(window.config.vSyncEnabled)

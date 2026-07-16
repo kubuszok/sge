@@ -143,9 +143,10 @@ private object GlfwC {
   def glfwGetTime(): CDouble = extern
 
   // Native window handle (glfw3native.h) — platform-specific, may not be available on all targets
-  def glfwGetCocoaWindow(window: Ptr[Byte]): Ptr[Byte]         = extern
-  def glfwGetX11Window(window:   Ptr[Byte]): CUnsignedLongLong = extern
-  def glfwGetWin32Window(window: Ptr[Byte]): Ptr[Byte]         = extern
+  def glfwGetCocoaWindow(window:   Ptr[Byte]): Ptr[Byte]         = extern
+  def glfwGetX11Window(window:     Ptr[Byte]): CUnsignedLongLong = extern
+  def glfwGetWin32Window(window:   Ptr[Byte]): Ptr[Byte]         = extern
+  def glfwGetWaylandWindow(window: Ptr[Byte]): Ptr[Byte]         = extern
 }
 
 // ─── Objective-C runtime bindings (macOS only) ───────────────────────────────
@@ -207,14 +208,29 @@ private[sge] object WindowingOpsNative extends WindowingOps {
 
   // ─── Initialization ──────────────────────────────────────────────────
 
-  override def setInitHint(hint: Int, value: Int): Unit =
+  // Tracks whether the caller explicitly chose a GLFW_PLATFORM (e.g. headless tests pin
+  // GLFW_PLATFORM_NULL). If so, init() must not override it with the Linux X11 default (ISS-761).
+  private var platformHintSet: Boolean = false
+
+  override def setInitHint(hint: Int, value: Int): Unit = {
+    if (hint == WindowingOps.GLFW_PLATFORM) platformHintSet = true
     GlfwC.glfwInitHint(hint, value)
+  }
 
   override def init(): Boolean = {
     // Install a GLFW error callback BEFORE glfwInit so init-time errors surface
     // (glfwSetErrorCallback is valid before glfwInit). LibGDX installs a
     // GLFWErrorCallback at init so GLFW failures are logged rather than dropped.
     GlfwC.glfwSetErrorCallback(fnError)
+    // ISS-761: on Linux, force the X11 GLFW platform before glfwInit. SGE's GL context is created
+    // by ANGLE/EGL against the native window handle (getNativeWindowHandle), and that EGL path is
+    // wired for X11 window IDs; letting GLFW auto-select Wayland would hand back a wl_surface* that
+    // the ANGLE/EGL setup does not consume. This is an SGE-original choice (no LibGDX analogue) —
+    // upstream lwjgl3 also defaults to X11 in practice. Wayland support stays behind ISS-761.
+    // Skipped when the caller already pinned a platform (e.g. headless tests use GLFW_PLATFORM_NULL).
+    if (!platformHintSet && System.getProperty("os.name", "").toLowerCase.contains("linux")) {
+      GlfwC.glfwInitHint(WindowingOps.GLFW_PLATFORM, WindowingOps.GLFW_PLATFORM_X11)
+    }
     GlfwC.glfwInit() != 0
   }
 
@@ -233,6 +249,20 @@ private[sge] object WindowingOpsNative extends WindowingOps {
       longFromPtr(GlfwC.glfwCreateWindow(width, height, cTitle, null, null))
     } finally zone.close()
   }
+
+  override def createWindow(width: Int, height: Int, title: String, monitorHandle: Long, refreshRate: Int): Long =
+    if (monitorHandle == 0L) createWindow(width, height, title)
+    else {
+      // Faithful to Lwjgl3Application.createGlfwWindow (Lwjgl3Application.java:515-518): set the
+      // GLFW_REFRESH_RATE hint, then create the window directly on the target monitor so it opens
+      // fullscreen there.
+      GlfwC.glfwWindowHint(WindowingOps.GLFW_REFRESH_RATE, refreshRate)
+      val zone = Zone.open()
+      try {
+        val cTitle = toCString(title)(using zone)
+        longFromPtr(GlfwC.glfwCreateWindow(width, height, cTitle, ptrFromLong(monitorHandle), null))
+      } finally zone.close()
+    }
 
   override def destroyWindow(windowHandle: Long): Unit =
     GlfwC.glfwDestroyWindow(ptrFromLong(windowHandle))
@@ -283,6 +313,11 @@ private[sge] object WindowingOpsNative extends WindowingOps {
       GlfwC.glfwGetX11Window(ptrFromLong(windowHandle)).toLong
     else if (platform == WindowingOps.GLFW_PLATFORM_WIN32)
       longFromPtr(GlfwC.glfwGetWin32Window(ptrFromLong(windowHandle)))
+    else if (platform == WindowingOps.GLFW_PLATFORM_WAYLAND)
+      // Wayland (ISS-761): return the wl_surface* for EGL. SGE forces the X11 GLFW platform on
+      // Linux in init() (see below), so this branch normally stays dormant on the ANGLE/EGL path;
+      // it exists so getNativeWindowHandle is total under a Wayland session GLFW is built for.
+      longFromPtr(GlfwC.glfwGetWaylandWindow(ptrFromLong(windowHandle)))
     else
       throw new UnsupportedOperationException(s"getNativeWindowHandle not supported on platform $platform")
   }
@@ -737,4 +772,13 @@ private[sge] object WindowingOpsNative extends WindowingOps {
 
   override def time: Double =
     GlfwC.glfwGetTime()
+}
+
+/** Platform seam giving shared desktop code a default [[WindowingOps]] for pre-launch monitor/display-mode queries (see `DesktopApplicationConfig` companion). A same-named object exists in the JVM
+  * source tree so shared code can reference `sge.platform.DesktopWindowing` uniformly — the same expect/actual pattern SGE uses for `HttpBackendFactoryImpl`.
+  */
+private[sge] object DesktopWindowing {
+
+  /** Returns the default windowing ops. The caller is responsible for `init()`. On Native the ops are a singleton object, so this simply hands it back. */
+  def default(): WindowingOps = WindowingOpsNative
 }

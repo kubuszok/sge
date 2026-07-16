@@ -391,7 +391,12 @@ class DesktopApplication(
     windowing.setWindowHint(WindowingOps.GLFW_DECORATED, if (config.windowDecorated) WindowingOps.GLFW_TRUE else WindowingOps.GLFW_FALSE)
     windowing.setWindowHint(WindowingOps.GLFW_MAXIMIZED, if (config.windowMaximized) WindowingOps.GLFW_TRUE else WindowingOps.GLFW_FALSE)
     windowing.setWindowHint(WindowingOps.GLFW_AUTO_ICONIFY, if (config.autoIconify) WindowingOps.GLFW_TRUE else WindowingOps.GLFW_FALSE)
-    val windowHandle = windowing.createWindow(config.windowWidth, config.windowHeight, config.title)
+    // If a fullscreen mode is configured, create the window fullscreen at that mode's size on that
+    // mode's monitor (Lwjgl3Application.createGlfwWindow, Lwjgl3Application.java:515-518). Otherwise
+    // create a plain windowed window at the configured window size.
+    val windowHandle = config.fullscreenMode.fold(
+      windowing.createWindow(config.windowWidth, config.windowHeight, config.title)
+    )(fsMode => windowing.createWindow(fsMode.width, fsMode.height, config.title, fsMode.monitorHandle, fsMode.refreshRate))
 
     if (windowHandle == 0L) {
       throw SgeError.GraphicsError("Couldn't create window")

@@ -7,7 +7,7 @@
  * Migration notes:
  *   Renames: Lwjgl3ApplicationConfiguration -> DesktopApplicationConfig
  *   Renames: GLEmulation enum stays local; ANGLE_GLES20 is the SGE default (not GL20)
- *   Convention: GLFW monitor query static methods deferred until windowing FFI is available
+ *   Convention: GLFW monitor query statics ported to companion defs over WindowingOps FFI (ISS-759); lazily boot the platform default windowing (DesktopWindowing.default) like initializeGlfw()
  *   Convention: Java-style setters -> public vars; batch setters kept as convenience methods
  *   Idiom: Nullable for optional fields; split packages
  *   Audited: 2026-03-08
@@ -18,6 +18,8 @@ package sge
 
 import sge.files.FileType
 import sge.graphics.glutils.HdpiMode
+import sge.platform.WindowingOps
+import lowlevel.Nullable
 import java.io.PrintStream
 
 /** Full application configuration for desktop (JVM + Native) applications. Extends [[DesktopWindowConfig]] with application-level settings like audio, GL, and preferences.
@@ -236,6 +238,86 @@ object DesktopApplicationConfig {
     c
   }
 
-  // Monitor query methods (getDisplayMode, getMonitors, etc.) are deferred
-  // until the windowing FFI layer is available. They require GLFW/SDL3 calls.
+  // ─── Pre-launch monitor / display-mode queries ────────────────────────
+  // Faithful port of the Lwjgl3ApplicationConfiguration statics
+  // (Lwjgl3ApplicationConfiguration.java:286-341). The original lazily boots GLFW via
+  // Lwjgl3Application.initializeGlfw() before each query. SGE has no global GLFW, so we lazily
+  // create + init the platform default WindowingOps (sge.platform.DesktopWindowing.default),
+  // reusing a running application's windowing FFI when one is already installed in PlatformOps.
+  // SGE naming: the original Java-style getX() statics become no-`get` accessors (project rule:
+  // no Java-style getters); they carry FFI logic, so they are defs, not vars.
+
+  /** Lazily obtains a windowing ops, reusing the running application's FFI or booting the platform default (equivalent to `Lwjgl3Application.initializeGlfw()`). */
+  private def windowingOps: WindowingOps =
+    Nullable(sge.platform.PlatformOps.windowing).fold {
+      DesktopApplicationConfig.synchronized {
+        Nullable(sge.platform.PlatformOps.windowing).fold {
+          val ops = sge.platform.DesktopWindowing.default()
+          ops.init()
+          sge.platform.PlatformOps.windowing = ops
+          ops
+        }(identity)
+      }
+    }(identity)
+
+  private def toMonitor(ops: WindowingOps, handle: Long): Graphics.Monitor = {
+    val (x, y) = ops.getMonitorPos(handle)
+    DesktopMonitor(handle, x, y, ops.getMonitorName(handle)).toMonitor
+  }
+
+  private def toDisplayMode(handle: Long, mode: (Int, Int, Int, Int, Int, Int)): Graphics.DisplayMode = {
+    val (w, h, rr, rb, gb, bb) = mode
+    DesktopDisplayMode(handle, w, h, rr, rb + gb + bb).toDisplayMode
+  }
+
+  /** Resolves the native handle of the given core monitor by matching name and virtual position (the core [[Graphics.Monitor]] carries no handle, unlike the original `Lwjgl3Monitor`). Falls back to
+    * the primary monitor when no match is found.
+    */
+  private def monitorHandleOf(ops: WindowingOps, monitor: Graphics.Monitor): Long =
+    ops.monitors
+      .find { h =>
+        val (x, y) = ops.getMonitorPos(h)
+        ops.getMonitorName(h) == monitor.name && x == monitor.virtualX && y == monitor.virtualY
+      }
+      .getOrElse(ops.primaryMonitor)
+
+  /** The connected monitors (original: static `Monitor[] getMonitors()`). */
+  def monitors: Array[Graphics.Monitor] = {
+    val ops = windowingOps
+    ops.monitors.map(h => toMonitor(ops, h))
+  }
+
+  /** The primary monitor (original: static `Monitor getPrimaryMonitor()`). */
+  def primaryMonitor: Graphics.Monitor = {
+    val ops = windowingOps
+    toMonitor(ops, ops.primaryMonitor)
+  }
+
+  /** The currently active display mode of the primary monitor (original: static `DisplayMode getDisplayMode()`). */
+  def displayMode: Graphics.DisplayMode = {
+    val ops    = windowingOps
+    val handle = ops.primaryMonitor
+    toDisplayMode(handle, ops.getVideoMode(handle))
+  }
+
+  /** The currently active display mode of the given monitor (original: static `DisplayMode getDisplayMode(Monitor)`). */
+  def displayMode(monitor: Graphics.Monitor): Graphics.DisplayMode = {
+    val ops    = windowingOps
+    val handle = monitorHandleOf(ops, monitor)
+    toDisplayMode(handle, ops.getVideoMode(handle))
+  }
+
+  /** The available display modes of the primary monitor (original: static `DisplayMode[] getDisplayModes()`). */
+  def displayModes: Array[Graphics.DisplayMode] = {
+    val ops    = windowingOps
+    val handle = ops.primaryMonitor
+    ops.getVideoModes(handle).map(m => toDisplayMode(handle, m))
+  }
+
+  /** The available display modes of the given monitor (original: static `DisplayMode[] getDisplayModes(Monitor)`). */
+  def displayModes(monitor: Graphics.Monitor): Array[Graphics.DisplayMode] = {
+    val ops    = windowingOps
+    val handle = monitorHandleOf(ops, monitor)
+    ops.getVideoModes(handle).map(m => toDisplayMode(handle, m))
+  }
 }
