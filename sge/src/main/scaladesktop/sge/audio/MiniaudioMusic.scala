@@ -115,6 +115,9 @@ class MiniaudioMusic private[sge] (
       } else if (playbackStarted) {
         val position = audioOps.getMusicPosition(musicHandle)
         val duration = audioOps.getMusicDuration(musicHandle)
+        // duration 0/unknown => completion is NEVER detected here — a behavioral delta vs LibGDX,
+        // whose OpenAL backend detects end by buffer exhaustion (duration-free). Closing this gap
+        // needs an at-end symbol from the provider repo (see the mechanism note above).
         if (duration > 0f && position >= duration) {
           completed = true
           // Mirror OpenALMusic.update(): stop the exhausted stream, then notify the listener.
