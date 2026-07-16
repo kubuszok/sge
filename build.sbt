@@ -57,6 +57,7 @@ lazy val al = new Aliases(
     `sge-jvm-platform-api`,
     `sge-jvm-platform-android`,
     `sge-android-smoke`,
+    `sge-gauntlet`,
     `sge-it-desktop`,
     `sge-it-jvm-platform`,
     `sge-it-browser`,
@@ -1237,6 +1238,46 @@ val `sge-android-robolectric` = (projectMatrix in file("sge-test/android-robolec
 // These modules depend directly on the platform modules (NOT sge) so
 // they test the API/impl boundaries in isolation.
 
+// ── Gauntlet — feature-verification app (ISS-766) ─────────────────────
+//
+// A runnable FeatureProbe battery: exercises 2D/3D rendering, input dispatch,
+// assets, audio, files, networking and extensions end-to-end with
+// assertion-first verification (pixel/state asserts, NO golden images) and a
+// JSON+markdown report (target/gauntlet by default). Modes:
+//   --headless     no GL; requiresGpu probes reported as skipped_gpu (CI)
+//   (windowed)     GLFW+ANGLE window, GPU probes render into a 1280x720 FBO
+//   --interactive  windowed + stays open on a navigable results grid
+//
+// JVM row only for Phase 1; the probe core and shared probes live in
+// src/main/scala (platform-agnostic) so JS/Native/Android rows can be added
+// later (Phase 2/3 — see docs/architecture/gauntlet.md).
+//
+// Run: sbt --client 'sge-gauntlet/run --headless --report target/gauntlet'
+val `sge-gauntlet` = (projectMatrix in file("sge-test/gauntlet"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(Versions.scala3))
+  .someVariations(Versions.scalas, List(VirtualAxis.jvm))((commonSettings("sge-test/gauntlet") ++ dev.only1VersionInIDE ++ Seq(
+    MatrixAction.ForAll.Configure(_.settings(SgePlugin.relaxedSettings *)),
+    MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(Seq(
+      // Versions.nativeComponents is a SNAPSHOT — the provider JAR carrying the
+      // desktop native libs lives on Maven Central Snapshots (mirror sge-it-desktop).
+      resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
+      // Keep the Android SDK stub jar OFF the run classpath. It arrives
+      // transitively via sge's Compile/unmanagedJars (when the SDK is present),
+      // and multiarch's NativeLibLoader detects the host as Android purely by
+      // Class.forName("android.app.Activity") — so android.jar on the runtime
+      // classpath makes every native-lib lookup resolve the wrong
+      // android-<arch> path. Mirrors the sge-core / sge-it-desktop filters.
+      Runtime / fullClasspath := Def.uncached {
+        val conv = fileConverter.value
+        (Runtime / fullClasspath).value.filterNot(e => conv.toPath(e.data).getFileName.toString == "android.jar")
+      }
+    ) *))
+  )) *)
+  .settings(noPublishSettings)
+  .settings(mimaSettings)
+  .settings(name := "sge-test-gauntlet")
+  .dependsOn(sge, `sge-jbump`, `sge-ai`)
+
 // Desktop integration tests — launches a real GLFW + ANGLE window with
 // miniaudio audio engine and exercises all subsystems end-to-end:
 // bootstrap, GL2D, GL3D, audio, file I/O, JSON/XML parsing.
@@ -1443,6 +1484,7 @@ lazy val root = (project in file("."))
   .aggregate(`sge-visui`.projectRefs *)
   // Tests
   .aggregate(regressionTest.projectRefs *)
+  .aggregate(`sge-gauntlet`.projectRefs *)
   .aggregate(`sge-android-smoke`.projectRefs *)
   .aggregate(`sge-android-robolectric`.projectRefs *)
   // Integration tests
