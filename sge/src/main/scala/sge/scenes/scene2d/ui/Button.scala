@@ -149,51 +149,28 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
   override def style: ButtonStyle = _style
 
   /** Returns appropriate background drawable from the style based on the current button state. */
-  protected def backgroundDrawable: Nullable[Drawable] =
-    if (disabled && _style.disabled.isDefined) _style.disabled
-    else if (isPressed) {
-      if (isChecked && _style.checkedDown.isDefined) _style.checkedDown
-      else if (_style.down.isDefined) _style.down
-      else if (isOver) {
-        if (isChecked) {
-          if (_style.checkedOver.isDefined) _style.checkedOver
-          else _style.up
-        } else {
-          if (_style.over.isDefined) _style.over
-          else _style.up
-        }
-      } else {
-        val focused = hasKeyboardFocus
-        if (isChecked) {
-          if (focused && _style.checkedFocused.isDefined) _style.checkedFocused
-          else if (_style.checked.isDefined) _style.checked
-          else if (isOver && _style.over.isDefined) _style.over
-          else _style.up
-        } else {
-          if (focused && _style.focused.isDefined) _style.focused
-          else _style.up
-        }
-      }
-    } else if (isOver) {
+  protected def backgroundDrawable: Nullable[Drawable] = scala.util.boundary {
+    if (disabled && _style.disabled.isDefined) scala.util.boundary.break(_style.disabled)
+    if (isPressed) {
+      if (isChecked && _style.checkedDown.isDefined) scala.util.boundary.break(_style.checkedDown)
+      if (_style.down.isDefined) scala.util.boundary.break(_style.down)
+    }
+    if (isOver) {
       if (isChecked) {
-        if (_style.checkedOver.isDefined) _style.checkedOver
-        else _style.up
+        if (_style.checkedOver.isDefined) scala.util.boundary.break(_style.checkedOver)
       } else {
-        if (_style.over.isDefined) _style.over
-        else _style.up
-      }
-    } else {
-      val focused = hasKeyboardFocus
-      if (isChecked) {
-        if (focused && _style.checkedFocused.isDefined) _style.checkedFocused
-        else if (_style.checked.isDefined) _style.checked
-        else if (isOver && _style.over.isDefined) _style.over
-        else _style.up
-      } else {
-        if (focused && _style.focused.isDefined) _style.focused
-        else _style.up
+        if (_style.over.isDefined) scala.util.boundary.break(_style.over)
       }
     }
+    val focused = hasKeyboardFocus
+    if (isChecked) {
+      if (focused && _style.checkedFocused.isDefined) scala.util.boundary.break(_style.checkedFocused)
+      if (_style.checked.isDefined) scala.util.boundary.break(_style.checked)
+      if (isOver && _style.over.isDefined) scala.util.boundary.break(_style.over)
+    }
+    if (focused && _style.focused.isDefined) scala.util.boundary.break(_style.focused)
+    _style.up
+  }
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     validate()

@@ -34,8 +34,6 @@ object Scene2dButtonProbe extends FeatureProbe {
 
   override def requiresGpu: Boolean = true
 
-  override def knownIssue: Option[String] = Some("ISS-758")
-
   override def frames: Int = 6
 
   private val checks = ListBuffer.empty[Check]
