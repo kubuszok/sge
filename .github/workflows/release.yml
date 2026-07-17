@@ -179,7 +179,32 @@ jobs:
         # sbt 2.0 joins multiple CLI args into ONE command line (so
         # `sbt "a" "b"` parses as `a b` and fails); sequence with `;` in a
         # single arg so native-lib validation runs before ci-release.
-        run: sbt "sge / sgeValidateNativeLibs; ci-release"
+        #
+        # writeDemoVersion pins the root's git-tag version into ./.sge-version
+        # (ISS-752): sge-build is a SEPARATE build whose version reads that file,
+        # so it MUST be written with the release version BEFORE the sge-build
+        # publish step below (otherwise sge-build falls back to a `<sha>-SNAPSHOT`
+        # and a tagged release would ship a snapshot-versioned plugin).
+        run: sbt "sge / sgeValidateNativeLibs; writeDemoVersion; ci-release"
+        env:
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+      - name: Publish sbt plugin (sge-build)
+        # ISS-752: the sbt plugin every new game project needs
+        # (docs/getting-started.md: addSbtPlugin("com.kubuszok" % "sge-build")).
+        # It lives in a SEPARATE sbt build, so the root ci-release above never
+        # touches it — CI previously published it to Ivy-local only, leaving the
+        # documented entry point unresolvable from Maven Central. This runs the
+        # SAME `ci-release` mechanism (sbt-kubuszok in sge-build/project/plugins.sbt)
+        # in the sge-build build: on a TAG it stages + `sonaRelease`s a signed
+        # release; on a master push (no tag) it `+publishSigned`s a snapshot for
+        # cross-repo consumers (ISS-484). It reads its version from ../.sge-version,
+        # written by the writeDemoVersion above. The GPG key imported at job level
+        # and the Sonatype credentials below sign/authenticate exactly as for the
+        # root — no extra setup. This step inherits the job-level author-association
+        # guard, so external-fork PRs neither run it nor see the secrets.
+        working-directory: sge-build
+        run: sbt ci-release
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}

@@ -1,3 +1,25 @@
+// ISS-752: single source of truth for the plugin version. Read from
+// ../.sge-version (written by the root build's writeDemoVersion task so the
+// plugin version tracks the SGE library exactly) or fall back to a git-SHA
+// snapshot. Resolved ONCE at build load. This must drive `version` AND
+// `isSnapshot` at BOTH project and ThisBuild scope: sbt-kubuszok's KubuszokPlugin
+// brings GitVersioning, which sets its own project- AND build-scope git version.
+// A ThisBuild-only override still let GitVersioning's project-scope version reach
+// projectID/makePom (publishing a dated git version), while a project-only
+// override left GitVersioning's build-scope version driving isSnapshot (wrong
+// snapshots-vs-release routing + doc-JAR gating). Pinning all four settings from
+// this one value makes the routing deterministic regardless of git-worktree tag
+// detection quirks.
+lazy val sgeReleaseVersion: String = {
+  val versionFile = new File("../.sge-version")
+  if (versionFile.exists())
+    scala.io.Source.fromFile(versionFile).mkString.trim
+  else {
+    val sha = scala.sys.process.Process(Seq("git", "rev-parse", "HEAD"), new File("..")).!!.trim
+    s"$sha-SNAPSHOT"
+  }
+}
+
 // Explicit root project enabling SbtPlugin so the `scripted` task + its keys
 // (scriptedLaunchOpts / scriptedBufferLog) are in scope (ISS-562). SbtPlugin
 // also sets `sbtPlugin := true` and brings in the ScriptedPlugin.
@@ -25,23 +47,57 @@ lazy val root = (project in file("."))
     ),
     name         := "sge-build",
     organization := "com.kubuszok",
+    // ── Publishing (ISS-752) ─────────────────────────────────────────────
+    // Mirror the ROOT build's publishSettings POM metadata EXACTLY (build.sbt
+    // `publishSettings`) so Maven Central accepts the plugin artifact — Central
+    // rejects POMs missing name/description/url/license/scm/developers. The
+    // Sonatype target + PGP signing themselves come from sbt-kubuszok's
+    // KubuszokPlugin (auto-triggered via project/plugins.sbt), which sets
+    // `publishTo := if (isSnapshot) snapshots else localStaging` and the
+    // `ci-release` command keyed off `projectType`.
+    description  := "SGE sbt plugin (SgePlugin, packaging, AndroidBuild) — cross-platform build support for SGE game projects",
+    homepage             := Some(url("https://github.com/kubuszok/sge")),
+    organizationHomepage := Some(url("https://kubuszok.com")),
+    licenses             := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
+    scmInfo := Some(
+      ScmInfo(
+        url("https://github.com/kubuszok/sge/"),
+        "scm:git:git@github.com:kubuszok/sge.git"
+      )
+    ),
+    startYear  := Some(2026),
+    developers := List(
+      Developer("MateuszKubuszok", "Mateusz Kubuszok", "", url("https://kubuszok.com"))
+    ),
+    pomExtra := (
+      <issueManagement>
+        <system>GitHub issues</system>
+        <url>https://github.com/kubuszok/sge/issues</url>
+      </issueManagement>
+    ),
+    // Opt this project INTO publishing — KubuszokPlugin defaults projectType to
+    // NonPublished (publish/skip = true). ScalaLibrary matches the root's
+    // published modules; for this plugin it only flips publish/skip = false and
+    // publishArtifact = true (see KubuszokPlugin.projectSettings).
+    projectType := kubuszok.sbt.KubuszokPlugin.autoImport.ProjectType.ScalaLibrary,
+    // Maven Central requires a javadoc/scaladoc JAR on releases; snapshots skip
+    // it to keep master-push publishes cheap. Mirrors the root build's
+    // mimaSettings gating (build.sbt `packageDoc / publishArtifact`). Verified
+    // `sbt doc` builds for this plugin.
+    packageDoc / publishArtifact := !isSnapshot.value,
     // ISS-750: sge-build is a SEPARATE sbt build, so its scalafmt looks for a
     // config in this directory and finds none — leaving sge-build's own sources
     // unchecked (SgePlugins.scala shipped misformatted). Point at the repo-root
     // .scalafmt.conf so there is a single source of truth (no drift) and
     // `scalafmtCheckAll` here enforces the same rules as the main build.
     scalafmtConfig := Def.uncached(file("../.scalafmt.conf")),
-    // Version matches the SGE library. Read from ../.sge-version (written by
-    // root build's writeDemoVersion task) or fall back to git SHA snapshot.
-    version := {
-      val versionFile = new File("../.sge-version")
-      if (versionFile.exists())
-        scala.io.Source.fromFile(versionFile).mkString.trim
-      else {
-        val sha = scala.sys.process.Process(Seq("git", "rev-parse", "HEAD"), new File("..")).!!.trim
-        s"$sha-SNAPSHOT"
-      }
-    },
+    // Version matches the SGE library (see sgeReleaseVersion above). Pinned at
+    // both project and ThisBuild scope so projectID/makePom/publish AND the
+    // ThisBuild-scoped isSnapshot all agree (ISS-752).
+    version            := sgeReleaseVersion,
+    ThisBuild / version := sgeReleaseVersion,
+    isSnapshot            := sgeReleaseVersion.endsWith("-SNAPSHOT"),
+    ThisBuild / isSnapshot := sgeReleaseVersion.endsWith("-SNAPSHOT"),
     // sbt 2.0 plugins are built for Scala 3 (the sbt-2.0 meta-build dialect);
     // no explicit scalaVersion needed (SbtPlugin defaults it).
     // Generate sge-build.properties with the plugin version baked in.
