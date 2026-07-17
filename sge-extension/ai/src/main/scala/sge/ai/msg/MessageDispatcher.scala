@@ -119,7 +119,9 @@ class MessageDispatcher(pool: Pool[Telegram]) extends Telegraph {
     */
   def removeListener(listener: Telegraph, msg: Int): Unit =
     msgListeners.get(msg).foreach { listeners =>
-      listeners.removeValue(listener)
+      // MessageDispatcher.java:138 — listeners.removeValue(listener, true): identity == true,
+      // so removal is by reference identity, not `.equals`. Map to removeValueByRef.
+      listeners.removeValueByRef(listener)
     }
 
   /** Unregister the specified listener for the selection of message codes.
