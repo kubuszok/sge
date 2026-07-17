@@ -4160,6 +4160,117 @@ object Font {
       }
     }
 
+    /** Creates a FontFamily given an array of Font values and offset/length values for that array. Uses the Font.name of each Font as its alias, and registers "0".."15" index aliases. */
+    def this(fonts: Array[Font], offset: Int, length: Int) = {
+      this()
+      if (fonts != null && fonts.length != 0) {
+        var i = offset
+        var a = 0
+        while (i < length && i < fonts.length) {
+          if (fonts(i) != null) {
+            connected(a & 15) = fonts(i)
+            if (fonts(i).name != null) fontAliases.put(fonts(i).name, a & 15)
+            fontAliases.put(String.valueOf(a & 15), a & 15)
+          }
+          i += 1
+          a += 1
+        }
+      }
+    }
+
+    /** Creates a FontFamily given arrays of String names and Font values with offset/length values for those arrays. Registers the alias, the Font.name, and the "0".."15" index alias. */
+    def this(aliases: Array[String], fonts: Array[Font], offset: Int, length: Int) = {
+      this()
+      if (aliases != null && fonts != null && (aliases.length & fonts.length) != 0) {
+        var i = offset
+        var a = 0
+        while (i < length && i < aliases.length && i < fonts.length) {
+          if (fonts(i) != null) {
+            connected(a & 15) = fonts(i)
+            fontAliases.put(aliases(i), a & 15)
+            if (fonts(i).name != null) fontAliases.put(fonts(i).name, a & 15)
+            fontAliases.put(String.valueOf(a & 15), a & 15)
+          }
+          i += 1
+          a += 1
+        }
+      }
+    }
+
+    /** Constructs a FontFamily given an OrderedMap of String keys (names of Fonts) to Font values. Registers "0".."15" index aliases and the Font.name of each Font as an alias, using up to the first
+      * 16 keys of map.
+      */
+    def this(map: lowlevel.util.OrderedMap[String, Font]) = {
+      this()
+      val ks = map.orderedKeys
+      var i  = 0
+      while (i < map.size && i < 16) {
+        val name = ks(i)
+        Nullable.foreach(map.get(name)) { f =>
+          connected(i) = f
+          fontAliases.put(name, i)
+          if (f.name != null) fontAliases.put(f.name, i)
+          fontAliases.put(String.valueOf(i), i)
+        }
+        i += 1
+      }
+    }
+
+    /** Constructs a FontFamily given a Skin that defines one or more BitmapFont items. Note that this constructor does not handle distance field fonts (it treats all fonts as STANDARD); use an FWSkin
+      * to load Fonts with distance-field support instead.
+      */
+    def this(skin: sge.scenes.scene2d.ui.Skin)(using Sge) = {
+      this()
+      initBitmapFonts(skin)
+    }
+
+    private def initBitmapFonts(skin: sge.scenes.scene2d.ui.Skin)(using Sge): Unit =
+      Nullable.foreach(skin.getAll(classOf[sge.graphics.g2d.BitmapFont])) { map =>
+        val keys = map.keys.toArray
+        var i    = 0
+        while (i < map.size && i < 16) {
+          val name = keys(i)
+          map.get(name) match {
+            case Some(bmf) =>
+              val font = new Font(bmf)
+              font.name = name
+              font.family = Nullable(this)
+              connected(i) = font
+              fontAliases.put(name, i)
+              Nullable.foreach(bmf.data.name)(dn => fontAliases.put(dn, i))
+              fontAliases.put(String.valueOf(i), i)
+            case None => ()
+          }
+          i += 1
+        }
+      }
+
+    /** Constructs a FontFamily given a FWSkin that defines one or more Font items. If the FWSkin defines no Font items, this falls back to loading BitmapFont items (as STANDARD fonts). */
+    def this(skin: FWSkin)(using Sge) = {
+      this()
+      val mapN = skin.getAll(classOf[Font])
+      if (mapN.isEmpty || mapN.get.isEmpty) initBitmapFonts(skin)
+      else {
+        val map  = mapN.get
+        val keys = map.keys.toArray
+        var i    = 0
+        while (i < map.size && i < 16) {
+          val name = keys(i)
+          map.get(name) match {
+            case Some(font) =>
+              font.name = name
+              font.family = Nullable(this)
+              connected(i) = font
+              fontAliases.put(name, i)
+              if (font.name != null) fontAliases.put(font.name, i)
+              fontAliases.put(String.valueOf(i), i)
+            case None => ()
+          }
+          i += 1
+        }
+      }
+    }
+
     /** Copy constructor. Font items in connected will not be copied (same references). */
     def this(other: FontFamily) = {
       this()
