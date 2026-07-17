@@ -39,10 +39,11 @@ import sge.math.Vector
   */
 trait FormationPattern[T <: Vector[T]] {
 
-  /** Returns the number of slots. */
-  def numberOfSlots: Int
-
   /** Sets the number of slots.
+    *
+    * FormationPattern.java:31-44 declares a setter (`void setNumberOfSlots(int)`) and NO getter; the concrete `DefensiveCircleFormationPattern` keeps `numberOfSlots` as a package-private field read
+    * only internally (DefensiveCircleFormationPattern.java:33). This trait therefore exposes the setter only — callers use the explicit `pattern.numberOfSlots_=(n)` form (ISS-730 c7 ruling, wave-F).
+    *
     * @param numberOfSlots
     *   the number of slots to set
     */

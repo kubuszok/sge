@@ -42,10 +42,10 @@ class DefensiveCircleFormationPattern[T <: Vector[T]](
   val memberRadius: Float
 ) extends FormationPattern[T] {
 
-  /** The number of slots currently in the pattern. */
+  /** The number of slots currently in the pattern. DefensiveCircleFormationPattern.java:33 keeps this as a package-private field read only internally — no public getter is exposed (ISS-730 c7 ruling,
+    * wave-F).
+    */
   protected var _numberOfSlots: Int = 0
-
-  override def numberOfSlots: Int = _numberOfSlots
 
   override def numberOfSlots_=(numberOfSlots: Int): Unit =
     _numberOfSlots = numberOfSlots

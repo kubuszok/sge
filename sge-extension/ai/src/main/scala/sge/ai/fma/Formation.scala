@@ -76,8 +76,10 @@ class Formation[T <: Vector[T]](
     // Apply the strategy to update slot assignments
     slotAssignmentStrategy.updateSlotAssignments(slotAssignments)
 
-    // Set the newly calculated number of slots
-    pattern.numberOfSlots = slotAssignmentStrategy.calculateNumberOfSlots(slotAssignments)
+    // Set the newly calculated number of slots.
+    // FormationPattern exposes a setter-only member (ISS-730 c7); the explicit `numberOfSlots_=` call is
+    // used instead of the `x = value` assignment sugar, which would require a paired getter.
+    pattern.numberOfSlots_=(slotAssignmentStrategy.calculateNumberOfSlots(slotAssignments))
 
     // Update the drift offset if a motion moderator is set
     motionModerator.foreach(_.calculateDriftOffset(driftOffset, slotAssignments, pattern))
