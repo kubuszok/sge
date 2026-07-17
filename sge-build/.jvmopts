@@ -1,0 +1,14 @@
+-Dfile.encoding=UTF8
+-Xms1G
+-Xmx3G
+-Xss4M
+-XX:+UseG1GC
+# ISS-799: JDK 24/25 C2 JIT nondeterministically miscompiles dotty scaladoc's
+# SignatureBuilder combinators (Option.fold/foldLeft lambdas), yielding
+# "NullPointerException: ... SignatureBuilder.content() is null" during
+# sge/Compile/doc (upstream scala/scala3#24183, dupes #24363/#25053/#25306;
+# fixed in Scala 3.9.0 by scala/scala3#25779). Until we are on >= 3.9.0, keep
+# the whole class out of the JIT: interpreted execution cannot produce the
+# miscompiled null. Cost is negligible (scaladoc signature rendering only).
+-XX:CompileCommand=exclude,dotty/tools/scaladoc/translators/SignatureBuilder.*
+-XX:CompileCommand=dontinline,dotty/tools/scaladoc/translators/SignatureBuilder.*
