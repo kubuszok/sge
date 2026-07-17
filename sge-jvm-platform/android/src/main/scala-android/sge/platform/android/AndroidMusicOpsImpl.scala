@@ -13,6 +13,7 @@ package platform
 package android
 
 import _root_.android.media.MediaPlayer
+import _root_.android.util.Log
 
 class AndroidMusicOpsImpl(
   private val onDispose:    AndroidMusicOpsImpl => Unit,
@@ -40,7 +41,8 @@ class AndroidMusicOpsImpl(
       }
       p.start()
     } catch {
-      case _: (IllegalStateException | java.io.IOException) => ()
+      case e: (IllegalStateException | java.io.IOException) =>
+        Log.e("AndroidMusic", "Error trying to play music", e)
     }
   }
 
@@ -50,7 +52,8 @@ class AndroidMusicOpsImpl(
     try
       if (p.isPlaying) p.pause()
     catch {
-      case _: IllegalStateException => ()
+      case e: IllegalStateException =>
+        Log.e("AndroidMusic", "Error trying to pause music", e)
     }
     wasPlaying = false
   }
@@ -66,14 +69,22 @@ class AndroidMusicOpsImpl(
     val p = player
     if (p == null) return false
     try p.isPlaying
-    catch { case _: IllegalStateException => false }
+    catch {
+      case e: IllegalStateException =>
+        Log.e("AndroidMusic", "Error while checking isPlaying", e)
+        false
+    }
   }
 
   override def looping: Boolean = {
     val p = player
     if (p == null) return false
     try p.isLooping
-    catch { case _: IllegalStateException => false }
+    catch {
+      case e: IllegalStateException =>
+        Log.e("AndroidMusic", "Error while checking isLooping", e)
+        false
+    }
   }
 
   override def looping_=(isLooping: Boolean): Unit = {
@@ -112,7 +123,8 @@ class AndroidMusicOpsImpl(
       }
       p.seekTo((positionSeconds * 1000).toInt)
     } catch {
-      case _: (IllegalStateException | java.io.IOException) => ()
+      case e: (IllegalStateException | java.io.IOException) =>
+        Log.e("AndroidMusic", "Error setting music position", e)
     }
   }
 
@@ -135,8 +147,10 @@ class AndroidMusicOpsImpl(
     val p = player
     if (p == null) return
     try p.release()
-    catch { case _: Throwable => () }
-    finally {
+    catch {
+      case _: Throwable =>
+        Log.i("AndroidMusic", "Error while disposing AndroidMusic instance, non-fatal")
+    } finally {
       player = null
       completionCallback = null
       onDispose(this)
