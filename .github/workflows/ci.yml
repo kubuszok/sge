@@ -181,15 +181,18 @@ jobs:
       - uses: sbt/setup-sbt@v1
 
       - name: Generate scaladoc for all published modules (JVM + JS + Native)
-        # SGE_REMOTE_CACHE=off: dotty scaladoc intermittently crashes
-        # (InvocationTargetException / SignatureBuilder NPE) when `doc` runs
-        # over remote-cache-RESTORED compile outputs instead of locally
-        # produced ones (observed on PR #94 attempt 1 and PR #97 run
-        # 29537430503; local doc over local outputs always passes). This job
-        # compiles for itself — costs ~6-8m instead of ~2m, buys determinism.
-        env:
-          SGE_REMOTE_CACHE: "off"
-        run: sbt 'doc-jvm-3; doc-js-3; doc-native-3'
+        # Dotty scaladoc crashes NONDETERMINISTICALLY with
+        # "SignatureBuilder.content() is null" (~1 in 3 runs; observed on
+        # runs 29498350131, 29537430503, 29546055910 — the last one WITH the
+        # remote cache disabled, disproving the earlier restored-outputs
+        # theory; identical content passed on 29538988802 and PR #98).
+        # Tracked as ISS-799 (upstream-flake class). Mitigation: one retry —
+        # a genuine doc error fails BOTH attempts deterministically, so real
+        # breakage still gates.
+        run: |
+          if sbt 'doc-jvm-3; doc-js-3; doc-native-3'; then exit 0; fi
+          echo "::warning::scaladoc crashed (ISS-799 nondeterministic dotty NPE class) — retrying once"
+          sbt 'doc-jvm-3; doc-js-3; doc-native-3'
 
   # ─── Scalafmt check ────────────────────────────────────────────────
 
