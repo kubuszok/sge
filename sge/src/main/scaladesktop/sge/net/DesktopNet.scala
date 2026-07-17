@@ -7,7 +7,10 @@
  * Migration notes:
  *   Renames: HeadlessNet -> DesktopNet (reused by desktop backend)
  *   Renames: sendHttpRequest/cancelHttpRequest/isHttpRequestPending -> httpClient (SgeHttpClient)
- *   Convention: openURI uses java.awt.Desktop with headless fallback; takes Application for logging
+ *   Convention: openURI uses java.awt.Desktop with headless fallback; error logging goes through the
+ *     global utils.Log facade — SGE's mapping of the original's Gdx.app.error (see utils/Logger.scala
+ *     migration note); the Application param is the explicit-context stand-in for the Gdx.app global
+ *     and is otherwise unused (ISS-773)
  *   Idiom: split packages
  *   Audited: 2026-03-05
  *
@@ -19,7 +22,8 @@ package net
 /** A [[sge.Net]] implementation for desktop and headless environments. HTTP is handled by [[SgeHttpClient]]; sockets by [[NetJavaServerSocketImpl]] / [[NetJavaSocketImpl]].
   *
   * @param app
-  *   the application instance, used for error logging in [[openURI]]
+  *   the application instance — the explicit-context replacement for the `Gdx.app` global the original consulted; [[openURI]] error logging itself goes through the global [[sge.utils.Log]] facade
+  *   (SGE's mapping of `Gdx.app.error`, see the `utils/Logger.scala` migration note), so this reference is currently otherwise unused
   * @author
   *   acoppes (original implementation)
   * @author
@@ -59,13 +63,18 @@ class DesktopNet(app: Application) extends sge.Net {
           new ProcessBuilder(command*).start()
           true
         } else {
-          utils.Log.error("Opening URIs on this environment is not supported. Ignoring.")
+          // Faithful to Gdx.app.error("HeadlessNet", "Opening URIs on this environment is not
+          // supported. Ignoring.") (HeadlessNet.java:84) — tag folded into the message, routed
+          // through the global Log facade (SGE's Gdx.app.error mapping, utils/Logger.scala note).
+          utils.Log.error("DesktopNet: Opening URIs on this environment is not supported. Ignoring.")
           false
         }
       }
     catch {
       case t: Throwable =>
-        utils.Log.error(s"Failed to open URI: ${t.getMessage}")
+        // Faithful to Gdx.app.error("HeadlessNet", "Failed to open URI. ", t)
+        // (HeadlessNet.java:87): same tag convention and the Throwable-carrying overload.
+        utils.Log.error("DesktopNet: Failed to open URI. ", t)
         false
     }
   }
