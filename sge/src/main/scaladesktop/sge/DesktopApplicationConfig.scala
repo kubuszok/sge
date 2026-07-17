@@ -10,6 +10,16 @@
  *   Convention: GLFW monitor query statics ported to companion defs over WindowingOps FFI (ISS-759); lazily boot the platform default windowing (DesktopWindowing.default) like initializeGlfw()
  *   Convention: Java-style setters -> public vars; batch setters kept as convenience methods
  *   Idiom: Nullable for optional fields; split packages
+ *   Deleted (ISS-762, pre-0.1.0 API removal): glEmulation + the GLEmulation native-GL variants
+ *     (GL20/GL30/GL31/GL32) + glesContextMajorVersion/MinorVersion + setOpenGLEmulation. SGE is
+ *     ANGLE-always: the desktop backend never creates a native OpenGL context, so the original's
+ *     GLEmulation/glesContext knobs only matter on the native-GL path that SGE does not have — the
+ *     original's ANGLE branch (Lwjgl3Application.createGlfwWindow / initializeGlfw) ignores them too.
+ *   Deleted (ISS-762): debugStream + enableGLDebugOutput. GL debug output requires a native GL
+ *     context (Lwjgl3Application.java:594-597 throws on the ANGLE branch); SGE fails fast on
+ *     debug=true at startup instead, so a separate debug stream is dead.
+ *   Deleted (ISS-762): maxNetThreads. Networking is owned by java.net.http, whose HttpClient manages
+ *     its own executor/thread pool — the knob was never read.
  *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -31,20 +41,10 @@ class DesktopApplicationConfig extends DesktopWindowConfig {
   /** Whether to disable audio. If true, audio instances will be noop implementations. */
   var disableAudio: Boolean = false
 
-  /** Maximum number of threads for network requests. */
-  var maxNetThreads: Int = Int.MaxValue
-
   /** Audio device configuration. */
   var audioDeviceSimultaneousSources: Int = 16
   var audioDeviceBufferSize:          Int = 512
   var audioDeviceBufferCount:         Int = 9
-
-  /** Which GL emulation mode to use. SGE defaults to ANGLE (OpenGL ES). */
-  var glEmulation: DesktopApplicationConfig.GLEmulation = DesktopApplicationConfig.GLEmulation.ANGLE_GLES20
-
-  /** OpenGL ES context version (major.minor). Default 3.2 for maximum ES 3.0 feature coverage. */
-  var glesContextMajorVersion: Int = 3
-  var glesContextMinorVersion: Int = 2
 
   /** Color buffer bit depth (per channel). */
   var r: Int = 8
@@ -83,11 +83,8 @@ class DesktopApplicationConfig extends DesktopWindowConfig {
   /** HDPI handling mode. See [[HdpiMode]] for details. */
   var hdpiMode: HdpiMode = HdpiMode.Logical
 
-  /** Whether to enable OpenGL debug message callbacks. */
+  /** Whether to enable OpenGL debug message callbacks. Unsupported under SGE's ANGLE-only backend: a `true` value fails fast at application startup (ISS-762). */
   var debug: Boolean = false
-
-  /** Stream for debug output. */
-  var debugStream: PrintStream = System.err
 
   /** Stream for error output. */
   var errorStream: PrintStream = System.err
@@ -109,24 +106,6 @@ class DesktopApplicationConfig extends DesktopWindowConfig {
     audioDeviceSimultaneousSources = simultaneousSources
     audioDeviceBufferSize = bufferSize
     audioDeviceBufferCount = bufferCount
-  }
-
-  /** Sets which GL emulation version to use.
-    * @param glVersion
-    *   which GL emulation to use
-    * @param majorVersion
-    *   OpenGL ES major version (default 3)
-    * @param minorVersion
-    *   OpenGL ES minor version (default 2)
-    */
-  def setOpenGLEmulation(
-    glVersion:    DesktopApplicationConfig.GLEmulation,
-    majorVersion: Int,
-    minorVersion: Int
-  ): Unit = {
-    glEmulation = glVersion
-    glesContextMajorVersion = majorVersion
-    glesContextMinorVersion = minorVersion
   }
 
   /** Sets the color, depth, stencil, and MSAA configuration.
@@ -166,28 +145,13 @@ class DesktopApplicationConfig extends DesktopWindowConfig {
     preferencesFileType = fileType
   }
 
-  /** Enables GL debug message callbacks.
-    * @param enable
-    *   whether to enable debug output
-    * @param outputStream
-    *   the stream for debug messages (e.g. System.err)
-    */
-  def enableGLDebugOutput(enable: Boolean, outputStream: PrintStream): Unit = {
-    debug = enable
-    debugStream = outputStream
-  }
-
   /** Copies all configuration fields from another config. */
   def set(config: DesktopApplicationConfig): Unit = {
     super.setWindowConfiguration(config)
     disableAudio = config.disableAudio
-    maxNetThreads = config.maxNetThreads
     audioDeviceSimultaneousSources = config.audioDeviceSimultaneousSources
     audioDeviceBufferSize = config.audioDeviceBufferSize
     audioDeviceBufferCount = config.audioDeviceBufferCount
-    glEmulation = config.glEmulation
-    glesContextMajorVersion = config.glesContextMajorVersion
-    glesContextMinorVersion = config.glesContextMinorVersion
     r = config.r
     g = config.g
     b = config.b
@@ -204,7 +168,6 @@ class DesktopApplicationConfig extends DesktopWindowConfig {
     preferencesFileType = config.preferencesFileType
     hdpiMode = config.hdpiMode
     debug = config.debug
-    debugStream = config.debugStream
     errorStream = config.errorStream
     extensions = config.extensions
   }
@@ -212,23 +175,13 @@ class DesktopApplicationConfig extends DesktopWindowConfig {
 
 object DesktopApplicationConfig {
 
-  /** GL emulation modes for the desktop backend. SGE uses ANGLE by default. */
+  /** GL emulation modes for the desktop backend. SGE is ANGLE-always: the native-GL variants (GL20/GL30/GL31/GL32) were removed (ISS-762) because the desktop backend never creates a native OpenGL
+    * context.
+    */
   enum GLEmulation extends java.lang.Enum[GLEmulation] {
 
     /** ANGLE OpenGL ES 2.0 (Metal/Vulkan/D3D11 backend). This is the SGE default. */
     case ANGLE_GLES20
-
-    /** Native OpenGL 2.0 (legacy, for systems without ANGLE). */
-    case GL20
-
-    /** Native OpenGL 3.0+ context. */
-    case GL30
-
-    /** Native OpenGL 3.1+ context. */
-    case GL31
-
-    /** Native OpenGL 3.2+ context. */
-    case GL32
   }
 
   /** Creates a copy of the given configuration. */

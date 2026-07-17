@@ -28,13 +28,9 @@ class DesktopApplicationConfigTest extends munit.FunSuite {
   test("application defaults are sensible") {
     val config = DesktopApplicationConfig()
     assert(!config.disableAudio)
-    assertEquals(config.maxNetThreads, Int.MaxValue)
     assertEquals(config.audioDeviceSimultaneousSources, 16)
     assertEquals(config.audioDeviceBufferSize, 512)
     assertEquals(config.audioDeviceBufferCount, 9)
-    assertEquals(config.glEmulation, DesktopApplicationConfig.GLEmulation.ANGLE_GLES20)
-    assertEquals(config.glesContextMajorVersion, 3)
-    assertEquals(config.glesContextMinorVersion, 2)
     assertEquals(config.r, 8)
     assertEquals(config.depth, 16)
     assertEquals(config.stencil, 0)
@@ -83,14 +79,6 @@ class DesktopApplicationConfigTest extends munit.FunSuite {
     assertEquals(config.audioDeviceBufferCount, 4)
   }
 
-  test("setOpenGLEmulation sets GL version fields") {
-    val config = DesktopApplicationConfig()
-    config.setOpenGLEmulation(DesktopApplicationConfig.GLEmulation.GL30, 4, 5)
-    assertEquals(config.glEmulation, DesktopApplicationConfig.GLEmulation.GL30)
-    assertEquals(config.glesContextMajorVersion, 4)
-    assertEquals(config.glesContextMinorVersion, 5)
-  }
-
   test("setBackBufferConfig sets all framebuffer fields") {
     val config = DesktopApplicationConfig()
     config.setBackBufferConfig(5, 6, 5, 0, 24, 8, 4)
@@ -108,13 +96,6 @@ class DesktopApplicationConfigTest extends munit.FunSuite {
     config.setPreferencesConfig("myprefs/", FileType.Local)
     assertEquals(config.preferencesDirectory, "myprefs/")
     assertEquals(config.preferencesFileType, FileType.Local)
-  }
-
-  test("enableGLDebugOutput sets debug and stream") {
-    val config = DesktopApplicationConfig()
-    config.enableGLDebugOutput(true, System.out)
-    assert(config.debug)
-    assert(config.debugStream eq System.out)
   }
 
   // ---- copy ----
@@ -145,11 +126,10 @@ class DesktopApplicationConfigTest extends munit.FunSuite {
 
   // ---- GLEmulation enum ----
 
-  test("GLEmulation enum has expected values") {
+  test("GLEmulation enum has only the ANGLE variant (native-GL variants removed, ISS-762)") {
     val values = DesktopApplicationConfig.GLEmulation.values
-    assertEquals(values.length, 5)
+    assertEquals(values.length, 1)
     assertEquals(values(0), DesktopApplicationConfig.GLEmulation.ANGLE_GLES20)
-    assertEquals(values(1), DesktopApplicationConfig.GLEmulation.GL20)
   }
 
   // ---- DesktopMonitor ----

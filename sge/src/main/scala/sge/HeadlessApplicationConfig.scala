@@ -7,6 +7,8 @@
  * Migration notes:
  *   Renames: HeadlessApplicationConfiguration -> HeadlessApplicationConfig
  *   Convention: Java mutable POJO -> Scala final case class with defaults
+ *   Deleted (ISS-762): maxNetThreads. Networking is owned by java.net.http, whose HttpClient manages
+ *     its own executor/thread pool — the knob was never read.
  *   Audited: 2026-03-05
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -28,14 +30,11 @@ package sge
   *   Target frame rate. Use 0 to never sleep; negative to not call render at all. Default is 60.
   * @param preferencesDirectory
   *   Directory for preferences files. Default is ".prefs/".
-  * @param maxNetThreads
-  *   Maximum threads for network requests. Default is [[Int.MaxValue]].
   * @param extensions
   *   SGE extensions whose dependencies are loaded once at application startup, before the game listener's `create()` runs. Default is empty.
   */
 final case class HeadlessApplicationConfig(
   updatesPerSecond:     Int = 60,
   preferencesDirectory: String = ".prefs/",
-  maxNetThreads:        Int = Int.MaxValue,
   extensions:           Seq[SgeExtension] = Seq.empty
 )
