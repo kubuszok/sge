@@ -12,10 +12,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 52
- * Covenant-baseline-methods: FormationPattern,calculateSlotLocation,numberOfSlots,numberOfSlots_,supportsSlots
+ * Covenant-baseline-loc: 62
+ * Covenant-baseline-methods: FormationPattern,calculateSlotLocation,numberOfSlots_,supportsSlots
  * Covenant-source-reference: com/badlogic/gdx/ai/fma/FormationPattern.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-07-17
  *
  * upstream-commit: 6726e345248ddcad7cec0737f6ad83e4e028266d
  */

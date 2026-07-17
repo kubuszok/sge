@@ -464,7 +464,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
       // Error subtypes such as LinkageError) through handleTaskError -> the
       // AssetErrorListener. NonFatal is unsuitable twice over: it lets Error subtypes
       // escape update() uncaught, and it would swallow boundary.Break — corrupting
-      // break-based control flow. So rethrow Break first, then catch-all Throwable
+      // boundary-based control flow. So rethrow Break first, then catch-all Throwable
       // (wave-F ISS-734 c5 ruling).
       case b: boundary.Break[?] => throw b
       case t: Throwable         =>

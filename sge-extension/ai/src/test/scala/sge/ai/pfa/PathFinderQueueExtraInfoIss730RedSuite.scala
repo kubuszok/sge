@@ -31,7 +31,7 @@ import lowlevel.Nullable
   * and nothing is enqueued, hiding the malformed message instead of surfacing it. The faithful mapping dereferences the payload unconditionally (e.g. `msg.extraInfo.get`), preserving the original's
   * fail-fast on a payload-less telegram.
   *
-  * NOTE (do not weaken existing suites): the "stale directed client on re-enqueue" behavior that clause c4 references is already covered and GREEN via `PathFinderBroadcastDispatchRedSuite` (ISS-729).
+  * NOTE (do not weaken existing suites): the previously-directed-client re-enqueue behavior that clause c4 references is already covered and GREEN via `PathFinderBroadcastDispatchRedSuite` (ISS-729).
   * This suite pins only the residual `extraInfo`-guard divergence.
   *
   * These assertions encode the ORIGINAL semantics and MUST NOT be weakened.

@@ -1286,7 +1286,7 @@ at rescale.fileinfo.FileInfoCmd$$$Lambda$7.apply(Unknown Source)
 at rescale.fileinfo.FileInfoCmd$.resolveGiven(Unknown Source)								
 at rescale.fileinfo.FileInfoCmd$.runSelect$$anonfun$1(Unknown Source)								
 at rescale.fileinfo.FileInfoCmd$$$Lambda$7.apply(Unknown Source)								
-net/mgsx/gltf/data/SceneAsset.java	sge-extension/gltf/src/main/scala/sge/gltf/SceneAsset.scala	done	extension	2026-04-28		gdx-gltf	683054a88382f71e8472abbc1c29931277c1cf22	2026-04-28
+net/mgsx/gltf/data/SceneAsset.java	sge-extension/gltf/src/main/scala/sge/gltf/SceneAsset.scala	skip	extension	2026-07-17	Row was doubly stale (wave-F W audit): gdx-gltf has no data/SceneAsset.java (real original is scene3d/scene/SceneAsset.java, tracked separately); the mapped placeholder port file was deleted in wave-F (ISS-723 c5, dead partial-port shadow; sge.gltf.SceneAsset now aliases the real class via SceneAssetAlias.scala).	gdx-gltf	683054a88382f71e8472abbc1c29931277c1cf22	2026-04-28
 com/badlogic/gdx/ai/fma/patterns/OffensiveCircleFormationPattern.java	sge-extension/ai/src/main/scala/sge/ai/fma/patterns/OffensiveCircleFormationPattern.scala	done	extension	2026-04-28		gdx-ai	6726e345248ddcad7cec0737f6ad83e4e028266d	2026-04-28
 com/badlogic/gdx/ai/fma/patterns/DefensiveCircleFormationPattern.java	sge-extension/ai/src/main/scala/sge/ai/fma/patterns/DefensiveCircleFormationPattern.scala	done	extension	2026-04-28		gdx-ai	6726e345248ddcad7cec0737f6ad83e4e028266d	2026-04-28
 com/github/tommyettinger/colorful/oklab/TextureArrayColorfulBatch.java	sge-extension/colorful/src/main/scala/sge/colorful/oklab/TextureArrayColorfulBatch.scala	done	extension	2026-04-28		colorful-gdx	e4a5fd960eef746ca5aa826063432fb79666d74f	2026-04-28

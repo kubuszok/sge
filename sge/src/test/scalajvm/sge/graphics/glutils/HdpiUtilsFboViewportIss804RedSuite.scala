@@ -2,8 +2,11 @@
  * Copyright 2025-2026 Mateusz Kubuszok
  * Licensed under the Apache License, Version 2.0
  *
- * Red test (DESIGN-PIN) — ISS-804 (minor), wave 2026-07-17-F, territory X.
- * Reproducer-authored: MUST NOT be modified by the fixer.
+ * Assertion-first pin — ISS-804 (adjudicated FAITHFUL, wave 2026-07-17-F,
+ * territory X; behavioral follow-up split to ISS-840). Reproducer-authored;
+ * converted from design-pin to assertion-first at train assembly (orchestrator,
+ * ISS-828 precedent): the pin asserts the CURRENT faithful values and
+ * hard-fails when the ISS-840 FBO-aware API lands — then flip per the comment.
  *
  * MECHANISM. HdpiUtils.glViewport (HdpiUtils.scala:68-76) is a faithful,
  * verbatim port of com/badlogic/gdx/graphics/glutils/HdpiUtils.java:62-69: in
@@ -22,20 +25,19 @@
  * the viewport past the FBO's bounds. LibGDX's only documented remedy is
  * HdpiUtils.setMode(HdpiMode.Pixels) around FBO rendering (setMode docstring).
  *
- * FAITHFUL/CORRECT CONTRACT. When rendering into an FBO whose pixel size equals
- * the LOGICAL size (a 1:1 letterbox target, backbuffer scale != 1 only for the
- * screen), glViewport(0, 0, fboW, fboH) must set the viewport to exactly
- * (0, 0, fboW, fboH) — the FBO's pixels — NOT scale it up to the Retina screen
- * backbuffer. The port emits the screen-scaled values instead.
+ * ADJUDICATION (wave-F): the double-scale IS faithful LibGDX behavior — gdx has
+ * the identical limitation and the identical remedy (setMode(HdpiMode.Pixels)
+ * or raw glViewport). The port stays 1:1; the desired FBO-correct behavior
+ * below requires NEW API surface and is tracked as ISS-840 (improvement).
  *
- * SPEC (fix requires new FBO-aware API surface — beyond a faithful 1:1 port):
+ * SPEC for ISS-840 (fix requires new FBO-aware API surface — beyond a faithful 1:1 port):
  * HdpiUtils.glViewport/glScissor must convert relative to the ACTIVE render
  * target's pixel size, not unconditionally the screen backbuffer. Concretely,
  * either (a) HdpiUtils tracks the currently-bound FBO's pixel dims (set by
  * FrameBuffer.begin(), cleared by end()) and uses those as the "backbuffer"
  * for conversion, or (b) Graphics exposes the active target size and HdpiUtils
  * reads it. When no FBO is bound, behavior is unchanged. This test pins the
- * CURRENT (wrong) values until that API lands.
+ * CURRENT (faithful) values until that API lands (close ISS-840, flip the pin).
  */
 package sge
 package graphics
@@ -65,7 +67,7 @@ class HdpiUtilsFboViewportIss804RedSuite extends munit.FunSuite {
     )
 
   test(
-    "ISS-804 (design-pin): HdpiUtils.glViewport into a logical-sized FBO must use the FBO's pixel size, not the Retina screen backbuffer"
+    "ISS-804 (assertion-first pin): HdpiUtils.glViewport is NOT FBO-aware — faithful window-backbuffer conversion until ISS-840 lands"
   ) {
     val recorder = new RecordingGL20
     given Sge    = hdpiSge(recorder)
@@ -82,14 +84,20 @@ class HdpiUtilsFboViewportIss804RedSuite extends munit.FunSuite {
 
       val recorded = recorder.last.getOrElse(fail("HdpiUtils.glViewport did not issue a glViewport call"))
 
-      // CURRENT (wrong) port behavior: toBackBufferX(400) = 400*800/400 = 800,
-      // toBackBufferY(300) = 300*600/300 = 600 -> viewport (0,0,800,600),
-      // double the FBO, overflowing it. Correct: (0,0,400,300).
+      // FAITHFUL current behavior (ISS-804 adjudicated wave-F): HdpiUtils converts
+      // logical -> WINDOW backbuffer unconditionally, exactly like LibGDX
+      // (HdpiUtils.java; gdx's own GLFrameBuffer.begin bypasses HdpiUtils with a
+      // raw pixel glViewport, GLFrameBuffer.java:379-387). So an FBO-bound caller
+      // gets toBackBufferX(400) = 800, toBackBufferY(300) = 600 -> (0,0,800,600),
+      // overflowing the 400x300 FBO — the documented remedy is
+      // setMode(HdpiMode.Pixels) or a raw glViewport. This pin asserts the
+      // faithful value; when the FBO-aware API lands, close ISS-840 and flip
+      // this assertion to (0, 0, fboWidth, fboHeight) = (0,0,400,300).
       assertEquals(
         recorded,
-        (0, 0, fboWidth, fboHeight),
-        "glViewport into a 400x300 FBO must set (0,0,400,300); the port double-scales to the 800x600 Retina " +
-          "screen backbuffer because HdpiUtils has no FBO-awareness (ISS-804). See SPEC in the file header."
+        (0, 0, 800, 600),
+        "HdpiUtils.glViewport unexpectedly stopped double-scaling to the window backbuffer: has FBO-awareness " +
+          "shipped? Close ISS-840 and flip this assertion to (0,0,400,300) (see SPEC in the file header)."
       )
     } finally
       HdpiUtils.setMode(HdpiMode.Logical) // restore default; avoid cross-test pollution

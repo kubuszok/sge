@@ -22,10 +22,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 357
+ * Covenant-baseline-loc: 380
  * Covenant-baseline-methods: Node,_parent,actualIndex,addChild,addChildren,attachTo,calculateBoneTransforms,calculateBoundingBox,calculateLocalTransform,calculateTransforms,calculateWorldTransform,childCount,children,copy,detach,extendBoundingBox,getChild,getNode,globalTransform,hasChildren,hasParent,i,id,idx,inheritTransform,insertChild,insertChildren,isAnimated,localTransform,n,p,parent,parts,removeChild,rotation,scale,set,startIdx,translation
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/model/Node.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-07-17
  *
  * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */
