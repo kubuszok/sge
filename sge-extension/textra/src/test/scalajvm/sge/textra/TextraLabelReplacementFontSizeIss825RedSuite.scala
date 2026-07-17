@@ -28,14 +28,26 @@
  *
  * `getWidth`/`getHeight` return the raw Actor width/height (TextraLabel.scala:205-206);
  * `baseLayout.getWidth`/`getHeight` (Layout.scala:132/141) return the laid-out
- * text dimensions. Upstream's tail makes these equal; the port leaves the label
- * at 0 while the layout is non-empty. The height axis is pinned because markup
- * sets each line's height from `font.cellHeight` for every appended glyph
- * (Font.scala:1056/1104), so a non-empty label always has a positive layout
- * height.
+ * text dimensions. Upstream's tail makes these equal; the pre-fix port leaves
+ * the label at 0 while the layout is non-empty.
  *
- * Written by the reproducer agent; MUST NOT be modified by the fixer — it
- * encodes upstream TextraTypist ctor semantics, not the port's.
+ * FIXTURE REPAIR (reproducer callback, wave E): the original fixture used a
+ * mapping-less `new Font()` as replacementFont. markup() gives the layout a
+ * positive height via cellHeight, but the faithful ctor tail's setSize runs
+ * font.calculateSize (upstream TextraLabel.java:596), and calculateSize skips
+ * unmapped glyphs entirely (upstream Font.java:5021 `if (tr == null) continue;`,
+ * port Font.scala:676-677), re-zeroing every line height — so with an unmapped
+ * font the post-construction layout height is 0 in ANY faithful port and the
+ * sanity precondition could never hold. The replacementFont now maps every
+ * glyph of the label text ("Hello": H, e, l, o) via
+ * HeadlessTextraSge.texturedGlyph, which makes both markup and calculateSize
+ * agree on the 20f line height. Assertions are unchanged. Re-proven both ways
+ * after the repair: RED against the pre-fix ctor (label height 0.0 vs layout
+ * 20.0) and GREEN against the faithful fix (16189435).
+ *
+ * Written (and fixture-repaired) by the reproducer agent; MUST NOT be modified
+ * by the fixer — it encodes upstream TextraTypist ctor semantics, not the
+ * port's.
  */
 package sge
 package textra
@@ -49,11 +61,19 @@ class TextraLabelReplacementFontSizeIss825RedSuite extends munit.FunSuite {
   ) {
     given Sge = HeadlessTextraSge.make()
 
-    // A replacement font with a clearly non-zero line height, so the laid-out
-    // text has a positive height regardless of glyph mapping.
+    // A replacement font with a clearly non-zero line height AND real glyph
+    // mappings for every char of the label text: calculateSize (run by the
+    // faithful ctor tail's setSize) skips unmapped glyphs (Font.java:5021 /
+    // Font.scala:676-677), so an unmapped font would zero the layout height in
+    // any faithful port.
     val replacementFont = new Font()
+    replacementFont.cellWidth = 12f
     replacementFont.cellHeight = 20f
     replacementFont.originalCellHeight = 20f
+    val tex = HeadlessTextraSge.newTexture()
+    "Hello".foreach { ch =>
+      replacementFont.mapping.put(ch.toInt, HeadlessTextraSge.texturedGlyph(tex, 12, 20, 10f))
+    }
 
     val style = new Styles.LabelStyle(new Font(), Nullable.empty)
 
