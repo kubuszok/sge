@@ -197,7 +197,7 @@ class Spinner(style: Spinner.SpinnerStyle, sizes: Sizes, name: String, private v
     }
   }
 
-  def selectorName: String = _labelCell.getActor.map(_.text.toString).getOrElse("")
+  def selectorName: String = _labelCell.getActor.map(l => new String(l.text.toArray)).getOrElse("")
 
   def increment(): Unit = _model.increment(_programmaticChangeEvents)
 

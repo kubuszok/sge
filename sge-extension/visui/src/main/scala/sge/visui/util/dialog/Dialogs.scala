@@ -439,7 +439,7 @@ object Dialogs {
         copyButton.addListener(
           new ChangeListener() {
             override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
-              sge.application.clipboard.contents = Nullable(detailsLabel.text.toString)
+              sge.application.clipboard.contents = Nullable(new String(detailsLabel.text.toArray))
               copyButton.setText(Nullable(Text.COPIED.get))
             }
           }

@@ -128,10 +128,14 @@ class VisImageTextButton(text: String, buttonStyle: VisImageTextButton.VisImageT
   def label:     Label                 = _label
   def labelCell: Nullable[Cell[Label]] = getCell(_label)
 
-  def setText(text: CharSequence): Unit   = _label.setText(text)
-  def getText:                     String = _label.text.toString
+  def setText(text: CharSequence): Unit = _label.setText(text)
+  // Upstream returns label.getText() (a CharSequence). Label.text is a
+  // DynamicArray[Char], whose toString is a bracketed element list ("[P, l, a,
+  // y]"), so build the String from its chars — the same conversion Label uses
+  // internally (new String(_text.toArray)).
+  def getText: String = new String(_label.text.toArray)
 
-  override def toString: String = super.toString + ": " + _label.text.toString
+  override def toString: String = super.toString + ": " + new String(_label.text.toArray)
 
   override def disabled_=(value: Boolean): Unit = {
     super.disabled_=(value)

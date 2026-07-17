@@ -1442,7 +1442,7 @@ class FileChooser private (private var _mode: FileChooser.Mode, private val _ski
     }
 
     def setLabelText(text: String): Unit   = _nameLabel.setText(text)
-    def getLabelText:               String = _nameLabel.text.toString
+    def getLabelText:               String = new String(_nameLabel.text.toArray)
 
     private def selectShortcut(): Unit = {
       if (selectedShortcut.isDefined) selectedShortcut.get.deselect()
