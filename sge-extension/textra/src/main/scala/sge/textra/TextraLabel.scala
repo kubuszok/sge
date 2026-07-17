@@ -6,7 +6,7 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   Renames: Widget → standalone class (no scene2d base), Batch → deferred,
+ *   Renames: Widget → standalone class (no scene2d base), Batch → sge.graphics.g2d.Batch (draw() fully implemented, see draw() ~line 395),
  *     FloatArray/LongArray → ArrayBuffer[Float]/ArrayBuffer[Long],
  *     Skin ctors ported (ISS-716; delegate to Skin.get, FWSkin passed as Skin), Align → Int constants,
  *     TransformDrawable → AnyRef placeholder
@@ -93,17 +93,11 @@ class TextraLabel(using Sge) extends Widget {
     storedText = defaultToken
   }
 
-  /** Creates a TextraLabel with the given text and using the given style. */
-  def this(text: String, style: Styles.LabelStyle)(using Sge) = {
-    this()
-    this.font = Nullable.fold(style.font)(new Font())(identity)
-    this.baseLayout = new Layout()
-    Nullable.foreach(style.fontColor)(c => baseLayout.setBaseColor(c))
-    this.style = Nullable(style)
-    defaultToken = TypingConfig.getDefaultInitialText
-    storedText = defaultToken + text
-    font.markup(storedText, baseLayout)
-  }
+  /** Creates a TextraLabel with the given text and using the given style. Delegates to the makeGridGlyphs ctor (upstream TextraLabel.java:174-176 `this(text, style, false)`), which routes through the
+    * (text, style, replacementFont) ctor and so inherits its invalidateHierarchy() + setSize(layout size) tail (ISS-825).
+    */
+  def this(text: String, style: Styles.LabelStyle)(using Sge) =
+    this(text, style, false)
 
   /** Creates a TextraLabel with the given text and style, using a replacement font. */
   def this(text: String, style: Styles.LabelStyle, replacementFont: Font)(using Sge) = {
@@ -115,6 +109,8 @@ class TextraLabel(using Sge) extends Widget {
     defaultToken = TypingConfig.getDefaultInitialText
     storedText = defaultToken + text
     font.markup(storedText, baseLayout)
+    invalidateHierarchy()
+    setSize(baseLayout.getWidth, baseLayout.getHeight)
   }
 
   /** Creates a TextraLabel with the given text and font. */
@@ -205,22 +201,35 @@ class TextraLabel(using Sge) extends Widget {
   def getWidth:  Float = width
   def getHeight: Float = height
 
-  override def setWidth(width: Float): Unit = {
-    this.width = width
+  // These mirror upstream TextraLabel.setWidth/setHeight/setSize (TextraLabel.java:571-598):
+  // route through super.set* so the Actor size field is set directly (assigning `this.width`
+  // would re-enter Actor.width_= → setWidth and recurse), guard against minimized dimensions,
+  // recalculate the layout, and invalidateHierarchy(). These were the first callers exercised
+  // by the ISS-825 construction tail, which surfaced the prior `this.width = width` recursion.
+  override def setWidth(width: Float): Unit = boundary {
+    // If the window is minimized, we have invalid dimensions and shouldn't process resizing.
+    if (Sge().graphics.width.toInt <= 0 || Sge().graphics.height.toInt <= 0) break(())
+    super.setWidth(width)
     baseLayout.setTargetWidth(width)
     font.calculateSize(baseLayout)
+    invalidateHierarchy()
   }
 
-  override def setHeight(height: Float): Unit = {
-    this.height = height
+  override def setHeight(height: Float): Unit = boundary {
+    // If the window is minimized, we have invalid dimensions and shouldn't process resizing.
+    if (Sge().graphics.width.toInt <= 0 || Sge().graphics.height.toInt <= 0) break(())
+    super.setHeight(height)
     font.calculateSize(baseLayout)
+    invalidateHierarchy()
   }
 
-  override def setSize(width: Float, height: Float): Unit = {
-    this.width = width
-    this.height = height
+  override def setSize(width: Float, height: Float): Unit = boundary {
+    // If the window is minimized, we have invalid dimensions and shouldn't process resizing.
+    if (Sge().graphics.width.toInt <= 0 || Sge().graphics.height.toInt <= 0) break(())
+    super.setSize(width, height)
     baseLayout.setTargetWidth(width)
     font.calculateSize(baseLayout)
+    invalidateHierarchy()
   }
 
   /** This only exists so code that needs to set the raw Actor width (bypassing layout recalculation) still can, even with setWidth() implemented here.

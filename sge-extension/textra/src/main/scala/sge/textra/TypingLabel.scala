@@ -1071,6 +1071,7 @@ class TypingLabel(using Sge) extends TextraLabel {
         workingLayout.setTargetWidth(width)
         workingLayout.justification = defaultJustify
         font.regenerateLayout(workingLayout)
+        // This needs to work on the hierarchy; see TableWrapTest for evidence.
         invalidateHierarchy()
       }
     }
