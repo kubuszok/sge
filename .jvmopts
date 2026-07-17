@@ -10,5 +10,6 @@
 # fixed in Scala 3.9.0 by scala/scala3#25779). Until we are on >= 3.9.0, keep
 # the whole class out of the JIT: interpreted execution cannot produce the
 # miscompiled null. Cost is negligible (scaladoc signature rendering only).
+-XX:CompileCommand=quiet
 -XX:CompileCommand=exclude,dotty/tools/scaladoc/translators/SignatureBuilder.*
 -XX:CompileCommand=dontinline,dotty/tools/scaladoc/translators/SignatureBuilder.*
