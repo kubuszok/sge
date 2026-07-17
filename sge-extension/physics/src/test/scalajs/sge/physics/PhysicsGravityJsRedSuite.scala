@@ -9,10 +9,10 @@ package physics
 import munit.FunSuite
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
-/** Red test for ISS-676: real Rapier2D WASM physics backend on Scala.js.
+/** Regression pin for ISS-676: real Rapier2D WASM physics backend on Scala.js.
   *
-  * Today the JS backend (`sge.platform.PhysicsOpsJs`) is a stub that throws `UnsupportedOperationException` on every call, and there is no `sge.platform.PhysicsExtension` to asynchronously load the
-  * Rapier WASM module at startup. This suite pins the intended public contract:
+  * The JS backend (`sge.platform.PhysicsOpsJs`) is now the full ~1424-line Rapier2D facade, and `sge.platform.PhysicsExtension` asynchronously loads the Rapier WASM module at startup. This suite pins
+  * the landed public contract so it cannot silently regress:
   *
   *   1. `sge.platform.PhysicsExtension` is an `object` extending `SgeExtension` whose `load()(using Sge)` returns a `Future[Unit]` that completes once `RAPIER.init()` has resolved.
   *   2. After loading, the SAME high-level API used by the JVM integration suite ([[PhysicsWorld]], [[PhysicsWorld.createBody]], [[RigidBody.attachCollider]], [[PhysicsWorld.step]],
@@ -20,8 +20,8 @@ import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
   *
   * The suite is ASYNC: munit awaits the returned `Future[Unit]`. It uses the JS microtask EC — NOT `Await`/blocking, which does not link on Scala.js.
   *
-  * Pre-implementation expectation: `PhysicsExtension` is absent AND `PhysicsOpsJs` throws, so this suite FAILS — it does not compile because `sge.platform.PhysicsExtension` is not found. That
-  * capability-absent compile failure is the honest red for this brand-new backend.
+  * The strict, tolerance-free gravity assertion passes only when the real WASM backend moves the body, so any reversion of the ISS-676 contract (missing `PhysicsExtension`, a throwing `PhysicsOpsJs`,
+  * or an unresolved `RAPIER.init()`) re-reddens this suite.
   */
 class PhysicsGravityJsRedSuite extends FunSuite {
 

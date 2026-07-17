@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: `getDependencies` returns empty `DynamicArray` instead of Java `null`
  *   Idiom: split packages
- *   TODOs: test: PixmapLoader loadAsync/loadSync (requires GL context)
+ *   TODOs: test: PixmapLoader loadAsync/loadSync success path (requires GL context)
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok

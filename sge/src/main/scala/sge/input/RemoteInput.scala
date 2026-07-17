@@ -11,7 +11,7 @@
  *     listener: null -> Option; processor: null -> Nullable; Gdx singleton -> implicit Sge
  *   Idiom: boundary/break (6 return), Nullable (3 null), split packages
  *   Convention: anonymous (using Sge) + Sge() accessor
- *   TODOs: 1 — postRunnable not yet wired (EventTrigger.run() called directly)
+ *   Convention: postRunnable wired — EventTrigger.run() dispatched via Sge().application.postRunnable (:289)
  *   Convention: opaque Key/Button for key/button parameters
  *   Convention: opaque Pixels for TouchEvent x/y, getX/getY, getDeltaX/getDeltaY, setCursorPosition
  *   Audited: 2026-03-04

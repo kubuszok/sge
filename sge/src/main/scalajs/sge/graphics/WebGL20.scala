@@ -11,7 +11,7 @@
  *   Convention: GWT HasArrayBufferView -> manual buffer-to-typed-array copy
  *   Convention: GWT WebGLRenderingContext typed methods -> js.Dynamic WebGL API calls
  *   Idiom: GdxRuntimeException -> SgeError.GraphicsError
- *   TODO: Pixmap-based texImage2D/texSubImage2D path (requires browser Pixmap implementation)
+ *   Convention: pixel upload (incl. Pixmap.getPixels) flows through the Buffer-typed glTexImage2D/glTexSubImage2D (Float/Int/ByteBuffer branches, :740-812)
  *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok

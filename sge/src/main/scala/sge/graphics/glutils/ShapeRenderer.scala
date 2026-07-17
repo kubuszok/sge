@@ -40,15 +40,15 @@ import scala.util.boundary.break
   *
   * <pre> {@code camera.update(); shapeRenderer.setProjectionMatrix(camera.combined);
   *
-  * shapeRenderer.begin(ShapeType.Line); shapeRenderer.setColor(1, 1, 0, 1); shapeRenderer.line(x, y, x2, y2); shapeRenderer.rect(x, y, width, height); shapeRenderer.circle(x, y, radius);
+  * shapeRenderer.begin(ShapeType.Line); shapeRenderer.setColor(1, 1, 0, 1); shapeRenderer.line(x, y, x2, y2); shapeRenderer.rectangle(x, y, width, height); shapeRenderer.circle(x, y, radius);
   * shapeRenderer.end();
   *
-  * shapeRenderer.begin(ShapeType.Filled); shapeRenderer.setColor(0, 1, 0, 1); shapeRenderer.rect(x, y, width, height); shapeRenderer.circle(x, y, radius); shapeRenderer.end(); } </pre>
+  * shapeRenderer.begin(ShapeType.Filled); shapeRenderer.setColor(0, 1, 0, 1); shapeRenderer.rectangle(x, y, width, height); shapeRenderer.circle(x, y, radius); shapeRenderer.end(); } </pre>
   *
   * ShapeRenderer has a second matrix called the transformation matrix which is used to rotate, scale and translate shapes in a more flexible manner. The following example shows how to rotate a
   * rectangle around its center using the z-axis as the rotation axis and placing it's center at (20, 12, 2):
   *
-  * <pre> shapeRenderer.begin(ShapeType.Line); shapeRenderer.identity(); shapeRenderer.translate(20, 12, 2); shapeRenderer.rotate(0, 0, 1, 90); shapeRenderer.rect(-width / 2, -height / 2, width,
+  * <pre> shapeRenderer.begin(ShapeType.Line); shapeRenderer.identity(); shapeRenderer.translate(20, 12, 2); shapeRenderer.rotate(0, 0, 1, 90); shapeRenderer.rectangle(-width / 2, -height / 2, width,
   * height); shapeRenderer.end(); </pre>
   *
   * Matrix operations all use postmultiplication and work just like glTranslate, glScale and glRotate. The last transformation specified will be the first that is applied to a shape (rotate then

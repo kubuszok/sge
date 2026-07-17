@@ -9,7 +9,7 @@
  *   Convention: JNI native methods replaced with pure Scala drawing + platform decode
  *   Idiom: boundary/break, Nullable, split packages
  *   Fixes: All drawing operations are now pure Scala (Gdx2dDraw), portable across JVM/JS/Native.
- *          Image decoding uses platform-specific Gdx2dOps (ImageIO on JVM, stubs on JS/Native).
+ *          Image decoding uses platform-specific Gdx2dOps (ImageIO on JVM, pure-Scala on JS, Rust-FFI on Native).
  *   Fixes: Java-style getters → Scala properties
  *   Audited: 2026-03-10
  *

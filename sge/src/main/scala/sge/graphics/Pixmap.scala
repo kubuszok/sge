@@ -10,7 +10,7 @@
  *   Fixes: Complete rewrite — all drawing methods (setColor, fill, drawLine, drawRectangle, fillRectangle, drawCircle,
  *     fillCircle, fillTriangle, drawPixel, drawPixmap), pixel access (getPixel, getPixels, setPixels), and all constructors
  *     now delegate to Gdx2DPixmap. Previously stubs with no functionality.
- *   Issues: Gdx2DPixmap native methods (load, newPixmap) are stubs — actual pixmap creation requires platform-specific native implementation.
+ *   Convention: Gdx2DPixmap decode via PlatformOps.gdx2d.decodeImage (ImageIO/JVM, pure-Scala/JS, Rust-FFI/Native); creation+drawing pure Scala on all platforms
  *   Idiom: opaque Pixels for getWidth/Height, drawPixmap x/y, getPixel x/y, drawPixel x/y params
  *   Convention: typed GL enums — PixelFormat, DataType for glReadPixels
  *   Audited: 2026-03-03
