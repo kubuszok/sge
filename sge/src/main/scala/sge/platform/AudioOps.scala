@@ -50,17 +50,18 @@ private[sge] trait AudioOps {
 
   // ─── Sound (fully loaded into memory) ──────────────────────────────────
 
-  /** Creates a sound from PCM data loaded in memory.
+  /** Creates a sound from a fully loaded, still-encoded audio file image.
     * @param engineHandle
     *   the audio engine handle
     * @param pcmData
-    *   raw PCM audio data
+    *   the complete encoded audio file bytes (WAV/OGG/MP3 container — not decoded PCM samples); the native miniaudio decoder derives the actual decode format from these bytes
     * @param channels
-    *   number of audio channels
+    *   number of audio channels of the underlying stream; must honestly describe the stream (ISS-772) — for containers whose PCM format cannot be parsed up front, callers pass the engine decode
+    *   target (2)
     * @param bitDepth
-    *   bits per sample
+    *   bits per sample of the underlying stream (engine decode target: 16)
     * @param sampleRate
-    *   samples per second
+    *   samples per second of the underlying stream (engine decode target: 44100)
     * @return
     *   a native sound handle, or 0 on failure
     */

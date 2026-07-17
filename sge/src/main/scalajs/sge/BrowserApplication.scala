@@ -75,7 +75,7 @@ class BrowserApplication(
   private val (gl20, gl30Opt, glVersion) = createGLContext(canvas)
 
   private val _graphics = new BrowserGraphics(canvas, config, gl20, gl30Opt, glVersion)
-  private val _audio: Audio = if (!config.disableAudio) new DefaultBrowserAudio(this) else new NoopAudio
+  private val _audio: Audio = if (!config.disableAudio) new DefaultBrowserAudio(this, config) else new NoopAudio
   private val assetLoader = new BrowserAssetLoader
   private val _files      = new BrowserFiles(assetLoader)
   private val _net        = new BrowserNet(config)

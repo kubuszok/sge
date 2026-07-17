@@ -455,6 +455,9 @@ private[sge] class AndroidMusicAdapter(ops: MusicOps) extends audio.Music {
   override def position:                Position = Position.unsafeMake(ops.position)
   override def position_=(p: Position): Unit     = ops.position = p.toFloatSeconds
 
+  /** Total track duration reported by the MediaPlayer-backed [[MusicOps]] (ISS-781). */
+  override def duration: Position = Position.unsafeMake(ops.duration)
+
   override def onComplete(listener: audio.Music => Unit): Unit =
     ops.onComplete(() => listener(this))
 

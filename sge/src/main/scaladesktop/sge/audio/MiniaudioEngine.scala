@@ -163,15 +163,29 @@ class MiniaudioEngine private[sge] (
 
   /** Parses the real `(channels, bitDepth, sampleRate)` of a sound asset so createSound receives honest parameters (ISS-772).
     *
-    * WAV (RIFF/WAVE) assets are parsed via [[WavInputStream]], which reads the format directly from the `fmt ` chunk. A non-WAV container (e.g. OGG/MP3) has no single fixed PCM format — the native
-    * miniaudio decoder selects an output format at decode time — so we describe it with the engine's decode target (stereo / 16-bit / 44.1kHz); the encoded bytes still carry the true format for the
-    * decoder to honour.
+    * WAV (RIFF/WAVE) assets are parsed via [[WavInputStream]], which reads the format directly from the `fmt ` chunk. A non-WAV container (e.g. OGG/MP3), a non-PCM codec inside a WAV container (e.g.
+    * MP3-in-WAV, codecType 0x0055), or a WAV that WavInputStream cannot parse has no single fixed PCM format — the native miniaudio decoder selects an output format at decode time — so we describe
+    * those with the engine's decode target (stereo / 16-bit / 44.1kHz); the encoded bytes still carry the true format for the decoder to honour.
     */
   private def readSoundFormat(fileHandle: files.FileHandle, pcmData: Array[Byte]): (Int, Int, Int) =
     if (isWav(pcmData)) {
-      val wav = new WavInputStream(fileHandle)
-      try (wav.channels, wav.bitDepth, wav.sampleRate)
-      finally sge.utils.StreamUtils.closeQuietly(wav)
+      try {
+        val wav = new WavInputStream(fileHandle)
+        try
+          // MP3-in-WAV (fmt codecType 0x0055): WavInputStream returns early without populating
+          // channels/bitDepth/sampleRate (all 0), so a non-PCM/non-float codec falls back to the
+          // engine decode-target rather than describing the stream as 0-channel garbage.
+          if (wav.codecType == 0x0001 || wav.codecType == 0x0003) (wav.channels, wav.bitDepth, wav.sampleRate)
+          else (2, 16, 44100)
+        finally
+          sge.utils.StreamUtils.closeQuietly(wav)
+      } catch {
+        // WavInputStream rejects codecs it cannot parse (ADPCM, A-law, ...) and malformed headers
+        // with InvalidInput. The native miniaudio decoder may still handle such files, so preserve
+        // the pre-ISS-772 behavior: hand the bytes over with the engine decode-target and let the
+        // decoder (or the createSound == 0 -> AudioError path) decide.
+        case _: sge.utils.SgeError.InvalidInput => (2, 16, 44100)
+      }
     } else {
       (2, 16, 44100)
     }

@@ -8,7 +8,7 @@
  *   Renames: JavaSoundAudioRecorder -> DesktopAudioRecorder
  *   Convention: JVM-only (javax.sound.sampled); placed in scalajvm/sge/audio/
  *   Convention: dispose() -> close() via Closeable
- *   Idiom: GdxRuntimeException -> SgeError.InvalidInput
+ *   Idiom: GdxRuntimeException -> SgeError.AudioError (recorder-creation failure is an audio-backend error, not bad user input; ISS-771 convention wave)
  *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -41,7 +41,7 @@ class DesktopAudioRecorder(samplingRate: Int, isMono: Boolean) extends AudioReco
       l.start()
       l
     } catch {
-      case ex: Exception => throw SgeError.InvalidInput("Error creating DesktopAudioRecorder.", Some(ex))
+      case ex: Exception => throw SgeError.AudioError("Error creating DesktopAudioRecorder.", Some(ex))
     }
 
   private var buffer: Array[Byte] = new Array[Byte](1024 * 4)
