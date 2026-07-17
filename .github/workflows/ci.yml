@@ -183,15 +183,21 @@ jobs:
       - name: Generate scaladoc for all published modules (JVM + JS + Native)
         # Dotty scaladoc crashes NONDETERMINISTICALLY with
         # "SignatureBuilder.content() is null" (~1 in 3 runs; observed on
-        # runs 29498350131, 29537430503, 29546055910 — the last one WITH the
-        # remote cache disabled, disproving the earlier restored-outputs
-        # theory; identical content passed on 29538988802 and PR #98).
-        # Tracked as ISS-799 (upstream-flake class). Mitigation: one retry —
-        # a genuine doc error fails BOTH attempts deterministically, so real
-        # breakage still gates.
+        # runs 29498350131, 29537430503, 29546055910 WITH cache off —
+        # tracked as ISS-799, upstream-flake class). Two defenses:
+        # (1) SGE_REMOTE_CACHE=off — sbt 2's action cache can REPLAY a
+        #     cached doc failure (CachedCompileFailure semantics), which
+        #     would make one crash sticky across runs via the shared remote
+        #     (run 29547152814 failed in 1m51s — replay-fast);
+        # (2) one retry with the LOCAL action cache purged, so the second
+        #     attempt genuinely re-executes. A real doc error fails both
+        #     attempts deterministically, so genuine breakage still gates.
+        env:
+          SGE_REMOTE_CACHE: "off"
         run: |
           if sbt 'doc-jvm-3; doc-js-3; doc-native-3'; then exit 0; fi
-          echo "::warning::scaladoc crashed (ISS-799 nondeterministic dotty NPE class) — retrying once"
+          echo "::warning::scaladoc crashed (ISS-799 nondeterministic dotty NPE class) — purging local action cache and retrying once"
+          rm -rf ~/.cache/sbt/v2
           sbt 'doc-jvm-3; doc-js-3; doc-native-3'
 
   # ─── Scalafmt check ────────────────────────────────────────────────
