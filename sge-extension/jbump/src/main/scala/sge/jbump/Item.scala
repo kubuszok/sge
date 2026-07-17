@@ -14,7 +14,7 @@
 package sge
 package jbump
 
-import sge.jbump.util.Nullable
+import lowlevel.Nullable
 
 /** Item wrapper with identity-based hashing.
   *

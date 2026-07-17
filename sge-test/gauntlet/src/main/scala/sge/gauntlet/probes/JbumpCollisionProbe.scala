@@ -7,8 +7,8 @@ package gauntlet
 package probes
 
 import sge.jbump.{ CollisionFilter, Item, World }
-// jbump ships its own Nullable (sge.jbump.util.Nullable, see ISS in review E.1) — Item wants that one, not lowlevel.Nullable.
-import sge.jbump.util.{ Nullable => JbumpNullable }
+// ISS-769: jbump's bespoke Nullable collapsed onto lowlevel.Nullable — Item takes the shared lls type directly.
+import lowlevel.Nullable
 
 import scala.collection.mutable.ListBuffer
 
@@ -30,8 +30,8 @@ object JbumpCollisionProbe extends FeatureProbe {
 
   override def render(ctx: ProbeContext, frame: Int): Unit = {
     val world    = new World[String](64f)
-    val mover    = world.add(new Item[String](JbumpNullable("mover")), 0f, 0f, 10f, 10f)
-    val obstacle = world.add(new Item[String](JbumpNullable("obstacle")), 20f, 0f, 10f, 10f)
+    val mover    = world.add(new Item[String](Nullable("mover")), 0f, 0f, 10f, 10f)
+    val obstacle = world.add(new Item[String](Nullable("obstacle")), 20f, 0f, 10f, 10f)
 
     // Move into the obstacle: slide response must clamp x at 10 (obstacle.left - mover.width).
     val blocked = world.move(mover, 20f, 0f, CollisionFilter.defaultFilter)

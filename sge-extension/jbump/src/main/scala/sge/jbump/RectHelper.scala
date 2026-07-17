@@ -16,7 +16,8 @@ package jbump
 
 import scala.language.implicitConversions
 
-import sge.jbump.util.{ MathUtils, Nullable }
+import lowlevel.Nullable
+import sge.jbump.util.MathUtils
 
 /** Rectangle collision helper -- detects collisions between two AABBs. */
 class RectHelper {

@@ -14,7 +14,7 @@
 package sge
 package jbump
 
-import sge.jbump.util.Nullable
+import lowlevel.Nullable
 
 /** Collision result. */
 class Collision {

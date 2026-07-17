@@ -16,7 +16,7 @@ package jbump
 
 import scala.language.implicitConversions
 
-import sge.jbump.util.Nullable
+import lowlevel.Nullable
 
 import scala.collection.mutable.{ ArrayBuffer, HashMap }
 

@@ -16,7 +16,7 @@ package jbump
 
 import scala.language.implicitConversions
 
-import sge.jbump.util.Nullable
+import lowlevel.Nullable
 
 /** Filter trait that determines collision response type for item pairs. */
 trait CollisionFilter {
