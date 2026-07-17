@@ -54,7 +54,6 @@ sge-extension/gltf/src/main/scala/sge/gltf/scene3d/lights/DirectionalShadowLight
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/model/NodePartPlus.scala	shortcut-drift
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/scene/CascadeShadowMap.scala	shortcut-drift
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/scene/MirrorSource.scala	shortcut-drift
-sge-extension/gltf/src/main/scala/sge/gltf/scene3d/scene/SceneManager.scala	shortcut-drift
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/shaders/PBRDepthShaderProvider.scala	shortcut-drift
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/shaders/PBRShaderProvider.scala	shortcut-drift
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/utils/MaterialConverter.scala	shortcut-drift
@@ -181,7 +180,6 @@ sge/src/main/scala/sge/math/Bezier.scala	shortcut-drift
 sge/src/main/scala/sge/math/Ellipse.scala	shortcut-drift
 sge/src/main/scala/sge/math/Quaternion.scala	shortcut-drift
 sge/src/main/scala/sge/net/SgeHttpClient.scala	shortcut-drift
-sge/src/main/scala/sge/platform/Gdx2dOps.scala	shortcut-drift
 sge/src/main/scala/sge/platform/WindowingOps.scala	shortcut-drift
 sge/src/main/scala/sge/scenes/scene2d/ui/Container.scala	shortcut-drift
 sge/src/main/scala/sge/scenes/scene2d/ui/ScrollPane.scala	shortcut-drift

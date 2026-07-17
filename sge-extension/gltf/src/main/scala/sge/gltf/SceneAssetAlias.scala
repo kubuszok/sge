@@ -10,6 +10,12 @@
  * that names `SceneAsset` unqualified at `sge.gltf` scope unable to resolve it. Re-export the
  * canonical class at the `sge.gltf` package level so the name resolves — unambiguously — to the real
  * closeable class instead of the former dead placeholder.
+ *
+ * Covenant: full-port
+ * Covenant-baseline-loc: 23
+ * Covenant-baseline-methods:
+ * Covenant-source-reference: net/mgsx/gltf/scene3d/scene/SceneAsset.java
+ * Covenant-verified: 2026-07-18
  */
 package sge
 package gltf

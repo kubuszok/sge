@@ -637,7 +637,16 @@ val `sge-freetype` = (projectMatrix in file("sge-extension/freetype"))
       }
     )),
     MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
-      libraryDependencies += "com.kubuszok" % "sn-provider-sge-freetype" % Versions.nativeComponents
+      libraryDependencies += "com.kubuszok" % "sn-provider-sge-freetype" % Versions.nativeComponents,
+      // ISS-848: the Native test row links the freetype FFI, and on Windows the
+      // link needs a companion sge_freetype.lib import library the provider JAR
+      // does not ship yet (LNK1104; same provider gap family as ISS-751/ISS-673).
+      // Exclude the Native freetype suites on Windows until sge-native-providers
+      // ships the import lib — linux/macos keep the ISS-838 retention coverage.
+      Test / sources := Def.uncached {
+        val s = (Test / sources).value
+        if (scala.util.Properties.isWin) s.filterNot(_.getName == "FreetypeFaceDataRetentionIss838Suite.scala") else s
+      }
     )),
     uncachedNativeToolchainSettings // ISS-792: LAST, so nothing re-caches nativeConfig
   )) *)
