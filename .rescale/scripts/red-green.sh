@@ -796,7 +796,10 @@ case "$RED_CLASS" in
 esac
 
 # ══ PHASE 2 — GREEN at fix-sha: must pass ═══════════════════════════
-# Move the clone to the fix commit.
+# Move the clone to the fix commit. Discard any tree drift the red phase left
+# first (scalafmtOnCompile reflows a non-fixpoint suite inside the throwaway
+# clone; a dirty file blocks checkout when FIX moved/deleted it — ISS-583b).
+git -C "$WT" checkout -- . >/dev/null 2>&1 || true
 if ! git -C "$WT" checkout --detach "$FIX_FULL" >/dev/null 2>&1; then
   echo "RED-GREEN: FAIL — could not checkout fix sha $FIX_FULL in clone"
   exit 1
