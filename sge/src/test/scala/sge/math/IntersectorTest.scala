@@ -127,22 +127,38 @@ class IntersectorTest extends munit.FunSuite {
     intersects = Intersector.intersectSegmentCircle(new Vector2(1.5f, 6f), new Vector2(1.5f, 3f), circle, Nullable(mtv))
     assert(intersects)
     assert(mtv.normal.equals(new Vector2(-1f, 0)))
+    // Golden 0.5f (libgdx IntersectorTest.java:127-128): circle centre (5,5) r=4; the vertical
+    // segment at x=1.5 sits 5-1.5 = 3.5 left of centre, so penetration depth = r - 3.5 = 0.5 and
+    // the MTV pushes out along -x. ISS-724 c6, wave 2026-07-18-G territory G3.
     assertEqualsFloat(mtv.depth, 0.5f, 0.001f)
     // Segment contains circle center point
     intersects = Intersector.intersectSegmentCircle(new Vector2(4f, 5f), new Vector2(6f, 5f), circle, Nullable(mtv))
     assert(intersects)
     assert(mtv.normal.equals(Vector2(0, 1f)) || mtv.normal.equals(Vector2(0f, -1f)))
+    // Golden 4f (libgdx IntersectorTest.java:132-133): the segment passes through the centre, so
+    // the MTV must push out by the full radius r=4; normal is ±y (perpendicular to the horizontal
+    // segment). ISS-724 c6.
     assertEqualsFloat(mtv.depth, 4f, 0.001f)
     // Segment contains circle center point which is the same as the end point
     intersects = Intersector.intersectSegmentCircle(new Vector2(4f, 5f), new Vector2(5f, 5f), circle, Nullable(mtv))
     assert(intersects)
     assert(mtv.normal.equals(Vector2(0, 1f)) || mtv.normal.equals(Vector2(0f, -1f)))
+    // Golden 4f: as above, endpoint coincides with the centre → full-radius push-out (libgdx
+    // IntersectorTest.java:137-138). ISS-724 c6.
     assertEqualsFloat(mtv.depth, 4f, 0.001f)
   }
 
   test("intersectPlanes") {
     val NEAR = 0; val FAR = 1; val LEFT = 2; val RIGHT = 3; val TOP = 4; val BOTTOM = 5
 
+    // Golden plane normals/offsets and expected intersection points below are copied verbatim
+    // from libgdx IntersectorTest.java:150-181. Provenance (original's own comment, restored):
+    //   camera = new PerspectiveCamera(60, 1280, 720); camera.direction.set(0, 0, 1);
+    //   camera.near = 0.1f; camera.far = 100f; camera.update();
+    //   Plane[] planes = camera.frustum.planes;
+    // i.e. these are the six frustum planes of that camera; the three-plane intersections are the
+    // far-plane corners of the view frustum (z ≈ far = 100; x ≈ ±102.63903; y ≈ ±57.7337).
+    // ISS-724 c6, wave 2026-07-18-G territory G3.
     val planes = new Array[Plane](6)
     planes(NEAR) = new Plane(new Vector3(0.0f, 0.0f, 1.0f), -0.1f)
     planes(FAR) = new Plane(new Vector3(0.0f, -0.0f, -1.0f), 99.99771f)
@@ -495,8 +511,17 @@ class IntersectorTest extends munit.FunSuite {
     val p2  = new Polygon(Array(3f, 0f, 7f, 0f, 7f, 4f, 3f, 4f))
     val mtv = new Intersector.MinimumTranslationVector()
     assert(Intersector.overlapConvexPolygons(p1, p2, Nullable(mtv)))
-    assert(mtv.depth > 0)
-    assert(mtv.normal.length > 0)
+    // Exact MTV, hand-derived from the SAT algorithm (Intersector.java:1236-1315
+    // overlapsOnAxisOfShape; Scala Intersector.scala:1323-1417). p1 spans x∈[0,4],
+    // p2 spans x∈[3,7]; both span y∈[0,4]. Per-axis penetration: x = 4-3 = 1 (minimum),
+    // y = 4. The least-penetration axis wins → depth = 1 along ±x. Trace of the first
+    // pass (shapesShifted=true, axes taken from p2) at edge ii=2 (axis (-1,0)):
+    // minA = p2·(-1,0) = -7 < minB = p1·(-1,0) = -4 → condition true → normal kept as
+    // (-1,0). len = 4 exactly and every projection is integral, so depth = 1.0f exact.
+    // ISS-724 c2, wave 2026-07-18-G territory G3.
+    assertEqualsFloat(mtv.depth, 1f, 0.001f)
+    assertEqualsFloat(mtv.normal.x, -1f, 0.001f)
+    assertEqualsFloat(mtv.normal.y, 0f, 0.001f)
   }
 
   test("intersectRayRay") {

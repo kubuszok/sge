@@ -7,8 +7,16 @@ class ComponentTypeSuite extends munit.FunSuite {
   private class ComponentB extends Component
 
   test("valid ComponentType") {
-    assert(ComponentType.getFor(classOf[ComponentA]) != null)
-    assert(ComponentType.getFor(classOf[ComponentB]) != null)
+    // ISS-724 c5 (wave 2026-07-18-G territory G3): the previous `!= null` checks were
+    // tautological — getFor returns a non-nullable ComponentType, so they could never fail.
+    // Strengthened to the real invariant: distinct component classes receive distinct,
+    // non-negative type indices.
+    val a = ComponentType.getFor(classOf[ComponentA])
+    val b = ComponentType.getFor(classOf[ComponentB])
+    assert(a.index >= 0)
+    assert(b.index >= 0)
+    assertNotEquals(a.index, b.index)
+    assertNotEquals(a, b)
   }
 
   test("same class returns same ComponentType") {

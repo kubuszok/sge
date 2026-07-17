@@ -11,10 +11,17 @@ class FamilySuite extends munit.FunSuite {
   private class ComponentF extends Component
 
   test("valid families can be created") {
-    assert(Family.all().get() != null)
-    assert(Family.all(classOf[ComponentA]).get() != null)
-    assert(Family.all(classOf[ComponentA], classOf[ComponentB]).get() != null)
-    assert(Family.all(classOf[ComponentA], classOf[ComponentB], classOf[ComponentC]).get() != null)
+    // ISS-724 c5 (wave 2026-07-18-G territory G3): `.get() != null` was tautological — get()
+    // returns a non-nullable Family. Strengthened to the real invariant: families built from
+    // different component specs are distinct instances with distinct (non-negative) indices.
+    val f0   = Family.all().get()
+    val fA   = Family.all(classOf[ComponentA]).get()
+    val fAB  = Family.all(classOf[ComponentA], classOf[ComponentB]).get()
+    val fABC = Family.all(classOf[ComponentA], classOf[ComponentB], classOf[ComponentC]).get()
+    val fams = List(f0, fA, fAB, fABC)
+    fams.foreach(f => assert(f.index >= 0))
+    // all four specs differ → four distinct family indices
+    assertEquals(fams.map(_.index).distinct.size, 4)
   }
 
   test("same spec returns same Family instance (caching)") {

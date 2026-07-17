@@ -233,6 +233,13 @@ class FloatColorsSuite extends munit.FunSuite {
 
     // The original test iterates hue values in the blue range and
     // verifies that chromaLimit returns reasonable (non-negative, finite) values.
+    // Provenance (ISS-724 c6, wave 2026-07-18-G territory G3): the sweep bounds are the
+    // ported colorful-gdx "blues" hue window — start 0.70934484f, exclusive end 0.74934484f
+    // (a span of exactly 0.04 in normalised hue, i.e. ~14.4° around blue). The fixed chroma
+    // 0.2627451f is 67/255 (0.2627451 = 67 ÷ 255), the same 8-bit channel value used as the
+    // reference chroma throughout the colorful-gdx CIELAB colour tables (e.g.
+    // docs/ColorTableValueCIELAB.html rows listing 0.2627451). These are test-fixture inputs,
+    // not asserted outputs — the assertions below only require the results be finite & ≥ 0.
     var f = 0.70934484f
     while (f < 0.74934484f) {
       val limit = OklabColorTools.chromaLimit(f, 0.2627451f)

@@ -58,7 +58,17 @@ class WorldSuite extends munit.FunSuite {
     // Player should be stopped at x=2 (touching the wall)
     assertEqualsFloat(result.goalX, 2f, 0.001f)
     assertEqualsFloat(result.goalY, 0f, 0.001f)
-    assert(result.projectedCollisions.size > 0)
+    // Exactly one collision: player vs wall. check()/move() (World.scala:539-606) accumulates
+    // one Collision per resolved contact into result.projectedCollisions; the slide response
+    // re-projects but the wall is now in `visited` so no further collision is added → size==1.
+    // Moving +x into the wall enters its left side → entry normal (-1,0) (Rect.scala:78-79
+    // liang-barsky). ISS-724 c3, wave 2026-07-18-G territory G3.
+    assertEquals(result.projectedCollisions.size, 1)
+    val col = result.projectedCollisions.get(0).get
+    assert(col.other.get eq wall, "collision other must be the wall")
+    assert(col.item.get eq player, "collision item must be the player")
+    assertEquals(col.normal.x, -1)
+    assertEquals(col.normal.y, 0)
   }
 
   test("move with slide response allows sliding") {
@@ -92,7 +102,16 @@ class WorldSuite extends munit.FunSuite {
     // Player should pass through trigger zone
     assertEqualsFloat(result.goalX, 5f, 0.001f)
     assertEqualsFloat(result.goalY, 0f, 0.001f)
-    assert(result.projectedCollisions.size > 0)
+    // Exactly one collision recorded: player vs trigger. Cross lets the mover pass (goal keeps
+    // 5,0) but still records the contact; re-projection filters the visited trigger → size==1.
+    // Moving +x into the trigger enters its left side → entry normal (-1,0). ISS-724 c3,
+    // wave 2026-07-18-G territory G3.
+    assertEquals(result.projectedCollisions.size, 1)
+    val col = result.projectedCollisions.get(0).get
+    assert(col.other.get eq trigger, "collision other must be the trigger")
+    assert(col.item.get eq player, "collision item must be the player")
+    assertEquals(col.normal.x, -1)
+    assertEquals(col.normal.y, 0)
   }
 
   test("move with touch response stops at first contact") {

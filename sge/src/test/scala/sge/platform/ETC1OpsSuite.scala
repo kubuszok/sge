@@ -49,11 +49,28 @@ class ETC1OpsSuite extends munit.FunSuite {
     assertEquals(ops.getCompressedDataSize(1, 1), 8)
   }
 
-  test("getCompressedDataSize formula: ((w+3)&~3) * ((h+3)&~3) / 2") {
-    // Verify the formula for various sizes
-    val cases = List((1, 1), (2, 3), (4, 4), (5, 7), (8, 8), (13, 17), (64, 64), (100, 200))
-    cases.foreach { case (w, h) =>
-      val expected = (((w + 3) & ~3) * ((h + 3) & ~3)) >> 1
+  test("getCompressedDataSize matches precomputed reference sizes") {
+    // ISS-735 c2, wave 2026-07-18-G territory G3.
+    // The previous version recomputed `(((w+3)&~3) * ((h+3)&~3)) >> 1` inline — the exact
+    // same expression the JS SUT uses (ETC1OpsJs.scala:546-547), so on JS the assertion was
+    // tautological (SUT output compared against a copy of the SUT's own formula).
+    // Fixed: HARD LITERALS below, derived independently from the libgdx ETC1 reference
+    // formula `getCompressedDataSize = (((w+3)&~3) * ((h+3)&~3)) >> 1` (libgdx ETC1.java /
+    // etc1.cpp etc1_get_encoded_data_size). These give the check real content on JS, while
+    // on JVM (ETC1OpsPanama → hGetEncodedDataSize) and Native (ETC1OpsNative →
+    // etc1_get_encoded_data_size) they cross-check the actual native library's output.
+    // Derivation per row: round each dim up to a multiple of 4, multiply, halve.
+    val cases = List(
+      (1, 1, 8), // (4*4)>>1   = 8
+      (2, 3, 8), // (4*4)>>1   = 8
+      (4, 4, 8), // (4*4)>>1   = 8
+      (5, 7, 32), // (8*8)>>1   = 32
+      (8, 8, 32), // (8*8)>>1   = 32
+      (13, 17, 160), // (16*20)>>1 = 160
+      (64, 64, 2048), // (64*64)>>1 = 2048
+      (100, 200, 10000) // (100*200)>>1 = 10000
+    )
+    cases.foreach { case (w, h, expected) =>
       assertEquals(ops.getCompressedDataSize(w, h), expected, s"Failed for ${w}x${h}")
     }
   }
