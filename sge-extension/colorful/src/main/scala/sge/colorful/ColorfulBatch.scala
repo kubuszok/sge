@@ -1,6 +1,11 @@
 /*
- * Ported from colorful-gdx - https://github.com/tommyettinger/colorful-gdx
- * Original authors: Tommy Ettinger
+ * SGE-original file - no colorful-gdx counterpart. `ColorfulBatchLike` is an SGE marker
+ * trait introduced to unify the per-color-space batch implementations; colorful-gdx has no
+ * equivalent type (its ColorfulBatch classes are per-space). The actual colorful-gdx ports
+ * (Original authors: Tommy Ettinger) live in the per-color-space sub-packages:
+ * sge.colorful.oklab.ColorfulBatch and sge.colorful.rgb.ColorfulBatch, which carry the
+ * colorful-gdx attribution and source references. This file therefore is SGE-original, matching
+ * its `Covenant-source-reference: SGE-original` below.
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
