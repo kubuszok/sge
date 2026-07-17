@@ -80,7 +80,7 @@ private[sge] object FreetypeOpsNative extends FreetypeOps {
   // is disposed, mirroring libGDX's Library.fontData LongMap<ByteBuffer>
   // (FreeType.java:63,126,72-74,169-173). Scala Native's default GC is
   // non-moving, so a live reference pins the buffer at a stable address.
-  private val faceData:     java.util.concurrent.ConcurrentHashMap[Long, Array[Byte]]  = new java.util.concurrent.ConcurrentHashMap()
+  private val faceData:     java.util.concurrent.ConcurrentHashMap[Long, Array[Byte]]         = new java.util.concurrent.ConcurrentHashMap()
   private val libraryFaces: java.util.concurrent.ConcurrentHashMap[Long, java.util.Set[Long]] = new java.util.concurrent.ConcurrentHashMap()
 
   override def initFreeType(): Long =
@@ -92,7 +92,7 @@ private[sge] object FreetypeOpsNative extends FreetypeOps {
     // buffers whose faces were not individually disposed (mirrors libGDX
     // Library.dispose freeing all fontData, FreeType.java:72-74).
     val faces = libraryFaces.remove(library)
-    if (faces != null) faces.forEach(f => { faceData.remove(f); () })
+    if (faces != null) faces.forEach { f => faceData.remove(f); () }
   }
 
   override def newMemoryFace(library: Long, data: Array[Byte], dataSize: Int, faceIndex: Int): Long = {
