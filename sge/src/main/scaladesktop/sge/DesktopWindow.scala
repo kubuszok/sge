@@ -46,14 +46,15 @@ class DesktopWindow private[sge] (
   private val glOps:              GlOps
 ) extends AutoCloseable {
 
-  private var _listener:            ApplicationListener             = scala.compiletime.uninitialized
-  private var _windowHandle:        Long                            = 0L
-  private var _eglContext:          Long                            = 0L
-  private var _listenerInitialized: Boolean                         = false
-  private var _sge:                 Sge                             = scala.compiletime.uninitialized
-  private var _graphics:            DesktopGraphics                 = scala.compiletime.uninitialized
-  private var _input:               DesktopInput                    = scala.compiletime.uninitialized
-  private[sge] var windowListener:  Nullable[DesktopWindowListener] = config.windowListener
+  private var _listener:             ApplicationListener             = scala.compiletime.uninitialized
+  private var _windowHandle:         Long                            = 0L
+  private var _eglContext:           Long                            = 0L
+  private var _listenerMaterialized: Boolean                         = false
+  private var _listenerInitialized:  Boolean                         = false
+  private var _sge:                  Sge                             = scala.compiletime.uninitialized
+  private var _graphics:             DesktopGraphics                 = scala.compiletime.uninitialized
+  private var _input:                DesktopInput                    = scala.compiletime.uninitialized
+  private[sge] var windowListener:   Nullable[DesktopWindowListener] = config.windowListener
 
   /** The application listener for this window. Available after listener initialization. */
   def listener: ApplicationListener = _listener
@@ -341,11 +342,20 @@ class DesktopWindow private[sge] (
     }
   }
 
-  private[sge] def initializeListener(sge: Sge): Unit =
-    if (!_listenerInitialized) {
+  /** Materializes the application listener object (constructs it via the [[Sge]]-context factory) without running its `create()` hook. Idempotent. Called during window setup so the listener's class
+    * name is available for the empty-title fallback; the `create()`/`resize()` lifecycle still runs lazily on the first frame in [[initializeListener]].
+    */
+  private[sge] def materializeListener(sge: Sge): Unit =
+    if (!_listenerMaterialized) {
       _sge = sge
       given Sge = sge
       _listener = listenerFactory
+      _listenerMaterialized = true
+    }
+
+  private[sge] def initializeListener(sge: Sge): Unit =
+    if (!_listenerInitialized) {
+      materializeListener(sge)
       _listener.create()
       _listener.resize(_graphics.width, _graphics.height)
       _listenerInitialized = true

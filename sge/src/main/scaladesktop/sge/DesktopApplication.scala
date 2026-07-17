@@ -89,6 +89,16 @@ class DesktopApplication(
   // ─── Initialization ─────────────────────────────────────────────────
 
   {
+    // Fail fast on GL debug output: the original enables ARB/KHR GL debug messaging only on a native
+    // GL context, and its ANGLE branch cannot honor it (Lwjgl3Application.java:594-597). SGE is
+    // ANGLE-only, so there is no native GL context to attach a debug callback to — surface that up
+    // front instead of silently ignoring the knob.
+    if (_config.debug) {
+      throw new IllegalStateException(
+        "GL debug output requires a native GL context; SGE is ANGLE-only — unsupported"
+      )
+    }
+
     // Wire platform FFI so DesktopCursor et al. can access windowing ops
     sge.platform.PlatformOps.windowing = windowing
     sge.platform.PlatformOps.audio = audioOps
@@ -97,6 +107,10 @@ class DesktopApplication(
     if (!windowing.init()) {
       throw SgeError.GraphicsError("Unable to initialize windowing system")
     }
+
+    // Install a GLFW error callback that prints to the configured error stream (default System.err),
+    // faithful to GLFWErrorCallback.createPrint(config.errorStream).set() (Lwjgl3Application.java:84).
+    windowing.setErrorCallback((code, description) => _config.errorStream.println(s"GLFW error $code: $description"))
 
     // Audio
     if (!_config.disableAudio) {
@@ -111,19 +125,11 @@ class DesktopApplication(
       _audio = NoopDesktopAudio()
     }
 
-    // Create main window (listener is materialized later in initializeListener when Sge is ready)
+    // Create main window. setupWindow (invoked synchronously for the main window) builds the Sge
+    // context — it needs the window's graphics/input, which only exist after window creation — and
+    // materializes the listener so the empty-title fallback can read its class name.
     val mainWindow = createWindowInternal(_config, listenerFactory, 0L)
     windows += mainWindow
-
-    // Build Sge context
-    _sge = Sge(
-      application = this,
-      graphics = mainWindow.graphics,
-      audio = _audio,
-      files = _files,
-      input = mainWindow.input,
-      net = _net
-    )
 
     try {
       given Sge = _sge
@@ -293,6 +299,31 @@ class DesktopApplication(
     val windowHandle = createGlfwWindow(config, sharedContext)
     window.create(windowHandle)
 
+    // Build the Sge context for the main window now that its graphics/input exist (the additional
+    // windows are set up after _sge already exists). The original constructs the listener before the
+    // window loop; SGE defers listener construction to here so the Sge context can be supplied.
+    if (sharedContext == 0L) {
+      _sge = Sge(
+        application = this,
+        graphics = window.graphics,
+        audio = _audio,
+        files = _files,
+        input = window.input,
+        net = _net
+      )
+    }
+
+    // Materialize the application listener (object construction only — its create() still runs lazily
+    // on the first frame) and apply the empty-title -> listener class-name fallback (documented on
+    // DesktopWindowConfig.title; original `if (config.title == null) config.title =
+    // listener.getClass().getSimpleName()` before window creation, Lwjgl3Application.java:128-129 and
+    // the newWindow path :428). SGE's title default is "" rather than null, so the fallback triggers
+    // on an empty title.
+    window.materializeListener(_sge)
+    if (config.title.isEmpty) {
+      windowing.setWindowTitle(windowHandle, window.listener.getClass.getSimpleName)
+    }
+
     // Create EGL context for this window (ANGLE manages the GL context, not GLFW)
     // EGL needs the platform-native window handle (NSWindow/X11 Window/HWND), not the GLFW handle
     val nativeHandle = windowing.getNativeWindowHandle(windowHandle)
@@ -391,6 +422,11 @@ class DesktopApplication(
     windowing.setWindowHint(WindowingOps.GLFW_DECORATED, if (config.windowDecorated) WindowingOps.GLFW_TRUE else WindowingOps.GLFW_FALSE)
     windowing.setWindowHint(WindowingOps.GLFW_MAXIMIZED, if (config.windowMaximized) WindowingOps.GLFW_TRUE else WindowingOps.GLFW_FALSE)
     windowing.setWindowHint(WindowingOps.GLFW_AUTO_ICONIFY, if (config.autoIconify) WindowingOps.GLFW_TRUE else WindowingOps.GLFW_FALSE)
+    // Request a transparent framebuffer when configured (Lwjgl3Application.java:505-507). Results
+    // vary by OS and GPU.
+    if (config.transparentFramebuffer) {
+      windowing.setWindowHint(WindowingOps.GLFW_TRANSPARENT_FRAMEBUFFER, WindowingOps.GLFW_TRUE)
+    }
     // If a fullscreen mode is configured, create the window fullscreen at that mode's size on that
     // mode's monitor (Lwjgl3Application.createGlfwWindow, Lwjgl3Application.java:515-518). Otherwise
     // create a plain windowed window at the configured window size.
