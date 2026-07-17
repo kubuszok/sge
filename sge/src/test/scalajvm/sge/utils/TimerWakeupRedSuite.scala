@@ -25,9 +25,30 @@
  *      race. This is the deterministic "loop is demonstrably idle" state.
  *   2. 250ms later (loop still has >=4.7s of its cap left) a 0.1s one-shot is
  *      scheduled; per the original it fires ~0.1s later, with the bug it
- *      cannot run before the cap expires (~4.75s). The 4s await times out (or
- *      the latency far exceeds it), and the assertion bound is 1500ms —
- *      generous against CI jitter, unreachable with the bug.
+ *      cannot run before the cap expires (~4.75s). The red is carried by a
+ *      latency bound: the wakeup must be OBSERVED firing sooner than the bug's
+ *      idle cap could ever allow.
+ *
+ * ISS-802 (deadline/latency widening): the original bounds were a 4s await +
+ * 1500ms latency assertion. Under full-suite parallel execution a background
+ * timer/pump thread can be CPU-starved for seconds in one forked JVM, so the
+ * 0.1s task's OBSERVED firing (fireNanos is set on the pump thread) once
+ * exceeded the 4s await (799/800; isolation runs in ~0.65s). Both bounds were
+ * therefore load-sensitive. The fix widens the await to a generous 15s (the
+ * assertion is "the wakeup HAPPENS", not "it is fast", so we must wait long
+ * enough to observe it even under starvation) and relaxes the latency bound to
+ * 4500ms. The red property is preserved because the reproducer verifies red
+ * against the buggy Timer in ISOLATION, where the bug's floor is a stable
+ * ~4750ms (5000ms idle cap minus the ~250ms setup sleep) — above the 4500ms
+ * bound, so the buggy wakeup still fails the latency bound. In the fixed code
+ * the task fires ~0.1s later, far under 4500ms, and the 4500ms tolerance
+ * (chosen above the ~4s observed flake, below the ~4.75s bug floor) absorbs the
+ * parallel-load starvation that produced the flake. Serialization
+ * was NOT chosen: widening preserves the red (isolation bug floor 4750ms >
+ * 4500ms bound), and the cross-suite contention that starves this thread comes
+ * from OTHER suites, which serializing this suite's cases would not prevent.
+ * The dummy setup await and the control await are likewise widened for the
+ * same load-robustness reason.
  *
  * Control: there is NO deterministic code path that schedules "before the
  * loop sleeps" — the only such path is racing the background loop's first
@@ -119,13 +140,14 @@ class TimerWakeupRedSuite extends munit.FunSuite {
       // Phase 1: drive the loop into its idle-cap sleep deterministically.
       // Once the zero-delay dummy has run, the loop has just completed a
       // step() that emptied the task queue and is sleeping the full 5000ms
-      // idle cap (whichever side won the startup race). Allow ~6.5s: with
-      // the bug the dummy itself can take up to ~5s to fire.
+      // idle cap (whichever side won the startup race). Allow ~12s (ISS-802:
+      // widened from 6.5s for parallel-load robustness — this is setup, not a
+      // red bound): with the bug the dummy itself can take up to ~5s to fire.
       val dummyFired = new CountDownLatch(1)
       timer.scheduleTask(new Timer.Task {
         def run(): Unit = dummyFired.countDown()
       })
-      assert(pumpUntil(app, dummyFired, 6500L), "setup: zero-delay dummy task never fired — timer loop appears dead")
+      assert(pumpUntil(app, dummyFired, 12000L), "setup: zero-delay dummy task never fired — timer loop appears dead")
 
       // The window between the loop posting the dummy (observed above within
       // ~10ms by the pump) and re-entering its sleep is microseconds; 250ms
@@ -148,7 +170,10 @@ class TimerWakeupRedSuite extends munit.FunSuite {
         },
         delaySeconds = Seconds(0.1f)
       )
-      val firedInTime = pumpUntil(app, fired, 4000L)
+      // ISS-802: 15s await (generous "give up" ceiling — must observe the
+      // wakeup even under parallel-load starvation), red carried by the 4500ms
+      // latency bound below (safely under the bug's ~4750ms idle-cap floor).
+      val firedInTime = pumpUntil(app, fired, 15000L)
       if (!firedInTime) {
         val elapsedMillis = (System.nanoTime() - t0) / 1000000L
         fail(
@@ -158,8 +183,8 @@ class TimerWakeupRedSuite extends munit.FunSuite {
       }
       val latencyMillis = (fireNanos.get() - t0) / 1000000L
       assert(
-        latencyMillis < 1500L,
-        s"task scheduled with 0.1s delay fired after ${latencyMillis}ms (expected ~100ms, bound 1500ms) — lost wakeup"
+        latencyMillis < 4500L,
+        s"task scheduled with 0.1s delay fired after ${latencyMillis}ms (expected ~100ms, bound 4500ms) — lost wakeup: the loop slept out its ~5s idle cap"
       )
     } finally
       Timer.disposeThread()
@@ -193,7 +218,7 @@ class TimerWakeupRedSuite extends munit.FunSuite {
         intervalSeconds = Seconds(0.2f),
         repeatCount = 1
       )
-      assert(pumpUntil(app, twiceFired, 12000L), "control setup: repeating task did not fire twice within 12s")
+      assert(pumpUntil(app, twiceFired, 15000L), "control setup: repeating task did not fire twice within 15s")
       val gapMillis = fireTimes.synchronized((fireTimes(1) - fireTimes(0)) / 1000000L)
       assert(
         gapMillis < 1500L,

@@ -33,6 +33,17 @@ import scala.reflect.ClassTag
   */
 class PoolManager {
 
+  /** Type-keyed registry of pools.
+    *
+    * DOCUMENTED DEVIATION FROM LibGDX (ISS-803): upstream `PoolManager` (and the deprecated static `Pools`) back this registry with a plain unsynchronized `ObjectMap` and rely on the "game thread
+    * only" contract (see the ISS-603 / ISS-797 deviation block in [[sge.utils.Pool]]). SGE already broke that contract by making [[sge.utils.Pool]] internally thread-safe, and this registry sits
+    * directly next to those now-thread-safe pools (its JVM-global instances are `Actor.POOLS` and `Actions.ACTION_POOLS`, which the parallel test environment and SGE-original code exercise across
+    * threads). For consistency we choose option (a): guard every mutation and read of `typePools` on the map's own monitor. Without this, concurrent `addPool`/`obtain` racing the shared HashMap's
+    * resize can lose entries or throw from inside HashMap internals (reproduced by `PoolManagerConcurrencyIss803Suite`).
+    *
+    * The monitor is the private map instance itself (never exposed, so external code cannot interfere) and it guards ONLY the map structure. Per-pool operations (`obtain`/`free`/`clear`) run on each
+    * [[sge.utils.Pool]]'s OWN lock, OUTSIDE this monitor, so there is no nested `PoolManager` -> `Pool` lock edge and thus no lock-ordering (AB-BA) concern with the Pool deviation.
+    */
   private val typePools: MutableMap[Class[?], Pool[?]] = MutableMap.empty
 
   /** Registers a new pool with the given supplier. Will throw an exception, if a pool for the same class is already registered.
@@ -43,7 +54,7 @@ class PoolManager {
   /** Registers the new pool. Will throw an exception, if a pool for the same class is already registered */
   def addPool[T: ClassTag](pool: Pool[T]): Unit = {
     val clazz   = summon[ClassTag[T]].runtimeClass
-    val oldPool = typePools.put(clazz, pool)
+    val oldPool = typePools.synchronized(typePools.put(clazz, pool))
     if (oldPool.isDefined) {
       throw SgeError.InvalidInput(
         s"Attempt to add pool with already existing class: $clazz, register using poolManager.addPool[${clazz.getSimpleName}](() => new ${clazz.getSimpleName}())"
@@ -54,7 +65,7 @@ class PoolManager {
   /** Returns the pool registered for the class. Will throw an exception, if no pool for this class is registered */
   def pool[T: ClassTag]: Pool[T] = {
     val clazz = summon[ClassTag[T]].runtimeClass
-    typePools.get(clazz) match {
+    typePools.synchronized(typePools.get(clazz)) match {
       case Some(pool) => pool.asInstanceOf[Pool[T]]
       case None       =>
         throw SgeError.InvalidInput(
@@ -65,17 +76,17 @@ class PoolManager {
 
   /** Returns the pool registered for the class. Will return Nullable.empty, if no pool for this class is registered */
   def poolOrNull[T: ClassTag]: Nullable[Pool[T]] =
-    Nullable.fromOption(typePools.get(summon[ClassTag[T]].runtimeClass).map(_.asInstanceOf[Pool[T]]))
+    Nullable.fromOption(typePools.synchronized(typePools.get(summon[ClassTag[T]].runtimeClass)).map(_.asInstanceOf[Pool[T]]))
 
   /** Whether a pool for this class is already registered */
   def hasPool(clazz: Class[?]): Boolean =
-    typePools.contains(clazz)
+    typePools.synchronized(typePools.contains(clazz))
 
   /** Returns a new pooled object for the class. Will throw an exception, if no pool for this class is registered. Free with {@link PoolManager#free}
     */
   def obtain[T: ClassTag]: T = {
     val clazz = summon[ClassTag[T]].runtimeClass
-    typePools.get(clazz) match {
+    typePools.synchronized(typePools.get(clazz)) match {
       case Some(pool) => pool.asInstanceOf[Pool[T]].obtain()
       case None       =>
         throw SgeError.InvalidInput(
@@ -87,7 +98,7 @@ class PoolManager {
   /** Returns a new pooled object for the class. Will return Nullable.empty, if no pool for this class is registered. Free with {@link PoolManager#free}
     */
   def obtainOrNull[T: ClassTag]: Nullable[T] =
-    typePools.get(summon[ClassTag[T]].runtimeClass) match {
+    typePools.synchronized(typePools.get(summon[ClassTag[T]].runtimeClass)) match {
       case Some(pool) => Nullable(pool.asInstanceOf[Pool[T]].obtain())
       case None       => Nullable.empty
     }
@@ -95,7 +106,7 @@ class PoolManager {
   /** Frees a pooled object. Will throw an exception, if no pool for this class is registered. It is unchecked, whether the object was obtained by the registered pool.
     */
   def free[T](obj: T): Unit =
-    typePools.get(obj.getClass) match {
+    typePools.synchronized(typePools.get(obj.getClass)) match {
       case Some(pool) => pool.asInstanceOf[Pool[T]].free(obj)
       case None       =>
         throw SgeError.InvalidInput(
@@ -105,5 +116,6 @@ class PoolManager {
 
   /** Clears all contents of the managed pools */
   def clear(): Unit =
-    typePools.values.foreach(_.clear())
+    // Snapshot the pools under the map monitor, then clear each on its own Pool lock (outside this monitor).
+    typePools.synchronized(typePools.values.toList).foreach(_.clear())
 }
