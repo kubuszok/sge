@@ -222,6 +222,19 @@ object Pool {
         objects.foreach(obtained.removeValue)
         super.freeAll(objects)
       }
+
+    // Mirrors the freeAll(Iterable) override for the DynamicArray overload:
+    // upstream FlushablePool.freeAll(Array<T>) does `obtained.removeAll(objects, true)`
+    // before delegating (FlushablePool.java:57-60). Without this, freeing through the
+    // DynamicArray overload would leave the items in `obtained`, so a later flush()
+    // would free them again — a double-free (same instance in the free list twice).
+    // Removal mutates `obtained` under the same reentrant lock; super.freeAll
+    // re-acquires it reentrantly. See Pool.lock.
+    override def freeAll(objects: DynamicArray[? <: A]): Unit =
+      lock.synchronized {
+        obtained.removeAll(objects)
+        super.freeAll(objects)
+      }
   }
 
   /** A quad tree that stores a float for each point.
