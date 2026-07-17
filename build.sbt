@@ -237,7 +237,11 @@ val mimaSettings = Seq(
   // (tag) builds include them. The blocking `docs` CI job (doc-*-3 aliases)
   // keeps scaladoc green so the tag-time doc build cannot surprise-fail
   // (ISS-753; the historical unconditional `false` predates the fixed
-  // upstream scaladoc crash).
+  // upstream scaladoc crash). NOTE: scaladoc on JDK 24/25 nondeterministically
+  // NPEs out of a C2 JIT miscompilation of SignatureBuilder (ISS-799,
+  // scala/scala3#24183, fixed in Scala 3.9.0) — .jvmopts carries a
+  // CompileCommand exclude that keeps the affected class interpreted; drop it
+  // when the build moves to Scala >= 3.9.0.
   packageDoc / publishArtifact := !isSnapshot.value
 )
 
