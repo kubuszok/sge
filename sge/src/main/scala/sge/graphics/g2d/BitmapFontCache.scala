@@ -339,20 +339,20 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
 
   def setText(str: CharSequence, x: Float, y: Float): GlyphLayout = {
     clear()
-    addText(str, x, y, 0, str.length(), 0, sge.utils.Align.left.toInt, false) // Align.left = 1 << 3
+    addText(str, x, y, 0, str.length(), 0, sge.utils.Align.left, false) // Align.left = 1 << 3
   }
 
-  def setText(str: CharSequence, x: Float, y: Float, targetWidth: Float, halign: Int, wrap: Boolean): GlyphLayout = {
+  def setText(str: CharSequence, x: Float, y: Float, targetWidth: Float, halign: sge.utils.Align, wrap: Boolean): GlyphLayout = {
     clear()
     addText(str, x, y, 0, str.length(), targetWidth, halign, wrap)
   }
 
-  def setText(str: CharSequence, x: Float, y: Float, start: Int, end: Int, targetWidth: Float, halign: Int, wrap: Boolean): GlyphLayout = {
+  def setText(str: CharSequence, x: Float, y: Float, start: Int, end: Int, targetWidth: Float, halign: sge.utils.Align, wrap: Boolean): GlyphLayout = {
     clear()
     addText(str, x, y, start, end, targetWidth, halign, wrap)
   }
 
-  def setText(str: CharSequence, x: Float, y: Float, start: Int, end: Int, targetWidth: Float, halign: Int, wrap: Boolean, truncate: Nullable[String]): GlyphLayout = {
+  def setText(str: CharSequence, x: Float, y: Float, start: Int, end: Int, targetWidth: Float, halign: sge.utils.Align, wrap: Boolean, truncate: Nullable[String]): GlyphLayout = {
     clear()
     addText(str, x, y, start, end, targetWidth, halign, wrap, truncate)
   }
@@ -363,15 +363,15 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   }
 
   def addText(str: CharSequence, x: Float, y: Float): GlyphLayout =
-    addText(str, x, y, 0, str.length(), 0, sge.utils.Align.left.toInt, false, Nullable.empty) // Align.left = 1 << 3
+    addText(str, x, y, 0, str.length(), 0, sge.utils.Align.left, false, Nullable.empty) // Align.left = 1 << 3
 
-  def addText(str: CharSequence, x: Float, y: Float, targetWidth: Float, halign: Int, wrap: Boolean): GlyphLayout =
+  def addText(str: CharSequence, x: Float, y: Float, targetWidth: Float, halign: sge.utils.Align, wrap: Boolean): GlyphLayout =
     addText(str, x, y, 0, str.length(), targetWidth, halign, wrap, Nullable.empty)
 
-  def addText(str: CharSequence, x: Float, y: Float, start: Int, end: Int, targetWidth: Float, halign: Int, wrap: Boolean): GlyphLayout =
+  def addText(str: CharSequence, x: Float, y: Float, start: Int, end: Int, targetWidth: Float, halign: sge.utils.Align, wrap: Boolean): GlyphLayout =
     addText(str, x, y, start, end, targetWidth, halign, wrap, Nullable.empty)
 
-  def addText(str: CharSequence, x: Float, y: Float, start: Int, end: Int, targetWidth: Float, halign: Int, wrap: Boolean, truncate: Nullable[String]): GlyphLayout = {
+  def addText(str: CharSequence, x: Float, y: Float, start: Int, end: Int, targetWidth: Float, halign: sge.utils.Align, wrap: Boolean, truncate: Nullable[String]): GlyphLayout = {
     val layout = pooledLayouts.obtain()
     layout.setText(font, str, start, end, _color, targetWidth, halign, wrap, truncate)
     addText(layout, x, y)

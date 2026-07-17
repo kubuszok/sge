@@ -7,7 +7,10 @@ package sge
 
 import sge.noop.{ NoopAudio, NoopGraphics, NoopInput }
 
-/** Provides a minimal [[Sge]] context for unit tests that need one (e.g. Camera, ModelLoader). */
+/** Provides a minimal [[Sge]] context for unit tests that need one (e.g. Camera, ModelLoader).
+  *
+  * Also supplies the `given Sge` used by the compile-level `typeCheckErrors` red suites (e.g. BitmapFont default-font constructors, Align API-boundary pins).
+  */
 object SgeTestFixture {
 
   /** Creates a test [[Sge]] with noop implementations for all subsystems. Override individual parameters to inject custom implementations for testing.

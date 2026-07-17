@@ -83,7 +83,7 @@ class GlyphLayoutAlignRedSuite extends munit.FunSuite {
   /** Lays out "ab" (run.width 19) with the given halign and targetWidth=50, no wrap, no truncate, so alignRuns (Java lines 297-306) is the only thing that can move run.x away from 0. */
   private def layoutOf(font: BitmapFont, halign: Align): GlyphLayout = {
     val layout = new GlyphLayout()
-    layout.setText(font, "ab", 0, 2, Color.WHITE, 50f, halign.toInt, false, Nullable.empty[String])
+    layout.setText(font, "ab", 0, 2, Color.WHITE, 50f, halign, false, Nullable.empty[String])
     layout
   }
 

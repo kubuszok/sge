@@ -98,7 +98,7 @@ class BitmapFontCacheRedSuite extends munit.FunSuite {
     // left-aligned text) — this test must not trip on that, fixed or not.
     val font  = makeFont()
     val cache = new BitmapFontCache(font)
-    cache.setText("aaa", 0f, 0f, 0f, Align.left.toInt, false)
+    cache.setText("aaa", 0f, 0f, 0f, Align.left, false)
     assertEquals(cache.vertexCount(0), 60, "3 glyphs x 20 floats must be cached")
     val x0 = glyphX(cache, 0) // = x + run.x + xAdvances[0] (Java lines 395, 401)
     assertEqualsFloat(glyphX(cache, 1), x0 + 10f, 0.0001f, "glyph 1 must advance by xAdvances[1]=10 from glyph 0 (Java line 401)")

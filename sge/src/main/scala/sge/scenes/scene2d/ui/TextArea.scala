@@ -275,7 +275,7 @@ class TextArea(initialText: Nullable[String], initialStyle: TextField.TextFieldS
     var offsetY = -(style.font.lineHeight - textHeight) / 2
     var i       = firstLineShowing * 2
     while (i < (firstLineShowing + linesShowing) * 2 && i < linesBreak.size) {
-      font.draw(batch, displayText, x, y + offsetY, linesBreak.items(i), linesBreak.items(i + 1), 0, Align.left.toInt, false)
+      font.draw(batch, displayText, x, y + offsetY, linesBreak.items(i), linesBreak.items(i + 1), 0, Align.left, false)
       offsetY -= font.lineHeight
       i += 2
     }

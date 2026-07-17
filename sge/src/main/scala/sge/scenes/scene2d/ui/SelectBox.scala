@@ -265,7 +265,7 @@ class SelectBox[T](initialStyle: SelectBox.SelectBoxStyle)(using Sge) extends Wi
 
   protected def drawItem(batch: Batch, font: BitmapFont, item: T, x: Float, y: Float, width: Float): GlyphLayout = {
     val string = itemToString(item)
-    font.draw(batch, string, x, y, 0, string.length(), width, alignment.toInt, false, Nullable("..."))
+    font.draw(batch, string, x, y, 0, string.length(), width, alignment, false, Nullable("..."))
   }
 
   /** Sets the alignment of the selected item in the select box. See {@link #getList()} and {@link List#setAlignment(int)} to set the alignment in the list shown when the select box is open.

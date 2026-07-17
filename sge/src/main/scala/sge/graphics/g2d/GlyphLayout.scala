@@ -50,23 +50,23 @@ class GlyphLayout extends Poolable {
     setText(font, str)
   }
 
-  def this(font: BitmapFont, str: CharSequence, color: Color, targetWidth: Float, halign: Int, wrap: Boolean) = {
+  def this(font: BitmapFont, str: CharSequence, color: Color, targetWidth: Float, halign: Align, wrap: Boolean) = {
     this()
     setText(font, str, color, targetWidth, halign, wrap)
   }
 
-  def this(font: BitmapFont, str: CharSequence, start: Int, end: Int, color: Color, targetWidth: Float, halign: Int, wrap: Boolean, truncate: Nullable[String]) = {
+  def this(font: BitmapFont, str: CharSequence, start: Int, end: Int, color: Color, targetWidth: Float, halign: Align, wrap: Boolean, truncate: Nullable[String]) = {
     this()
     setText(font, str, start, end, color, targetWidth, halign, wrap, truncate)
   }
 
   def setText(font: BitmapFont, str: CharSequence): Unit =
-    setText(font, str, 0, str.length(), font.color, 0, Align.left.toInt, false, Nullable.empty[String])
+    setText(font, str, 0, str.length(), font.color, 0, Align.left, false, Nullable.empty[String])
 
-  def setText(font: BitmapFont, str: CharSequence, color: Color, targetWidth: Float, halign: Int, wrap: Boolean): Unit =
+  def setText(font: BitmapFont, str: CharSequence, color: Color, targetWidth: Float, halign: Align, wrap: Boolean): Unit =
     setText(font, str, 0, str.length(), color, targetWidth, halign, wrap, Nullable.empty[String])
 
-  def setText(font: BitmapFont, str: CharSequence, start: Int, end: Int, color: Color, targetWidth: Float, halign: Int, wrap: Boolean, truncate: Nullable[String]): Unit = scala.util.boundary {
+  def setText(font: BitmapFont, str: CharSequence, start: Int, end: Int, color: Color, targetWidth: Float, halign: Align, wrap: Boolean, truncate: Nullable[String]): Unit = scala.util.boundary {
     (methodDone: scala.util.boundary.Label[Unit]) ?=>
       reset()
 
@@ -276,9 +276,9 @@ class GlyphLayout extends Poolable {
     this.width = maxWidth
   }
 
-  private def alignRuns(targetWidth: Float, halign: Int): Unit =
-    if ((halign & Align.left.toInt) == 0) { // Not left aligned, so must be center or right aligned.
-      val center = (halign & Align.center.toInt) != 0
+  private def alignRuns(targetWidth: Float, halign: Align): Unit =
+    if ((halign.toInt & Align.left.toInt) == 0) { // Not left aligned, so must be center or right aligned.
+      val center = (halign.toInt & Align.center.toInt) != 0
       var i      = 0
       while (i < runs.size) {
         val run = runs(i)

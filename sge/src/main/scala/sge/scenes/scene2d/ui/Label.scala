@@ -167,7 +167,7 @@ class Label(initialText: Nullable[CharSequence], initialStyle: Label.LabelStyle)
       _style.background.foreach { bg =>
         width = Math.max(width, bg.minWidth) - bg.leftWidth - bg.rightWidth
       }
-      layout.setText(_cache.font, textStr, Color.WHITE, width, Align.left.asInstanceOf[Int], true)
+      layout.setText(_cache.font, textStr, Color.WHITE, width, Align.left, true)
     } else {
       layout.setText(_cache.font, textStr)
     }
@@ -208,7 +208,7 @@ class Label(initialText: Nullable[CharSequence], initialStyle: Label.LabelStyle)
     var textHeight: Float = 0
     if (doWrap || _text.contains('\n')) {
       // If the text can span multiple lines, determine the text's actual size so it can be aligned within the label.
-      layout.setText(font, textStr, 0, textStr.length, Color.WHITE, width, _lineAlign.asInstanceOf[Int], doWrap, ellipsis)
+      layout.setText(font, textStr, 0, textStr.length, Color.WHITE, width, _lineAlign, doWrap, ellipsis)
       textWidth = layout.width
       textHeight = layout.height
 
@@ -234,7 +234,7 @@ class Label(initialText: Nullable[CharSequence], initialStyle: Label.LabelStyle)
     }
     if (!_cache.font.flipped) y += textHeight
 
-    layout.setText(font, textStr, 0, textStr.length, Color.WHITE, textWidth, _lineAlign.asInstanceOf[Int], doWrap, ellipsis)
+    layout.setText(font, textStr, 0, textStr.length, Color.WHITE, textWidth, _lineAlign, doWrap, ellipsis)
     _cache.setText(layout, x, y)
 
     if (fontScaleChanged) font.data.setScale(oldScaleX, oldScaleY)

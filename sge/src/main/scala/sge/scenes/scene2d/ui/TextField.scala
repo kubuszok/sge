@@ -402,11 +402,11 @@ class TextField(initialText: Nullable[String], initialStyle: TextField.TextField
     selection.draw(batch, x + textOffset + selectionX + fontOffset, y - textHeight - font.descent, selectionWidth, textHeight)
 
   protected def drawText(batch: Batch, font: BitmapFont, x: Float, y: Float): Unit =
-    font.draw(batch, displayText, x + textOffset, y, visibleTextStart, visibleTextEnd, 0, Align.left.toInt, false)
+    font.draw(batch, displayText, x + textOffset, y, visibleTextStart, visibleTextEnd, 0, Align.left, false)
 
   protected def drawMessageText(batch: Batch, font: BitmapFont, x: Float, y: Float, maxWidth: Float): Unit =
     messageText.foreach { msg =>
-      font.draw(batch, msg, x, y, 0, msg.length(), maxWidth, textHAlign.toInt, false, Nullable("..."))
+      font.draw(batch, msg, x, y, 0, msg.length(), maxWidth, textHAlign, false, Nullable("..."))
     }
 
   protected def drawCursor(cursorPatch: Drawable, batch: Batch, font: BitmapFont, x: Float, y: Float): Unit =

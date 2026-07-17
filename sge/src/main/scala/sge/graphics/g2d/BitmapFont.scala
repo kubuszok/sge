@@ -95,6 +95,30 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
     ownsTexture = true
   }
 
+  /** Creates a BitmapFont using the default 15pt Liberation Sans font included in the sge JAR file. This is convenient to easily display text without bothering without generating a bitmap font
+    * yourself.
+    */
+  def this()(using sge: Sge) =
+    this(
+      sge.files.classpath("sge/utils/lsans-15.fnt"),
+      sge.files.classpath("sge/utils/lsans-15.png"),
+      false,
+      true
+    )
+
+  /** Creates a BitmapFont using the default 15pt Liberation Sans font included in the sge JAR file. This is convenient to easily display text without bothering without generating a bitmap font
+    * yourself.
+    * @param flip
+    *   If true, the glyphs will be flipped for use with a perspective where 0,0 is the upper left corner.
+    */
+  def this(flip: Boolean)(using sge: Sge) =
+    this(
+      sge.files.classpath("sge/utils/lsans-15.fnt"),
+      sge.files.classpath("sge/utils/lsans-15.png"),
+      flip,
+      true
+    )
+
   private def loadRegions(): DynamicArray[TextureRegion] =
     data.imagePaths.fold {
       throw new IllegalArgumentException("If no regions are specified, the font data must have an images path.")
@@ -130,21 +154,21 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
     layout
   }
 
-  def draw(batch: Batch, str: CharSequence, x: Float, y: Float, targetWidth: Float, halign: Int, wrap: Boolean): GlyphLayout = {
+  def draw(batch: Batch, str: CharSequence, x: Float, y: Float, targetWidth: Float, halign: sge.utils.Align, wrap: Boolean): GlyphLayout = {
     cache.clear()
     val layout = cache.addText(str, x, y, targetWidth, halign, wrap)
     cache.draw(batch)
     layout
   }
 
-  def draw(batch: Batch, str: CharSequence, x: Float, y: Float, start: Int, end: Int, targetWidth: Float, halign: Int, wrap: Boolean): GlyphLayout = {
+  def draw(batch: Batch, str: CharSequence, x: Float, y: Float, start: Int, end: Int, targetWidth: Float, halign: sge.utils.Align, wrap: Boolean): GlyphLayout = {
     cache.clear()
     val layout = cache.addText(str, x, y, start, end, targetWidth, halign, wrap)
     cache.draw(batch)
     layout
   }
 
-  def draw(batch: Batch, str: CharSequence, x: Float, y: Float, start: Int, end: Int, targetWidth: Float, halign: Int, wrap: Boolean, truncate: Nullable[String]): GlyphLayout = {
+  def draw(batch: Batch, str: CharSequence, x: Float, y: Float, start: Int, end: Int, targetWidth: Float, halign: sge.utils.Align, wrap: Boolean, truncate: Nullable[String]): GlyphLayout = {
     cache.clear()
     val layout = cache.addText(str, x, y, start, end, targetWidth, halign, wrap, truncate)
     cache.draw(batch)

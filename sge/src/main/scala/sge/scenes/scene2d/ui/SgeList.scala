@@ -271,7 +271,7 @@ class SgeList[T](initialStyle: SgeList.ListStyle)(using Sge) extends Widget with
 
   protected def drawItem(batch: Batch, font: BitmapFont, index: Int, item: T, x: Float, y: Float, width: Float): GlyphLayout = {
     val string = itemToString(item)
-    font.draw(batch, string, x, y, 0, string.length(), width, _alignment.toInt, false, Nullable("..."))
+    font.draw(batch, string, x, y, 0, string.length(), width, _alignment, false, Nullable("..."))
   }
 
   // getSelection removed — selection is a public var

@@ -69,7 +69,7 @@ class GlyphLayoutRedSuite extends munit.FunSuite {
     val layout = new GlyphLayout()
     // Align.left so Java's alignRuns (Java lines 297-306) is a no-op; run.x is
     // deliberately never asserted below.
-    layout.setText(font, str, 0, str.length(), Color.WHITE, targetWidth, Align.left.toInt, wrap, truncate)
+    layout.setText(font, str, 0, str.length(), Color.WHITE, targetWidth, Align.left, wrap, truncate)
     layout
   }
 
