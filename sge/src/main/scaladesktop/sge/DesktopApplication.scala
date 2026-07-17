@@ -108,6 +108,9 @@ class DesktopApplication(
     // faithful to GLFWErrorCallback.createPrint(config.errorStream).set() — installed BEFORE glfwInit
     // (Lwjgl3Application.java:84-89) so error descriptions produced during GLFW initialization itself
     // reach config.errorStream rather than the platform's Log-based default callback (ISS-807).
+    // Simplified format vs LWJGL's createPrint, which prints a multi-line block (symbolic error name
+    // resolved via APIUtil.apiClassTokens, description, and a "Stacktrace:" dump of the reporting
+    // thread); SGE prints a one-liner with the numeric code — same stream, same trigger, less detail.
     windowing.setErrorCallback((code, description) => _config.errorStream.println(s"GLFW error $code: $description"))
 
     if (!windowing.init()) {

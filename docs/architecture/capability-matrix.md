@@ -47,18 +47,27 @@ portable code is expected to call it on every platform unconditionally.
 | Server sockets (`Net.newServerSocket`) | Supported | Supported | **Unsupported** | Supported |
 | Client sockets (`Net.newClientSocket`) | Supported | Supported | **Unsupported** | Supported |
 | Clipboard (`Application.clipboard`) | Supported (GLFW) | Supported (GLFW) | Supported (Navigator Clipboard API) | Supported (`ClipboardManager`) |
-| Cursors (`Cursor` / system cursors) | Supported (GLFW) | Supported (GLFW) | Supported (CSS cursors) | — (touch; no cursor API) |
-| Gamepad / controllers | — | — | — | — |
+| Cursors (`Cursor` / system cursors) | Supported (GLFW) | Supported (GLFW) | Supported (CSS cursors) | System cursors Supported (API 24+); custom cursors No-op (documented) |
+| Gamepad / controllers | Supported via `sge-extension-controllers` (GLFW) | Supported via `sge-extension-controllers` (GLFW) | Supported via `sge-extension-controllers` (Gamepad API) | Supported via `sge-extension-controllers` (InputDevice) |
 
 Notes:
 
-- **Gamepad / controllers**: LibGDX's controller support lives in the separate
-  `gdx-controllers` extension, which is **not ported** to SGE. There is no
-  gamepad API on any backend, so this is `—` rather than Supported/Unsupported.
-  (The many `*Controller*` types in `sge.graphics.g3d` are animation/camera
-  controllers, unrelated to input devices.)
-- **Cursors on Android**: Android is touch-first and exposes no cursor API in
-  SGE; marked `—`. Desktop and Browser cursors are real.
+- **Gamepad / controllers**: as in LibGDX (`gdx-controllers`), controller
+  support is an **extension**, not part of core `sge` — the port lives in
+  `sge-extension/controllers` (`sge-controllers` projectMatrix module,
+  build.sbt) with per-backend implementations: `GlfwControllerJvm` +
+  `AndroidControllerBackend` (scalajvm), `GlfwControllerNative` (scalanative),
+  `BrowserControllerImpl` (scala-js). Core `sge` itself exposes no gamepad
+  API; games opt in by depending on the extension. (The many `*Controller*`
+  types in `sge.graphics.g3d` are animation/camera controllers, unrelated to
+  input devices.)
+- **Cursors on Android**: `AndroidGraphics` implements the Cursor API
+  (AndroidGraphics.scala, "Cursor" section): `setSystemCursor` is real via
+  `AndroidCursorImpl` (`android.view.PointerIcon`, guarded to API >= 24;
+  below 24 it is a silent no-op); custom pixmap cursors (`newCursor` /
+  `setCursor`) are a documented No-op (`newCursor` returns `Nullable.empty`,
+  `setCursor` does nothing — "Custom pixmap cursors not supported on
+  Android"). Desktop and Browser cursors are fully real.
 
 ## Clause decisions recorded for ISS-815
 
