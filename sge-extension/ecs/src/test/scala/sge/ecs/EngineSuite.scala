@@ -9,6 +9,11 @@ import lowlevel.Nullable
 // Top-level class with public no-arg constructor for createComponent test
 class EngineTestComponentD extends Component
 
+// Top-level class WITHOUT a visible no-arg constructor: the JVM reflective fallback in
+// Engine.createComponent cannot instantiate it (getConstructor() throws -> null), exercising the
+// null-on-failure contract cross-platform (JS/Native have no reflection at all).
+class EngineTestComponentE(val x: Int) extends Component
+
 class EngineSuite extends munit.FunSuite {
 
   private val deltaTime: Float = 0.16f
@@ -533,11 +538,22 @@ class EngineSuite extends munit.FunSuite {
     assert(entity != null)
   }
 
-  test("createComponent throws by default in base Engine") {
+  test("createComponent returns empty for an unregistered, non-reflectable component (ISS-723 c12)") {
     val engine = new Engine
-    intercept[UnsupportedOperationException] {
-      engine.createComponent(classOf[EngineTestComponentD])
-    }
+    // No visible no-arg constructor: the JVM reflective fallback fails (Engine.java:67-73 catch ->
+    // null); JS/Native have no runtime reflection. Both platforms resolve to the empty/null-equivalent.
+    val component = engine.createComponent(classOf[EngineTestComponentE])
+    assert(component.isEmpty)
+  }
+
+  test("createComponent uses a registered factory ahead of the platform fallback (ISS-723 c12)") {
+    val engine = new Engine
+    val marker = new EngineTestComponentD
+    engine.registerComponentFactory(classOf[EngineTestComponentD], () => marker)
+    val component = engine.createComponent(classOf[EngineTestComponentD])
+    assert(component.isDefined)
+    // Identity proves the registered factory produced it, not a reflectively-created instance.
+    assertEquals(component.get, marker)
   }
 
   test("createComponent works via PooledEngine with factory") {

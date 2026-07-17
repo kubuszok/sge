@@ -26,6 +26,8 @@
 package sge
 package ecs
 
+import scala.collection.mutable.HashMap
+
 import sge.ecs.signals.{ Listener, Signal }
 import sge.ecs.utils.ImmutableArray
 import lowlevel.Nullable
@@ -81,21 +83,34 @@ class Engine {
 
   private var updating: Boolean = false
 
+  /** Registry of factory functions for creating components of a given type. Populated via [[registerComponentFactory]] and consulted first by [[createComponent]]; the JVM reflective fallback is used
+    * for types without a registered factory. [[PooledEngine]] reuses this registry to build its component pools.
+    */
+  protected val componentFactories: HashMap[Class[?], () => ?] = HashMap.empty
+
+  /** Registers a factory function for creating components of the given type. This is the cross-platform way to use [[createComponent]] — required on Scala.js and Scala Native where reflection-based
+    * instantiation is not available. A registered factory takes precedence over the JVM reflective fallback.
+    */
+  def registerComponentFactory[T <: Component](componentClass: Class[T], factory: () => T): Unit =
+    componentFactories.put(componentClass, factory)
+
   /** Creates a new Entity object.
     * @return
     *   a new [[Entity]]
     */
   def createEntity(): Entity = new Entity()
 
-  /** Creates a new [[Component]]. Override this method or use [[PooledEngine]] for component pooling.
+  /** Creates a new [[Component]]. To use this method your components must have a visible no-arg constructor, or a factory must be registered via [[registerComponentFactory]].
     *
-    * The default implementation throws — create components directly with `new` or override in a subclass.
+    * Resolution order: a factory registered for `componentType` wins; otherwise the platform fallback is used. On the JVM the fallback reflectively instantiates the component via its no-arg
+    * constructor, returning the empty/null-equivalent when reflection fails (faithful to Ashley Engine.java:67-73, which catches `ReflectionException` and returns `null`). On Scala.js and Scala
+    * Native there is no runtime reflection, so an unregistered type resolves to the empty/null-equivalent. [[PooledEngine]] overrides this to draw from component pools.
     */
   def createComponent[T <: Component](componentType: Class[T]): Nullable[T] =
-    throw new UnsupportedOperationException(
-      "Engine.createComponent is not supported by default. " +
-        "Create components with `new` directly, or use PooledEngine."
-    )
+    componentFactories.get(componentType) match {
+      case Some(factory) => Nullable(factory.asInstanceOf[() => T]())
+      case None          => EnginePlatform.createComponentReflectively(componentType)
+    }
 
   /** Adds an entity to this Engine. This will throw an IllegalArgumentException if the given entity was already registered with an engine.
     */

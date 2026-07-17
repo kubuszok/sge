@@ -48,15 +48,12 @@ class PooledEngine(
   componentPoolMaxSize:     Int = 100
 ) extends Engine {
 
-  private val entityPool:         EntityPool                 = new EntityPool(entityPoolInitialSize, entityPoolMaxSize)
-  private val componentPools:     ComponentPools             = new ComponentPools(componentPoolInitialSize, componentPoolMaxSize)
-  private val componentFactories: HashMap[Class[?], () => ?] = HashMap.empty
+  private val entityPool:     EntityPool     = new EntityPool(entityPoolInitialSize, entityPoolMaxSize)
+  private val componentPools: ComponentPools = new ComponentPools(componentPoolInitialSize, componentPoolMaxSize)
 
-  /** Registers a factory function for creating components of the given type. This is the cross-platform way to use [[createComponent]] — required on Scala.js and Scala Native where reflection-based
-    * instantiation is not available.
-    */
-  def registerComponentFactory[T <: Component](componentClass: Class[T], factory: () => T): Unit =
-    componentFactories.put(componentClass, factory)
+  // Component factories are registered via the base Engine.registerComponentFactory (lifted from
+  // this class); the shared `componentFactories` registry backs both createComponent paths. The
+  // pooled ComponentPools below reads it to build each component type's pool.
 
   /** @return Clean [[Entity]] from the Engine pool. In order to add it to the [[Engine]], use [[addEntity]]. */
   override def createEntity(): Entity = entityPool.obtain()
