@@ -145,10 +145,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
     *   if the asset is not loaded
     */
   def apply[T](assetDescriptor: AssetDescriptor[T]): T = synchronized {
-    val result =
-      if (assetDescriptor.`type` != null) lookupByClass[T](assetDescriptor.fileName, assetDescriptor.`type`)
-      else lookup[T](assetDescriptor.fileName, Nullable.empty)
-    result.getOrElse(throw SgeError.InvalidInput("Asset not loaded: " + assetDescriptor.fileName))
+    lookupByClass[T](assetDescriptor.fileName, assetDescriptor.`type`).getOrElse(throw SgeError.InvalidInput("Asset not loaded: " + assetDescriptor.fileName))
   }
 
   /** @return the asset or empty Nullable if not loaded */
@@ -169,8 +166,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
 
   /** @return the asset or empty Nullable if not loaded */
   def get[T](assetDescriptor: AssetDescriptor[T]): Nullable[T] = synchronized {
-    if (assetDescriptor.`type` != null) lookupByClass[T](assetDescriptor.fileName, assetDescriptor.`type`)
-    else lookup[T](assetDescriptor.fileName, Nullable.empty)
+    lookupByClass[T](assetDescriptor.fileName, assetDescriptor.`type`)
   }
 
   /** @return all the assets matching the specified type */

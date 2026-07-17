@@ -8,9 +8,36 @@ package platform
 
 class BufferOpsSuite extends munit.FunSuite {
 
+  // The Rust native library (libsge_native_ops) ships in the pnm-provider-sge-desktop
+  // provider JAR and is extracted + dlopen'd by multiarch.core.NativeLibLoader the first
+  // time PlatformOps.buffer is touched. In environments where that provider JAR is not on
+  // the test classpath (local dev without a native build, native-less CI legs) the library
+  // is *legitimately* absent, and this suite must skip — not fail — via the assume below.
+  //
+  // The catch is deliberately narrowed to the "library unavailable" failure shapes so that a
+  // genuine ABI / symbol regression still surfaces as a red test instead of a silent skip:
+  //   - UnsatisfiedLinkError is the ONLY throwable NativeLibLoader.load raises when it cannot
+  //     resolve/extract/open the library (unsupported OS or arch, not-found diagnostic, or a
+  //     provider collision), so it is the canonical "lib not present" signal. It is itself a
+  //     LinkageError, hence it is matched explicitly.
+  //   - ExceptionInInitializerError is caught ONLY when its (possibly nested) root cause is
+  //     that same UnsatisfiedLinkError: the load can fail while the PlatformOps.buffer / Panama
+  //     provider lazy initializers run, and the JVM wraps such a static-init failure. We unwrap
+  //     and skip only for a load failure.
+  //
+  // Everything else propagates on purpose. In particular a NoSuchMethodError / NoSuchFieldError
+  // / AbstractMethodError — which are ALSO LinkageErrors — indicates a real native-symbol or
+  // method-handle ABI mismatch (i.e. a regression), so we must NOT catch the broad LinkageError
+  // supertype here, and the guard lets such throwables fall through uncaught.
+  private def isLibraryUnavailable(t: Throwable): Boolean = t match {
+    case _: UnsatisfiedLinkError        => true
+    case e: ExceptionInInitializerError => Option(e.getCause).exists(isLibraryUnavailable)
+    case _ => false
+  }
+
   private val nativeLibAvailable: Boolean =
     try { PlatformOps.buffer; true }
-    catch { case _: Throwable => false }
+    catch { case t: Throwable if isLibraryUnavailable(t) => false }
 
   override def munitTestTransforms: List[TestTransform] =
     super.munitTestTransforms :+ new TestTransform(
