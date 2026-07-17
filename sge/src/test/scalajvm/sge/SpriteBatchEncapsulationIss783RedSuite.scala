@@ -38,7 +38,9 @@ import scala.compiletime.testing.*
 
 class SpriteBatchEncapsulationIss783RedSuite extends munit.FunSuite {
 
-  test("ISS-783: external code must not be able to assign SpriteBatch.idx (Java package-private int idx; PolygonSpriteBatch keeps it private)") {
+  test(
+    "ISS-783: external code must not be able to assign SpriteBatch.idx (Java package-private int idx; PolygonSpriteBatch keeps it private)"
+  ) {
     val errors: List[Error] = typeCheckErrors(
       """(??? : sge.graphics.g2d.SpriteBatch).idx = 42"""
     )
@@ -48,7 +50,9 @@ class SpriteBatchEncapsulationIss783RedSuite extends munit.FunSuite {
     )
   }
 
-  test("ISS-783: external code must not be able to assign SpriteBatch.lastTexture (Java package-private Texture lastTexture)") {
+  test(
+    "ISS-783: external code must not be able to assign SpriteBatch.lastTexture (Java package-private Texture lastTexture)"
+  ) {
     val errors: List[Error] = typeCheckErrors(
       """(??? : sge.graphics.g2d.SpriteBatch).lastTexture = ???"""
     )
