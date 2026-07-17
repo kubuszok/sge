@@ -1364,6 +1364,12 @@ object GLTFCodecs {
   GLTFExtensions.registerDecoder(classOf[KHRLightsPunctual.GLTFLights], decodeFromJson(_)(using gltfLightsCodec))
   GLTFExtensions.registerDecoder(classOf[KHRLightsPunctual.GLTFLightNode], decodeFromJson(_)(using gltfLightNodeCodec))
 
+  /** Forces `object GLTFCodecs`'s initializer — and thus the [[GLTFExtensions.registerDecoder]] calls above — to run. Idempotent. Invoked from `class GLTFExtensions`'s constructor (ISS-782 / ISS-622
+    * pattern) so that constructing any [[GLTFExtensions]] eagerly registers the lazy-parse decoders, instead of [[GLTFExtensions.decode]] silently returning empty when nothing has yet forced this
+    * object to initialise. Calling a member of this object (as this does) is what reliably triggers the module initializer; merely naming the object does not.
+    */
+  def ensureCodecsRegistered(): Unit = ()
+
   /** Decodes a raw [[Json]] AST into a typed value `A` by re-serialising the AST and re-reading it through the given codec. Platform-neutral (no reflection); used by the [[GLTFExtensions]] lazy-parse
     * registry above.
     */

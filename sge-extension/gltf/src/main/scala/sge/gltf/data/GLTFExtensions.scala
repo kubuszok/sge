@@ -26,6 +26,14 @@ import sge.utils.Json
   */
 class GLTFExtensions {
 
+  // ISS-782(c): eagerly force `object GLTFCodecs` to initialise (and thus register the lazy-parse
+  // decoders via GLTFExtensions.registerDecoder) the moment any GLTFExtensions is constructed —
+  // mirroring the ISS-622 fix (BillboardParticleBatch's constructor calls ensureCodecRegistered()).
+  // Without this, GLTFExtensions.decode silently returns empty in a process where nothing has already
+  // forced GLTFCodecs to initialise (e.g. get() before any parse), dropping a stored raw extension
+  // with no diagnostic. Calling a member of the object reliably triggers its module initializer.
+  GLTFCodecs.ensureCodecsRegistered()
+
   /** Raw JSON AST per extension name, mirroring the original Java `JsonValue value` (net/mgsx/gltf/data/GLTFExtensions.java:13). Some extensions (notably KHR_lights_punctual) are stored raw and
     * parsed lazily on [[get]], because the very same extension name maps to a different type depending on the call site (GLTFLights at the GLTF root, GLTFLightNode at a node).
     */
@@ -82,9 +90,10 @@ class GLTFExtensions {
 
 object GLTFExtensions {
 
-  /** Registry of decoders that turn a raw [[Json]] AST into a typed extension object, keyed by the target class. Populated by [[sge.gltf.data.GLTFCodecs]] (which owns the jsoniter codecs) so that
-    * [[GLTFExtensions]] need not depend on the codecs object — mirroring the original Java `json.readValue(type, value.get(ext))` reflection (net/mgsx/gltf/data/GLTFExtensions.java:32), but without
-    * runtime reflection so the same code runs on Scala.js and Scala Native.
+  /** Registry of decoders that turn a raw [[Json]] AST into a typed extension object, keyed by the target class. Populated by [[sge.gltf.data.GLTFCodecs]] (which owns the jsoniter codecs) — mirroring
+    * the original Java `json.readValue(type, value.get(ext))` reflection (net/mgsx/gltf/data/GLTFExtensions.java:32), but without runtime reflection so the same code runs on Scala.js and Scala
+    * Native. Per ISS-782(c), `class GLTFExtensions`'s constructor eagerly forces [[sge.gltf.data.GLTFCodecs]] to initialise (via `ensureCodecsRegistered()`), so constructing any instance populates
+    * this registry before [[decode]] can be reached — preventing a silent empty result when nothing else has yet forced the codecs object.
     */
   private val decoders: HashMap[Class[?], Json => AnyRef] = HashMap.empty
 

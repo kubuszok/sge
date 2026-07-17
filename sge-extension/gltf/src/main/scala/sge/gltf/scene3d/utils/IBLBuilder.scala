@@ -93,8 +93,8 @@ class IBLBuilder private (using sge: Sge) extends AutoCloseable {
       gl.glClearColor(0, 0, 0, 0)
       gl.glClear(ClearMask.ColorBufferBit)
       fbo.side.foreach { side =>
-        renderGradientForSide(side, 0)
-        renderLightsForSide(side, false)
+        renderGradient(side, 0)
+        renderLights(side, false)
       }
     }
     fbo.end()
@@ -121,8 +121,8 @@ class IBLBuilder private (using sge: Sge) extends AutoCloseable {
       gl.glClearColor(0, 0, 0, 0)
       gl.glClear(ClearMask.ColorBufferBit)
       fbo.side.foreach { side =>
-        renderGradientForSide(side, 0.5f)
-        renderLightsForSide(side, true)
+        renderGradient(side, 0.5f)
+        renderLights(side, true)
       }
     }
     fbo.end()
@@ -154,8 +154,8 @@ class IBLBuilder private (using sge: Sge) extends AutoCloseable {
         val side = Cubemap.CubemapSide.values(s)
         val blur = level.toFloat / mipMapLevels.toFloat
 
-        renderGradientForSide(side, blur)
-        renderLightsForSide(side, false)
+        renderGradient(side, blur)
+        renderLights(side, false)
 
         maps(index) = Pixmap.createFromFrameBuffer(Pixels.zero, Pixels.zero, Pixels(size), Pixels(size))
         index += 1
@@ -171,7 +171,7 @@ class IBLBuilder private (using sge: Sge) extends AutoCloseable {
     map
   }
 
-  private def renderGradientForSide(side: Cubemap.CubemapSide, blur: Float): Unit = scala.util.boundary {
+  private def renderGradient(side: Cubemap.CubemapSide, blur: Float): Unit = scala.util.boundary {
     if (!renderGradient) scala.util.boundary.break(())
 
     val aveSky     = farSkyColor.cpy().lerp(nearSkyColor, 0.5f)
@@ -202,7 +202,7 @@ class IBLBuilder private (using sge: Sge) extends AutoCloseable {
     shapes.end()
   }
 
-  private def renderLightsForSide(side: Cubemap.CubemapSide, blured: Boolean): Unit = {
+  private def renderLights(side: Cubemap.CubemapSide, blured: Boolean): Unit = {
     val gl = sge.graphics.gl20
     gl.glEnable(EnableCap.Blend)
     gl.glBlendFunc(BlendFactor.SrcAlpha, BlendFactor.One)

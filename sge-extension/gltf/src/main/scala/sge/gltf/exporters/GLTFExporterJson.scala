@@ -31,6 +31,7 @@ import sge.gltf.data.geometry.{ GLTFMesh, GLTFMorphTarget, GLTFPrimitive }
 import sge.gltf.data.material.{ GLTFMaterial, GLTFpbrMetallicRoughness }
 import sge.gltf.data.scene.{ GLTFNode, GLTFScene, GLTFSkin }
 import sge.gltf.data.texture.{ GLTFImage, GLTFNormalTextureInfo, GLTFOcclusionTextureInfo, GLTFSampler, GLTFTexture, GLTFTextureInfo }
+import sge.gltf.loaders.exceptions.GLTFUnsupportedException
 import lowlevel.Nullable
 
 /** Minimal JSON writer for GLTF export. Produces pretty-printed, spec-compliant JSON matching the behavior of LibGDX's Json.prettyPrint with setUsePrototypes(true).
@@ -751,7 +752,18 @@ private[exporters] object GLTFExporterJson {
           writeString(sb, "light"); sb.append(": "); sb.append(l)
         }
         sb.append('\n'); indent(sb, lvl + 1); sb.append('}')
-      case _ => ()
+      case other =>
+        // A KHR_lights_punctual entry whose stored object is neither GLTFLights (root `lights` array)
+        // nor GLTFLightNode (node `light` index) has no serialization form here. Silently dropping it
+        // (the previous `case _ => ()`) would corrupt the exported glTF — the declared extension would
+        // vanish with no diagnostic. Fail loudly to match GLTFCodecs.gltfExtensionsCodec.encodeValue
+        // (GLTFCodecs.scala:350-361), which throws for any typed entry with no registered encoder.
+        throw new GLTFUnsupportedException(
+          "Cannot export GLTF extension \"" + KHRLightsPunctual.EXT + "\": unexpected stored object of type " +
+            other.getClass.getName +
+            ". KHR_lights_punctual must hold a GLTFLights (root `lights` array) or GLTFLightNode (node `light` index); " +
+            "any other type set via GLTFExtensions.set has no serialization form in GLTFExporterJson."
+        )
     }
     sb.append('\n')
     indent(sb, lvl)

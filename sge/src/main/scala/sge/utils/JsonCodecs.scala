@@ -60,6 +60,10 @@ given JsoniterConfig = hearth.kindlings.jsoniterderivation.JsoniterConfig.defaul
 type WriterConfig = com.github.plokhotnyuk.jsoniter_scala.core.WriterConfig
 val WriterConfig: com.github.plokhotnyuk.jsoniter_scala.core.WriterConfig.type = com.github.plokhotnyuk.jsoniter_scala.core.WriterConfig
 
+/** Re-export of jsoniter-scala's `ReaderConfig` for customising JSON parsing. */
+type ReaderConfig = com.github.plokhotnyuk.jsoniter_scala.core.ReaderConfig
+val ReaderConfig: com.github.plokhotnyuk.jsoniter_scala.core.ReaderConfig.type = com.github.plokhotnyuk.jsoniter_scala.core.ReaderConfig
+
 /** Serialize a value to a JSON string. Inline to preserve macro scope for Scala.js. */
 inline def writeToString[A](value: A)(using codec: JsonCodec[A]): String = _writeToString[A](value)(using codec)
 

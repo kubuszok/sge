@@ -16,8 +16,9 @@ package gltf
 package loaders
 package gltf
 
-import com.github.plokhotnyuk.jsoniter_scala.core.{ ReaderConfig, readFromString }
+import com.github.plokhotnyuk.jsoniter_scala.core.readFromString
 
+import sge.utils.ReaderConfig
 import sge.gltf.data.GLTF
 import sge.gltf.data.GLTFCodecs.given
 import sge.gltf.loaders.exceptions.GLTFRuntimeException

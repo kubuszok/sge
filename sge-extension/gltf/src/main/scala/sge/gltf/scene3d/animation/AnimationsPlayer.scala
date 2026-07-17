@@ -46,6 +46,12 @@ class AnimationsPlayer(private val scene: Scene) {
   def removeAnimation(animation: Animation): Unit = {
     var i = controllers.size - 1
     while (i >= 0) {
+      // Idiom: `_.animation.contains(animation)` matches by REFERENCE equality, faithful to the
+      // original `current.animation == animation` (AnimationsPlayer.java:33). Animation (and its
+      // sge.graphics.g3d.model.Animation port) declares no `equals` override, so `contains` on the
+      // Nullable[Animation] falls back to identity — the same instance the caller added is removed,
+      // not a structurally-equal one. Do not give Animation a value-based equals without revisiting
+      // this call site.
       if (controllers(i).current.exists(_.animation.contains(animation))) {
         controllers.removeIndex(i)
       }
