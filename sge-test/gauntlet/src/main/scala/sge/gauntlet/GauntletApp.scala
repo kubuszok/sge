@@ -82,13 +82,18 @@ class GauntletApp(
     c
   }
 
-  /** Runs one phase body, inside the FBO for GPU probes, converting exceptions into an aborting check. */
+  /** Runs one phase body, inside the FBO for GPU probes, converting any throwable into an aborting check.
+    *
+    * Catches `Throwable`, not just `NonFatal` (ISS-796 bounce): linkage errors — `UnsatisfiedLinkError` from a missing native provider, `NoClassDefFoundError` — are `Error`s, and are exactly what a
+    * probe must REPORT as a failing check. An escaped `Error` used to kill the application's main-loop thread, leaving the headless completion latch waiting forever: a crash must be a RED run, never
+    * a hang (see also the [[HeadlessRunner]] crash guard for throwables outside probe phases).
+    */
   private def runPhase(probe: FeatureProbe, phase: String)(body: => Unit): Unit =
     try
       if (probe.requiresGpu) ensureGpu().fbo.use(body)
       else body
     catch {
-      case scala.util.control.NonFatal(e) =>
+      case e: Throwable =>
         ctx.foreach(_.log(s"exception in $phase: $e"))
         e.getStackTrace.take(5).foreach(el => ctx.foreach(_.log(s"  at $el")))
         aborted = Some(Check(s"no-unhandled-exception-in-$phase", passed = false, "no exception", e.toString))
