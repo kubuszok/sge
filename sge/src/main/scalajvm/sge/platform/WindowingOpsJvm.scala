@@ -290,7 +290,7 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
               else readCStr(description)
             appErrorCallback.fold {
               utils.Log.error(s"GLFW error 0x${java.lang.Integer.toHexString(error)}: $message")
-            } { cb => cb(error, message) }
+            }(cb => cb(error, message))
           }
         },
         "invoke",

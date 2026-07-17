@@ -71,8 +71,6 @@ sge-extension/graphs/src/main/scala/sge/graphs/algorithms/DepthFirstSearch.scala
 sge-extension/graphs/src/main/scala/sge/graphs/algorithms/SearchStep.scala	shortcut-drift
 sge-extension/graphs/src/main/scala/sge/graphs/internal/BinaryHeap.scala	shortcut-drift
 sge-extension/graphs/src/main/scala/sge/graphs/internal/NodeMap.scala	shortcut-drift
-sge-extension/jbump/src/main/scala/sge/jbump/World.scala	shortcut-drift
-sge-extension/jbump/src/main/scala/sge/jbump/util/Nullable.scala	shortcut-drift
 sge-extension/screens/src/main/scala/sge/screen/ManagedScreen.scala	shortcut-drift
 sge-extension/screens/src/main/scala/sge/screen/ScreenManager.scala	shortcut-drift
 sge-extension/screens/src/main/scala/sge/screen/transition/ScreenTransition.scala	shortcut-drift

@@ -5,6 +5,7 @@
  */
 package sge
 
+import lowlevel.Nullable
 import sge.platform.WindowingOps
 
 import scala.collection.mutable.ArrayBuffer
@@ -83,11 +84,11 @@ final private[sge] class Iss807OrderingWindowingOps extends WindowingOps {
   private val monitorA:         Long = 100L
 
   // ─── Initialization (ordered) ────────────────────────────────────────
-  override def init():                                            Boolean = { trace += "init"; true }
-  override def setErrorCallback(callback: (Int, String) => Unit): Unit    = { trace += "setErrorCallback"; () }
-  override def setInitHint(hint:          Int, value: Int):       Unit    = { trace += "setInitHint"; () }
-  override def terminate():                                       Unit    = ()
-  override def platform:                                          Int     = WindowingOps.GLFW_PLATFORM_NULL
+  override def init():                                                      Boolean = { trace += "init"; true }
+  override def setErrorCallback(callback: Nullable[(Int, String) => Unit]): Unit    = { trace += "setErrorCallback"; () }
+  override def setInitHint(hint:          Int, value: Int):                 Unit    = { trace += "setInitHint"; () }
+  override def terminate():                                                 Unit    = ()
+  override def platform:                                                    Int     = WindowingOps.GLFW_PLATFORM_NULL
 
   // ─── Window lifecycle ────────────────────────────────────────────────
   override def createWindow(width: Int, height: Int, title: String): Long = {
