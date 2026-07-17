@@ -108,6 +108,12 @@ class ModelInstanceHack(model: Model, rootNodeIds: Nullable[Seq[String]]) extend
             }
             nodeAnim.scaling = Nullable(newScl)
           }
+          // Deviation from ModelInstanceHack.java:70-74 (ISS-632 deviation (1)): the original !shareKeyframes
+          // weights branch reassigns `((NodeAnimationHack)nanim).weights = new Array<>()` — the SOURCE animation's
+          // weights — and then iterates that same, now-empty, array. This is an upstream bug: it wipes the source
+          // keyframes and copies nothing (nodeAnim.weights stays null). Per the project "fix bugs at the source, not
+          // in the port" rule, this port instead copies FROM the source `nah.weights` INTO a fresh `nodeAnim.weights`
+          // and leaves the source intact — the behavior the upstream code clearly intended.
           nanim match {
             case nah: NodeAnimationHack if nah.weights != null => // @nowarn — nullable field
               val newWeights = DynamicArray[NodeKeyframe[WeightVector]]()
@@ -138,9 +144,12 @@ class ModelInstanceHack(model: Model, rootNodeIds: Nullable[Seq[String]]) extend
     super.getRenderable(out, node, nodePart)
     nodePart match {
       case npp: NodePartPlus =>
-        npp.morphTargets.foreach { mt =>
-          out.userData = Nullable(mt.asInstanceOf[AnyRef])
-        }
+        // ModelInstanceHack.java:85-87 — `out.userData = ((NodePartPlus) nodePart).morphTargets;` assigns
+        // UNCONDITIONALLY. super.getRenderable (ModelInstance) has just propagated the instance-level userData
+        // onto `out`; a NodePartPlus with no morph targets must CLEAR it (a null assignment in Java), not leave
+        // the instance userData in place. `.map` preserves emptiness, so an empty morphTargets yields an empty
+        // Nullable — matching the Java null-assignment (ISS-632 deviation (2)).
+        out.userData = npp.morphTargets.map(_.asInstanceOf[Any])
       case _ => ()
     }
     out

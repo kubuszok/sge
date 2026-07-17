@@ -29,7 +29,7 @@ import sge.graphics.g3d.shaders.{ DefaultShader, DepthShader }
 import sge.graphics.g3d.utils.{ DefaultShaderProvider, DepthShaderProvider }
 import sge.graphics.glutils.ShaderProgram
 import lowlevel.Nullable
-import sge.utils.SgeError
+import sge.utils.{ Log, SgeError }
 
 import scala.language.implicitConversions
 
@@ -260,16 +260,16 @@ class PBRShaderProvider(config: PBRShaderConfig)(using sge: Sge)
       vIdx += 1
     }
 
-    if (numBoneInfluence > 8) System.err.println(s"[$TAG] more than 8 bones influence attributes not supported: $numBoneInfluence found.")
-    if (numMorphTarget > PBRCommon.MAX_MORPH_TARGETS) System.err.println(s"[$TAG] more than ${PBRCommon.MAX_MORPH_TARGETS} morph target attributes not supported: $numMorphTarget found.")
-    if (numColor > cfg.numVertexColors) System.err.println(s"[$TAG] more than ${cfg.numVertexColors} color attributes not supported: $numColor found.")
+    if (numBoneInfluence > 8) Log.error(s"[$TAG] more than 8 bones influence attributes not supported: $numBoneInfluence found.")
+    if (numMorphTarget > PBRCommon.MAX_MORPH_TARGETS) Log.error(s"[$TAG] more than ${PBRCommon.MAX_MORPH_TARGETS} morph target attributes not supported: $numMorphTarget found.")
+    if (numColor > cfg.numVertexColors) Log.error(s"[$TAG] more than ${cfg.numVertexColors} color attributes not supported: $numColor found.")
 
     renderable.environment.foreach { env =>
       val lightsInfo = LightUtils.getLightsInfo(LightUtils.LightsInfo(), env)
-      if (lightsInfo.dirLights > cfg.numDirectionalLights) System.err.println(s"[$TAG] too many directional lights detected: ${lightsInfo.dirLights}/${cfg.numDirectionalLights}")
-      if (lightsInfo.pointLights > cfg.numPointLights) System.err.println(s"[$TAG] too many point lights detected: ${lightsInfo.pointLights}/${cfg.numPointLights}")
-      if (lightsInfo.spotLights > cfg.numSpotLights) System.err.println(s"[$TAG] too many spot lights detected: ${lightsInfo.spotLights}/${cfg.numSpotLights}")
-      if (lightsInfo.miscLights > 0) System.err.println(s"[$TAG] unknown type lights not supported.")
+      if (lightsInfo.dirLights > cfg.numDirectionalLights) Log.error(s"[$TAG] too many directional lights detected: ${lightsInfo.dirLights}/${cfg.numDirectionalLights}")
+      if (lightsInfo.pointLights > cfg.numPointLights) Log.error(s"[$TAG] too many point lights detected: ${lightsInfo.pointLights}/${cfg.numPointLights}")
+      if (lightsInfo.spotLights > cfg.numSpotLights) Log.error(s"[$TAG] too many spot lights detected: ${lightsInfo.spotLights}/${cfg.numSpotLights}")
+      if (lightsInfo.miscLights > 0) Log.error(s"[$TAG] unknown type lights not supported.")
     }
 
     PBRCommon.checkVertexAttributes(renderable)
@@ -290,7 +290,7 @@ class PBRShaderProvider(config: PBRShaderConfig)(using sge: Sge)
   protected def checkShaderCompilation(program: ShaderProgram): Unit = {
     val shaderLog = program.log
     if (program.compiled) {
-      if (!shaderLog.isEmpty) System.err.println("[" + TAG + "] Shader compilation warnings:\n" + shaderLog)
+      if (!shaderLog.isEmpty) Log.error("[" + TAG + "] Shader compilation warnings:\n" + shaderLog)
     } else {
       throw SgeError.InvalidInput("Shader compilation failed:\n" + shaderLog)
     }

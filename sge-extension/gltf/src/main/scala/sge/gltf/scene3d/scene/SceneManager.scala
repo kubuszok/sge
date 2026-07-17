@@ -38,9 +38,11 @@ class SceneManager(using sge: Sge) {
 
   private val renderableProviders: DynamicArray[RenderableProvider] = DynamicArray[RenderableProvider]()
 
-  private var batch:              ModelBatch         = scala.compiletime.uninitialized
+  // ISS-782: no-logic getBatch/setBatch and getSkyBox/setSkyBox pairs replaced by public `var`s per the
+  // no-Java-getters/setters rule (a `var` exposes the identical read/assign surface with no accessor noise).
+  var batch:                      ModelBatch         = scala.compiletime.uninitialized
   private var depthBatch:         ModelBatch         = scala.compiletime.uninitialized
-  private var skyBox:             SceneSkybox        = scala.compiletime.uninitialized
+  var skyBox:                     SceneSkybox        = scala.compiletime.uninitialized
   private var transmissionSource: TransmissionSource = scala.compiletime.uninitialized
   private var mirrorSource:       MirrorSource       = scala.compiletime.uninitialized
   private var cascadeShadowMap:   CascadeShadowMap   = scala.compiletime.uninitialized
@@ -88,8 +90,6 @@ class SceneManager(using sge: Sge) {
 
   def removeEnvironmentRotation(): Unit = environment.remove(PBRMatrixAttribute.EnvRotation)
 
-  def getBatch:                              ModelBatch = batch
-  def setBatch(batch:           ModelBatch): Unit       = this.batch = batch
   def setDepthBatch(depthBatch: ModelBatch): Unit       = this.depthBatch = depthBatch
   def getDepthBatch:                         ModelBatch = depthBatch
 
@@ -241,8 +241,9 @@ class SceneManager(using sge: Sge) {
 
   @SuppressWarnings(Array("deprecation"))
   def renderShadows(): Unit = {
-    val shadowLight = getFirstDirectionalShadowLight
-    if (shadowLight != null) { // @nowarn
+    val shadowLightOpt = getFirstDirectionalShadowLight
+    if (shadowLightOpt.isDefined) {
+      val shadowLight = shadowLightOpt.get
       shadowLight.begin()
       renderDepth(shadowLight.getCamera())
       shadowLight.end()
@@ -280,40 +281,33 @@ class SceneManager(using sge: Sge) {
     batch.end()
   }
 
-  def getFirstDirectionalLight: DirectionalLight =
-    environment
-      .getAs[DirectionalLightsAttribute](DirectionalLightsAttribute.Type)
-      .map { dla =>
-        var i = 0
-        var result: DirectionalLight = null.asInstanceOf[DirectionalLight] // @nowarn
-        while (i < dla.lights.size && result == null) {
-          val dl = dla.lights(i)
-          if (dl.isInstanceOf[DirectionalLight]) result = dl
-          i += 1
-        }
-        result
+  // ISS-782: return Nullable instead of raw null (no-null rule). Empty when there is no DirectionalLightsAttribute
+  // or no matching light in it; the first match wins (loop stops once `result` is defined).
+  def getFirstDirectionalLight: Nullable[DirectionalLight] =
+    environment.getAs[DirectionalLightsAttribute](DirectionalLightsAttribute.Type).flatMap { dla =>
+      var i = 0
+      var result: Nullable[DirectionalLight] = Nullable.empty
+      while (i < dla.lights.size && result.isEmpty) {
+        val dl = dla.lights(i)
+        if (dl.isInstanceOf[DirectionalLight]) result = Nullable(dl)
+        i += 1
       }
-      .getOrElse(null.asInstanceOf[DirectionalLight]) // @nowarn
+      result
+    }
 
-  def getFirstDirectionalShadowLight: DirectionalShadowLight =
-    environment
-      .getAs[DirectionalLightsAttribute](DirectionalLightsAttribute.Type)
-      .map { dla =>
-        var i = 0
-        var result: DirectionalShadowLight = null.asInstanceOf[DirectionalShadowLight] // @nowarn
-        while (i < dla.lights.size && result == null) {
-          dla.lights(i) match {
-            case dsl: DirectionalShadowLight => result = dsl
-            case _ => ()
-          }
-          i += 1
+  def getFirstDirectionalShadowLight: Nullable[DirectionalShadowLight] =
+    environment.getAs[DirectionalLightsAttribute](DirectionalLightsAttribute.Type).flatMap { dla =>
+      var i = 0
+      var result: Nullable[DirectionalShadowLight] = Nullable.empty
+      while (i < dla.lights.size && result.isEmpty) {
+        dla.lights(i) match {
+          case dsl: DirectionalShadowLight => result = Nullable(dsl)
+          case _ => ()
         }
-        result
+        i += 1
       }
-      .getOrElse(null.asInstanceOf[DirectionalShadowLight]) // @nowarn
-
-  def setSkyBox(skyBox: SceneSkybox): Unit        = this.skyBox = skyBox
-  def getSkyBox:                      SceneSkybox = skyBox
+      result
+    }
 
   def setAmbientLight(lum: Float): Unit =
     environment.getAs[ColorAttribute](ColorAttribute.AmbientLight).foreach { attr =>

@@ -23,7 +23,7 @@ import sge.graphics.{ EnableCap, GL20 }
 import sge.graphics.g3d.Renderable
 import sge.math.Matrix3
 import lowlevel.Nullable
-import sge.utils.{ BufferUtils, SgeError }
+import sge.utils.{ BufferUtils, Log, SgeError }
 
 import scala.util.boundary
 import scala.util.boundary.break
@@ -66,7 +66,8 @@ object PBRCommon {
           supported
         }
       if (!seamlessCubemapsSupported) {
-        System.err.println("[PBR] Warning seamless CubeMap is not supported by this platform and may cause filtering artifacts")
+        // PBRCommon.java:52 — `Gdx.app.error("PBR", ...)`; route through the project Log (ISS-782).
+        Log.error("[PBR] Warning seamless CubeMap is not supported by this platform and may cause filtering artifacts")
       }
     }
     seamlessCubemapsShouldBeEnabled.foreach { enabled =>

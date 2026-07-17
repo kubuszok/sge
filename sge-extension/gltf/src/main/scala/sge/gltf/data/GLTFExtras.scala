@@ -15,6 +15,8 @@ package sge
 package gltf
 package data
 
+import scala.collection.mutable.ArrayBuffer
+
 import lowlevel.Nullable
 import sge.utils.Json
 
@@ -25,4 +27,31 @@ class GLTFExtras {
 
   /** The raw JSON value of the "extras" field. */
   var value: Nullable[Json] = Nullable.empty
+
+  /** A new array of extra properties keys.
+    *
+    * GLTFExtras.java:25-31 iterates `value.child`/`entry.next` and collects each `entry.name`. Here `value` is the parsed JSON AST, so the extra-property names are the member keys of the enclosing
+    * JSON object (a non-object or empty `value` yields an empty array — mirroring a JsonValue whose `child` is null).
+    */
+  def keys: ArrayBuffer[String] = {
+    val result = ArrayBuffer.empty[String]
+    value.foreach {
+      case Json.Obj(obj) => obj.fields.foreach { case (name, _) => result += name }
+      case _             => ()
+    }
+    result
+  }
+
+  /** A new array of extra properties.
+    *
+    * GLTFExtras.java:33-42 iterates `value.child`/`entry.next` and collects each `entry` JsonValue. Here that is the member values of the enclosing JSON object.
+    */
+  def entries: ArrayBuffer[Json] = {
+    val result = ArrayBuffer.empty[Json]
+    value.foreach {
+      case Json.Obj(obj) => obj.fields.foreach { case (_, v) => result += v }
+      case _             => ()
+    }
+    result
+  }
 }

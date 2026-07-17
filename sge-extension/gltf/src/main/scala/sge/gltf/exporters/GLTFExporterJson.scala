@@ -730,17 +730,28 @@ private[exporters] object GLTFExporterJson {
       first = comma(sb, first); key(sb, KHRMaterialsEmissiveStrength.EXT, lvl + 1)
       sb.append("{\n"); indent(sb, lvl + 2); writeString(sb, "emissiveStrength"); sb.append(": "); writeFloat(sb, e.emissiveStrength); sb.append('\n'); indent(sb, lvl + 1); sb.append('}')
     }
-    ext.get(classOf[GLTFLights], KHRLightsPunctual.EXT).foreach { lights =>
-      first = comma(sb, first); key(sb, KHRLightsPunctual.EXT, lvl + 1)
-      writeLights(sb, lights, lvl + 1)
-    }
-    ext.get(classOf[GLTFLightNode], KHRLightsPunctual.EXT).foreach { ln =>
-      first = comma(sb, first); key(sb, KHRLightsPunctual.EXT, lvl + 1)
-      sb.append("{\n"); indent(sb, lvl + 2)
-      ln.light.foreach { l =>
-        writeString(sb, "light"); sb.append(": "); sb.append(l)
-      }
-      sb.append('\n'); indent(sb, lvl + 1); sb.append('}')
+    // KHR_lights_punctual is the one extension name that resolves to two unrelated types: GLTFLights (a
+    // `lights` array) at the GLTF root, GLTFLightNode (a `light` index) at a node — GLTFLightExporter stores
+    // each typed object under the SAME EXT name (GLTFLightExporter.scala:44-66,
+    // net/mgsx/gltf/exporters/GLTFLightExporter.java:44-60). The previous code get()-ed the same stored object
+    // back-to-back under BOTH types; GLTFExtensions.get returns a cached typed entry unchecked-cast to the
+    // requested type (GLTFExtensions.scala:41-43), so the second get handed the first branch's object to
+    // writeLights / ln.light and the JVM CHECKCAST threw ClassCastException (ISS-625). Dispatch on the stored
+    // object's ACTUAL runtime type instead, mirroring GLTFCodecs.gltfExtensionsCodec (GLTFCodecs.scala:347-348).
+    // get(classOf[AnyRef], ...) returns a typed entry as-is (no wrong-type decode can be forced) and yields
+    // nothing for an unparsed raw entry, since no AnyRef decoder is registered.
+    ext.get(classOf[AnyRef], KHRLightsPunctual.EXT).foreach {
+      case lights: GLTFLights =>
+        first = comma(sb, first); key(sb, KHRLightsPunctual.EXT, lvl + 1)
+        writeLights(sb, lights, lvl + 1)
+      case ln: GLTFLightNode =>
+        first = comma(sb, first); key(sb, KHRLightsPunctual.EXT, lvl + 1)
+        sb.append("{\n"); indent(sb, lvl + 2)
+        ln.light.foreach { l =>
+          writeString(sb, "light"); sb.append(": "); sb.append(l)
+        }
+        sb.append('\n'); indent(sb, lvl + 1); sb.append('}')
+      case _ => ()
     }
     sb.append('\n')
     indent(sb, lvl)

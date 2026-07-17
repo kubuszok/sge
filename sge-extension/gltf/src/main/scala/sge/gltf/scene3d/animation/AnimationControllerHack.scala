@@ -46,16 +46,22 @@ class AnimationControllerHack(target: ModelInstance) extends AnimationController
   private var applying:    Boolean = false
   var calculateTransforms: Boolean = true
 
+  /** Begin applying multiple animations to the instance, must be followed by one or more calls to [[apply]] and finally [[end]]. */
   override protected def begin(): Unit = {
     if (applying) throw SgeError.InvalidInput("You must call end() after each call to begin()")
     applying = true
   }
 
+  /** Apply an animation, must be called between [[begin]] and [[end]].
+    * @param weight
+    *   The blend weight of this animation relative to the previous applied animations.
+    */
   override protected def apply(animation: Animation, time: Seconds, weight: Float): Unit = {
     if (!applying) throw SgeError.InvalidInput("You must call begin() before adding an animation")
     applyAnimationPlus(transforms, transformPool, weight, animation, time.toFloat)
   }
 
+  /** End applying multiple animations to the instance and update it to reflect the changes. */
   override protected def end(): Unit = {
     if (!applying) throw SgeError.InvalidInput("You must call begin() first")
     transforms.foreachEntry { (key, value) =>
@@ -67,12 +73,14 @@ class AnimationControllerHack(target: ModelInstance) extends AnimationController
     applying = false
   }
 
+  /** Apply a single animation to the [[sge.graphics.g3d.ModelInstance]] and update the it to reflect the changes. */
   override protected def applyAnimation(animation: Animation, time: Seconds): Unit = {
     if (applying) throw SgeError.InvalidInput("Call end() first")
     applyAnimationPlus(null, null, 1f, animation, time.toFloat) // @nowarn — null means direct apply (no blending)
     if (calculateTransforms) target.calculateTransforms()
   }
 
+  /** Apply two animations, blending the second onto to first using weight. */
   override protected def applyAnimations(anim1: Nullable[Animation], time1: Seconds, anim2: Nullable[Animation], time2: Seconds, weight: Float): Unit =
     if (anim2.isEmpty || weight == 0f) {
       anim1.foreach(a => applyAnimation(a, time1))
@@ -225,7 +233,12 @@ object AnimationControllerHack {
   private val q3: Quaternion = Quaternion()
   private val q4: Quaternion = Quaternion()
 
+  /** https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#appendix-c-spline-interpolation
+    *
+    * https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/6a862d2607fb47ac48f54786b04e40be2ad866a4/src/interpolator.js
+    */
   private def cubicQ(out: Quaternion, t: Float, delta: Float, p0: Quaternion, m0: Quaternion, p1: Quaternion, m1: Quaternion): Unit = {
+    // XXX not good, see https://github.com/KhronosGroup/glTF-Sample-Viewer/blob/master/src/interpolator.js#L42
     val d  = -delta
     val t2 = t * t
     val t3 = t2 * t

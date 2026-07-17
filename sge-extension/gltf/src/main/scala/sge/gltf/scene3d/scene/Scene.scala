@@ -17,6 +17,9 @@ package gltf
 package scene3d
 package scene
 
+import scala.util.boundary
+import scala.util.boundary.break
+
 import sge.gltf.scene3d.animation.{ AnimationControllerHack, AnimationsPlayer }
 import sge.gltf.scene3d.lights.{ DirectionalLightEx, PointLightEx, SpotLightEx }
 import sge.gltf.scene3d.model.ModelInstanceHack
@@ -154,20 +157,22 @@ class Scene(
       }
     }
 
-  def getCamera(name: String): Nullable[Camera] = {
-    var result: Nullable[Camera] = Nullable.empty
+  // Scene.java:174-181 — getCamera returns the value of the FIRST entry whose node id matches and stops
+  // (`return e.value`). The map iteration order is preserved by boundary/break here: the original stops on the
+  // first match, so with two entries sharing an id the head (in iteration order) wins, not the last (ISS-628).
+  def getCamera(name: String): Nullable[Camera] = boundary {
     cameras.foreachEntry { (node, camera) =>
-      if (name == node.id) result = Nullable(camera)
+      if (name == node.id) break(Nullable(camera))
     }
-    result
+    Nullable.empty
   }
 
-  def getLight(name: String): Nullable[BaseLight[?]] = {
-    var result: Nullable[BaseLight[?]] = Nullable.empty
+  // Scene.java:183-190 — getLight likewise returns the FIRST matching entry and stops.
+  def getLight(name: String): Nullable[BaseLight[?]] = boundary {
     lights.foreachEntry { (node, light) =>
-      if (name == node.id) result = Nullable(light)
+      if (name == node.id) break(Nullable(light))
     }
-    result
+    Nullable.empty
   }
 
   def getDirectionalLightCount: Int = {

@@ -58,21 +58,16 @@ class SceneRenderableSorter extends RenderableSorter with Comparator[Renderable]
     val b2 = o2.material.exists(_.has(BlendingAttribute.Type)) &&
       o2.material.flatMap(_.getAs[BlendingAttribute](BlendingAttribute.Type)).exists(_.blended)
 
-    val h1 = o1.userData match {
-      case h: Nullable.Impl[?] =>
-        h.fold(null: SceneRenderableSorter.Hints) {
-          case hh: SceneRenderableSorter.Hints => hh
-          case _ => null // @nowarn
-        }
-      case _ => null // @nowarn — no hint
+    // ISS-782: fold over the public Nullable API instead of matching the lls-internal Nullable.Impl. userData is a
+    // Nullable[Any]; an empty one (or a value that is not a Hints) yields the `null` sentinel the identity/equality
+    // comparisons below expect (matching the Java `Object userData` null semantics, SceneRenderableSorter.java).
+    val h1 = o1.userData.fold(null: SceneRenderableSorter.Hints) {
+      case hh: SceneRenderableSorter.Hints => hh
+      case _ => null // @nowarn — not a hint
     }
-    val h2 = o2.userData match {
-      case h: Nullable.Impl[?] =>
-        h.fold(null: SceneRenderableSorter.Hints) {
-          case hh: SceneRenderableSorter.Hints => hh
-          case _ => null // @nowarn
-        }
-      case _ => null // @nowarn — no hint
+    val h2 = o2.userData.fold(null: SceneRenderableSorter.Hints) {
+      case hh: SceneRenderableSorter.Hints => hh
+      case _ => null // @nowarn — not a hint
     }
 
     if (h1 ne h2) { // @nowarn — identity comparison

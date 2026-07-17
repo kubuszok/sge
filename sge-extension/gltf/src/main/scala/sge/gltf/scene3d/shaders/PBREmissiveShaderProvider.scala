@@ -73,7 +73,15 @@ object PBREmissiveShaderProvider {
     // (the modern upstream vertex stage is pbr.vs.glsl). Per the orchestrator's adjudication, the bundle ships
     // sge/gltf/shaders/gdx-pbr.vs.glsl as a byte-identical copy of sge/gltf/shaders/pbr/pbr.vs.glsl so the
     // historical emissive vertex stage resolves. Remaining paths are re-pointed from net/mgsx/... to sge/gltf/...
-    config.vertexShader = Nullable(sge.files.classpath("sge/gltf/shaders/gdx-pbr.vs.glsl").readString())
+    // ISS-605: that gdx-pbr.vs.glsl copy inherits `#include <compat.vs.glsl>` (pbr.vs.glsl:3) from its source, so
+    // a raw readString() would hand the GPU an unexpanded `#include` directive that no GLSL compiler accepts.
+    // ShaderParser resolves includes relative to the DECLARING file's directory (ShaderParser.parse via
+    // FileHandle.sibling), and compat.vs.glsl lives under sge/gltf/shaders/pbr/ — not beside the bundle-root
+    // gdx-pbr.vs.glsl copy — so parsing the copy in place would fail to resolve the include anyway. Route the
+    // vertex stage through PBRShaderProvider.getDefaultVertexShader(), which runs ShaderParser on the
+    // byte-identical source sge/gltf/shaders/pbr/pbr.vs.glsl with the include correctly expanded, exactly as the
+    // sibling default/depth providers load their own vertex stages.
+    config.vertexShader = Nullable(PBRShaderProvider.getDefaultVertexShader())
     config.fragmentShader = Nullable(sge.files.classpath("sge/gltf/shaders/emissive-only.fs.glsl").readString())
     config
   }
