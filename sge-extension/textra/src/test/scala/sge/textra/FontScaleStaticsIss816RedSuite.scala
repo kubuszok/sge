@@ -32,6 +32,14 @@
 package sge
 package textra
 
+import scala.annotation.nowarn
+
+// ISS-837: the three shims (Font.extractScale/extractIntScale/applyScale) regained their
+// @deprecated annotation to mirror upstream @Deprecated (Font.java:8184/8200/8216). These frozen
+// ISS-816 call sites invoke them without per-call @nowarn, so under -deprecation -Werror they now
+// warn; the class-level suppression below keeps the suite compiling. Annotation-only exception to
+// the frozen-suite rule — every assertion and test body stays byte-identical.
+@nowarn("cat=deprecation")
 class FontScaleStaticsIss816RedSuite extends munit.FunSuite {
 
   test("ISS-816: Font.extractScale(glyph) exists and always returns 1f (upstream Font.java:8185-8187)") {
