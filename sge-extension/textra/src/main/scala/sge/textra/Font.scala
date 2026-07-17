@@ -196,6 +196,9 @@ class Font {
   /** The parent TextureRegions that GlyphRegion images are drawn from (font atlas pages). */
   var parents: ArrayBuffer[sge.graphics.g2d.TextureRegion] = ArrayBuffer.empty
 
+  /** The most recently drawn glyph texture; used by drawGlyph to switch the distance-field shader only when the texture changes (upstream Font.java latestTexture). */
+  private var latestTexture: sge.graphics.Texture = scala.compiletime.uninitialized
+
   /** Distance field shader for SDF/MSDF fonts; null for standard fonts. */
   var shader: Nullable[sge.graphics.glutils.ShaderProgram] = Nullable.empty
 
@@ -2474,6 +2477,25 @@ class Font {
 
     val tr = font.mapping.getOrElse(c.toInt, null)
     if (tr == null) scala.util.boundary.break(0f)
+
+    // When the glyph's texture changes, switch the distance-field shader: if the
+    // new texture belongs to one of this font's parent atlas pages, resume the
+    // distance-field shader; otherwise pause it (draw with the default shader).
+    val prevLatest = latestTexture
+    latestTexture = tr.texture
+    if (prevLatest ne latestTexture) {
+      var located = false
+      var p       = 0
+      while (p < font.parents.size && !located) {
+        if (font.parents(p).texture eq latestTexture) {
+          font.resumeDistanceFieldShader(batch)
+          located = true
+        }
+        p += 1
+      }
+      if (!located)
+        font.pauseDistanceFieldShader(batch)
+    }
 
     if (squashed) sizingY *= 0.75f
 
