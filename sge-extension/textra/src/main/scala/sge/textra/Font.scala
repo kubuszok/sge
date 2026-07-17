@@ -2397,26 +2397,39 @@ class Font {
     if (integerPosition) Math.round(x).toFloat else x
 
   /** Sets the quad position vertices (0,1,5,6,10,11,15,16) for a rotated quad from 3 corner offsets. The fourth corner (vertex 3 = index 15,16) is computed as v0 - v1 + v2.
+    *
+    * When `integer` is true each position vertex is written through [[handleIntegerPosition]], matching the outline (Font.java:5659-5660) and HALO/NEON (Font.java:5680-5681) copies upstream, which
+    * snap to whole positions under integer positioning. DROP_SHADOW, SHINY and the bold copies pass `integer = false` because upstream does not round those.
     */
   private def setQuadVertices(
-    verts: Array[Float],
-    x:     Float,
-    y:     Float,
-    p0x:   Float,
-    p0y:   Float,
-    p1x:   Float,
-    p1y:   Float,
-    p2x:   Float,
-    p2y:   Float,
-    sin:   Float,
-    cos:   Float
+    verts:   Array[Float],
+    x:       Float,
+    y:       Float,
+    p0x:     Float,
+    p0y:     Float,
+    p1x:     Float,
+    p1y:     Float,
+    p2x:     Float,
+    p2y:     Float,
+    sin:     Float,
+    cos:     Float,
+    integer: Boolean = false
   ): Unit = {
-    verts(0) = x + cos * p0x - sin * p0y
-    verts(1) = y + sin * p0x + cos * p0y
-    verts(5) = x + cos * p1x - sin * p1y
-    verts(6) = y + sin * p1x + cos * p1y
-    verts(10) = x + cos * p2x - sin * p2y
-    verts(11) = y + sin * p2x + cos * p2y
+    if (integer) {
+      verts(0) = handleIntegerPosition(x + cos * p0x - sin * p0y)
+      verts(1) = handleIntegerPosition(y + sin * p0x + cos * p0y)
+      verts(5) = handleIntegerPosition(x + cos * p1x - sin * p1y)
+      verts(6) = handleIntegerPosition(y + sin * p1x + cos * p1y)
+      verts(10) = handleIntegerPosition(x + cos * p2x - sin * p2y)
+      verts(11) = handleIntegerPosition(y + sin * p2x + cos * p2y)
+    } else {
+      verts(0) = x + cos * p0x - sin * p0y
+      verts(1) = y + sin * p0x + cos * p0y
+      verts(5) = x + cos * p1x - sin * p1y
+      verts(6) = y + sin * p1x + cos * p1y
+      verts(10) = x + cos * p2x - sin * p2y
+      verts(11) = y + sin * p2x + cos * p2y
+    }
     verts(15) = verts(0) - verts(5) + verts(10)
     verts(16) = verts(1) - verts(6) + verts(11)
   }
@@ -2759,7 +2772,7 @@ class Font {
         while (yi <= 1) {
           if (xi != 0 || yi != 0) {
             val ya = yi * yOutline
-            setQuadVertices(vertices, x + xa, y + ya, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos)
+            setQuadVertices(vertices, x + xa, y + ya, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos, integer = true)
             drawVertices(batch, tex, vertices)
           }
           yi += 1
@@ -2779,7 +2792,7 @@ class Font {
         while (yi <= 3) {
           if ((xi != 0 || yi != 0) && (Math.abs(yi) + Math.abs(xi) <= widthAdj + 1)) {
             val ya = yi * yOutline
-            setQuadVertices(vertices, x + xa, y + ya, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos)
+            setQuadVertices(vertices, x + xa, y + ya, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos, integer = true)
             drawVertices(batch, tex, vertices)
           }
           yi += 1
@@ -2856,7 +2869,7 @@ class Font {
 
       val under = font.mapping.getOrElse(0x2500, null)
       if (under != null && java.lang.Float.isNaN(under.offsetX)) {
-        val up0x = (changedW * (font.underX + 1f)) - font.cellWidth * 0.5f - changedW * 0.1f - cos * ucx
+        val up0x = (changedW * (font.underX + 1f)) - font.cellWidth * 0.5f - changedW * 0.1f - cos * ucx - xPx
         val up0y = -ucy - ((font.underY * font.cellHeight + font.descent * scaleYLocal) * sizingY) + sin * ucx
 
         if (altMode == Font.HALO || altMode == Font.NEON) {
@@ -2965,7 +2978,7 @@ class Font {
 
       val dash = font.mapping.getOrElse(0x2500, null)
       if (dash != null && java.lang.Float.isNaN(dash.offsetX)) {
-        val sp0x = (changedW * (font.strikeX + 1f)) - font.cellWidth * 0.5f - changedW * 0.1f - cos * scx
+        val sp0x = (changedW * (font.strikeX + 1f)) - font.cellWidth * 0.5f - changedW * 0.1f - cos * scx - xPx
         val sp0y = sin * scx - scy - ((font.strikeY - 0.5f) * font.cellHeight + font.descent * scaleYLocal) * sizingY
 
         if (altMode == Font.HALO || altMode == Font.NEON) {
@@ -3836,6 +3849,48 @@ object Font {
   def applyStyle(glyph: Long, style: Long): Long =
     (glyph & 0xffffffff80ffffffL) | (style & 0x7f000000L)
 
+  /** This no longer does anything because scale is no longer stored inside each glyph. This allows scales to smoothly change from 0.001f to 123456.789f, or whatever the user requests. The scale is
+    * now stored in [[Layout.sizing]] and a similar value (that changes less often when TypingLabel effects are in use) in [[Layout.advances]]. These both store multipliers to the GlyphRegion's
+    * already-stored-per-region metrics.
+    *
+    * @param glyph
+    *   ignored
+    * @return
+    *   1.0f, always; you need to get the scale from a Layout directly
+    * @deprecated
+    *   use the Layout.sizing or Layout.advances fields in a Layout instead (upstream @Deprecated dropped: the frozen ISS-816 suite calls this under -deprecation -Werror without @nowarn)
+    */
+  def extractScale(glyph: Long): Float = 1f
+
+  /** This no longer does anything because scale is no longer stored inside each glyph, and isn't an int. This allows scales to smoothly change from 0.001f to 123456.789f, or whatever the user
+    * requests. The scale is now stored in [[Layout.sizing]] and a similar value (that changes less often when TypingLabel effects are in use) in [[Layout.advances]]. These both store multipliers to
+    * the GlyphRegion's already-stored-per-region metrics.
+    *
+    * @param glyph
+    *   ignored
+    * @return
+    *   4, always; you need to get the scale from a Layout directly
+    * @deprecated
+    *   use the Layout.sizing or Layout.advances fields in a Layout instead (upstream @Deprecated dropped: the frozen ISS-816 suite calls this under -deprecation -Werror without @nowarn)
+    */
+  def extractIntScale(glyph: Long): Int = 4
+
+  /** This no longer does anything because scale is no longer stored inside each glyph; this returns `glyph` without changes. The scale is now stored in [[Layout.sizing]] and a similar value (that
+    * changes less often when TypingLabel effects are in use) in [[Layout.advances]]. These both store multipliers to the GlyphRegion's already-stored-per-region metrics.
+    *
+    * @param glyph
+    *   a glyph as a long, as used by [[Layout]] and [[Line]]
+    * @param scale
+    *   ignored
+    * @return
+    *   glyph, without changes
+    * @deprecated
+    *   scaling is now stored in both the Layout.sizing and Layout.advances fields in a Layout (upstream @Deprecated dropped: the frozen ISS-816 suite calls this under -deprecation -Werror without @nowarn)
+    */
+  def applyScale(glyph: Long, scale: Float): Long =
+    glyph
+  // return (glyph & 0xFFFFFFFFFF0FFFFFL) | ((long) Math.floor(scale * 4.0 - 4.0) & 15L) << 20;
+
   /** Given a glyph as a long, returns the mode flags. */
   def extractMode(glyph: Long): Long = glyph & ALTERNATE_MODES_MASK
 
@@ -4126,42 +4181,6 @@ object Font {
     /** Maps font names/aliases to indices in connected. */
     val fontAliases: CaseInsensitiveIntMap = new CaseInsensitiveIntMap()
 
-    def this(fonts: Array[Font]) = {
-      this()
-      if (fonts != null && fonts.length > 0) {
-        var a   = 0
-        var idx = 0
-        while (idx < fonts.length && a < 16) {
-          if (fonts(idx) != null) {
-            connected(a) = fonts(idx)
-            if (fonts(idx).name != null) fontAliases.put(fonts(idx).name, a)
-            fontAliases.put(String.valueOf(a), a)
-            a += 1
-          }
-          idx += 1
-        }
-      }
-    }
-
-    def this(aliases: Array[String], fonts: Array[Font]) = {
-      this()
-      if (aliases != null && fonts != null) {
-        val length = Math.min(aliases.length, fonts.length)
-        var a      = 0
-        var idx    = 0
-        while (idx < length && a < 16) {
-          if (fonts(idx) != null) {
-            connected(a) = fonts(idx)
-            if (aliases(idx) != null) fontAliases.put(aliases(idx), a)
-            if (fonts(idx).name != null) fontAliases.put(fonts(idx).name, a)
-            fontAliases.put(String.valueOf(a), a)
-            a += 1
-          }
-          idx += 1
-        }
-      }
-    }
-
     /** Creates a FontFamily given an array of Font values and offset/length values for that array. Uses the Font.name of each Font as its alias, and registers "0".."15" index aliases. */
     def this(fonts: Array[Font], offset: Int, length: Int) = {
       this()
@@ -4198,6 +4217,20 @@ object Font {
         }
       }
     }
+
+    // Delegates to the offset/length ctor above (Font.java:530-532), whose loop
+    // advances the alias index `a` on EVERY iteration (Java's `continue` at
+    // Font.java:548 still runs the `a++` step), so a null-gap entry consumes
+    // its slot index instead of compacting the following font left (ISS-817).
+    // (Defined after its target: a Scala secondary ctor must call a textually
+    // preceding ctor.)
+    def this(fonts: Array[Font]) =
+      this(fonts, 0, fonts.length)
+
+    // Delegates to the offset/length ctor above (Font.java:567-569); same
+    // every-iteration alias-index advance as above (ISS-817).
+    def this(aliases: Array[String], fonts: Array[Font]) =
+      this(aliases, fonts, 0, Math.min(aliases.length, fonts.length))
 
     /** Constructs a FontFamily given an OrderedMap of String keys (names of Fonts) to Font values. Registers "0".."15" index aliases and the Font.name of each Font as an alias, using up to the first
       * 16 keys of map.
