@@ -2424,21 +2424,21 @@ class Font {
     * @return
     *   the distance in world units the drawn glyph uses up for width
     */
-  def drawGlyph(batch: sge.graphics.g2d.Batch, glyph: Long, x: Float, y: Float): Float =
+  def drawGlyph(batch: sge.graphics.g2d.Batch, glyph: Long, x: Float, y: Float)(using Sge): Float =
     drawGlyph(batch, glyph, x, y, 0f, 1f, 1f, 0, 1f)
 
   /** Draws the specified glyph with rotation.
     * @return
     *   the distance in world units the drawn glyph uses up for width
     */
-  def drawGlyph(batch: sge.graphics.g2d.Batch, glyph: Long, x: Float, y: Float, rotation: Float): Float =
+  def drawGlyph(batch: sge.graphics.g2d.Batch, glyph: Long, x: Float, y: Float, rotation: Float)(using Sge): Float =
     drawGlyph(batch, glyph, x, y, rotation, 1f, 1f, 0, 1f)
 
   /** Draws the specified glyph with rotation and sizing.
     * @return
     *   the distance in world units the drawn glyph uses up for width
     */
-  def drawGlyph(batch: sge.graphics.g2d.Batch, glyph: Long, x: Float, y: Float, rotation: Float, sizingX: Float, sizingY: Float): Float =
+  def drawGlyph(batch: sge.graphics.g2d.Batch, glyph: Long, x: Float, y: Float, rotation: Float, sizingX: Float, sizingY: Float)(using Sge): Float =
     drawGlyph(batch, glyph, x, y, rotation, sizingX, sizingY, 0, 1f)
 
   /** Draws the specified glyph with full parameters: position, rotation, sizing, background color, and advance multiplier. This is the core glyph rendering method.
@@ -2455,7 +2455,7 @@ class Font {
     sizingYIn:         Float,
     backgroundColor:   Int,
     advanceMultiplier: Float
-  ): Float = scala.util.boundary {
+  )(using Sge): Float = scala.util.boundary {
     var glyph   = glyphIn
     val sizingX = sizingXIn
     var sizingY = sizingYIn
@@ -2636,8 +2636,8 @@ class Font {
     val iw = 1f / tex.width.toFloat
 
     // Approximate pixel sizes from projection matrix (used for underline/strikethrough and fancy lines)
-    val xPx = 2f / Math.max(1f, batch.projectionMatrix.values(0) * 960f)
-    val yPx = 2f / Math.max(1f, batch.projectionMatrix.values(5) * 540f)
+    val xPx = 2f / (Sge().graphics.backBufferWidth.toFloat * batch.projectionMatrix.values(0))
+    val yPx = 2f / (Sge().graphics.backBufferHeight.toFloat * batch.projectionMatrix.values(5))
 
     val scaledHeight = font.cellHeight * scale * sizingY
     var x0           = 0f; var x1 = 0f; var x2 = 0f
@@ -3084,14 +3084,14 @@ class Font {
     * @return
     *   the width of the widest line drawn
     */
-  def drawGlyphs(batch: sge.graphics.g2d.Batch, layout: Layout, x: Float, y: Float): Float =
+  def drawGlyphs(batch: sge.graphics.g2d.Batch, layout: Layout, x: Float, y: Float)(using Sge): Float =
     drawGlyphs(batch, layout, x, y, sge.utils.Align.left)
 
   /** Draws an entire Layout of text at the given position with alignment (Align.left, center, right, etc.).
     * @return
     *   the width of the widest line drawn
     */
-  def drawGlyphs(batch: sge.graphics.g2d.Batch, layout: Layout, x: Float, y: Float, align: sge.utils.Align): Float =
+  def drawGlyphs(batch: sge.graphics.g2d.Batch, layout: Layout, x: Float, y: Float, align: sge.utils.Align)(using Sge): Float =
     drawGlyphs(batch, layout, x, y, align, 0f, 0f, 0f)
 
   /** Draws the specified Layout of glyphs with a Batch at a given x, y position, rotated using degrees around the given origin point, using `align` to determine how to position the text. Typically,
@@ -3125,7 +3125,7 @@ class Font {
     rotation: Float,
     originX:  Float,
     originY:  Float
-  ): Float = {
+  )(using Sge): Float = {
     if (layout == null || layout.countGlyphs == 0) 0f // @nowarn — null check matches original
     else {
       var drawn = 0f
@@ -3265,7 +3265,7 @@ class Font {
   }
 
   /** Draws markup text at the given x,y position. Parses markup, draws, and returns width. */
-  def drawMarkupText(batch: sge.graphics.g2d.Batch, text: String, x: Float, y: Float): Float = {
+  def drawMarkupText(batch: sge.graphics.g2d.Batch, text: String, x: Float, y: Float)(using Sge): Float = {
     tempLayout.clear()
     tempLayout.font = Nullable(this)
     tempLayout.setBaseColor(batch.color)
@@ -3274,7 +3274,7 @@ class Font {
   }
 
   /** Draws markup text at the given x,y position with alignment. */
-  def drawMarkupText(batch: sge.graphics.g2d.Batch, text: String, x: Float, y: Float, align: sge.utils.Align, targetWidth: Float): Float = {
+  def drawMarkupText(batch: sge.graphics.g2d.Batch, text: String, x: Float, y: Float, align: sge.utils.Align, targetWidth: Float)(using Sge): Float = {
     tempLayout.clear()
     tempLayout.font = Nullable(this)
     tempLayout.setTargetWidth(targetWidth)
