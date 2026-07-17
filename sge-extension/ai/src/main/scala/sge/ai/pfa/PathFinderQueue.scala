@@ -83,14 +83,27 @@ class PathFinderQueue[N](
   }
 
   override def handleMessage(msg: Telegram): Boolean = {
-    msg.extraInfo.foreach { info =>
-      val pfr = info.asInstanceOf[PathFinderRequest[N]]
-      pfr.client = msg.sender // set the client to be notified once the request has completed (empty when broadcast)
-      pfr.status = PathFinderRequest.SEARCH_NEW // Reset status
-      pfr.statusChanged = true // Status has just changed
-      pfr.executionFrames = 0 // Reset execution frames counter
-      requestQueue.store(pfr)
-    }
+    // PathFinderQueue.java:74-75 — `PathFinderRequest<N> pfr = (PathFinderRequest<N>)telegram.extraInfo;`
+    // then `pfr.client = telegram.sender;` dereferences extraInfo UNCONDITIONALLY. A telegram carrying no
+    // request payload is a protocol error; the original fails fast (NPE on the deref). We surface the same
+    // fail-fast with a named condition instead of silently swallowing the malformed telegram (ISS-730 c4
+    // ruling, wave-F).
+    //
+    // Deviation: the c4 ruling nominated SgeError.InvalidInput, but the frozen red suite
+    // (PathFinderQueueExtraInfoIss730RedSuite) pins `intercept[NullPointerException]`; SgeError extends
+    // Exception (not NPE) and lives outside this territory. The faithful unconditional deref throws
+    // NullPointerException, matching both upstream behavior and the red contract (whose own doc prescribes
+    // `extraInfo.get`).
+    if (msg.extraInfo.isEmpty)
+      throw new NullPointerException(
+        "payload-less telegram delivered to PathFinderQueue.handleMessage: extraInfo carried no PathFinderRequest"
+      )
+    val pfr = msg.extraInfo.get.asInstanceOf[PathFinderRequest[N]]
+    pfr.client = msg.sender // set the client to be notified once the request has completed (empty when broadcast)
+    pfr.status = PathFinderRequest.SEARCH_NEW // Reset status
+    pfr.statusChanged = true // Status has just changed
+    pfr.executionFrames = 0 // Reset execution frames counter
+    requestQueue.store(pfr)
     true
   }
 

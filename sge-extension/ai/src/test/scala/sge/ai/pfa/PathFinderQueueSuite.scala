@@ -125,8 +125,14 @@ class PathFinderQueueSuite extends munit.FunSuite {
     val pf    = new ImmediatePathFinder()
     val queue = new PathFinderQueue[Int](pf, new DefaultTimepiece())
 
-    val telegram = makeTelegram()
-    val result   = queue.handleMessage(telegram)
+    val request  = new PathFinderRequest[Int]()
+    val client   = new SimpleClient()
+    val telegram = makeTelegram(
+      sender = Nullable(client),
+      receiver = Nullable(queue),
+      extraInfo = Nullable(request)
+    )
+    val result = queue.handleMessage(telegram)
     assert(result, "handleMessage should return true")
   }
 
@@ -193,12 +199,16 @@ class PathFinderQueueSuite extends munit.FunSuite {
     assert(!pf.searchCalled, "search should not be called when queue is empty")
   }
 
-  test("telegram without extraInfo does not add to queue") {
+  test("payload-less telegram fails fast (ISS-730 c4) and enqueues nothing") {
     val pf    = new ImmediatePathFinder()
     val queue = new PathFinderQueue[Int](pf, new DefaultTimepiece())
 
     val telegram = makeTelegram()
-    queue.handleMessage(telegram)
+    // PathFinderQueue.java:74-75 dereferences telegram.extraInfo unconditionally; a payload-less
+    // telegram is a protocol error and fails fast (NPE), rather than being silently swallowed.
+    intercept[NullPointerException] {
+      queue.handleMessage(telegram)
+    }
     assertEquals(queue.size, 0)
   }
 }
