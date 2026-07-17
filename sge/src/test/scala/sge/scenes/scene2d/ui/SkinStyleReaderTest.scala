@@ -68,31 +68,23 @@ class SkinStyleReaderTest extends munit.FunSuite {
     skin
   }
 
-  // Helper to resolve colors through the same logic Skin uses
-  private def readColorVia(skin: Skin, json: Json): Color =
-    SkinStyleReader.resolveColor(
-      skin,
-      json,
-      j =>
-        Skin.getField(j, "hex") match {
-          case Some(Json.Str(hex)) => Color.valueOf(hex)
-          case _                   =>
-            val r = Skin.getField(j, "r").map(SkinStyleReader.resolveFloat).getOrElse(0f)
-            val g = Skin.getField(j, "g").map(SkinStyleReader.resolveFloat).getOrElse(0f)
-            val b = Skin.getField(j, "b").map(SkinStyleReader.resolveFloat).getOrElse(0f)
-            val a = Skin.getField(j, "a").map(SkinStyleReader.resolveFloat).getOrElse(1f)
-            new Color(r, g, b, a)
-        }
-    )
+  // Resolves a color JSON snippet through the *production* Skin color path: readStyleObject wires
+  // the field to Skin.readColor (via SkinStyleReader.withColor), so the code under test — including
+  // the hex branch — is actually exercised. The previous helper passed a test-supplied readColor
+  // lambda that duplicated the production hex/r-g-b-a logic, so the assertions only compared the
+  // test's own arithmetic to itself and could never catch a regression in Skin.readColor (ISS-735).
+  private def readColorViaSkin(skin: Skin, colorJson: String): Color = {
+    val json  = parseJson(s"""{ "fontColor": $colorJson }""")
+    val style = skin.readStyleObject(classOf[SelectBox.SelectBoxStyle], json).asInstanceOf[SelectBox.SelectBoxStyle]
+    style.fontColor
+  }
 
   // ---------------------------------------------------------------------------
-  // Color parsing
+  // Color parsing (routed through Skin.readColor, the production reader)
   // ---------------------------------------------------------------------------
 
   test("color parsing — r/g/b/a components") {
-    val skin  = testSkin()
-    val json  = parseJson("""{ "r": 0, "g": 1, "b": 0, "a": 1 }""")
-    val color = readColorVia(skin, json)
+    val color = readColorViaSkin(testSkin(), """{ "r": 0, "g": 1, "b": 0, "a": 1 }""")
     assertEquals(color.r, 0f)
     assertEquals(color.g, 1f)
     assertEquals(color.b, 0f)
@@ -100,20 +92,17 @@ class SkinStyleReaderTest extends munit.FunSuite {
   }
 
   test("color parsing — hex notation") {
-    val skin     = testSkin()
-    val json     = parseJson("""{ "hex": "#00ff00ff" }""")
-    val color    = readColorVia(skin, json)
-    val expected = Color.valueOf("#00ff00ff")
-    assertEquals(color.r, expected.r, 0.01f)
-    assertEquals(color.g, expected.g, 0.01f)
-    assertEquals(color.b, expected.b, 0.01f)
-    assertEquals(color.a, expected.a, 0.01f)
+    // #00ff00ff (RRGGBBAA) decodes to r=0, g=1, b=0, a=1. The expectation is derived independently
+    // of Skin.readColor so a broken hex branch (e.g. falling through to r/g/b/a defaults) fails here.
+    val color = readColorViaSkin(testSkin(), """{ "hex": "#00ff00ff" }""")
+    assertEquals(color.r, 0f, 0.01f)
+    assertEquals(color.g, 1f, 0.01f)
+    assertEquals(color.b, 0f, 0.01f)
+    assertEquals(color.a, 1f, 0.01f)
   }
 
   test("color parsing — string reference") {
-    val skin  = testSkin()
-    val json  = parseJson(""""green"""")
-    val color = readColorVia(skin, json)
+    val color = readColorViaSkin(testSkin(), """"green"""")
     assertEquals(color.r, 0f)
     assertEquals(color.g, 1f)
     assertEquals(color.b, 0f)
