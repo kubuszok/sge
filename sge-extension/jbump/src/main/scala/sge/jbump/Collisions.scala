@@ -47,6 +47,31 @@ class Collisions {
   val types:  ArrayBuffer[Nullable[Response]] = ArrayBuffer.empty
   private var _size = 0
 
+  /** Copy constructor (Collisions.java:59-80): duplicates every struct-of-arrays plus the reference lists and size. The copy owns fresh backing buffers, so mutating it never disturbs the source. */
+  def this(other: Collisions) = {
+    this()
+    overlaps.addAll(other.overlaps)
+    tis.addAll(other.tis)
+    moveXs.addAll(other.moveXs)
+    moveYs.addAll(other.moveYs)
+    normalXs.addAll(other.normalXs)
+    normalYs.addAll(other.normalYs)
+    touchXs.addAll(other.touchXs)
+    touchYs.addAll(other.touchYs)
+    x1s.addAll(other.x1s)
+    y1s.addAll(other.y1s)
+    w1s.addAll(other.w1s)
+    h1s.addAll(other.h1s)
+    x2s.addAll(other.x2s)
+    y2s.addAll(other.y2s)
+    w2s.addAll(other.w2s)
+    h2s.addAll(other.h2s)
+    items.addAll(other.items)
+    others.addAll(other.others)
+    types.addAll(other.types)
+    _size = other._size
+  }
+
   def add(col: Collision): Unit =
     add(
       col.overlaps,
