@@ -12,10 +12,12 @@
 // just produced, or headless test/tool code under Node), so such PNGs round-trip
 // on the JS baseline exactly as they do on JVM and Native.
 //
-// Supports the 8-bit non-interlaced PNG color types SGE actually emits and the
-// common variants: greyscale (0), truecolor (2), indexed (3), greyscale+alpha
-// (4), truecolor+alpha (6), with all five scanline filters (0-4). Output is
-// always RGBA8888, matching the gdx2d decode contract (GDX2D_FORMAT_RGBA8888).
+// Supports the 8-bit PNG color types SGE actually emits and the common variants:
+// greyscale (0), truecolor (2), indexed (3), greyscale+alpha (4),
+// truecolor+alpha (6), with all five scanline filters (0-4), both non-interlaced
+// and Adam7-interlaced (ISS-784, for cross-platform parity with the JVM/Native
+// gdx2d/stb_image loaders). Output is always RGBA8888, matching the gdx2d decode
+// contract (GDX2D_FORMAT_RGBA8888).
 
 package sge
 package platform
@@ -105,7 +107,7 @@ private[platform] object PngDecoderJs {
 
     if (!sawIHDR) throw new PngError("missing IHDR")
     if (bitDepth != 8) throw new PngError(s"unsupported bit depth $bitDepth")
-    if (interlace != 0) throw new PngError("interlaced PNG not supported")
+    if (interlace != 0 && interlace != 1) throw new PngError(s"unsupported interlace method $interlace")
 
     val channels = colorType match {
       case 0     => 1 // greyscale
@@ -128,33 +130,38 @@ private[platform] object PngDecoderJs {
 
     val bpp       = channels // bytes per pixel (8-bit depth)
     val lineBytes = width * bpp
-    if (raw.length < (lineBytes + 1) * height) throw new PngError("truncated image data")
 
-    // Unfilter scanlines in place into `recon` (no filter byte).
+    // Reconstruct the full image into `recon` (no filter bytes), in top-to-bottom,
+    // left-to-right RGBA-channel-interleaved layout.
     val recon = new Array[Byte](lineBytes * height)
-    var y     = 0
-    while (y < height) {
-      val filterType = raw((lineBytes + 1) * y) & 0xff
-      val srcOff     = (lineBytes + 1) * y + 1
-      val dstOff     = lineBytes * y
-      var x          = 0
-      while (x < lineBytes) {
-        val rawByte = raw(srcOff + x) & 0xff
-        val a       = if (x >= bpp) recon(dstOff + x - bpp) & 0xff else 0
-        val b       = if (y > 0) recon(dstOff - lineBytes + x) & 0xff else 0
-        val c       = if (x >= bpp && y > 0) recon(dstOff - lineBytes + x - bpp) & 0xff else 0
-        val value   = filterType match {
-          case 0     => rawByte
-          case 1     => rawByte + a
-          case 2     => rawByte + b
-          case 3     => rawByte + ((a + b) >> 1)
-          case 4     => rawByte + paeth(a, b, c)
-          case other => throw new PngError(s"unsupported filter type $other")
+    if (interlace == 1) deinterlaceAdam7(raw, recon, width, height, bpp)
+    else {
+      if (raw.length < (lineBytes + 1) * height) throw new PngError("truncated image data")
+      // Unfilter scanlines in place into `recon` (no filter byte).
+      var y = 0
+      while (y < height) {
+        val filterType = raw((lineBytes + 1) * y) & 0xff
+        val srcOff     = (lineBytes + 1) * y + 1
+        val dstOff     = lineBytes * y
+        var x          = 0
+        while (x < lineBytes) {
+          val rawByte = raw(srcOff + x) & 0xff
+          val a       = if (x >= bpp) recon(dstOff + x - bpp) & 0xff else 0
+          val b       = if (y > 0) recon(dstOff - lineBytes + x) & 0xff else 0
+          val c       = if (x >= bpp && y > 0) recon(dstOff - lineBytes + x - bpp) & 0xff else 0
+          val value   = filterType match {
+            case 0     => rawByte
+            case 1     => rawByte + a
+            case 2     => rawByte + b
+            case 3     => rawByte + ((a + b) >> 1)
+            case 4     => rawByte + paeth(a, b, c)
+            case other => throw new PngError(s"unsupported filter type $other")
+          }
+          recon(dstOff + x) = (value & 0xff).toByte
+          x += 1
         }
-        recon(dstOff + x) = (value & 0xff).toByte
-        x += 1
+        y += 1
       }
-      y += 1
     }
 
     // Expand to RGBA8888.
@@ -186,6 +193,73 @@ private[platform] object PngDecoderJs {
     }
 
     Gdx2dOps.DecodeResult(width, height, 4, java.nio.ByteBuffer.wrap(rgba))
+  }
+
+  // Adam7 interlacing passes: (xStart, yStart, xStep, yStep). The reduced image of
+  // each pass is filtered and stored independently (each scanline carries its own
+  // filter byte and predicts only from pixels within the same pass), then its
+  // pixels are scattered back into the full image at (xStart + col*xStep,
+  // yStart + row*yStep).
+  private val Adam7Passes: Array[(Int, Int, Int, Int)] =
+    Array((0, 0, 8, 8), (4, 0, 8, 8), (0, 4, 4, 8), (2, 0, 4, 4), (0, 2, 2, 4), (1, 0, 2, 2), (0, 1, 1, 2))
+
+  private def deinterlaceAdam7(raw: Array[Byte], recon: Array[Byte], width: Int, height: Int, bpp: Int): Unit = {
+    val lineBytes = width * bpp
+    var rawPos    = 0
+    var pass      = 0
+    while (pass < Adam7Passes.length) {
+      val (x0, y0, dx, dy) = Adam7Passes(pass)
+      val passW            = if (width > x0) (width - x0 + dx - 1) / dx else 0
+      val passH            = if (height > y0) (height - y0 + dy - 1) / dy else 0
+      if (passW > 0 && passH > 0) {
+        val passLine = passW * bpp
+        var cur      = new Array[Byte](passLine)
+        var prev     = new Array[Byte](passLine) // zero-filled for the first pass row
+        var row      = 0
+        while (row < passH) {
+          val filterType = raw(rawPos) & 0xff
+          rawPos += 1
+          var x = 0
+          while (x < passLine) {
+            val rawByte = raw(rawPos + x) & 0xff
+            val a       = if (x >= bpp) cur(x - bpp) & 0xff else 0
+            val b       = if (row > 0) prev(x) & 0xff else 0
+            val c       = if (x >= bpp && row > 0) prev(x - bpp) & 0xff else 0
+            val value   = filterType match {
+              case 0     => rawByte
+              case 1     => rawByte + a
+              case 2     => rawByte + b
+              case 3     => rawByte + ((a + b) >> 1)
+              case 4     => rawByte + paeth(a, b, c)
+              case other => throw new PngError(s"unsupported filter type $other")
+            }
+            cur(x) = (value & 0xff).toByte
+            x += 1
+          }
+          rawPos += passLine
+          // Scatter this reduced-image row into the full image.
+          var col = 0
+          while (col < passW) {
+            val fx     = x0 + col * dx
+            val fy     = y0 + row * dy
+            val dstOff = fy * lineBytes + fx * bpp
+            val srcOff = col * bpp
+            var k      = 0
+            while (k < bpp) {
+              recon(dstOff + k) = cur(srcOff + k)
+              k += 1
+            }
+            col += 1
+          }
+          // The reconstructed current row becomes the previous row for the next one.
+          val tmp = prev
+          prev = cur
+          cur = tmp
+          row += 1
+        }
+      }
+      pass += 1
+    }
   }
 
   private def paeth(a: Int, b: Int, c: Int): Int = {

@@ -20,11 +20,11 @@ package sge
 import org.scalajs.dom
 import org.scalajs.dom.{ HTMLCanvasElement, document, window }
 import scala.scalajs.js
-import sge.graphics.{ Cursor, GL20, GL30, GL31, GL32, Pixmap, WebGL20 }
+import sge.graphics.{ Cursor, GL20, GL30, GL31, GL32, Pixmap, PixmapIO, WebGL20 }
 import sge.graphics.Cursor.SystemCursor
 import sge.graphics.glutils.GLVersion
 import lowlevel.Nullable
-import sge.utils.Seconds
+import sge.utils.{ Seconds, SgeError }
 
 /** Browser Graphics implementation using an HTML Canvas and WebGL.
   *
@@ -242,9 +242,50 @@ class BrowserGraphics(
 
   // --- Cursor ---
 
-  override def newCursor(pixmap: Pixmap, xHotspot: Pixels, yHotspot: Pixels): Nullable[Cursor] =
-    // Custom pixmap cursors require encoding the pixmap as a data URL — deferred
-    Nullable.empty
+  override def newCursor(pixmap: Pixmap, xHotspot: Pixels, yHotspot: Pixels): Nullable[Cursor] = {
+    // Faithful port of GwtGraphics.newCursor -> `new GwtCursor(pixmap, x, y)`
+    // (GwtGraphics.java:607-609) and the GwtCursor constructor (GwtCursor.java:26-62):
+    // validate the pixmap, then build a CSS data-URL custom cursor.
+    // GdxRuntimeException maps to SgeError in SGE (see DesktopCursor.create).
+    val x = xHotspot.toInt
+    val y = yHotspot.toInt
+    if (pixmap.format != Pixmap.Format.RGBA8888) {
+      throw SgeError.GraphicsError("Cursor image pixmap is not in RGBA8888 format.")
+    }
+    val w = pixmap.width.toInt
+    val h = pixmap.height.toInt
+    if ((w & (w - 1)) != 0) {
+      throw SgeError.GraphicsError(s"Cursor image pixmap width of $w is not a power-of-two greater than zero.")
+    }
+    if ((h & (h - 1)) != 0) {
+      throw SgeError.GraphicsError(s"Cursor image pixmap height of $h is not a power-of-two greater than zero.")
+    }
+    if (x < 0 || x >= w) {
+      throw SgeError.GraphicsError(s"xHotspot coordinate of $x is not within image width bounds: [0, $w).")
+    }
+    if (y < 0 || y >= h) {
+      throw SgeError.GraphicsError(s"yHotspot coordinate of $y is not within image height bounds: [0, $h).")
+    }
+    // GwtCursor builds `url('<data-url>')<x> <y>,auto` (GwtCursor.java:55-61) from the
+    // pixmap's backing canvas via `toDataUrl("image/png")`. SGE's Pixmap is backed by a
+    // Gdx2DPixmap rather than an HTMLCanvasElement, so encode the pixmap to a PNG data URL
+    // via PixmapIO (no vertical flip, preserving the pixmap's top-left origin the canvas
+    // would have used).
+    val cssCursorProperty = "url('" + pngDataUrl(pixmap) + "')" + x + " " + y + ",auto"
+    Nullable(new BrowserCursor(cssCursorProperty))
+  }
+
+  /** Encodes the pixmap as a `data:image/png;base64,...` URL, mirroring the canvas `toDataUrl("image/png")` GwtCursor relied on (GwtCursor.java:56).
+    */
+  private def pngDataUrl(pixmap: Pixmap): String = {
+    val out = new java.io.ByteArrayOutputStream()
+    val png = new PixmapIO.PNG((pixmap.width.toInt * pixmap.height.toInt * 1.5f).toInt)
+    try {
+      png.setFlipY(false)
+      png.write(out, pixmap)
+    } finally png.close()
+    "data:image/png;base64," + java.util.Base64.getEncoder.encodeToString(out.toByteArray)
+  }
 
   override def setCursor(cursor: Cursor): Unit =
     canvas.style.cursor = cursor.asInstanceOf[BrowserCursor].cssCursorProperty

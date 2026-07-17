@@ -9,16 +9,18 @@
 // synchronously, so there is no async browser-Canvas decode path). Output is
 // always RGBA8888, matching the gdx2d decode contract (GDX2D_FORMAT_RGBA8888).
 //
-// Supported subset: BASELINE SEQUENTIAL DCT (SOF0) only — Huffman entropy
-// coding, quantization tables (DQT), grayscale (1 component) and YCbCr (3
-// components), chroma subsampling 4:4:4 / 4:2:2 / 4:2:0 (any integer Hi/Vi
-// sampling factors), restart markers (DRI / RST0-7), and the standard
-// YCbCr->RGB / level-shift conversion. A floating-point separable 8x8 IDCT is
-// used.
+// Supported subset: BASELINE SEQUENTIAL DCT (SOF0/SOF1) and PROGRESSIVE DCT
+// (SOF2) — Huffman entropy coding, quantization tables (DQT), grayscale (1
+// component) and YCbCr (3 components), chroma subsampling 4:4:4 / 4:2:2 / 4:2:0
+// (any integer Hi/Vi sampling factors), restart markers (DRI / RST0-7),
+// multi-scan spectral-selection + successive bit-plane refinement (ISS-784,
+// for cross-platform parity with the JVM/Native gdx2d/stb_image loaders), and the
+// standard YCbCr->RGB / level-shift conversion. A floating-point separable 8x8
+// IDCT is used.
 //
-// OUT OF SCOPE (returns None, never crashes): progressive JPEG (SOF2),
-// arithmetic coding (SOF9-11), lossless (SOF3), hierarchical, CMYK / YCCK and
-// Adobe APP14 transform variants, and 12-bit samples.
+// OUT OF SCOPE (returns None, never crashes): arithmetic coding (SOF9-11),
+// lossless (SOF3), hierarchical, CMYK / YCCK and Adobe APP14 transform variants,
+// and 12-bit samples.
 
 package sge
 package platform
@@ -111,6 +113,15 @@ private[platform] object JpegDecoderJs {
     var plane: Array[Byte] = Array.emptyByteArray
     var planeW = 0
     var planeH = 0
+    // Progressive-mode coefficient storage (natural 8x8 order per block, not
+    // dequantized). blocksPerLine/Column are the component's actual block grid
+    // (used for non-interleaved AC scans); the *ForMcu variants are padded to whole
+    // MCUs (the addressing stride and interleaved DC scan bounds).
+    var blockData: Array[Int] = new Array[Int](0)
+    var blocksPerLine         = 0
+    var blocksPerColumn       = 0
+    var blocksPerLineForMcu   = 0
+    var blocksPerColumnForMcu = 0
   }
 
   final private class Decoder(data: Array[Byte], base: Int, end: Int) {
@@ -124,6 +135,19 @@ private[platform] object JpegDecoderJs {
     private var height = 0
     private var components: Array[Component] = Array.empty
     private var restartInterval = 0
+
+    // Progressive (SOF2) state.
+    private var progressive   = false
+    private var hMax          = 1
+    private var vMax          = 1
+    private var mcusPerLine   = 0
+    private var mcusPerColumn = 0
+    // Current scan's spectral selection + successive bit-plane (Ah/Al) parameters.
+    private var spectralStart  = 0
+    private var spectralEnd    = 0
+    private var successiveHigh = 0
+    private var successiveLow  = 0
+    private var eobrun         = 0 // end-of-band run counter (AC progressive scans)
 
     // Bit reader state (entropy-coded segment, with FF00 byte-stuffing and
     // marker handling).
@@ -148,36 +172,42 @@ private[platform] object JpegDecoderJs {
 
     private def decodeMarkers(): Option[Gdx2dOps.DecodeResult] =
       scala.util.boundary {
-        var sawSOF0 = false
+        var sawSOF = false
         while (true) {
-          if (pos >= end) scala.util.boundary.break(None)
+          if (pos >= end) scala.util.boundary.break(if (progressive && sawSOF) Some(assembleProgressive()) else None)
           // Find next marker (skip fill bytes).
           var b = u8()
           while (b != 0xff && pos < end) b = u8()
-          if (pos >= end) scala.util.boundary.break(None)
+          if (pos >= end) scala.util.boundary.break(if (progressive && sawSOF) Some(assembleProgressive()) else None)
           var m = u8()
           while (m == 0xff && pos < end) m = u8() // skip fill FFs
           m match {
             case 0xc0 => // SOF0 baseline
-              readSOF0()
-              sawSOF0 = true
+              readSOF(false)
+              sawSOF = true
             case 0xc1 => // SOF1 extended sequential — same layout; treat as baseline
-              readSOF0()
-              sawSOF0 = true
-            case 0xc2 | 0xc3 | 0xc5 | 0xc6 | 0xc7 | 0xc9 | 0xca | 0xcb | 0xcd | 0xce | 0xcf =>
-              // Progressive / lossless / arithmetic / hierarchical: unsupported.
+              readSOF(false)
+              sawSOF = true
+            case 0xc2 => // SOF2 progressive DCT
+              readSOF(true)
+              sawSOF = true
+            case 0xc3 | 0xc5 | 0xc6 | 0xc7 | 0xc9 | 0xca | 0xcb | 0xcd | 0xce | 0xcf =>
+              // Lossless / arithmetic / hierarchical / differential: unsupported.
               scala.util.boundary.break(None)
             case 0xc4 => readDHT()
             case 0xdb => readDQT()
             case 0xdd => readDRI()
             case 0xda => // SOS
-              if (!sawSOF0) scala.util.boundary.break(None)
+              if (!sawSOF) scala.util.boundary.break(None)
+              else if (progressive) readProgressiveScan() // one of possibly many scans; keep looping
               else {
                 readSOS()
                 // first scan completes a baseline image
                 scala.util.boundary.break(Some(assemble()))
               }
-            case 0xd9                        => scala.util.boundary.break(None) // EOI
+            case 0xd9 =>
+              // EOI: a progressive image is complete once all scans are read.
+              scala.util.boundary.break(if (progressive && sawSOF) Some(assembleProgressive()) else None)
             case 0x01                        => () // TEM, no payload
             case x if x >= 0xd0 && x <= 0xd7 => () // RSTn outside scan, no payload
             case _                           =>
@@ -189,7 +219,8 @@ private[platform] object JpegDecoderJs {
         None // unreachable: the while(true) only exits via boundary.break
       }
 
-    private def readSOF0(): Unit = {
+    private def readSOF(isProgressive: Boolean): Unit = {
+      progressive = isProgressive
       val _    = u16() // segment length
       val prec = u8()
       if (prec != 8) throw new JpegError("only 8-bit precision supported")
@@ -211,6 +242,34 @@ private[platform] object JpegDecoderJs {
         i += 1
       }
       components = comps
+      if (progressive) setupProgressive()
+    }
+
+    // Compute the frame/component block geometry and allocate the per-component
+    // coefficient stores used to accumulate progressive scans.
+    private def setupProgressive(): Unit = {
+      hMax = 1
+      vMax = 1
+      var ci = 0
+      while (ci < components.length) {
+        if (components(ci).h > hMax) hMax = components(ci).h
+        if (components(ci).v > vMax) vMax = components(ci).v
+        ci += 1
+      }
+      mcusPerLine = (width + 8 * hMax - 1) / (8 * hMax)
+      mcusPerColumn = (height + 8 * vMax - 1) / (8 * vMax)
+      val widthBlocks  = (width + 7) / 8
+      val heightBlocks = (height + 7) / 8
+      ci = 0
+      while (ci < components.length) {
+        val c = components(ci)
+        c.blocksPerLine = (widthBlocks * c.h + hMax - 1) / hMax
+        c.blocksPerColumn = (heightBlocks * c.v + vMax - 1) / vMax
+        c.blocksPerLineForMcu = mcusPerLine * c.h
+        c.blocksPerColumnForMcu = mcusPerColumn * c.v
+        c.blockData = new Array[Int](c.blocksPerLineForMcu * c.blocksPerColumnForMcu * 64)
+        ci += 1
+      }
     }
 
     private def readDQT(): Unit = {
@@ -557,8 +616,14 @@ private[platform] object JpegDecoderJs {
         my += 1
       }
 
-      // Upsample + color convert to RGBA.
-      val rgba = new Array[Byte](width * height * 4)
+      Gdx2dOps.DecodeResult(width, height, 4, java.nio.ByteBuffer.wrap(planesToRgba(hMax, vMax)))
+    }
+
+    // Upsample the per-component planes and color-convert to RGBA8888. Shared by the
+    // baseline and progressive paths (both populate component.plane / planeW).
+    private def planesToRgba(hMaximum: Int, vMaximum: Int): Array[Byte] = {
+      val nComp = components.length
+      val rgba  = new Array[Byte](width * height * 4)
       if (nComp == 1) {
         val c = components(0)
         var y = 0
@@ -567,8 +632,8 @@ private[platform] object JpegDecoderJs {
           while (x < width) {
             // Component plane may be subsampled relative to the image (rare for
             // a single component, but honor h/v anyway).
-            val sx = x * c.h / hMax
-            val sy = y * c.v / vMax
+            val sx = x * c.h / hMaximum
+            val sy = y * c.v / vMaximum
             val g  = c.plane(sy * c.planeW + sx) & 0xff
             val di = (y * width + x) * 4
             rgba(di) = g.toByte; rgba(di + 1) = g.toByte; rgba(di + 2) = g.toByte; rgba(di + 3) = 0xff.toByte
@@ -584,9 +649,9 @@ private[platform] object JpegDecoderJs {
         while (y < height) {
           var x = 0
           while (x < width) {
-            val yv  = cy.plane((y * cy.v / vMax) * cy.planeW + (x * cy.h / hMax)) & 0xff
-            val cbv = cb.plane((y * cb.v / vMax) * cb.planeW + (x * cb.h / hMax)) & 0xff
-            val crv = cr.plane((y * cr.v / vMax) * cr.planeW + (x * cr.h / hMax)) & 0xff
+            val yv  = cy.plane((y * cy.v / vMaximum) * cy.planeW + (x * cy.h / hMaximum)) & 0xff
+            val cbv = cb.plane((y * cb.v / vMaximum) * cb.planeW + (x * cb.h / hMaximum)) & 0xff
+            val crv = cr.plane((y * cr.v / vMaximum) * cr.planeW + (x * cr.h / hMaximum)) & 0xff
             // YCbCr -> RGB (JFIF / ITU-R BT.601 full-range).
             val r  = yv + 1.402 * (crv - 128)
             val g  = yv - 0.344136 * (cbv - 128) - 0.714136 * (crv - 128)
@@ -601,8 +666,252 @@ private[platform] object JpegDecoderJs {
           y += 1
         }
       }
+      rgba
+    }
 
-      Gdx2dOps.DecodeResult(width, height, 4, java.nio.ByteBuffer.wrap(rgba))
+    // ---- Progressive (SOF2) decoding. ----
+
+    // Reads a progressive scan header (SOS) and decodes its entropy-coded segment
+    // into the per-component coefficient stores (accumulated across scans).
+    private def readProgressiveScan(): Unit = {
+      val _  = u16() // length
+      val ns = u8()
+      if (ns < 1 || ns > components.length) throw new JpegError("bad SOS component count")
+      val scanComps = new Array[Component](ns)
+      var i         = 0
+      while (i < ns) {
+        val cs    = u8()
+        val tdta  = u8()
+        var ci    = 0
+        var found = -1
+        while (ci < components.length) {
+          if (components(ci).id == cs) found = ci
+          ci += 1
+        }
+        if (found < 0) throw new JpegError("SOS references unknown component")
+        val c = components(found)
+        c.dcTab = (tdta >> 4) & 0x0f
+        c.acTab = tdta & 0x0f
+        scanComps(i) = c
+        i += 1
+      }
+      spectralStart = u8()
+      spectralEnd = u8()
+      val ahal = u8()
+      successiveHigh = (ahal >> 4) & 0x0f
+      successiveLow = ahal & 0x0f
+      decodeProgressiveScan(scanComps)
+    }
+
+    // Reset the DC predictors and end-of-band run at scan start and restart markers.
+    private def resetScanState(): Unit = {
+      eobrun = 0
+      var ci = 0
+      while (ci < components.length) { components(ci).pred = 0; ci += 1 }
+    }
+
+    private def decodeProgressiveScan(scanComps: Array[Component]): Unit = {
+      resetBits()
+      resetScanState()
+      val ri           = restartInterval
+      var restartCount = 0
+      if (scanComps.length == 1) {
+        // Non-interleaved scan: iterate the single component's own block grid.
+        val c     = scanComps(0)
+        val total = c.blocksPerLine * c.blocksPerColumn
+        var n     = 0
+        while (n < total) {
+          if (ri > 0 && restartCount == ri) { consumeRestart(); resetScanState(); restartCount = 0 }
+          val row         = n / c.blocksPerLine
+          val col         = n % c.blocksPerLine
+          val blockOffset = (row * c.blocksPerLineForMcu + col) * 64
+          decodeProgressiveBlock(c, blockOffset)
+          restartCount += 1
+          n += 1
+        }
+      } else {
+        // Interleaved scan (DC): iterate MCUs, each component's h*v blocks in order.
+        val total = mcusPerLine * mcusPerColumn
+        var mcu   = 0
+        while (mcu < total) {
+          if (ri > 0 && restartCount == ri) { consumeRestart(); resetScanState(); restartCount = 0 }
+          val mcuRow = mcu / mcusPerLine
+          val mcuCol = mcu % mcusPerLine
+          var ci     = 0
+          while (ci < scanComps.length) {
+            val c  = scanComps(ci)
+            var by = 0
+            while (by < c.v) {
+              var bx = 0
+              while (bx < c.h) {
+                val blockRow    = mcuRow * c.v + by
+                val blockCol    = mcuCol * c.h + bx
+                val blockOffset = (blockRow * c.blocksPerLineForMcu + blockCol) * 64
+                decodeProgressiveBlock(c, blockOffset)
+                bx += 1
+              }
+              by += 1
+            }
+            ci += 1
+          }
+          restartCount += 1
+          mcu += 1
+        }
+      }
+    }
+
+    private def decodeProgressiveBlock(c: Component, blockOffset: Int): Unit =
+      if (spectralStart == 0) {
+        if (successiveHigh == 0) decodeDCFirst(c, blockOffset) else decodeDCSuccessive(c, blockOffset)
+      } else {
+        if (successiveHigh == 0) decodeACFirst(c, blockOffset) else decodeACSuccessive(c, blockOffset)
+      }
+
+    // DC first scan: full DC magnitude, low-order bits point-transformed away.
+    private def decodeDCFirst(c: Component, blockOffset: Int): Unit = {
+      val t    = decodeHuff(dcTables(c.dcTab))
+      val diff = if (t == 0) 0 else extend(receive(t), t)
+      c.pred += diff
+      c.blockData(blockOffset) = c.pred << successiveLow
+    }
+
+    // DC refinement scan: one more low-order DC bit per block.
+    private def decodeDCSuccessive(c: Component, blockOffset: Int): Unit =
+      if (nextBit() != 0) c.blockData(blockOffset) = c.blockData(blockOffset) | (1 << successiveLow)
+
+    // AC first scan: spectral-selection coefficients Ss..Se, point-transformed,
+    // with end-of-band (EOB) run-length skipping (per libjpeg decode_mcu_AC_first).
+    private def decodeACFirst(c: Component, blockOffset: Int): Unit =
+      if (eobrun > 0) eobrun -= 1
+      else {
+        val se = spectralEnd
+        val al = successiveLow
+        var k  = spectralStart
+        scala.util.boundary {
+          while (k <= se) {
+            val rs = decodeHuff(acTables(c.acTab))
+            val r  = rs >> 4
+            val s  = rs & 15
+            if (s == 0) {
+              if (r != 15) {
+                eobrun = 1 << r
+                if (r != 0) eobrun += receive(r)
+                eobrun -= 1
+                scala.util.boundary.break()
+              } else {
+                k += 16 // ZRL: skip 16 zero coefficients
+              }
+            } else {
+              k += r
+              if (k <= se) c.blockData(blockOffset + zigzag(k)) = extend(receive(s), s) << al
+              k += 1
+            }
+          }
+        }
+      }
+
+    // AC refinement scan: one more low-order bit for coefficients Ss..Se, threading
+    // correction bits through already-nonzero coefficients (per libjpeg
+    // decode_mcu_AC_refine).
+    private def decodeACSuccessive(c: Component, blockOffset: Int): Unit = {
+      val se = spectralEnd
+      val p1 = 1 << successiveLow
+      val m1 = -(1 << successiveLow)
+      var k  = spectralStart
+      if (eobrun == 0) {
+        scala.util.boundary {
+          while (k <= se) {
+            val rs = decodeHuff(acTables(c.acTab))
+            var r  = rs >> 4
+            var s  = rs & 15
+            if (s == 0 && r != 15) {
+              eobrun = 1 << r
+              if (r != 0) eobrun += receive(r)
+              scala.util.boundary.break()
+            } else {
+              if (s != 0) {
+                // s must be 1: the sign bit picks the new coefficient's value.
+                s = if (nextBit() != 0) p1 else m1
+              }
+              // Advance over the run of r zero-history coefficients, refining any
+              // already-nonzero coefficient encountered along the way.
+              scala.util.boundary {
+                while (k <= se) {
+                  val z   = zigzag(k)
+                  val cur = c.blockData(blockOffset + z)
+                  if (cur != 0) {
+                    if (nextBit() != 0 && (cur & p1) == 0) c.blockData(blockOffset + z) = if (cur >= 0) cur + p1 else cur + m1
+                    k += 1
+                  } else {
+                    r -= 1
+                    if (r < 0) scala.util.boundary.break()
+                    else k += 1
+                  }
+                }
+              }
+              if (s != 0 && k <= se) c.blockData(blockOffset + zigzag(k)) = s
+              k += 1
+            }
+          }
+        }
+      }
+      if (eobrun > 0) {
+        // Within an EOB run: only refine the remaining already-nonzero coefficients.
+        while (k <= se) {
+          val z   = zigzag(k)
+          val cur = c.blockData(blockOffset + z)
+          if (cur != 0 && nextBit() != 0 && (cur & p1) == 0) c.blockData(blockOffset + z) = if (cur >= 0) cur + p1 else cur + m1
+          k += 1
+        }
+        eobrun -= 1
+      }
+    }
+
+    // Dequantize + IDCT every block of every component into its plane, then upsample
+    // and color-convert (mirrors the tail of `assemble()`).
+    private def assembleProgressive(): Gdx2dOps.DecodeResult = {
+      val outBlock = new Array[Int](64)
+      val coef     = new Array[Int](64)
+      var ci       = 0
+      while (ci < components.length) {
+        val c = components(ci)
+        c.planeW = c.blocksPerLineForMcu * 8
+        c.planeH = c.blocksPerColumnForMcu * 8
+        c.plane = new Array[Byte](c.planeW * c.planeH)
+        val q        = quantTables(c.quant)
+        var blockRow = 0
+        while (blockRow < c.blocksPerColumnForMcu) {
+          var blockCol = 0
+          while (blockCol < c.blocksPerLineForMcu) {
+            val blockOffset = (blockRow * c.blocksPerLineForMcu + blockCol) * 64
+            // Dequantize into natural order (blockData holds natural-order
+            // coefficients; the quant table is stored in zig-zag order).
+            var k = 0
+            while (k < 64) {
+              val z = zigzag(k)
+              coef(z) = c.blockData(blockOffset + z) * q(k)
+              k += 1
+            }
+            idct8x8(coef, outBlock)
+            val px0 = blockCol * 8
+            val py0 = blockRow * 8
+            var yy  = 0
+            while (yy < 8) {
+              val rowBase = (py0 + yy) * c.planeW + px0
+              var xx      = 0
+              while (xx < 8) {
+                c.plane(rowBase + xx) = outBlock(yy * 8 + xx).toByte
+                xx += 1
+              }
+              yy += 1
+            }
+            blockCol += 1
+          }
+          blockRow += 1
+        }
+        ci += 1
+      }
+      Gdx2dOps.DecodeResult(width, height, 4, java.nio.ByteBuffer.wrap(planesToRgba(hMax, vMax)))
     }
 
     private def clampByte(v: Double): Byte = {

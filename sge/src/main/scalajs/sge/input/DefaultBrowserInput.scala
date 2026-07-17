@@ -370,9 +370,24 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
 
   private def handleWheel(e: dom.WheelEvent): Unit = {
     if (processor != null) {
-      // deltaY is positive for scroll down, normalize to integer scroll units
-      val scrollAmount = if (e.deltaY > 0) 1 else if (e.deltaY < 0) -1 else 0
-      processor.scrolled(0, scrollAmount.toFloat)
+      // GWT forwards a proportional wheel *velocity*, not a clamped +/-1 step
+      // (getMouseWheelVelocity, DefaultGwtInput.java:555-584): the
+      // Chrome/Safari/IE branch computes `-wheelDelta / 120`, i.e. +1.0 per
+      // standard notch, and hands the continuous float to
+      // `processor.scrolled(0, (int)velocity)` (DefaultGwtInput.java:719-722).
+      // The legacy `wheelDelta` API is gone from the standard WheelEvent, so
+      // derive the same notch-normalized velocity from `deltaX`/`deltaY`,
+      // honoring `deltaMode`: DOM_DELTA_PIXEL (0) ~ 100px/notch, DOM_DELTA_LINE
+      // (1) ~ 3 lines/notch, DOM_DELTA_PAGE (2) = 1 page/notch. deltaY > 0 is a
+      // downward scroll, mapping to a positive amount exactly as `-wheelDelta/120`
+      // did (wheelDelta was negative for a downward scroll). Both axes are
+      // forwarded as continuous floats, matching the desktop (GLFW) backend.
+      val unitsPerNotch = e.deltaMode match {
+        case 1 => 3.0 // DOM_DELTA_LINE
+        case 2 => 1.0 // DOM_DELTA_PAGE
+        case _ => 100.0 // DOM_DELTA_PIXEL
+      }
+      processor.scrolled((e.deltaX / unitsPerNotch).toFloat, (e.deltaY / unitsPerNotch).toFloat)
     }
     currentEventTimeStamp = utils.TimeUtils.nanoTime()
     e.preventDefault()
