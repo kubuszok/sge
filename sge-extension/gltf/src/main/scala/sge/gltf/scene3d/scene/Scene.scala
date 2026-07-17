@@ -7,10 +7,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 183
- * Covenant-baseline-methods: Scene,animationController,animations,animationsPlayerArg,cameras,copy,count,createCamera,createLight,getCamera,getDirectionalLightCount,getLight,getRenderables,initFromSceneModel,lights,modelInstance,result,syncCameras,syncLights,this,transform,update
+ * Covenant-baseline-loc: 188
+ * Covenant-baseline-methods: Scene,animationController,animations,animationsPlayerArg,cameras,copy,count,createCamera,createLight,getCamera,getDirectionalLightCount,getLight,getRenderables,initFromSceneModel,lights,modelInstance,syncCameras,syncLights,this,transform,update
  * Covenant-source-reference: net/mgsx/gltf/scene3d/scene/Scene.java
- * Covenant-verified: 2026-06-12
+ * Covenant-verified: 2026-07-17
  */
 package sge
 package gltf

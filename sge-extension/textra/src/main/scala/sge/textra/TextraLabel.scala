@@ -16,10 +16,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 660
+ * Covenant-baseline-loc: 719
  * Covenant-baseline-methods: TextraLabel,act,actualWidth,adjustedWidth,align,baseLayout,baseX,baseY,cs,defaultToken,doLayout,draw,e,font,getAdvances,getAlignment,getColor,getDefaultToken,getEllipsis,getFont,getGlyph,getHeight,getLineHeight,getMaxLines,getOffsets,getOriginX,getOriginY,getPrefHeight,getPrefWidth,getRotation,getRotations,getScaleX,getScaleY,getSizing,getWidth,getX,getY,glyphCount,height,i,idx,index,invalidate,isWrap,layout,layoutHeight,lines,ln,n,old,originX,originY,originalHeight,prefSizeInvalid,regenerateLayout,resetShader,rot,s,sb,setAlignment,setColor,setDefaultToken,setEllipsis,setFont,setHeight,setMaxLines,setSize,setSuperHeight,setSuperWidth,setText,setWidth,setWrap,sgeContext,skipToTheEnd,sn,storedText,style,substring,this,toString,useIntegerPositions,validate,widgetHeight,widgetWidth,width,wrap
  * Covenant-source-reference: com/github/tommyettinger/textra/TextraLabel.java
- * Covenant-verified: 2026-06-15
+ * Covenant-verified: 2026-07-17
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */

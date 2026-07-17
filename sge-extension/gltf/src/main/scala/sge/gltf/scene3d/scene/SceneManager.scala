@@ -9,10 +9,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 343
- * Covenant-baseline-methods: SceneManager,addScene,batch,camera,cascadeShadowMap,close,computedEnvironement,cullLights,depthBatch,environment,getActiveLightsCount,getBatch,getDepthBatch,getFirstDirectionalLight,getFirstDirectionalShadowLight,getRenderableProviders,getSkyBox,getTotalLightsCount,init,mirrorSource,pointLights,removeEnvironmentRotation,removeScene,render,renderColors,renderDepth,renderMirror,renderShadows,renderTransmission,renderableProviders,renderableSorter,rotOpt,setAmbientLight,setBatch,setCamera,setCascadeShadowMap,setDepthBatch,setDepthShaderProvider,setEnvironmentRotation,setMirrorSource,setShaderProvider,setSkyBox,setTransmissionSource,shadowLight,skyBox,spotLights,this,transmissionSource,update,updateEnvironment,updateSkyboxRotation,updateViewport
+ * Covenant-baseline-loc: 345
+ * Covenant-baseline-methods: SceneManager,addScene,batch,camera,cascadeShadowMap,close,computedEnvironement,cullLights,depthBatch,environment,getActiveLightsCount,getDepthBatch,getFirstDirectionalLight,getFirstDirectionalShadowLight,getRenderableProviders,getTotalLightsCount,init,mirrorSource,pointLights,removeEnvironmentRotation,removeScene,render,renderColors,renderDepth,renderMirror,renderShadows,renderTransmission,renderableProviders,renderableSorter,rotOpt,setAmbientLight,setCamera,setCascadeShadowMap,setDepthBatch,setDepthShaderProvider,setEnvironmentRotation,setMirrorSource,setShaderProvider,setTransmissionSource,skyBox,spotLights,this,transmissionSource,update,updateEnvironment,updateSkyboxRotation,updateViewport
  * Covenant-source-reference: net/mgsx/gltf/scene3d/scene/SceneManager.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-07-17
  */
 package sge
 package gltf

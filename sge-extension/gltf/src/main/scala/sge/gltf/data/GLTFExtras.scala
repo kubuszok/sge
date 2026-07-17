@@ -6,10 +6,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 20
- * Covenant-baseline-methods: GLTFExtras,value
+ * Covenant-baseline-loc: 57
+ * Covenant-baseline-methods: GLTFExtras,entries,keys,value
  * Covenant-source-reference: net/mgsx/gltf/data/GLTFExtras.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-07-17
  */
 package sge
 package gltf

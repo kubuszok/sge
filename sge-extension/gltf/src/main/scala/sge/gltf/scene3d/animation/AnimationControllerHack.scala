@@ -9,10 +9,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 450
+ * Covenant-baseline-loc: 463
  * Covenant-baseline-methods: AnimationControllerHack,Transform,apply,applyAnimation,applyAnimationPlus,applyAnimations,applyNodeAnimationBlending,applyNodeAnimationDirectly,applying,begin,calculateTransforms,cubicQ,cubicV3,cubicW,d,end,existingOpt,getFirstKeyframeIndexAtTime,getMorphTargetAtTime,getNodeAnimationTransform,getRotationAtTime,getScalingAtTime,getTranslationAtTime,i,idt,index,initialCapacity,interpolation,lerp,max,n,newObject,node,q1,q2,q3,q4,reset,rot,rotation,scale,scl,set,setAnimation,setAnimationDesc,t2,t3,tmpT,toMatrix4,toString,trans,transform,transformPool,transforms,translation,weights
  * Covenant-source-reference: net/mgsx/gltf/scene3d/animation/AnimationControllerHack.java
- * Covenant-verified: 2026-06-12
+ * Covenant-verified: 2026-07-17
  */
 package sge
 package gltf

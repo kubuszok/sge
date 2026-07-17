@@ -17,10 +17,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 1400
+ * Covenant-baseline-loc: 1682
  * Covenant-baseline-methods: FloatArrayHelper,TypingLabel,act,activeEffects,actualEnd,actualWidth,adjustedWidth,ai,appendText,baseX,baseY,breakAllLines,cancelSkipping,changed,charCooldown,charCounter,clearColor,clearVariables,continue_,copySelectedText,cs,cumulative,curly,current,defaultJustify,doLayout,dragging,draw,drawSection,dt,e,ended,first,get,getAdvances,getClearColor,getCumulativeLineHeight,getDefaultToken,getEllipsis,getFont,getFromIntermediate,getInLayout,getInWorkingLayout,getIntermediateText,getLineHeight,getLineInLayout,getLineIndexInLayout,getMaxLines,getOffsets,getOriginalText,getPrefHeight,getPrefWidth,getRotations,getSelectedText,getSizing,getTextSpeed,getTypingListener,getVariables,getWorkingLayout,gi,globalIndex,glyphCharCompensation,glyphCharIndex,glyphCount,hasEnded,hasEndedBefore,hasSelection,height,i,idx,ignoringEffects,ignoringEvents,incr,index,insertInLayout,intermediateText,isEnded,isIgnoringEffects,isIgnoringEvents,isPaused,isSelectable,isSkipping,lastTouchedIndex,layoutHeight,length,lines,ln,n,o,oi,onStage,originX,originY,originalHeight,originalText,overIndex,parseTokens,parsed,pause,paused,processCharProgression,r,randomize,rawCharIndex,regenerateLayout,removeVariable,resetShader,restart,restoreOriginalText,resume,ri,rot,s,saveOriginalText,sb,selectable,selectionDrawable,selectionEnd,selectionStart,set,setAlignment,setDefaultToken,setEllipsis,setHeight,setIgnoringEffects,setIgnoringEvents,setInLayout,setInWorkingLayout,setIntermediateText,setMaxLines,setPaused,setSelectable,setSize,setText,setTextSpeed,setTypingListener,setVariable,setVariables,setWidth,setWrap,si,size,skipToTheEnd,skipping,sn,subAct,substring,text,textSpeed,this,toSkip,toString,tokenEntries,trackingInput,triggerEvent,typingListener,variables,widgetHeight,widgetWidth,width,workingLayout
  * Covenant-source-reference: com/github/tommyettinger/textra/TypingLabel.java
- * Covenant-verified: 2026-06-15
+ * Covenant-verified: 2026-07-17
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */

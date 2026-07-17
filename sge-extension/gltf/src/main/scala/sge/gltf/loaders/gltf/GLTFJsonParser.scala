@@ -6,10 +6,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 30
+ * Covenant-baseline-loc: 47
  * Covenant-baseline-methods: GLTFJsonParser,parse
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-07-17
  */
 package sge
 package gltf

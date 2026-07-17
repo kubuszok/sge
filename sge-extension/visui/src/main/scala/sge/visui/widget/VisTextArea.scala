@@ -252,7 +252,7 @@ class VisTextArea(text: Nullable[String], visStyle: VisTextField.VisTextFieldSty
     var offsetY = 0f
     var i       = firstLineShowing * 2
     while (i < (firstLineShowing + linesShowing) * 2 && i < linesBreak.size) {
-      font.draw(batch, displayText, x, y + offsetY, linesBreak.items(i), linesBreak.items(i + 1), 0, Align.left.toInt, false)
+      font.draw(batch, displayText, x, y + offsetY, linesBreak.items(i), linesBreak.items(i + 1), 0, Align.left, false)
       offsetY -= font.lineHeight
       i += 2
     }

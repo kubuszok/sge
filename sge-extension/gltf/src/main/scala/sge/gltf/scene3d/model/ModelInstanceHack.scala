@@ -9,12 +9,17 @@
  * - copy animations with NodeAnimationHack
  * - pass morph targets to shader via Renderable userData
  *
+ * Migration notes:
+ * - Deviation (ISS-632): copyAnimation copies source weights -> dest; upstream
+ *   ModelInstanceHack.java:70-74 wipes the SOURCE array and copies nothing
+ *   (upstream bug) — fixed at source per project rule, documented inline.
+ *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 131
+ * Covenant-baseline-loc: 157
  * Covenant-baseline-methods: ModelInstanceHack,animation,copyAnimation,getRenderable,i,this
  * Covenant-source-reference: net/mgsx/gltf/scene3d/model/ModelInstanceHack.java
- * Covenant-verified: 2026-06-12
+ * Covenant-verified: 2026-07-17
  */
 package sge
 package gltf
