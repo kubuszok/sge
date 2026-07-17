@@ -2468,11 +2468,14 @@ class Font {
 
     var c        = (glyph & 0xffff).toChar
     var squashed = false
+    var jostled  = false
     if ((glyph & Font.ALTERNATE_MODES_MASK) == Font.SMALL_CAPS) {
       val upper = Character.toUpperCase(c)
       squashed = c != upper
       c = upper
       glyph = (glyph & 0xffffffffffff0000L) | c.toLong
+    } else {
+      jostled = (glyph & Font.ALTERNATE_MODES_MASK) == Font.JOSTLE
     }
 
     val tr = font.mapping.getOrElse(c.toInt, null)
@@ -2688,6 +2691,12 @@ class Font {
         font.cellHeight * scale * sizingY,
         rotation
       )
+    }
+
+    if (jostled) {
+      val code = java.lang.Float.floatToIntBits(x * 1.8191725133961645f + y * 1.6710436067037893f + c * 1.5497004779019703f) & 0xffffff
+      xc += code % 5 - 2f
+      yt += (code >>> 6) % 5 - 2f
     }
 
     // Compute quad vertices
