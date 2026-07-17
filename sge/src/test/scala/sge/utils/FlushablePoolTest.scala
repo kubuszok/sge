@@ -103,4 +103,48 @@ class FlushablePoolTest extends munit.FunSuite {
     assert(!flushablePool.obtainedItems.contains(element1))
     assert(!flushablePool.obtainedItems.contains(element2))
   }
+
+  test(
+    "ISS-801: freeAll(DynamicArray) must clear `obtained` so a later flush() does not double-free the same instances"
+  ) {
+    // Upstream FlushablePool overrides its ONLY freeAll overload (freeAll(Array<T>)),
+    // where it removes the freed items from `obtained` before delegating to
+    // super.freeAll. SGE split freeAll into freeAll(Iterable) + freeAll(DynamicArray)
+    // and (before ISS-801) only overrode the Iterable one, so freeing through the
+    // DynamicArray overload left the items in `obtained`; the next flush() then
+    // freed them a SECOND time (double-free = same instance in the free list twice).
+    val flushablePool = TestPool(8, 8)
+
+    // Obtain two elements (tracked in `obtained`).
+    val element1 = flushablePool.obtain()
+    val element2 = flushablePool.obtain()
+
+    // Free them through the DynamicArray overload — the one upstream's
+    // freeAll(Array<T>) actually maps to. DynamicArray is not scala Iterable,
+    // so this resolves to freeAll(DynamicArray), not freeAll(Iterable).
+    val batch = DynamicArray.createRef[String]()
+    batch.add(element1)
+    batch.add(element2)
+    flushablePool.freeAll(batch)
+
+    // Exactly like the freeAll(Iterable) contract above, the freed instances
+    // must have been removed from `obtained`.
+    assert(!flushablePool.obtainedItems.contains(element1), "freeAll(DynamicArray) must remove freed items from `obtained`")
+    assert(!flushablePool.obtainedItems.contains(element2), "freeAll(DynamicArray) must remove freed items from `obtained`")
+
+    // flush() frees whatever is STILL tracked in `obtained`. If freeAll left
+    // element1/element2 there, they are freed a second time — the free list then
+    // holds each instance twice, so two callers can obtain the SAME instance.
+    flushablePool.flush()
+
+    val freeSlots  = flushablePool.free
+    val handed     = (0 until freeSlots).map(_ => flushablePool.obtain())
+    val seen       = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap[String, java.lang.Boolean])
+    val duplicates = handed.count(item => !seen.add(item))
+    assertEquals(
+      duplicates,
+      0,
+      s"double-free via freeAll(DynamicArray)+flush(): $duplicates of $freeSlots free slots are the same instance handed out twice"
+    )
+  }
 }
