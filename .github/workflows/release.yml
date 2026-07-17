@@ -83,18 +83,29 @@ jobs:
           fi
           echo "OK: $GITHUB_SHA is an ancestor of origin/master"
 
+      # The format / enforce / test steps below are SKIPPED on pull_request
+      # events (ISS-794): ci.yml runs the identical checks on the same commit
+      # in parallel, so re-running them here was ~15-19 min of pure
+      # duplication per PR. They still run on master pushes and — the reason
+      # this gate exists — on TAG pushes, where ci.yml does not run at all
+      # (ISS-695). The snapshot publish itself stays on PRs (intentional
+      # cross-repo artifact-testing mechanism, ISS-484).
+
       # FORMAT (ci.yml format job).
       - name: Check formatting
+        if: github.event_name != 'pull_request'
         run: sbt "scalafmtCheckAll; scalafmtSbtCheck"
 
       # ENFORCE (ci.yml enforce job): install clang + the pinned re-scale 0.1.5,
       # then run the covenant + shortcut ratchet gate.
       - name: Install Scala Native deps
+        if: github.event_name != 'pull_request'
         run: |
           sudo apt-get update
           sudo apt-get install -y clang
 
       - name: Install re-scale
+        if: github.event_name != 'pull_request'
         run: |
           set -euo pipefail
           # Pin to the SAME tag the committed covenant-gate baseline was built
@@ -106,15 +117,18 @@ jobs:
           echo "$RUNNER_TEMP/re-scale/bin" >> "$GITHUB_PATH"
 
       - name: Print re-scale version
+        if: github.event_name != 'pull_request'
         run: re-scale version
 
       - name: Covenant + shortcut ratchet gate
+        if: github.event_name != 'pull_request'
         run: .rescale/scripts/covenant-gate.sh
 
       # TESTS (ci.yml:185). One representative gate leg (JVM 3) is enough here —
       # the ancestor check guarantees the commit already went through the full
       # ci.yml matrix on master.
       - name: Run JVM tests (core + all extensions)
+        if: github.event_name != 'pull_request'
         run: sbt ci-jvm-3
         env:
           # Point the Robolectric test fork at the JDK 21 installed above.
