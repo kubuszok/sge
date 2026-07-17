@@ -69,11 +69,14 @@ class DefaultStateMachine[E, S <: State[E]](
   override def setGlobalState(state: Nullable[S]): Unit =
     globalState = state
 
-  override def getCurrentState: S = currentState.get
+  // DefaultStateMachine.java:90-103 — getCurrentState/getGlobalState/getPreviousState each
+  // `return currentState/globalState/previousState;`, i.e. null on an unset machine. Under the
+  // project null-mapping the field IS the Nullable, so the accessor returns it as-is (empty when unset).
+  override def getCurrentState: Nullable[S] = currentState
 
-  override def getGlobalState: S = globalState.get
+  override def getGlobalState: Nullable[S] = globalState
 
-  override def getPreviousState: S = previousState.get
+  override def getPreviousState: Nullable[S] = previousState
 
   /** Updates the state machine by invoking first the `update` method of the global state (if any) then the `update` method of the current state.
     */

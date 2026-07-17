@@ -68,17 +68,17 @@ trait StateMachine[E, S <: State[E]] extends Telegraph {
     */
   def setGlobalState(state: Nullable[S]): Unit
 
-  /** Returns the current state of this state machine. */
-  def getCurrentState: S
+  /** Returns the current state of this state machine, or [[Nullable.empty]] if none is set. */
+  def getCurrentState: Nullable[S]
 
-  /** Returns the global state of this state machine.
+  /** Returns the global state of this state machine, or [[Nullable.empty]] if none is set.
     *
     * Implementation classes should invoke the `update` method of the global state every time the FSM is updated. Also, they should never invoke its `enter` and `exit` method.
     */
-  def getGlobalState: S
+  def getGlobalState: Nullable[S]
 
-  /** Returns the last state of this state machine. */
-  def getPreviousState: S
+  /** Returns the last state of this state machine, or [[Nullable.empty]] if none is set. */
+  def getPreviousState: Nullable[S]
 
   /** Indicates whether the state machine is in the given state.
     * @param state

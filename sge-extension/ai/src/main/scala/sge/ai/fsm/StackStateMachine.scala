@@ -56,15 +56,18 @@ class StackStateMachine[E, S <: State[E]: scala.reflect.ClassTag](
     currentState = state
   }
 
-  override def getCurrentState: S = currentState.get
+  // StackStateMachine.java:70-72 — getCurrentState() returns the (possibly null) currentState field.
+  override def getCurrentState: Nullable[S] = currentState
 
   /** Returns the last state of this state machine. That is the high-most state on the internal stack of previous states.
     */
-  override def getPreviousState: S =
+  // StackStateMachine.java:76-82 — getPreviousState() returns null when the stack is empty,
+  // otherwise stateStack.peek(). Under the null-mapping this is Nullable.empty / Nullable(peek).
+  override def getPreviousState: Nullable[S] =
     if (stateStack.size == 0) {
-      throw new NullPointerException("No previous state on the stack")
+      Nullable.empty
     } else {
-      stateStack.peek
+      Nullable(stateStack.peek)
     }
 
   override def changeState(newState: S): Unit =
