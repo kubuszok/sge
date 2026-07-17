@@ -359,7 +359,11 @@ class BoundingBox() {
     *   Whether the two bounding boxes intersect
     */
   def intersects(bounds: BoundingBox): Boolean =
-    if (!isValid() || !bounds.isValid()) false
+    // BoundingBox.java:301-315 guards ONLY `this` (`if (!isValid()) return false;`)
+    // and never consults b.isValid(); the min/max overlap test below is equivalent
+    // to the original's SAT test for valid boxes. Guarding the argument box too would
+    // wrongly short-circuit valid overlaps against a box invalid on one axis.
+    if (!isValid()) false
     else
       !(min.x > bounds.max.x || max.x < bounds.min.x ||
         min.y > bounds.max.y || max.y < bounds.min.y ||

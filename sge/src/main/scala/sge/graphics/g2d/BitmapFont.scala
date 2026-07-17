@@ -47,7 +47,10 @@ import scala.language.implicitConversions
 
 class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[TextureRegion]], val integer: Boolean)(using Sge) extends AutoCloseable {
 
-  val regions:     DynamicArray[TextureRegion] = regionsParam.getOrElse(loadRegions())
+  // BitmapFont.java:156 — `if (pageRegions == null || pageRegions.size == 0)` loads
+  // pages from the font data's imagePaths. A present-but-EMPTY regions array is
+  // treated identically to a missing one, so fall back to loadRegions() on size == 0.
+  val regions:     DynamicArray[TextureRegion] = regionsParam.filter(_.size != 0).getOrElse(loadRegions())
   val cache:       BitmapFontCache             = newFontCache()
   val flipped:     Boolean                     = data.flipped
   var ownsTexture: Boolean                     = false
@@ -591,31 +594,36 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
     var y2 = (glyph.srcY + glyph.height).toFloat
 
     // Shift glyph for left and top edge stripped whitespace. Clip glyph for right and bottom edge stripped whitespace.
+    // BitmapFont.java:748-771 — the INT glyph fields are mutated with FLOAT operands
+    // via Java compound assignment (`glyph.width += x`, etc). Per JLS 15.26.2 that is
+    // `glyph.width = (int)(glyph.width + x)`: the arithmetic is done in float and
+    // truncated to int ONCE, AFTER adding (add-then-truncate). Truncating each float
+    // operand first (`+= x.toInt`) diverges by up to 1px on fractional offsets.
     if (offsetX > 0) {
       x -= offsetX
       if (x < 0) {
-        glyph.width += x.toInt
-        glyph.xoffset -= x.toInt
+        glyph.width = (glyph.width + x).toInt
+        glyph.xoffset = (glyph.xoffset - x).toInt
         x = 0
       }
       x2 -= offsetX
       if (x2 > regionWidth) {
-        glyph.width -= (x2 - regionWidth).toInt
+        glyph.width = (glyph.width - (x2 - regionWidth)).toInt
         x2 = regionWidth
       }
     }
     if (offsetY > 0) {
       y -= offsetY
       if (y < 0) {
-        glyph.height += y.toInt
+        glyph.height = (glyph.height + y).toInt
         if (glyph.height < 0) glyph.height = 0
         y = 0
       }
       y2 -= offsetY
       if (y2 > regionHeight) {
         val amount = y2 - regionHeight
-        glyph.height -= amount.toInt
-        glyph.yoffset += amount.toInt
+        glyph.height = (glyph.height - amount).toInt
+        glyph.yoffset = (glyph.yoffset + amount).toInt
         y2 = regionHeight
       }
     }

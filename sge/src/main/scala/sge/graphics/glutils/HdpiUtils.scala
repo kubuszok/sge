@@ -31,6 +31,13 @@ import sge.Sge
   * system may not have the same resolution as the actual drawing surface to which OpenGL draws, also known as the backbuffer. This class will ensure, that you pass the correct values to OpenGL for
   * any function that expects backbuffer coordinates instead of logical coordinates.
   *
+  * '''FBO awareness (ISS-804).''' `glViewport`/`glScissor` here convert logical coordinates to the '''window backbuffer''' dimensions (`Sge().graphics.backBufferWidth`/`backBufferHeight`) only —
+  * exactly as upstream `HdpiUtils.java` does. They are '''not''' aware of a currently-bound off-screen [[sge.graphics.glutils.FrameBuffer]], whose pixel size is unrelated to the window backbuffer.
+  * When rendering into a FrameBuffer, either pass the FBO's raw pixel dimensions directly to `GL20.glViewport`/`glScissor`, or wrap the pass in `HdpiUtils.setMode(HdpiMode.Pixels)` so the
+  * logical→backbuffer conversion is bypassed. This mirrors upstream gdx, where `GLFrameBuffer.bind()` (GLFrameBuffer.java:379-387) issues a raw `Gdx.gl20.glViewport(0, 0, width, height)` and never
+  * routes through HdpiUtils. This is a faithful port of upstream behavior, not a bug in the port; an FBO-aware convenience API is tracked as a separate improvement follow-up (filed by the
+  * orchestrator at train assembly).
+  *
   * @author
   *   badlogic (original implementation)
   */

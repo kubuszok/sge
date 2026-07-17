@@ -27,7 +27,6 @@ package assets
 import scala.concurrent.ExecutionContext
 import scala.reflect.ClassTag
 import scala.util.boundary
-import scala.util.control.NonFatal
 
 import sge.assets.loaders.{
   AssetLoader,
@@ -461,7 +460,14 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
         updateTask() && loadQueue.size == 0 && tasks.size == 0
       }
     catch {
-      case NonFatal(t) =>
+      // AssetManager.java:425 catches Throwable, routing EVERY throwable (including
+      // Error subtypes such as LinkageError) through handleTaskError -> the
+      // AssetErrorListener. NonFatal is unsuitable twice over: it lets Error subtypes
+      // escape update() uncaught, and it would swallow boundary.Break — corrupting
+      // break-based control flow. So rethrow Break first, then catch-all Throwable
+      // (wave-F ISS-734 c5 ruling).
+      case b: boundary.Break[?] => throw b
+      case t: Throwable         =>
         handleTaskError(t)
         loadQueue.size == 0
     }

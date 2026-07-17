@@ -177,10 +177,15 @@ class ModelInstance(
 
   private def copyNodesById(nodes: DynamicArray[Node], nodeIds: Seq[String]): Unit = {
     for (node <- nodes)
-      for (nodeId <- nodeIds)
-        if (nodeId == node.id) {
-          this.nodes.add(node.copy())
-        }
+      // ModelInstance.java:235 — `break` after the first matching id so a node is
+      // copied at most once even when nodeIds lists the same id several times.
+      boundary {
+        for (nodeId <- nodeIds)
+          if (nodeId == node.id) {
+            this.nodes.add(node.copy())
+            break()
+          }
+      }
     invalidate()
   }
 

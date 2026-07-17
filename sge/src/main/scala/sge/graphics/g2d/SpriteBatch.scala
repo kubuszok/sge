@@ -56,13 +56,23 @@ class SpriteBatch(size: Int = 1000, defaultShader: Nullable[ShaderProgram] = Nul
 
   private var mesh: Mesh = uninitialized
 
-  final val vertices: Array[Float]      = Array.ofDim[Float](size * Sprite.SPRITE_SIZE)
-  var idx:            Int               = 0
-  var lastTexture:    Nullable[Texture] = Nullable.empty
-  var invTexWidth:    Float             = 0
-  var invTexHeight:   Float             = 0
+  final val vertices: Array[Float] = Array.ofDim[Float](size * Sprite.SPRITE_SIZE)
+  // SpriteBatch.java:53-57 declares idx/lastTexture/drawing package-private (no
+  // access modifier); PolygonSpriteBatch keeps them private. Faithful Scala
+  // visibility is private[g2d] — matches Java package-private and keeps in-package
+  // readers (e.g. SpriteBatchVertexGeometryISS561Suite) compiling (ISS-783).
+  private[g2d] var idx:         Int               = 0
+  private[g2d] var lastTexture: Nullable[Texture] = Nullable.empty
+  var invTexWidth:              Float             = 0
+  var invTexHeight:             Float             = 0
 
-  var drawing: Boolean = false
+  // SpriteBatch.java:57 `boolean drawing` is package-private, but it also backs the
+  // public Batch#drawing (isDrawing) accessor. So the READ stays public (trait
+  // contract) while the WRITE is package-private (private[g2d]) — matching Java's
+  // package-private field and PolygonSpriteBatch's private one (ISS-783).
+  private var _drawing:                       Boolean = false
+  override def drawing:                       Boolean = _drawing
+  private[g2d] def drawing_=(value: Boolean): Unit    = _drawing = value
 
   private val _transformMatrix:  Matrix4 = Matrix4()
   private val _projectionMatrix: Matrix4 = Matrix4()
@@ -985,15 +995,22 @@ class SpriteBatch(size: Int = 1000, defaultShader: Nullable[ShaderProgram] = Nul
   override def blendingEnabled: Boolean =
     !blendingDisabled
 
-  override def disableBlending(): Unit = {
-    if (drawing) flush()
-    blendingDisabled = true
-  }
+  override def disableBlending(): Unit =
+    // SpriteBatch.java:999-1003 — `if (blendingDisabled) return;` early-returns
+    // on a same-state toggle so an already-disabled batch is not flushed. Project
+    // idiom: guard-if instead of `return`.
+    if (!blendingDisabled) {
+      if (drawing) flush()
+      blendingDisabled = true
+    }
 
-  override def enableBlending(): Unit = {
-    if (drawing) flush()
-    blendingDisabled = false
-  }
+  override def enableBlending(): Unit =
+    // SpriteBatch.java:1006-1010 — `if (!blendingDisabled) return;` early-returns
+    // on a same-state toggle so an already-enabled batch is not flushed.
+    if (blendingDisabled) {
+      if (drawing) flush()
+      blendingDisabled = false
+    }
 
   override def setBlendFunction(srcFunc: Int, dstFunc: Int): Unit =
     setBlendFunctionSeparate(srcFunc, dstFunc, srcFunc, dstFunc)
