@@ -68,9 +68,13 @@ private object GlfwC {
   def glfwSetInputMode(window: Ptr[Byte], mode: CInt, value: CInt): Unit = extern
 
   // Cursor
-  def glfwCreateStandardCursor(shape: CInt):                         Ptr[Byte] = extern
-  def glfwSetCursor(window:           Ptr[Byte], cursor: Ptr[Byte]): Unit      = extern
-  def glfwDestroyCursor(cursor:       Ptr[Byte]):                    Unit      = extern
+  def glfwCreateStandardCursor(shape: CInt): Ptr[Byte] = extern
+  // glfwCreateCursor(const GLFWimage* image, int xhot, int yhot) -> GLFWcursor*. Core GLFW (not
+  // platform-specific like Wayland), so the symbol is present in the shipped sn-provider libglfw and
+  // links cleanly at nativeLink time on every platform (contrast glfwGetWaylandWindow, ISS-761).
+  def glfwCreateCursor(image:   Ptr[Byte], xhot:   CInt, yhot: CInt): Ptr[Byte] = extern
+  def glfwSetCursor(window:     Ptr[Byte], cursor: Ptr[Byte]):        Unit      = extern
+  def glfwDestroyCursor(cursor: Ptr[Byte]):                           Unit      = extern
 
   // Monitor
   def glfwGetPrimaryMonitor():                                            Ptr[Byte]      = extern
@@ -241,6 +245,12 @@ private[sge] object WindowingOpsNative extends WindowingOps {
 
   override def platform: Int =
     GlfwC.glfwGetPlatform()
+
+  override def setErrorCallback(callback: (Int, String) => Unit): Unit = {
+    // fnError (already installed in init()) dispatches to this field, so just record the callback.
+    errorCallback = callback
+    GlfwC.glfwSetErrorCallback(fnError)
+  }
 
   // ─── Window lifecycle ────────────────────────────────────────────────
 
@@ -469,6 +479,31 @@ private[sge] object WindowingOpsNative extends WindowingOps {
   override def createStandardCursor(shape: Int): Long =
     longFromPtr(GlfwC.glfwCreateStandardCursor(shape))
 
+  override def createCursor(pixmap: sge.graphics.Pixmap, xHotspot: Int, yHotspot: Int): Long = {
+    // Build a GLFWimage { int width; int height; unsigned char* pixels; } (16 bytes on 64-bit) from
+    // the pixmap and call glfwCreateCursor(image, xhot, yhot) (Lwjgl3Cursor.java:72-76). GLFW copies
+    // the pixel data before returning, so the zone-allocated buffer is freed once the call returns.
+    val zone = Zone.open()
+    try {
+      val pixels = pixmap.pixels
+      pixels.position(0)
+      val numBytes  = pixels.remaining()
+      val nativeBuf = zone.alloc(numBytes)
+      var j         = 0
+      while (j < numBytes) {
+        !(nativeBuf + j.toLong) = pixels.get().toByte
+        j += 1
+      }
+      val image  = zone.alloc(16)
+      val intPtr = image.asInstanceOf[Ptr[CInt]]
+      !intPtr = pixmap.width.toInt
+      !(intPtr + 1) = pixmap.height.toInt
+      val ptrField = (image + 8L).asInstanceOf[Ptr[Ptr[Byte]]]
+      !ptrField = nativeBuf
+      longFromPtr(GlfwC.glfwCreateCursor(image, xHotspot, yHotspot))
+    } finally zone.close()
+  }
+
   override def setCursor(windowHandle: Long, cursorHandle: Long): Unit =
     GlfwC.glfwSetCursor(ptrFromLong(windowHandle), ptrFromLong(cursorHandle))
 
@@ -694,11 +729,19 @@ private[sge] object WindowingOpsNative extends WindowingOps {
   private val fnWindowRefresh = CFuncPtr1.fromScalaFunction[Ptr[Byte], Unit] { win =>
     val handle = longFromPtr(win); cbWindowRefresh.get(handle).foreach(_(handle))
   }
-  // GLFW error callback: logs the error so GLFW failures surface (mirrors LibGDX's
-  // GLFWErrorCallback). Static CFuncPtr — outlives init() for the process lifetime.
+  // Application-installed error callback (via setErrorCallback), or null to fall back to logging.
+  // Scala Native CFuncPtr cannot close over local state, so the static fnError below dispatches
+  // through this field. null is the C-interop "unset" sentinel, consistent with the callback maps.
+  private var errorCallback: (Int, String) => Unit = null
+
+  // GLFW error callback: dispatches to the application-installed callback if present, else logs so
+  // GLFW failures surface (mirrors LibGDX's GLFWErrorCallback). Static CFuncPtr — outlives init()
+  // for the process lifetime.
   private val fnError = CFuncPtr2.fromScalaFunction[CInt, CString, Unit] { (error, description) =>
     val message = if (description == null) "" else fromCString(description, UTF8)
-    utils.Log.error(s"GLFW error 0x${java.lang.Integer.toHexString(error)}: $message")
+    val cb      = errorCallback
+    if (cb != null) cb(error, message)
+    else utils.Log.error(s"GLFW error 0x${java.lang.Integer.toHexString(error)}: $message")
   }
   private val fnKey = CFuncPtr5.fromScalaFunction[Ptr[Byte], CInt, CInt, CInt, CInt, Unit] { (win, key, scancode, action, mods) =>
     val handle = longFromPtr(win); cbKey.get(handle).foreach(_(handle, key, scancode, action, mods))

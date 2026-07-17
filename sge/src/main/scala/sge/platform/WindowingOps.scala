@@ -50,6 +50,16 @@ private[sge] trait WindowingOps {
   /** Returns the platform that was selected during initialization (e.g. GLFW_PLATFORM_COCOA, GLFW_PLATFORM_WAYLAND). */
   def platform: Int
 
+  /** Installs an error callback that the windowing library invokes when it reports an error, mirroring GLFW's `glfwSetErrorCallback`. Should be wired during application init so failures surface
+    * rather than being dropped (LibGDX installs a `GLFWErrorCallback` at startup, Lwjgl3Application.java:84).
+    *
+    * The default is a no-op: a windowing backend that does not surface errors this way simply ignores the callback. Real GLFW/SDL3 backends override this.
+    *
+    * @param callback
+    *   `(errorCode, description) => Unit`, invoked for each reported error; `null` clears it
+    */
+  def setErrorCallback(callback: (Int, String) => Unit): Unit = ()
+
   // ─── Window lifecycle ──────────────────────────────────────────────────
 
   /** Creates a new window with the given dimensions and title.
@@ -189,6 +199,22 @@ private[sge] trait WindowingOps {
     *   a native cursor handle, or 0 on failure
     */
   def createStandardCursor(shape: Int): Long
+
+  /** Creates a custom cursor from an RGBA8888 pixmap image, mirroring GLFW's `glfwCreateCursor(GLFWImage{width, height, pixels}, xhot, yhot)` (Lwjgl3Cursor.java:72-76). The image's top-left pixel is
+    * at (0, 0). The backend copies the pixel data before returning, so the pixmap may be freed afterwards.
+    *
+    * The default returns 0 (custom pixmap cursors unsupported by this backend); real GLFW/SDL3 backends override it.
+    *
+    * @param pixmap
+    *   the cursor image; must be RGBA8888
+    * @param xHotspot
+    *   the desired x-coordinate, in pixels, of the cursor hotspot
+    * @param yHotspot
+    *   the desired y-coordinate, in pixels, of the cursor hotspot
+    * @return
+    *   a native cursor handle, or 0 on failure
+    */
+  def createCursor(pixmap: sge.graphics.Pixmap, xHotspot: Int, yHotspot: Int): Long = 0L
 
   /** Sets the cursor for the specified window. Pass 0 to reset to default. */
   def setCursor(windowHandle: Long, cursorHandle: Long): Unit

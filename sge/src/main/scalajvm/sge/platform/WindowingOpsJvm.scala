@@ -68,31 +68,34 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
   private lazy val hGetInputMode   = h("glfwGetInputMode", FunctionDescriptor.of(I, P, I))
   private lazy val hSetInputMode   = h("glfwSetInputMode", FunctionDescriptor.ofVoid(P, I, I))
   private lazy val hCreateCursor   = h("glfwCreateStandardCursor", FunctionDescriptor.of(P, I))
-  private lazy val hSetCursor      = h("glfwSetCursor", FunctionDescriptor.ofVoid(P, P))
-  private lazy val hDestroyCursor  = h("glfwDestroyCursor", FunctionDescriptor.ofVoid(P))
-  private lazy val hGetPrimMon     = h("glfwGetPrimaryMonitor", FunctionDescriptor.of(P))
-  private lazy val hGetMonitors    = h("glfwGetMonitors", FunctionDescriptor.of(P, P))
-  private lazy val hGetMonName     = h("glfwGetMonitorName", FunctionDescriptor.of(P, P))
-  private lazy val hGetMonPos      = h("glfwGetMonitorPos", FunctionDescriptor.ofVoid(P, P, P))
-  private lazy val hSetWinMon      = h("glfwSetWindowMonitor", FunctionDescriptor.ofVoid(P, P, I, I, I, I, I))
-  private lazy val hGetWinMon      = h("glfwGetWindowMonitor", FunctionDescriptor.of(P, P))
-  private lazy val hSetWinAttrib   = h("glfwSetWindowAttrib", FunctionDescriptor.ofVoid(P, I, I))
-  private lazy val hGetWinAttrib   = h("glfwGetWindowAttrib", FunctionDescriptor.of(I, P, I))
-  private lazy val hSetSizeLimits  = h("glfwSetWindowSizeLimits", FunctionDescriptor.ofVoid(P, I, I, I, I))
-  private lazy val hReqAttention   = h("glfwRequestWindowAttention", FunctionDescriptor.ofVoid(P))
-  private lazy val hMakeCtxCurr    = h("glfwMakeContextCurrent", FunctionDescriptor.ofVoid(P))
-  private lazy val hSwapInterval   = h("glfwSwapInterval", FunctionDescriptor.ofVoid(I))
-  private lazy val hExtSupported   = h("glfwExtensionSupported", FunctionDescriptor.of(I, P))
-  private lazy val hGetMonPhys     = h("glfwGetMonitorPhysicalSize", FunctionDescriptor.ofVoid(P, P, P))
-  private lazy val hGetVidModes    = h("glfwGetVideoModes", FunctionDescriptor.of(P, P, P))
-  private lazy val hGetVidMode     = h("glfwGetVideoMode", FunctionDescriptor.of(P, P))
-  private lazy val hWindowHint     = h("glfwWindowHint", FunctionDescriptor.ofVoid(I, I))
-  private lazy val hDefaultHints   = h("glfwDefaultWindowHints", FunctionDescriptor.ofVoid())
-  private lazy val hGetMouseBtn    = h("glfwGetMouseButton", FunctionDescriptor.of(I, P, I))
-  private lazy val hSetCursorPos   = h("glfwSetCursorPos", FunctionDescriptor.ofVoid(P, D, D))
-  private lazy val hGetTime        = h("glfwGetTime", FunctionDescriptor.of(D))
-  private lazy val hGetPlatform    = h("glfwGetPlatform", FunctionDescriptor.of(I))
-  private lazy val hSetWinIcon     = h("glfwSetWindowIcon", FunctionDescriptor.ofVoid(P, I, P))
+  // glfwCreateCursor(const GLFWimage* image, int xhot, int yhot) -> GLFWcursor*. Core GLFW (not
+  // platform-specific), so the symbol is present in the shipped libglfw on every platform.
+  private lazy val hCreateImgCursor = h("glfwCreateCursor", FunctionDescriptor.of(P, P, I, I))
+  private lazy val hSetCursor       = h("glfwSetCursor", FunctionDescriptor.ofVoid(P, P))
+  private lazy val hDestroyCursor   = h("glfwDestroyCursor", FunctionDescriptor.ofVoid(P))
+  private lazy val hGetPrimMon      = h("glfwGetPrimaryMonitor", FunctionDescriptor.of(P))
+  private lazy val hGetMonitors     = h("glfwGetMonitors", FunctionDescriptor.of(P, P))
+  private lazy val hGetMonName      = h("glfwGetMonitorName", FunctionDescriptor.of(P, P))
+  private lazy val hGetMonPos       = h("glfwGetMonitorPos", FunctionDescriptor.ofVoid(P, P, P))
+  private lazy val hSetWinMon       = h("glfwSetWindowMonitor", FunctionDescriptor.ofVoid(P, P, I, I, I, I, I))
+  private lazy val hGetWinMon       = h("glfwGetWindowMonitor", FunctionDescriptor.of(P, P))
+  private lazy val hSetWinAttrib    = h("glfwSetWindowAttrib", FunctionDescriptor.ofVoid(P, I, I))
+  private lazy val hGetWinAttrib    = h("glfwGetWindowAttrib", FunctionDescriptor.of(I, P, I))
+  private lazy val hSetSizeLimits   = h("glfwSetWindowSizeLimits", FunctionDescriptor.ofVoid(P, I, I, I, I))
+  private lazy val hReqAttention    = h("glfwRequestWindowAttention", FunctionDescriptor.ofVoid(P))
+  private lazy val hMakeCtxCurr     = h("glfwMakeContextCurrent", FunctionDescriptor.ofVoid(P))
+  private lazy val hSwapInterval    = h("glfwSwapInterval", FunctionDescriptor.ofVoid(I))
+  private lazy val hExtSupported    = h("glfwExtensionSupported", FunctionDescriptor.of(I, P))
+  private lazy val hGetMonPhys      = h("glfwGetMonitorPhysicalSize", FunctionDescriptor.ofVoid(P, P, P))
+  private lazy val hGetVidModes     = h("glfwGetVideoModes", FunctionDescriptor.of(P, P, P))
+  private lazy val hGetVidMode      = h("glfwGetVideoMode", FunctionDescriptor.of(P, P))
+  private lazy val hWindowHint      = h("glfwWindowHint", FunctionDescriptor.ofVoid(I, I))
+  private lazy val hDefaultHints    = h("glfwDefaultWindowHints", FunctionDescriptor.ofVoid())
+  private lazy val hGetMouseBtn     = h("glfwGetMouseButton", FunctionDescriptor.of(I, P, I))
+  private lazy val hSetCursorPos    = h("glfwSetCursorPos", FunctionDescriptor.ofVoid(P, D, D))
+  private lazy val hGetTime         = h("glfwGetTime", FunctionDescriptor.of(D))
+  private lazy val hGetPlatform     = h("glfwGetPlatform", FunctionDescriptor.of(I))
+  private lazy val hSetWinIcon      = h("glfwSetWindowIcon", FunctionDescriptor.ofVoid(P, I, P))
 
   // Cached CALayer address — set once per window at creation, reused by updateNativeLayerScale.
   // Map from GLFW window handle → CALayer address (macOS only).
@@ -309,6 +312,32 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
 
   override def platform: Int =
     hGetPlatform.invoke().asInstanceOf[Int]
+
+  override def setErrorCallback(callback: (Int, String) => Unit): Unit =
+    if (callback == null) {
+      hSetErrorCb.invoke(MemorySegment.NULL)
+    } else {
+      // GLFWerrorfun signature: void(*)(int error, const char* description). The stub outlives this
+      // call (GLFW retains it for the process lifetime), so it lives in the long-lived upcallArena.
+      val desc   = FunctionDescriptor.ofVoid(I, P)
+      val target = java.lang.invoke.MethodHandles
+        .lookup()
+        .bind(
+          new AnyRef {
+            @scala.annotation.nowarn("id=E198")
+            def invoke(error: Int, description: MemorySegment): Unit = {
+              // description is a NUL-terminated UTF-8 C string owned by GLFW; NULL guards no description.
+              val message =
+                if (description.address() == 0L) ""
+                else readCStr(description)
+              callback(error, message)
+            }
+          },
+          "invoke",
+          java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[Int], classOf[MemorySegment])
+        )
+      hSetErrorCb.invoke(linker.upcallStub(target, desc, upcallArena))
+    }
 
   // ─── Window lifecycle ──────────────────────────────────────────────────
 
@@ -570,6 +599,25 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
 
   override def createStandardCursor(shape: Int): Long =
     ptrVal(hCreateCursor.invoke(shape).asInstanceOf[MemorySegment])
+
+  override def createCursor(pixmap: sge.graphics.Pixmap, xHotspot: Int, yHotspot: Int): Long = {
+    val arena = Arena.ofConfined()
+    try {
+      // Build a GLFWimage { int width; int height; unsigned char* pixels; } from the pixmap and call
+      // glfwCreateCursor(image, xhot, yhot) (Lwjgl3Cursor.java:72-76). GLFW copies the pixel data
+      // before returning, so the native buffer is freed with the confined arena.
+      val pixels = pixmap.pixels
+      pixels.position(0)
+      val numBytes  = pixels.remaining()
+      val nativeBuf = arena.allocate(numBytes.toLong)
+      nativeBuf.copyFrom(MemorySegment.ofBuffer(pixels))
+      val image = arena.allocate(GlfwImageSize)
+      image.set(I, 0L, pixmap.width.toInt)
+      image.set(I, 4L, pixmap.height.toInt)
+      image.set(P, 8L, nativeBuf)
+      ptrVal(hCreateImgCursor.invoke(image, xHotspot, yHotspot).asInstanceOf[MemorySegment])
+    } finally arena.close()
+  }
 
   override def setCursor(windowHandle: Long, cursorHandle: Long): Unit =
     hSetCursor.invoke(ptr(windowHandle), ptr(cursorHandle))
