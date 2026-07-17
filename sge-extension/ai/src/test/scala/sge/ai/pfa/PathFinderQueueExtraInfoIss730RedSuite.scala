@@ -9,9 +9,8 @@ import lowlevel.Nullable
 
 /** Red suite for ISS-730 clause c4 (wave 2026-07-17-F, territory Z).
   *
-  * `PathFinderQueue.handleMessage` must dereference the telegram's request payload
-  * UNCONDITIONALLY, matching the original, rather than guarding it inside a
-  * `Nullable.foreach` that silently swallows a payload-less telegram.
+  * `PathFinderQueue.handleMessage` must dereference the telegram's request payload UNCONDITIONALLY, matching the original, rather than guarding it inside a `Nullable.foreach` that silently swallows a
+  * payload-less telegram.
   *
   * Original contract:
   *   - com/badlogic/gdx/ai/pfa/PathFinderQueue.java:71-81 —
@@ -26,21 +25,14 @@ import lowlevel.Nullable
   *       return true;
   *     }
   *     }}}
-  *     The request is read straight from `telegram.extraInfo`; a telegram that
-  *     carries no request is a protocol error and the original fails fast (NPE on
-  *     the `pfr.client = ...` dereference).
+  *     The request is read straight from `telegram.extraInfo`; a telegram that carries no request is a protocol error and the original fails fast (NPE on the `pfr.client = ...` dereference).
   *
-  * The port (PathFinderQueue.scala:85-95) wraps the whole body in
-  * `msg.extraInfo.foreach { info => ... }`, so a telegram with an empty
-  * `extraInfo` is SILENTLY dropped: `handleMessage` returns `true` and nothing is
-  * enqueued, hiding the malformed message instead of surfacing it. The faithful
-  * mapping dereferences the payload unconditionally (e.g. `msg.extraInfo.get`),
-  * preserving the original's fail-fast on a payload-less telegram.
+  * The port (PathFinderQueue.scala:85-95) wraps the whole body in `msg.extraInfo.foreach { info => ... }`, so a telegram with an empty `extraInfo` is SILENTLY dropped: `handleMessage` returns `true`
+  * and nothing is enqueued, hiding the malformed message instead of surfacing it. The faithful mapping dereferences the payload unconditionally (e.g. `msg.extraInfo.get`), preserving the original's
+  * fail-fast on a payload-less telegram.
   *
-  * NOTE (do not weaken existing suites): the "stale directed client on re-enqueue"
-  * behavior that clause c4 references is already covered and GREEN via
-  * `PathFinderBroadcastDispatchRedSuite` (ISS-729). This suite pins only the
-  * residual `extraInfo`-guard divergence.
+  * NOTE (do not weaken existing suites): the "stale directed client on re-enqueue" behavior that clause c4 references is already covered and GREEN via `PathFinderBroadcastDispatchRedSuite` (ISS-729).
+  * This suite pins only the residual `extraInfo`-guard divergence.
   *
   * These assertions encode the ORIGINAL semantics and MUST NOT be weakened.
   */
@@ -48,10 +40,9 @@ class PathFinderQueueExtraInfoIss730RedSuite extends munit.FunSuite {
 
   private val ResponseCode = 7304
 
-  /** A path finder that is never actually run: `handleMessage` only touches the
-    * request payload and the internal queue, never the finder.
+  /** A path finder that is never actually run: `handleMessage` only touches the request payload and the internal queue, never the finder.
     */
-  private final class UnusedPathFinder extends PathFinder[String] {
+  final private class UnusedPathFinder extends PathFinder[String] {
     override def searchConnectionPath(startNode: String, endNode: String, heuristic: Heuristic[String], outPath: GraphPath[Connection[String]]): Boolean =
       throw new IllegalStateException("path finder must not be invoked by handleMessage")
     override def searchNodePath(startNode: String, endNode: String, heuristic: Heuristic[String], outPath: GraphPath[String]): Boolean =
@@ -60,7 +51,7 @@ class PathFinderQueueExtraInfoIss730RedSuite extends munit.FunSuite {
       throw new IllegalStateException("path finder must not be invoked by handleMessage")
   }
 
-  private final class RecordingClient extends Telegraph {
+  final private class RecordingClient extends Telegraph {
     override def handleMessage(msg: Telegram): Boolean = true
   }
 
