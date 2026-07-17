@@ -2,7 +2,7 @@
 // With sbt-sge plugin, this replaces ~100 lines of boilerplate.
 //
 // In project/plugins.sbt, add:
-//   addSbtPlugin("com.kubuszok" % "sge-build" % "0.1.0-SNAPSHOT")
+//   addSbtPlugin("com.kubuszok" % "sge-build" % "<sge-version>") // replace with the latest published sge release
 
 import sge.sbt.SgePlugin
 

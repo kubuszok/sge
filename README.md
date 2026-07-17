@@ -52,7 +52,7 @@ It is additionally tested with:
 ## Prerequisites
 
 - **JDK 25+** (Azul Zulu recommended)
-- **sbt 1.12+**
+- **sbt 2.0+** (sge-build is published for sbt 2 only)
 - **Node.js 24+** (for Scala.js linking)
 
 ### macOS (Homebrew)

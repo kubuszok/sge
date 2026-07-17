@@ -1,0 +1,68 @@
+# CI watchdog (ISS-795).
+#
+# Closes the babysitter's blind spot: job-level timeout-minutes is enforced
+# BY THE RUNNER, so a dead/hung runner VM escapes its own timeout (observed
+# live on run 29509597393: a job sat in_progress 73m+ on a 1-minute step) and
+# the run never concludes — so the workflow_run babysitter never fires and a
+# human had to cancel+rerun. This scheduled workflow scans in_progress CI
+# runs for jobs whose elapsed time exceeds every configured job timeout plus
+# slack (all ci.yml job timeouts are ≤45m; threshold 55m), cancels the run,
+# waits for the cancellation to settle, and reruns failed jobs
+# (rerun-failed-jobs is empirically proven to rerun cancelled jobs too).
+#
+# Bounded: acts only on run_attempt == 1, same as the babysitter — a second
+# infrastructure death on the retry is a real signal for a human.
+# Scope: the CI workflow only (Sonatype Release's gate has no audited
+# per-job timeouts yet — extend once it does).
+
+name: CI watchdog
+
+on:
+  schedule:
+    - cron: "*/20 * * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+
+jobs:
+  reap-dead-runners:
+    name: Cancel+rerun runs with dead-runner jobs
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Scan in_progress CI runs for over-deadline jobs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          THRESHOLD_MINUTES: "55"
+        run: |
+          set -euo pipefail
+          now=$(date -u +%s)
+          runs=$(gh api "repos/$REPO/actions/workflows/ci.yml/runs?status=in_progress&per_page=10" \
+            --jq '.workflow_runs[] | select(.run_attempt == 1) | .id')
+          [ -n "$runs" ] || { echo "No in_progress attempt-1 CI runs."; exit 0; }
+          thr=$((THRESHOLD_MINUTES * 60))
+          for run_id in $runs; do
+            # gh's --jq accepts only a filter string (no --argjson) — inline
+            # the numeric values via shell interpolation.
+            dead=$(gh api "repos/$REPO/actions/runs/$run_id/jobs?per_page=100" --paginate \
+              --jq "[.jobs[] | select(.status == \"in_progress\" and .started_at != null)
+                        | select(($now - (.started_at | fromdateiso8601)) > $thr)
+                        | .name] | join(\", \")" 2>/dev/null || true)
+            if [ -n "$dead" ]; then
+              echo "Run $run_id has dead-runner job(s): $dead — cancelling"
+              gh api -X POST "repos/$REPO/actions/runs/$run_id/cancel" || true
+              # Wait for the cancellation to settle before rerunning.
+              for i in $(seq 1 24); do
+                status=$(gh api "repos/$REPO/actions/runs/$run_id" --jq '.status')
+                [ "$status" = "completed" ] && break
+                sleep 5
+              done
+              echo "Rerunning failed jobs of run $run_id"
+              gh api -X POST "repos/$REPO/actions/runs/$run_id/rerun-failed-jobs" || \
+                echo "rerun-failed-jobs failed for $run_id (may need manual attention)"
+            else
+              echo "Run $run_id: no over-deadline jobs."
+            fi
+          done

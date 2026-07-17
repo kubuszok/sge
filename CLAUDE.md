@@ -7,7 +7,7 @@ converted, 0 not started, 66 skipped (stdlib replacements), 0 deferred.
 
 ## Build Rules
 
-- Scala **3.8.3**, compiler flags: `-deprecation -feature -no-indent -Werror`
+- Scala **3.8.4**, compiler flags: `-deprecation -feature -no-indent -Werror`
 - **Linter flags**: `-Wimplausible-patterns -Wrecurse-with-default -Wenum-comment-discard -Wunused:imports,privates,locals,patvars,nowarn`
 - **Braces required** (`-no-indent`): `{}` for all `trait`, `class`, `enum`, method defs
 - **Split packages**: `package sge` / `package graphics` / `package g2d` (never flat)
@@ -30,7 +30,7 @@ converted, 0 not started, 66 skipped (stdlib replacements), 0 deferred.
 |-----------|---------|
 | `sge/` | Core library (projectMatrix: JVM/JS/Native). Depends on `lls` for `lowlevel.*` types. |
 | `sge-jvm-platform/` | JVM platform modules: `api/`, `jdk/`, `android/` (merged into sge JAR) |
-| `sge-extension/freetype/` | FreeType font extension (JVM/JS/Native) |
+| `sge-extension/freetype/` | FreeType font extension (JVM/Native; JS intentionally dropped, ISS-553) |
 | `sge-extension/physics/` | 2D physics via Rapier2D (JVM/JS/Native) |
 | `sge-extension/tools/` | TexturePacker CLI (JVM-only) |
 | `sge-build/` | sbt plugin (SgePlugin, AndroidBuild, packaging) |
