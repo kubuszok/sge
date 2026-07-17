@@ -115,7 +115,9 @@ object GlfwControllerJvmInit {
     } catch {
       // No GLFW native provider on the classpath (headless test/CI). Symbol resolution
       // then finds nothing and pollController degrades to Disconnected — never throws.
-      case _: Throwable => ()
+      // LinkageError covers UnsatisfiedLinkError/NoClassDefFoundError from System.load;
+      // Exception covers extraction/IO failures. VM-fatal errors (OOM etc.) propagate.
+      case _: LinkageError | _: Exception => ()
     }
 
   /** Call this once at startup to wire the GlfwControllerBackend to real GLFW calls. Infallible and safe to call in any bootstrap order: it loads GLFW itself (see [[ensureGlfwLoaded]]) and only
