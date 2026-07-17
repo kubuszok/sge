@@ -94,7 +94,7 @@ private[sge] trait FreetypeOps {
   /** Returns the glyph slot handle from a face. */
   def getGlyphSlot(face: Long): Long
 
-  /** Fills `out` with [width, height, horiBearingX, horiBearingY, horiAdvance]. */
+  /** Fills `out` with [width, height, horiBearingX, horiBearingY, horiAdvance, (vertBearingX, vertBearingY, vertAdvance)]; vertical fields need a wider provider marshal (ISS-777 clause 2). */
   def getGlyphMetrics(glyphSlot: Long, out: Array[Int]): Unit
 
   def getGlyphLinearHoriAdvance(glyphSlot: Long): Int

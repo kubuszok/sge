@@ -69,17 +69,49 @@ private object FreetypeC {
 
 private[sge] object FreetypeOpsNative extends FreetypeOps {
 
+  // ─── Per-face font-data lifetime (ISS-805) ─────────────────────────────
+  //
+  // sge_ft_new_memory_face passes the Scala byte array's pointer (`data.at(0)`)
+  // straight to FT_New_Memory_Face, which does NOT copy it: FreeType reads the
+  // font tables LAZILY from that memory for the whole lifetime of the FT_Face.
+  // If `data` becomes unreachable after this call it is collected and the
+  // pointer dangles (intermittently empty glyphs / wrong char indices). We keep
+  // a strong reference to each face's byte array until the face (or its library)
+  // is disposed, mirroring libGDX's Library.fontData LongMap<ByteBuffer>
+  // (FreeType.java:63,126,72-74,169-173). Scala Native's default GC is
+  // non-moving, so a live reference pins the buffer at a stable address.
+  private val faceData:     java.util.concurrent.ConcurrentHashMap[Long, Array[Byte]]  = new java.util.concurrent.ConcurrentHashMap()
+  private val libraryFaces: java.util.concurrent.ConcurrentHashMap[Long, java.util.Set[Long]] = new java.util.concurrent.ConcurrentHashMap()
+
   override def initFreeType(): Long =
     FreetypeC.sge_ft_init_freetype().toLong
 
-  override def doneFreeType(library: Long): Unit =
+  override def doneFreeType(library: Long): Unit = {
     FreetypeC.sge_ft_done_freetype(library)
+    // FT_Done_FreeType destroys every face of this library; drop any font
+    // buffers whose faces were not individually disposed (mirrors libGDX
+    // Library.dispose freeing all fontData, FreeType.java:72-74).
+    val faces = libraryFaces.remove(library)
+    if (faces != null) faces.forEach(f => { faceData.remove(f); () })
+  }
 
-  override def newMemoryFace(library: Long, data: Array[Byte], dataSize: Int, faceIndex: Int): Long =
-    FreetypeC.sge_ft_new_memory_face(library, data.at(0), dataSize, faceIndex).toLong
+  override def newMemoryFace(library: Long, data: Array[Byte], dataSize: Int, faceIndex: Int): Long = {
+    // The font buffer must OUTLIVE the face: FT reads it lazily (ISS-805). Keep
+    // a strong reference in faceData and drop it in doneFace/doneFreeType.
+    val face = FreetypeC.sge_ft_new_memory_face(library, data.at(0), dataSize, faceIndex).toLong
+    if (face != 0L) {
+      faceData.put(face, data)
+      libraryFaces.computeIfAbsent(library, _ => java.util.concurrent.ConcurrentHashMap.newKeySet[Long]()).add(face)
+    }
+    face
+  }
 
-  override def doneFace(face: Long): Unit =
+  override def doneFace(face: Long): Unit = {
     FreetypeC.sge_ft_done_face(face)
+    // Release this face's font buffer now that the face is gone.
+    faceData.remove(face)
+    libraryFaces.forEach((_, faces) => faces.remove(face))
+  }
 
   override def selectSize(face: Long, strikeIndex: Int): Boolean =
     FreetypeC.sge_ft_select_size(face, strikeIndex) != 0

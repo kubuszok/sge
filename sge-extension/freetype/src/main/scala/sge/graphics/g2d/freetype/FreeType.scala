@@ -262,9 +262,13 @@ object FreeType {
     def maxAdvance: Int = data(7)
 
     // Compatibility aliases matching LibGDX API names
-    def getXppem:      Int = xPpem
-    def getYppem:      Int = yPpem
-    def getXScale:     Int = xScale
+    def getXppem:  Int = xPpem
+    def getYppem:  Int = yPpem
+    def getXScale: Int = xScale
+    // Deviation (ISS-777 clause 3, fix-at-source): the original getYscale returns
+    // FT_Size_Metrics.x_scale — an upstream libGDX copy-paste bug (FreeType.java:394,
+    // whose native body reads `->x_scale` for getYscale). The port intentionally
+    // returns the real y_scale here; per the fix-bugs-at-source rule this is correct.
     def getYscale:     Int = yScale
     def getAscender:   Int = ascender
     def getDescender:  Int = descender
@@ -277,12 +281,21 @@ object FreeType {
   class GlyphSlot(private[freetype] val address: Long) {
 
     def getMetrics: GlyphMetrics = {
-      val out = new Array[Int](5)
+      // 8 fields: horizontal (0-4) + vertical (5-7). See GlyphMetrics; the
+      // vertical slots are only populated once the provider marshals them
+      // (ISS-777 clause 2 provider gap).
+      val out = new Array[Int](8)
       ops.getGlyphMetrics(address, out)
       new GlyphMetrics(out)
     }
 
     def linearHoriAdvance: Int = ops.getGlyphLinearHoriAdvance(address)
+    // Provider gap (ISS-777 clause 2): the shipped sge_freetype provider exposes
+    // no `sge_ft_get_glyph_linear_vert_advance` symbol, so linearVertAdvance
+    // (original FreeType.java:451-457) cannot be read without a provider change.
+    // Scala Native links @extern eagerly, so a binding to the missing symbol
+    // would break the whole module link; returns 0 until the provider adds it.
+    def linearVertAdvance: Int = 0
     def advanceX:          Int = ops.getGlyphAdvanceX(address)
     def advanceY:          Int = ops.getGlyphAdvanceY(address)
     def format:            Int = ops.getGlyphFormat(address)
@@ -291,6 +304,7 @@ object FreeType {
 
     // Compatibility aliases
     def getLinearHoriAdvance: Int = linearHoriAdvance
+    def getLinearVertAdvance: Int = linearVertAdvance
     def getAdvanceX:          Int = advanceX
     def getAdvanceY:          Int = advanceY
     def getFormat:            Int = format
@@ -494,13 +508,20 @@ object FreeType {
 
   // ─── GlyphMetrics ──────────────────────────────────────────────────────
 
-  /** Cached glyph metrics. Fields: width, height, horiBearingX, horiBearingY, horiAdvance. */
+  /** Cached glyph metrics. Fields correspond to FT_Glyph_Metrics: width, height, horiBearingX, horiBearingY, horiAdvance, vertBearingX, vertBearingY, vertAdvance.
+    *
+    * The vertical fields (indices 5-7) are only populated once the shipped `sge_freetype` provider marshals them from FT_Glyph_Metrics; the current provider's `sge_ft_get_glyph_metrics` writes only
+    * the five horizontal fields (ISS-777 clause 2 provider gap), so the vertical accessors read 0 until that is widened.
+    */
   class GlyphMetrics(private val data: Array[Int]) {
     def width:        Int = data(0)
     def height:       Int = data(1)
     def horiBearingX: Int = data(2)
     def horiBearingY: Int = data(3)
     def horiAdvance:  Int = data(4)
+    def vertBearingX: Int = data(5)
+    def vertBearingY: Int = data(6)
+    def vertAdvance:  Int = data(7)
 
     // Compatibility aliases
     def getWidth:        Int = width
@@ -508,6 +529,9 @@ object FreeType {
     def getHoriBearingX: Int = horiBearingX
     def getHoriBearingY: Int = horiBearingY
     def getHoriAdvance:  Int = horiAdvance
+    def getVertBearingX: Int = vertBearingX
+    def getVertBearingY: Int = vertBearingY
+    def getVertAdvance:  Int = vertAdvance
   }
 
   // ─── Stroker ────────────────────────────────────────────────────────────

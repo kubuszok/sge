@@ -168,6 +168,53 @@ class FreeTypeFontGenerator(fontFile: FileHandle, faceIndex: Int)(using Sge) ext
     if (!bitmapped && !face.setPixelSizes(pixelWidth, pixelHeight))
       throw SgeError.GraphicsError("Couldn't set size for font")
 
+  /** Returns Nullable.empty if glyph was not found in the font. If there is nothing to render, for example with various space characters, then {@link GlyphAndBitmap#bitmap} will be Nullable.empty. */
+  def generateGlyphAndBitmap(c: Int, size: Int, flip: Boolean): Nullable[GlyphAndBitmap] = {
+    setPixelSizes(0, size)
+
+    val fontMetrics = face.getSize.getMetrics
+    val baseline    = FreeType.toInt(fontMetrics.getAscender)
+
+    // Check if character exists in this font.
+    // 0 means 'undefined character code'
+    if (face.getCharIndex(c) == 0) {
+      Nullable.empty
+    } else {
+      // Try to load character
+      if (!loadChar(c)) throw SgeError.GraphicsError("Unable to load character!")
+
+      val slot = face.getGlyph
+
+      // Try to render to bitmap
+      val bitmap: Nullable[FreeType.Bitmap] =
+        if (bitmapped) Nullable(slot.getBitmap)
+        else if (!slot.renderGlyph(FreeType.FT_RENDER_MODE_NORMAL)) Nullable.empty
+        else Nullable(slot.getBitmap)
+
+      val metrics = slot.getMetrics
+
+      val glyph = BitmapFont.Glyph()
+      bitmap.fold {
+        glyph.width = 0
+        glyph.height = 0
+      } { bmp =>
+        glyph.width = bmp.getWidth
+        glyph.height = bmp.getRows
+      }
+      glyph.xoffset = slot.getBitmapLeft
+      glyph.yoffset = if (flip) -slot.getBitmapTop + baseline else -(glyph.height - slot.getBitmapTop) - baseline
+      glyph.xadvance = FreeType.toInt(metrics.getHoriAdvance)
+      glyph.srcX = 0
+      glyph.srcY = 0
+      glyph.id = c
+
+      val result = new GlyphAndBitmap()
+      result.glyph = glyph
+      result.bitmap = bitmap
+      Nullable(result)
+    }
+  }
+
   /** Generates a new {@link BitmapFont.BitmapFontData} instance. */
   def generateData(size: Int): FreeTypeBitmapFontData = {
     val parameter = FreeTypeFontParameter()
@@ -343,8 +390,12 @@ class FreeTypeFontGenerator(fontFile: FileHandle, faceIndex: Int)(using Sge) ext
     }
 
     // Generate kerning.
-    val kerning = parameter.kerning && face.hasKerning
-    if (kerning) {
+    // Mutate parameter.kerning (original `parameter.kerning &= face.hasKerning()`,
+    // FreeTypeFontGenerator.java:440) so the incremental getGlyph path
+    // (FreeTypeBitmapFontData.getGlyph, gated on param.kerning) is not left
+    // issuing always-zero kerning calls for a font without a kern table.
+    parameter.kerning = parameter.kerning && face.hasKerning
+    if (parameter.kerning) {
       var i = 0
       while (i < charactersLength) {
         val firstChar = characters(i)

@@ -13,9 +13,29 @@ package sge
 package platform
 
 import java.lang.invoke.MethodHandle
+import java.util.concurrent.ConcurrentHashMap
 
 private[sge] class FreetypeOpsPanama(val p: PanamaProvider) extends FreetypeOps {
   import p.*
+
+  // ─── Per-face font-data lifetime (ISS-805) ─────────────────────────────
+  //
+  // FT_New_Memory_Face does NOT copy the font bytes; it stores the caller's
+  // buffer pointer and reads the font tables (glyf, cmap, ...) LAZILY for the
+  // whole lifetime of the FT_Face. The previous implementation allocated the
+  // bytes in a confined arena closed in `finally` as soon as the native call
+  // returned, so every later glyph/cmap read dereferenced freed memory
+  // (intermittently empty glyphs / wrong char indices). We mirror libGDX's
+  // Library.fontData LongMap<ByteBuffer> (FreeType.java:63,126) by keeping each
+  // face's data segment alive until the face (or its library) is disposed
+  // (FreeType.java:72-74,169-173).
+  //
+  // FreeType requires all operations on a given library/face to run on a single
+  // thread (FT instances are not thread-safe), so newMemoryFace and doneFace for
+  // the same face share a thread and a confined arena can be closed safely. The
+  // maps are concurrent only to tolerate independent faces on different threads.
+  private val faceArenas:   ConcurrentHashMap[Long, p.Arena]             = new ConcurrentHashMap()
+  private val libraryFaces: ConcurrentHashMap[Long, java.util.Set[Long]] = new ConcurrentHashMap()
 
   // ─── Native library + linker setup ─────────────────────────────────────
 
@@ -155,20 +175,43 @@ private[sge] class FreetypeOpsPanama(val p: PanamaProvider) extends FreetypeOps 
   override def initFreeType(): Long =
     hInitFreeType.invoke().asInstanceOf[Long]
 
-  override def doneFreeType(library: Long): Unit =
+  override def doneFreeType(library: Long): Unit = {
     hDoneFreeType.invoke(library)
-
-  override def newMemoryFace(library: Long, data: Array[Byte], dataSize: Int, faceIndex: Int): Long = {
-    val arena = p.Arena.ofConfined()
-    try {
-      val dataSeg = arena.allocateElems(p.JAVA_BYTE, data.length.toLong)
-      p.MemorySegment.copyFromBytes(data, 0, dataSeg, 0L, data.length)
-      hNewMemoryFace.invoke(library, dataSeg, dataSize, faceIndex).asInstanceOf[Long]
-    } finally arena.arenaClose()
+    // FT_Done_FreeType destroys every face of this library; free any font
+    // buffers whose faces were not individually disposed (mirrors libGDX
+    // Library.dispose freeing all fontData, FreeType.java:72-74).
+    val faces = libraryFaces.remove(library)
+    if (faces != null)
+      faces.forEach { f =>
+        val arena = faceArenas.remove(f)
+        if (arena != null) arena.arenaClose()
+      }
   }
 
-  override def doneFace(face: Long): Unit =
+  override def newMemoryFace(library: Long, data: Array[Byte], dataSize: Int, faceIndex: Int): Long = {
+    // The font buffer must OUTLIVE the face: FT reads it lazily (ISS-805). Keep
+    // the arena alive in faceArenas and free it in doneFace/doneFreeType.
+    val arena   = p.Arena.ofConfined()
+    val dataSeg = arena.allocateElems(p.JAVA_BYTE, data.length.toLong)
+    p.MemorySegment.copyFromBytes(data, 0, dataSeg, 0L, data.length)
+    val face = hNewMemoryFace.invoke(library, dataSeg, dataSize, faceIndex).asInstanceOf[Long]
+    if (face == 0L) {
+      // Load failed; the buffer is not needed.
+      arena.arenaClose()
+    } else {
+      faceArenas.put(face, arena)
+      libraryFaces.computeIfAbsent(library, _ => ConcurrentHashMap.newKeySet[Long]()).add(face)
+    }
+    face
+  }
+
+  override def doneFace(face: Long): Unit = {
     hDoneFace.invoke(face)
+    // Release this face's font buffer now that the face is gone.
+    val arena = faceArenas.remove(face)
+    if (arena != null) arena.arenaClose()
+    libraryFaces.forEach((_, faces) => faces.remove(face))
+  }
 
   override def selectSize(face: Long, strikeIndex: Int): Boolean =
     (hSelectSize.invoke(face, strikeIndex): Any).asInstanceOf[Int] != 0
