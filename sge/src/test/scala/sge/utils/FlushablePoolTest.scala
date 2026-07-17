@@ -147,4 +147,81 @@ class FlushablePoolTest extends munit.FunSuite {
       s"double-free via freeAll(DynamicArray)+flush(): $duplicates of $freeSlots free slots are the same instance handed out twice"
     )
   }
+
+  /** Structurally-equal-but-distinct pooled item: `equals` is deliberately degenerate (ALL instances are `==`) to expose value-equality removal evicting the WRONG instance from `obtained`. Upstream
+    * FlushablePool.java removes with identity=true (`removeAll(objects, true)` at :58, `removeValue(object, true)` at :52) precisely because pooled instances can be structurally equal yet distinct.
+    */
+  final private class EqualItem {
+    override def equals(other: Any): Boolean = other.isInstanceOf[EqualItem]
+    override def hashCode:           Int     = 42
+  }
+
+  private class EqualItemPool extends Pool.Flushable[EqualItem] {
+    override protected val max:             Int = Int.MaxValue
+    override protected val initialCapacity: Int = 16
+
+    override def newObject(): EqualItem = new EqualItem
+
+    /** Public accessor for the protected `obtained` field. */
+    def obtainedItems: DynamicArray[EqualItem] = obtained
+  }
+
+  test(
+    "ISS-801 bounce#1: freeAll(DynamicArray) must remove from `obtained` by REFERENCE identity — value equality evicts the still-checked-out equal instance, leaking/double-freeing via flush()"
+  ) {
+    val pool = new EqualItemPool
+    val a    = pool.obtain()
+    val b    = pool.obtain()
+    assert(a ne b, "precondition: two distinct instances")
+    assert(a == b, "precondition: structurally equal by construction")
+
+    // Free ONLY instance A through the DynamicArray overload.
+    val batch = DynamicArray.createRef[EqualItem]()
+    batch.add(a)
+    pool.freeAll(batch)
+
+    // A must be gone from `obtained` BY REFERENCE; B (a == b but b ne a) must
+    // still be tracked. Value-equality removal (DynamicArray.removeAll) evicts
+    // B too — the wrong instance — so flush() never frees it (leak), while the
+    // symmetric free()-path bug double-frees (see next test).
+    assert(!pool.obtainedItems.containsByRef(a), "freed instance A must be removed from `obtained` by reference")
+    assert(
+      pool.obtainedItems.containsByRef(b),
+      "instance B is still checked out — removal from `obtained` must be identity-based (FlushablePool.java:58 removeAll(objects, true)), value equality evicted the WRONG instance"
+    )
+
+    // flush() must free exactly B, once. Afterwards the free list holds exactly
+    // {A, B} as two DISTINCT instances.
+    pool.flush()
+    assertEquals(
+      pool.free,
+      2,
+      "free list must hold exactly A (via freeAll) and B (via flush) — 1 means B leaked, 3+ means a double-free"
+    )
+    val first  = pool.obtain()
+    val second = pool.obtain()
+    assert(first ne second, "double-free: the same instance was handed out twice")
+    assert((first eq a) || (first eq b))
+    assert((second eq a) || (second eq b))
+  }
+
+  test(
+    "ISS-801 bounce#1: free(obj) and freeAll(Iterable) must also remove from `obtained` by REFERENCE identity"
+  ) {
+    val pool = new EqualItemPool
+    val a    = pool.obtain()
+    val b    = pool.obtain()
+
+    // free(B): value-equality removeValue evicts A (first structural match) —
+    // the wrong instance — leaving B in `obtained` to be double-freed by a
+    // later flush(). Upstream frees with identity=true (FlushablePool.java:52).
+    pool.free(b)
+    assert(!pool.obtainedItems.containsByRef(b), "freed instance B must be removed from `obtained` by reference")
+    assert(pool.obtainedItems.containsByRef(a), "free(B) must not evict the still-checked-out A from `obtained`")
+
+    // freeAll(Iterable) with A: same identity contract.
+    pool.freeAll(Seq(a))
+    assert(!pool.obtainedItems.containsByRef(a), "freeAll(Iterable) must remove freed items from `obtained` by reference")
+    assertEquals(pool.obtainedItems.size, 0)
+  }
 }
