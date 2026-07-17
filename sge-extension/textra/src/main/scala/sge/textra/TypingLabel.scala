@@ -166,6 +166,22 @@ class TypingLabel(using Sge) extends TextraLabel {
     setText(storedText, modifyOriginalText = true)
   }
 
+  /** Creates a TypingLabel with the given markup text using the specified Skin's default LabelStyle. The skin should almost certainly be an FWSkin or one of its subclasses. */
+  def this(text: String, skin: sge.scenes.scene2d.ui.Skin)(using Sge) =
+    this(text, skin.get(classOf[Styles.LabelStyle]))
+
+  /** Creates a TypingLabel with the given markup text using the specified Skin's default LabelStyle, replacing the style's font with replacementFont. */
+  def this(text: String, skin: sge.scenes.scene2d.ui.Skin, replacementFont: Font)(using Sge) =
+    this(text, skin.get(classOf[Styles.LabelStyle]), replacementFont)
+
+  /** Creates a TypingLabel with the given markup text using the named LabelStyle from the given Skin. */
+  def this(text: String, skin: sge.scenes.scene2d.ui.Skin, styleName: String)(using Sge) =
+    this(text, skin.get(styleName, classOf[Styles.LabelStyle]))
+
+  /** Creates a TypingLabel with the given markup text using the named LabelStyle from the given Skin, replacing the style's font with replacementFont. */
+  def this(text: String, skin: sge.scenes.scene2d.ui.Skin, styleName: String, replacementFont: Font)(using Sge) =
+    this(text, skin.get(styleName, classOf[Styles.LabelStyle]), replacementFont)
+
   // --- Getters/Setters ---
 
   override def getFont: Font = font

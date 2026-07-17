@@ -8,7 +8,7 @@
  * Migration notes:
  *   Renames: Widget → standalone class (no scene2d base), Batch → deferred,
  *     FloatArray/LongArray → ArrayBuffer[Float]/ArrayBuffer[Long],
- *     Skin → removed (FWSkin integration deferred), Align → Int constants,
+ *     Skin ctors ported (ISS-716; delegate to Skin.get, FWSkin passed as Skin), Align → Int constants,
  *     TransformDrawable → AnyRef placeholder
  *   Convention: getX()/setX() → public var where no logic.
  *   Idiom: Nullable[A] for nullable fields; boundary/break for early returns.
@@ -151,6 +151,55 @@ class TextraLabel(using Sge) extends Widget {
     storedText = defaultToken + text
     font.markup(storedText, baseLayout)
     baseLayout.setJustification(justify)
+  }
+
+  /** Creates a TextraLabel with the given text and using the given style. makeGridGlyphs is currently ignored. */
+  def this(text: String, style: Styles.LabelStyle, makeGridGlyphs: Boolean)(using Sge) =
+    this(text, style, Nullable.fold(style.font)(new Font())(identity))
+
+  /** Creates a TextraLabel with the given text and using the specified Skin's default LabelStyle. The skin should almost certainly be an FWSkin or one of its subclasses. */
+  def this(text: String, skin: sge.scenes.scene2d.ui.Skin)(using Sge) =
+    this(text, skin.get(classOf[Styles.LabelStyle]))
+
+  /** Creates a TextraLabel with the given text and using the specified Skin's default LabelStyle. makeGridGlyphs is currently ignored. */
+  def this(text: String, skin: sge.scenes.scene2d.ui.Skin, makeGridGlyphs: Boolean)(using Sge) =
+    this(text, skin.get(classOf[Styles.LabelStyle]), makeGridGlyphs)
+
+  /** Creates a TextraLabel with the given text and using the specified style by name from the given Skin. */
+  def this(text: String, skin: sge.scenes.scene2d.ui.Skin, styleName: String)(using Sge) =
+    this(text, skin.get(styleName, classOf[Styles.LabelStyle]))
+
+  /** Creates a TextraLabel with the given text and using the specified style by name from the given Skin. makeGridGlyphs is currently ignored. */
+  def this(text: String, skin: sge.scenes.scene2d.ui.Skin, styleName: String, makeGridGlyphs: Boolean)(using Sge) =
+    this(text, skin.get(styleName, classOf[Styles.LabelStyle]), makeGridGlyphs)
+
+  /** Creates a TextraLabel with the given text, using the specified style by name from the given Skin, with the default Color overridden by the given one. */
+  def this(text: String, skin: sge.scenes.scene2d.ui.Skin, styleName: String, color: Color)(using Sge) = {
+    this(text, skin.get(styleName, classOf[Styles.LabelStyle]))
+    if (color != null) baseLayout.setBaseColor(color)
+  }
+
+  /** Creates a TextraLabel with the given text, using the specified style by name from the given Skin, with the default Color overridden by the color with the given name in the skin. */
+  def this(text: String, skin: sge.scenes.scene2d.ui.Skin, styleName: String, colorName: String)(using Sge) = {
+    this(text, skin.get(styleName, classOf[Styles.LabelStyle]))
+    if (colorName != null) {
+      val color = skin.get(colorName, classOf[Color])
+      if (color != null) baseLayout.setBaseColor(color)
+    }
+  }
+
+  /** Creates a TextraLabel with the given text and using the default LabelStyle from a Skin, replacing any font from the style with replacementFont. */
+  def this(text: String, skin: sge.scenes.scene2d.ui.Skin, replacementFont: Font)(using Sge) =
+    this(text, skin.get(classOf[Styles.LabelStyle]), replacementFont)
+
+  /** Creates a TextraLabel with the given text, using the style taken by name from a Skin, replacing any font from the style with replacementFont. */
+  def this(text: String, skin: sge.scenes.scene2d.ui.Skin, styleName: String, replacementFont: Font)(using Sge) =
+    this(text, skin.get(styleName, classOf[Styles.LabelStyle]), replacementFont)
+
+  /** Creates a TextraLabel with the given text, using the style taken by name from a Skin, replacing any font from the style with replacementFont, with the given base color. */
+  def this(text: String, skin: sge.scenes.scene2d.ui.Skin, styleName: String, replacementFont: Font, color: Color)(using Sge) = {
+    this(text, skin.get(styleName, classOf[Styles.LabelStyle]), replacementFont)
+    if (color != null) baseLayout.setBaseColor(color)
   }
 
   def getWidth:  Float = width

@@ -12,15 +12,16 @@
  *     IntFloatMap → HashMap[Int, Float], NumberUtils → java.lang.Float,
  *     Category.caseUp/caseDown → Character.toUpperCase/toLowerCase,
  *     RegExodus → java.util.regex
- *   Convention: getX()/setX() → public var where no logic; (using Sge) deferred
- *     because this extension may operate headlessly (markup-only, no rendering).
+ *   Convention: getX()/setX() → public var where no logic. Markup-only paths stay
+ *     headless; the render methods (drawGlyph and the drawGlyphs/drawMarkupText that
+ *     reach it) take (using Sge) so drawGlyph can read the real backbuffer size.
  *   Idiom: boundary/break for early returns; Nullable[A] for nullable fields.
- *   Implemented: drawGlyph (core + bold + oblique + super/subscript), drawGlyphs,
- *     drawBlocks, drawBlockSequence, drawFancyLine, enableShader, loadFNT, loadJSON,
- *     loadSad. GlyphRegion extends TextureRegion for rendering support.
- *   Remaining TODOs: drawGlyph advanced effects (drop shadow, outlines, HALO, NEON,
- *     SHINY), underline/strikethrough decorations, box-drawing character rendering
- *     (require ColorUtils.multiplyAlpha/lerpColorsMultiplyAlpha and BlockUtils.BOX_DRAWING).
+ *   Implemented: drawGlyph (core + bold + oblique + super/subscript + JOSTLE offsets +
+ *     distance-field shader switch + drop shadow + outlines + HALO/NEON + SHINY +
+ *     underline/strikethrough + box-drawing), drawGlyphs, drawBlocks, drawBlockSequence,
+ *     drawFancyLine, enableShader, loadFNT, loadJSON, loadSad. GlyphRegion extends
+ *     TextureRegion for rendering support. FontFamily has all upstream ctors
+ *     (arrays with offset/length, OrderedMap, Skin/FWSkin).
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
@@ -30,10 +31,11 @@
  * Covenant-verified: 2026-06-12
  *
  * Partial-port debt:
- *   - drawGlyph advanced effects: drop shadow, outlines, HALO, NEON, SHINY (need ColorUtils helpers)
- *   - Underline/strikethrough decoration rendering
- *   - Box-drawing character rendering (need BlockUtils.BOX_DRAWING)
- *   - Pixel-size projection-matrix calculation uses 1px≈1unit fallback (requires (using Sge) propagation into drawGlyph)
+ *   - ISS-617: UBJSON structured-font loading (.ubj / .ubj.lzma) is not supported —
+ *     SGE has no UBJsonReader -> Json AST bridge (only typed UBJsonCodec[T] derivation
+ *     exists), so loadJSON fails loudly for those two extensions (see loadJSON below).
+ *     Fixing this needs a core sge.utils UBJson -> AST bridge; out of scope for the
+ *     textra port and tracked as ISS-617.
  *
  * upstream-commit: 3fe5c930acc9d66cb0ab1a29751e44591c18e2c4
  */
