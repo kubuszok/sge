@@ -97,7 +97,10 @@ class Layout() {
       if ((glyph & 0xffffL) == 10L) {
         if (lines.size >= maxLines) {
           atLimit = true
-          break(this)
+          // Upstream returns null here (Layout.java:144) to signal "this line
+          // could not be added because the line cap was reached"; callers that
+          // append glyph-by-glyph rely on that null to stop feeding the Layout.
+          break(null)
         }
         val line = new Line()
         val prev = lines.last
