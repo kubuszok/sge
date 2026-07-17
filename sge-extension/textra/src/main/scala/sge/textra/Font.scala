@@ -2552,8 +2552,21 @@ class Font {
     centerX -= xShift * 0.5f
     centerY -= yShift * 0.5f
 
-    // Alternate mode and secondary color (needed by both box-drawing and glyph effects)
+    // Alternate mode and secondary color (needed by both box-drawing and glyph effects).
+    // Computed here, before the box-drawing branch, so box-drawing outlines use the
+    // colored-outline secondaryColor and (for HALO/NEON) the swapped primary color,
+    // exactly as upstream Font.java:5380-5398 does before its box branch at 5440.
     val altMode = glyph & Font.ALTERNATE_MODES_MASK
+
+    var drawColor = color
+    val secondaryColor: Float =
+      if (altMode == Font.HALO) { drawColor = PACKED_HALO_COLOR; color }
+      else if (altMode == Font.NEON) { drawColor = PACKED_WHITE; color }
+      else if (altMode == Font.BLUE_OUTLINE) PACKED_BLUE
+      else if (altMode == Font.RED_OUTLINE) PACKED_RED
+      else if (altMode == Font.YELLOW_OUTLINE) PACKED_YELLOW
+      else if (altMode == Font.WHITE_OUTLINE) PACKED_WHITE
+      else PACKED_BLACK
 
     // Box-drawing characters (offsetX is NaN)
     if (java.lang.Float.isNaN(tr.offsetX)) {
@@ -2586,7 +2599,7 @@ class Font {
               batch,
               if (dashed) utils.BlockUtils.BOX_DRAWING(ci & 3) else boxes,
               solidBlockGlyph,
-              utils.ColorUtils.lerpColorsMultiplyAlpha(color, color, Math.min(font.glowStrength * 0.6f / (xi * xi), 1f), batchAlpha1_5),
+              utils.ColorUtils.lerpColorsMultiplyAlpha(secondaryColor, drawColor, Math.min(font.glowStrength * 0.6f / (xi * xi), 1f), batchAlpha1_5),
               x,
               y,
               font.cellWidth * sizingX,
@@ -2601,7 +2614,7 @@ class Font {
             batch,
             if (dashed) utils.BlockUtils.BOX_DRAWING(ci & 3) else boxes,
             solidBlockGlyph,
-            utils.ColorUtils.multiplyAlpha(PACKED_BLACK, batchAlpha1_5),
+            utils.ColorUtils.multiplyAlpha(secondaryColor, batchAlpha1_5),
             x,
             y,
             font.cellWidth * sizingX,
@@ -2611,7 +2624,7 @@ class Font {
           )
         }
 
-        drawBlockSequence(batch, boxes, solidBlockGlyph, color, x, y, font.cellWidth * sizingX, font.cellHeight * scale * sizingY, rotation, breadth)
+        drawBlockSequence(batch, boxes, solidBlockGlyph, drawColor, x, y, font.cellWidth * sizingX, font.cellHeight * scale * sizingY, rotation, breadth)
       }
       scala.util.boundary.break(font.cellWidth)
     }
@@ -2716,16 +2729,7 @@ class Font {
     vertices(13) = u2; vertices(14) = v2
     vertices(18) = u2; vertices(19) = v
 
-    // Secondary color for outlines and effects
-    var drawColor = color
-    val secondaryColor: Float =
-      if (altMode == Font.HALO) { drawColor = PACKED_HALO_COLOR; color }
-      else if (altMode == Font.NEON) { drawColor = PACKED_WHITE; color }
-      else if (altMode == Font.BLUE_OUTLINE) PACKED_BLUE
-      else if (altMode == Font.RED_OUTLINE) PACKED_RED
-      else if (altMode == Font.YELLOW_OUTLINE) PACKED_YELLOW
-      else if (altMode == Font.WHITE_OUTLINE) PACKED_WHITE
-      else PACKED_BLACK
+    // (secondaryColor and drawColor were computed above, before the box-drawing branch)
 
     // Drop shadow effect
     if (altMode == Font.DROP_SHADOW) {
