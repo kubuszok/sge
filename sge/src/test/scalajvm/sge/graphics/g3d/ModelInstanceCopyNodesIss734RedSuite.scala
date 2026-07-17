@@ -34,14 +34,23 @@
  * In the not-found edge the old key is left untouched, so the copied instance
  * keeps a STALE reference into the foreign tree.
  *
- * NOTE (design dependency, flagged for the orchestrator): faithfully storing
- * null here is not a pure ModelInstance change — (a) the port's key type is the
- * non-nullable ArrayMap[Node, Matrix4], and (b) Node.calculateBoneTransforms
- * (Node.scala:126-141, OUTSIDE territory X) dereferences bindPose.getKeyAt(i)
- * .globalTransform, so a null key NPEs there (upstream LibGDX has the same
- * latent NPE). The complete fix spans ModelInstance + Node. This red pins the
- * observable stale-reference on the CURRENT tree (which does not NPE because the
- * foreign key stays non-null).
+ * RESOLVED CONTRACT (fixture repaired per ISS-825 precedent). The faithful
+ * null-store IS the fix: ModelInstance.invalidate now stores getNode(id) (its
+ * .orNull) UNCONDITIONALLY (ModelInstance.java:263) — a bone not in the instance
+ * tree becomes a severed null key instead of a stale foreign reference. But
+ * ModelInstance's constructor faithfully calls calculateTransforms() (upstream
+ * does too), and NodePart.set populates `bones` to invBoneBindTransforms.size
+ * (NodePart.java:88), so the size-guard in Node.calculateBoneTransforms does NOT
+ * skip: the severed key IS dereferenced DURING construction. Upstream LibGDX
+ * NPEs there (Node.java:94, `keys[0].globalTransform`); SGE instead raises a
+ * nameable SgeError.InvalidInput at that identical use site, naming the
+ * containing node and the bone index.
+ *
+ * So the correct observable is NOT "construction succeeds and the key was
+ * severed" (the original fixture's premise was factually impossible — no
+ * faithful implementation can complete construction here): it is that
+ * constructing a ModelInstance whose bind pose references a node outside the
+ * tree FAILS FAST with a severed-key error at the bone-transform use site.
  */
 package sge
 package graphics
@@ -49,6 +58,7 @@ package g3d
 
 import sge.graphics.g3d.model.{ MeshPart, Node, NodePart }
 import sge.math.Matrix4
+import sge.utils.SgeError
 import lowlevel.Nullable
 import lowlevel.util.ArrayMap
 
@@ -76,7 +86,7 @@ class ModelInstanceCopyNodesIss734RedSuite extends munit.FunSuite {
   }
 
   test(
-    "ISS-734 c3 (design-pin): a bone key referencing a node outside the instance tree must be severed on copy (orig ModelInstance.java:263 unconditional null-store)"
+    "ISS-734 c3: a bone key referencing a node outside the instance tree is severed (null-stored) and fails fast at the bone-transform use site (ModelInstance.java:263, Node.java:94)"
   ) {
     given Sge = SgeTestFixture.testSge()
 
@@ -98,17 +108,30 @@ class ModelInstanceCopyNodesIss734RedSuite extends munit.FunSuite {
     val model = new Model()
     model.nodes.add(root)
 
-    // Copying the model into an instance runs invalidate() on the copied nodes.
-    // getNode("bone") is not found in the instance tree {root}.
-    val instance = new ModelInstance(model)
-
-    val copiedBinds = instance.nodes(0).parts(0).invBoneBindTransforms.getOrElse(fail("copied part lost its bind pose"))
-    val key0        = copiedBinds.getKeyAt(0)
+    // Copying the model into an instance runs invalidate() on the copied nodes;
+    // getNode("bone") is not found in the instance tree {root}, so the key is
+    // severed (null-stored, ModelInstance.java:263). The constructor's faithful
+    // calculateTransforms() -> calculateBoneTransforms then dereferences it:
+    // upstream NPEs (Node.java:94), SGE fails fast with a nameable
+    // SgeError.InvalidInput at the same use site. Construction cannot succeed
+    // under any faithful implementation, so we assert the fail-fast, not a
+    // post-construction key inspection.
+    val ex = intercept[SgeError.InvalidInput] {
+      val _ = new ModelInstance(model)
+    }
+    val msg = ex.getMessage
 
     assert(
-      key0 ne foreignBone,
-      "a not-found bone key must be severed from the foreign source tree (ModelInstance.java:263 stores getNode(id), which is null when not found); " +
-        "the port's conditional rebind (ModelInstance.scala:193-196) leaves the stale foreign Node reference in place"
+      msg.contains("severed"),
+      s"the failure must state the bone key was severed (ModelInstance.java:263 null-store); got: $msg"
+    )
+    assert(
+      msg.contains("'root'"),
+      s"the failure must name the containing node ('root'); got: $msg"
+    )
+    assert(
+      msg.contains("index 0"),
+      s"the failure must name the offending bone index (0); got: $msg"
     )
   }
 }
