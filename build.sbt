@@ -1084,6 +1084,11 @@ val `sge-android-robolectric` = (projectMatrix in file("sge-test/android-robolec
       "org.robolectric" % "sandbox"                  % "4.16.1"                     % Provided,
       "com.github.sbt"  % "junit-interface"          % "0.13.3"                     % Test,
       "junit"           % "junit"                    % "4.13.2"                     % Test,
+      // Mockito injects the exact caught exception types into MediaPlayer seams at
+      // runtime (ByteBuddy), keeping zinc away from instrumented-subclass sources
+      // (ISS-730 c5 / ISS-723 c11 swallow-site suite; see AndroidImplRobolectricTest
+      // scope-boundary note).
+      "org.mockito"     % "mockito-core"             % "5.18.0"                     % Test,
       ("androidx.test"    % "monitor" % "1.8.0" % Aar)
         .intransitive()
         .artifacts(Artifact("monitor", "aar", "aar")),
