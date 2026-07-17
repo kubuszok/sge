@@ -21,8 +21,11 @@
  * Pin: an integer-position font with cellHeight 16 (xOutline = yOutline =
  * outlineStrength * cellHeight / 32 = 0.5) drawing 'A' | BLACK_OUTLINE at an
  * integer position produces 8 outline quads offset by xa, ya in {-0.5, 0, 0.5}.
- * Upstream rounds each vertex (handleIntegerPosition == Math.round when
- * integerPosition), so EVERY drawn position vertex is a whole number; in the
+ * Upstream's handleIntegerPosition NO-OPs at 3fe5c930 (Font.java:5254-5256:
+ * `return p;//integerPosition ? MathUtils.round(p) : p;` — the round is commented
+ * out), so upstream does NOT snap these vertices. SGE deliberately honors the
+ * useIntegerPositions contract and rounds instead — a ratified deviation (ISS-836)
+ * — so under integer positions EVERY drawn vertex should be a whole number; in the
  * port the offset outline quads keep .5 fractions. The main-glyph quad is
  * written with handleIntegerPosition in both (Font.scala:2807-2812), so
  * asserting integrality over all drawn quads is red only through the outline
