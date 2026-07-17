@@ -1004,7 +1004,9 @@ class TypingLabel(using Sge) extends TextraLabel {
   /// --- Size / Layout ---      ///
   //////////////////////////////////
 
-  override def setWidth(width: Float): Unit =
+  override def setWidth(width: Float): Unit = boundary {
+    // If the window is minimized, we have invalid dimensions and shouldn't process resizing.
+    if (Sge().graphics.width.toInt <= 0 || Sge().graphics.height.toInt <= 0) break(())
     if (this.getWidth != width) {
       this.setSuperWidth(width)
       sizeChanged()
@@ -1012,22 +1014,32 @@ class TypingLabel(using Sge) extends TextraLabel {
         workingLayout.setTargetWidth(width)
         workingLayout.justification = defaultJustify
         font.regenerateLayout(workingLayout)
+        // This needs to work on the hierarchy; see TableWrapTest for evidence.
         invalidateHierarchy()
       }
     }
+  }
 
-  override def setHeight(height: Float): Unit =
+  override def setHeight(height: Float): Unit = boundary {
+    // If the window is minimized, we have invalid dimensions and shouldn't process resizing.
+    if (Sge().graphics.width.toInt <= 0 || Sge().graphics.height.toInt <= 0) break(())
     if (this.getHeight != height) {
       this.setSuperHeight(height)
       sizeChanged()
       if (workingLayout != null) { // @nowarn — guard for init ordering
         workingLayout.justification = defaultJustify
         font.regenerateLayout(workingLayout)
+        // This needs to work on the hierarchy; see TableWrapTest for evidence.
         invalidateHierarchy()
       }
     }
+  }
 
-  override def setSize(width: Float, height: Float): Unit = {
+  override def setSize(width: Float, height: Float): Unit = boundary {
+    // If the window is minimized, we have invalid dimensions and shouldn't process resizing.
+    if (Sge().graphics.width.toInt <= 0 || Sge().graphics.height.toInt <= 0) break(())
+    // unfortunately, we can't call super.setSize(width, height) because
+    // it changes layout, where we only want to change workingLayout.
     var changed = false
     if (this.getWidth != width) {
       this.setSuperWidth(width)

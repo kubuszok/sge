@@ -277,6 +277,10 @@ class TextraLabel(using Sge) extends Widget {
     storedText = defaultToken + markupText
     if (wrap) baseLayout.setTargetWidth(width)
     font.markup(storedText, baseLayout.clear())
+
+//        setWidth(layout.getWidth() + (style != null && style.background != null ?
+//                style.background.getLeftWidth() + style.background.getRightWidth() : 0.0f));
+    invalidateHierarchy()
   }
 
   /** By default, does nothing; this is overridden in TypingLabel to skip its text progression ahead. */
@@ -296,7 +300,9 @@ class TextraLabel(using Sge) extends Widget {
   }
 
   /** Performs layout calculations, adjusting wrapping and target width. Called by validate() or when wrap changes. */
-  def doLayout(): Unit = {
+  def doLayout(): Unit = boundary {
+    // If the window is minimized, we have invalid dimensions and shouldn't process resizing.
+    if (Sge().graphics.width.toInt <= 0 || Sge().graphics.height.toInt <= 0) break(())
     val width         = this.width
     var adjustedWidth = width
     Nullable.foreach(style) { s =>
@@ -317,12 +323,16 @@ class TextraLabel(using Sge) extends Widget {
           baseLayout.setTargetWidth(adjustedWidth)
         }
         font.regenerateLayout(baseLayout)
+
+// We do not want to call invalidateHierarchy() here! It would force regeneration every frame.
       }
 
-      // If the call to calculateSize() changed layout's height, update height.
+      // If the call to calculateSize() changed layout's height, we want to update height and invalidateHierarchy().
       val newHeight = baseLayout.getHeight
       if (!lowlevel.math.MathUtils.isEqual(originalHeight, newHeight)) {
         setSuperHeight(newHeight)
+        invalidateHierarchy()
+        // We don't want to call setHeight() because it would calculateSize() again, which isn't needed.
       }
     }
   }
