@@ -2393,16 +2393,22 @@ class Font {
   }
 
   /** Returns x rounded to integer position if [[integerPosition]] is true, otherwise returns x unchanged. */
+  // Idiom/deviation (ISS-836, ratified wave-F): upstream Font.java:5254-5256 at 3fe5c930 has the rounding
+  // commented out (`return p;//integerPosition ? MathUtils.round(p) : p;`), making handleIntegerPosition a
+  // no-op and useIntegerPositions(true) a dead knob upstream. SGE deliberately honors the documented contract
+  // of the flag by rounding here; the whole-number vertices this produces are a ratified SGE deviation.
   protected def handleIntegerPosition(x: Float): Float =
     if (integerPosition) Math.round(x).toFloat else x
 
   /** Sets the quad position vertices (0,1,5,6,10,11,15,16) for a rotated quad from 3 corner offsets. The fourth corner (vertex 3 = index 15,16) is computed as v0 - v1 + v2.
     *
-    * When `integer` is true each position vertex is written through [[handleIntegerPosition]], matching the outline (Font.java:5659-5660) and HALO/NEON (Font.java:5680-5681) copies upstream, which
-    * snap to whole positions under integer positioning. DROP_SHADOW, SHINY and the bold copies pass `integer = false` because upstream does not round those.
+    * When `integer` is true each position vertex is written through the family-connected `font`'s [[handleIntegerPosition]] (ISS-835), matching the outline (Font.java:5659-5660) and HALO/NEON
+    * (Font.java:5680-5681) copies upstream, which snap to whole positions under integer positioning. DROP_SHADOW, SHINY and the bold copies pass `integer = false` because upstream does not round
+    * those.
     */
   private def setQuadVertices(
     verts:   Array[Float],
+    font:    Font,
     x:       Float,
     y:       Float,
     p0x:     Float,
@@ -2416,12 +2422,12 @@ class Font {
     integer: Boolean = false
   ): Unit = {
     if (integer) {
-      verts(0) = handleIntegerPosition(x + cos * p0x - sin * p0y)
-      verts(1) = handleIntegerPosition(y + sin * p0x + cos * p0y)
-      verts(5) = handleIntegerPosition(x + cos * p1x - sin * p1y)
-      verts(6) = handleIntegerPosition(y + sin * p1x + cos * p1y)
-      verts(10) = handleIntegerPosition(x + cos * p2x - sin * p2y)
-      verts(11) = handleIntegerPosition(y + sin * p2x + cos * p2y)
+      verts(0) = font.handleIntegerPosition(x + cos * p0x - sin * p0y)
+      verts(1) = font.handleIntegerPosition(y + sin * p0x + cos * p0y)
+      verts(5) = font.handleIntegerPosition(x + cos * p1x - sin * p1y)
+      verts(6) = font.handleIntegerPosition(y + sin * p1x + cos * p1y)
+      verts(10) = font.handleIntegerPosition(x + cos * p2x - sin * p2y)
+      verts(11) = font.handleIntegerPosition(y + sin * p2x + cos * p2y)
     } else {
       verts(0) = x + cos * p0x - sin * p0y
       verts(1) = y + sin * p0x + cos * p0y
@@ -2558,12 +2564,12 @@ class Font {
     val ox = x
     val oy = y
 
-    val ix     = handleIntegerPosition(x + centerX)
-    val iy     = handleIntegerPosition(y + centerY)
+    val ix     = font.handleIntegerPosition(x + centerX)
+    val iy     = font.handleIntegerPosition(y + centerY)
     val xShift = (x + centerX) - ix
     val yShift = (y + centerY) - iy
-    x = handleIntegerPosition(ix - xShift)
-    y = handleIntegerPosition(iy - yShift)
+    x = font.handleIntegerPosition(ix - xShift)
+    y = font.handleIntegerPosition(iy - yShift)
     centerX -= xShift * 0.5f
     centerY -= yShift * 0.5f
 
@@ -2772,7 +2778,7 @@ class Font {
         while (yi <= 1) {
           if (xi != 0 || yi != 0) {
             val ya = yi * yOutline
-            setQuadVertices(vertices, x + xa, y + ya, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos, integer = true)
+            setQuadVertices(vertices, font, x + xa, y + ya, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos, integer = true)
             drawVertices(batch, tex, vertices)
           }
           yi += 1
@@ -2792,7 +2798,7 @@ class Font {
         while (yi <= 3) {
           if ((xi != 0 || yi != 0) && (Math.abs(yi) + Math.abs(xi) <= widthAdj + 1)) {
             val ya = yi * yOutline
-            setQuadVertices(vertices, x + xa, y + ya, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos, integer = true)
+            setQuadVertices(vertices, font, x + xa, y + ya, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos, integer = true)
             drawVertices(batch, tex, vertices)
           }
           yi += 1
@@ -2809,7 +2815,7 @@ class Font {
         var xa = xi * xOutline
         if (widthAdj == 1 && (xi > 0 || boldStrength >= 1f)) xa *= boldStrength
         val ya = 1.5f * yOutline
-        setQuadVertices(vertices, x + xa, y + ya, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos)
+        setQuadVertices(vertices, font, x + xa, y + ya, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos)
         drawVertices(batch, tex, vertices)
         xi += 1
       }
@@ -2817,12 +2823,12 @@ class Font {
 
     // Draw the main glyph
     vertices(2) = drawColor; vertices(7) = drawColor; vertices(12) = drawColor; vertices(17) = drawColor
-    vertices(0) = handleIntegerPosition(x + cos * p0x - sin * p0y)
-    vertices(1) = handleIntegerPosition(y + sin * p0x + cos * p0y)
-    vertices(5) = handleIntegerPosition(x + cos * p1x - sin * p1y)
-    vertices(6) = handleIntegerPosition(y + sin * p1x + cos * p1y)
-    vertices(10) = handleIntegerPosition(x + cos * p2x - sin * p2y)
-    vertices(11) = handleIntegerPosition(y + sin * p2x + cos * p2y)
+    vertices(0) = font.handleIntegerPosition(x + cos * p0x - sin * p0y)
+    vertices(1) = font.handleIntegerPosition(y + sin * p0x + cos * p0y)
+    vertices(5) = font.handleIntegerPosition(x + cos * p1x - sin * p1y)
+    vertices(6) = font.handleIntegerPosition(y + sin * p1x + cos * p1y)
+    vertices(10) = font.handleIntegerPosition(x + cos * p2x - sin * p2y)
+    vertices(11) = font.handleIntegerPosition(y + sin * p2x + cos * p2y)
     vertices(15) = vertices(0) - vertices(5) + vertices(10)
     vertices(16) = vertices(1) - vertices(6) + vertices(11)
 
@@ -2835,18 +2841,18 @@ class Font {
       val rightStrength = if (boldStrength >= 0f) 1f else 0f
       if (rightStrength != 0f) {
         p0x = old0 + rightStrength; p1x = old1 + rightStrength; p2x = old2 + rightStrength
-        setQuadVertices(vertices, x, y, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos)
+        setQuadVertices(vertices, font, x, y, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos)
         drawVertices(batch, tex, vertices)
         p0x = old0 + rightStrength * 0.5f; p1x = old1 + rightStrength * 0.5f; p2x = old2 + rightStrength * 0.5f
-        setQuadVertices(vertices, x, y, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos)
+        setQuadVertices(vertices, font, x, y, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos)
         drawVertices(batch, tex, vertices)
       }
       if (leftStrength != 0f) {
         p0x = old0 - leftStrength; p1x = old1 - leftStrength; p2x = old2 - leftStrength
-        setQuadVertices(vertices, x, y, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos)
+        setQuadVertices(vertices, font, x, y, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos)
         drawVertices(batch, tex, vertices)
         p0x = old0 - leftStrength * 0.5f; p1x = old1 - leftStrength * 0.5f; p2x = old2 - leftStrength * 0.5f
-        setQuadVertices(vertices, x, y, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos)
+        setQuadVertices(vertices, font, x, y, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos)
         drawVertices(batch, tex, vertices)
       }
     }
@@ -2858,12 +2864,12 @@ class Font {
     val solidBlockGR = font.mapping.getOrElse(font.solidBlock.toInt, tr)
 
     if ((glyph & Font.UNDERLINE) != 0L && (c < 0xe000 || c >= 0xf800)) {
-      val uix = handleIntegerPosition(ox + oCenterX)
-      val uiy = handleIntegerPosition(oyAdj + oCenterY)
+      val uix = font.handleIntegerPosition(ox + oCenterX)
+      val uiy = font.handleIntegerPosition(oyAdj + oCenterY)
       val uxs = (ox + oCenterX) - uix
       val uys = (oyAdj + oCenterY) - uiy
-      val ux  = handleIntegerPosition(uix + uxs) + font.cellWidth * 0.5f
-      val uy  = handleIntegerPosition(uiy + uys)
+      val ux  = font.handleIntegerPosition(uix + uxs) + font.cellWidth * 0.5f
+      val uy  = font.handleIntegerPosition(uiy + uys)
       val ucx = oCenterX + uxs * 0.5f
       val ucy = oCenterY + uys * 0.5f
 
@@ -2967,12 +2973,12 @@ class Font {
     }
 
     if ((glyph & Font.STRIKETHROUGH) != 0L && (c < 0xe000 || c >= 0xf800)) {
-      val six = handleIntegerPosition(ox + oCenterX)
-      val siy = handleIntegerPosition(oyAdj + oCenterY)
+      val six = font.handleIntegerPosition(ox + oCenterX)
+      val siy = font.handleIntegerPosition(oyAdj + oCenterY)
       val sxs = (ox + oCenterX) - six
       val sys = (oyAdj + oCenterY) - siy
-      val sx  = handleIntegerPosition(six + sxs) + font.cellWidth * 0.5f
-      val sy  = handleIntegerPosition(siy + sys)
+      val sx  = font.handleIntegerPosition(six + sxs) + font.cellWidth * 0.5f
+      val sy  = font.handleIntegerPosition(siy + sys)
       val scx = oCenterX + sxs * 0.5f
       val scy = oCenterY + sys * 0.5f
 
@@ -3077,12 +3083,12 @@ class Font {
 
     // Fancy line modes (ERROR, WARN, NOTE, CONTEXT, SUGGEST)
     if (altMode >= Font.ERROR && altMode <= Font.NOTE && (c < 0xe000 || c >= 0xf800)) {
-      val fix = handleIntegerPosition(ox + oCenterX)
-      val fiy = handleIntegerPosition(oyAdj + oCenterY)
+      val fix = font.handleIntegerPosition(ox + oCenterX)
+      val fiy = font.handleIntegerPosition(oyAdj + oCenterY)
       val fxs = (ox + oCenterX) - fix
       val fys = (oyAdj + oCenterY) - fiy
-      val fx  = handleIntegerPosition(fix + fxs)
-      val fy  = handleIntegerPosition(fiy + fys)
+      val fx  = font.handleIntegerPosition(fix + fxs)
+      val fy  = font.handleIntegerPosition(fiy + fys)
       val fcx = oCenterX + fxs * 0.5f
       val fcy = oCenterY + fys * 0.5f
 
@@ -3858,8 +3864,9 @@ object Font {
     * @return
     *   1.0f, always; you need to get the scale from a Layout directly
     * @deprecated
-    *   use the Layout.sizing or Layout.advances fields in a Layout instead (upstream @Deprecated dropped: the frozen ISS-816 suite calls this under -deprecation -Werror without @nowarn)
+    *   use the Layout.sizing or Layout.advances fields in a Layout instead
     */
+  @deprecated("use the Layout.sizing or Layout.advances fields in a Layout instead", "")
   def extractScale(glyph: Long): Float = 1f
 
   /** This no longer does anything because scale is no longer stored inside each glyph, and isn't an int. This allows scales to smoothly change from 0.001f to 123456.789f, or whatever the user
@@ -3871,8 +3878,9 @@ object Font {
     * @return
     *   4, always; you need to get the scale from a Layout directly
     * @deprecated
-    *   use the Layout.sizing or Layout.advances fields in a Layout instead (upstream @Deprecated dropped: the frozen ISS-816 suite calls this under -deprecation -Werror without @nowarn)
+    *   use the Layout.sizing or Layout.advances fields in a Layout instead
     */
+  @deprecated("use the Layout.sizing or Layout.advances fields in a Layout instead", "")
   def extractIntScale(glyph: Long): Int = 4
 
   /** This no longer does anything because scale is no longer stored inside each glyph; this returns `glyph` without changes. The scale is now stored in [[Layout.sizing]] and a similar value (that
@@ -3885,8 +3893,9 @@ object Font {
     * @return
     *   glyph, without changes
     * @deprecated
-    *   scaling is now stored in both the Layout.sizing and Layout.advances fields in a Layout (upstream @Deprecated dropped: the frozen ISS-816 suite calls this under -deprecation -Werror without @nowarn)
+    *   scaling is now stored in both the Layout.sizing and Layout.advances fields in a Layout
     */
+  @deprecated("scaling is now stored in both the Layout.sizing and Layout.advances fields in a Layout", "")
   def applyScale(glyph: Long, scale: Float): Long =
     glyph
   // return (glyph & 0xFFFFFFFFFF0FFFFFL) | ((long) Math.floor(scale * 4.0 - 4.0) & 15L) << 20;
