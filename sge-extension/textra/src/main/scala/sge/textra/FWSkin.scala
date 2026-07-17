@@ -137,7 +137,7 @@ class FWSkin()(using Sge) extends Skin() {
     } catch {
       case ex: SgeError  => throw ex
       case ex: Exception =>
-        throw SgeError.InvalidInput("Error reading FWSkin file: " + skinFile + ": " + ex.getMessage)
+        throw SgeError.InvalidInput("Error reading FWSkin file: " + skinFile + ": " + ex.getMessage, Some(ex))
     }
   }
 
@@ -157,7 +157,7 @@ class FWSkin()(using Sge) extends Skin() {
             add(entryName, font, classOf[Font])
           } catch {
             case ex: RuntimeException =>
-              throw SgeError.InvalidInput("Error loading Font entry: " + entryName + ": " + ex.getMessage)
+              throw SgeError.InvalidInput("Error loading Font entry: " + entryName + ": " + ex.getMessage, Some(ex))
           }
         }
       case _ => ()
@@ -175,7 +175,7 @@ class FWSkin()(using Sge) extends Skin() {
             add(entryName, font, classOf[Font])
           } catch {
             case ex: RuntimeException =>
-              throw SgeError.InvalidInput("Error loading Font from BitmapFont entry: " + entryName + ": " + ex.getMessage)
+              throw SgeError.InvalidInput("Error loading Font from BitmapFont entry: " + entryName + ": " + ex.getMessage, Some(ex))
           }
         }
       case _ => ()
