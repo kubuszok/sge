@@ -602,6 +602,16 @@ val `sge-freetype` = (projectMatrix in file("sge-extension/freetype"))
     jvmPlatformApiClasspath,
     MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(
       libraryDependencies += "com.kubuszok" % "pnm-provider-sge-freetype-desktop" % Versions.nativeComponents,
+      // android.jar leaks onto freetype's test classpath transitively from `sge`
+      // core's Compile/unmanagedJars (when the Android SDK is present); multiarch's
+      // NativeLibLoader then detects the host as Android and resolves the wrong
+      // native-lib path (android-aarch64) instead of the desktop freetype provider.
+      // Mirror the sge-core/gltf filter (ISS-531 pattern; surfaced by the wave-E
+      // ISS-805 suites — the first freetype JVM tests to touch the FFI).
+      Test / fullClasspath := Def.uncached {
+        val conv = fileConverter.value
+        (Test / fullClasspath).value.filterNot(e => conv.toPath(e.data).getFileName.toString == "android.jar")
+      },
       Compile / packageBin / mappings ++= Def.uncached {
         val conv       = fileConverter.value
         val crossDir   = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "cross"
