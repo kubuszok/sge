@@ -17,6 +17,7 @@ package platform
 import java.lang.foreign.*
 import java.lang.foreign.ValueLayout.*
 import java.lang.invoke.MethodHandle
+import lowlevel.Nullable
 
 /** JVM implementation of [[WindowingOps]] via Panama FFM downcall handles to the GLFW shared library.
   *
@@ -263,11 +264,11 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
   // GLFWerrorfun signature: void(*)(int error, const char* description).
   private lazy val hSetErrorCb = h("glfwSetErrorCallback", FunctionDescriptor.of(P, P))
 
-  // Application-installed error callback (via setErrorCallback), or null to fall back to logging.
-  // errorCallbackStub below dispatches through this field, so an app callback installed BEFORE init()
-  // survives init()'s (re-)installation of the same persistent stub (ISS-807) — mirroring the Native
-  // backend's field-dispatch. null is the "unset" sentinel: GLFW errors then log via utils.Log.
-  private var appErrorCallback: (Int, String) => Unit = null
+  // Application-installed error callback (via setErrorCallback), or Nullable.empty to fall back to
+  // logging. errorCallbackStub below dispatches through this field, so an app callback installed
+  // BEFORE init() survives init()'s (re-)installation of the same persistent stub (ISS-807) —
+  // mirroring the Native backend's field-dispatch. When empty, GLFW errors log via utils.Log.
+  private var appErrorCallback: Nullable[(Int, String) => Unit] = Nullable.empty
 
   // The error-callback upcall stub must outlive init() — GLFW invokes it whenever
   // an error is reported, for the whole process lifetime. Allocate it in the
@@ -287,9 +288,9 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
             val message =
               if (description.address() == 0L) ""
               else readCStr(description)
-            val cb = appErrorCallback
-            if (cb != null) cb(error, message)
-            else utils.Log.error(s"GLFW error 0x${java.lang.Integer.toHexString(error)}: $message")
+            appErrorCallback.fold {
+              utils.Log.error(s"GLFW error 0x${java.lang.Integer.toHexString(error)}: $message")
+            } { cb => cb(error, message) }
           }
         },
         "invoke",
@@ -322,17 +323,17 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
   override def platform: Int =
     hGetPlatform.invoke().asInstanceOf[Int]
 
-  override def setErrorCallback(callback: (Int, String) => Unit): Unit =
-    if (callback == null) {
-      // null clears the application callback (trait contract) — drop back to GLFW having no callback.
-      appErrorCallback = null
+  override def setErrorCallback(callback: Nullable[(Int, String) => Unit]): Unit =
+    callback.fold {
+      // Empty clears the application callback (trait contract) — drop back to GLFW having no callback.
+      appErrorCallback = Nullable.empty
       hSetErrorCb.invoke(MemorySegment.NULL)
-    } else {
+    } { cb =>
       // Record the application callback and install the persistent dispatcher stub. Field-dispatch
       // (not a fresh per-callback stub) is what lets a callback installed BEFORE init() survive
       // init()'s own installation of the same stub (ISS-807). The stub outlives this call — GLFW
       // retains it for the process lifetime — so it lives in the long-lived upcallArena.
-      appErrorCallback = callback
+      appErrorCallback = Nullable(cb)
       hSetErrorCb.invoke(errorCallbackStub)
     }
 

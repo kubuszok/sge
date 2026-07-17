@@ -11,6 +11,8 @@
  *   Convention: GL20/GL30 created externally and passed in (WebGL20/WebGL30 are separate files)
  *   Idiom: OrientationLockType moved to BrowserApplicationConfig companion
  *   Idiom: Nullable for GL30/GL31/GL32 return types
+ *   Idiom: newCursor converts a non-RGBA8888 pixmap rather than rejecting it (SGE, like
+ *     DesktopCursor.create), where GwtCursor.java:32-34 throws (cross-platform parity, ISS-812)
  *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -249,9 +251,6 @@ class BrowserGraphics(
     // GdxRuntimeException maps to SgeError in SGE (see DesktopCursor.create).
     val x = xHotspot.toInt
     val y = yHotspot.toInt
-    if (pixmap.format != Pixmap.Format.RGBA8888) {
-      throw SgeError.GraphicsError("Cursor image pixmap is not in RGBA8888 format.")
-    }
     val w = pixmap.width.toInt
     val h = pixmap.height.toInt
     if ((w & (w - 1)) != 0) {
@@ -266,12 +265,27 @@ class BrowserGraphics(
     if (y < 0 || y >= h) {
       throw SgeError.GraphicsError(s"yHotspot coordinate of $y is not within image height bounds: [0, $h).")
     }
+    // GwtCursor rejects a non-RGBA8888 pixmap (GwtCursor.java:32-34); SGE instead CONVERTS it by
+    // copying into an RGBA8888 pixmap with blending disabled — exactly like DesktopCursor.create
+    // (DesktopCursor.scala:74-78, Lwjgl3Cursor.java:68-70) — so the same pixmap yields a working
+    // cursor on every platform (cross-platform parity, ISS-812). The power-of-two + hotspot-bounds
+    // checks above are kept faithfully.
     // GwtCursor builds `url('<data-url>')<x> <y>,auto` (GwtCursor.java:55-61) from the
     // pixmap's backing canvas via `toDataUrl("image/png")`. SGE's Pixmap is backed by a
     // Gdx2DPixmap rather than an HTMLCanvasElement, so encode the pixmap to a PNG data URL
     // via PixmapIO (no vertical flip, preserving the pixmap's top-left origin the canvas
     // would have used).
-    val cssCursorProperty = "url('" + pngDataUrl(pixmap) + "')" + x + " " + y + ",auto"
+    val cssCursorProperty =
+      if (pixmap.format == Pixmap.Format.RGBA8888) {
+        "url('" + pngDataUrl(pixmap) + "')" + x + " " + y + ",auto"
+      } else {
+        // Convert to RGBA8888 pre-PNG-encoding; the copy is transient (only pngDataUrl reads it).
+        val pixmapCopy = new Pixmap(w, h, Pixmap.Format.RGBA8888)
+        pixmapCopy.setBlending(Pixmap.Blending.None)
+        pixmapCopy.drawPixmap(pixmap, Pixels.zero, Pixels.zero)
+        try "url('" + pngDataUrl(pixmapCopy) + "')" + x + " " + y + ",auto"
+        finally pixmapCopy.close()
+      }
     Nullable(new BrowserCursor(cssCursorProperty))
   }
 

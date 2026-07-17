@@ -95,12 +95,12 @@ final private[sge] class Iss76xRecordingWindowingOps extends WindowingOps {
   var errorCallback: lowlevel.Nullable[(Int, String) => Unit] = lowlevel.Nullable.empty
 
   // ─── Initialization ──────────────────────────────────────────────────
-  override def setInitHint(hint: Int, value: Int):                Unit    = initHintCalls += ((hint, value))
-  override def init():                                            Boolean = true
-  override def terminate():                                       Unit    = {}
-  override def platform:                                          Int     = WindowingOps.GLFW_PLATFORM_NULL
-  override def setErrorCallback(callback: (Int, String) => Unit): Unit    =
-    errorCallback = lowlevel.Nullable(callback)
+  override def setInitHint(hint: Int, value: Int):                                   Unit    = initHintCalls += ((hint, value))
+  override def init():                                                               Boolean = true
+  override def terminate():                                                          Unit    = {}
+  override def platform:                                                             Int     = WindowingOps.GLFW_PLATFORM_NULL
+  override def setErrorCallback(callback: lowlevel.Nullable[(Int, String) => Unit]): Unit    =
+    errorCallback = callback
 
   // ─── Window lifecycle ────────────────────────────────────────────────
   override def createWindow(width: Int, height: Int, title: String): Long = {

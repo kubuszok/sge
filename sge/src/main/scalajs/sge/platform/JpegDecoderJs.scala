@@ -803,7 +803,11 @@ private[platform] object JpegDecoderJs {
               }
             } else {
               k += r
-              if (k <= se) c.blockData(blockOffset + zigzag(k)) = extend(receive(s), s) << al
+              // libjpeg always consumes the s magnitude bits (GET_BITS) before storing the
+              // coefficient; keep the bit reader in sync even when k has run past Se, guarding only
+              // the out-of-range array write (ISS-813).
+              val coeff = extend(receive(s), s) << al
+              if (k <= se) c.blockData(blockOffset + zigzag(k)) = coeff
               k += 1
             }
           }

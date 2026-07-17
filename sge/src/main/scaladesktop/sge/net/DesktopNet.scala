@@ -42,23 +42,51 @@ class DesktopNet(app: Application) extends sge.Net {
     val osName = System.getProperty("os.name", "").toLowerCase
     val uri    = java.net.URI.create(URI).toString
     try
+      // Faithful to Lwjgl3Net.openURI (Lwjgl3Net.java:74-98): macOS launches `open`, otherwise
+      // prefer java.awt.Desktop.browse (which hands a java.net.URI straight to the OS handler —
+      // never a shell), and fall back to a per-OS launcher command. The URI is NEVER routed
+      // through cmd's `start` builtin, which re-parses `&`/`^` as command separators and would
+      // truncate a query string (ISS-773).
       if (osName.contains("mac")) {
-        new ProcessBuilder("open", uri).start()
+        new ProcessBuilder(DesktopNet.openUriCommand(osName, uri)*).start()
         true
-      } else if (osName.contains("win")) {
-        new ProcessBuilder("cmd", "/c", "start", uri).start()
-        true
-      } else if (osName.contains("linux") || osName.contains("nix") || osName.contains("nux")) {
-        new ProcessBuilder("xdg-open", uri).start()
+      } else if (java.awt.Desktop.isDesktopSupported && java.awt.Desktop.getDesktop.isSupported(java.awt.Desktop.Action.BROWSE)) {
+        java.awt.Desktop.getDesktop.browse(java.net.URI.create(uri))
         true
       } else {
-        utils.Log.error("Opening URIs on this environment is not supported. Ignoring.")
-        false
+        val command = DesktopNet.openUriCommand(osName, uri)
+        if (command.nonEmpty) {
+          new ProcessBuilder(command*).start()
+          true
+        } else {
+          utils.Log.error("Opening URIs on this environment is not supported. Ignoring.")
+          false
+        }
       }
     catch {
       case t: Throwable =>
         utils.Log.error(s"Failed to open URI: ${t.getMessage}")
         false
     }
+  }
+}
+
+object DesktopNet {
+
+  /** Pure, launch-free construction of the per-OS process argv used to open a URI when `java.awt.Desktop.browse` is unavailable (the non-AWT fallback path of [[DesktopNet.openURI]]).
+    *
+    * The URI is always passed as a SINGLE argument so its query — ampersands included — reaches the launched program intact. Windows uses `rundll32 url.dll,FileProtocolHandler <uri>` rather than
+    * `cmd /c start <uri>`: cmd's `start` builtin re-parses `&`/`^` as command separators and would truncate the URI (ISS-773). macOS/Linux keep LibGDX's `open`/`xdg-open` (Lwjgl3Net.java:77,91),
+    * which already receive the URI as one argument.
+    *
+    * @return
+    *   the process argv, or `Nil` on an unsupported OS
+    */
+  private[sge] def openUriCommand(osName: String, uri: String): List[String] = {
+    val os = osName.toLowerCase
+    if (os.contains("mac")) List("open", uri)
+    else if (os.contains("win")) List("rundll32", "url.dll,FileProtocolHandler", uri)
+    else if (os.contains("linux") || os.contains("nix") || os.contains("nux")) List("xdg-open", uri)
+    else Nil
   }
 }

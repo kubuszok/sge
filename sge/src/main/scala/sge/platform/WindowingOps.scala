@@ -18,6 +18,8 @@
 package sge
 package platform
 
+import lowlevel.Nullable
+
 /** Windowing system operations (GLFW/SDL3). Defines the FFI contract for creating windows, handling input, cursors, and clipboard.
   *
   * Platform implementations:
@@ -56,9 +58,9 @@ private[sge] trait WindowingOps {
     * The default is a no-op: a windowing backend that does not surface errors this way simply ignores the callback. Real GLFW/SDL3 backends override this.
     *
     * @param callback
-    *   `(errorCode, description) => Unit`, invoked for each reported error; `null` clears it
+    *   `(errorCode, description) => Unit`, invoked for each reported error; `Nullable.empty` clears it (SGE null idiom, ISS-808)
     */
-  def setErrorCallback(callback: (Int, String) => Unit): Unit = ()
+  def setErrorCallback(callback: Nullable[(Int, String) => Unit]): Unit = ()
 
   // ─── Window lifecycle ──────────────────────────────────────────────────
 

@@ -111,7 +111,7 @@ class DesktopApplication(
     // Simplified format vs LWJGL's createPrint, which prints a multi-line block (symbolic error name
     // resolved via APIUtil.apiClassTokens, description, and a "Stacktrace:" dump of the reporting
     // thread); SGE prints a one-liner with the numeric code — same stream, same trigger, less detail.
-    windowing.setErrorCallback((code, description) => _config.errorStream.println(s"GLFW error $code: $description"))
+    windowing.setErrorCallback(Nullable((code, description) => _config.errorStream.println(s"GLFW error $code: $description")))
 
     if (!windowing.init()) {
       throw SgeError.GraphicsError("Unable to initialize windowing system")

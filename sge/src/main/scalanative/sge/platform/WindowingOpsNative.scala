@@ -16,6 +16,7 @@ package platform
 
 import java.nio.charset.StandardCharsets
 
+import lowlevel.Nullable
 import scala.scalanative.runtime.{ Intrinsics, fromRawPtr, toRawPtr }
 import scala.scalanative.unsafe.*
 import scala.scalanative.unsigned.UnsignedRichLong
@@ -246,7 +247,7 @@ private[sge] object WindowingOpsNative extends WindowingOps {
   override def platform: Int =
     GlfwC.glfwGetPlatform()
 
-  override def setErrorCallback(callback: (Int, String) => Unit): Unit = {
+  override def setErrorCallback(callback: Nullable[(Int, String) => Unit]): Unit = {
     // fnError (already installed in init()) dispatches to this field, so just record the callback.
     errorCallback = callback
     GlfwC.glfwSetErrorCallback(fnError)
@@ -485,7 +486,12 @@ private[sge] object WindowingOpsNative extends WindowingOps {
     // the pixel data before returning, so the zone-allocated buffer is freed once the call returns.
     val zone = Zone.open()
     try {
-      val pixels = pixmap.pixels
+      // pixmap.pixels is SHARED with the caller and with the Pixmap's own state; read it WITHOUT
+      // advancing its position by draining a duplicate() view (independent position/limit/mark),
+      // mirroring the JVM twin's non-consuming MemorySegment.ofBuffer(pixels) copy
+      // (WindowingOpsJvm.scala:609-613). Draining the shared buffer here left its position at the
+      // limit, corrupting any later read of the same pixmap (ISS-809).
+      val pixels = pixmap.pixels.duplicate()
       pixels.position(0)
       val numBytes  = pixels.remaining()
       val nativeBuf = zone.alloc(numBytes)
@@ -729,19 +735,19 @@ private[sge] object WindowingOpsNative extends WindowingOps {
   private val fnWindowRefresh = CFuncPtr1.fromScalaFunction[Ptr[Byte], Unit] { win =>
     val handle = longFromPtr(win); cbWindowRefresh.get(handle).foreach(_(handle))
   }
-  // Application-installed error callback (via setErrorCallback), or null to fall back to logging.
-  // Scala Native CFuncPtr cannot close over local state, so the static fnError below dispatches
-  // through this field. null is the C-interop "unset" sentinel, consistent with the callback maps.
-  private var errorCallback: (Int, String) => Unit = null
+  // Application-installed error callback (via setErrorCallback), or Nullable.empty to fall back to
+  // logging. Scala Native CFuncPtr cannot close over local state, so the static fnError below
+  // dispatches through this field (SGE null idiom: Nullable, not a bare null sentinel — ISS-808).
+  private var errorCallback: Nullable[(Int, String) => Unit] = Nullable.empty
 
   // GLFW error callback: dispatches to the application-installed callback if present, else logs so
   // GLFW failures surface (mirrors LibGDX's GLFWErrorCallback). Static CFuncPtr — outlives init()
   // for the process lifetime.
   private val fnError = CFuncPtr2.fromScalaFunction[CInt, CString, Unit] { (error, description) =>
     val message = if (description == null) "" else fromCString(description, UTF8)
-    val cb      = errorCallback
-    if (cb != null) cb(error, message)
-    else utils.Log.error(s"GLFW error 0x${java.lang.Integer.toHexString(error)}: $message")
+    errorCallback.fold {
+      utils.Log.error(s"GLFW error 0x${java.lang.Integer.toHexString(error)}: $message")
+    }(cb => cb(error, message))
   }
   private val fnKey = CFuncPtr5.fromScalaFunction[Ptr[Byte], CInt, CInt, CInt, CInt, Unit] { (win, key, scancode, action, mods) =>
     val handle = longFromPtr(win); cbKey.get(handle).foreach(_(handle, key, scancode, action, mods))

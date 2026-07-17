@@ -205,8 +205,20 @@ private[platform] object PngDecoderJs {
 
   private def deinterlaceAdam7(raw: Array[Byte], recon: Array[Byte], width: Int, height: Int, bpp: Int): Unit = {
     val lineBytes = width * bpp
-    var rawPos    = 0
-    var pass      = 0
+    // Each reduced-image row of each non-empty pass carries a filter byte + passLine data bytes;
+    // reject a truncated stream up-front, matching the non-interlaced branch's guard (:139). (ISS-813)
+    var needed = 0
+    var pIdx   = 0
+    while (pIdx < Adam7Passes.length) {
+      val (x0, y0, dx, dy) = Adam7Passes(pIdx)
+      val passW            = if (width > x0) (width - x0 + dx - 1) / dx else 0
+      val passH            = if (height > y0) (height - y0 + dy - 1) / dy else 0
+      if (passW > 0 && passH > 0) needed += (passW * bpp + 1) * passH
+      pIdx += 1
+    }
+    if (raw.length < needed) throw new PngError("truncated image data")
+    var rawPos = 0
+    var pass   = 0
     while (pass < Adam7Passes.length) {
       val (x0, y0, dx, dy) = Adam7Passes(pass)
       val passW            = if (width > x0) (width - x0 + dx - 1) / dx else 0
