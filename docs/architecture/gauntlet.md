@@ -162,6 +162,38 @@ The engine ships no default font, so the gauntlet bakes its own
 (`GauntletFont`): a 5x7 pixel font generated into a texture at runtime — used
 by the font probes and the interactive UI.
 
+## Phase 2 probe set (ISS-796)
+
+Adds the areas the release review flagged as unverified — real Tiled file
+loading, 9-patch/particle/viewport rendering, FreeType glyphs, physics
+determinism, and the ISS-757 Label metric — bringing the registry to 25 probes.
+
+Non-GPU (execute in headless CI): `audio/music-state` (Music volume/looping/seek
+round-trip + `Volume` clamp edges), `maps/tmx-load` and `maps/tmj-load`
+(JVM-only — drive the real `TmxMapLoader`/`TmjMapLoader` over hand-written
+fixtures: external `.tsx`/`.tsj` tileset + a generated PNG, gzip/zlib+base64 and
+CSV layers, object layer with a typed property; replicating the ISS-767
+`TiledMapFileLoadingSuite` builders in `TiledFixtures`), `ext/physics-step`
+(JVM-only — Rapier2D gravity fall vs the analytic semi-implicit-Euler drop, plus
+a run-to-run determinism check through the Panama backend).
+
+GPU: `g2d/ninepatch` (borders stay fixed while the center stretches — pixel
+asserts at border/just-past-border/center), `g2d/particles` (a real
+`ParticleEffect` loaded from an authored `.p` descriptor: emission ink appears
+at the emitter, a non-continuous effect completes), `g2d/viewport-letterbox`
+(FitViewport pillarbox geometry + rendered bars/content, rendering into the
+fixed FBO with the raw GL viewport to bypass HiDPI backbuffer scaling),
+`scene2d/label-fontscale` (ISS-757 B.2: font scale 2 doubles both `prefHeight`
+and the measured ink-block height), `text/freetype-glyph` (JVM-only — generates
+a `BitmapFont` from a real system outline TTF via the freetype natives; tries
+candidate font paths and keeps the first that rasterizes crisp outline glyphs,
+skipping embedded-bitmap fonts like macOS Geneva; fails honestly if none is
+usable rather than fabricating a pass).
+
+The Tiled, physics and freetype probes are JVM-only (`ImageIO`/`java.util.zip`,
+the Panama physics backend, and the freetype provider natives) and are appended
+by the JVM launcher alongside the net probes.
+
 ## Adding a probe
 
 1. Create an object extending `FeatureProbe` under
@@ -191,14 +223,17 @@ linux desktop).
 - **Phase 1 (this)**: JVM row only; probe core + shared probes are
   platform-agnostic (`src/main/scala`), the launcher split follows the
   regression-app pattern (`scaladesktop` headless runner, `scalajvm` main).
-- **Phase 2 — browser + native**: add JS and Native rows to the matrix. The
-  Native row reuses `HeadlessRunner`/`GauntletMain` patterns directly
+- **Phase 2 — probe expansion (ISS-796, done)**: the candidate probes below
+  are implemented (see "Phase 2 probe set") — TMX/TMJ fixture loading, NinePatch
+  stretch, 2D particles, viewport letterboxing, the FreeType glyph probe
+  (JVM/Native only) and the `Label.setFontScale` metric — still on the JVM row.
+- **Phase 2b — browser + native rows**: add JS and Native rows to the matrix.
+  The Native row reuses `HeadlessRunner`/`GauntletMain` patterns directly
   (mirror `regressionTest`'s `NativeMain` + resource embedding); the browser
   row needs a JS launcher and a report sink (postMessage/console protocol)
-  and rides the existing Playwright harness in `sge-test/it-browser`.
-  Candidate additions: TMX/TMJ fixture probes, NinePatch stretch, 2D
-  particles, viewport letterboxing, FreeType glyph probe (JVM/Native only),
-  Label.setFontScale metrics.
+  and rides the existing Playwright harness in `sge-test/it-browser`. The
+  JVM-only probes (Tiled `ImageIO`/zip, Panama physics, freetype natives) stay
+  launcher-appended; the platform-agnostic GPU probes move with the shared set.
 - **Phase 3 — Android**: drive the same registry from an instrumentation
   activity following the `sge-it-android` smoke-APK pattern; report over
   logcat with the `SGE-GAUNTLET:` prefix.

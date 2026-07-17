@@ -12,10 +12,16 @@ package gauntlet
   */
 object GauntletMain {
 
-  /** JVM-only probes appended to the shared registry (JDK loopback HTTP server, JDK stream plumbing). */
+  /** JVM-only probes appended to the shared registry (JDK loopback networking, JVM-only Tiled load path, Panama physics backend, freetype natives). Non-GPU first so headless CI reports executable
+    * probes before skips.
+    */
   private def jvmProbes: List[FeatureProbe] = List(
     probes.NetHttpLoopbackProbe,
-    probes.NetSocketsLoopbackProbe
+    probes.NetSocketsLoopbackProbe,
+    probes.TmxLoadProbe,
+    probes.TmjLoadProbe,
+    probes.PhysicsStepProbe,
+    probes.FreetypeGlyphProbe
   )
 
   def main(args: Array[String]): Unit =
