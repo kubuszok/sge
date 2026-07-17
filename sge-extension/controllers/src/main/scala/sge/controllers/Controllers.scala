@@ -36,7 +36,8 @@ import scala.collection.mutable.ArrayBuffer
   * ===One-line-ish bootstrap===
   *
   * Real applications wire the platform backend and the manager, then install the auto-poll into the running app. Each platform exposes the matching `init()` so the platform
-  * `pollControllerImpl`/`getConnectedControllersImpl` is installed (the issue's "zero call sites" complaint):
+  * `pollControllerImpl`/`getConnectedControllersImpl` is installed (the issue's "zero call sites" complaint). Every `init()` is infallible and establishes its own native-symbol availability, so it is
+  * safe to call in any bootstrap order — the desktop JVM `init()` loads GLFW itself (the same way `WindowingOpsJvm` does) rather than assuming a window already loaded it:
   * {{{
   *   // Desktop JVM:    GlfwControllerJvmInit.init();    Controllers.initialize(DefaultControllerManager(GlfwControllerBackend()))
   *   // Desktop Native: GlfwControllerNativeInit.init();  Controllers.initialize(DefaultControllerManager(GlfwControllerBackend()))

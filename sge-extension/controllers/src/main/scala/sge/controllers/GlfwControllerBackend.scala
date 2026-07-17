@@ -8,11 +8,6 @@
  * Covenant-source-reference: com/badlogic/gdx/controllers/desktop/support/JamepadController.java
  * Covenant-verified: 2026-04-08
  *
- * Partial-port debt:
- *   - JVM polling stub: GLFW joystick functions are not exposed through the sge-core Panama
- *     downcall layer yet. The Scala Native variant uses @extern bindings directly and is
- *     functional. JVM polling returns disconnected state until the Panama downcalls land.
- *
  * upstream-commit: 124b68125c7ef9c552085865379f77e8bee2ae3b
  */
 package sge
@@ -20,8 +15,8 @@ package controllers
 
 /** [[ControllerOps]] implementation for desktop platforms using GLFW joystick/gamepad APIs.
   *
-  * On Scala Native, this calls GLFW functions directly via @extern bindings. On JVM, this is a polling stub pending Panama downcall wiring (GLFW is loaded but joystick functions aren't exposed
-  * through the sge-core Panama layer yet).
+  * On Scala Native, this calls GLFW functions directly via @extern bindings ([[GlfwControllerNativeInit]]). On JVM, [[GlfwControllerJvmInit.init]] installs a Panama FFM downcall implementation that
+  * loads GLFW itself and degrades to Disconnected when GLFW is unavailable/uninitialized. Until the platform's `init()` runs, the seam holds the Disconnected default below.
   *
   * GLFW supports up to 16 joysticks (GLFW_JOYSTICK_1 through GLFW_JOYSTICK_LAST). The gamepad state structure contains 15 buttons and 6 axes matching the SDL GameController layout.
   */
@@ -47,7 +42,8 @@ class GlfwControllerBackend extends ControllerOps {
 
 object GlfwControllerBackend {
 
-  /** Platform-specific polling implementation. On Scala Native, this is overridden by the actual GLFW FFI bindings in scalanative/. On JVM, this returns Disconnected (stub).
+  /** Platform-specific polling implementation. Installed by the platform `init()`: [[GlfwControllerNativeInit.init]] on Scala Native, [[GlfwControllerJvmInit.init]] (Panama FFM) on JVM. Until then it
+    * is the Disconnected default below.
     */
   private[controllers] var pollControllerImpl: Int => ControllerState = _ => ControllerState.Disconnected
 
