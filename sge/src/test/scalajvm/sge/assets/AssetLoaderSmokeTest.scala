@@ -196,6 +196,49 @@ class AssetLoaderSmokeTest extends FunSuite {
     assert(e.getMessage.contains("TextureAtlasData not loaded"), e.getMessage)
   }
 
+  // ─── ISS-830 (Also-clause): guard paths for the remaining loaders ────
+
+  test("ShaderProgramLoader accepts the (resolver, vertexSuffix, fragmentSuffix) convenience ctor [coverage]") {
+    // Re-adds the ShaderProgramLoader(resolver, ".vs", ".fs") construction pin
+    // dropped in the ISS-722 rewrite. The 3-arg ctor exists in both the port
+    // (ShaderProgramLoader.scala:32) and the original (ShaderProgramLoader.java:45,
+    // `public ShaderProgramLoader (FileHandleResolver, String, String)`). A
+    // custom-suffix loader is still a functioning AssetLoader: it resolves names
+    // through its resolver and declares no dependencies (loadSync's suffix
+    // resolution + ShaderProgram compile is GL-bound, out of scope here).
+    val loader = ShaderProgramLoader(stubResolver, ".vs", ".fs")
+    assertEquals(loader.resolve("basic.vs").path, "basic.vs")
+    assertEquals(
+      loader.getDependencies("basic.vs", handle("basic.vs"), ShaderProgramLoader.ShaderProgramParameter()).size,
+      0
+    )
+  }
+
+  test("SkinLoader.loadSync fails when the atlas dependency has not been loaded [coverage]") {
+    // SkinLoader.loadSync looks the sibling .atlas up in the AssetManager
+    // (SkinLoader.scala:73). Without the dependency phase the manager holds no
+    // such asset, so the lookup throws before any GL work (newSkin / skin.load)
+    // is reached — a headless-feasible guard contract.
+    val e = intercept[SgeError.InvalidInput] {
+      SkinLoader(stubResolver).loadSync(bareManager, "ui.json", handle("ui.json"), SkinLoader.SkinParameter())
+    }
+    assert(e.getMessage.contains("Asset not loaded"), e.getMessage)
+    assert(e.getMessage.contains("ui.atlas"), e.getMessage)
+  }
+
+  test("BitmapFontLoader.loadSync fails when getDependencies has not parsed the font data [coverage]") {
+    // In this port BitmapFontData is populated by getDependencies (loadAsync is a
+    // no-op, BitmapFontLoader.scala:75). Calling loadSync first leaves `data`
+    // empty, so the default (non-atlas) branch throws
+    // GraphicsError("BitmapFontData not loaded") (BitmapFontLoader.scala:93)
+    // before touching the manager or any GL. (Assembling the actual font is
+    // GL-bound, out of scope.)
+    val e = intercept[SgeError.GraphicsError] {
+      BitmapFontLoader(stubResolver).loadSync(bareManager, "font.fnt", handle("font.fnt"), BitmapFontLoader.BitmapFontParameter())
+    }
+    assert(e.getMessage.contains("BitmapFontData not loaded"), e.getMessage)
+  }
+
   // ─── Parameter defaults ─────────────────────────────────────────────
 
   test("AssetLoaderParameters defaults to an empty loaded-callback") {
