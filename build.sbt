@@ -1277,6 +1277,24 @@ val `sge-gauntlet` = (projectMatrix in file("sge-test/gauntlet"))
       // Class.forName("android.app.Activity") — so android.jar on the runtime
       // classpath makes every native-lib lookup resolve the wrong
       // android-<arch> path. Mirrors the sge-core / sge-it-desktop filters.
+      //
+      // ISS-796 bounce #2: sbt 2's forked `run` does NOT consume Runtime/fullClasspath —
+      // `inspect sge-gauntlet/Compile/run` shows it depends on
+      // `Runtime / fullClasspathAsJars` (bg-jobs then materializes those jars under
+      // target/bg-jobs/<hash>/, basename preserved — the forked java command line
+      // carried …/bg-jobs/…/android.jar). So on SDK-present machines the
+      // Runtime/fullClasspath-only filter never intercepted the run, NativeLibLoader
+      // saw android.app.Activity, detected the host as android-aarch64 and every
+      // native-lib lookup UnsatisfiedLinkError'd. Filter all three keys: AsJars is
+      // what `run` forks with; the plain keys cover tools that read them.
+      Runtime / fullClasspathAsJars := Def.uncached {
+        val conv = fileConverter.value
+        (Runtime / fullClasspathAsJars).value.filterNot(e => conv.toPath(e.data).getFileName.toString == "android.jar")
+      },
+      Compile / fullClasspath := Def.uncached {
+        val conv = fileConverter.value
+        (Compile / fullClasspath).value.filterNot(e => conv.toPath(e.data).getFileName.toString == "android.jar")
+      },
       Runtime / fullClasspath := Def.uncached {
         val conv = fileConverter.value
         (Runtime / fullClasspath).value.filterNot(e => conv.toPath(e.data).getFileName.toString == "android.jar")
