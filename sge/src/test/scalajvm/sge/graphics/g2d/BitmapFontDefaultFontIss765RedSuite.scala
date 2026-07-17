@@ -89,7 +89,7 @@ class BitmapFontDefaultFontIss765RedSuite extends munit.FunSuite {
     // no lsans-15.* ships under sge resources, so getResource returns null for
     // every candidate path — `new BitmapFont()` could not work even if the
     // constructor were added.
-    val cl = getClass.getClassLoader
+    val cl      = getClass.getClassLoader
     val missing = SGE_DEFAULT_FONT_PATHS.filter(p => cl.getResource(p) == null)
     assert(
       missing.isEmpty,
