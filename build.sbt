@@ -1280,7 +1280,8 @@ val `sge-gauntlet` = (projectMatrix in file("sge-test/gauntlet"))
   .settings(noPublishSettings)
   .settings(mimaSettings)
   .settings(name := "sge-test-gauntlet")
-  .dependsOn(sge, `sge-jbump`, `sge-ai`)
+  // sge-freetype (freetype-glyph probe) + sge-physics (physics-step probe) — ISS-796 Phase 2.
+  .dependsOn(sge, `sge-jbump`, `sge-ai`, `sge-freetype`, `sge-physics`)
 
 // Desktop integration tests — launches a real GLFW + ANGLE window with
 // miniaudio audio engine and exercises all subsystems end-to-end:
