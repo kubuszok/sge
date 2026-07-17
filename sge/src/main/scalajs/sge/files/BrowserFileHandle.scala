@@ -71,7 +71,7 @@ class BrowserFileHandle(
   }
 
   override def file: File =
-    throw new UnsupportedOperationException("BrowserFileHandle does not support java.io.File")
+    throw utils.SgeError.Unsupported("BrowserFileHandle does not support java.io.File")
 
   // ─── Read methods ─────────────────────────────────────────────────────
 

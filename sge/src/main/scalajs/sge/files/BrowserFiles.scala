@@ -9,7 +9,7 @@
  *   Convention: Scala.js only; uses BrowserAssetLoader (build-time-embedded
  *     resources via multiarch.resources.PlatformResources) instead of GWT Preloader
  *   Convention: Only Internal FileType supported (browser has no filesystem)
- *   Idiom: GdxRuntimeException -> SgeError.InvalidInput
+ *   Idiom: unsupported browser capabilities -> SgeError.Unsupported (ISS-771)
  *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -33,7 +33,7 @@ class BrowserFiles(val assetLoader: BrowserAssetLoader) extends sge.Files {
       case FileType.Classpath =>
         BrowserFileHandle(assetLoader, path, FileType.Classpath)
       case other =>
-        throw utils.SgeError.InvalidInput(s"FileType $other is not supported in browser")
+        throw utils.SgeError.Unsupported(s"FileType $other is not supported in browser")
     }
 
   override def classpath(path: String): FileHandle =
@@ -43,13 +43,13 @@ class BrowserFiles(val assetLoader: BrowserAssetLoader) extends sge.Files {
     BrowserFileHandle(assetLoader, path, FileType.Internal)
 
   override def external(path: String): FileHandle =
-    throw utils.SgeError.InvalidInput("External files are not supported in browser")
+    throw utils.SgeError.Unsupported("External files are not supported in browser")
 
   override def absolute(path: String): FileHandle =
-    throw utils.SgeError.InvalidInput("Absolute files are not supported in browser")
+    throw utils.SgeError.Unsupported("Absolute files are not supported in browser")
 
   override def local(path: String): FileHandle =
-    throw utils.SgeError.InvalidInput("Local files are not supported in browser")
+    throw utils.SgeError.Unsupported("Local files are not supported in browser")
 
   override def externalStoragePath: String = ""
 

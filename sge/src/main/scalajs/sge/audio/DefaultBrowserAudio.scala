@@ -27,10 +27,10 @@ class DefaultBrowserAudio(application: Application) extends BrowserAudio {
   private val webAudioManager: WebAudioManager = WebAudioManager(application)
 
   override def newAudioDevice(samplingRate: Int, isMono: Boolean): AudioDevice =
-    throw utils.SgeError.InvalidInput("AudioDevice not supported by browser backend", None)
+    throw utils.SgeError.Unsupported("AudioDevice not supported by browser backend", None)
 
   override def newAudioRecorder(samplingRate: Int, isMono: Boolean): AudioRecorder =
-    throw utils.SgeError.InvalidInput("AudioRecorder not supported by browser backend", None)
+    throw utils.SgeError.Unsupported("AudioRecorder not supported by browser backend", None)
 
   override def newSound(fileHandle: files.FileHandle): Sound =
     webAudioManager.createSound(fileHandle)

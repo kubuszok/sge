@@ -45,7 +45,7 @@ class MiniaudioEngine private[sge] (
   deviceBufferSize:            Int,
   deviceBufferCount:           Int,
   private val audioOps:        AudioOps,
-  private val recorderFactory: (Int, Boolean) => AudioRecorder = (_, _) => throw new UnsupportedOperationException("AudioRecorder not available on this platform")
+  private val recorderFactory: (Int, Boolean) => AudioRecorder = (_, _) => throw sge.utils.SgeError.Unsupported("AudioRecorder not available on this platform")
 ) extends DesktopAudio {
 
   private val engineHandle: Long    = audioOps.initEngine(simultaneousSources, deviceBufferSize, deviceBufferCount)
@@ -73,9 +73,12 @@ class MiniaudioEngine private[sge] (
     if (noDevice) sge.noop.NoopSound()
     else {
       val pcmData = fileHandle.readBytes()
-      // Assume 16-bit stereo 44100Hz — the native engine will decode the actual format from the data.
-      // In practice, createSound receives raw file bytes and the native side determines format.
-      val soundHandle = audioOps.createSound(engineHandle, pcmData, 2, 16, 44100)
+      // Describe the stream to createSound honestly (ISS-772) instead of fabricating a fixed
+      // channels=2/bits=16/rate=44100. The native miniaudio decoder consumes the encoded bytes and
+      // re-derives the format, but the AudioOps.createSound FFI contract documents these parameters
+      // as describing the stream, so they must match the asset's real format.
+      val (channels, bitDepth, sampleRate) = readSoundFormat(fileHandle, pcmData)
+      val soundHandle                      = audioOps.createSound(engineHandle, pcmData, channels, bitDepth, sampleRate)
       if (soundHandle == 0L) {
         throw sge.utils.SgeError.AudioError(s"Could not load sound: ${fileHandle.name}")
       }
@@ -158,6 +161,28 @@ class MiniaudioEngine private[sge] (
 
   // ─── Internal bookkeeping ──────────────────────────────────────────
 
+  /** Parses the real `(channels, bitDepth, sampleRate)` of a sound asset so createSound receives honest parameters (ISS-772).
+    *
+    * WAV (RIFF/WAVE) assets are parsed via [[WavInputStream]], which reads the format directly from the `fmt ` chunk. A non-WAV container (e.g. OGG/MP3) has no single fixed PCM format — the native
+    * miniaudio decoder selects an output format at decode time — so we describe it with the engine's decode target (stereo / 16-bit / 44.1kHz); the encoded bytes still carry the true format for the
+    * decoder to honour.
+    */
+  private def readSoundFormat(fileHandle: files.FileHandle, pcmData: Array[Byte]): (Int, Int, Int) =
+    if (isWav(pcmData)) {
+      val wav = new WavInputStream(fileHandle)
+      try (wav.channels, wav.bitDepth, wav.sampleRate)
+      finally sge.utils.StreamUtils.closeQuietly(wav)
+    } else {
+      (2, 16, 44100)
+    }
+
+  /** Returns true when `data` begins with a RIFF/WAVE container header (`"RIFF"` at offset 0 and `"WAVE"` at offset 8).
+    */
+  private def isWav(data: Array[Byte]): Boolean =
+    data.length >= 12 &&
+      data(0) == 'R'.toByte && data(1) == 'I'.toByte && data(2) == 'F'.toByte && data(3) == 'F'.toByte &&
+      data(8) == 'W'.toByte && data(9) == 'A'.toByte && data(10) == 'V'.toByte && data(11) == 'E'.toByte
+
   private[sge] def forgetSound(sound: MiniaudioSound): Unit =
     soundInstances -= sound
 
@@ -173,6 +198,6 @@ object MiniaudioEngine {
     * @param recorderFactory
     *   factory for creating [[AudioRecorder]] instances (platform-specific)
     */
-  def apply(audioOps: AudioOps, recorderFactory: (Int, Boolean) => AudioRecorder = (_, _) => throw new UnsupportedOperationException("AudioRecorder not available on this platform")): MiniaudioEngine =
+  def apply(audioOps: AudioOps, recorderFactory: (Int, Boolean) => AudioRecorder = (_, _) => throw sge.utils.SgeError.Unsupported("AudioRecorder not available on this platform")): MiniaudioEngine =
     new MiniaudioEngine(16, 512, 9, audioOps, recorderFactory)
 }

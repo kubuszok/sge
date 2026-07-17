@@ -89,6 +89,14 @@ trait Music extends java.io.Closeable {
   /** Set the playback position in seconds. */
   def position_=(position: Position): Unit
 
+  /** Returns the total duration of the music stream in seconds.
+    *
+    * SGE improvement over LibGDX (ISS-781): LibGDX's `Music` interface has no `duration`; it lived only on the desktop concrete class. Promoting it onto the portable trait lets a game query track
+    * length through a `Music` reference without an unsafe, platform-specific downcast. Backends that cannot report a duration (e.g. the headless no-op backend) return zero seconds; streaming backends
+    * override this with the real value.
+    */
+  def duration: Position = Position.unsafeMake(0f)
+
   /** Register a callback to be invoked when the end of a music stream has been reached during playback.
     *
     * @param listener

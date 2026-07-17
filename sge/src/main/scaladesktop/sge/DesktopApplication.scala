@@ -54,7 +54,7 @@ class DesktopApplication(
   private val audioOps:        sge.platform.AudioOps,
   private val glOps:           GlOps,
   private val glFactory:       () => sge.graphics.GL32,
-  private val recorderFactory: (Int, Boolean) => sge.audio.AudioRecorder = (_, _) => throw new UnsupportedOperationException("AudioRecorder not available on this platform")
+  private val recorderFactory: (Int, Boolean) => sge.audio.AudioRecorder = (_, _) => throw sge.utils.SgeError.Unsupported("AudioRecorder not available on this platform")
 ) extends DesktopApplicationBase {
 
   // ─── State ──────────────────────────────────────────────────────────

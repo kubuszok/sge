@@ -92,7 +92,7 @@ class MiniaudioMusic private[sge] (
     audioOps.setMusicPosition(musicHandle, position.toFloatSeconds)
 
   /** Returns the total duration of the music in seconds. */
-  def duration: Position =
+  override def duration: Position =
     Position.unsafeMake(audioOps.getMusicDuration(musicHandle))
 
   override def onComplete(listener: Music => Unit): Unit =

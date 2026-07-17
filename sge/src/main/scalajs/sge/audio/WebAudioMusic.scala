@@ -82,6 +82,10 @@ class WebAudioMusic(
   override def position_=(pos: Position): Unit =
     audioElement.currentTime = pos.toFloatSeconds.toDouble
 
+  /** Returns the track duration reported by the HTML `<audio>` element (`NaN` until its metadata has loaded), in seconds. Overrides the trait default to report the real duration (ISS-781).
+    */
+  override def duration: Position = Position.unsafeMake(audioElement.duration.toFloat)
+
   override def onComplete(listener: Music => Unit): Unit =
     completionListener = Nullable(listener)
 

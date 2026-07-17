@@ -26,6 +26,12 @@ object DesktopApplicationFactory {
     val windowing = sge.platform.WindowingOpsNative
     val audioOps  = sge.platform.AudioOpsNative
     val glOps     = sge.platform.GlOpsNative
+    // No recorderFactory is wired here (unlike the JVM factory, which passes a DesktopAudioRecorder):
+    // the shipped miniaudio provider FFI surface (AudioOpsNative) exposes no capture/recording
+    // symbols, and Scala Native links @extern symbols eagerly, so one cannot be bound without the
+    // native library defining it (ISS-785). The DesktopApplication default recorderFactory therefore
+    // signals the missing capability via SgeError.Unsupported — parity with the JVM in that a recorder
+    // request produces an SgeError rather than a raw JDK runtime exception (ISS-771).
     new DesktopApplication(listenerFactory, config, windowing, audioOps, glOps, () => new sge.graphics.AngleGL32Native())
   }
 }

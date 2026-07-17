@@ -34,4 +34,12 @@ enum SgeError(message: String, cause: Option[Throwable]) extends Exception(messa
   case InvalidInput(message: String, cause: Option[Throwable] = None) extends SgeError(message, cause)
   case GraphicsError(message: String, cause: Option[Throwable] = None) extends SgeError(message, cause)
   case AudioError(message: String, cause: Option[Throwable] = None) extends SgeError(message, cause)
+
+  /** Signals that a requested capability is not available on the current platform or backend — for example audio recording or TCP sockets in the browser, or external/local files on a filesystem-less
+    * platform.
+    *
+    * PROJECT-WIDE CONVENTION (ISS-771): every capability-not-available site must signal via this variant — never a raw JDK `java.lang` runtime exception (which sits outside SGE's own error hierarchy)
+    * and never [[InvalidInput]] (which means *bad user input*, a semantically distinct condition). The `message` names the capability that is unavailable.
+    */
+  case Unsupported(message: String, cause: Option[Throwable] = None) extends SgeError(message, cause)
 }
