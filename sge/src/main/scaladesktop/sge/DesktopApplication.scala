@@ -104,13 +104,15 @@ class DesktopApplication(
     sge.platform.PlatformOps.audio = audioOps
     sge.platform.PlatformOps.gl = glOps
 
+    // Install a GLFW error callback that prints to the configured error stream (default System.err),
+    // faithful to GLFWErrorCallback.createPrint(config.errorStream).set() — installed BEFORE glfwInit
+    // (Lwjgl3Application.java:84-89) so error descriptions produced during GLFW initialization itself
+    // reach config.errorStream rather than the platform's Log-based default callback (ISS-807).
+    windowing.setErrorCallback((code, description) => _config.errorStream.println(s"GLFW error $code: $description"))
+
     if (!windowing.init()) {
       throw SgeError.GraphicsError("Unable to initialize windowing system")
     }
-
-    // Install a GLFW error callback that prints to the configured error stream (default System.err),
-    // faithful to GLFWErrorCallback.createPrint(config.errorStream).set() (Lwjgl3Application.java:84).
-    windowing.setErrorCallback((code, description) => _config.errorStream.println(s"GLFW error $code: $description"))
 
     // Audio
     if (!_config.disableAudio) {

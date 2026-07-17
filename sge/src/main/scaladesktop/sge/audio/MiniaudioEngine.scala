@@ -54,6 +54,26 @@ class MiniaudioEngine private[sge] (
   private val musicInstances: ArrayBuffer[MiniaudioMusic] = ArrayBuffer.empty
   private val soundInstances: ArrayBuffer[MiniaudioSound] = ArrayBuffer.empty
 
+  // ─── Instance-registry lock (ISS-810) ───────────────────────────────
+  //
+  // musicInstances/soundInstances are mutated CROSS-THREAD by design: a loader thread appends via
+  // newSound/newMusic (`+=`) while the render thread iterates musicInstances in update() and an
+  // instance's close() removes itself via forgetSound/forgetMusic (`-=`). scala.collection.mutable.
+  // ArrayBuffer is not thread-safe — its addOne does `array(size0) = elem; size0 += 1` with no
+  // atomicity, so racing appends can overwrite a slot (losing an element) or throw while the backing
+  // array is being grown. We therefore guard EVERY mutation and read of the two buffers on this
+  // dedicated monitor, the same remedy the Pool free-list (ISS-603) and PoolManager map (ISS-803)
+  // took (see sge.utils.Pool.lock / sge.utils.PoolManager).
+  //
+  // LOCKING DISCIPLINE: the monitor is a dedicated private object (never exposed, so external code
+  // cannot interfere) and guards ONLY the buffer structure. Foreign code never runs under it, so the
+  // per-frame render path stays cheap and there is no lock-ordering risk:
+  //   - update() re-checks length + fetches items(i) UNDER the lock, then releases it before calling
+  //     music.update() (native polling + the user completion listener);
+  //   - close() snapshots + clears BOTH buffers atomically under the lock, then disposes the
+  //     survivors OUTSIDE it (their forgetMusic/forgetSound re-acquire it for a now-no-op removal).
+  private val instancesLock = new AnyRef
+
   // ─── Audio trait ────────────────────────────────────────────────────
 
   override def newAudioDevice(samplingRate: Int, isMono: Boolean): AudioDevice =
@@ -83,7 +103,7 @@ class MiniaudioEngine private[sge] (
         throw sge.utils.SgeError.AudioError(s"Could not load sound: ${fileHandle.name}")
       }
       val sound = MiniaudioSound(this, soundHandle, audioOps)
-      soundInstances += sound
+      instancesLock.synchronized(soundInstances += sound)
       sound
     }
 
@@ -114,7 +134,7 @@ class MiniaudioEngine private[sge] (
         throw sge.utils.SgeError.AudioError(s"Could not load music: ${file.name}")
       }
       val music = MiniaudioMusic(this, musicHandle, audioOps)
-      musicInstances += music
+      instancesLock.synchronized(musicInstances += music)
       music
     }
 
@@ -139,21 +159,36 @@ class MiniaudioEngine private[sge] (
       // so a naturally-finished stream fires its completion listener (ISS-760). Index iteration
       // matches the original ("for (int i = 0; i < music.size; i++) music.items[i].update()"); a
       // listener that closes its track during the callback shrinks musicInstances, and the
-      // re-checked bound keeps the walk in range.
-      var i = 0
-      while (i < musicInstances.length) {
-        musicInstances(i).update()
-        i += 1
-      }
+      // re-checked bound keeps the walk in range. Each iteration re-checks the length AND fetches
+      // items(i) UNDER instancesLock (atomically, as one Option) so a concurrent newMusic append
+      // cannot resize the backing array under the read (ISS-810); music.update() then runs OUTSIDE
+      // the lock (see the locking-discipline note), so no foreign code executes while the lock is held.
+      var i       = 0
+      var running = true
+      while (running)
+        instancesLock.synchronized {
+          if (i < musicInstances.length) Some(musicInstances(i)) else None
+        } match {
+          case Some(music) => music.update(); i += 1
+          case None        => running = false
+        }
     }
 
   override def close(): Unit =
     if (!noDevice) {
-      // Snapshot before iterating — close() calls forgetMusic/forgetSound which mutates the buffer
-      val music  = musicInstances.toList
-      val sounds = soundInstances.toList
-      musicInstances.clear()
-      soundInstances.clear()
+      // Snapshot before iterating — close() calls forgetMusic/forgetSound which mutates the buffer.
+      // Snapshot + clear of BOTH buffers run atomically under instancesLock (ISS-810) so a concurrent
+      // loader append cannot interleave with the teardown; the survivors are then closed OUTSIDE the
+      // lock (their forgetMusic/forgetSound re-acquire it for a now-no-op removal), keeping native
+      // dispose off the lock. Verbatim operation order preserved: snapshot music, snapshot sounds,
+      // clear music, clear sounds, close music, close sounds, shutdown engine.
+      val (music, sounds) = instancesLock.synchronized {
+        val music  = musicInstances.toList
+        val sounds = soundInstances.toList
+        musicInstances.clear()
+        soundInstances.clear()
+        (music, sounds)
+      }
       music.foreach(_.close())
       sounds.foreach(_.close())
       audioOps.shutdownEngine(engineHandle)
@@ -198,10 +233,10 @@ class MiniaudioEngine private[sge] (
       data(8) == 'W'.toByte && data(9) == 'A'.toByte && data(10) == 'V'.toByte && data(11) == 'E'.toByte
 
   private[sge] def forgetSound(sound: MiniaudioSound): Unit =
-    soundInstances -= sound
+    instancesLock.synchronized(soundInstances -= sound)
 
   private[sge] def forgetMusic(music: MiniaudioMusic): Unit =
-    musicInstances -= music
+    instancesLock.synchronized(musicInstances -= music)
 }
 
 object MiniaudioEngine {

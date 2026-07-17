@@ -263,10 +263,17 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
   // GLFWerrorfun signature: void(*)(int error, const char* description).
   private lazy val hSetErrorCb = h("glfwSetErrorCallback", FunctionDescriptor.of(P, P))
 
+  // Application-installed error callback (via setErrorCallback), or null to fall back to logging.
+  // errorCallbackStub below dispatches through this field, so an app callback installed BEFORE init()
+  // survives init()'s (re-)installation of the same persistent stub (ISS-807) — mirroring the Native
+  // backend's field-dispatch. null is the "unset" sentinel: GLFW errors then log via utils.Log.
+  private var appErrorCallback: (Int, String) => Unit = null
+
   // The error-callback upcall stub must outlive init() — GLFW invokes it whenever
   // an error is reported, for the whole process lifetime. Allocate it in the
   // long-lived upcallArena (Arena.ofAuto), NOT a confined arena we close (a freed
-  // stub would be a use-after-free when GLFW reports an error).
+  // stub would be a use-after-free when GLFW reports an error). It dispatches to the
+  // application-installed callback if present, else logs (mirrors LibGDX's GLFWErrorCallback).
   private lazy val errorCallbackStub: MemorySegment = {
     val desc   = FunctionDescriptor.ofVoid(I, P)
     val target = java.lang.invoke.MethodHandles
@@ -280,7 +287,9 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
             val message =
               if (description.address() == 0L) ""
               else readCStr(description)
-            utils.Log.error(s"GLFW error 0x${java.lang.Integer.toHexString(error)}: $message")
+            val cb = appErrorCallback
+            if (cb != null) cb(error, message)
+            else utils.Log.error(s"GLFW error 0x${java.lang.Integer.toHexString(error)}: $message")
           }
         },
         "invoke",
@@ -315,28 +324,16 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
 
   override def setErrorCallback(callback: (Int, String) => Unit): Unit =
     if (callback == null) {
+      // null clears the application callback (trait contract) — drop back to GLFW having no callback.
+      appErrorCallback = null
       hSetErrorCb.invoke(MemorySegment.NULL)
     } else {
-      // GLFWerrorfun signature: void(*)(int error, const char* description). The upcall outlives
-      // this call (GLFW retains it for the process lifetime), so it lives in the long-lived upcallArena.
-      val desc   = FunctionDescriptor.ofVoid(I, P)
-      val target = java.lang.invoke.MethodHandles
-        .lookup()
-        .bind(
-          new AnyRef {
-            @scala.annotation.nowarn("id=E198")
-            def invoke(error: Int, description: MemorySegment): Unit = {
-              // description is a NUL-terminated UTF-8 C string owned by GLFW; NULL guards no description.
-              val message =
-                if (description.address() == 0L) ""
-                else readCStr(description)
-              callback(error, message)
-            }
-          },
-          "invoke",
-          java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[Int], classOf[MemorySegment])
-        )
-      hSetErrorCb.invoke(linker.upcallStub(target, desc, upcallArena))
+      // Record the application callback and install the persistent dispatcher stub. Field-dispatch
+      // (not a fresh per-callback stub) is what lets a callback installed BEFORE init() survive
+      // init()'s own installation of the same stub (ISS-807). The stub outlives this call — GLFW
+      // retains it for the process lifetime — so it lives in the long-lived upcallArena.
+      appErrorCallback = callback
+      hSetErrorCb.invoke(errorCallbackStub)
     }
 
   // ─── Window lifecycle ──────────────────────────────────────────────────

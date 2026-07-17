@@ -343,7 +343,11 @@ class BrowserApplication(
 
   override def postRunnable(runnable: Runnable): Unit = runnables += runnable
 
-  override def exit(): Unit = () // No-op on browser
+  // No-op on the browser (ISS-815 clause 2), faithful to the GWT backend: GwtApplication.exit() is an
+  // empty method — a web page cannot terminate its own process, and closing the tab is the user's
+  // affordance, not the app's. This is a documented No-op (not Unsupported): it must not throw, since
+  // portable game code calls app.exit() unconditionally on shutdown. See docs/architecture/capability-matrix.md.
+  override def exit(): Unit = ()
 
   override def addLifecycleListener(listener: LifecycleListener): Unit =
     lifecycleListeners += listener

@@ -44,7 +44,7 @@ import sge.graphics.g3d.particles.influencers._
 import sge.graphics.g3d.particles.renderers._
 import sge.graphics.g3d.particles.values._
 import lowlevel.Nullable
-import sge.utils.{ Json, readFromString, writeToString }
+import sge.utils.{ Json, SgeError, readFromString, writeToString }
 import sge.utils.given
 
 /** Transport structure for ParticleControllerInfluencer serialization. Maps a ParticleEffect asset filename to the indices of controllers within that effect.
@@ -804,7 +804,7 @@ object ParticleEffectCodecs {
     override def decodeValue(in: JsonReader, default: DynamicsModifier): DynamicsModifier =
       // DynamicsModifier is abstract and serialized with type info in array context by DynamicsInfluencer
       // This codec handles direct serialization for embedded objects
-      throw new UnsupportedOperationException(
+      throw SgeError.SerializationError(
         "DynamicsModifier cannot be decoded directly; use typed codecs or DynamicsInfluencer's velocities array"
       )
 
@@ -817,7 +817,7 @@ object ParticleEffectCodecs {
         case v: DynamicsModifier.PolarAcceleration       => polarAccelerationCodec.encodeValue(v, out)
         case v: DynamicsModifier.TangentialAcceleration  => tangentialAccelerationCodec.encodeValue(v, out)
         case v: DynamicsModifier.BrownianAcceleration    => brownianAccelerationCodec.encodeValue(v, out)
-        case _ => throw new UnsupportedOperationException(s"Unknown DynamicsModifier type: ${x.getClass}")
+        case _ => throw SgeError.SerializationError(s"Unknown DynamicsModifier type: ${x.getClass}")
       }
 
     override def nullValue: DynamicsModifier = null
@@ -846,12 +846,12 @@ object ParticleEffectCodecs {
   private def decodeDynamicsModifier(in: JsonReader): DynamicsModifier = {
     val (classNameOpt, bytes) = readPolymorphicObject(in)
     classNameOpt.fold {
-      throw new UnsupportedOperationException("DynamicsModifier object missing 'class' field")
+      throw SgeError.SerializationError("DynamicsModifier object missing 'class' field")
     } { className =>
       modifierTypes.get(className) match {
         case Some(decoder) => decoder(bytes)
         case None          =>
-          throw new UnsupportedOperationException(s"Unknown DynamicsModifier type: $className")
+          throw SgeError.SerializationError(s"Unknown DynamicsModifier type: $className")
       }
     }
   }
@@ -1259,12 +1259,12 @@ object ParticleEffectCodecs {
   private def decodeInfluencer(in: JsonReader): Influencer = {
     val (classNameOpt, bytes) = readPolymorphicObject(in)
     classNameOpt.fold {
-      throw new UnsupportedOperationException("Influencer object missing 'class' field")
+      throw SgeError.SerializationError("Influencer object missing 'class' field")
     } { className =>
       influencerTypes.get(className) match {
         case Some(decoder) => decoder(bytes)
         case None          =>
-          throw new UnsupportedOperationException(s"Unknown Influencer type: $className")
+          throw SgeError.SerializationError(s"Unknown Influencer type: $className")
       }
     }
   }
@@ -1601,12 +1601,12 @@ object ParticleEffectCodecs {
   private def decodeRenderer(in: JsonReader): ParticleControllerRenderer[?, ?] = {
     val (classNameOpt, bytes) = readPolymorphicObject(in)
     classNameOpt.fold {
-      throw new UnsupportedOperationException("Renderer object missing 'class' field")
+      throw SgeError.SerializationError("Renderer object missing 'class' field")
     } { className =>
       rendererTypes.get(className) match {
         case Some(decoder) => decoder(bytes)
         case None          =>
-          throw new UnsupportedOperationException(s"Unknown renderer type: $className")
+          throw SgeError.SerializationError(s"Unknown renderer type: $className")
       }
     }
   }
@@ -1708,7 +1708,7 @@ object ParticleEffectCodecs {
   given particleControllerCodec: JsonValueCodec[ParticleController] = new JsonValueCodec[ParticleController] {
     override def decodeValue(in: JsonReader, default: ParticleController): ParticleController = {
       if (default == null) {
-        throw new UnsupportedOperationException(
+        throw SgeError.SerializationError(
           "ParticleController cannot be decoded without a pre-constructed default instance (requires Sge context). " +
             "Use ResourceData.fromJson for full particle effect loading."
         )
