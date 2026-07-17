@@ -46,7 +46,7 @@ class DesktopConfigKnobsIss762FixSuite extends munit.FunSuite {
     config.errorStream = new PrintStream(captured, true, StandardCharsets.UTF_8)
 
     val ops = driveAppCreation(config)
-    val cb = ops.errorCallback.getOrElse(
+    val cb  = ops.errorCallback.getOrElse(
       fail(
         "DesktopApplication must install a GLFW error callback during init via WindowingOps.setErrorCallback " +
           "(original: GLFWErrorCallback.createPrint(config.errorStream).set(), Lwjgl3Application.java:84)"

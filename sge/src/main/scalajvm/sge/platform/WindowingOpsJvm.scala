@@ -317,8 +317,8 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
     if (callback == null) {
       hSetErrorCb.invoke(MemorySegment.NULL)
     } else {
-      // GLFWerrorfun signature: void(*)(int error, const char* description). The stub outlives this
-      // call (GLFW retains it for the process lifetime), so it lives in the long-lived upcallArena.
+      // GLFWerrorfun signature: void(*)(int error, const char* description). The upcall outlives
+      // this call (GLFW retains it for the process lifetime), so it lives in the long-lived upcallArena.
       val desc   = FunctionDescriptor.ofVoid(I, P)
       val target = java.lang.invoke.MethodHandles
         .lookup()

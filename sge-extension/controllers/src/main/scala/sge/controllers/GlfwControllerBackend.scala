@@ -4,9 +4,11 @@
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
- * Covenant: partial-port
+ * Covenant: full-port
+ * Covenant-baseline-loc: 65
+ * Covenant-baseline-methods: GlfwControllerBackend,getConnectedControllers,maxControllers,pollController,uniqueIdFor
  * Covenant-source-reference: com/badlogic/gdx/controllers/desktop/support/JamepadController.java
- * Covenant-verified: 2026-04-08
+ * Covenant-verified: 2026-07-17
  *
  * upstream-commit: 124b68125c7ef9c552085865379f77e8bee2ae3b
  */
