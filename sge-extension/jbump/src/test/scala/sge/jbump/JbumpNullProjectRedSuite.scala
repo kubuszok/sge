@@ -65,8 +65,8 @@ class JbumpNullProjectRedSuite extends munit.FunSuite {
     // may inspect it and still respond. The filter must receive a representation it can safely inspect.
     val received = ArrayBuffer.empty[Option[Item[?]]]
     val inspectingFilter: CollisionFilter = new CollisionFilter {
-      override def filter(item: Item[?], other: Nullable[Item[?]]): Nullable[Response] = {
-        received += Option(item) // safe inspection of the possibly-absent item
+      override def filter(item: Nullable[Item[?]], other: Nullable[Item[?]]): Nullable[Response] = {
+        received += item.toOption // safe inspection of the possibly-absent item
         Response.slide
       }
     }

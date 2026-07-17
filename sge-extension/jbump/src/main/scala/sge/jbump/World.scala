@@ -347,7 +347,9 @@ class World[E](val cellSize: Float = 64f) {
     for (other <- dictItemsInCellRect)
       if (!visited.contains(other)) {
         visited += other
-        val response = filter.filter(item.getOrElse(null.asInstanceOf[Item[?]]), other)
+        // World.java:264 passes the possibly-null projected item straight to the filter; the
+        // Nullable-typed first param (ISS-595) carries it through with no null laundering.
+        val response = filter.filter(item, other)
         if (response.isDefined) {
           val o   = getRect(other)
           val ox  = o.x
@@ -541,7 +543,7 @@ class World[E](val cellSize: Float = 64f) {
 
     val outerFilter = filter
     val visitedFilter: CollisionFilter = new CollisionFilter {
-      override def filter(filterItem: Item[?], other: Nullable[Item[?]]): Nullable[Response] =
+      override def filter(filterItem: Nullable[Item[?]], other: Nullable[Item[?]]): Nullable[Response] =
         if (other.isDefined && visited.contains(other.get)) {
           Nullable.Null
         } else {

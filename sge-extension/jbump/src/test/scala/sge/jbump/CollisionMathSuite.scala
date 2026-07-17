@@ -124,7 +124,7 @@ class CollisionMathSuite extends munit.FunSuite {
     world.add(wall2, 2, 0, 1, 1)
 
     val skipWall1: CollisionFilter = new CollisionFilter {
-      override def filter(item: Item[?], other: Nullable[Item[?]]): Nullable[Response] =
+      override def filter(item: Nullable[Item[?]], other: Nullable[Item[?]]): Nullable[Response] =
         if (other.isDefined && (other.get eq wall1)) Nullable.Null else Response.slide
     }
 
@@ -222,7 +222,7 @@ class CollisionMathSuite extends munit.FunSuite {
     world.add(wall, 3, 0, 1, 1)
 
     val crossFilter: CollisionFilter = new CollisionFilter {
-      override def filter(item: Item[?], other: Nullable[Item[?]]): Nullable[Response] = Response.cross
+      override def filter(item: Nullable[Item[?]], other: Nullable[Item[?]]): Nullable[Response] = Response.cross
     }
     val col    = firstCollision(world, player, 0, 0, 1, 1, 5, 0)
     val result = Response.Result()
@@ -296,8 +296,8 @@ class CollisionMathSuite extends munit.FunSuite {
     world.add(itemB, 3, 0, 1, 1)
 
     val skipB: CollisionFilter = new CollisionFilter {
-      override def filter(item: Item[?], other: Nullable[Item[?]]): Nullable[Response] =
-        if (item eq itemB) Nullable.Null else Response.slide
+      override def filter(item: Nullable[Item[?]], other: Nullable[Item[?]]): Nullable[Response] =
+        if (item.exists(_ eq itemB)) Nullable.Null else Response.slide
     }
 
     val items = ArrayBuffer.empty[Item[?]]

@@ -84,7 +84,7 @@ class WorldSuite extends munit.FunSuite {
     world.add(trigger, 2, 0, 1, 1)
 
     val crossFilter: CollisionFilter = new CollisionFilter {
-      override def filter(item: Item[?], other: Nullable[Item[?]]): Nullable[Response] = Response.cross
+      override def filter(item: Nullable[Item[?]], other: Nullable[Item[?]]): Nullable[Response] = Response.cross
     }
 
     val result = world.move(player, 5f, 0f, crossFilter)
@@ -103,7 +103,7 @@ class WorldSuite extends munit.FunSuite {
     world.add(wall, 3, 0, 1, 1)
 
     val touchFilter: CollisionFilter = new CollisionFilter {
-      override def filter(item: Item[?], other: Nullable[Item[?]]): Nullable[Response] = Response.touch
+      override def filter(item: Nullable[Item[?]], other: Nullable[Item[?]]): Nullable[Response] = Response.touch
     }
 
     val result = world.move(player, 5f, 0f, touchFilter)
@@ -189,7 +189,7 @@ class WorldSuite extends munit.FunSuite {
     world.add(wall, 3, 0, 1, 1)
 
     val bounceFilter: CollisionFilter = new CollisionFilter {
-      override def filter(item: Item[?], other: Nullable[Item[?]]): Nullable[Response] = Response.bounce
+      override def filter(item: Nullable[Item[?]], other: Nullable[Item[?]]): Nullable[Response] = Response.bounce
     }
 
     val result = world.move(player, 5f, 0f, bounceFilter)
