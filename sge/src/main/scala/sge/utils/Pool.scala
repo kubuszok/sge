@@ -54,16 +54,21 @@ trait Pool[A] {
 
   /** Monitor guarding every mutation and read of [[freeObjects]] and [[peak]].
     *
-    * DOCUMENTED DEVIATION FROM LibGDX (ISS-603, ISS-797): upstream `Pool`/`Pools` are uniformly unsynchronized and rely on a documented "game thread only" contract (see `GlyphLayout.java:42` — "This
-    * class is not thread safe ... must only be used from the game thread"). SGE breaks that contract in SGE-ORIGINAL code (`SgeHttpClient` obtains a request on the caller thread —
-    * SgeHttpClient.scala:67 — and frees it on `ExecutionContext.global` — SgeHttpClient.scala:167) and in its parallel test environment (munit runs suites concurrently in one forked JVM, so every
-    * `GlyphLayout.setText` shares the JVM-global static `glyphRunPool`). Upstream's own answer to a genuinely cross-thread structure is monitor-guarding (`NetJavaImpl.java` synchronizes its
-    * cross-thread maps, lines 278/284/290). We therefore make `Pool` internally thread-safe.
+    * DOCUMENTED DEVIATION FROM LibGDX (ISS-603, ISS-797): upstream `Pool` and its `Pools` registry (ported as [[sge.utils.PoolManager]], instantiated JVM-globally as `Actor.POOLS` — Actor.scala:952 —
+    * and `Actions.ACTION_POOLS` — Actions.scala:46) are uniformly unsynchronized and rely on a documented "game thread only" contract (see `GlyphLayout.java:42` — "This class is not thread safe ...
+    * must only be used from the game thread"). SGE breaks that contract in SGE-ORIGINAL code (`SgeHttpClient` obtains a request on the caller thread — SgeHttpClient.scala:67 — and frees it on
+    * `ExecutionContext.global` — SgeHttpClient.scala:167) and in its parallel test environment (munit runs suites concurrently in one forked JVM, so every `GlyphLayout.setText` shares the JVM-global
+    * static `glyphRunPool`). Upstream's own answer to a genuinely cross-thread structure is monitor-guarding (`NetJavaImpl.java` synchronizes its cross-thread maps, lines 278/284/290). We therefore
+    * make `Pool` internally thread-safe.
     *
-    * The lock is a private dedicated object (not `this`) so external code cannot accidentally interfere with the pool's invariants by synchronizing on the pool. JVM monitors are REENTRANT, which is
+    * The lock is a protected dedicated object (not `this`) so external code cannot accidentally interfere with the pool's invariants by synchronizing on the pool. JVM monitors are REENTRANT, which is
     * load-bearing here: `reset()` runs while the lock is held, and a user `reset()` may re-enter the SAME pool — e.g. `QuadTreeFloat.reset` frees its child nodes back into the very pool whose
-    * `free`/`clear` is resetting the parent. Re-entry on the same monitor from the same thread is safe. No pool in the codebase nests a callback into a DIFFERENT pool, so there is no lock-ordering
-    * (AB-BA) cycle.
+    * `free`/`clear` is resetting the parent. Re-entry on the same monitor from the same thread is safe. Callbacks DO also nest into DIFFERENT pools at three sites: (a) `BitmapFontCache`'s
+    * `pooledLayouts` (BitmapFontCache.scala:41, a `Flushable[GlyphLayout]`) free/flush runs `GlyphLayout.reset` (GlyphLayout.scala:504), which calls `glyphRunPool.freeAll`; (b) `Actor.POOLS`
+    * (Actor.scala:952/956) frees `GlyphLayout` instances down the same path; (c) `PooledEngine.EntityPool` free/discard (PooledEngine.scala:81/114-115) runs `PooledEntity.reset` (:96) →
+    * `removeInternal` (:91) → `componentPools.free`. Today every such lock edge points from an outer/composite pool to an inner LEAF pool whose element `reset()` touches no further pool, so no
+    * lock-ordering (AB-BA) cycle exists. THE INVARIANT THAT KEEPS IT THAT WAY, which every new pool must preserve: cross-pool lock edges must always point outer → leaf, and a pooled element's
+    * `reset()` must never free into an outer/composite pool — e.g. a user `Component.reset` freeing an entity would close an `EntityPool` ↔ `ComponentPool` AB-BA cycle.
     *
     * Ordering rationale (why `reset()`/`discard()` stay UNDER the lock rather than before it): moving `reset()` before the lock would either drop the `discard()` extension point on the full-pool path
     * (LibGDX and the one SGE override, `PooledEngine.EntityPool.discard`, both call `reset()` from `discard()`), or double-invoke `reset()` under a fill race — both break the "reset once per free,
