@@ -42,7 +42,6 @@ class DelayAction(var duration: Seconds = Seconds.zero) extends DelegateAction w
       if (time < duration) false
       else {
         val actionDelta = time - duration
-        time = duration
         action.forall(_.act(actionDelta))
       }
     } else {

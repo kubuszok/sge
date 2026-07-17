@@ -120,7 +120,7 @@ class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
 
   /** Sets the selection to only the specified item. */
   def set(item: T): Unit =
-    if (selected.size == 1 && selected.head == item) ()
+    if (selected.size == 1 && (selected.head.asInstanceOf[AnyRef] eq item.asInstanceOf[AnyRef])) ()
     else {
       snapshot()
       selected.clear()

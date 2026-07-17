@@ -39,8 +39,8 @@ class ColorAction extends TemporalAction {
   val endColor:           Color           = Color()
 
   override protected def begin(): Unit = {
-    val c = this.color.getOrElse(target.map(_.color).getOrElse(Color()))
-    startColor.set(c)
+    if (this.color.isEmpty) this.color = target.map(_.color)
+    startColor.set(this.color.getOrElse(Color()))
   }
 
   override protected def update(percent: Float): Unit = {
