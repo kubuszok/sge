@@ -1265,6 +1265,12 @@ val `sge-gauntlet` = (projectMatrix in file("sge-test/gauntlet"))
       // Versions.nativeComponents is a SNAPSHOT — the provider JAR carrying the
       // desktop native libs lives on Maven Central Snapshots (mirror sge-it-desktop).
       resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
+      // ISS-796 bounce: provider JARs are NOT reliably transitive across project
+      // dependencies (see the sge-gltf ISS-533 note) — the physics-step and
+      // freetype-glyph probes need their native providers wired explicitly on this
+      // JVM row or a clean checkout hits UnsatisfiedLinkError at probe time.
+      libraryDependencies += "com.kubuszok" % "pnm-provider-sge-physics-desktop" % Versions.nativeComponents,
+      libraryDependencies += "com.kubuszok" % "pnm-provider-sge-freetype-desktop" % Versions.nativeComponents,
       // Keep the Android SDK stub jar OFF the run classpath. It arrives
       // transitively via sge's Compile/unmanagedJars (when the SDK is present),
       // and multiarch's NativeLibLoader detects the host as Android purely by
