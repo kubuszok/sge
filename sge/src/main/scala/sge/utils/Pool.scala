@@ -52,33 +52,67 @@ trait Pool[A] {
 
   private val freeObjects = DynamicArray.createRef[A](initialCapacity)
 
+  /** Monitor guarding every mutation and read of [[freeObjects]] and [[peak]].
+    *
+    * DOCUMENTED DEVIATION FROM LibGDX (ISS-603, ISS-797): upstream `Pool`/`Pools` are uniformly unsynchronized and rely on a documented "game thread only" contract (see `GlyphLayout.java:42` — "This
+    * class is not thread safe ... must only be used from the game thread"). SGE breaks that contract in SGE-ORIGINAL code (`SgeHttpClient` obtains a request on the caller thread —
+    * SgeHttpClient.scala:67 — and frees it on `ExecutionContext.global` — SgeHttpClient.scala:167) and in its parallel test environment (munit runs suites concurrently in one forked JVM, so every
+    * `GlyphLayout.setText` shares the JVM-global static `glyphRunPool`). Upstream's own answer to a genuinely cross-thread structure is monitor-guarding (`NetJavaImpl.java` synchronizes its
+    * cross-thread maps, lines 278/284/290). We therefore make `Pool` internally thread-safe.
+    *
+    * The lock is a private dedicated object (not `this`) so external code cannot accidentally interfere with the pool's invariants by synchronizing on the pool. JVM monitors are REENTRANT, which is
+    * load-bearing here: `reset()` runs while the lock is held, and a user `reset()` may re-enter the SAME pool — e.g. `QuadTreeFloat.reset` frees its child nodes back into the very pool whose
+    * `free`/`clear` is resetting the parent. Re-entry on the same monitor from the same thread is safe. No pool in the codebase nests a callback into a DIFFERENT pool, so there is no lock-ordering
+    * (AB-BA) cycle.
+    *
+    * Ordering rationale (why `reset()`/`discard()` stay UNDER the lock rather than before it): moving `reset()` before the lock would either drop the `discard()` extension point on the full-pool path
+    * (LibGDX and the one SGE override, `PooledEngine.EntityPool.discard`, both call `reset()` from `discard()`), or double-invoke `reset()` under a fill race — both break the "reset once per free,
+    * discard() called on the discard path" invariant. Keeping the original single-threaded order verbatim and wrapping it in the reentrant monitor preserves EXACT semantics (same max-size discard
+    * behaviour, same `reset()`/`discard()` invocation points and order, same peak accounting, same return values); the reentrant monitor already makes the QuadTreeFloat re-entry safe, so nothing is
+    * gained by hoisting it out.
+    *
+    * `newObject()` also runs under the lock: it touches no shared state and no codebase pool re-enters a foreign pool from its factory, so this is safe; the serialization of allocation is negligible
+    * (see perf note below).
+    *
+    * Performance: an uncontended monitor is a handful of nanoseconds — negligible against the allocation the pool exists to avoid.
+    *
+    * `protected` so subclasses that carry EXTRA shared state — currently only [[Pool.Flushable]] with its `obtained` list — guard it on the SAME monitor (reentrant, so wrapping a method that also
+    * calls `super.obtain`/`super.free` is safe and adds no measurable cost).
+    */
+  protected val lock = new AnyRef
+
   protected def newObject(): A
 
   /** Returns an object from this pool. The object may be new (from [[newObject]]) or reused (previously [[free]]). */
   def obtain(): A =
-    if (freeObjects.isEmpty) newObject() else freeObjects.pop()
+    lock.synchronized {
+      if (freeObjects.isEmpty) newObject() else freeObjects.pop()
+    }
 
   /** Puts the specified object in the pool, making it eligible to be returned by {@link #obtain()} . If the pool already contains {@link #max} free objects, the specified object is
     * {@link #discard(Object) discarded} , it is not reset and not added to the pool. <p> The pool does not check if an object is already freed, so the same object must not be freed multiple times.
     */
   def free(obj: A): Unit =
-    if (freeObjects.size < max) {
-      freeObjects.add(obj)
-      peak = peak max freeObjects.size
-      reset(obj)
-    } else
-      discard(obj)
+    lock.synchronized {
+      if (freeObjects.size < max) {
+        freeObjects.add(obj)
+        peak = peak max freeObjects.size
+        reset(obj)
+      } else
+        discard(obj)
+    }
 
   /** Adds the specified number of new free objects to the pool. Usually called early on as a pre-allocation mechanism but can be used at any time.
     *
     * @param size
     *   the number of objects to be added
     */
-  def fill(size: Int): Unit = {
-    for (_ <- 0 until size)
-      if (freeObjects.size < max) freeObjects.add(newObject())
-    peak = peak max freeObjects.size
-  }
+  def fill(size: Int): Unit =
+    lock.synchronized {
+      for (_ <- 0 until size)
+        if (freeObjects.size < max) freeObjects.add(newObject())
+      peak = peak max freeObjects.size
+    }
 
   /** Called when an object is freed to clear the state of the object for possible later reuse. The default implementation calls {@link Poolable#reset()} if the object is {@link Poolable} .
     */
@@ -92,44 +126,49 @@ trait Pool[A] {
   protected def discard(obj: A): Unit =
     reset(obj)
 
-  def freeAll(objects: Iterable[A]): Unit = {
-    objects.foreach { obj =>
-      if (obj.asInstanceOf[AnyRef] ne null) { // @nowarn — null guard: original skips null items in the iterable
-        if (freeObjects.size < max) {
-          freeObjects.add(obj)
-          reset(obj)
-        } else {
-          discard(obj)
+  def freeAll(objects: Iterable[A]): Unit =
+    lock.synchronized {
+      objects.foreach { obj =>
+        if (obj.asInstanceOf[AnyRef] ne null) { // @nowarn — null guard: original skips null items in the iterable
+          if (freeObjects.size < max) {
+            freeObjects.add(obj)
+            reset(obj)
+          } else {
+            discard(obj)
+          }
         }
       }
+      peak = peak max freeObjects.size
     }
-    peak = peak max freeObjects.size
-  }
 
-  def freeAll(objects: DynamicArray[? <: A]): Unit = {
-    objects.foreach { obj =>
-      if (obj.asInstanceOf[AnyRef] ne null) { // @nowarn — null guard: original skips null items in the array
-        val o = obj.asInstanceOf[A]
-        if (freeObjects.size < max) {
-          freeObjects.add(o)
-          reset(o)
-        } else {
-          discard(o)
+  def freeAll(objects: DynamicArray[? <: A]): Unit =
+    lock.synchronized {
+      objects.foreach { obj =>
+        if (obj.asInstanceOf[AnyRef] ne null) { // @nowarn — null guard: original skips null items in the array
+          val o = obj.asInstanceOf[A]
+          if (freeObjects.size < max) {
+            freeObjects.add(o)
+            reset(o)
+          } else {
+            discard(o)
+          }
         }
       }
+      peak = peak max freeObjects.size
     }
-    peak = peak max freeObjects.size
-  }
 
   /** Removes and discards all free objects from this pool. */
-  def clear(): Unit = {
-    freeObjects.foreach(discard)
-    freeObjects.clear()
-  }
+  def clear(): Unit =
+    lock.synchronized {
+      freeObjects.foreach(discard)
+      freeObjects.clear()
+    }
 
   /** The number of objects available to be obtained. */
   def free: Int =
-    freeObjects.size
+    lock.synchronized {
+      freeObjects.size
+    }
 
 }
 object Pool {
@@ -149,27 +188,35 @@ object Pool {
   trait Flushable[A] extends Pool[A] {
     protected val obtained = DynamicArray.createRef[A]()
 
-    override def obtain(): A = {
-      val result = super.obtain()
-      obtained.add(result)
-      result
-    }
+    // `obtained` is additional shared state on top of the base `freeObjects`;
+    // guard it on the same reentrant monitor so a Flushable pool is as
+    // thread-safe as the base pool (super.obtain/super.free/super.freeAll
+    // re-acquire the same lock reentrantly). See Pool.lock.
+    override def obtain(): A =
+      lock.synchronized {
+        val result = super.obtain()
+        obtained.add(result)
+        result
+      }
 
     /** Frees all obtained instances. */
-    def flush(): Unit = {
-      super.freeAll(obtained.iterator.toSeq)
-      obtained.clear()
-    }
+    def flush(): Unit =
+      lock.synchronized {
+        super.freeAll(obtained.iterator.toSeq)
+        obtained.clear()
+      }
 
-    override def free(obj: A): Unit = {
-      obtained.removeValue(obj)
-      super.free(obj)
-    }
+    override def free(obj: A): Unit =
+      lock.synchronized {
+        obtained.removeValue(obj)
+        super.free(obj)
+      }
 
-    override def freeAll(objects: Iterable[A]): Unit = {
-      objects.foreach(obtained.removeValue)
-      super.freeAll(objects)
-    }
+    override def freeAll(objects: Iterable[A]): Unit =
+      lock.synchronized {
+        objects.foreach(obtained.removeValue)
+        super.freeAll(objects)
+      }
   }
 
   /** A quad tree that stores a float for each point.
