@@ -35,6 +35,7 @@ package sge
 package graphics
 package g3d
 
+import scala.annotation.nowarn
 import scala.language.implicitConversions
 import scala.util.boundary
 import scala.util.boundary.break
@@ -196,9 +197,15 @@ class ModelInstance(
       part.invBoneBindTransforms.foreach { bindPose =>
         for (j <- 0 until bindPose.size) {
           val boneNode = bindPose.getKeyAt(j)
-          getNode(boneNode.id).foreach { replacement =>
-            bindPose.setKeyAt(j, replacement)
-          }
+          // ModelInstance.java:263 — `bindPose.keys[j] = getNode(bindPose.keys[j].id)`
+          // stores the looked-up node UNCONDITIONALLY: found -> the copied-tree node;
+          // not-found -> null, SEVERING a bone that referenced a node outside this
+          // instance's tree (rather than leaving a stale reference into the foreign
+          // source tree). Faithful null-store sentinel at this Java-faithful boundary;
+          // the malformed-model crash surfaces later at Node.calculateBoneTransforms,
+          // exactly like upstream (which NPEs there — see Node.java:94).
+          @nowarn("msg=deprecated") val severed = getNode(boneNode.id).orNull
+          bindPose.setKeyAt(j, severed)
         }
       }
       if (!materials.containsByRef(part.material)) {

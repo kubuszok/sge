@@ -129,8 +129,20 @@ class Node {
         part.bones.foreach { bns =>
           if (binds.size == bns.length) {
             val n = binds.size
-            for (i <- 0 until n)
-              bns(i).set(binds.getKeyAt(i).globalTransform).mul(binds.getValueAt(i))
+            for (i <- 0 until n) {
+              // Node.java:94 dereferences `keys[i].globalTransform` and NPEs when a
+              // bone bind-pose key was severed (null-stored by ModelInstance.invalidate,
+              // ModelInstance.java:263, for a bone that referenced a node outside the
+              // instance's tree). SGE surfaces the same malformed-model condition at the
+              // SAME use site as a nameable error instead of an opaque NPE (ISS-734 c3,
+              // wave-F). Non-null keys are unaffected.
+              val boneNode = Nullable(binds.getKeyAt(i)).getOrElse(
+                throw SgeError.InvalidInput(
+                  s"Node '$id': bone bind-pose key at index $i is severed (it referenced a node outside the ModelInstance tree); cannot calculate bone transforms"
+                )
+              )
+              bns(i).set(boneNode.globalTransform).mul(binds.getValueAt(i))
+            }
           }
         }
       }
