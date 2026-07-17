@@ -56,7 +56,7 @@
 // Robolectric itself is verified to RUN in this environment (JDK 21.0.6-graal
 // resolved; a probe test executed under RobolectricTestRunner).
 
-package sge.platform.android;
+package sge.test.robolectric;
 
 import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -72,6 +72,8 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowLog;
+
+import sge.platform.android.AndroidMusicOpsImpl;
 
 import scala.Function1;
 import scala.runtime.BoxedUnit;
