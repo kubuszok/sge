@@ -711,6 +711,11 @@ val `sge-jbump` = (projectMatrix in file("sge-extension/jbump"))
   .settings(publishSettings)
   .settings(mimaSettings)
   .settings(name := "sge-extension-jbump")
+  .settings(
+    // ISS-769: jbump/util/Nullable collapses onto lowlevel.Nullable (from lls),
+    // so lls must be on this module's classpath.
+    libraryDependencies += "com.kubuszok" %% "lls" % Versions.lls
+  )
 
 val `sge-noise` = (projectMatrix in file("sge-extension/noise"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(Versions.scala3))
