@@ -503,8 +503,7 @@ class DesktopGraphics private[sge] (
   // ─── Cursor ───────────────────────────────────────────────────────────
 
   override def newCursor(pixmap: Pixmap, xHotspot: Pixels, yHotspot: Pixels): Nullable[Cursor] =
-    // Custom pixmap cursors require WindowingOps.createCursorFromImage (deferred)
-    Nullable.empty
+    DesktopCursor.create(windowing, pixmap, xHotspot.toInt, yHotspot.toInt)
 
   override def setCursor(cursor: Cursor): Unit = cursor match {
     case dc: DesktopCursor =>

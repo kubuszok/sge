@@ -91,11 +91,16 @@ final private[sge] class Iss76xRecordingWindowingOps extends WindowingOps {
 
   private var nextWindowHandle: Long = 900001L
 
+  // The last error callback installed via setErrorCallback (ISS-762 errorStream), or empty.
+  var errorCallback: lowlevel.Nullable[(Int, String) => Unit] = lowlevel.Nullable.empty
+
   // ─── Initialization ──────────────────────────────────────────────────
-  override def setInitHint(hint: Int, value: Int): Unit    = initHintCalls += ((hint, value))
-  override def init():                             Boolean = true
-  override def terminate():                        Unit    = {}
-  override def platform:                           Int     = WindowingOps.GLFW_PLATFORM_NULL
+  override def setInitHint(hint: Int, value: Int):                Unit    = initHintCalls += ((hint, value))
+  override def init():                                            Boolean = true
+  override def terminate():                                       Unit    = {}
+  override def platform:                                          Int     = WindowingOps.GLFW_PLATFORM_NULL
+  override def setErrorCallback(callback: (Int, String) => Unit): Unit    =
+    errorCallback = lowlevel.Nullable(callback)
 
   // ─── Window lifecycle ────────────────────────────────────────────────
   override def createWindow(width: Int, height: Int, title: String): Long = {
@@ -141,6 +146,15 @@ final private[sge] class Iss76xRecordingWindowingOps extends WindowingOps {
   override def createStandardCursor(shape: Int): Long = {
     standardCursorCalls += shape
     newCursorHandle()
+  }
+  // ISS-764 anticipated-new-method override (see the note above): record the create-cursor-from-image
+  // call carrying the pixmap dimensions + hotspot, hand out a fresh handle, and remember it so the
+  // suite can assert that same handle flows into setCursor.
+  override def createCursor(pixmap: sge.graphics.Pixmap, xHotspot: Int, yHotspot: Int): Long = {
+    imageCursorCalls += ((pixmap.width.toInt, pixmap.height.toInt, xHotspot, yHotspot))
+    val handle = newCursorHandle()
+    createdImageCursorHandles += handle
+    handle
   }
   override def setCursor(windowHandle: Long, cursorHandle: Long): Unit =
     setCursorCalls += ((windowHandle, cursorHandle))

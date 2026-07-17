@@ -7,7 +7,11 @@
  * Migration notes:
  *   Renames: Lwjgl3Cursor -> DesktopCursor
  *   Convention: GLFW calls via WindowingOps FFI trait (not direct LWJGL)
- *   Convention: custom Pixmap cursor deferred (needs WindowingOps.createCursor with image data)
+ *   Convention: custom Pixmap cursor via WindowingOps.createCursor (ISS-764); the GLFWImage is built
+ *     from the pixmap inside the FFI impl, which GLFW copies — so no pixmapCopy is retained here
+ *     (Lwjgl3Cursor keeps one only for its own GLFWImage native-struct lifetime)
+ *   Idiom: non-RGBA8888 input is converted rather than rejected (SGE, like DesktopWindow.setIcon),
+ *     where Lwjgl3Cursor.java:44 throws; the power-of-two + hotspot-bounds checks are kept faithfully
  *   Convention: system cursor cache + setSystemCursor use WindowingOps.createStandardCursor/setCursor
  *   Idiom: Nullable (0 null), split packages
  *   Audited: 2026-03-08
@@ -16,8 +20,10 @@
  */
 package sge
 
-import sge.graphics.Cursor
-import sge.platform.PlatformOps
+import sge.graphics.{ Cursor, Pixmap }
+import sge.platform.{ PlatformOps, WindowingOps }
+import sge.utils.SgeError
+import lowlevel.Nullable
 import scala.collection.mutable
 import scala.util.boundary
 import scala.util.boundary.break
@@ -40,6 +46,46 @@ object DesktopCursor {
 
   /** All active cursors (for bulk cleanup when a window is destroyed). */
   private[sge] val cursors: mutable.ArrayBuffer[DesktopCursor] = mutable.ArrayBuffer.empty
+
+  /** Creates a custom cursor from a pixmap image (faithful port of `new Lwjgl3Cursor(window, pixmap, xHotspot, yHotspot)`, Lwjgl3Cursor.java:42-78).
+    *
+    * Validates the power-of-two dimensions and hotspot bounds (Lwjgl3Cursor.java:47-66), copies the image into an RGBA8888 pixmap with blending disabled (Lwjgl3Cursor.java:68-70) — which also
+    * converts non-RGBA8888 input instead of rejecting it (SGE, like [[DesktopWindow.setIcon]]) — then creates the native cursor via [[WindowingOps.createCursor]] (which builds the GLFWImage and calls
+    * `glfwCreateCursor`, Lwjgl3Cursor.java:72-76). GLFW copies the pixels, so the temporary copy is freed immediately.
+    *
+    * @return
+    *   a [[Nullable]] carrying the created [[Cursor]], or empty if the windowing layer failed to create one (0 handle)
+    */
+  private[sge] def create(windowing: WindowingOps, pixmap: Pixmap, xHotspot: Int, yHotspot: Int): Nullable[Cursor] = {
+    val width  = pixmap.width.toInt
+    val height = pixmap.height.toInt
+    if ((width & (width - 1)) != 0) {
+      throw SgeError.GraphicsError(s"Cursor image pixmap width of $width is not a power-of-two greater than zero.")
+    }
+    if ((height & (height - 1)) != 0) {
+      throw SgeError.GraphicsError(s"Cursor image pixmap height of $height is not a power-of-two greater than zero.")
+    }
+    if (xHotspot < 0 || xHotspot >= width) {
+      throw SgeError.GraphicsError(s"xHotspot coordinate of $xHotspot is not within image width bounds: [0, $width).")
+    }
+    if (yHotspot < 0 || yHotspot >= height) {
+      throw SgeError.GraphicsError(s"yHotspot coordinate of $yHotspot is not within image height bounds: [0, $height).")
+    }
+    // Copy into an RGBA8888 pixmap with blending disabled (Lwjgl3Cursor.java:68-70); this also
+    // converts non-RGBA8888 input. GLFW copies the pixels in createCursor, so the copy is transient.
+    val pixmapCopy = new Pixmap(width, height, Pixmap.Format.RGBA8888)
+    pixmapCopy.setBlending(Pixmap.Blending.None)
+    pixmapCopy.drawPixmap(pixmap, Pixels.zero, Pixels.zero)
+    val glfwCursor =
+      try windowing.createCursor(pixmapCopy, xHotspot, yHotspot)
+      finally pixmapCopy.close()
+    if (glfwCursor == 0L) Nullable.empty
+    else {
+      val cursor = new DesktopCursor(glfwCursor)
+      cursors += cursor
+      Nullable(cursor)
+    }
+  }
 
   /** Cached system cursor handles, keyed by SystemCursor enum. */
   private val systemCursors: mutable.Map[Cursor.SystemCursor, Long] = mutable.Map.empty
