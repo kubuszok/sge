@@ -211,15 +211,22 @@ object Pool {
         obtained.clear()
       }
 
+    // All removals from `obtained` use REFERENCE identity (lls *ByRef variants),
+    // faithful to upstream FlushablePool.java which removes with identity=true
+    // (`removeValue(object, true)` at :52, `removeAll(objects, true)` at :58):
+    // pooled instances can be structurally equal yet distinct, and value-equality
+    // removal can evict the WRONG instance from `obtained` — leaving the actually
+    // freed one behind to be double-freed by flush() (same instance in the free
+    // list twice), or dropping a still-checked-out one so flush() never frees it.
     override def free(obj: A): Unit =
       lock.synchronized {
-        obtained.removeValue(obj)
+        obtained.removeValueByRef(obj)
         super.free(obj)
       }
 
     override def freeAll(objects: Iterable[A]): Unit =
       lock.synchronized {
-        objects.foreach(obtained.removeValue)
+        objects.foreach(obtained.removeValueByRef)
         super.freeAll(objects)
       }
 
@@ -232,7 +239,7 @@ object Pool {
     // re-acquires it reentrantly. See Pool.lock.
     override def freeAll(objects: DynamicArray[? <: A]): Unit =
       lock.synchronized {
-        obtained.removeAll(objects)
+        obtained.removeAllByRef(objects)
         super.freeAll(objects)
       }
   }
