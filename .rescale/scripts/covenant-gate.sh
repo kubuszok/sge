@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # covenant-gate.sh — set-based ratchet gate for the covenant/shortcut checks
-# (ISS-483).
+# (ISS-483; baseline-growth / count-ceiling / deletion guards: ISS-700).
 #
 # Background
 # ----------
@@ -49,6 +49,65 @@
 # Paths are stored repo-RELATIVE (re-scale emits absolute paths rooted at the
 # repo; CI checks out to a different absolute directory, so we strip the repo
 # root to keep the baseline portable).
+#
+# Baseline growth, per-pair count ceilings, deletions (ISS-700)
+# -------------------------------------------------------------
+# The set ratchet alone had three growth holes, each closed by a guard that
+# runs in check mode BEFORE the expensive live-set computation (a padded or
+# gutted baseline must be rejected regardless of what the enforce tooling
+# would report):
+#
+# (a) BASELINE GROWTH needs EXPLICIT APPROVAL. Previously a commit could
+#     append its own brand-new failing (file, kind) pair to the committed
+#     baseline in the same change that introduces the failure — the pair then
+#     looked "already baselined" and the gate PASSED. Now the gate diffs the
+#     baseline it is about to trust against the baseline at the MERGE-BASE
+#     with master (origin/master, falling back to a local master ref). Any
+#     GROWTH — a new (file, kind) pair, a raised per-pair count ceiling, a
+#     removed count ceiling, or the removal of a row whose file was deleted
+#     too — FAILS (exit 1) unless BOTH hold:
+#       * the working-tree baseline is identical to HEAD's (an uncommitted
+#         baseline edit has no commit message to audit, so growth in it can
+#         never be approved), AND
+#       * EVERY commit in <merge-base>..HEAD that touches the baseline file
+#         carries the approval marker
+#             covenant-baseline-approved: <reason>
+#         in its commit message.
+#     Why a commit-message marker: it lives in immutable commit METADATA, not
+#     in the diff, so it cannot ride along silently inside a file change — the
+#     author must state the approval out loud where `git log`, the PR review
+#     page, and this gate's CI log all surface it, and
+#     `git log --grep covenant-baseline-approved:` enumerates every approval
+#     ever granted. Baseline SHRINK (a pair removed while its file still
+#     exists, a ceiling lowered, or a ceiling added to a legacy row) is a
+#     tightening and needs no approval.
+#     Merge-base resolution: on CI push builds origin/master is the checked-out
+#     ref itself; on CI pull_request builds (shallow, merge-ref-only checkout)
+#     the guard fetches origin master — and unshallows if needed — to resolve
+#     it, and FAILS CLOSED (exit 2) if it still cannot: a gate that cannot see
+#     the approved baseline must not guess. OUTSIDE CI a missing merge-base
+#     only prints a WARN and skips THIS guard (local scratch trees may lack a
+#     master ref; CI remains authoritative).
+#
+# (b) PER-PAIR COUNT CEILING. The (file, kind) set alone let an
+#     already-baselined file regress FURTHER silently (e.g. a file baselined
+#     with 3 covenanted-shortcut hits growing to 4 — same pair, so the set
+#     comparison stayed green). Baseline rows now carry an optional third
+#     column: the pair's failure COUNT (hits for shortcut kinds, method count
+#     for methods-removed, 1 for presence-only kinds). A live count HIGHER
+#     than the baselined ceiling FAILS (exit 1) listing the pairs. Legacy
+#     2-column rows carry no ceiling and stay pair-ratcheted only;
+#     `--generate` writes the count column, so the count ratchet arms as the
+#     baseline is regenerated (adding a ceiling is a tightening — no approval
+#     needed; RAISING one is growth under guard (a)).
+#
+# (c) DELETION IS NOT A SHRINK. Deleting a covenanted, baselined file made
+#     its pairs vanish from the live set, which read as a shrink → PASS. Now
+#     every file named in the baseline must still exist in the working tree;
+#     a missing file FAILS (exit 1). Legitimately deleting such a file
+#     requires removing its baseline rows, and removing rows together with
+#     their file is GROWTH under guard (a) — i.e. it needs the commit-message
+#     approval marker, so a covenant can never disappear silently.
 #
 # Usage
 # -----
@@ -100,7 +159,10 @@ if [ "$SCRIPT_ROOT" != "$REPO_ROOT" ]; then
   exit 2
 fi
 
-BASELINE="$REPO_ROOT/.rescale/data/covenant-gate-baseline.tsv"
+# Repo-relative baseline path: guard (a) needs it for `git show <sha>:<path>`
+# and `git log -- <path>` lookups, which take repo-relative pathspecs.
+BASELINE_REL=".rescale/data/covenant-gate-baseline.tsv"
+BASELINE="$REPO_ROOT/$BASELINE_REL"
 
 MODE="check"
 case "${1:-}" in
@@ -227,8 +289,11 @@ count_lines_matching() {
 
 # compute_live_set
 # ----------------
-# Emits the live failing set as TAB-separated "<relative-path>\t<kind>" rows on
-# stdout, one per line, unsorted. Diagnostics go to stderr. On any tool-error
+# Emits the live failing set as TAB-separated "<relative-path>\t<kind>\t<count>"
+# rows on stdout, one per line, unsorted. The count is the pair's failure count
+# (hits for shortcut kinds, method count for methods-removed, 1 for
+# presence-only kinds) and feeds the ISS-700 per-pair count-ceiling guard.
+# Diagnostics go to stderr. On any tool-error
 # (an invocation that did not run, was truncated mid-stream, or whose output
 # shape is unrecognized) it prints a diagnostic to stderr and exits the WHOLE
 # SCRIPT with status 2 — it deliberately does not "return empty", because an
@@ -371,18 +436,33 @@ compute_live_set() {
   printf '%s\n' "$verify_out" | while IFS= read -r line; do
     case "$line" in
       "  $REPO_ROOT"/*": "*)
-        local rest path reason kind
+        local rest path reason kind count
         rest="${line#  }"                 # strip the 2-space indent
         path="${rest%%: *}"               # path is up to the first ": "
         reason="${rest#*: }"              # reason is the remainder
         path="${path#"$REPO_ROOT"/}"      # make repo-relative
+        # count defaults to 1 (presence-only kinds); numeric kinds extract it
+        # from the reason text via pure parameter expansion (no pipeline).
+        count=1
         case "$reason" in
-          "shortcuts introduced:"*)        kind="shortcut-drift" ;;
+          "shortcuts introduced: "*)
+            kind="shortcut-drift"
+            count="${reason#shortcuts introduced: }"  # "N hit(s), e.g. ..."
+            count="${count%% *}"                      # leading "N"
+            ;;
           "no covenant header")            kind="missing-header" ;;
-          "methods removed since baseline:"*) kind="methods-removed" ;;
+          "methods removed since baseline: "*)
+            kind="methods-removed"
+            count="${reason#methods removed since baseline: }"
+            count="${count%% *}"
+            ;;
           *)                               kind="verify-other" ;;
         esac
-        printf '%s\t%s\n' "$path" "$kind"
+        # A count we cannot parse means the reason format drifted; fall back to
+        # the presence marker 1 rather than emitting a malformed row (the pair
+        # ratchet still applies; the ceiling just is not raised/checked).
+        if ! [[ "$count" =~ ^[0-9]+$ ]]; then count=1; fi
+        printf '%s\t%s\t%s\n' "$path" "$kind" "$count"
         ;;
     esac
   done
@@ -393,10 +473,13 @@ compute_live_set() {
   printf '%s\n' "$shortcuts_out" | while IFS= read -r line; do
     case "$line" in
       "$REPO_ROOT"/*"  ("*"hits)")
-        local path
+        local path count
         path="${line%%  (*}"
         path="${path#"$REPO_ROOT"/}"
-        printf '%s\t%s\n' "$path" "covenanted-shortcut"
+        count="${line##*  (}"             # "N hits)"
+        count="${count%% *}"              # "N"
+        if ! [[ "$count" =~ ^[0-9]+$ ]]; then count=1; fi
+        printf '%s\t%s\t%s\n' "$path" "covenanted-shortcut" "$count"
         ;;
     esac
   done
@@ -430,7 +513,7 @@ compute_live_set() {
   local dup_path
   while IFS= read -r dup_path; do
     [ -n "$dup_path" ] || continue
-    printf '%s\t%s\n' "$dup_path" "dup-covenant-header"
+    printf '%s\t%s\t1\n' "$dup_path" "dup-covenant-header"
   done < <(
     cd "$REPO_ROOT" &&
       grep -rc -- '\* Covenant: ' --include='*.scala' "${dup_roots[@]}" 2>/dev/null |
@@ -446,6 +529,227 @@ canonicalize_set() {
   grep -v '^[[:space:]]*$' | LC_ALL=C sort -u
 }
 
+# in_ci — true on GitHub Actions (or any CI that exports CI=...). Guard (a)
+# fails CLOSED on an unresolvable merge-base in CI but only WARNs locally.
+in_ci() {
+  [ "${GITHUB_ACTIONS:-}" = "true" ] || [ -n "${CI:-}" ]
+}
+
+# validate_baseline_rows  (ISS-700)
+# ---------------------------------
+# Structural check of the committed baseline BEFORE anything trusts it. Rows
+# must be "file<TAB>kind" (legacy) or "file<TAB>kind<TAB>count" with a numeric
+# count. A malformed row (missing kind, extra columns, non-numeric count)
+# would silently fall out of the set/ceiling comparisons — fail-open — so it
+# is a hard tool error (exit 2), not a policy failure. Blank lines were
+# already dropped by canonicalize_set; the awk blank-guard only covers the
+# one synthetic blank a here-fed EMPTY set produces.
+validate_baseline_rows() {
+  local bad
+  bad="$(awk -F'\t' '
+    $0 ~ /^[[:space:]]*$/ { next }
+    NF < 2 || NF > 3 || (NF == 3 && $3 !~ /^[0-9]+$/) { printf "  ? %s\n", $0 }
+  ' <<<"$BASE" || true)"
+  [ -z "$bad" ] && return 0
+  echo "covenant-gate: FAIL (exit 2) — malformed row(s) in $BASELINE_REL (expected 'file<TAB>kind' or 'file<TAB>kind<TAB>count' with numeric count):" >&2
+  printf '%s\n' "$bad" >&2
+  echo "covenant-gate: a row the comparisons cannot parse would silently escape the ratchet — refusing to run against a malformed baseline." >&2
+  exit 2
+}
+
+# guard_baseline_growth  (ISS-700 guard (a))
+# ------------------------------------------
+# Rejects UNAPPROVED baseline growth: the baseline this run is about to trust
+# is diffed against the baseline at the merge-base with master. Growth =
+#   * a (file, kind) pair not present at the merge-base, or
+#   * a count ceiling raised or removed on a pair present at the merge-base, or
+#   * a row removed together with its file (covenant deletion — see guard (c)).
+# Growth passes only when the working-tree baseline equals HEAD's AND every
+# commit in <merge-base>..HEAD touching the baseline carries the
+# 'covenant-baseline-approved: <reason>' marker in its message (see header).
+# Shrinks and added ceilings are tightenings and pass without approval.
+guard_baseline_growth() {
+  local base_sha="" ref
+  for ref in origin/master master; do
+    git -C "$REPO_ROOT" rev-parse --verify --quiet "$ref^{commit}" >/dev/null 2>&1 || continue
+    base_sha="$(git -C "$REPO_ROOT" merge-base "$ref" HEAD 2>/dev/null || true)"
+    [ -n "$base_sha" ] && break
+  done
+
+  if [ -z "$base_sha" ] && in_ci; then
+    # CI pull_request checkouts are shallow and carry only the synthetic
+    # refs/pull/N/merge ref — no origin/master, no parent history. Fetch the
+    # master ref (and, on a shallow clone, the full history of HEAD by sha —
+    # GitHub serves reachable sha wants) so the ancestry walk can reach the
+    # fork point. On push builds origin/master is the checked-out ref itself
+    # and this branch is never taken. `|| true`: a failed fetch falls through
+    # to the fail-closed exit below with its own diagnostic.
+    echo "covenant-gate: baseline-growth guard: no master merge-base in this checkout; fetching origin master to resolve it (CI)." >&2
+    if [ "$(git -C "$REPO_ROOT" rev-parse --is-shallow-repository 2>/dev/null)" = "true" ]; then
+      git -C "$REPO_ROOT" fetch --quiet --no-tags --unshallow origin \
+        "+refs/heads/master:refs/remotes/origin/master" "$(git -C "$REPO_ROOT" rev-parse HEAD)" >&2 || true
+    else
+      git -C "$REPO_ROOT" fetch --quiet --no-tags origin \
+        "+refs/heads/master:refs/remotes/origin/master" >&2 || true
+    fi
+    base_sha="$(git -C "$REPO_ROOT" merge-base origin/master HEAD 2>/dev/null || true)"
+  fi
+
+  if [ -z "$base_sha" ]; then
+    if in_ci; then
+      echo "covenant-gate: FAIL (exit 2) — baseline-growth guard could not resolve a merge-base with master in CI (even after fetching origin master)." >&2
+      echo "covenant-gate: without the merge-base the gate cannot distinguish approved baseline rows from rows the change under test granted itself — failing closed." >&2
+      echo "covenant-gate: fix the checkout (e.g. actions/checkout with fetch-depth: 0) or the network and re-run." >&2
+      exit 2
+    fi
+    # LOCAL fallback (documented in the header): scratch trees may genuinely
+    # lack any master ref. Skip ONLY this guard — CI stays authoritative and
+    # fail-closed, so the growth policy cannot be dodged by where you run.
+    echo "covenant-gate: WARN — no merge-base with origin/master or master; SKIPPING the baseline-growth guard for this LOCAL run." >&2
+    echo "covenant-gate: baseline growth is still enforced authoritatively in CI, where an unresolvable merge-base fails closed." >&2
+    return 0
+  fi
+
+  # Baseline as approved at the merge-base. Absent there (brand-new baseline)
+  # => empty set => every current row is growth and needs approval.
+  local mb_rows
+  mb_rows="$(git -C "$REPO_ROOT" show "$base_sha:$BASELINE_REL" 2>/dev/null | grep -v '^#' | canonicalize_set || true)"
+
+  local cur_pairs mb_pairs added_pairs removed_pairs
+  cur_pairs="$(printf '%s\n' "$BASE" | cut -f1,2 | canonicalize_set || true)"
+  mb_pairs="$(printf '%s\n' "$mb_rows" | cut -f1,2 | canonicalize_set || true)"
+  added_pairs="$(LC_ALL=C comm -13 <(printf '%s\n' "$mb_pairs" | canonicalize_set) <(printf '%s\n' "$cur_pairs" | canonicalize_set) || true)"
+  removed_pairs="$(LC_ALL=C comm -23 <(printf '%s\n' "$mb_pairs" | canonicalize_set) <(printf '%s\n' "$cur_pairs" | canonicalize_set) || true)"
+
+  local growth="" row f k
+  while IFS= read -r row; do
+    [ -n "$row" ] || continue
+    growth+="  + $row — new (file, kind) pair"$'\n'
+  done <<<"$added_pairs"
+
+  # Raised/removed count ceilings on pairs present on both sides. awk keys on
+  # "file FS kind"; a merge-base row without a numeric count carries no
+  # ceiling, so nothing on it can be "raised". Current-side rows were already
+  # structurally validated (validate_baseline_rows).
+  local ceiling_growth
+  ceiling_growth="$(awk -F'\t' '
+    $0 ~ /^[[:space:]]*$/ { next }
+    NR==FNR { if (NF >= 3 && $3 ~ /^[0-9]+$/) mb[$1 FS $2] = $3; next }
+    {
+      key = $1 FS $2
+      if (!(key in mb)) next
+      if (NF < 3)                printf "  + %s\t%s — count ceiling removed (was %s)\n", $1, $2, mb[key]
+      else if ($3+0 > mb[key]+0) printf "  + %s\t%s — count ceiling raised %s -> %s\n", $1, $2, mb[key], $3
+    }' <(printf '%s\n' "$mb_rows") <(printf '%s\n' "$BASE") || true)"
+  if [ -n "$ceiling_growth" ]; then growth+="$ceiling_growth"$'\n'; fi
+
+  # Rows removed together with their file: covenant deletion, growth-class.
+  # (Rows removed while the file still exists are a genuine shrink — pass.)
+  while IFS=$'\t' read -r f k; do
+    [ -n "$f" ] || continue
+    if [ ! -e "$REPO_ROOT/$f" ]; then
+      growth+="  + $f"$'\t'"$k — row removed together with its file (covenant deletion)"$'\n'
+    fi
+  done <<<"$removed_pairs"
+
+  growth="$(grep -v '^[[:space:]]*$' <<<"$growth" | LC_ALL=C sort || true)"
+  if [ -z "$growth" ]; then
+    echo "covenant-gate: baseline unchanged or tightened vs merge-base ${base_sha:0:9} — no growth to approve."
+    return 0
+  fi
+
+  # Growth exists — audit the approval. An uncommitted baseline edit can never
+  # be approved: there is no commit message to carry the marker.
+  local dirty=0
+  git -C "$REPO_ROOT" diff --quiet HEAD -- "$BASELINE_REL" 2>/dev/null || dirty=1
+
+  local touching unapproved="" approving="" c msg subj
+  touching="$(git -C "$REPO_ROOT" log --format=%H "$base_sha..HEAD" -- "$BASELINE_REL" 2>/dev/null || true)"
+  while IFS= read -r c; do
+    [ -n "$c" ] || continue
+    msg="$(git -C "$REPO_ROOT" log -1 --format=%B "$c" 2>/dev/null || true)"
+    subj="$(git -C "$REPO_ROOT" log -1 --format='%h %s' "$c" 2>/dev/null || true)"
+    # Substring test via `case` — pure bash, pipe-free (ISS-569 discipline).
+    case "$msg" in
+      *"covenant-baseline-approved:"*) approving+="  * $subj"$'\n' ;;
+      *)                               unapproved+="  ! $subj"$'\n' ;;
+    esac
+  done <<<"$touching"
+
+  if [ "$dirty" -eq 0 ] && [ -n "$approving" ] && [ -z "$unapproved" ]; then
+    echo "covenant-gate: baseline GROWTH vs merge-base ${base_sha:0:9} is APPROVED ('covenant-baseline-approved:' marker present):"
+    printf '%s\n' "$growth"
+    echo "covenant-gate: approving commit(s):"
+    printf '%s' "$approving"
+    return 0
+  fi
+
+  echo "covenant-gate: FAIL — baseline GROWTH vs merge-base ${base_sha:0:9} without explicit approval:" >&2
+  printf '%s\n' "$growth" >&2
+  if [ "$dirty" -ne 0 ]; then
+    echo "covenant-gate: the working-tree baseline differs from HEAD — uncommitted baseline growth can never be approved (no commit message to audit)." >&2
+  fi
+  if [ -n "$unapproved" ]; then
+    echo "covenant-gate: baseline-touching commit(s) WITHOUT the approval marker:" >&2
+    printf '%s' "$unapproved" >&2
+  fi
+  if [ "$dirty" -eq 0 ] && [ -z "$touching" ]; then
+    echo "covenant-gate: no commit in ${base_sha:0:9}..HEAD touches $BASELINE_REL yet its content grew — rename/rewrite trickery; refusing to trust it." >&2
+  fi
+  echo "covenant-gate: growing the baseline (new pair, raised/removed count ceiling, or rows removed with their file) requires the marker" >&2
+  echo "covenant-gate:   covenant-baseline-approved: <reason>" >&2
+  echo "covenant-gate: in the message of EVERY commit that edits $BASELINE_REL since the merge-base." >&2
+  exit 1
+}
+
+# guard_missing_files  (ISS-700 guard (c))
+# ----------------------------------------
+# Every file the baseline names must still exist in the working tree. Without
+# this, deleting a covenanted file removed its pairs from the LIVE set only —
+# which read as a shrink and PASSED. Deletion must instead be made explicit:
+# remove the baseline row(s) in a commit carrying the approval marker, which
+# guard (a) audits (row removed together with its file = growth-class).
+guard_missing_files() {
+  local f missing="" missing_n=0
+  while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    if [ ! -e "$REPO_ROOT/$f" ]; then
+      missing+="  - $f"$'\n'
+      missing_n=$((missing_n + 1))
+    fi
+  done < <(printf '%s\n' "$BASE" | cut -f1 | canonicalize_set || true)
+  [ -z "$missing" ] && return 0
+  echo "covenant-gate: FAIL — $missing_n baselined covenanted file(s) missing from the working tree (deleting a covenanted file is NOT a shrink):" >&2
+  printf '%s' "$missing" >&2
+  echo "covenant-gate: restore the file(s), or make the deletion explicit: remove their baseline row(s) in a commit whose message carries 'covenant-baseline-approved: <reason>' (guard (a) audits that removal)." >&2
+  exit 1
+}
+
+# ---- check-mode structural guards (ISS-700) ----
+# These need only git and the filesystem, so they run BEFORE the expensive
+# live-set computation: a padded, loosened, or gutted baseline must be
+# rejected no matter what the enforce tooling would go on to report.
+BASE=""
+BASE_PAIRS=""
+BASE_COUNT=0
+if [ "$MODE" = "check" ]; then
+  if [ ! -f "$BASELINE" ]; then
+    echo "covenant-gate: FAIL — baseline file missing: $BASELINE" >&2
+    echo "covenant-gate: run '.rescale/scripts/covenant-gate.sh --generate' to create it." >&2
+    exit 1
+  fi
+  # Read committed baseline rows (skip comment lines), then canonicalize so it
+  # is sorted+deduped under the SAME collation as LIVE. Order in the committed
+  # file is irrelevant — every set comparison below is order-independent
+  # because both operands pass through canonicalize_set.
+  BASE="$(grep -v '^#' "$BASELINE" | canonicalize_set || true)"
+  BASE_PAIRS="$(printf '%s\n' "$BASE" | cut -f1,2 | canonicalize_set || true)"
+  BASE_COUNT="$(printf '%s' "$BASE_PAIRS" | grep -c . || true)"
+  validate_baseline_rows # malformed row => tool error (exit 2)
+  guard_baseline_growth  # ISS-700 (a): unapproved growth vs master merge-base => exit 1
+  guard_missing_files    # ISS-700 (c): baselined file deleted from the tree  => exit 1
+fi
+
 # Run compute_live_set as a PLAIN command substitution (no pipeline) so that the
 # tool-error exit(2) it raises propagates as the substitution's exit status. If
 # it were the left side of `compute_live_set | canonicalize_set`, its exit would
@@ -460,34 +764,32 @@ if [ "$LIVE_RC" -ne 0 ]; then
   echo "covenant-gate: aborting — live-set computation reported a tool error (status $LIVE_RC); see message above." >&2
   exit "$LIVE_RC"
 fi
+# LIVE rows are "file<TAB>kind<TAB>count"; LIVE_PAIRS strips the count column
+# for the set comparisons (the committed baseline may hold legacy 2-column
+# rows, so sets are always compared at (file, kind) granularity and counts
+# are compared separately by the ceiling guard).
 LIVE="$(printf '%s\n' "$LIVE_RAW" | canonicalize_set)"
-LIVE_COUNT="$(printf '%s' "$LIVE" | grep -c . || true)"
+LIVE_PAIRS="$(printf '%s\n' "$LIVE" | cut -f1,2 | canonicalize_set || true)"
+LIVE_COUNT="$(printf '%s' "$LIVE_PAIRS" | grep -c . || true)"
 
 if [ "$MODE" = "generate" ]; then
   {
-    echo "# covenant-gate baseline (ISS-483) — set of (file, kind) pairs currently failing"
-    echo "# columns: file<TAB>kind   (file is repo-relative)"
+    echo "# covenant-gate baseline (ISS-483, ISS-700) — set of (file, kind, count) rows currently failing"
+    echo "# columns: file<TAB>kind<TAB>count   (file is repo-relative; count = per-pair failure-count ceiling)"
+    echo "# legacy 2-column rows (no count) are accepted: pair-ratcheted only, no count ceiling"
     echo "# kinds: shortcut-drift | missing-header | methods-removed | verify-other | covenanted-shortcut | dup-covenant-header"
+    echo "# growth vs the master merge-base (new pair, raised/removed ceiling, rows removed with their file)"
+    echo "# requires 'covenant-baseline-approved: <reason>' in every baseline-editing commit message (ISS-700)"
     echo "# regenerate: .rescale/scripts/covenant-gate.sh --generate"
     printf '%s\n' "$LIVE"
   } > "$BASELINE"
-  echo "covenant-gate: wrote baseline with $LIVE_COUNT (file, kind) rows to $BASELINE"
+  echo "covenant-gate: wrote baseline with $LIVE_COUNT (file, kind, count) rows to $BASELINE"
   exit 0
 fi
 
 # ---- check mode ----
-if [ ! -f "$BASELINE" ]; then
-  echo "covenant-gate: FAIL — baseline file missing: $BASELINE" >&2
-  echo "covenant-gate: run '.rescale/scripts/covenant-gate.sh --generate' to create it." >&2
-  exit 1
-fi
-
-# Read committed baseline rows (skip comment lines), then canonicalize so it is
-# sorted+deduped under the SAME collation as LIVE. Order in the committed file
-# is irrelevant — the set comparison below is provably order-independent because
-# both operands pass through canonicalize_set.
-BASE="$(grep -v '^#' "$BASELINE" | canonicalize_set || true)"
-BASE_COUNT="$(printf '%s' "$BASE" | grep -c . || true)"
+# ($BASE / $BASE_PAIRS / $BASE_COUNT were read — and the ISS-700 structural
+# guards enforced — before the live-set computation above.)
 
 # Defense-in-depth (ISS-483 bounce 2, acceptance item ii): the per-invocation
 # output-shape guards above are the primary protection, but as a final backstop
@@ -508,11 +810,28 @@ fi
 # and that an empty operand yields zero records rather than one blank record
 # (printf on an empty string would otherwise emit a spurious blank line that
 # desyncs comm). comm itself runs under LC_ALL=C so its merge order matches.
-NEW="$(LC_ALL=C comm -23 <(printf '%s\n' "$LIVE" | canonicalize_set) <(printf '%s\n' "$BASE" | canonicalize_set) || true)"
-SHRINK="$(LC_ALL=C comm -13 <(printf '%s\n' "$LIVE" | canonicalize_set) <(printf '%s\n' "$BASE" | canonicalize_set) || true)"
+NEW="$(LC_ALL=C comm -23 <(printf '%s\n' "$LIVE_PAIRS" | canonicalize_set) <(printf '%s\n' "$BASE_PAIRS" | canonicalize_set) || true)"
+SHRINK="$(LC_ALL=C comm -13 <(printf '%s\n' "$LIVE_PAIRS" | canonicalize_set) <(printf '%s\n' "$BASE_PAIRS" | canonicalize_set) || true)"
 
 NEW_COUNT="$(printf '%s' "$NEW" | grep -c . || true)"
 SHRINK_COUNT="$(printf '%s' "$SHRINK" | grep -c . || true)"
+
+# ISS-700 guard (b): per-pair count ceilings. For every baseline row that
+# carries a count, the live count for the same (file, kind) pair must not
+# exceed it — an already-baselined failure getting WORSE (more hits, more
+# methods removed) is a regression the pair-set comparison cannot see. Legacy
+# 2-column rows carry no ceiling and are skipped (pair-ratchet only). awk keys
+# on "file FS kind"; both inputs are here-fed process substitutions, no
+# SIGPIPE-able pipeline (ISS-569 discipline).
+REGRESSED="$(awk -F'\t' '
+  $0 ~ /^[[:space:]]*$/ { next }
+  NR==FNR { if (NF >= 3 && $3 ~ /^[0-9]+$/) ceil[$1 FS $2] = $3; next }
+  {
+    key = $1 FS $2
+    if (key in ceil && NF >= 3 && $3+0 > ceil[key]+0)
+      printf "  + %s\t%s — live count %s exceeds baselined ceiling %s\n", $1, $2, $3, ceil[key]
+  }' <(printf '%s\n' "$BASE") <(printf '%s\n' "$LIVE") || true)"
+REGRESSED_COUNT="$(printf '%s' "$REGRESSED" | grep -c . || true)"
 
 echo "covenant-gate: live failing (file,kind) pairs: $LIVE_COUNT ; baselined: $BASE_COUNT"
 
@@ -521,13 +840,28 @@ if [ "$SHRINK_COUNT" -gt 0 ]; then
   printf '%s\n' "$SHRINK" | sed 's/^/  - /'
 fi
 
+# Report BOTH failure classes before exiting so one cannot mask the other.
+GATE_FAILED=0
+
 if [ "$NEW_COUNT" -gt 0 ]; then
   echo "covenant-gate: FAIL — $NEW_COUNT NEW covenant/shortcut failure(s) not in baseline:" >&2
   printf '%s\n' "$NEW" | sed 's/^/  + /' >&2
   echo "covenant-gate: a covenanted file regressed (new stub/shortcut, dropped method, or lost header)." >&2
   echo "covenant-gate: fix the file, or — if intentional — re-baseline via the orchestrator." >&2
+  GATE_FAILED=1
+fi
+
+if [ "$REGRESSED_COUNT" -gt 0 ]; then
+  echo "covenant-gate: FAIL — $REGRESSED_COUNT baselined pair(s) regressed past their recorded count ceiling:" >&2
+  printf '%s\n' "$REGRESSED" >&2
+  echo "covenant-gate: an already-baselined failure got worse — fix the file back to (or below) its ceiling;" >&2
+  echo "covenant-gate: raising a ceiling on purpose is baseline GROWTH and needs the guard (a) approval marker." >&2
+  GATE_FAILED=1
+fi
+
+if [ "$GATE_FAILED" -ne 0 ]; then
   exit 1
 fi
 
-echo "covenant-gate: PASS — 0 new failures, $BASE_COUNT baselined."
+echo "covenant-gate: PASS — 0 new failures, 0 count-ceiling regressions, $BASE_COUNT baselined."
 exit 0
