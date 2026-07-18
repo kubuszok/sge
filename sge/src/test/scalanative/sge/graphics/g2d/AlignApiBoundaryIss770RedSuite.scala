@@ -98,4 +98,18 @@ class AlignApiBoundaryIss770RedSuite extends munit.FunSuite {
         "it currently does because halign is typed Int instead of sge.utils.Align, making the ISS-584 bug class representable"
     )
   }
+
+  // ISS-851: zinc-visible dependency anchor. The design-pin assertions above
+  // exercise GlyphLayout.setText's halign boundary (that it accepts sge.utils.Align)
+  // ONLY inside typeCheckErrors string literals, which zinc's incremental compiler
+  // cannot see — so retyping that halign parameter back to a raw Int would NOT
+  // recompile this suite, leaving a stale pass (the wave-G false-green trap). A
+  // bare `classOf[GlyphLayout]` is insufficient: zinc name-hashing only invalidates
+  // dependents that use the *changed member's* name, and setText's Align boundary
+  // is referenced solely in the strings. This anchor therefore MIRRORS the asserted
+  // surface in real code — the exact `setText(font, …, Align.left, …)` call the
+  // primary design pin encodes — so retyping halign to Int invalidates this method
+  // body (Align no longer conforms to Int) and recompiles the suite. It is a
+  // type-level reference in an uncalled method: never executed, no side effects.
+  def zincAnchor: Unit = layout.setText(font, "ab", sge.graphics.Color.WHITE, 50f, sge.utils.Align.left, false)
 }

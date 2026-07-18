@@ -82,4 +82,32 @@ class SpriteBatchEncapsulationIss783RedSuite extends munit.FunSuite {
     )
     assert(errors.isEmpty, s"renderCalls must stay publicly assignable; errors: ${errors.map(_.message)}")
   }
+
+  // ISS-851: zinc-visible dependency anchor. The compile-shape assertions above
+  // reference SpriteBatch's idx/lastTexture/drawing/renderCalls ONLY inside
+  // typeCheckErrors string literals, which zinc's incremental compiler cannot see
+  // — so re-widening idx/lastTexture/drawing (the ISS-783 regression this suite
+  // guards) would NOT recompile this suite, leaving a stale pass (the wave-G
+  // false-green trap; empirically confirmed: a bare `classOf[SpriteBatch]` did
+  // NOT recompile this suite when idx's visibility changed, because zinc
+  // name-hashing only invalidates dependents that use the *changed member's*
+  // name — and idx/lastTexture/drawing are private[g2d], unreferenceable from
+  // this external `package sge` suite).
+  //
+  // The primary guards therefore use an INHERITANCE probe: a real subclass of
+  // SpriteBatch. Zinc records an inheritance dependency (stronger than a name
+  // reference) — ANY change to SpriteBatch's api surface, including a member's
+  // visibility, invalidates this subclass and recompiles the suite, re-evaluating
+  // the compile-shape assertions. The probe is declared, never instantiated
+  // (SpriteBatch's ctor allocates GL resources), so there are no side effects.
+  private class SpriteBatchZincProbe(using Sge) extends sge.graphics.g2d.SpriteBatch()
+
+  // The control assertion (public renderCalls stays assignable) is additionally
+  // MIRRORED in real code so a regression that hides renderCalls recompiles here.
+  // Type-level reference in an uncalled method: never executed, no side effects.
+  def zincAnchorControl(b: sge.graphics.g2d.SpriteBatch): Unit = b.renderCalls = 7
+
+  test("ISS-851: zinc inheritance probe anchors the full SpriteBatch api surface") {
+    assertEquals(classOf[SpriteBatchZincProbe].getSuperclass.getSimpleName, "SpriteBatch")
+  }
 }

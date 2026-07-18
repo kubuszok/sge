@@ -66,4 +66,19 @@ class BitmapFontDefaultFontIss765RedSuite extends munit.FunSuite {
         s"it does not — the boolean-flip constructor is not ported. Errors: ${errors.map(_.message)}"
     )
   }
+
+  // ISS-851: zinc-visible dependency anchor. The compile-shape assertions above
+  // exercise BitmapFont's no-arg and boolean-flip constructors ONLY inside
+  // typeCheckErrors string literals, which zinc's incremental compiler cannot see
+  // — so removing/retyping those ctors would NOT recompile this suite, leaving a
+  // stale pass (the wave-G false-green trap). A bare `classOf[BitmapFont]` is
+  // insufficient: zinc name-hashing only invalidates dependents that use the
+  // *changed member's* name, and the ctors are referenced solely in the strings.
+  // These anchors therefore MIRROR the asserted surface in real code — the exact
+  // `new BitmapFont()` / `new BitmapFont(flip)` ctors the assertions pin — so any
+  // regression invalidates these method bodies and recompiles the suite. They are
+  // type-level references in uncalled methods: never executed (which also avoids
+  // the default-font classpath load, absent on the Native axis), no side effects.
+  def zincAnchorNoArg: BitmapFont = new BitmapFont()
+  def zincAnchorFlip:  BitmapFont = new BitmapFont(true)
 }

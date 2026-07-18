@@ -96,4 +96,18 @@ class ObjLoaderResolverIss847RedSuite extends munit.FunSuite {
     )
     assert(errors.isEmpty, s"ObjLoader(concreteResolver) must stay constructible; errors: ${errors.map(_.message)}")
   }
+
+  // ISS-851: zinc-visible dependency anchor. The compile-shape assertion above
+  // exercises ObjLoader's ctor ONLY inside a typeCheckErrors string literal, which
+  // zinc's incremental compiler cannot see — so a change to that ctor's signature
+  // would NOT recompile this suite, leaving a stale pass (the wave-G false-green
+  // trap). A bare `classOf[ObjLoader]` is insufficient: zinc name-hashing only
+  // invalidates dependents that use the *changed member's* name, and the ctor is
+  // referenced solely in the string. This anchor therefore MIRRORS the asserted
+  // surface in real code — `ObjLoader(Nullable.empty[FileHandleResolver])`, the
+  // exact ctor the primary assertion pins — so any regression of that ctor's
+  // parameter type invalidates this method's body and recompiles the suite
+  // (turning the stale pass into a compile error / re-evaluated assertion). It is
+  // a type-level reference in an uncalled method: never executed, no side effects.
+  def zincAnchor: ObjLoader = ObjLoader(lowlevel.Nullable.empty[FileHandleResolver])
 }

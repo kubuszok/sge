@@ -39,4 +39,20 @@ class SgeImplicitNotFoundIss555RedSuite extends munit.FunSuite {
       s"expected the custom @implicitNotFound message containing \"replaces LibGDX's global\"; got: $messages"
     )
   }
+
+  // ISS-851: zinc-visible dependency anchor. The compile-shape assertion above
+  // exercises `summon[sge.Sge]` (and its @implicitNotFound diagnostic) ONLY inside
+  // a typeCheckErrors string literal, which zinc's incremental compiler cannot see
+  // — so a change to Sge's @implicitNotFound annotation would NOT recompile this
+  // suite, leaving a stale pass (the wave-G false-green trap). Unlike the other
+  // ISS-851 anchors, no positive real-code mirror is possible here: the assertion
+  // pins a MISSING-given diagnostic, and introducing a `given Sge` to reference
+  // would itself make `summon[sge.Sge]` succeed and invert the test. The guarded
+  // regression, however, is a CLASS-LEVEL change (the @implicitNotFound annotation
+  // sits on `Sge` itself, not on a member), so a class-name reference is the
+  // correctly-scoped anchor: `classOf[Sge]` records a dependency on the `Sge`
+  // name, whose api hash includes its class annotations, so re-editing
+  // @implicitNotFound recompiles this suite. Type-level reference in an uncalled
+  // method: never executed, no side effects.
+  def zincAnchor: Class[Sge] = classOf[Sge]
 }
