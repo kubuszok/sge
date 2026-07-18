@@ -43,6 +43,7 @@ package data
 import java.io.File
 import java.net.{ URL, URLClassLoader }
 import java.nio.file.Files
+import java.util.concurrent.TimeUnit
 
 class GltfEagerCodecRegistrationIsolationSuite extends munit.FunSuite {
 
@@ -57,7 +58,7 @@ class GltfEagerCodecRegistrationIsolationSuite extends munit.FunSuite {
       urls.foreach { url =>
         val path =
           try new File(url.toURI).getAbsolutePath
-          catch { case _: Throwable => url.getPath }
+          catch { case _: java.net.URISyntaxException | _: IllegalArgumentException => url.getPath }
         if (path.nonEmpty) seen += path
       }
 
@@ -73,7 +74,7 @@ class GltfEagerCodecRegistrationIsolationSuite extends munit.FunSuite {
               case urls: Array[URL @unchecked] => addUrls(urls)
               case _ => ()
             }
-          } catch { case _: Throwable => () }
+          } catch { case _: ReflectiveOperationException => () }
       }
       cl = cl.getParent
     }
@@ -98,8 +99,16 @@ class GltfEagerCodecRegistrationIsolationSuite extends munit.FunSuite {
 
     val pb = new ProcessBuilder(cmd)
     pb.inheritIO() // surface the harness stdout/stderr in the test log
-    val process  = pb.start()
-    val exitCode = process.waitFor()
+    val process = pb.start()
+
+    // Bounded wait: a hung spawned JVM must never hang the suite. On timeout,
+    // forcibly kill the child and fail loudly rather than block indefinitely.
+    val TimeoutSeconds = 120L
+    if (!process.waitFor(TimeoutSeconds, TimeUnit.SECONDS)) {
+      process.destroyForcibly()
+      fail(s"harness JVM did not exit within ${TimeoutSeconds}s — killed it (possible hang in the spawned process)")
+    }
+    val exitCode = process.exitValue()
 
     val result = new String(Files.readAllBytes(resultsFile.toPath)).trim
     System.err.println(s"=== ISS-846 eager codec registration (fresh JVM) ===\n$result")
