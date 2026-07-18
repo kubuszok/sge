@@ -127,11 +127,21 @@ class HeadlessApplicationTest extends FunSuite {
     try {
       val sge = app.sgeContext
       assert(sge.application eq app)
-      assert(sge.graphics != null)
-      assert(sge.audio != null)
-      assert(sge.files != null)
-      assert(sge.input != null)
-      assert(sge.net != null)
+      // Behavioral probes: exercise one wired call per subsystem (each NPEs if its Sge
+      // field were uninitialized) and check the value the headless implementation actually
+      // produces — instead of a vacuous not-null assert on a non-nullable field.
+      // graphics: NoopGraphics is wired at its 640x480 defaults (HeadlessApplication.scala:43).
+      assertEquals(sge.graphics.width.toInt, 640)
+      assertEquals(sge.graphics.height.toInt, 480)
+      // audio: NoopAudio reports no output devices (NoopAudio.availableOutputDevices == empty).
+      assertEquals(sge.audio.availableOutputDevices.length, 0)
+      // files: DesktopFiles builds a well-formed internal handle for the requested path.
+      assertEquals(sge.files.internal("sge-headless-probe.txt").path, "sge-headless-probe.txt")
+      // input: NoopInput polls report no touch (justTouched == false).
+      assert(!sge.input.justTouched())
+      // net: DesktopNet exposes httpClient as a wired `val` — same instance across accesses.
+      val http = sge.net.httpClient
+      assert(http eq sge.net.httpClient)
     } finally {
       app.exit()
       Thread.sleep(200)

@@ -83,7 +83,8 @@ class PooledEngineSuite extends munit.FunSuite {
   test("createEntity returns pooled entity") {
     val engine = newPooledEngine()
     val entity = engine.createEntity()
-    assert(entity != null)
+    // A freshly pooled entity carries no components (PooledEngine.createEntity -> pool.obtain).
+    assertEquals(entity.getComponents.size, 0)
   }
 
   test("createComponent creates component via factory") {
@@ -204,9 +205,9 @@ class PooledEngineSuite extends munit.FunSuite {
     engine.clearPools()
 
     // After clearing, new entities should be fresh (not recycled from pool)
-    // This is a smoke test -- just verify it doesn't crash
+    // This is a smoke test -- just verify a fresh, component-less entity is produced
     val entity = engine.createEntity()
-    assert(entity != null)
+    assertEquals(entity.getComponents.size, 0)
   }
 
   test("resetEntity correctly: flags, components, familyBits cleared") {

@@ -7,15 +7,15 @@ class EntityManagerSuite extends munit.FunSuite {
     var addedCount:   Int = 0
     var removedCount: Int = 0
 
-    override def entityAdded(entity: Entity): Unit = {
+    override def entityAdded(entity: Entity): Unit =
+      // `entity` is a non-nullable Entity — a not-null assert here is vacuous.
+      // Real coverage: the addedCount == N checks in the addAndRemoveEntity test.
       addedCount += 1
-      assert(entity != null)
-    }
 
-    override def entityRemoved(entity: Entity): Unit = {
+    override def entityRemoved(entity: Entity): Unit =
+      // `entity` is a non-nullable Entity — a not-null assert here is vacuous.
+      // Real coverage: the removedCount == N checks in the addAndRemoveEntity test.
       removedCount += 1
-      assert(entity != null)
-    }
   }
 
   test("addAndRemoveEntity via EntityManager") {

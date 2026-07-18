@@ -26,15 +26,15 @@ class EngineSuite extends munit.FunSuite {
     var addedCount:   Int = 0
     var removedCount: Int = 0
 
-    override def entityAdded(entity: Entity): Unit = {
+    override def entityAdded(entity: Entity): Unit =
+      // `entity` is a non-nullable Entity — a not-null assert here is vacuous.
+      // Real coverage: the addedCount == N checks in the addEntity/listener tests.
       addedCount += 1
-      assert(entity != null)
-    }
 
-    override def entityRemoved(entity: Entity): Unit = {
+    override def entityRemoved(entity: Entity): Unit =
+      // `entity` is a non-nullable Entity — a not-null assert here is vacuous.
+      // Real coverage: the removedCount == N checks in the removeEntity/listener tests.
       removedCount += 1
-      assert(entity != null)
-    }
   }
 
   private class AddComponentBEntityListenerMock extends EntityListenerMock {
@@ -56,15 +56,15 @@ class EngineSuite extends munit.FunSuite {
       }
     }
 
-    override def addedToEngine(engine: Engine): Unit = {
+    override def addedToEngine(engine: Engine): Unit =
+      // `engine` is a non-nullable Engine — a not-null assert here is vacuous.
+      // Real coverage: the addedCalls == 1/2 checks in the addSystem/removeSystem tests.
       addedCalls += 1
-      assert(engine != null)
-    }
 
-    override def removedFromEngine(engine: Engine): Unit = {
+    override def removedFromEngine(engine: Engine): Unit =
+      // `engine` is a non-nullable Engine — a not-null assert here is vacuous.
+      // Real coverage: the removedCalls == 1/2 checks in the addSystem/removeSystem tests.
       removedCalls += 1
-      assert(engine != null)
-    }
   }
 
   private class EntitySystemMockA(updates: ArrayBuffer[Int] = null, p: Int = 0) extends EntitySystemMock(updates, p)
@@ -535,7 +535,8 @@ class EngineSuite extends munit.FunSuite {
   test("createEntity returns new entity") {
     val engine = new Engine
     val entity = engine.createEntity()
-    assert(entity != null)
+    // A freshly created entity carries no components (Engine.createEntity -> new Entity).
+    assertEquals(entity.getComponents.size, 0)
   }
 
   test("createComponent returns empty for an unregistered, non-reflectable component (ISS-723 c12)") {

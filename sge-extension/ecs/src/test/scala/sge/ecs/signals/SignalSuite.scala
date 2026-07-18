@@ -9,11 +9,10 @@ class SignalSuite extends munit.FunSuite {
   private class ListenerMock extends Listener[Dummy] {
     var count: Int = 0
 
-    override def receive(signal: Signal[Dummy], obj: Dummy): Unit = {
+    override def receive(signal: Signal[Dummy], obj: Dummy): Unit =
+      // `signal` and `obj` are non-nullable — not-null asserts here are vacuous.
+      // Real coverage: the count == N checks in the add/dispatch/remove tests.
       count += 1
-      assert(signal != null)
-      assert(obj != null)
-    }
   }
 
   private class RemoveWhileDispatchListener extends Listener[Dummy] {

@@ -32,7 +32,9 @@ class AdapterDefaultsIss557RedSuite extends munit.FunSuite {
     listener.pause()
     listener.resume()
     listener.dispose()
-    assert(listener != null)
+    // `listener` is a non-nullable ApplicationListener — a not-null assert here is vacuous.
+    // Real coverage: this test compiling+running proves the five non-render lifecycle
+    // methods have default no-op bodies (AD-003), which is the RED->GREEN contract.
   }
 
   test("ISS-557 minimal Screen overriding only render() compiles via defaults") {
@@ -48,6 +50,8 @@ class AdapterDefaultsIss557RedSuite extends munit.FunSuite {
     screen.resume()
     screen.hide()
     screen.close()
-    assert(screen != null)
+    // `screen` is a non-nullable Screen — a not-null assert here is vacuous.
+    // Real coverage: this test compiling+running proves the six non-render Screen
+    // methods have default no-op bodies (AD-003), which is the RED->GREEN contract.
   }
 }
