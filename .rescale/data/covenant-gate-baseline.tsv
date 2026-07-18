@@ -83,6 +83,7 @@ sge-extension/textra/src/main/scala/sge/textra/utils/LZBCompression.scala	shortc
 sge-extension/tools/src/main/scala/sge/tools/texturepacker/MaxRectsPacker.scala	shortcut-drift
 sge-extension/tools/src/main/scala/sge/tools/texturepacker/TexturePacker.scala	shortcut-drift
 sge-extension/visui/src/main/scala/sge/visui/VisUISkinReaders.scala	missing-header
+sge-extension/gltf/src/main/scala/sge/gltf/scene3d/shaders/GltfShaderSources.scala	missing-header
 sge-extension/visui/src/main/scala/sge/visui/building/utilities/CellWidget.scala	shortcut-drift
 sge-extension/visui/src/main/scala/sge/visui/util/adapter/AbstractListAdapter.scala	shortcut-drift
 sge-extension/visui/src/main/scala/sge/visui/widget/MultiSplitPane.scala	shortcut-drift
