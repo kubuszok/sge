@@ -584,7 +584,9 @@ private[sge] object WindowingOpsNative extends WindowingOps {
         while (i < images.length) {
           val base   = buf + (i.toLong * structSize.toLong)
           val pixmap = images(i)
-          val pixels = pixmap.pixels
+          // Drain a duplicate() view so the caller's shared pixmap buffer position is left untouched
+          // (ISS-833, same non-destructive read as createCursor above at :494-495).
+          val pixels = pixmap.pixels.duplicate()
           pixels.position(0)
           val numBytes  = pixels.remaining()
           val nativeBuf = zone.alloc(numBytes)
@@ -767,55 +769,55 @@ private[sge] object WindowingOpsNative extends WindowingOps {
 
   // ─── Callbacks ──────────────────────────────────────────────────────
 
-  override def setFramebufferSizeCallback(windowHandle: Long, callback: (Long, Int, Int) => Unit): Unit =
-    if (callback == null) { cbFramebufferSize.remove(windowHandle); GlfwC.glfwSetFramebufferSizeCallback(ptrFromLong(windowHandle), null) }
-    else { cbFramebufferSize(windowHandle) = callback; GlfwC.glfwSetFramebufferSizeCallback(ptrFromLong(windowHandle), fnFramebufferSize) }
+  override def setFramebufferSizeCallback(windowHandle: Long, callback: Nullable[(Long, Int, Int) => Unit]): Unit =
+    if (callback.isEmpty) { cbFramebufferSize.remove(windowHandle); GlfwC.glfwSetFramebufferSizeCallback(ptrFromLong(windowHandle), null) }
+    else { cbFramebufferSize(windowHandle) = callback.get; GlfwC.glfwSetFramebufferSizeCallback(ptrFromLong(windowHandle), fnFramebufferSize) }
 
-  override def setWindowFocusCallback(windowHandle: Long, callback: (Long, Boolean) => Unit): Unit =
-    if (callback == null) { cbWindowFocus.remove(windowHandle); GlfwC.glfwSetWindowFocusCallback(ptrFromLong(windowHandle), null) }
-    else { cbWindowFocus(windowHandle) = callback; GlfwC.glfwSetWindowFocusCallback(ptrFromLong(windowHandle), fnWindowFocus) }
+  override def setWindowFocusCallback(windowHandle: Long, callback: Nullable[(Long, Boolean) => Unit]): Unit =
+    if (callback.isEmpty) { cbWindowFocus.remove(windowHandle); GlfwC.glfwSetWindowFocusCallback(ptrFromLong(windowHandle), null) }
+    else { cbWindowFocus(windowHandle) = callback.get; GlfwC.glfwSetWindowFocusCallback(ptrFromLong(windowHandle), fnWindowFocus) }
 
-  override def setWindowIconifyCallback(windowHandle: Long, callback: (Long, Boolean) => Unit): Unit =
-    if (callback == null) { cbWindowIconify.remove(windowHandle); GlfwC.glfwSetWindowIconifyCallback(ptrFromLong(windowHandle), null) }
-    else { cbWindowIconify(windowHandle) = callback; GlfwC.glfwSetWindowIconifyCallback(ptrFromLong(windowHandle), fnWindowIconify) }
+  override def setWindowIconifyCallback(windowHandle: Long, callback: Nullable[(Long, Boolean) => Unit]): Unit =
+    if (callback.isEmpty) { cbWindowIconify.remove(windowHandle); GlfwC.glfwSetWindowIconifyCallback(ptrFromLong(windowHandle), null) }
+    else { cbWindowIconify(windowHandle) = callback.get; GlfwC.glfwSetWindowIconifyCallback(ptrFromLong(windowHandle), fnWindowIconify) }
 
-  override def setWindowMaximizeCallback(windowHandle: Long, callback: (Long, Boolean) => Unit): Unit =
-    if (callback == null) { cbWindowMaximize.remove(windowHandle); GlfwC.glfwSetWindowMaximizeCallback(ptrFromLong(windowHandle), null) }
-    else { cbWindowMaximize(windowHandle) = callback; GlfwC.glfwSetWindowMaximizeCallback(ptrFromLong(windowHandle), fnWindowMaximize) }
+  override def setWindowMaximizeCallback(windowHandle: Long, callback: Nullable[(Long, Boolean) => Unit]): Unit =
+    if (callback.isEmpty) { cbWindowMaximize.remove(windowHandle); GlfwC.glfwSetWindowMaximizeCallback(ptrFromLong(windowHandle), null) }
+    else { cbWindowMaximize(windowHandle) = callback.get; GlfwC.glfwSetWindowMaximizeCallback(ptrFromLong(windowHandle), fnWindowMaximize) }
 
-  override def setWindowCloseCallback(windowHandle: Long, callback: Long => Unit): Unit =
-    if (callback == null) { cbWindowClose.remove(windowHandle); GlfwC.glfwSetWindowCloseCallback(ptrFromLong(windowHandle), null) }
-    else { cbWindowClose(windowHandle) = callback; GlfwC.glfwSetWindowCloseCallback(ptrFromLong(windowHandle), fnWindowClose) }
+  override def setWindowCloseCallback(windowHandle: Long, callback: Nullable[Long => Unit]): Unit =
+    if (callback.isEmpty) { cbWindowClose.remove(windowHandle); GlfwC.glfwSetWindowCloseCallback(ptrFromLong(windowHandle), null) }
+    else { cbWindowClose(windowHandle) = callback.get; GlfwC.glfwSetWindowCloseCallback(ptrFromLong(windowHandle), fnWindowClose) }
 
-  override def setDropCallback(windowHandle: Long, callback: (Long, Array[String]) => Unit): Unit =
-    if (callback == null) { cbDrop.remove(windowHandle); GlfwC.glfwSetDropCallback(ptrFromLong(windowHandle), null) }
-    else { cbDrop(windowHandle) = callback; GlfwC.glfwSetDropCallback(ptrFromLong(windowHandle), fnDrop) }
+  override def setDropCallback(windowHandle: Long, callback: Nullable[(Long, Array[String]) => Unit]): Unit =
+    if (callback.isEmpty) { cbDrop.remove(windowHandle); GlfwC.glfwSetDropCallback(ptrFromLong(windowHandle), null) }
+    else { cbDrop(windowHandle) = callback.get; GlfwC.glfwSetDropCallback(ptrFromLong(windowHandle), fnDrop) }
 
-  override def setWindowRefreshCallback(windowHandle: Long, callback: Long => Unit): Unit =
-    if (callback == null) { cbWindowRefresh.remove(windowHandle); GlfwC.glfwSetWindowRefreshCallback(ptrFromLong(windowHandle), null) }
-    else { cbWindowRefresh(windowHandle) = callback; GlfwC.glfwSetWindowRefreshCallback(ptrFromLong(windowHandle), fnWindowRefresh) }
+  override def setWindowRefreshCallback(windowHandle: Long, callback: Nullable[Long => Unit]): Unit =
+    if (callback.isEmpty) { cbWindowRefresh.remove(windowHandle); GlfwC.glfwSetWindowRefreshCallback(ptrFromLong(windowHandle), null) }
+    else { cbWindowRefresh(windowHandle) = callback.get; GlfwC.glfwSetWindowRefreshCallback(ptrFromLong(windowHandle), fnWindowRefresh) }
 
   // ─── Input callbacks ────────────────────────────────────────────────
 
-  override def setKeyCallback(windowHandle: Long, callback: (Long, Int, Int, Int, Int) => Unit): Unit =
-    if (callback == null) { cbKey.remove(windowHandle); GlfwC.glfwSetKeyCallback(ptrFromLong(windowHandle), null) }
-    else { cbKey(windowHandle) = callback; GlfwC.glfwSetKeyCallback(ptrFromLong(windowHandle), fnKey) }
+  override def setKeyCallback(windowHandle: Long, callback: Nullable[(Long, Int, Int, Int, Int) => Unit]): Unit =
+    if (callback.isEmpty) { cbKey.remove(windowHandle); GlfwC.glfwSetKeyCallback(ptrFromLong(windowHandle), null) }
+    else { cbKey(windowHandle) = callback.get; GlfwC.glfwSetKeyCallback(ptrFromLong(windowHandle), fnKey) }
 
-  override def setCharCallback(windowHandle: Long, callback: (Long, Int) => Unit): Unit =
-    if (callback == null) { cbChar.remove(windowHandle); GlfwC.glfwSetCharCallback(ptrFromLong(windowHandle), null) }
-    else { cbChar(windowHandle) = callback; GlfwC.glfwSetCharCallback(ptrFromLong(windowHandle), fnChar) }
+  override def setCharCallback(windowHandle: Long, callback: Nullable[(Long, Int) => Unit]): Unit =
+    if (callback.isEmpty) { cbChar.remove(windowHandle); GlfwC.glfwSetCharCallback(ptrFromLong(windowHandle), null) }
+    else { cbChar(windowHandle) = callback.get; GlfwC.glfwSetCharCallback(ptrFromLong(windowHandle), fnChar) }
 
-  override def setScrollCallback(windowHandle: Long, callback: (Long, Double, Double) => Unit): Unit =
-    if (callback == null) { cbScroll.remove(windowHandle); GlfwC.glfwSetScrollCallback(ptrFromLong(windowHandle), null) }
-    else { cbScroll(windowHandle) = callback; GlfwC.glfwSetScrollCallback(ptrFromLong(windowHandle), fnScroll) }
+  override def setScrollCallback(windowHandle: Long, callback: Nullable[(Long, Double, Double) => Unit]): Unit =
+    if (callback.isEmpty) { cbScroll.remove(windowHandle); GlfwC.glfwSetScrollCallback(ptrFromLong(windowHandle), null) }
+    else { cbScroll(windowHandle) = callback.get; GlfwC.glfwSetScrollCallback(ptrFromLong(windowHandle), fnScroll) }
 
-  override def setCursorPosCallback(windowHandle: Long, callback: (Long, Double, Double) => Unit): Unit =
-    if (callback == null) { cbCursorPos.remove(windowHandle); GlfwC.glfwSetCursorPosCallback(ptrFromLong(windowHandle), null) }
-    else { cbCursorPos(windowHandle) = callback; GlfwC.glfwSetCursorPosCallback(ptrFromLong(windowHandle), fnCursorPos) }
+  override def setCursorPosCallback(windowHandle: Long, callback: Nullable[(Long, Double, Double) => Unit]): Unit =
+    if (callback.isEmpty) { cbCursorPos.remove(windowHandle); GlfwC.glfwSetCursorPosCallback(ptrFromLong(windowHandle), null) }
+    else { cbCursorPos(windowHandle) = callback.get; GlfwC.glfwSetCursorPosCallback(ptrFromLong(windowHandle), fnCursorPos) }
 
-  override def setMouseButtonCallback(windowHandle: Long, callback: (Long, Int, Int, Int) => Unit): Unit =
-    if (callback == null) { cbMouseButton.remove(windowHandle); GlfwC.glfwSetMouseButtonCallback(ptrFromLong(windowHandle), null) }
-    else { cbMouseButton(windowHandle) = callback; GlfwC.glfwSetMouseButtonCallback(ptrFromLong(windowHandle), fnMouseButton) }
+  override def setMouseButtonCallback(windowHandle: Long, callback: Nullable[(Long, Int, Int, Int) => Unit]): Unit =
+    if (callback.isEmpty) { cbMouseButton.remove(windowHandle); GlfwC.glfwSetMouseButtonCallback(ptrFromLong(windowHandle), null) }
+    else { cbMouseButton(windowHandle) = callback.get; GlfwC.glfwSetMouseButtonCallback(ptrFromLong(windowHandle), fnMouseButton) }
 
   // ─── Input polling ──────────────────────────────────────────────────
 

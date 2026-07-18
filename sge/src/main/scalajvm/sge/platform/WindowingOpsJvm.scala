@@ -604,7 +604,12 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
       // Build a GLFWimage { int width; int height; unsigned char* pixels; } from the pixmap and call
       // glfwCreateCursor(image, xhot, yhot) (Lwjgl3Cursor.java:72-76). GLFW copies the pixel data
       // before returning, so the native buffer is freed with the confined arena.
-      val pixels = pixmap.pixels
+      // pixmap.pixels is SHARED with the caller and with the Pixmap's own state (Gdx2DPixmap returns
+      // its backing buffer by identity); read it WITHOUT advancing its position by draining a
+      // duplicate() view (independent position/limit/mark), mirroring the Native twin
+      // (WindowingOpsNative.scala:494-495). Positioning the shared buffer here reset the caller's
+      // position, corrupting any later read of the same pixmap (ISS-833; sibling of the ISS-809 Native fix).
+      val pixels = pixmap.pixels.duplicate()
       pixels.position(0)
       val numBytes  = pixels.remaining()
       val nativeBuf = arena.allocate(numBytes.toLong)
@@ -752,7 +757,7 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
 
   // ─── Callbacks (upcall stubs) ──────────────────────────────────────────
 
-  override def setFramebufferSizeCallback(windowHandle: Long, callback: (Long, Int, Int) => Unit): Unit =
+  override def setFramebufferSizeCallback(windowHandle: Long, callback: Nullable[(Long, Int, Int) => Unit]): Unit =
     installWindowCallback(
       windowHandle,
       "framebufferSize",
@@ -763,7 +768,7 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
           .bind(
             new AnyRef {
               @scala.annotation.nowarn("id=E198")
-              def invoke(win: MemorySegment, w: Int, h: Int): Unit = callback(win.address(), w, h)
+              def invoke(win: MemorySegment, w: Int, h: Int): Unit = callback.get(win.address(), w, h)
             },
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment], classOf[Int], classOf[Int])
@@ -771,10 +776,10 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
         linker.upcallStub(target, desc, arena)
       },
       stub => hSetFbSizeCb.invoke(ptr(windowHandle), stub),
-      callback == null
+      callback.isEmpty
     )
 
-  override def setWindowFocusCallback(windowHandle: Long, callback: (Long, Boolean) => Unit): Unit =
+  override def setWindowFocusCallback(windowHandle: Long, callback: Nullable[(Long, Boolean) => Unit]): Unit =
     installWindowCallback(
       windowHandle,
       "focus",
@@ -785,7 +790,7 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
           .bind(
             new AnyRef {
               @scala.annotation.nowarn("id=E198")
-              def invoke(win: MemorySegment, focused: Int): Unit = callback(win.address(), focused != 0)
+              def invoke(win: MemorySegment, focused: Int): Unit = callback.get(win.address(), focused != 0)
             },
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment], classOf[Int])
@@ -793,10 +798,10 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
         linker.upcallStub(target, desc, arena)
       },
       stub => hSetFocusCb.invoke(ptr(windowHandle), stub),
-      callback == null
+      callback.isEmpty
     )
 
-  override def setWindowIconifyCallback(windowHandle: Long, callback: (Long, Boolean) => Unit): Unit =
+  override def setWindowIconifyCallback(windowHandle: Long, callback: Nullable[(Long, Boolean) => Unit]): Unit =
     installWindowCallback(
       windowHandle,
       "iconify",
@@ -807,7 +812,7 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
           .bind(
             new AnyRef {
               @scala.annotation.nowarn("id=E198")
-              def invoke(win: MemorySegment, iconified: Int): Unit = callback(win.address(), iconified != 0)
+              def invoke(win: MemorySegment, iconified: Int): Unit = callback.get(win.address(), iconified != 0)
             },
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment], classOf[Int])
@@ -815,10 +820,10 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
         linker.upcallStub(target, desc, arena)
       },
       stub => hSetIconifyCb.invoke(ptr(windowHandle), stub),
-      callback == null
+      callback.isEmpty
     )
 
-  override def setWindowMaximizeCallback(windowHandle: Long, callback: (Long, Boolean) => Unit): Unit =
+  override def setWindowMaximizeCallback(windowHandle: Long, callback: Nullable[(Long, Boolean) => Unit]): Unit =
     installWindowCallback(
       windowHandle,
       "maximize",
@@ -829,7 +834,7 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
           .bind(
             new AnyRef {
               @scala.annotation.nowarn("id=E198")
-              def invoke(win: MemorySegment, maximized: Int): Unit = callback(win.address(), maximized != 0)
+              def invoke(win: MemorySegment, maximized: Int): Unit = callback.get(win.address(), maximized != 0)
             },
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment], classOf[Int])
@@ -837,10 +842,10 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
         linker.upcallStub(target, desc, arena)
       },
       stub => hSetMaximizeCb.invoke(ptr(windowHandle), stub),
-      callback == null
+      callback.isEmpty
     )
 
-  override def setWindowCloseCallback(windowHandle: Long, callback: Long => Unit): Unit =
+  override def setWindowCloseCallback(windowHandle: Long, callback: Nullable[Long => Unit]): Unit =
     installWindowCallback(
       windowHandle,
       "close",
@@ -851,7 +856,7 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
           .bind(
             new AnyRef {
               @scala.annotation.nowarn("id=E198")
-              def invoke(win: MemorySegment): Unit = callback(win.address())
+              def invoke(win: MemorySegment): Unit = callback.get(win.address())
             },
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment])
@@ -859,10 +864,10 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
         linker.upcallStub(target, desc, arena)
       },
       stub => hSetCloseCb.invoke(ptr(windowHandle), stub),
-      callback == null
+      callback.isEmpty
     )
 
-  override def setDropCallback(windowHandle: Long, callback: (Long, Array[String]) => Unit): Unit =
+  override def setDropCallback(windowHandle: Long, callback: Nullable[(Long, Array[String]) => Unit]): Unit =
     installWindowCallback(
       windowHandle,
       "drop",
@@ -879,7 +884,7 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
                   val strPtr = reinterpreted.getAtIndex(P, i.toLong)
                   strPtr.reinterpret(Long.MaxValue).getString(0)
                 }
-                callback(win.address(), arr)
+                callback.get(win.address(), arr)
               }
             },
             "invoke",
@@ -888,10 +893,10 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
         linker.upcallStub(target, desc, arena)
       },
       stub => hSetDropCb.invoke(ptr(windowHandle), stub),
-      callback == null
+      callback.isEmpty
     )
 
-  override def setWindowRefreshCallback(windowHandle: Long, callback: Long => Unit): Unit =
+  override def setWindowRefreshCallback(windowHandle: Long, callback: Nullable[Long => Unit]): Unit =
     installWindowCallback(
       windowHandle,
       "refresh",
@@ -902,7 +907,7 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
           .bind(
             new AnyRef {
               @scala.annotation.nowarn("id=E198")
-              def invoke(win: MemorySegment): Unit = callback(win.address())
+              def invoke(win: MemorySegment): Unit = callback.get(win.address())
             },
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment])
@@ -910,12 +915,12 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
         linker.upcallStub(target, desc, arena)
       },
       stub => hSetRefreshCb.invoke(ptr(windowHandle), stub),
-      callback == null
+      callback.isEmpty
     )
 
   // ─── Input callbacks ─────────────────────────────────────────────────
 
-  override def setKeyCallback(windowHandle: Long, callback: (Long, Int, Int, Int, Int) => Unit): Unit =
+  override def setKeyCallback(windowHandle: Long, callback: Nullable[(Long, Int, Int, Int, Int) => Unit]): Unit =
     installWindowCallback(
       windowHandle,
       "key",
@@ -927,7 +932,7 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
             new AnyRef {
               @scala.annotation.nowarn("id=E198")
               def invoke(win: MemorySegment, key: Int, scancode: Int, action: Int, mods: Int): Unit =
-                callback(win.address(), key, scancode, action, mods)
+                callback.get(win.address(), key, scancode, action, mods)
             },
             "invoke",
             java.lang.invoke.MethodType.methodType(
@@ -942,10 +947,10 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
         linker.upcallStub(target, desc, arena)
       },
       stub => hSetKeyCb.invoke(ptr(windowHandle), stub),
-      callback == null
+      callback.isEmpty
     )
 
-  override def setCharCallback(windowHandle: Long, callback: (Long, Int) => Unit): Unit =
+  override def setCharCallback(windowHandle: Long, callback: Nullable[(Long, Int) => Unit]): Unit =
     installWindowCallback(
       windowHandle,
       "char",
@@ -956,7 +961,7 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
           .bind(
             new AnyRef {
               @scala.annotation.nowarn("id=E198")
-              def invoke(win: MemorySegment, codepoint: Int): Unit = callback(win.address(), codepoint)
+              def invoke(win: MemorySegment, codepoint: Int): Unit = callback.get(win.address(), codepoint)
             },
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment], classOf[Int])
@@ -964,10 +969,10 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
         linker.upcallStub(target, desc, arena)
       },
       stub => hSetCharCb.invoke(ptr(windowHandle), stub),
-      callback == null
+      callback.isEmpty
     )
 
-  override def setScrollCallback(windowHandle: Long, callback: (Long, Double, Double) => Unit): Unit =
+  override def setScrollCallback(windowHandle: Long, callback: Nullable[(Long, Double, Double) => Unit]): Unit =
     installWindowCallback(
       windowHandle,
       "scroll",
@@ -979,7 +984,7 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
             new AnyRef {
               @scala.annotation.nowarn("id=E198")
               def invoke(win: MemorySegment, xOff: Double, yOff: Double): Unit =
-                callback(win.address(), xOff, yOff)
+                callback.get(win.address(), xOff, yOff)
             },
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment], classOf[Double], classOf[Double])
@@ -987,10 +992,10 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
         linker.upcallStub(target, desc, arena)
       },
       stub => hSetScrollCb.invoke(ptr(windowHandle), stub),
-      callback == null
+      callback.isEmpty
     )
 
-  override def setCursorPosCallback(windowHandle: Long, callback: (Long, Double, Double) => Unit): Unit =
+  override def setCursorPosCallback(windowHandle: Long, callback: Nullable[(Long, Double, Double) => Unit]): Unit =
     installWindowCallback(
       windowHandle,
       "cursorPos",
@@ -1002,7 +1007,7 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
             new AnyRef {
               @scala.annotation.nowarn("id=E198")
               def invoke(win: MemorySegment, x: Double, y: Double): Unit =
-                callback(win.address(), x, y)
+                callback.get(win.address(), x, y)
             },
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment], classOf[Double], classOf[Double])
@@ -1010,10 +1015,10 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
         linker.upcallStub(target, desc, arena)
       },
       stub => hSetCurPosCb.invoke(ptr(windowHandle), stub),
-      callback == null
+      callback.isEmpty
     )
 
-  override def setMouseButtonCallback(windowHandle: Long, callback: (Long, Int, Int, Int) => Unit): Unit =
+  override def setMouseButtonCallback(windowHandle: Long, callback: Nullable[(Long, Int, Int, Int) => Unit]): Unit =
     installWindowCallback(
       windowHandle,
       "mouseButton",
@@ -1025,7 +1030,7 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
             new AnyRef {
               @scala.annotation.nowarn("id=E198")
               def invoke(win: MemorySegment, button: Int, action: Int, mods: Int): Unit =
-                callback(win.address(), button, action, mods)
+                callback.get(win.address(), button, action, mods)
             },
             "invoke",
             java.lang.invoke.MethodType.methodType(classOf[Unit], classOf[MemorySegment], classOf[Int], classOf[Int], classOf[Int])
@@ -1033,7 +1038,7 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
         linker.upcallStub(target, desc, arena)
       },
       stub => hSetMouseBtnCb.invoke(ptr(windowHandle), stub),
-      callback == null
+      callback.isEmpty
     )
 
   // ─── Window icon ────────────────────────────────────────────────────
@@ -1052,7 +1057,9 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
         var i   = 0
         while (i < images.length) {
           val pixmap = images(i)
-          val pixels = pixmap.pixels
+          // Drain a duplicate() view so the caller's shared pixmap buffer position is left untouched
+          // (ISS-833, same non-destructive read as createCursor / the Native twin WindowingOpsNative.scala:588).
+          val pixels = pixmap.pixels.duplicate()
           pixels.position(0)
           val numBytes  = pixels.remaining()
           val nativeBuf = arena.allocate(numBytes.toLong)

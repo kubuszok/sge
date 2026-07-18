@@ -11,6 +11,7 @@
 package sge
 package platform
 
+import lowlevel.Nullable
 import munit.FunSuite
 
 class DesktopFfiIntegrationTest extends FunSuite {
@@ -107,21 +108,21 @@ class DesktopFfiIntegrationTest extends FunSuite {
     requireGlfw()
     withWindow(320, 240, "Callback Test") { handle =>
       // Set callbacks (just verify no crash)
-      windowing.setFramebufferSizeCallback(handle, (_, _, _) => ())
-      windowing.setWindowFocusCallback(handle, (_, _) => ())
-      windowing.setWindowCloseCallback(handle, _ => ())
-      windowing.setKeyCallback(handle, (_, _, _, _, _) => ())
-      windowing.setCharCallback(handle, (_, _) => ())
-      windowing.setMouseButtonCallback(handle, (_, _, _, _) => ())
-      windowing.setCursorPosCallback(handle, (_, _, _) => ())
-      windowing.setScrollCallback(handle, (_, _, _) => ())
-      windowing.setDropCallback(handle, (_, _) => ())
+      windowing.setFramebufferSizeCallback(handle, Nullable((_: Long, _: Int, _: Int) => ()))
+      windowing.setWindowFocusCallback(handle, Nullable((_: Long, _: Boolean) => ()))
+      windowing.setWindowCloseCallback(handle, Nullable((_: Long) => ()))
+      windowing.setKeyCallback(handle, Nullable((_: Long, _: Int, _: Int, _: Int, _: Int) => ()))
+      windowing.setCharCallback(handle, Nullable((_: Long, _: Int) => ()))
+      windowing.setMouseButtonCallback(handle, Nullable((_: Long, _: Int, _: Int, _: Int) => ()))
+      windowing.setCursorPosCallback(handle, Nullable((_: Long, _: Double, _: Double) => ()))
+      windowing.setScrollCallback(handle, Nullable((_: Long, _: Double, _: Double) => ()))
+      windowing.setDropCallback(handle, Nullable((_: Long, _: Array[String]) => ()))
 
       // Clear callbacks
-      windowing.setFramebufferSizeCallback(handle, null)
-      windowing.setWindowFocusCallback(handle, null)
-      windowing.setWindowCloseCallback(handle, null)
-      windowing.setKeyCallback(handle, null)
+      windowing.setFramebufferSizeCallback(handle, Nullable.empty)
+      windowing.setWindowFocusCallback(handle, Nullable.empty)
+      windowing.setWindowCloseCallback(handle, Nullable.empty)
+      windowing.setKeyCallback(handle, Nullable.empty)
     }
   }
 }

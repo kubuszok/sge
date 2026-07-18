@@ -171,11 +171,11 @@ class DefaultDesktopInput private[sge] (
 
   override def windowHandleChanged(windowHandle: Long): Unit = {
     resetPollingStates()
-    windowing.setKeyCallback(window.windowHandle, onKey)
-    windowing.setCharCallback(window.windowHandle, onChar)
-    windowing.setScrollCallback(window.windowHandle, onScroll)
-    windowing.setCursorPosCallback(window.windowHandle, onCursorPos)
-    windowing.setMouseButtonCallback(window.windowHandle, onMouseButton)
+    windowing.setKeyCallback(window.windowHandle, Nullable(onKey))
+    windowing.setCharCallback(window.windowHandle, Nullable(onChar))
+    windowing.setScrollCallback(window.windowHandle, Nullable(onScroll))
+    windowing.setCursorPosCallback(window.windowHandle, Nullable(onCursorPos))
+    windowing.setMouseButtonCallback(window.windowHandle, Nullable(onMouseButton))
   }
 
   override def update(): Unit =
@@ -219,13 +219,12 @@ class DefaultDesktopInput private[sge] (
     eventQueue.drain(Nullable.empty)
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Null"))
-  override def close(): Unit = { // null — GLFW FFI interop: passing null unregisters the callback
-    windowing.setKeyCallback(window.windowHandle, null)
-    windowing.setCharCallback(window.windowHandle, null)
-    windowing.setScrollCallback(window.windowHandle, null)
-    windowing.setCursorPosCallback(window.windowHandle, null)
-    windowing.setMouseButtonCallback(window.windowHandle, null)
+  override def close(): Unit = { // Nullable.empty unregisters the callback (SGE null idiom, ISS-833)
+    windowing.setKeyCallback(window.windowHandle, Nullable.empty)
+    windowing.setCharCallback(window.windowHandle, Nullable.empty)
+    windowing.setScrollCallback(window.windowHandle, Nullable.empty)
+    windowing.setCursorPosCallback(window.windowHandle, Nullable.empty)
+    windowing.setMouseButtonCallback(window.windowHandle, Nullable.empty)
   }
 
   // ─── Input: pointer/touch ───────────────────────────────────────────

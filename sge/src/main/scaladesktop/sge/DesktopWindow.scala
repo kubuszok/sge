@@ -74,12 +74,12 @@ class DesktopWindow private[sge] (
     _input = application.createInput(this)
     _graphics = new DesktopGraphics(this, windowing)
 
-    windowing.setWindowFocusCallback(windowHandle, onFocus)
-    windowing.setWindowIconifyCallback(windowHandle, onIconify)
-    windowing.setWindowMaximizeCallback(windowHandle, onMaximize)
-    windowing.setWindowCloseCallback(windowHandle, onClose)
-    windowing.setDropCallback(windowHandle, onDrop)
-    windowing.setWindowRefreshCallback(windowHandle, onRefresh)
+    windowing.setWindowFocusCallback(windowHandle, Nullable(onFocus))
+    windowing.setWindowIconifyCallback(windowHandle, Nullable(onIconify))
+    windowing.setWindowMaximizeCallback(windowHandle, Nullable(onMaximize))
+    windowing.setWindowCloseCallback(windowHandle, Nullable(onClose))
+    windowing.setDropCallback(windowHandle, Nullable(onDrop))
+    windowing.setWindowRefreshCallback(windowHandle, Nullable(onRefresh))
 
     windowListener.foreach(_.created(this))
   }
@@ -374,12 +374,12 @@ class DesktopWindow private[sge] (
     }
     _graphics.close()
     _input.close()
-    windowing.setWindowFocusCallback(_windowHandle, null)
-    windowing.setWindowIconifyCallback(_windowHandle, null)
-    windowing.setWindowMaximizeCallback(_windowHandle, null)
-    windowing.setWindowCloseCallback(_windowHandle, null)
-    windowing.setDropCallback(_windowHandle, null)
-    windowing.setWindowRefreshCallback(_windowHandle, null)
+    windowing.setWindowFocusCallback(_windowHandle, Nullable.empty)
+    windowing.setWindowIconifyCallback(_windowHandle, Nullable.empty)
+    windowing.setWindowMaximizeCallback(_windowHandle, Nullable.empty)
+    windowing.setWindowCloseCallback(_windowHandle, Nullable.empty)
+    windowing.setDropCallback(_windowHandle, Nullable.empty)
+    windowing.setWindowRefreshCallback(_windowHandle, Nullable.empty)
     if (_eglContext != 0L) {
       glOps.destroyContext(_eglContext)
       _eglContext = 0L

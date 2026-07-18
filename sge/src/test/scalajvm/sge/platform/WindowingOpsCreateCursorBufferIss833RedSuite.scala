@@ -62,4 +62,29 @@ class WindowingOpsCreateCursorBufferIss833RedSuite extends munit.FunSuite {
     } finally
       pixmap.close()
   }
+
+  test(
+    "setWindowIcon must not disturb the caller's shared pixels buffer position (ISS-833 sibling; mirror ISS-809 duplicate())"
+  ) {
+    val pixmap = new Pixmap(8, 8, Pixmap.Format.RGBA8888)
+    try {
+      // A caller who left the shared buffer positioned somewhere non-zero.
+      val startPosition = 5
+      pixmap.pixels.position(startPosition)
+
+      val ops = new WindowingOpsJvm(emptyLookup)
+      // setWindowIcon reads pixmap.pixels then position(0)s it BEFORE the glfwSetWindowIcon downcall,
+      // which fails to resolve over emptyLookup — the mutation is what we observe, not the throw.
+      try ops.setWindowIcon(0L, Array(pixmap))
+      catch { case _: Throwable => () }
+
+      assertEquals(
+        pixmap.pixels.position(),
+        startPosition,
+        "setWindowIcon(windowHandle, images) must leave each caller's shared pixels buffer position untouched " +
+          "(same non-destructive read as createCursor / the Native twin WindowingOpsNative.scala:588; ISS-833)."
+      )
+    } finally
+      pixmap.close()
+  }
 }

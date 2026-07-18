@@ -164,20 +164,20 @@ class DesktopFullscreenIss759RedSuite extends munit.FunSuite {
       if (monitorHandle == monitorB) (2560, 1440, 144, 8, 8, 8) else (1920, 1080, 60, 8, 8, 8)
 
     // ─── Callbacks ───────────────────────────────────────────────────────
-    override def setFramebufferSizeCallback(windowHandle: Long, callback: (Long, Int, Int) => Unit):      Unit = {}
-    override def setWindowFocusCallback(windowHandle:     Long, callback: (Long, Boolean) => Unit):       Unit = {}
-    override def setWindowIconifyCallback(windowHandle:   Long, callback: (Long, Boolean) => Unit):       Unit = {}
-    override def setWindowMaximizeCallback(windowHandle:  Long, callback: (Long, Boolean) => Unit):       Unit = {}
-    override def setWindowCloseCallback(windowHandle:     Long, callback: Long => Unit):                  Unit = {}
-    override def setDropCallback(windowHandle:            Long, callback: (Long, Array[String]) => Unit): Unit = {}
-    override def setWindowRefreshCallback(windowHandle:   Long, callback: Long => Unit):                  Unit = {}
+    override def setFramebufferSizeCallback(windowHandle: Long, callback: Nullable[(Long, Int, Int) => Unit]):      Unit = {}
+    override def setWindowFocusCallback(windowHandle:     Long, callback: Nullable[(Long, Boolean) => Unit]):       Unit = {}
+    override def setWindowIconifyCallback(windowHandle:   Long, callback: Nullable[(Long, Boolean) => Unit]):       Unit = {}
+    override def setWindowMaximizeCallback(windowHandle:  Long, callback: Nullable[(Long, Boolean) => Unit]):       Unit = {}
+    override def setWindowCloseCallback(windowHandle:     Long, callback: Nullable[Long => Unit]):                  Unit = {}
+    override def setDropCallback(windowHandle:            Long, callback: Nullable[(Long, Array[String]) => Unit]): Unit = {}
+    override def setWindowRefreshCallback(windowHandle:   Long, callback: Nullable[Long => Unit]):                  Unit = {}
 
     // ─── Input callbacks ─────────────────────────────────────────────────
-    override def setKeyCallback(windowHandle:         Long, callback: (Long, Int, Int, Int, Int) => Unit): Unit = {}
-    override def setCharCallback(windowHandle:        Long, callback: (Long, Int) => Unit):                Unit = {}
-    override def setScrollCallback(windowHandle:      Long, callback: (Long, Double, Double) => Unit):     Unit = {}
-    override def setCursorPosCallback(windowHandle:   Long, callback: (Long, Double, Double) => Unit):     Unit = {}
-    override def setMouseButtonCallback(windowHandle: Long, callback: (Long, Int, Int, Int) => Unit):      Unit = {}
+    override def setKeyCallback(windowHandle:         Long, callback: Nullable[(Long, Int, Int, Int, Int) => Unit]): Unit = {}
+    override def setCharCallback(windowHandle:        Long, callback: Nullable[(Long, Int) => Unit]):                Unit = {}
+    override def setScrollCallback(windowHandle:      Long, callback: Nullable[(Long, Double, Double) => Unit]):     Unit = {}
+    override def setCursorPosCallback(windowHandle:   Long, callback: Nullable[(Long, Double, Double) => Unit]):     Unit = {}
+    override def setMouseButtonCallback(windowHandle: Long, callback: Nullable[(Long, Int, Int, Int) => Unit]):      Unit = {}
 
     // ─── Input polling ───────────────────────────────────────────────────
     override def getMouseButton(windowHandle: Long, button: Int):               Int  = WindowingOps.GLFW_RELEASE

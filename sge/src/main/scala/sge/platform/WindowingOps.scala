@@ -309,77 +309,77 @@ private[sge] trait WindowingOps {
 
   /** Sets the framebuffer size callback. Called when the framebuffer is resized.
     * @param callback
-    *   `(windowHandle, width, height) => Unit`, or null to remove
+    *   `(windowHandle, width, height) => Unit`; `Nullable.empty` removes it (SGE null idiom, ISS-833)
     */
-  def setFramebufferSizeCallback(windowHandle: Long, callback: (Long, Int, Int) => Unit): Unit
+  def setFramebufferSizeCallback(windowHandle: Long, callback: Nullable[(Long, Int, Int) => Unit]): Unit
 
   /** Sets the window focus callback.
     * @param callback
-    *   `(windowHandle, focused) => Unit`, or null to remove
+    *   `(windowHandle, focused) => Unit`; `Nullable.empty` removes it (SGE null idiom, ISS-833)
     */
-  def setWindowFocusCallback(windowHandle: Long, callback: (Long, Boolean) => Unit): Unit
+  def setWindowFocusCallback(windowHandle: Long, callback: Nullable[(Long, Boolean) => Unit]): Unit
 
   /** Sets the window iconify callback.
     * @param callback
-    *   `(windowHandle, iconified) => Unit`, or null to remove
+    *   `(windowHandle, iconified) => Unit`; `Nullable.empty` removes it (SGE null idiom, ISS-833)
     */
-  def setWindowIconifyCallback(windowHandle: Long, callback: (Long, Boolean) => Unit): Unit
+  def setWindowIconifyCallback(windowHandle: Long, callback: Nullable[(Long, Boolean) => Unit]): Unit
 
   /** Sets the window maximize callback.
     * @param callback
-    *   `(windowHandle, maximized) => Unit`, or null to remove
+    *   `(windowHandle, maximized) => Unit`; `Nullable.empty` removes it (SGE null idiom, ISS-833)
     */
-  def setWindowMaximizeCallback(windowHandle: Long, callback: (Long, Boolean) => Unit): Unit
+  def setWindowMaximizeCallback(windowHandle: Long, callback: Nullable[(Long, Boolean) => Unit]): Unit
 
   /** Sets the window close callback.
     * @param callback
-    *   `(windowHandle) => Unit`, or null to remove
+    *   `(windowHandle) => Unit`; `Nullable.empty` removes it (SGE null idiom, ISS-833)
     */
-  def setWindowCloseCallback(windowHandle: Long, callback: Long => Unit): Unit
+  def setWindowCloseCallback(windowHandle: Long, callback: Nullable[Long => Unit]): Unit
 
   /** Sets the file drop callback.
     * @param callback
-    *   `(windowHandle, filePaths) => Unit`, or null to remove
+    *   `(windowHandle, filePaths) => Unit`; `Nullable.empty` removes it (SGE null idiom, ISS-833)
     */
-  def setDropCallback(windowHandle: Long, callback: (Long, Array[String]) => Unit): Unit
+  def setDropCallback(windowHandle: Long, callback: Nullable[(Long, Array[String]) => Unit]): Unit
 
   /** Sets the window refresh callback.
     * @param callback
-    *   `(windowHandle) => Unit`, or null to remove
+    *   `(windowHandle) => Unit`; `Nullable.empty` removes it (SGE null idiom, ISS-833)
     */
-  def setWindowRefreshCallback(windowHandle: Long, callback: Long => Unit): Unit
+  def setWindowRefreshCallback(windowHandle: Long, callback: Nullable[Long => Unit]): Unit
 
   // ─── Input callbacks ─────────────────────────────────────────────────
 
   /** Sets the key callback.
     * @param callback
-    *   `(windowHandle, key, scancode, action, mods) => Unit`, or null to remove
+    *   `(windowHandle, key, scancode, action, mods) => Unit`; `Nullable.empty` removes it (SGE null idiom, ISS-833)
     */
-  def setKeyCallback(windowHandle: Long, callback: (Long, Int, Int, Int, Int) => Unit): Unit
+  def setKeyCallback(windowHandle: Long, callback: Nullable[(Long, Int, Int, Int, Int) => Unit]): Unit
 
   /** Sets the character input callback.
     * @param callback
-    *   `(windowHandle, codepoint) => Unit`, or null to remove
+    *   `(windowHandle, codepoint) => Unit`; `Nullable.empty` removes it (SGE null idiom, ISS-833)
     */
-  def setCharCallback(windowHandle: Long, callback: (Long, Int) => Unit): Unit
+  def setCharCallback(windowHandle: Long, callback: Nullable[(Long, Int) => Unit]): Unit
 
   /** Sets the scroll callback.
     * @param callback
-    *   `(windowHandle, xOffset, yOffset) => Unit`, or null to remove
+    *   `(windowHandle, xOffset, yOffset) => Unit`; `Nullable.empty` removes it (SGE null idiom, ISS-833)
     */
-  def setScrollCallback(windowHandle: Long, callback: (Long, Double, Double) => Unit): Unit
+  def setScrollCallback(windowHandle: Long, callback: Nullable[(Long, Double, Double) => Unit]): Unit
 
   /** Sets the cursor position callback.
     * @param callback
-    *   `(windowHandle, xPos, yPos) => Unit`, or null to remove
+    *   `(windowHandle, xPos, yPos) => Unit`; `Nullable.empty` removes it (SGE null idiom, ISS-833)
     */
-  def setCursorPosCallback(windowHandle: Long, callback: (Long, Double, Double) => Unit): Unit
+  def setCursorPosCallback(windowHandle: Long, callback: Nullable[(Long, Double, Double) => Unit]): Unit
 
   /** Sets the mouse button callback.
     * @param callback
-    *   `(windowHandle, button, action, mods) => Unit`, or null to remove
+    *   `(windowHandle, button, action, mods) => Unit`; `Nullable.empty` removes it (SGE null idiom, ISS-833)
     */
-  def setMouseButtonCallback(windowHandle: Long, callback: (Long, Int, Int, Int) => Unit): Unit
+  def setMouseButtonCallback(windowHandle: Long, callback: Nullable[(Long, Int, Int, Int) => Unit]): Unit
 
   // ─── Input polling ──────────────────────────────────────────────────
 

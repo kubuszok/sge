@@ -83,7 +83,7 @@ class DesktopGraphics private[sge] (
     _gl32 = gl32
     updateFramebufferInfo()
     initiateGL()
-    windowing.setFramebufferSizeCallback(window.windowHandle, onFramebufferResize)
+    windowing.setFramebufferSizeCallback(window.windowHandle, Nullable(onFramebufferResize))
   }
 
   private def initiateGL(): Unit = {
