@@ -78,7 +78,9 @@ class BlendedSteering[T <: Vector[T]](
     *   the steering behavior to remove
     */
   def remove(item: BlendedSteering.BehaviorAndWeight[T]): Unit =
-    list.removeValue(item)
+    // BlendedSteering.java:85 — list.removeValue(item, true): identity == true,
+    // so removal is by reference identity, not `.equals`. Map to removeValueByRef.
+    list.removeValueByRef(item)
 
   /** Removes a steering behavior from the list.
     * @param behavior

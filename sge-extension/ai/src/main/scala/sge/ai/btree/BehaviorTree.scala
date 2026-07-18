@@ -127,7 +127,9 @@ class BehaviorTree[E](
   }
 
   def removeListener(listener: BehaviorTree.Listener[E]): Unit =
-    Nullable.foreach(_listeners)(_.removeValue(listener))
+    // BehaviorTree.java:154 — listeners.removeValue(listener, true): identity == true,
+    // so removal is by reference identity, not `.equals`. Map to removeValueByRef.
+    Nullable.foreach(_listeners)(_.removeValueByRef(listener))
 
   def removeListeners(): Unit =
     Nullable.foreach(_listeners)(_.clear())
