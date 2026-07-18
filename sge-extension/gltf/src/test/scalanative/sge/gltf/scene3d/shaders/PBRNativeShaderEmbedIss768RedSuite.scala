@@ -38,8 +38,9 @@
  *   (A) adding `**.glsl` to SgeNativeProviderPlugin's patterns is fragile — it
  *       only helps binaries where that plugin is actually in effect (not this
  *       module's own native tests), broadens embedding toward the ISS-560 OOM
- *       risk, and can NEVER help browser (Scala.js has no classpath resources,
- *       ISS-553).
+ *       risk, and can NEVER help Scala.js (gltf targets JS too, and JS has no
+ *       classpath resource mechanism at all — embed patterns are a Native-only
+ *       concept).
  *   (B) inlining the gltf shaders as string constants like core g3d works on
  *       every platform uniformly, needs no embed-plugin cooperation, and makes
  *       `getDefaultVertexShader`/`getDefaultFragmentShader` resolve on THIS
@@ -48,12 +49,15 @@
  * pass once the default PBR shaders no longer depend on Native resource
  * embedding. (If (A) is pursued instead, it must additionally make this
  * module's own native binary embed the `.glsl` files for this red to pass, and
- * browser would remain unaddressed.)
+ * Scala.js would remain unaddressed.)
  *
- * Platform scope: SCALA NATIVE ONLY (src/test/scalanative). This is the only
- * platform where the bug manifests. The JVM classpath resolves these resources
- * regardless of embedding (the ISS-508 scalajvm suite pins that green); Scala.js
- * has no classpath resource mechanism (the gltf extension drops JS, ISS-553).
+ * Platform scope: SCALA NATIVE ONLY (src/test/scalanative). This is the platform
+ * this suite exercises, but the bug is not Native-specific: on the JVM the
+ * classpath resolves these resources from the real classpath (the ISS-508
+ * scalajvm suite pins that green), whereas on Scala.js — which gltf also targets
+ * — there is no classpath resource mechanism at all, so the shaders fail there
+ * too. Option B (inlining) fixes both Native and JS; this Native suite is the
+ * decisive gate.
  */
 package sge
 package gltf

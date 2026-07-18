@@ -6,8 +6,9 @@
  * Scala port for SGE
  *
  * ISS-768: the skybox shader stage reads skybox.{vs,fs}.glsl from the embedded GltfShaderSources
- * constants instead of Gdx.files.classpath, so it loads on Scala Native (classpath resources are not
- * embedded there) and browser. Byte-identical to the classpath source.
+ * constants instead of Gdx.files.classpath, so it loads on every platform gltf targets — Scala Native
+ * (classpath resources are not embedded there) and Scala.js (no classpath resource mechanism at all), as
+ * well as JVM. Byte-identical to the classpath source.
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
@@ -106,7 +107,7 @@ class SceneSkybox(using sge: Sge) extends RenderableProvider with Updatable with
 
     val shaderConfig = DefaultShader.Config()
     val basePathName = "sge/gltf/shaders/skybox"
-    // ISS-768: read the embedded source constants instead of the classpath (Native/browser portability).
+    // ISS-768: read the embedded source constants instead of the classpath (Native/Scala.js portability).
     shaderConfig.vertexShader = Nullable(GltfShaderSources.source(basePathName + ".vs.glsl"))
     shaderConfig.fragmentShader = Nullable(GltfShaderSources.source(basePathName + ".fs.glsl"))
     ownShaderProvider = true

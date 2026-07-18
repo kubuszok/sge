@@ -21,8 +21,9 @@
  *   Convention: typed GL enums (EnableCap, BlendFactor, ClearMask)
  *   Idiom: split packages
  *   ISS-768: sunShader reads ibl-sun.{vs,fs}.glsl from the embedded GltfShaderSources constants
- *     (ShaderProgram(String, String)) instead of Gdx.files.classpath, so it loads on Scala Native
- *     (classpath resources are not embedded there) and browser. Byte-identical to the classpath source.
+ *     (ShaderProgram(String, String)) instead of Gdx.files.classpath, so it loads on every platform gltf
+ *     targets — Scala Native (classpath resources are not embedded there) and Scala.js (no classpath
+ *     resource mechanism at all), as well as JVM. Byte-identical to the classpath source.
  *   Audited: 2026-04-18
  *
  * Covenant: full-port
@@ -61,7 +62,7 @@ class IBLBuilder private (using sge: Sge) extends AutoCloseable {
   var renderSun:      Boolean = true
   var renderGradient: Boolean = true
 
-  // ISS-768: read the embedded source constants instead of the classpath (Native/browser portability).
+  // ISS-768: read the embedded source constants instead of the classpath (Native/Scala.js portability).
   private val sunShader: ShaderProgram = ShaderProgram(
     GltfShaderSources.source("sge/gltf/shaders/ibl-sun.vs.glsl"),
     GltfShaderSources.source("sge/gltf/shaders/ibl-sun.fs.glsl")

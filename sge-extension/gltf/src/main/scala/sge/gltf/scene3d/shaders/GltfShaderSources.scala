@@ -5,13 +5,16 @@
  *
  * ISS-768: embedded copies of the bundled gltf `.glsl` shader resources (under
  * sge/gltf/shaders), inlined as Scala string constants so they load on EVERY
- * platform. On Scala Native a classpath resource only resolves when embedded
- * into the binary (FileHandles.scala uses getResourceAsStream), and the native
- * resource-embed patterns (SgeNativeProviderPlugin) omit `.glsl`; on Scala.js
- * there is no classpath resource mechanism at all (ISS-553). Embedding the
- * sources as constants — mirroring core g3d DefaultShader.scala's embedded GLSL
- * ("Embedded as string constants so they work on all platforms") — removes the
- * runtime dependency on classpath resource embedding for the shader sources.
+ * platform gltf targets (JVM, Scala Native, Scala.js). Classpath FileHandles
+ * resolve through getResourceAsStream (FileHandles.scala), which only returns
+ * resources actually available on the running platform: on Scala Native that
+ * requires embedding into the binary and the native resource-embed patterns
+ * (SgeNativeProviderPlugin) omit `.glsl`, and on Scala.js there is no classpath
+ * resource mechanism at all — so on both the shader files fail to load at
+ * runtime. Embedding the sources as constants — mirroring core g3d
+ * DefaultShader.scala's embedded GLSL ("Embedded as string constants so they
+ * work on all platforms") — removes the runtime dependency on classpath resource
+ * availability, making shader loading platform-uniform.
  *
  * Each constant here is BYTE-EQUIVALENT to its source `.glsl` file, which remain
  * under sge-extension/gltf/src/main/resources/sge/gltf/shaders/ as the

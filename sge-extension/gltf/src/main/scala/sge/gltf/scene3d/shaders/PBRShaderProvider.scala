@@ -9,7 +9,8 @@
  *
  * ISS-768: getDefaultVertexShader/getDefaultFragmentShader read the default PBR shader sources from the
  * embedded GltfShaderSources constants (with #include expansion) instead of Gdx.files.classpath, so the
- * defaults load on Scala Native (classpath resources are not embedded there) and browser. The result is
+ * defaults load on every platform gltf targets — Scala Native (classpath resources are not embedded
+ * there) and Scala.js (no classpath resource mechanism at all), as well as JVM. The result is
  * byte-identical to the previous classpath + ShaderParser output — see GltfShaderSourcesEquivalenceSuite.
  *
  * Covenant: full-port
@@ -311,7 +312,7 @@ object PBRShaderProvider {
   def getDefaultVertexShader()(using Sge): String = {
     if (defaultVertexShader == null) { // @nowarn — null check for lazy init
       // ISS-768: resolve #include from the embedded source constants instead of the classpath, so the
-      // default PBR vertex shader loads on Scala Native (no classpath resource embedding) and browser.
+      // default PBR vertex shader loads on Scala Native (no classpath resource embedding) and Scala.js.
       defaultVertexShader = GltfShaderSources.parse("sge/gltf/shaders/pbr/pbr.vs.glsl")
     }
     defaultVertexShader
@@ -322,7 +323,7 @@ object PBRShaderProvider {
   def getDefaultFragmentShader()(using Sge): String = {
     if (defaultFragmentShader == null) { // @nowarn — null check for lazy init
       // ISS-768: resolve #include from the embedded source constants instead of the classpath, so the
-      // default PBR fragment shader loads on Scala Native (no classpath resource embedding) and browser.
+      // default PBR fragment shader loads on Scala Native (no classpath resource embedding) and Scala.js.
       defaultFragmentShader = GltfShaderSources.parse("sge/gltf/shaders/pbr/pbr.fs.glsl")
     }
     defaultFragmentShader
