@@ -661,7 +661,10 @@ class Skin()(using Sge) extends AutoCloseable {
 
 object Skin {
 
-  /** @author Nathan Sweet */
+  /** A skin-JSON entry naming an existing drawable and a color to tint it with. [[Skin.load]] resolves it into a tinted [[sge.scenes.scene2d.utils.Drawable]] copy stored under the entry name.
+    * @author
+    *   Nathan Sweet
+    */
   class TintedDrawable {
     var name:  String = scala.compiletime.uninitialized
     var color: Color  = scala.compiletime.uninitialized

@@ -185,11 +185,15 @@ object Pool {
     def reset(): Unit
   }
 
+  /** A ready-made [[Pool]] that builds instances with the supplied factory and resets them through the given [[sge.utils.Poolable]] type class instance instead of the [[Pool.Poolable]] trait.
+    */
   class Default[A](createNewObject: () => A, protected val initialCapacity: Int = 16, protected val max: Int = Int.MaxValue)(using poolable: sge.utils.Poolable[A]) extends Pool[A] {
     override def newObject():             A    = createNewObject()
     override protected def reset(obj: A): Unit = poolable.reset(obj)
   }
 
+  /** A [[Pool]] that additionally tracks every [[obtain]]ed instance so the whole batch can be returned at once with [[flush]], rather than freeing each one individually.
+    */
   trait Flushable[A] extends Pool[A] {
     protected val obtained = DynamicArray.createRef[A]()
 

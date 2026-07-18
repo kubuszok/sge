@@ -38,6 +38,9 @@ import sge.utils.{ Millis, Nanos, TimeUtils }
 /** Detects mouse over, mouse or finger touch presses, and clicks on an actor. A touch must go down over the actor and is considered pressed as long as it is over the actor or within the
   * {@link #setTapSquareSize(float) tap square}. This behavior makes it easier to press buttons on a touch interface when the initial touch happens near the edge of the actor. Double clicks can be
   * detected using {@link #getTapCount()}. Any touch (not just the first) will trigger this listener. While pressed, other touch downs are ignored.
+  *
+  * @note
+  *   SGE widgets such as [[sge.scenes.scene2d.ui.Button]] install a `ClickListener` on themselves automatically; you normally add one directly only for custom actors.
   * @author
   *   Nathan Sweet
   */

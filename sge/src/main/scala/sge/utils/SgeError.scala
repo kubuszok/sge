@@ -25,6 +25,15 @@
 package sge
 package utils
 
+/** SGE's typed error hierarchy: a Scala 3 `enum` of the exception variants the engine raises, each carrying a message and an optional cause. Match on a variant to react to a specific failure, or
+  * catch [[SgeError]] to handle any of them.
+  *
+  * Capability-not-available conditions are always signalled through [[Unsupported]] — never a raw JDK runtime exception and never [[InvalidInput]] (which means bad user input); see its own note for
+  * the project-wide convention.
+  *
+  * @note
+  *   LibGDX: replaces `com.badlogic.gdx.utils.GdxRuntimeException`, merged with `com.badlogic.gdx.utils.SerializationException` (now [[SerializationError]]).
+  */
 enum SgeError(message: String, cause: Option[Throwable]) extends Exception(message, cause.orNull) {
   case FileReadError(file: files.FileHandle, message: String, cause: Option[Throwable] = None) extends SgeError(message, cause)
   case FileWriteError(file: files.FileHandle, message: String, cause: Option[Throwable] = None) extends SgeError(message, cause)

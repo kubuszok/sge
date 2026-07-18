@@ -118,6 +118,7 @@ class Image(initialDrawable: Nullable[Drawable] = Nullable.empty, private var _s
     }
   }
 
+  /** The drawable this image displays, empty when none is set (the image then draws nothing and has a preferred size of 0). */
   def drawable: Nullable[Drawable] = _drawable
 
   /** Sets a new drawable for the image. The image's pref size is the drawable's min size. If using the image actor's size rather than the pref size, {@link #pack()} can be used to size the image to

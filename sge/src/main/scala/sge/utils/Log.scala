@@ -29,6 +29,17 @@
 package sge
 package utils
 
+/** SGE's logging facade — the sanctioned stand-in for LibGDX's `Gdx.app.log` / `debug` / `error` application logging. Call it directly (`Log.info(...)`, `Log.error(...)`); the message argument is
+  * by-name, so it is only built when the backend decides to emit.
+  *
+  * Messages forward to a per-platform backend: scribe on JVM, Native, and JS; and `android.util.Log` (via reflection) on Android, where scribe is excluded from the DEX. Level filtering is configured
+  * through the backend, not per call site.
+  *
+  * @note
+  *   LibGDX: replaces the `Gdx.app.log` / `debug` / `error` methods and the per-instance `com.badlogic.gdx.utils.Logger` (see the architecture note above for the rationale).
+  * @note
+  *   Platform: the backend is `android.util.Log` on Android and scribe on every other platform.
+  */
 object Log {
   inline def info(msg:  => String):               Unit    = LogPlatform.info(msg)
   inline def warn(msg:  => String):               Unit    = LogPlatform.warn(msg)
