@@ -81,22 +81,17 @@ class BrowserPreferencesJsSuite extends FunSuite {
     assertEquals(prefs.getInteger("lives", 99), 3)
   }
 
-  test("type-mismatched get falls back to the default across the JS-distinguishable types") {
+  test("cross-type get coerces via the string form, matching the JVM DesktopPreferences contract (ISS-866)") {
     val prefs = cleanPrefs("iss860-typetag")
     prefs.putInteger("count", 5)
-    // Stored as Int → Boolean/String/Long are distinct runtime kinds on Scala.js, so the
-    // type-tagged pattern match falls through to the defaults for them.
-    assertEquals(prefs.getBoolean("count"), false)
-    assertEquals(prefs.getString("count"), "")
-    assertEquals(prefs.getLong("count", -1L), -1L)
-    // the correctly-typed accessor still sees the exact value
-    assertEquals(prefs.getInteger("count"), 5)
-    // NOTE (platform semantics): Int and Float share one runtime representation on Scala.js
-    // (both are JS `number`), so getFloat("count") here observes 5f rather than the default —
-    // the `case v: Float` test cannot distinguish a whole-number Int from a Float at runtime.
-    // This is a Scala.js number-representation artifact, not a port logic error, and differs
-    // from JVM/Native where getFloat on an Int-stored key returns the default.
-    assertEquals(prefs.getFloat("count", -1f), 5f)
+    // BrowserPreferences is string-parse-lenient (like DesktopPreferences / the upstream GWT
+    // backend): a present value is parsed from its string form regardless of the declared runtime
+    // type, so cross-type reads coerce identically on every platform.
+    assertEquals(prefs.getBoolean("count"), false) // parseBoolean("5") == false
+    assertEquals(prefs.getString("count"), "5") // the raw string form "5"
+    assertEquals(prefs.getLong("count", -1L), 5L) // parseLong("5") == 5L (a present value wins over defValue)
+    assertEquals(prefs.getInteger("count"), 5) // parseInt("5") == 5
+    assertEquals(prefs.getFloat("count", -1f), 5f) // parseFloat("5") == 5f
   }
 
   test("contains reflects presence and absence") {

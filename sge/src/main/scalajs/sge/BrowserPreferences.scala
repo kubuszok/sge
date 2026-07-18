@@ -80,54 +80,50 @@ class BrowserPreferences(name: String) extends Preferences {
     this
   }
 
-  override def getBoolean(key: String): Boolean = values.get(key) match {
-    case Some(v: Boolean) => v
-    case _                => false
-  }
+  override def getBoolean(key: String): Boolean = getBoolean(key, false)
 
-  override def getInteger(key: String): Int = values.get(key) match {
-    case Some(v: Int) => v
-    case _            => 0
-  }
+  override def getInteger(key: String): Int = getInteger(key, 0)
 
-  override def getLong(key: String): Long = values.get(key) match {
-    case Some(v: Long) => v
-    case _             => 0L
-  }
+  override def getLong(key: String): Long = getLong(key, 0L)
 
-  override def getFloat(key: String): Float = values.get(key) match {
-    case Some(v: Float) => v
-    case _              => 0f
-  }
+  override def getFloat(key: String): Float = getFloat(key, 0f)
 
-  override def getString(key: String): String = values.get(key) match {
-    case Some(v: String) => v
-    case _               => ""
-  }
+  override def getString(key: String): String = getString(key, "")
 
+  // String-parse-lenient reads, matching the reference DesktopPreferences (java.util.Properties,
+  // which stores every value as a String and parses it on read) and the upstream GWT backend
+  // (localStorage strings + a type suffix). A present value is parsed from its string form; the
+  // declared runtime type is NOT consulted, so cross-type reads coerce identically on every
+  // platform (e.g. getLong on an Int-stored key widens to the value; getInteger on an unparseable
+  // value throws NumberFormatException exactly as on JVM). defValue is honoured only when the key
+  // is absent — a present value always wins, mirroring DesktopPreferences.
+  //
+  // Residual (Scala.js only, extreme edge): a whole Float renders as "5" via toString (JVM: "5.0"),
+  // so getInteger/getLong on a whole-Float-stored key parse successfully here whereas JVM throws.
+  // A Scala.js Float.toString artifact, not a logic divergence; not worth custom float formatting.
   override def getBoolean(key: String, defValue: Boolean): Boolean = values.get(key) match {
-    case Some(v: Boolean) => v
-    case _                => defValue
+    case Some(v) => java.lang.Boolean.parseBoolean(v.toString)
+    case _       => defValue
   }
 
   override def getInteger(key: String, defValue: Int): Int = values.get(key) match {
-    case Some(v: Int) => v
-    case _            => defValue
+    case Some(v) => Integer.parseInt(v.toString)
+    case _       => defValue
   }
 
   override def getLong(key: String, defValue: Long): Long = values.get(key) match {
-    case Some(v: Long) => v
-    case _             => defValue
+    case Some(v) => java.lang.Long.parseLong(v.toString)
+    case _       => defValue
   }
 
   override def getFloat(key: String, defValue: Float): Float = values.get(key) match {
-    case Some(v: Float) => v
-    case _              => defValue
+    case Some(v) => java.lang.Float.parseFloat(v.toString)
+    case _       => defValue
   }
 
   override def getString(key: String, defValue: String): String = values.get(key) match {
-    case Some(v: String) => v
-    case _               => defValue
+    case Some(v) => v.toString
+    case _       => defValue
   }
 
   override def get(): scala.collection.Map[String, Boolean | Int | Long | Float | String] =
