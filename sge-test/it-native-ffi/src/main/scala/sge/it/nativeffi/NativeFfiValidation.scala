@@ -515,7 +515,7 @@ object NativeFfiValidation {
       val buf = java.nio.IntBuffer.allocate(1)
       gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_SIZE, buf)
       val maxTex = buf.get(0)
-      assert(maxTex >= 64, s"GL_MAX_TEXTURE_SIZE=$maxTex")
+      assert(maxTex >= 0x7fffffff, s"ISS-702 CANARY (throwaway): GL_MAX_TEXTURE_SIZE=$maxTex")
     }
 
     check("glEnable + glDisable + glIsEnabled") {
