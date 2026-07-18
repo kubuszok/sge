@@ -47,8 +47,10 @@ class DesktopWindowListenerTest extends munit.FunSuite {
     assert(iconifiedCalled)
   }
 
-  test("DesktopWindowListener is a trait") {
-    val listener: DesktopWindowListener = new DesktopWindowListener {}
-    assert(listener != null)
-  }
+  // ISS-724 c5: dropped the "DesktopWindowListener is a trait" test — its only assertion was the
+  // near-tautological `assert(listener != null)` on a freshly constructed `new DesktopWindowListener {}`.
+  // That it is an anonymously-instantiable trait (no abstract members) is already enforced at
+  // COMPILE time by the four tests above that construct `new DesktopWindowListener {}`; its default
+  // behaviors are covered by "default implementations do not throw" and "closeRequested defaults to
+  // true". Nothing behavioral remained to assert.
 }

@@ -11,8 +11,10 @@ class TypingConfigSuite extends munit.FunSuite {
     assertEquals(TypingConfig.DEFAULT_WAIT_VALUE, 0.250f)
   }
 
-  test("DEFAULT_CLEAR_COLOR is not null and is white") {
-    assert(TypingConfig.DEFAULT_CLEAR_COLOR != null, "DEFAULT_CLEAR_COLOR should not be null")
+  test("DEFAULT_CLEAR_COLOR is white") {
+    // ISS-724 c5: dropped the near-tautological `!= null` guard — DEFAULT_CLEAR_COLOR is a
+    // statically non-nullable `Color`, and the four channel assertions below already fail (NPE)
+    // if it were null, so they are the real coverage.
     assertEquals(TypingConfig.DEFAULT_CLEAR_COLOR.r, 1f)
     assertEquals(TypingConfig.DEFAULT_CLEAR_COLOR.g, 1f)
     assertEquals(TypingConfig.DEFAULT_CLEAR_COLOR.b, 1f)

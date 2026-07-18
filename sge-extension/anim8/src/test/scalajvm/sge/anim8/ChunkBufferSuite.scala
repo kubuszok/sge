@@ -3,17 +3,15 @@ package anim8
 
 import java.io.{ ByteArrayOutputStream, DataOutputStream }
 
+// ISS-724 c1, wave 2026-07-18-H territory H2.
+// This suite lives in src/test/scalajvm and is therefore compiled and run ONLY on the JVM axis.
+// Its earlier `assume(checkedOutputStreamAvailable, "...Scala.js")` guarded against a Scala.js
+// gap that can never occur here: ChunkBuffer.endChunk uses java.util.zip.{CheckedOutputStream,
+// CRC32}, which are JDK stdlib, unconditionally present on the JVM. The probe converted all three
+// tests into potential silent skips behind a broad `catch Throwable`, so a real failure would have
+// read as green. There is no optional axis to guard — the capability is guaranteed on the only
+// axis this suite runs — so the probe is removed and every test always executes.
 class ChunkBufferSuite extends munit.FunSuite {
-
-  private val checkedOutputStreamAvailable: Boolean =
-    try { new java.util.zip.CheckedOutputStream(java.io.OutputStream.nullOutputStream(), new java.util.zip.CRC32); true }
-    catch { case _: Throwable => false }
-
-  override def munitTestTransforms: List[TestTransform] =
-    super.munitTestTransforms :+ new TestTransform(
-      "requireCheckedOutputStream",
-      { test => test.withBody { () => assume(checkedOutputStreamAvailable, "CheckedOutputStream not available (Scala.js)"); test.body() } }
-    )
 
   test("write data and endChunk produces output") {
     val chunk = ChunkBuffer(256)

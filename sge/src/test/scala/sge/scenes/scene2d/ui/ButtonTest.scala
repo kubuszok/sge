@@ -228,7 +228,11 @@ class ButtonTest extends munit.FunSuite {
   test("Button has a clickListener installed") {
     given Sge = ctx()
     val btn   = Button(makeStyle())
-    assert(btn.clickListener != null) // scalastyle:ignore null
+    // ISS-724 c5: `clickListener` is a statically non-nullable `ClickListener`, so `!= null` was
+    // near-tautological. Assert the real contract instead — Button.initialize wires the click
+    // listener into the actor's listener list (Button.scala:98 `addListener(clickListener)`), so
+    // the installed listener set must contain that exact instance.
+    assert(btn.listeners.contains(btn.clickListener))
     assert(btn.listeners.size >= 1)
   }
 }

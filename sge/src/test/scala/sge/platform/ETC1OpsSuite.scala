@@ -8,19 +8,56 @@ package platform
 
 class ETC1OpsSuite extends munit.FunSuite {
 
+  // The catch is narrowed to the "library unavailable" failure shapes so that a genuine ABI /
+  // symbol regression surfaces as a red test instead of a silent skip (mirrors BufferOpsSuite):
+  //   - UnsatisfiedLinkError is the ONLY throwable NativeLibLoader.load raises when it cannot
+  //     resolve/extract/open the library, so it is the canonical "lib not present" signal. It is
+  //     itself a LinkageError, hence matched explicitly.
+  //   - ExceptionInInitializerError is caught ONLY when its (possibly nested) root cause is that
+  //     same UnsatisfiedLinkError: the load can fail while a lazy static initializer runs and the
+  //     JVM wraps it. We unwrap and skip only for a load failure.
+  // Everything else propagates on purpose — a NoSuchMethodError / NoSuchFieldError /
+  // AbstractMethodError (also LinkageErrors) indicates a real native-symbol / ABI mismatch, so we
+  // must NOT catch the broad LinkageError supertype here.
+  private def isLibraryUnavailable(t: Throwable): Boolean = t match {
+    case _: UnsatisfiedLinkError        => true
+    case e: ExceptionInInitializerError => Option(e.getCause).exists(isLibraryUnavailable)
+    case _ => false
+  }
+
   private val nativeLibAvailable: Boolean =
     try { PlatformOps.etc1; true }
-    catch { case _: Throwable => false }
+    catch { case t: Throwable if isLibraryUnavailable(t) => false }
 
+  // Ran-count guard (ISS-724 c1). Without this, a false probe on ANY axis silently converts every
+  // test in the suite into a skip — a broken native-lib wiring would read as green. The guard
+  // splits the axes by NativeOpsAvailabilityPolicy.guaranteed:
+  //   - Guaranteed axes (JS pure-Scala impl; Native statically-linked lib): the capability MUST be
+  //     present, so a false probe is a wiring/ABI regression — we `assert` (fail loudly) so the
+  //     whole suite goes red instead of skipping.
+  //   - Optional axis (JVM, where the provider JAR is legitimately absent on native-less legs): a
+  //     documented skip via `assume` (ISS-724 c1 — the sanctioned optional-axis path).
   override def munitTestTransforms: List[TestTransform] =
     super.munitTestTransforms :+ new TestTransform(
       "requireNativeLib",
       { test =>
-        test.withBody { () => assume(nativeLibAvailable, "Rust native library not available"); test.body() }
+        test.withBody { () =>
+          if (NativeOpsAvailabilityPolicy.guaranteed)
+            assert(
+              nativeLibAvailable,
+              "native ETC1Ops capability MUST be present on this axis but the availability probe " +
+                "returned false — this is a wiring/ABI regression, not an environment gap (ISS-724 c1)"
+            )
+          else assume(nativeLibAvailable, "Rust native library not available (JVM native-less leg; ISS-724 c1 optional axis)")
+          test.body()
+        }
       }
     )
 
-  val ops: ETC1Ops = if (nativeLibAvailable) PlatformOps.etc1 else null.asInstanceOf[ETC1Ops]
+  // Lazy so the JVM optional-axis skip never forces (and thus never throws) the native load: on a
+  // skipped JVM leg `assume` fires before any test body touches `ops`. On guaranteed axes the first
+  // test forces the real impl. This also removes the previous `null.asInstanceOf` sentinel.
+  lazy val ops: ETC1Ops = PlatformOps.etc1
 
   // ─── Compressed data size ──────────────────────────────────────────────
 

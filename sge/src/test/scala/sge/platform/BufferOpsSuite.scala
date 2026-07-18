@@ -39,15 +39,35 @@ class BufferOpsSuite extends munit.FunSuite {
     try { PlatformOps.buffer; true }
     catch { case t: Throwable if isLibraryUnavailable(t) => false }
 
+  // Ran-count guard (ISS-724 c1). Without this, a false probe on ANY axis silently converts
+  // every test in the suite into a skip — a broken native-lib wiring would read as green. The
+  // guard splits the axes by NativeOpsAvailabilityPolicy.guaranteed:
+  //   - Guaranteed axes (JS pure-Scala impl; Native statically-linked lib): the capability MUST
+  //     be present, so a false probe is a wiring/ABI regression — we `assert` (fail loudly) so
+  //     the whole suite goes red instead of skipping.
+  //   - Optional axis (JVM, where the provider JAR is legitimately absent on native-less legs):
+  //     a documented skip via `assume` (ISS-724 c1 — the sanctioned optional-axis path).
   override def munitTestTransforms: List[TestTransform] =
     super.munitTestTransforms :+ new TestTransform(
       "requireNativeLib",
       { test =>
-        test.withBody { () => assume(nativeLibAvailable, "Rust native library not available"); test.body() }
+        test.withBody { () =>
+          if (NativeOpsAvailabilityPolicy.guaranteed)
+            assert(
+              nativeLibAvailable,
+              "native BufferOps capability MUST be present on this axis but the availability probe " +
+                "returned false — this is a wiring/ABI regression, not an environment gap (ISS-724 c1)"
+            )
+          else assume(nativeLibAvailable, "Rust native library not available (JVM native-less leg; ISS-724 c1 optional axis)")
+          test.body()
+        }
       }
     )
 
-  val ops: BufferOps = if (nativeLibAvailable) PlatformOps.buffer else null.asInstanceOf[BufferOps]
+  // Lazy so the JVM optional-axis skip never forces (and thus never throws) the native load: on a
+  // skipped JVM leg `assume` fires before any test body touches `ops`. On guaranteed axes the first
+  // test forces the real impl. This also removes the previous `null.asInstanceOf` sentinel.
+  lazy val ops: BufferOps = PlatformOps.buffer
 
   private val Eps = 1e-6f
 
