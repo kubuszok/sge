@@ -7,14 +7,21 @@
 // issued its OWN multiarch.core.NativeLibLoader.load("sge_native_ops") call —
 // the SAME logical load performed twice in one process.
 //
-// Memoizing the resolved path in a single `lazy val` here makes SGE's own code
-// responsible for loading exactly once, rather than leaning on the loader being
-// idempotent for a repeated name. multiarch 0.4.0 does happen to make the double
-// load harmless (per-name ConcurrentHashMap cache + Files.copy with
-// REPLACE_EXISTING into a per-JVM temp dir), but that is a third-party
-// implementation detail, not a contract SGE controls — a loader that
-// re-extracted non-idempotently would crash the second op's init. This seam
-// removes that dependency.
+// That repeated load is NOT harmless on multiarch 0.4.0. NativeLibLoader.load
+// has a non-atomic check-then-act race: it reads the per-name cache (~line 95)
+// but only populates it AFTER resolving (~line 100), so two concurrent first-time
+// loads of "sge_native_ops" both miss the cache and race into extractStream's
+// Files.copy. Despite StandardCopyOption.REPLACE_EXISTING, the JDK's copy takes a
+// delete-then-CREATE_NEW path and throws java.nio.file.FileAlreadyExistsException
+// (extractStream:317) when both threads target the same temp file — a real,
+// reproduced crash (the train-19 failure), not a hypothetical.
+//
+// Memoizing the resolved path in a single `lazy val` here fixes that precisely
+// because Scala serializes lazy-val initialization: this thunk runs
+// NativeLibLoader.load exactly once per JVM regardless of concurrency, and every
+// later access (and the second op) sees the already-resolved Path. SGE's own code
+// thus owns the load-once guarantee rather than leaning on the third-party loader
+// being concurrency-safe for a repeated name.
 //
 // Each op still builds its OWN SymbolLookup from this path
 // (p.SymbolLookup.libraryLookup(found, p.Arena.global())): the lookup is

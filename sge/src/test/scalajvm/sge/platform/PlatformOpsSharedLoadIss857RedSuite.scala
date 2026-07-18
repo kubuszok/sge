@@ -26,22 +26,27 @@
  *
  * WHY THIS RUNTIME TEST IS ENVIRONMENT-DEPENDENT (and why the DETERMINISTIC red
  * lives in the sibling compile-shape suite):
- *   The multiarch version this build resolves (project/Versions.scala:31 =
- *   "0.4.0") already makes the double load idempotent by TWO independent means,
- *   verified against the 0.4.0 release sources jar
- *   (multiarch-core_3-0.4.0-sources.jar, NativeLibLoader.scala):
- *     1. load(libName) caches the resolved Path in a ConcurrentHashMap keyed by
- *        the logical name (lines 94-102): the SECOND load("sge_native_ops") is a
- *        cache HIT and never re-extracts.
- *     2. even on a cache miss, extractStream copies with
- *        StandardCopyOption.REPLACE_EXISTING (line 317), so a re-extraction would
- *        overwrite rather than throw FileAlreadyExistsException.
- *   The desktop provider on the local classpath (pnm-provider-sge-desktop 0.1.2)
- *   IS the legacy layout ISS-857 names (native/<classifier>/libsge_native_ops.*,
- *   resolved via extractFromClasspathLegacy), yet the load stays idempotent for
- *   the reasons above. So this test is GREEN here and on CI with multiarch 0.4.0;
- *   it only turns RED against a loader that re-extracts non-idempotently (an
- *   older multiarch, or a build that regresses either safeguard).
+ *   This suite touches etc1 THEN buffer SEQUENTIALLY in one thread. On the
+ *   multiarch version this build resolves (project/Versions.scala:31 = "0.4.0",
+ *   verified against the 0.4.0 release sources jar, multiarch-core_3-0.4.0-
+ *   sources.jar, NativeLibLoader.scala) load(libName) caches the resolved Path in
+ *   a ConcurrentHashMap keyed by the logical name (lines 94-102), so under
+ *   SEQUENTIAL access the SECOND load("sge_native_ops") is a cache HIT and never
+ *   re-extracts. The desktop provider on the local classpath
+ *   (pnm-provider-sge-desktop 0.1.2) IS the legacy layout ISS-857 names
+ *   (native/<classifier>/libsge_native_ops.*, resolved via
+ *   extractFromClasspathLegacy), yet the sequential second load is a cache hit for
+ *   that reason. So this test is GREEN here and on CI with multiarch 0.4.0.
+ *
+ *   That cache does NOT make 0.4.0's double load idempotent in general. load has a
+ *   non-atomic check-then-act race — it reads the cache (~line 95) but only
+ *   populates it AFTER resolving (~line 100) — so two CONCURRENT first-time loads
+ *   both miss and race into extractStream's Files.copy; despite
+ *   StandardCopyOption.REPLACE_EXISTING (line 317) the JDK copy takes a
+ *   delete-then-CREATE_NEW path and throws FileAlreadyExistsException. That
+ *   concurrent crash IS reproducible on 0.4.0 (the real train-19 failure); this
+ *   SEQUENTIAL suite simply does not exercise it, which is why the DETERMINISTIC
+ *   red for the wave is the sibling compile-shape suite instead.
  *
  * The DETERMINISTIC red for this wave is the sibling
  * PlatformOpsSharedLoadIss857CompileRedSuite, which pins the fix's design seam

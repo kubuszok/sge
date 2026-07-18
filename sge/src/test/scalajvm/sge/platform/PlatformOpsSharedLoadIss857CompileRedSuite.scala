@@ -16,7 +16,10 @@
  * idempotency therefore hinges on a third-party implementation detail (multiarch's
  * per-name loader cache), not on anything SGE controls. See the sibling
  * PlatformOpsSharedLoadIss857RedSuite header for why the RUNTIME crash is
- * environment-dependent (multiarch 0.4.0's cache + REPLACE_EXISTING mask it).
+ * order-dependent: multiarch 0.4.0's per-name cache masks it only under
+ * SEQUENTIAL access; a CONCURRENT first-time double load still races (non-atomic
+ * check-then-act) and throws FileAlreadyExistsException despite REPLACE_EXISTING
+ * — the real, reproduced train-19 crash.
  *
  * PRESCRIBED FIX (ISS-857): memoize the load exactly once in a single seam that
  * both ops consume — no constructor signature changes:
