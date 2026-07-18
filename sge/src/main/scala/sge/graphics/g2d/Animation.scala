@@ -35,6 +35,13 @@ import scala.reflect.ClassTag
   * animation. <p> The animation's type is the class representing a frame of animation. For example, a typical 2D animation could be made up of
   * {@link com.badlogic.gdx.graphics.g2d.TextureRegion TextureRegions} and would be specified as: <p> <code>Animation&lt;TextureRegion&gt; myAnimation = new Animation&lt;TextureRegion&gt;(...);</code>
   *
+  * Construct one with a per-frame duration and the frames (typically [[sge.graphics.g2d.TextureRegion]]s), then sample it each render with the accumulated state time and draw the returned frame:
+  * {{{
+  * val walk = Animation(0.1f, frame0, frame1, frame2)
+  * batch.draw(walk.getKeyFrame(stateTime, looping = true), x, y)
+  * }}}
+  * [[Animation.PlayMode]] selects normal, looping, reversed, ping-pong or random playback.
+  *
   * @author
   *   mzechner (original implementation)
   */

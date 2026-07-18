@@ -42,6 +42,13 @@ import lowlevel.Nullable
 import sge.utils.{ SgeError, StreamUtils }
 
 /** Loads images from texture atlases created by TexturePacker.<br> <br> A TextureAtlas must be disposed to free up the resources consumed by the backing textures.
+  *
+  * Load one from a TexturePacker `.atlas` pack file resolved through the application context [[sge.Sge]], then look up packed regions by name to draw or wrap in a [[sge.graphics.g2d.Sprite]]:
+  * {{{
+  * val atlas = TextureAtlas("sprites.atlas")
+  * atlas.findRegion("player").foreach(batch.draw(_, x, y))
+  * }}}
+  * [[findRegion]] is empty when no region has that name. Call [[close]] (LibGDX's `dispose`) to release the backing page textures when done.
   * @author
   *   Nathan Sweet
   */
@@ -553,7 +560,11 @@ object TextureAtlas {
     }
   }
 
-  /** Describes the region of a packed image and provides information about the original image before it was packed. */
+  /** Describes the region of a packed image and provides information about the original image before it was packed.
+    *
+    * Obtained from a [[TextureAtlas]] via [[TextureAtlas.findRegion]] or [[TextureAtlas.regions]]; it is a [[sge.graphics.g2d.TextureRegion]] that also carries the packing metadata ([[index]],
+    * [[offsetX]]/[[offsetY]], original size) used to reconstruct sprites as if whitespace had not been stripped.
+    */
   class AtlasRegion extends TextureRegion {
 
     /** The number at the end of the original image file name, or -1 if none.<br> <br> When sprites are packed, if the original file name ends with a number, it is stored as the index and is not
@@ -669,6 +680,8 @@ object TextureAtlas {
   }
 
   /** A sprite that, if whitespace was stripped from the region when it was packed, is automatically positioned as if whitespace had not been stripped.
+    *
+    * You do not usually construct this directly — [[TextureAtlas.createSprite]] returns one automatically for regions whose whitespace was stripped during packing.
     */
   class AtlasSprite(private var region: AtlasRegion) extends Sprite {
     private var originalOffsetX: Float = region.offsetX

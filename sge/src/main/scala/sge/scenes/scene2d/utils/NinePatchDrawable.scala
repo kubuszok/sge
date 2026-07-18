@@ -33,6 +33,9 @@ import lowlevel.Nullable
 /** Drawable for a {@link NinePatch}. <p> The drawable sizes are set when the ninepatch is set, but they are separate values. Eg, {@link Drawable#getLeftWidth()} could be set to more than
   * {@link NinePatch#getLeftWidth()} in order to provide more space on the left than actually exists in the ninepatch. <p> The min size is set to the ninepatch total size by default. It could be set
   * to the left+right and top+bottom, excluding the middle size, to allow the drawable to be sized down as small as possible.
+  *
+  * Wrap a [[sge.graphics.g2d.NinePatch]] to use it as a scene2d background or button face — e.g. a [[Drawable]] in a widget style. [[setPatch]] seeds the drawable's min size and edge widths from the
+  * patch's padding.
   * @author
   *   Nathan Sweet
   */

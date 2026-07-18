@@ -37,6 +37,13 @@ import lowlevel.Nullable
   * only one direction. <p> Note this class does not accept ".9.png" textures that include the metadata border pixels describing the splits (and padding) for the ninepatch. That information is either
   * passed to a constructor or defined implicitly by the size of the individual patch textures. {@link TextureAtlas} is one way to generate a postprocessed ninepatch texture regions from ".9.png"
   * files.
+  *
+  * Build one from a texture (or [[sge.graphics.g2d.TextureRegion]]) plus the four split insets, or obtain one from [[TextureAtlas.createPatch]] for a region packed with ninepatch splits, then draw it
+  * stretched to any size:
+  * {{{
+  * val patch = NinePatch(texture, 12, 12, 12, 12)
+  * patch.draw(batch, x, y, width, height)
+  * }}}
   */
 class NinePatch {
   private var _texture:     Texture      = scala.compiletime.uninitialized
