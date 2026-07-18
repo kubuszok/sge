@@ -5,6 +5,11 @@
  *
  * Scala port for SGE
  *
+ * ISS-768: the emissive fragment stage reads emissive-only.fs.glsl from the embedded GltfShaderSources
+ * constants instead of Gdx.files.classpath, so it loads on Scala Native (classpath resources are not
+ * embedded there) and browser. Byte-identical to the classpath source. (The vertex stage already routes
+ * through PBRShaderProvider.getDefaultVertexShader, likewise embedded.)
+ *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 88
@@ -82,7 +87,8 @@ object PBREmissiveShaderProvider {
     // byte-identical source sge/gltf/shaders/pbr/pbr.vs.glsl with the include correctly expanded, exactly as the
     // sibling default/depth providers load their own vertex stages.
     config.vertexShader = Nullable(PBRShaderProvider.getDefaultVertexShader())
-    config.fragmentShader = Nullable(sge.files.classpath("sge/gltf/shaders/emissive-only.fs.glsl").readString())
+    // ISS-768: read the embedded source constant instead of the classpath (Native/browser portability).
+    config.fragmentShader = Nullable(GltfShaderSources.source("sge/gltf/shaders/emissive-only.fs.glsl"))
     config
   }
 }

@@ -5,6 +5,10 @@
  *
  * Scala port for SGE
  *
+ * ISS-768: getDefaultVertexShader/getDefaultFragmentShader read depth.{vs,fs}.glsl from the embedded
+ * GltfShaderSources constants instead of Gdx.files.classpath, so the defaults load on Scala Native
+ * (classpath resources are not embedded there) and browser. Byte-identical to the classpath source.
+ *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 78
@@ -60,18 +64,20 @@ object PBRDepthShaderProvider {
 
   @volatile private var defaultVertexShader: String = null.asInstanceOf[String] // @nowarn — lazy init
 
-  def getDefaultVertexShader()(using sge: Sge): String = {
+  def getDefaultVertexShader()(using Sge): String = {
     if (defaultVertexShader == null) { // @nowarn — null check for lazy init
-      defaultVertexShader = sge.files.classpath("sge/gltf/shaders/depth.vs.glsl").readString()
+      // ISS-768: read the embedded source constant instead of the classpath (Native/browser portability).
+      defaultVertexShader = GltfShaderSources.source("sge/gltf/shaders/depth.vs.glsl")
     }
     defaultVertexShader
   }
 
   @volatile private var defaultFragmentShader: String = null.asInstanceOf[String] // @nowarn — lazy init
 
-  def getDefaultFragmentShader()(using sge: Sge): String = {
+  def getDefaultFragmentShader()(using Sge): String = {
     if (defaultFragmentShader == null) { // @nowarn — null check for lazy init
-      defaultFragmentShader = sge.files.classpath("sge/gltf/shaders/depth.fs.glsl").readString()
+      // ISS-768: read the embedded source constant instead of the classpath (Native/browser portability).
+      defaultFragmentShader = GltfShaderSources.source("sge/gltf/shaders/depth.fs.glsl")
     }
     defaultFragmentShader
   }

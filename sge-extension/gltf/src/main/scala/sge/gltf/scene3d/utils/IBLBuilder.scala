@@ -20,6 +20,9 @@
  *   Convention: rect() → rectangle(), dispose() → close(), getSide() → side (Nullable)
  *   Convention: typed GL enums (EnableCap, BlendFactor, ClearMask)
  *   Idiom: split packages
+ *   ISS-768: sunShader reads ibl-sun.{vs,fs}.glsl from the embedded GltfShaderSources constants
+ *     (ShaderProgram(String, String)) instead of Gdx.files.classpath, so it loads on Scala Native
+ *     (classpath resources are not embedded there) and browser. Byte-identical to the classpath source.
  *   Audited: 2026-04-18
  *
  * Covenant: full-port
@@ -36,6 +39,7 @@ package utils
 import sge.{ Pixels, Sge }
 import sge.graphics.{ BlendFactor, ClearMask, Color, Cubemap, EnableCap }
 import sge.graphics.Texture.TextureFilter
+import sge.gltf.scene3d.shaders.GltfShaderSources
 import sge.graphics.g3d.environment.DirectionalLight
 import sge.graphics.glutils.{ FrameBuffer, FrameBufferCubemap, ShaderProgram, ShapeRenderer }
 import sge.graphics.glutils.ShapeRenderer.ShapeType
@@ -57,9 +61,10 @@ class IBLBuilder private (using sge: Sge) extends AutoCloseable {
   var renderSun:      Boolean = true
   var renderGradient: Boolean = true
 
+  // ISS-768: read the embedded source constants instead of the classpath (Native/browser portability).
   private val sunShader: ShaderProgram = ShaderProgram(
-    sge.files.classpath("sge/gltf/shaders/ibl-sun.vs.glsl"),
-    sge.files.classpath("sge/gltf/shaders/ibl-sun.fs.glsl")
+    GltfShaderSources.source("sge/gltf/shaders/ibl-sun.vs.glsl"),
+    GltfShaderSources.source("sge/gltf/shaders/ibl-sun.fs.glsl")
   )
   if (!sunShader.compiled) throw SgeError.InvalidInput(sunShader.log)
 
