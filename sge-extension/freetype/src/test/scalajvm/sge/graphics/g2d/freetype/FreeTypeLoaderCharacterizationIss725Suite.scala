@@ -7,7 +7,7 @@
  * FreeTypeFontGeneratorLoader. These paths are pure asset-graph logic — they
  * build AssetDescriptor dependencies and enforce the "parameter is required"
  * contract WITHOUT ever touching the native FreeType library, so the suite is a
- * deterministic green with no availability assume() gate.
+ * deterministic green with no native-lib availability guard needed.
  *
  * They need a headless [[Sge]] only because the loader constructors carry a
  * `(using Sge)` context (via AsynchronousAssetLoader / SynchronousAssetLoader),

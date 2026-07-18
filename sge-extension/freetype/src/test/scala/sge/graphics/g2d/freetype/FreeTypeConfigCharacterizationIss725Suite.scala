@@ -24,7 +24,7 @@
  * Every value pinned here is fixed by the ORIGINAL libGDX FreeType.java /
  * FreeTypeFontGenerator.java / FreetypeFontLoader.java — no test theater. None
  * of these paths touch the native FreeType library, so the suite is a
- * deterministic green on every platform with no availability assume() gate.
+ * deterministic green on every platform with no native-lib availability guard needed.
  */
 package sge
 package graphics
