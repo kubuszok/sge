@@ -350,8 +350,8 @@ class AndroidSmokeTest extends FunSuite {
       // subsystem check (so nothing crashed before or during frame 5) AND
       // rendered enough frames to prove the loop sustained itself. We deliberately
       // do NOT require SMOKE_TEST_PASSED: that marker only fires when ALL checks
-      // pass, but JSON_XML / FILEHANDLE_TYPES / CLIPBOARD legitimately fail on the
-      // headless CI emulator (see below), so it never fires on CI. The
+      // pass, but JSON_XML / FILEHANDLE_TYPES legitimately fail on the headless CI
+      // emulator (see below), so it never fires on CI. The
       // frame-phase check set + frame floor is a stronger, honest signal than the
       // old "SMOKE_TEST_PASSED || any single frame" condition.
       val MinFrameMarkers = 3
@@ -375,8 +375,9 @@ class AndroidSmokeTest extends FunSuite {
         // ISS-701 — de-theater the excusals. The prior revision blanket-excused a
         // Set of six check NAMES: ANY FAIL, with ANY message, in those checks was
         // swallowed. A NEW regression inside an excused area (JSON_XML parsing the
-        // wrong root, external file IO corrupting data, clipboard returning altered
-        // text, a sensor-read exception) therefore showed GREEN. Each excused gap is
+        // wrong root, external file IO corrupting data, a sensor-read exception)
+        // therefore showed GREEN. (CLIPBOARD was among the six but has since been
+        // LIFTED — see below.) Each excused gap is
         // now pinned to the EXACT failure MARKER its SmokeListener check emits for the
         // KNOWN capability-gap reason. A FAIL whose message does NOT contain that
         // marker is a different/new cause and FAILS the test. This is the Android
@@ -418,10 +419,12 @@ class AndroidSmokeTest extends FunSuite {
           // throws — "Exception: ...". A write that succeeds but reads back wrong data
           // reports "External readback mismatch: ..." (a regression) and is NOT excused.
           "FILEHANDLE_TYPES" -> ("Exception:", true),
-          // CLIPBOARD: the headless emulator has no window-manager clipboard service,
-          // so readback comes back empty — exactly "Readback: empty". Any other,
-          // non-empty readback ("Readback: <text>") is a different cause and NOT excused.
-          "CLIPBOARD" -> ("Readback: empty", true),
+          // CLIPBOARD was LIFTED (ISS-701 bounce, ISS-694): the ratchet fired on the
+          // ubuntu-x86_64 CI emulator (run 29646741414) where CLIPBOARD reported
+          // "PASS:Clipboard write/read OK" in the frame phase — clipboard works in the
+          // running Activity; the assumed gap was a -no-window artifact. It is now a
+          // NORMAL required-pass check (kept in framePhaseChecks, no excusedGaps entry),
+          // so a PASS is accepted and any future FAIL fails the test via unexpectedFails.
           // TOUCH_DISPATCH: only-FAIL branch when no adb tap is delivered.
           "TOUCH_DISPATCH" -> ("No touch event received", false),
           // LIFECYCLE: only-FAIL branch when pause/resume did not both fire.
