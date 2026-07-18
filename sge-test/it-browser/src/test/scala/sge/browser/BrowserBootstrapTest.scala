@@ -294,7 +294,9 @@ class BrowserBootstrapTest extends FunSuite {
     // must fail this suite. Known gap (out of this TEST-ONLY territory, reported
     // upward, not silenced): FILE_EXISTS — regression/test-data.txt is not among
     // the base64-embedded browser resources, so BrowserFileHandle text-read is
-    // not exercised on JS. Any NEW subsystem FAILure trips this assertion.
+    // not exercised on JS. Tracked in ISS-859 (resource-embedding build fix);
+    // remove from this set once test-data.txt is embedded. Any NEW subsystem
+    // FAILure trips this assertion.
     val knownFailing   = Set("FILE_EXISTS")
     val unexpectedFail = cap.markers.collect { case (n, (s, _)) if s == "FAIL" && !knownFailing(n) => n }
     assert(

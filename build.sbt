@@ -51,10 +51,10 @@ lazy val al = new Aliases(
   ),
   testOnly = Seq(
     regressionTest,
-    `sge-android-robolectric`
+    `sge-android-robolectric`,
+    `sge-jvm-platform-api`
   ),
   compileOnly = Seq(
-    `sge-jvm-platform-api`,
     `sge-jvm-platform-android`,
     `sge-android-smoke`,
     `sge-gauntlet`,
