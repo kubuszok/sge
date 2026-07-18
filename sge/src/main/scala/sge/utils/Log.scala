@@ -13,11 +13,12 @@
  * Architecture divergence from LibGDX:
  *   LibGDX's Logger is a per-instance class with a tag and per-tag log level
  *   that filters messages before forwarding to Gdx.app.log/debug/error.
- *   SGE replaces this with a global singleton backed by a proper logging
- *   framework (scribe), which provides its own per-category level filtering,
- *   structured logging, and pluggable output targets. Per-tag filtering is
- *   configured through scribe's standard mechanisms rather than per-instance
- *   Logger objects.
+ *   SGE keeps that per-instance class — ported as sge.utils.Logger, which still
+ *   gates by level and forwards its survivors here — and replaces only the
+ *   Gdx.app.log/debug/error SINK with this facade over a proper logging
+ *   framework (scribe), which adds its own per-category level filtering,
+ *   structured logging, and pluggable output targets. Per-tag filtering is thus
+ *   available both via Logger instances and scribe's standard mechanisms.
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
@@ -36,7 +37,8 @@ package utils
   * through the backend, not per call site.
   *
   * @note
-  *   LibGDX: replaces the `Gdx.app.log` / `debug` / `error` methods and the per-instance `com.badlogic.gdx.utils.Logger` (see the architecture note above for the rationale).
+  *   LibGDX: replaces the `Gdx.app.log` / `debug` / `error` sink. The per-instance `com.badlogic.gdx.utils.Logger` is itself ported as [[Logger]], which gates by level and then forwards its surviving
+  *   messages here (see the architecture note above).
   * @note
   *   Platform: the backend is `android.util.Log` on Android and scribe on every other platform.
   */
