@@ -235,7 +235,7 @@ gate.
 - Windows curl uses MSVC-built static libs from kubuszok/curl-natives (real HTTP, not stubs)
 
 **Known CI limitations (excluded from pass/fail):**
-- Android: JSON_XML, FILEHANDLE_TYPES, TOUCH_DISPATCH, LIFECYCLE, CLIPBOARD
+- Android: JSON_XML, FILEHANDLE_TYPES, TOUCH_DISPATCH, LIFECYCLE (CLIPBOARD lifted 2026-07-18 — passes on the x86_64 emulator frame phase, now a required check; ISS-701/ISS-694)
 - Windows aarch64 + macOS x86_64: testing withdrawn entirely (see above)
 - Scaladoc: disabled (`packageDoc/publishArtifact := false`); non-blocking probe monitors upstream fix
 
