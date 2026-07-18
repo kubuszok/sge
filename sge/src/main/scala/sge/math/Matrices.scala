@@ -1636,19 +1636,23 @@ class Matrix4 {
     *   This matrix for the purpose of chaining methods together.
     */
   def setToLookAt(direction: Vector3, up: Vector3): Matrix4 = {
-    Matrix4.l_vez.set(direction).nor()
-    Matrix4.l_vex.set(direction).crs(up).nor()
-    Matrix4.l_vey.set(Matrix4.l_vex).crs(Matrix4.l_vez).nor()
+    // Hoist one ThreadLocal.get() per scratch (ISS-832) — one instance per thread, no behavior change.
+    val l_vex = Matrix4.l_vex
+    val l_vey = Matrix4.l_vey
+    val l_vez = Matrix4.l_vez
+    l_vez.set(direction).nor()
+    l_vex.set(direction).crs(up).nor()
+    l_vey.set(l_vex).crs(l_vez).nor()
     idt()
-    values(Matrix4.M00) = Matrix4.l_vex.x
-    values(Matrix4.M01) = Matrix4.l_vex.y
-    values(Matrix4.M02) = Matrix4.l_vex.z
-    values(Matrix4.M10) = Matrix4.l_vey.x
-    values(Matrix4.M11) = Matrix4.l_vey.y
-    values(Matrix4.M12) = Matrix4.l_vey.z
-    values(Matrix4.M20) = -Matrix4.l_vez.x
-    values(Matrix4.M21) = -Matrix4.l_vez.y
-    values(Matrix4.M22) = -Matrix4.l_vez.z
+    values(Matrix4.M00) = l_vex.x
+    values(Matrix4.M01) = l_vex.y
+    values(Matrix4.M02) = l_vex.z
+    values(Matrix4.M10) = l_vey.x
+    values(Matrix4.M11) = l_vey.y
+    values(Matrix4.M12) = l_vey.z
+    values(Matrix4.M20) = -l_vez.x
+    values(Matrix4.M21) = -l_vez.y
+    values(Matrix4.M22) = -l_vez.z
     this
   }
 
@@ -1663,17 +1667,23 @@ class Matrix4 {
     *   This matrix
     */
   def setToLookAt(position: Vector3, target: Vector3, up: Vector3): Matrix4 = {
-    Matrix4.tmpVec.set(target).sub(position)
-    setToLookAt(Matrix4.tmpVec, up)
+    // Hoist one ThreadLocal.get() per scratch (ISS-832) — one instance per thread, no behavior change.
+    val tmpVec = Matrix4.tmpVec
+    tmpVec.set(target).sub(position)
+    setToLookAt(tmpVec, up)
     mul(Matrix4.tmpMat.setToTranslation(-position.x, -position.y, -position.z))
     this
   }
 
   def setToWorld(position: Vector3, forward: Vector3, up: Vector3): Matrix4 = {
-    Matrix4.tmpForward.set(forward).nor()
-    Matrix4.right.set(Matrix4.tmpForward).crs(up).nor()
-    Matrix4.tmpUp.set(Matrix4.right).crs(Matrix4.tmpForward).nor()
-    set(Matrix4.right, Matrix4.tmpUp, Matrix4.tmpForward.scl(-1), position)
+    // Hoist one ThreadLocal.get() per scratch (ISS-832) — one instance per thread, no behavior change.
+    val tmpForward = Matrix4.tmpForward
+    val right      = Matrix4.right
+    val tmpUp      = Matrix4.tmpUp
+    tmpForward.set(forward).nor()
+    right.set(tmpForward).crs(up).nor()
+    tmpUp.set(right).crs(tmpForward).nor()
+    set(right, tmpUp, tmpForward.scl(-1), position)
     this
   }
 
@@ -1699,18 +1709,25 @@ class Matrix4 {
     *   This matrix for chaining
     */
   def avg(other: Matrix4, w: Float): Matrix4 = {
-    getScale(Matrix4.tmpVec)
-    other.getScale(Matrix4.tmpForward)
+    // Hoist one ThreadLocal.get() per scratch (ISS-832) — one instance per thread, no behavior change.
+    val tmpVec     = Matrix4.tmpVec
+    val tmpForward = Matrix4.tmpForward
+    val quat       = Matrix4.quat
+    val quat2      = Matrix4.quat2
+    val tmpUp      = Matrix4.tmpUp
+    val right      = Matrix4.right
+    getScale(tmpVec)
+    other.getScale(tmpForward)
 
-    rotation(Matrix4.quat)
-    other.rotation(Matrix4.quat2)
+    rotation(quat)
+    other.rotation(quat2)
 
-    translation(Matrix4.tmpUp)
-    other.translation(Matrix4.right)
+    translation(tmpUp)
+    other.translation(right)
 
-    setToScaling(Matrix4.tmpVec.scl(w).add(Matrix4.tmpForward.scl(1 - w)))
-    rotate(Matrix4.quat.slerp(Matrix4.quat2, 1 - w))
-    setTranslation(Matrix4.tmpUp.scl(w).add(Matrix4.right.scl(1 - w)))
+    setToScaling(tmpVec.scl(w).add(tmpForward.scl(1 - w)))
+    rotate(quat.slerp(quat2, 1 - w))
+    setTranslation(tmpUp.scl(w).add(right.scl(1 - w)))
     this
   }
 
@@ -1723,20 +1740,27 @@ class Matrix4 {
   def avg(t: Array[Matrix4]): Matrix4 = {
     val w = 1.0f / t.length
 
-    Matrix4.tmpVec.set(t(0).getScale(Matrix4.tmpUp).scl(w))
-    Matrix4.quat.set(t(0).rotation(Matrix4.quat2).exp(w))
-    Matrix4.tmpForward.set(t(0).translation(Matrix4.tmpUp).scl(w))
+    // Hoist one ThreadLocal.get() per scratch (ISS-832) — one instance per thread, no behavior change.
+    val tmpVec     = Matrix4.tmpVec
+    val quat       = Matrix4.quat
+    val quat2      = Matrix4.quat2
+    val tmpForward = Matrix4.tmpForward
+    val tmpUp      = Matrix4.tmpUp
+
+    tmpVec.set(t(0).getScale(tmpUp).scl(w))
+    quat.set(t(0).rotation(quat2).exp(w))
+    tmpForward.set(t(0).translation(tmpUp).scl(w))
 
     for (i <- 1 until t.length) {
-      Matrix4.tmpVec.add(t(i).getScale(Matrix4.tmpUp).scl(w))
-      Matrix4.quat.mul(t(i).rotation(Matrix4.quat2).exp(w))
-      Matrix4.tmpForward.add(t(i).translation(Matrix4.tmpUp).scl(w))
+      tmpVec.add(t(i).getScale(tmpUp).scl(w))
+      quat.mul(t(i).rotation(quat2).exp(w))
+      tmpForward.add(t(i).translation(tmpUp).scl(w))
     }
-    Matrix4.quat.nor()
+    quat.nor()
 
-    setToScaling(Matrix4.tmpVec)
-    rotate(Matrix4.quat)
-    setTranslation(Matrix4.tmpForward)
+    setToScaling(tmpVec)
+    rotate(quat)
+    setTranslation(tmpForward)
     this
   }
 
@@ -1750,20 +1774,27 @@ class Matrix4 {
     *   This matrix for chaining
     */
   def avg(t: Array[Matrix4], w: Array[Float]): Matrix4 = {
-    Matrix4.tmpVec.set(t(0).getScale(Matrix4.tmpUp).scl(w(0)))
-    Matrix4.quat.set(t(0).rotation(Matrix4.quat2).exp(w(0)))
-    Matrix4.tmpForward.set(t(0).translation(Matrix4.tmpUp).scl(w(0)))
+    // Hoist one ThreadLocal.get() per scratch (ISS-832) — one instance per thread, no behavior change.
+    val tmpVec     = Matrix4.tmpVec
+    val quat       = Matrix4.quat
+    val quat2      = Matrix4.quat2
+    val tmpForward = Matrix4.tmpForward
+    val tmpUp      = Matrix4.tmpUp
+
+    tmpVec.set(t(0).getScale(tmpUp).scl(w(0)))
+    quat.set(t(0).rotation(quat2).exp(w(0)))
+    tmpForward.set(t(0).translation(tmpUp).scl(w(0)))
 
     for (i <- 1 until t.length) {
-      Matrix4.tmpVec.add(t(i).getScale(Matrix4.tmpUp).scl(w(i)))
-      Matrix4.quat.mul(t(i).rotation(Matrix4.quat2).exp(w(i)))
-      Matrix4.tmpForward.add(t(i).translation(Matrix4.tmpUp).scl(w(i)))
+      tmpVec.add(t(i).getScale(tmpUp).scl(w(i)))
+      quat.mul(t(i).rotation(quat2).exp(w(i)))
+      tmpForward.add(t(i).translation(tmpUp).scl(w(i)))
     }
-    Matrix4.quat.nor()
+    quat.nor()
 
-    setToScaling(Matrix4.tmpVec)
-    rotate(Matrix4.quat)
-    setTranslation(Matrix4.tmpForward)
+    setToScaling(tmpVec)
+    rotate(quat)
+    setTranslation(tmpForward)
     this
   }
 
@@ -2132,18 +2163,22 @@ class Matrix4 {
     *   This matrix for chaining
     */
   def rotateTowardDirection(direction: Vector3, up: Vector3): Matrix4 = {
-    Matrix4.l_vez.set(direction).nor()
-    Matrix4.l_vex.set(direction).crs(up).nor()
-    Matrix4.l_vey.set(Matrix4.l_vex).crs(Matrix4.l_vez).nor()
-    values(Matrix4.M00) = Matrix4.l_vex.x
-    values(Matrix4.M01) = Matrix4.l_vex.y
-    values(Matrix4.M02) = Matrix4.l_vex.z
-    values(Matrix4.M10) = Matrix4.l_vey.x
-    values(Matrix4.M11) = Matrix4.l_vey.y
-    values(Matrix4.M12) = Matrix4.l_vey.z
-    values(Matrix4.M20) = -Matrix4.l_vez.x
-    values(Matrix4.M21) = -Matrix4.l_vez.y
-    values(Matrix4.M22) = -Matrix4.l_vez.z
+    // Hoist one ThreadLocal.get() per scratch (ISS-832) — one instance per thread, no behavior change.
+    val l_vex = Matrix4.l_vex
+    val l_vey = Matrix4.l_vey
+    val l_vez = Matrix4.l_vez
+    l_vez.set(direction).nor()
+    l_vex.set(direction).crs(up).nor()
+    l_vey.set(l_vex).crs(l_vez).nor()
+    values(Matrix4.M00) = l_vex.x
+    values(Matrix4.M01) = l_vex.y
+    values(Matrix4.M02) = l_vex.z
+    values(Matrix4.M10) = l_vey.x
+    values(Matrix4.M11) = l_vey.y
+    values(Matrix4.M12) = l_vey.z
+    values(Matrix4.M20) = -l_vez.x
+    values(Matrix4.M21) = -l_vez.y
+    values(Matrix4.M22) = -l_vez.z
     this
   }
 
@@ -2230,17 +2265,44 @@ object Matrix4 {
   val M32 = 11
   val M33 = 15
 
-  // Static fields that were moved from the class
-  private val quat       = Quaternion()
-  private val quat2      = Quaternion()
-  private val l_vez      = Vector3()
-  private val l_vex      = Vector3()
-  private val l_vey      = Vector3()
-  private val tmpVec     = Vector3()
-  private val tmpMat     = Matrix4()
-  private val right      = Vector3()
-  private val tmpForward = Vector3()
-  private val tmpUp      = Vector3()
+  // Static fields that were moved from the class.
+  //
+  // DEVIATION (ISS-832): upstream Matrix4.java:76-85 declares these as `static final` scratch
+  // instances (quat/quat2/l_vex/l_vey/l_vez/tmpVec/tmpMat/right/tmpForward/tmpUp), safe only when
+  // matrix math is single-threaded. SGE runs its parallel-execution test suites (and real games)
+  // with concurrent camera/scene updates, and OrthographicCamera.update -> setToLookAt builds an
+  // orthonormal basis in this shared scratch. Two threads interleaving inside setToLookAt corrupt
+  // each other's basis: the l_vex x l_vez cross product of two momentarily-parallel scratch vectors
+  // collapses to the zero vector, nor() leaves it zero, the view row goes zero, combined = proj*view
+  // has an exact-zero determinant, and inv() throws "non-invertible matrix" (milder interleavings
+  // silently produce a non-orthonormal view). Fix: back each scratch with a ThreadLocal so every
+  // thread gets its own instance — preserving the zero-per-call allocation guarantee PER THREAD
+  // while eliminating the cross-thread race. Each `def` below returns the calling thread's instance;
+  // semantics WITHIN a thread are identical to the upstream statics.
+  // Anonymous ThreadLocal subclass overriding initialValue() rather than the static
+  // ThreadLocal.withInitial factory: the Scala.js javalib ships the ThreadLocal class +
+  // initialValue()/get() but NOT the withInitial static factory (ISS-832 JS-link regression).
+  private val _quat       = new ThreadLocal[Quaternion] { override def initialValue(): Quaternion = Quaternion() }
+  private val _quat2      = new ThreadLocal[Quaternion] { override def initialValue(): Quaternion = Quaternion() }
+  private val _l_vez      = new ThreadLocal[Vector3] { override def initialValue(): Vector3 = Vector3() }
+  private val _l_vex      = new ThreadLocal[Vector3] { override def initialValue(): Vector3 = Vector3() }
+  private val _l_vey      = new ThreadLocal[Vector3] { override def initialValue(): Vector3 = Vector3() }
+  private val _tmpVec     = new ThreadLocal[Vector3] { override def initialValue(): Vector3 = Vector3() }
+  private val _tmpMat     = new ThreadLocal[Matrix4] { override def initialValue(): Matrix4 = Matrix4() }
+  private val _right      = new ThreadLocal[Vector3] { override def initialValue(): Vector3 = Vector3() }
+  private val _tmpForward = new ThreadLocal[Vector3] { override def initialValue(): Vector3 = Vector3() }
+  private val _tmpUp      = new ThreadLocal[Vector3] { override def initialValue(): Vector3 = Vector3() }
+
+  private def quat:       Quaternion = _quat.get()
+  private def quat2:      Quaternion = _quat2.get()
+  private def l_vez:      Vector3    = _l_vez.get()
+  private def l_vex:      Vector3    = _l_vex.get()
+  private def l_vey:      Vector3    = _l_vey.get()
+  private def tmpVec:     Vector3    = _tmpVec.get()
+  private def tmpMat:     Matrix4    = _tmpMat.get()
+  private def right:      Vector3    = _right.get()
+  private def tmpForward: Vector3    = _tmpForward.get()
+  private def tmpUp:      Vector3    = _tmpUp.get()
   // @off
   /*JNI
   #include <memory.h>

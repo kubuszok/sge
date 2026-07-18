@@ -927,8 +927,10 @@ final case class Vector3(var x: Float = 0, var y: Float = 0, var z: Float = 0) e
     rotateAroundRad(axis, degrees * MathUtils.degreesToRadians)
 
   def rotateAroundRad(axis: Vector3, radians: Float): this.type = {
-    Vector3.tmpMat.setToRotationRad(axis, radians)
-    this.mul(Vector3.tmpMat)
+    // Hoist one ThreadLocal.get() per scratch (ISS-832) — one instance per thread, no behavior change.
+    val tmpMat = Vector3.tmpMat
+    tmpMat.setToRotationRad(axis, radians)
+    this.mul(tmpMat)
   }
 
   // Alias methods for compatibility with existing code
@@ -1087,7 +1089,15 @@ object Vector3 {
   val Z:    Vector3 = Vector3(0, 0, 1)
   val Zero: Vector3 = Vector3(0, 0, 0)
 
-  private val tmpMat: Matrix4 = Matrix4()
+  // DEVIATION (ISS-832): upstream Vector3.java declares `static final Matrix4 tmpMat` (single-thread
+  // scratch for rotateAround). SGE backs it with a ThreadLocal so concurrent Vector3.rotateAround
+  // calls don't corrupt a shared Matrix4 — preserving zero-per-call allocation PER THREAD. Semantics
+  // within a thread are identical to the upstream static.
+  // Anonymous ThreadLocal subclass overriding initialValue() rather than the static
+  // ThreadLocal.withInitial factory: the Scala.js javalib ships the ThreadLocal class +
+  // initialValue()/get() but NOT the withInitial static factory (ISS-832 JS-link regression).
+  private val _tmpMat: ThreadLocal[Matrix4] = new ThreadLocal[Matrix4] { override def initialValue(): Matrix4 = Matrix4() }
+  private def tmpMat:  Matrix4              = _tmpMat.get()
 
   def length(x: Float, y: Float, z: Float): Float = Math.sqrt(x * x + y * y + z * z).toFloat
 

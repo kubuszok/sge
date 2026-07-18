@@ -258,13 +258,16 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     *   Vector to transform
     */
   def transform(v: Vector3): Vector3 = {
-    Quaternion.tmp2.set(this)
-    Quaternion.tmp2.conjugate()
-    Quaternion.tmp2.mulLeft(Quaternion.tmp1.set(v.x, v.y, v.z, 0)).mulLeft(this)
+    // Hoist one ThreadLocal.get() per scratch (ISS-832) — one instance per thread, no behavior change.
+    val tmp1 = Quaternion.tmp1
+    val tmp2 = Quaternion.tmp2
+    tmp2.set(this)
+    tmp2.conjugate()
+    tmp2.mulLeft(tmp1.set(v.x, v.y, v.z, 0)).mulLeft(this)
 
-    v.x = Quaternion.tmp2.x
-    v.y = Quaternion.tmp2.y
-    v.z = Quaternion.tmp2.z
+    v.x = tmp2.x
+    v.y = tmp2.y
+    v.z = tmp2.z
     v
   }
 
@@ -705,9 +708,11 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
 
     // Calculate exponents and multiply everything from left to right
     val w = 1.0f / q.length
+    // Hoist one ThreadLocal.get() per scratch (ISS-832) — one instance per thread, no behavior change.
+    val tmp1 = Quaternion.tmp1
     set(q(0)).exp(w)
     for (i <- 1 until q.length)
-      mul(Quaternion.tmp1.set(q(i)).exp(w))
+      mul(tmp1.set(q(i)).exp(w))
     nor()
     this
   }
@@ -724,9 +729,11 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
   def slerp(q: Array[Quaternion], w: Array[Float]): Quaternion = {
 
     // Calculate exponents and multiply everything from left to right
+    // Hoist one ThreadLocal.get() per scratch (ISS-832) — one instance per thread, no behavior change.
+    val tmp1 = Quaternion.tmp1
     set(q(0)).exp(w(0))
     for (i <- 1 until q.length)
-      mul(Quaternion.tmp1.set(q(i)).exp(w(i)))
+      mul(tmp1.set(q(i)).exp(w(i)))
     nor()
     this
   }
@@ -1002,8 +1009,16 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
 }
 
 object Quaternion {
-  private val tmp1 = Quaternion(0, 0, 0, 0)
-  private val tmp2 = Quaternion(0, 0, 0, 0)
+  // DEVIATION (ISS-832): upstream Quaternion.java declares `private static Quaternion tmp1/tmp2`
+  // (single-thread scratch for transform/mul). SGE backs each with a ThreadLocal so concurrent
+  // Quaternion.transform / mul(Array) calls don't corrupt a shared scratch — preserving
+  // zero-per-call allocation PER THREAD. Semantics within a thread are identical to the upstream
+  // statics.
+  private val _tmp1 = new ThreadLocal[Quaternion] { override def initialValue(): Quaternion = Quaternion(0, 0, 0, 0) }
+  private val _tmp2 = new ThreadLocal[Quaternion] { override def initialValue(): Quaternion = Quaternion(0, 0, 0, 0) }
+
+  private def tmp1: Quaternion = _tmp1.get()
+  private def tmp2: Quaternion = _tmp2.get()
 
   /** @return the euclidean length of the specified quaternion */
   def len(x: Float, y: Float, z: Float, w: Float): Float =
