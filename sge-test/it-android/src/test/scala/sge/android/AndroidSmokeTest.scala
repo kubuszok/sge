@@ -372,36 +372,100 @@ class AndroidSmokeTest extends FunSuite {
           System.err.println(s"  $name: $status — $msg")
         }
 
-        // Excused subsystem checks — a FAIL (or, for the post-adb checks, a
-        // non-emission) here does NOT fail the test. Two distinct reasons:
+        // ISS-701 — de-theater the excusals. The prior revision blanket-excused a
+        // Set of six check NAMES: ANY FAIL, with ANY message, in those checks was
+        // swallowed. A NEW regression inside an excused area (JSON_XML parsing the
+        // wrong root, external file IO corrupting data, clipboard returning altered
+        // text, a sensor-read exception) therefore showed GREEN. Each excused gap is
+        // now pinned to the EXACT failure MARKER its SmokeListener check emits for the
+        // KNOWN capability-gap reason. A FAIL whose message does NOT contain that
+        // marker is a different/new cause and FAILS the test. This is the Android
+        // analogue of the browser ISS-726 de-theater (BrowserBootstrapTest) and the
+        // ISS-856 native-ops-availability pattern: an excusal pins the exact expected
+        // reason, it does not blanket-allow any failure.
         //
-        // Genuine headless-emulator capability gaps (these DO report, as FAIL):
-        // - JSON_XML: XML secure-processing feature is unavailable on the emulator
-        //   image, so XmlReader.parse throws before returning.
-        // - FILEHANDLE_TYPES: external-storage write needs a runtime
-        //   WRITE_EXTERNAL_STORAGE grant the headless emulator does not provide.
-        // - CLIPBOARD: the headless emulator has no window manager, so clipboard
-        //   readback comes back empty.
+        // Expiry/ratchet anchor: every excusal is anchored to the OPEN standing issue
+        // ISS-694 (Android headless-emulator capability gaps). The excusals are lifted
+        // when ISS-694 is resolved (runtime WRITE_EXTERNAL_STORAGE grant, a
+        // windowed/GPU emulator for clipboard, the XML secure-processing SDK gap, and
+        // reliable post-adb interaction emission). If an excused check ever starts
+        // PASSing, that is surfaced (and, for the reliably-emitting frame-phase gaps,
+        // ratcheted: the test fails so the stale excusal must be removed).
         //
-        // Post-adb interaction checks that do not reliably emit on the headless
-        // `-no-window` emulator (ISS-694) — the test's adb input tap / HOME /
-        // relaunch / sensor-injection sequence does not drive touch, pause/resume,
-        // or sensor events without a window, so runPostAdbChecks never runs its
-        // body. ISS-518/519 fixed the app code, but the emulator interaction, not
-        // the app, is the blocker (CI run 28519409711 confirmed: 680 frames, all
-        // 13 frame-phase checks reported, these 3 never emitted). If they ever DO
-        // emit (e.g. a windowed emulator) they are excused from FAIL-enforcement
-        // here too; whether the post-adb phase can be made to emit reliably is a
-        // hypothesis left to ISS-694.
-        // - TOUCH_DISPATCH, LIFECYCLE, SENSOR_INJECT
-        val knownFailures = Set("JSON_XML", "FILEHANDLE_TYPES", "CLIPBOARD", "TOUCH_DISPATCH", "LIFECYCLE", "SENSOR_INJECT")
-        val failedChecks  = checkResults.filter { case (name, status, _) =>
-          status == "FAIL" && !knownFailures.contains(name)
+        // Two phases with different emission guarantees on the headless `-no-window`
+        // emulator:
+        //   frame   — runSubsystemChecks emits these on frame 5, so they RELIABLY
+        //             report as FAIL. An unexpected PASS ratchets (fails the test so
+        //             the stale excusal is removed).
+        //   post-adb— runPostAdbChecks' preconditions (adb touch tap / HOME
+        //             pause-resume / emulator-console sensor injection) are not met on
+        //             a windowless emulator (CI run 28519409711: 680 frames, all 13
+        //             frame-phase checks reported, these 3 never emitted), so they
+        //             usually do NOT report at all — accepted (they are not in
+        //             framePhaseChecks). If one DOES emit a FAIL it must carry the
+        //             known-gap marker (a new cause still fails); a PASS is only
+        //             surfaced, since emission here is non-deterministic (ISS-694).
+        //
+        // Marker per gap (drawn from SmokeListener's own FAIL branches):
+        //   value = (expected known-gap FAIL-message marker, isFramePhase)
+        val excusedGaps: Map[String, (String, Boolean)] = Map(
+          // JSON_XML: XML secure-processing feature is unavailable on the emulator SDK
+          // image, so XmlReader.parse throws — "Exception: ...". A successful-but-wrong
+          // parse would report "XML root name: ..." (a regression) and is NOT excused.
+          "JSON_XML" -> ("Exception:", true),
+          // FILEHANDLE_TYPES: external-storage write needs a runtime
+          // WRITE_EXTERNAL_STORAGE grant the smoke APK does not request, so the write
+          // throws — "Exception: ...". A write that succeeds but reads back wrong data
+          // reports "External readback mismatch: ..." (a regression) and is NOT excused.
+          "FILEHANDLE_TYPES" -> ("Exception:", true),
+          // CLIPBOARD: the headless emulator has no window-manager clipboard service,
+          // so readback comes back empty — exactly "Readback: empty". Any other,
+          // non-empty readback ("Readback: <text>") is a different cause and NOT excused.
+          "CLIPBOARD" -> ("Readback: empty", true),
+          // TOUCH_DISPATCH: only-FAIL branch when no adb tap is delivered.
+          "TOUCH_DISPATCH" -> ("No touch event received", false),
+          // LIFECYCLE: only-FAIL branch when pause/resume did not both fire.
+          "LIFECYCLE" -> ("Lifecycle incomplete:", false),
+          // SENSOR_INJECT: known FAIL is the unchanged-values branch; an "Exception:"
+          // here would be a different cause and is NOT excused.
+          "SENSOR_INJECT" -> ("Sensor values unchanged:", false)
+        )
+
+        // Regression guard: a FAIL is real (fails the test) unless it is an excused
+        // gap AND its message carries the pinned known-gap marker. An excused check
+        // failing for a NEW reason (wrong/missing marker) is treated as a real failure.
+        val unexpectedFails = checkResults.collect {
+          case (name, "FAIL", msg) if !excusedGaps.get(name).exists { case (marker, _) => msg.contains(marker) } =>
+            (name, msg)
         }
-        if (failedChecks.nonEmpty) {
-          val details = failedChecks.map { case (name, _, msg) => s"  $name: $msg" }.mkString("\n")
-          fail(s"${failedChecks.size} subsystem check(s) failed:\n$details")
+        if (unexpectedFails.nonEmpty) {
+          val details = unexpectedFails.map { case (name, msg) => s"  $name: $msg" }.mkString("\n")
+          fail(
+            s"${unexpectedFails.size} subsystem check(s) failed for a non-excused reason " +
+              "(an excused gap must fail with its known ISS-694 marker; a new/different cause fails here):\n" +
+              details
+          )
         }
+
+        // Lift signal / ratchet: an excused capability gap that unexpectedly PASSes
+        // means the environment now provides the capability, so the excusal is stale.
+        // Frame-phase gaps reliably emit, so a PASS ratchets (fails, forcing removal
+        // from excusedGaps + an ISS-694 update). Post-adb emission is non-deterministic
+        // on `-no-window`, so a PASS there is only surfaced, never ratcheted.
+        val excusedPasses = checkResults.collect {
+          case (name, "PASS", msg) if excusedGaps.contains(name) => (name, msg)
+        }
+        excusedPasses.foreach { case (name, msg) =>
+          System.err.println(
+            s"NOTE: excused capability gap $name now PASSes ($msg) — its ISS-694 excusal may be liftable."
+          )
+        }
+        val ratchetablePasses = excusedPasses.filter { case (name, _) => excusedGaps(name)._2 }
+        assert(
+          ratchetablePasses.isEmpty,
+          "Excused frame-phase capability gap(s) now PASS and must be un-excused " +
+            "(remove from excusedGaps, update ISS-694): " + ratchetablePasses.map(_._1).mkString(", ")
+        )
       }
 
     } finally {
