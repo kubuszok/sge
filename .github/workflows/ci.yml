@@ -726,7 +726,59 @@ jobs:
           # so the linker finds zlib.lib (the LNK1104 'cannot open zlib.lib' fix).
           "LIB=$z;$env:LIB" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
 
+      # ISS-702: the GLFW+EGL+GLESv2 FFI section must actually execute somewhere -
+      # before this, every leg ran --headless, which skips that whole section, so
+      # a broken native GL binding was green on every platform. On linux-x86_64,
+      # run WITHOUT --headless under xvfb (mirroring test-desktop-it's setup).
+      # ANGLE's libEGL/libGLESv2 come from the provider JARs (default
+      # GL-over-llvmpipe backend, same as test-desktop-it) - this step only
+      # provides the display + X11/GL runtime libs, not the ANGLE libs.
+      # linux-aarch64 stays headless: test-desktop-it has no aarch64 leg (it runs
+      # on ubuntu-latest x86_64 only), so there is no proven xvfb/ANGLE-over-
+      # llvmpipe pattern on the arm runner to mirror; macOS/windows stay headless
+      # because those runners have no display server at all.
+      - name: Install virtual display + GL/Vulkan runtime libs
+        if: matrix.label == 'linux-x86_64'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            xvfb \
+            libgl1-mesa-dri \
+            libegl1 \
+            libgles2 \
+            mesa-vulkan-drivers libvulkan1 vulkan-tools \
+            libx11-6 libxext6 libxrandr2 libxinerama1 libxcursor1 libxi6 \
+            libxkbcommon0 libwayland-client0
+
+      - name: Run native FFI validation (under xvfb)
+        if: matrix.label == 'linux-x86_64'
+        run: |
+          # ISS-690-style guard: never trust the exit code alone. The validator
+          # exits 0 even when the GL section silently skips ("SKIP  EGL/GL tests
+          # (no window created)" / "SKIP  GL tests (no EGL context)"), so a
+          # display/EGL failure could read green without validating a single GL
+          # binding. Gate on the exit code AND the GL-section-completed marker:
+          # "PASS  glfwTerminate" is the section's final check, only reachable
+          # after the whole GLFW+EGL+GLESv2 block executed.
+          set +e
+          xvfb-run -a --server-args="-screen 0 1280x1024x24" \
+            sbt 'sge-it-native-ffi/run' 2>&1 | tee /tmp/native-ffi.log
+          code=${PIPESTATUS[0]}
+          set -e
+          fail=0
+          if ! grep -q 'PASS  glfwTerminate' /tmp/native-ffi.log; then
+            echo "::error::ISS-702 guard: marker 'PASS  glfwTerminate' missing - the GLFW+EGL+GLESv2 section did not run to completion"
+            fail=1
+          fi
+          if [ "$code" -ne 0 ]; then
+            echo "::error::native FFI validation exited with code $code"
+            fail=1
+          fi
+          if [ "$fail" -eq 0 ]; then echo "Native FFI: GL section executed under xvfb, all checks passed"; fi
+          exit "$fail"
+
       - name: Run native FFI validation (headless)
+        if: matrix.label != 'linux-x86_64'
         run: sbt 'sge-it-native-ffi/run -- --headless'
 
   # ─── Native app runtime (execute a Scala Native binary) ────────────
