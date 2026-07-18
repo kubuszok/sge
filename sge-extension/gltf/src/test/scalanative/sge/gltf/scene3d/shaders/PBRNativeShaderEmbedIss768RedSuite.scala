@@ -92,11 +92,15 @@ class PBRNativeShaderEmbedIss768RedSuite extends munit.FunSuite {
   // static, GL-free (they only read + parse shader sources), so they run
   // headless. On Native at HEAD they throw SgeError.FileReadError (nothing
   // embedded); the sound fix (B, inline constants) makes them resolve.
-  test("ISS-768: PBRShaderProvider.getDefaultVertexShader resolves the default PBR vertex shader on Native (SceneManager(maxBones) path)") {
+  test(
+    "ISS-768: PBRShaderProvider.getDefaultVertexShader resolves the default PBR vertex shader on Native (SceneManager(maxBones) path)"
+  ) {
     assert(PBRShaderProvider.getDefaultVertexShader().nonEmpty)
   }
 
-  test("ISS-768: PBRShaderProvider.getDefaultFragmentShader resolves the default PBR fragment shader on Native (SceneManager(maxBones) path)") {
+  test(
+    "ISS-768: PBRShaderProvider.getDefaultFragmentShader resolves the default PBR fragment shader on Native (SceneManager(maxBones) path)"
+  ) {
     assert(PBRShaderProvider.getDefaultFragmentShader().nonEmpty)
   }
 }
