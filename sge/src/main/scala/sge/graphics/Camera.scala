@@ -38,7 +38,8 @@ import sge.WorldUnits
   * attributes, then call [[update]] to recompute the matrices; feed [[combined]] to a [[sge.graphics.g2d.SpriteBatch]] or shader. Most games use the [[OrthographicCamera]] subclass for 2D, usually
   * driven by a [[sge.utils.viewport.Viewport]].
   *
-  * Requires an [[sge.Sge]] application context (`using Sge`); the screen-spanning [[project]] and [[unproject]] overloads read the current back-buffer size from it.
+  * Requires an [[sge.Sge]] application context (`using Sge`); the screen-spanning [[project]] and [[unproject]] overloads read the current logical screen size (`Sge().graphics.width`/`height`) from
+  * it.
   *
   * @note
   *   LibGDX: com.badlogic.gdx.graphics.Camera

@@ -67,8 +67,9 @@ import sge.utils.{ SgeError, TimeUtils }
   * @note
   *   LibGDX: com.badlogic.gdx.assets.AssetManager
   * @note
-  *   Error handling: [[update]] catches every `Throwable` thrown by a loading task (including `Error` subtypes such as `LinkageError`) and routes it through the registered [[AssetErrorListener]],
-  *   faithful to upstream. Only `scala.util.boundary.Break` is re-thrown first, so the port's boundary-based control flow is preserved (wave-F ISS-734).
+  *   Error handling: [[update]] catches every `Throwable` thrown by a loading task (including `Error` subtypes such as `LinkageError`) and routes it through the registered [[AssetErrorListener]];
+  *   when no listener is registered (the default) the failure is rethrown as [[sge.utils.SgeError]], faithful to upstream. Only `scala.util.boundary.Break` is re-thrown first, so the port's
+  *   boundary-based control flow is preserved (wave-F ISS-734).
   * @author
   *   mzechner (original implementation)
   */
@@ -462,12 +463,9 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
     )
   }
 
-  /** Updates the AssetManager for a single task. Returns if the current task is still being processed or there are no tasks, otherwise it finishes the current task and starts the next task.
-    * @return
-    *   true if all loading is finished.
-    */
-  /** Advances loading by one task and returns true once the queue is fully drained. Call this every frame until it returns true. Any `Throwable` a task raises is routed to the registered
-    * [[AssetErrorListener]] rather than propagated (see the class-level error-handling note).
+  /** Updates the AssetManager for a single task. Returns if the current task is still being processed or there are no tasks, otherwise it finishes the current task and starts the next task. Call this
+    * every frame until it returns true. Any `Throwable` a task raises is routed to the registered [[AssetErrorListener]]; without a registered listener the failure is rethrown as
+    * [[sge.utils.SgeError]] (faithful to upstream). See the class-level error-handling note.
     * @return
     *   true if all loading is finished.
     */
