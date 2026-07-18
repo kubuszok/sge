@@ -287,7 +287,7 @@ com/github/tommyettinger/colorful/FloatColors.java		ai_converted	extension	2026-
 com/github/tommyettinger/colorful/TrigTools.java		ai_converted	extension	2026-03-31		colorful-gdx	e4a5fd960eef746ca5aa826063432fb79666d74f	2026-04-28
 com/github/tommyettinger/colorful/oklab/ColorfulBatch.java		ai_converted	extension	2026-03-31		colorful-gdx	e4a5fd960eef746ca5aa826063432fb79666d74f	2026-04-28
 com/github/tommyettinger/colorful/rgb/ColorTools.java		ai_converted	extension	2026-03-31		colorful-gdx	e4a5fd960eef746ca5aa826063432fb79666d74f	2026-04-28
-com/github/tommyettinger/colorful/ColorfulBatch.java		ai_converted	extension	2026-03-31		colorful-gdx		
+com/github/tommyettinger/colorful/ColorfulBatch.java		skip	extension	2026-07-18	Row orphaned by wave-H ISS-850: colorful-gdx has NO root ColorfulBatch.java (only per-color-space files, each tracked separately); the SGE-invented ColorfulBatchLike marker trait this row's empty target once implied was deleted as dead code (nothing extended it).	colorful-gdx		
 com/github/tommyettinger/textra/TokenCategory.java		ai_converted	extension	2026-03-31		textratypist	3fe5c930acc9d66cb0ab1a29751e44591c18e2c4	2026-04-28
 com/github/tommyettinger/textra/InternalToken.java		ai_converted	extension	2026-03-31		textratypist	3fe5c930acc9d66cb0ab1a29751e44591c18e2c4	2026-04-28
 com/github/tommyettinger/textra/Justify.java		ai_converted	extension	2026-03-31		textratypist	3fe5c930acc9d66cb0ab1a29751e44591c18e2c4	2026-04-28

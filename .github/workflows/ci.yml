@@ -226,6 +226,13 @@ jobs:
         working-directory: sge-build
         run: sbt "scalafmtCheckAll; scalafmtSbtCheck"
 
+      # ISS-726 c4: demos/ is ALSO a separate sub-build, and running its sbt
+      # needs the published sge-build plugin — too heavy for a format check.
+      # Use the scalafmt CLI directly (it reads version+dialect from the
+      # repo-root .scalafmt.conf) over the demo sources instead.
+      - name: Check formatting (demos)
+        run: cs launch scalafmt -- --config .scalafmt.conf --check demos/
+
   # ─── re-scale enforce gate (covenant verify + shortcut budget) ──────
   #
   # BLOCKING (ISS-483). Validates that every file with a `Covenant: full-port`
@@ -269,8 +276,13 @@ jobs:
           # non-reproducible: re-scale's covenant method-set/shortcut computation
           # drifts between releases, so files clean locally were flagged on CI
           # (and vice versa) with no way to reconcile. A pinned gate is a real gate.
-          git clone --depth=1 --branch 0.1.5 https://github.com/kubuszok/re-scale.git "$RUNNER_TEMP/re-scale"
+          # ISS-726 c5: a tag is MUTABLE — pin the immutable sha behind tag 0.1.5
+          # (19edff7d) and verify the checkout matches it, so a moved/retagged
+          # upstream cannot silently change the gate.
+          git clone https://github.com/kubuszok/re-scale.git "$RUNNER_TEMP/re-scale"
           cd "$RUNNER_TEMP/re-scale"
+          git checkout --detach 19edff7d0dae7fa429ee2e5085f06ad66c109314
+          test "$(git rev-parse HEAD)" = "19edff7d0dae7fa429ee2e5085f06ad66c109314"
           sbt install
           echo "$RUNNER_TEMP/re-scale/bin" >> "$GITHUB_PATH"
 
@@ -1062,8 +1074,28 @@ jobs:
 
       - name: Verify all demos link for Scala Native
         working-directory: demos
+        # ISS-739: this step intermittently exited 1 in <1s with ZERO sbt output
+        # (thin-client/lingering-server flake), reading as a false red. Liveness
+        # guard: capture output; a nonzero exit WITHOUT any sbt banner/error text
+        # is the silent-death signature — kill the server and retry once. A real
+        # link failure prints sbt output and fails immediately.
         run: |
-          sbt 'pongNative/nativeLink; spaceShooterNative/nativeLink; curvePlaygroundNative/nativeLink; viewportGalleryNative/nativeLink; shaderLabNative/nativeLink; tileWorldNative/nativeLink; hexTacticsNative/nativeLink; viewer3dNative/nativeLink; particleShowNative/nativeLink; netChatNative/nativeLink; assetShowcaseNative/nativeLink'
+          set -o pipefail
+          run_links() {
+            sbt 'pongNative/nativeLink; spaceShooterNative/nativeLink; curvePlaygroundNative/nativeLink; viewportGalleryNative/nativeLink; shaderLabNative/nativeLink; tileWorldNative/nativeLink; hexTacticsNative/nativeLink; viewer3dNative/nativeLink; particleShowNative/nativeLink; netChatNative/nativeLink; assetShowcaseNative/nativeLink' 2>&1 | tee /tmp/demo-native-link.log
+          }
+          if run_links; then
+            exit 0
+          fi
+          if grep -qE '\[error\]|\[info\]' /tmp/demo-native-link.log; then
+            echo "real sbt failure (output present) — not the ISS-739 silent-death flake"
+            exit 1
+          fi
+          echo "ISS-739 silent-death signature (exit!=0, no sbt output) — killing server and retrying once"
+          pkill -f 'sbt-launch' || true
+          rm -f project/target/active.json
+          sleep 5
+          run_links
 
   # ─── Verify release packaging ──────────────────────────────────
 

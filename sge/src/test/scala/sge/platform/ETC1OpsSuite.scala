@@ -48,7 +48,11 @@ class ETC1OpsSuite extends munit.FunSuite {
               "native ETC1Ops capability MUST be present on this axis but the availability probe " +
                 "returned false — this is a wiring/ABI regression, not an environment gap (ISS-724 c1)"
             )
-          else assume(nativeLibAvailable, "Rust native library not available (JVM native-less leg; ISS-724 c1 optional axis)")
+          else
+            assume(
+              nativeLibAvailable,
+              "Rust native library not available (JVM native-less leg; ISS-856 standing optional-axis policy, ISS-724 c1 heritage)"
+            )
           test.body()
         }
       }
