@@ -45,6 +45,27 @@ import sge.utils.SgeError
 
 import scala.language.implicitConversions
 
+/** Renders bitmap font text through a [[sge.graphics.g2d.SpriteBatch]] using a pre-rendered glyph atlas plus AngelCode `.fnt` metrics.
+  *
+  * Load a `.fnt` from a [[sge.files.FileHandle]], or use the no-arg constructor to get the 15pt Liberation Sans font bundled in the sge JAR, then [[draw]] strings at a screen position. It is an
+  * [[java.lang.AutoCloseable]]; [[close]] disposes the page textures only when this font owns them (see [[ownsTexture]]).
+  *
+  * {{{
+  * val font = BitmapFont()
+  * font.draw(batch, "Hello", 10f, 20f)
+  * }}}
+  *
+  * `regionsParam` accepts a [[lowlevel.Nullable]] array of page regions; when empty (or present but zero-length) the pages are loaded from the font data's image paths instead.
+  *
+  * Requires an [[sge.Sge]] application context (`using Sge`) to resolve font/image files and build the glyph cache.
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.graphics.g2d.BitmapFont
+  * @author
+  *   Nathan Sweet (original implementation)
+  * @author
+  *   Matthias Mann (original implementation)
+  */
 class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[TextureRegion]], val integer: Boolean)(using Sge) extends AutoCloseable {
 
   // BitmapFont.java:156 — `if (pageRegions == null || pageRegions.size == 0)` loads
@@ -289,6 +310,14 @@ object BitmapFont {
   }
 }
 
+/** Backing glyph metrics and page-image paths for a [[BitmapFont]], parsed from an AngelCode `.fnt` file. Holds per-glyph advance/kerning tables plus font-wide metrics (line height, cap height,
+  * ascent/descent). Construct a bare instance and populate it via [[load]], or pass a [[sge.files.FileHandle]] to parse eagerly.
+  *
+  * `fontFile` is a [[lowlevel.Nullable]]; when empty no file is parsed and the caller is expected to fill the fields or call [[load]] later.
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.graphics.g2d.BitmapFont.BitmapFontData
+  */
 class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val flipped: Boolean = false) {
   var name:           Nullable[String]        = Nullable.empty
   var imagePaths:     Nullable[Array[String]] = Nullable.empty

@@ -49,6 +49,23 @@ import sge.utils.viewport.{ ScalingViewport, Viewport }
   * the stage does. If an actor handles an event by returning true from the input method, then the stage's input method will also return true, causing subsequent InputProcessors to not receive the
   * event. <p> The Stage and its constituents (like Actors and Listeners) are not thread-safe and should only be updated and queried from a single thread (presumably the main render thread). Methods
   * should be reentrant, so you can update Actors and Stages from within callbacks and handlers.
+  *
+  * Root of a 2D UI/scene graph: it owns a [[sge.utils.viewport.Viewport]] and a [[sge.graphics.g2d.Batch]], calls [[act]] then [[draw]] each frame, and — being an [[sge.InputProcessor]] — routes
+  * input to the actor hierarchy under [[root]]. Register it as the application's input processor to receive events. It is an [[java.lang.AutoCloseable]]; [[close]] disposes the batch only when the
+  * stage created it.
+  *
+  * {{{
+  * val stage = Stage(ScreenViewport())
+  * Sge().input.setInputProcessor(stage)
+  * stage.addActor(myActor)
+  * // each frame:
+  * stage.act(); stage.draw()
+  * }}}
+  *
+  * Requires an [[sge.Sge]] application context (`using Sge`) for viewport sizing, GL access and input.
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.scenes.scene2d.Stage
   * @author
   *   mzechner
   * @author

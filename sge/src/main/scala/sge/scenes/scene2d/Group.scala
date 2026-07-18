@@ -38,6 +38,21 @@ import sge.scenes.scene2d.utils.Cullable
 
 /** 2D scene graph node that may contain other actors. <p> Actors have a z-order equal to the order they were inserted into the group. Actors inserted later will be drawn on top of actors added
   * earlier. Touch events that hit more than one actor are distributed to topmost actors first.
+  *
+  * The branch node of a [[Stage]] scene graph: add children with [[addActor]], and — when [[transform]] is true — the group applies its own position/rotation/scale to them. Being [[Cullable]],
+  * setting [[cullingArea]] lets it skip drawing off-screen children. Containers and tables build on this.
+  *
+  * {{{
+  * val group = Group()
+  * group.addActor(childActor)
+  * group.setPosition(100f, 100f) // moves the whole subtree
+  * stage.addActor(group)
+  * }}}
+  *
+  * Requires an [[sge.Sge]] application context (`using Sge`).
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.scenes.scene2d.Group
   * @author
   *   mzechner
   * @author

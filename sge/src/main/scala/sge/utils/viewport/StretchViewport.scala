@@ -33,6 +33,11 @@ import sge.graphics.Camera
 import sge.graphics.OrthographicCamera
 
 /** A ScalingViewport that uses {@link Scaling#stretch} so it does not keep the aspect ratio, the world is scaled to take the whole screen.
+  *
+  * See [[Viewport]] for the resize/apply lifecycle and the shared [[sge.Sge]] context requirement.
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.utils.viewport.StretchViewport
   * @author
   *   Daniel Holderbaum
   * @author

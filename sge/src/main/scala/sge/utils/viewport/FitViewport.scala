@@ -33,6 +33,11 @@ import sge.graphics.Camera
 import sge.graphics.OrthographicCamera
 
 /** A ScalingViewport that uses {@link Scaling#fit} so it keeps the aspect ratio by scaling the world up to fit the screen, adding black bars (letterboxing) for the remaining space.
+  *
+  * The common default for fixed-aspect 2D games; see [[Viewport]] for the resize/apply lifecycle and the shared [[sge.Sge]] context requirement.
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.utils.viewport.FitViewport
   * @author
   *   Daniel Holderbaum
   * @author

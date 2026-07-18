@@ -34,6 +34,17 @@ import scala.compiletime.uninitialized
 import scala.math.{ abs, round }
 
 /** Defines a rectangular area of a texture. The coordinate system used has its origin in the upper left corner with the x-axis pointing to the right and the y axis pointing downwards.
+  *
+  * The unit a [[sge.graphics.g2d.SpriteBatch]] actually draws: it stores a [[texture]] plus the u/v texel bounds of the sub-rectangle to sample, so many regions can share one atlas texture. Slice a
+  * sheet with the companion [[TextureRegion.split]], flip in place with [[flip]], or scroll the window with [[scroll]].
+  *
+  * {{{
+  * val region = TextureRegion(texture, 0, 0, 32, 32)
+  * batch.draw(region, x, y)
+  * }}}
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.graphics.g2d.TextureRegion
   * @author
   *   mzechner (original implementation)
   * @author

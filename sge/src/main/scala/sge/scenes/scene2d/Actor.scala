@@ -49,6 +49,23 @@ import sge.scenes.scene2d.utils.ScissorStack
   * designed to allow an actor to respond to events that have been delivered. The capture listeners are designed to allow a parent or container actor to handle events before child actors. See
   * {@link #fire} for more details. <p> An {@link InputListener} can receive all the basic input events. More complex listeners (like {@link ClickListener} and {@link ActorGestureListener}) can listen
   * for and combine primitive events and recognize complex interactions like multi-touch or pinch.
+  *
+  * The base node of a [[Stage]] scene graph: subclass it (or use the ready-made widgets) and override [[draw]] to render and [[act]] to advance behaviour. Add it to a [[Group]] (or the stage root) to
+  * make it live, attach an [[InputListener]] to react to input, and use [[addAction]] for tweened animation. [[parent]] and [[stage]] are [[lowlevel.Nullable]] and empty while the actor is detached.
+  *
+  * {{{
+  * val actor = Image(texture)
+  * actor.setPosition(20f, 20f)
+  * actor.addListener(new ClickListener() {
+  *   override def clicked(event: InputEvent, x: Float, y: Float): Unit = println("hit")
+  * })
+  * stage.addActor(actor)
+  * }}}
+  *
+  * Requires an [[sge.Sge]] application context (`using Sge`).
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.scenes.scene2d.Actor
   * @author
   *   mzechner
   * @author

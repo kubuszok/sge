@@ -43,6 +43,22 @@ import Pixmap.*
   * pixels are specified with respect to the top left corner of the image, with the x-axis pointing to the right and the y-axis pointing downwards. <p> By default all methods use blending. You can
   * call {@link Pixmap#setBlending(Blending)} to disabled blending for all subsequent draw operations. You can also specify a color to be used for drawing operations via {@link Pixmap#setColor(Color)}
   * or {@link Pixmap#setColor(float, float, float, float)} .
+  *
+  * Load one from a [[sge.files.FileHandle]] (PNG/JPEG/BMP) or create a blank buffer, draw into it on the CPU, then upload it to a [[sge.graphics.Texture]] for rendering. It is an
+  * [[java.lang.AutoCloseable]]; [[close]] frees the backing buffer and further pixel access throws.
+  *
+  * {{{
+  * val pm = Pixmap(64, 64, Pixmap.Format.RGBA8888)
+  * pm.setColor(Color.RED); pm.fillCircle(32, 32, 16)
+  * val tex = Texture(pm)
+  * pm.close()
+  * }}}
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.graphics.Pixmap
+  * @note
+  *   Platform: image decoding is routed through `Gdx2DPixmap`/`PlatformOps.gdx2d` per platform — ImageIO on JVM, a pure-Scala decoder on Scala.js, and a Rust FFI decoder on Scala Native. In-memory
+  *   creation and all drawing operations are pure Scala on every platform.
   * @author
   *   mzechner (original implementation)
   * @author

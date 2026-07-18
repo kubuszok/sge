@@ -43,6 +43,21 @@ import scala.collection.mutable.Map
   * geometry. The texture will be bound to the currently active texture unit specified via {@link GL20#glActiveTexture(int)} . <p> You can draw {@link Pixmap} s to a texture at any time. The changes
   * will be automatically uploaded to texture memory. This is of course not extremely fast so use it with care. It also only works with unmanaged textures. <p> A Texture must be disposed when it is no
   * longer used
+  *
+  * Usually built from an internal path or a [[sge.graphics.Pixmap]], wrapped in a [[sge.graphics.g2d.TextureRegion]], and drawn through a [[sge.graphics.g2d.SpriteBatch]]. It is an
+  * [[java.lang.AutoCloseable]]; [[close]] releases the GL texture. When a texture is *managed*, the companion reloads it automatically after a GL context loss.
+  *
+  * {{{
+  * val tex = Texture("badlogic.jpg")
+  * batch.draw(tex, 0f, 0f)
+  * // ... when done:
+  * tex.close()
+  * }}}
+  *
+  * Requires an [[sge.Sge]] application context (`using Sge`); the constructors allocate a GL handle and the file-loading overloads resolve paths through it.
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.graphics.Texture
   * @author
   *   badlogicgames@gmail.com
   */

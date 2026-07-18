@@ -26,8 +26,21 @@ package graphics
 import sge.math.Vector2
 import sge.WorldUnits
 
-/** A camera with orthographic projection.
+/** A camera with orthographic projection — the standard 2D camera that maps world units to the screen with no perspective foreshortening.
   *
+  * Construct with the world-space viewport size, position it, then feed [[combined]] to a [[sge.graphics.g2d.SpriteBatch]] each frame. [[zoom]] scales the visible region; [[setToOrtho]] re-fits it to
+  * the screen resolution.
+  *
+  * {{{
+  * val cam = OrthographicCamera(WorldUnits(800f), WorldUnits(480f))
+  * cam.position.set(400f, 240f, 0f)
+  * cam.update()
+  * }}}
+  *
+  * Requires an [[sge.Sge]] application context (`using Sge`), which supplies the screen dimensions used by the [[setToOrtho]] overload that fits the current resolution.
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.graphics.OrthographicCamera
   * @author
   *   mzechner
   */

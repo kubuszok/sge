@@ -30,6 +30,18 @@ import sge.utils.NumberUtils
 
 /** A color class, holding the r, g, b and alpha component as floats in the range [0,1]. All methods perform clamping on the internal values after execution.
   *
+  * Mutable RGBA container shared across the rendering pipeline: construct one, mutate it in place with the chaining setters, and hand it to a [[sge.graphics.g2d.SpriteBatch]] or shader. The companion
+  * object holds the named constants (e.g. [[Color.WHITE]], [[Color.RED]]) and the helpers that pack and unpack float components to and from the 32-bit integer/float encodings.
+  *
+  * {{{
+  * val c = Color(1f, 0f, 0f, 1f) // opaque red
+  * c.lerp(Color.BLUE, 0.5f)      // blend halfway toward blue, in place
+  * }}}
+  *
+  * The companion constants are ordinary mutable instances, so mutating one (e.g. `Color.WHITE.a = 0.5f`) changes it everywhere it is referenced; call [[cpy]] first when a private copy is needed.
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.graphics.Color
   * @author
   *   mzechner (original implementation)
   */

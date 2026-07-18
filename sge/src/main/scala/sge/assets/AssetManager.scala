@@ -50,6 +50,25 @@ import lowlevel.util.{ DynamicArray, ObjectMap, ObjectSet }
 import sge.utils.{ SgeError, TimeUtils }
 
 /** Loads and stores assets like textures, bitmapfonts, tile maps, sounds, music and so on.
+  *
+  * The central reference-counted asset cache: queue work with [[load]], pump it a slice at a time from the render loop with [[update]] (or block with [[finishLoading]]), then retrieve with [[get]]
+  * and release with [[unload]]. Loaders are registered per type via [[setLoader]]; the default set covers textures, fonts, audio, atlases, skins, models and shaders. It is an
+  * [[java.lang.AutoCloseable]]; [[close]] disposes every managed asset and this manager's own async executor.
+  *
+  * {{{
+  * val manager = AssetManager(FileHandleResolver.Internal())
+  * manager.load[Texture]("badlogic.jpg")
+  * while (!manager.update()) { /* draw a loading bar */ }
+  * val tex = manager.get[Texture]("badlogic.jpg") // Nullable[Texture]
+  * }}}
+  *
+  * Requires an [[sge.Sge]] application context (`using Sge`) for file resolution and GL-thread work.
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.assets.AssetManager
+  * @note
+  *   Error handling: [[update]] catches every `Throwable` thrown by a loading task (including `Error` subtypes such as `LinkageError`) and routes it through the registered [[AssetErrorListener]],
+  *   faithful to upstream. Only `scala.util.boundary.Break` is re-thrown first, so the port's boundary-based control flow is preserved (wave-F ISS-734).
   * @author
   *   mzechner (original implementation)
   */
@@ -444,6 +463,11 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
   }
 
   /** Updates the AssetManager for a single task. Returns if the current task is still being processed or there are no tasks, otherwise it finishes the current task and starts the next task.
+    * @return
+    *   true if all loading is finished.
+    */
+  /** Advances loading by one task and returns true once the queue is fully drained. Call this every frame until it returns true. Any `Throwable` a task raises is routed to the registered
+    * [[AssetErrorListener]] rather than propagated (see the class-level error-handling note).
     * @return
     *   true if all loading is finished.
     */

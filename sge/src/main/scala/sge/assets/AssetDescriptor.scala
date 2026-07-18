@@ -20,6 +20,15 @@ import sge.files.FileHandle
 import lowlevel.Nullable
 
 /** Describes an asset to be loaded by its filename, type and AssetLoaderParameters. Instances of this are used in AssetLoadingTask to load the actual asset.
+  *
+  * The immutable value an [[AssetManager]] queues: the requested `fileName`, its runtime `type`, and optional loader `params`. Build one via the constructors or the typed companion `apply` helpers.
+  *
+  * @param params
+  *   optional loader parameters; [[lowlevel.Nullable]] empty means the loader's defaults are used.
+  * @param file
+  *   the resolved file; [[lowlevel.Nullable]] empty until the filename has been resolved.
+  * @note
+  *   LibGDX: com.badlogic.gdx.assets.AssetDescriptor
   * @author
   *   mzechner (original implementation)
   */

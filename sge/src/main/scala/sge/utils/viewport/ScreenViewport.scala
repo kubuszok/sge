@@ -32,6 +32,11 @@ import sge.graphics.Camera
 import sge.graphics.OrthographicCamera
 
 /** A viewport where the world size is based on the size of the screen. By default 1 world unit == 1 screen pixel, but this ratio can be {@link #setUnitsPerPixel(float) changed} .
+  *
+  * Common for UI/[[sge.scenes.scene2d.Stage]] rendering where pixel-exact layout is wanted; see [[Viewport]] for the resize/apply lifecycle and the shared [[sge.Sge]] context requirement.
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.utils.viewport.ScreenViewport
   * @author
   *   Daniel Holderbaum
   * @author

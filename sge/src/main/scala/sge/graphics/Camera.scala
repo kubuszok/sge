@@ -33,6 +33,15 @@ import sge.Sge
 import sge.WorldUnits
 
 /** Base class for OrthographicCamera and PerspectiveCamera.
+  *
+  * Holds the projection/view/[[combined]] matrices plus [[position]], [[direction]] and [[up]], and offers the screen<->world conversions ([[project]], [[unproject]], [[getPickRay]]). Mutate the
+  * attributes, then call [[update]] to recompute the matrices; feed [[combined]] to a [[sge.graphics.g2d.SpriteBatch]] or shader. Most games use the [[OrthographicCamera]] subclass for 2D, usually
+  * driven by a [[sge.utils.viewport.Viewport]].
+  *
+  * Requires an [[sge.Sge]] application context (`using Sge`); the screen-spanning [[project]] and [[unproject]] overloads read the current back-buffer size from it.
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.graphics.Camera
   * @author
   *   mzechner
   */

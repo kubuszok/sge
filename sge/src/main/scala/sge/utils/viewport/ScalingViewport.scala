@@ -40,6 +40,11 @@ import sge.utils.Scaling
   * remaining space. <p> {@link Scaling#fill} keeps the aspect ratio by scaling the world up to take the whole screen (some of the world may be off screen). <p> {@link Scaling#stretch} does not keep
   * the aspect ratio, the world is scaled to take the whole screen. <p> {@link Scaling#none} keeps the aspect ratio by using a fixed size world (the world may not fill the screen or some of the world
   * may be off screen).
+  *
+  * Requires an [[sge.Sge]] application context (`using Sge`). See [[Viewport]] for the resize/apply lifecycle.
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.utils.viewport.ScalingViewport
   * @author
   *   Daniel Holderbaum
   * @author

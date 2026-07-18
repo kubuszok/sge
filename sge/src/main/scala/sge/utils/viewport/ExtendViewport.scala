@@ -30,6 +30,11 @@ import sge.graphics.OrthographicCamera
 /** A viewport that keeps the world aspect ratio by both scaling and extending the world. By default, the world is first scaled to fit within the viewport using {@link Scaling#fit}, then the shorter
   * dimension is lengthened to fill the viewport. Other scaling, such as {@link Scaling#contain}, may lengthen the world in both directions. A maximum size can be specified to limit how much the world
   * is extended and black bars (letterboxing) are used for any remaining space.
+  *
+  * Useful when you want no letterboxing at the cost of a variable visible world area; see [[Viewport]] for the resize/apply lifecycle and the shared [[sge.Sge]] context requirement.
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.utils.viewport.ExtendViewport
   * @author
   *   Nathan Sweet
   */

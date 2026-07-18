@@ -33,6 +33,11 @@ import sge.graphics.Camera
 import sge.graphics.OrthographicCamera
 
 /** A ScalingViewport that uses {@link Scaling#fill} so it keeps the aspect ratio by scaling the world up to take the whole screen (some of the world may be off screen).
+  *
+  * See [[Viewport]] for the resize/apply lifecycle and the shared [[sge.Sge]] context requirement.
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.utils.viewport.FillViewport
   * @author
   *   Daniel Holderbaum
   * @author

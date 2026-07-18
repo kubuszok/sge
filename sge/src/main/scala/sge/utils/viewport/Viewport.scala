@@ -48,6 +48,25 @@ import sge.scenes.scene2d.utils.ScissorStack
 import sge.Sge
 
 /** Manages a {@link Camera} and determines how world coordinates are mapped to and from the screen.
+  *
+  * A viewport owns a [[sge.graphics.Camera]] and, whenever the window resizes, decides the screen rectangle (and any letterbox gutters) the world is drawn into. Call [[update]] from the app's resize
+  * hook, then [[apply]] before rendering to set the GL viewport and refresh the camera; the [[project]]/[[unproject]] helpers convert between screen and world coordinates using that rectangle.
+  * Concrete strategies live in the subclasses — [[FitViewport]], [[FillViewport]], [[StretchViewport]], [[ExtendViewport]], [[ScreenViewport]].
+  *
+  * {{{
+  * val viewport = FitViewport(WorldUnits(800f), WorldUnits(480f))
+  * // in resize(width, height):
+  * viewport.update(Pixels(width), Pixels(height), true)
+  * }}}
+  *
+  * Requires an [[sge.Sge]] application context (`using Sge`) to read the current back-buffer size and apply the GL viewport.
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.utils.viewport.Viewport
+  * @note
+  *   Platform (HDPI): [[apply]] routes through [[sge.graphics.glutils.HdpiUtils]], which converts logical coordinates to the window back-buffer size on HDPI displays. `HdpiUtils` is not aware of a
+  *   bound off-screen [[sge.graphics.glutils.FrameBuffer]]; when applying a viewport while rendering into an FBO, wrap the pass in `HdpiUtils.setMode(HdpiMode.Pixels)` so the conversion is bypassed —
+  *   faithful to upstream gdx (ISS-804).
   * @author
   *   Daniel Holderbaum
   * @author

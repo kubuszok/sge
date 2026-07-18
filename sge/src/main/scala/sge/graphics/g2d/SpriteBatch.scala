@@ -43,6 +43,24 @@ import scala.language.implicitConversions
 import java.nio.Buffer
 
 /** Draws batched quads using indices.
+  *
+  * The workhorse 2D renderer: it accumulates textured, tinted quads into one vertex buffer and flushes them in as few draw calls as possible. Bracket drawing between `begin()` and `end()`, set the
+  * projection to a camera's `combined` matrix, then issue [[draw]] calls. It is an [[java.lang.AutoCloseable]]; [[close]] releases the mesh and (if it owns one) the default shader.
+  *
+  * {{{
+  * val batch = SpriteBatch()
+  * batch.projectionMatrix = camera.combined
+  * // inside the render loop, between the engine's begin()/end():
+  * batch.draw(texture, 0f, 0f)
+  * }}}
+  *
+  * State changes ([[shader_=]], [[enableBlending]]/[[disableBlending]], [[setBlendFunction]]) flush the queued quads first, and short-circuit when the requested state already matches, so a redundant
+  * toggle costs nothing.
+  *
+  * Requires an [[sge.Sge]] application context (`using Sge`) for GL access and the initial screen-sized projection.
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.graphics.g2d.SpriteBatch
   * @see
   *   Batch
   * @author
@@ -977,6 +995,8 @@ class SpriteBatch(size: Int = 1000, defaultShader: Nullable[ShaderProgram] = Nul
     invTexHeight = 1.0f / texture.height.toFloat
   }
 
+  /** Sets the custom shader, or reverts to the built-in default shader when the argument is [[lowlevel.Nullable]] empty. If drawing, the batch is flushed first and the new program is bound.
+    */
   override def shader_=(shader: Nullable[ShaderProgram]): Unit =
     if (shader != customShader) { // avoid unnecessary flushing in case we are drawing
       if (drawing) {
