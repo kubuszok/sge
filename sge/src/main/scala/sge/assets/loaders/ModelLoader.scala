@@ -26,7 +26,7 @@ import lowlevel.Nullable
 import lowlevel.util.DynamicArray
 import sge.utils.SgeError
 
-abstract class ModelLoader[P <: ModelLoader.ModelParameters](resolver: FileHandleResolver)(using Sge) extends AsynchronousAssetLoader[Model, P](resolver) {
+abstract class ModelLoader[P <: ModelLoader.ModelParameters](resolver: Nullable[FileHandleResolver])(using Sge) extends AsynchronousAssetLoader[Model, P](resolver) {
 
   protected var items:             DynamicArray[(String, ModelData)] = DynamicArray[(String, ModelData)]()
   protected var defaultParameters: ModelLoader.ModelParameters       = ModelLoader.ModelParameters()

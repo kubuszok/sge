@@ -13,7 +13,7 @@
  * - MtlLoader.ObjMaterial: null Color field (ambientColor) -> Nullable[Color]
  * - loadModelData returns Nullable[ModelData] (no null; boundary/break for early returns)
  * - Java FloatArray -> DynamicArray[Float]; Java Array<Integer> -> DynamicArray[Int]
- * - No-arg constructor passes null to resolver (Java interop boundary); needs review
+ * - No-arg constructor passes Nullable.empty resolver up the Nullable[FileHandleResolver] ctor chain (ISS-847; no orNull, no null)
  * - Java Gdx.app.error -> Sge().application.error
  * - (using Sge) context parameter on class constructor
  * - Face parsing loop (ObjLoader.java:148-168): Java's `for (int i = 1;
@@ -72,11 +72,10 @@ import lowlevel.util.DynamicArray
   * @author
   *   mzechner, espitz, xoppa
   */
-class ObjLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoader[ObjLoader.ObjLoaderParameters](resolver) {
+class ObjLoader(resolver: Nullable[FileHandleResolver])(using Sge) extends ModelLoader[ObjLoader.ObjLoaderParameters](resolver) {
 
-  @scala.annotation.nowarn("msg=deprecated") // Java interop: ModelLoader base class accepts null resolver
   def this()(using Sge) =
-    this(Nullable.empty[FileHandleResolver].orNull)
+    this(Nullable.empty[FileHandleResolver])
 
   private val verts:  DynamicArray[Float]           = DynamicArray[Float](300)
   private val norms:  DynamicArray[Float]           = DynamicArray[Float](300)

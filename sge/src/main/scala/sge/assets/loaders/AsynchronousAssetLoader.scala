@@ -15,6 +15,7 @@ package assets
 package loaders
 
 import sge.files.FileHandle
+import lowlevel.Nullable
 
 /** Base class for asynchronous {@link AssetLoader} instances. Such loaders try to load parts of an OpenGL resource, like the Pixmap, on a separate thread to then load the actual resource on the
   * thread the OpenGL context is active on.
@@ -24,7 +25,7 @@ import sge.files.FileHandle
   * @param <T>
   * @param <P>
   */
-abstract class AsynchronousAssetLoader[T, P <: AssetLoaderParameters[T]](resolver: FileHandleResolver) extends AssetLoader[T, P](resolver) {
+abstract class AsynchronousAssetLoader[T, P <: AssetLoaderParameters[T]](resolver: Nullable[FileHandleResolver]) extends AssetLoader[T, P](resolver) {
 
   /** Loads the non-OpenGL part of the asset and injects any dependencies of the asset into the AssetManager.
     * @param manager

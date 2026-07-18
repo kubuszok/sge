@@ -17,6 +17,7 @@ package loaders
 
 import sge.files.FileHandle
 import sge.assets.AssetLoaderParameters
+import lowlevel.Nullable
 import lowlevel.util.DynamicArray
 
 /** Abstract base class for asset loaders.
@@ -28,7 +29,7 @@ import lowlevel.util.DynamicArray
   * @tparam P
   *   the class of the loading parameters the loader supports.
   */
-abstract class AssetLoader[T, P <: AssetLoaderParameters[T]](private val resolver: FileHandleResolver) {
+abstract class AssetLoader[T, P <: AssetLoaderParameters[T]](private val resolver: Nullable[FileHandleResolver]) {
 
   /** @param fileName
     *   file name to resolve
@@ -36,7 +37,7 @@ abstract class AssetLoader[T, P <: AssetLoaderParameters[T]](private val resolve
     *   handle to the file, as resolved by the FileHandleResolver set on the loader
     */
   def resolve(fileName: String): FileHandle =
-    resolver.resolve(fileName)
+    resolver.get.resolve(fileName)
 
   /** Returns the assets this asset requires to be loaded first. This method may be called on a thread other than the GL thread.
     * @param fileName
