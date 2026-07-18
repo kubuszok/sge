@@ -25,6 +25,11 @@ class DemoSmokeTest extends FunSuite {
   override val munitTimeout: scala.concurrent.duration.Duration =
     scala.concurrent.duration.Duration(120, "s")
 
+  /** RAF frame budget the frame-count probe drives (ISS-726 c1): a live requestAnimationFrame loop resolves at EXACTLY this count; a stalled loop never resolves and munit times out. Not a rot-prone
+    * floor.
+    */
+  private val TargetFrameCount: Int = 60
+
   /** Locate the fastLinkJS output directory for a demo module by walking the demo's target tree for the `main.js` the linker emits — the cross-version path segment (`js-3` vs `scala-3.x`) and the
     * `<artifact>-fastopt` dir name vary by toolchain.
     */
@@ -171,8 +176,11 @@ class DemoSmokeTest extends FunSuite {
     val servedDir = jsDir.getOrElse(findDemoJsDir(demoName, artifactName))
     // Only synthesize a canvas harness when the served directory has no index.html
     // (the raw fastLinkJS output). The packaged sgePackageBrowser output already
-    // ships its own generated index.html, which we serve unchanged.
-    if (!Files.exists(servedDir.resolve("index.html"))) createTestHtml(servedDir)
+    // ships its own generated index.html, which we serve unchanged. The synthetic
+    // harness is also the ONLY page that patches preserveDrawingBuffer=true, so a
+    // toDataURL pixel read is meaningful only for it (see the render check below).
+    val patchedHarness = !Files.exists(servedDir.resolve("index.html"))
+    if (patchedHarness) createTestHtml(servedDir)
     val (server, port) = startServer(servedDir)
 
     try {
@@ -184,13 +192,13 @@ class DemoSmokeTest extends FunSuite {
       val errors = mutable.ArrayBuffer.empty[String]
 
       page.onConsoleMessage(msg =>
-        if (msg.`type`() == "error") {
-          val text = msg.text()
-          // BrowserApplication fetches assets.txt at startup and gracefully handles
-          // the 404 when no manifest exists — the browser still logs it as console.error.
-          if (!text.contains("404") || !text.contains("Failed to load resource"))
-            errors += s"console.error: $text"
-        }
+        // ISS-726 c2: only KNOWN-benign resource 404s (favicon) are excused; any
+        // other console.error — including a missing embedded/packaged asset — is a
+        // real failure. Surfacing asset regressions is precisely this suite's job
+        // (the AssetShowcase run below loads real base64-embedded assets), so the
+        // old blanket "ignore every 404" filter is replaced by BrowserConsole.
+        if (msg.`type`() == "error" && !BrowserConsole.isBenignError(msg))
+          errors += s"console.error: ${msg.text()} @ ${msg.location()}"
       )
       page.onPageError(err => errors += s"page error: $err")
 
@@ -204,17 +212,40 @@ class DemoSmokeTest extends FunSuite {
         s"$demoName encountered ${errors.size} error(s):\n${errors.mkString("\n")}"
       )
 
-      // Check that canvas rendered non-blank content
+      // Check SGE's canvas (ISS-726 c1). Read the LAST <canvas> — the one
+      // BrowserApplication appends (demo BrowserLaunchers leave canvasId unset),
+      // and the same canvas the pixel-golden below reads — not
+      // document.querySelector('canvas') (the FIRST canvas, i.e. the blank harness
+      // placeholder that SGE never draws to).
+      //
+      // A toDataURL non-blank read is only meaningful with preserveDrawingBuffer,
+      // which ONLY the synthetic harness patches (production defaults to false —
+      // BrowserApplicationConfig.preserveDrawingBuffer=false — so a packaged page
+      // reads a cleared/blank buffer no matter what rendered). So:
+      //   - synthetic harness (procedural demos): compare the rendered PNG against
+      //     a same-dimension blank baseline computed at runtime — no magic
+      //     `length > 300` floor (a blank canvas already exceeds 300 chars, so
+      //     that old floor validated nothing);
+      //   - packaged output (AssetShowcase): assert only that SGE created a
+      //     non-zero-size canvas. Its real rendering/asset canary is the narrowed
+      //     zero-console-errors check above (a missing embedded asset now fails,
+      //     ISS-726 c2) plus the live-RAF frame count below.
       val renderResult = page
         .evaluate(
-          """(() => {
-            |  const canvas = document.querySelector('canvas');
-            |  if (!canvas) return 'no_canvas';
-            |  const dataUrl = canvas.toDataURL('image/png');
-            |  if (!dataUrl || dataUrl === 'data:,') return 'empty';
-            |  if (dataUrl.length < 300) return 'likely_blank:' + dataUrl.length;
-            |  return 'ok:' + dataUrl.length;
-            |})()""".stripMargin
+          s"""(() => {
+             |  const cs = document.querySelectorAll('canvas');
+             |  if (cs.length === 0) return 'no_canvas';
+             |  const canvas = cs[cs.length - 1];
+             |  if (!canvas.width || !canvas.height) return 'zero_size:' + canvas.width + 'x' + canvas.height;
+             |  if (!$patchedHarness) return 'ok:packaged:' + canvas.width + 'x' + canvas.height;
+             |  const dataUrl = canvas.toDataURL('image/png');
+             |  if (!dataUrl || dataUrl === 'data:,') return 'empty';
+             |  const blank = document.createElement('canvas');
+             |  blank.width = canvas.width; blank.height = canvas.height;
+             |  const blankLen = blank.toDataURL('image/png').length;
+             |  if (dataUrl.length <= blankLen) return 'likely_blank:' + dataUrl.length + '<=' + blankLen;
+             |  return 'ok:' + dataUrl.length + '>' + blankLen;
+             |})()""".stripMargin
         )
         .toString
 
@@ -223,26 +254,35 @@ class DemoSmokeTest extends FunSuite {
         s"$demoName canvas appears blank: $renderResult"
       )
 
-      // Count rendered frames via requestAnimationFrame
+      // Count rendered frames via requestAnimationFrame (ISS-726 c1). The loop
+      // resolves with `count` the first tick it reaches TargetFrameCount, so a
+      // live RAF loop returns EXACTLY that value and a stalled one never resolves
+      // (munit times out) — an exact-equality assertion is therefore correct and
+      // there is no rot-prone `>=` floor. The constant is the RAF frame budget the
+      // loop is written against; bump both together if the budget changes.
       val frameCount = page
         .evaluate(
-          """(() => {
-            |  return new Promise(resolve => {
-            |    let count = 0;
-            |    function tick() {
-            |      count++;
-            |      if (count >= 60) resolve(count);
-            |      else requestAnimationFrame(tick);
-            |    }
-            |    requestAnimationFrame(tick);
-            |  });
-            |})()""".stripMargin
+          s"""(() => {
+             |  return new Promise(resolve => {
+             |    let count = 0;
+             |    function tick() {
+             |      count++;
+             |      if (count >= $TargetFrameCount) resolve(count);
+             |      else requestAnimationFrame(tick);
+             |    }
+             |    requestAnimationFrame(tick);
+             |  });
+             |})()""".stripMargin
         )
         .toString
         .toDouble
         .toInt
 
-      assert(frameCount >= 60, s"$demoName only rendered $frameCount frames (expected >=60)")
+      assertEquals(
+        frameCount,
+        TargetFrameCount,
+        s"$demoName RAF loop yielded $frameCount frames (expected exactly $TargetFrameCount — a live loop resolves at the budget, a stalled one times out)"
+      )
 
       // ── Pixel-level golden readback (ISS-563) ──────────────────────────
       // Beyond the non-blank heuristic above, prove an EXACT pixel value. We
