@@ -26,6 +26,18 @@ package scene2d
 package utils
 
 /** Listener for {@link ChangeEvent}.
+  *
+  * Override [[changed]] to react when a widget reports a value change — a button pressed, a checkbox toggled, a slider moved. The widget fires a [[ChangeListener.ChangeEvent]] on itself, so the
+  * event's target is the widget that changed. Add it to the widget with [[Actor.addListener]].
+  *
+  * {{{
+  * button.addListener(new ChangeListener {
+  *   override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = onPressed()
+  * })
+  * }}}
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
   * @author
   *   Nathan Sweet
   */

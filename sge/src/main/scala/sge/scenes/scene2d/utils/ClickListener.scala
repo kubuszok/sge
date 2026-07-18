@@ -39,6 +39,16 @@ import sge.utils.{ Millis, Nanos, TimeUtils }
   * {@link #setTapSquareSize(float) tap square}. This behavior makes it easier to press buttons on a touch interface when the initial touch happens near the edge of the actor. Double clicks can be
   * detected using {@link #getTapCount()}. Any touch (not just the first) will trigger this listener. While pressed, other touch downs are ignored.
   *
+  * Override [[clicked]] to react to a completed click (a touch-down followed by a touch-up over the actor or within the tap square); read [[tapCount]] inside `clicked` to detect double-clicks.
+  *
+  * {{{
+  * actor.addListener(new ClickListener {
+  *   override def clicked(event: InputEvent, x: Float, y: Float): Unit = fireWeapon()
+  * })
+  * }}}
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.scenes.scene2d.utils.ClickListener
   * @note
   *   SGE widgets such as [[sge.scenes.scene2d.ui.Button]] install a `ClickListener` on themselves automatically; you normally add one directly only for custom actors.
   * @author

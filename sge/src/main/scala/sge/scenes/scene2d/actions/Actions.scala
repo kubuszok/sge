@@ -38,6 +38,18 @@ import lowlevel.Nullable
 import sge.utils.{ Pool, PoolManager, Seconds, SgeError }
 
 /** Static convenience methods for using pooled actions, intended for import.
+  *
+  * Import the members (`import sge.scenes.scene2d.actions.Actions.*`) and compose factory calls, then hand the result to an actor with [[sge.scenes.scene2d.Actor.addAction]]. Every factory obtains a
+  * pooled [[Action]] that is freed automatically when it finishes.
+  *
+  * {{{
+  * import sge.scenes.scene2d.actions.Actions.*
+  * import sge.utils.Seconds
+  * actor.addAction(sequence(fadeOut(Seconds(0.5f)), removeActor()))
+  * }}}
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.scenes.scene2d.actions.Actions
   * @author
   *   Nathan Sweet
   */

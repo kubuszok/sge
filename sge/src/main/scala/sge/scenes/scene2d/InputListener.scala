@@ -37,6 +37,19 @@ import sge.math.Vector2
   *
   * public void touchUp (InputEvent event, float x, float y, int pointer, int button) { Gdx.app.log(&quot;Example&quot;, &quot;touch done at (&quot; + x + &quot;, &quot; + y + &quot;)&quot;); } });
   * </pre>
+  *
+  * Add one to an actor with [[Actor.addListener]] and override only the callbacks you need. The Boolean-returning callbacks ([[touchDown]], [[mouseMoved]], [[scrolled]], [[keyDown]], [[keyUp]],
+  * [[keyTyped]]) return true to consume the event (marking it [[Event.handle handled]]); returning true from [[touchDown]] also grants touch focus, so [[touchDragged]] and [[touchUp]] keep arriving
+  * until the touch is released.
+  *
+  * {{{
+  * actor.addListener(new InputListener {
+  *   override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Button): Boolean = true
+  * })
+  * }}}
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.scenes.scene2d.InputListener
   */
 class InputListener extends EventListener {
 

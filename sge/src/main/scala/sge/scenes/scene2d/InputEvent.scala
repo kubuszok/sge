@@ -31,6 +31,12 @@ import lowlevel.Nullable
 import sge.math.Vector2
 
 /** Event for actor input: touch, mouse, touch/mouse actor enter/exit, mouse scroll, and keyboard events.
+  *
+  * The concrete [[Event]] the [[Stage]] fires for raw input; its [[eventType]] selects which [[InputListener]] callback runs. Coordinates ([[stageX]], [[stageY]]) are in stage space — call
+  * [[toCoordinates]] to convert them to an actor's local space.
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.scenes.scene2d.InputEvent
   * @see
   *   InputListener
   */
@@ -69,7 +75,8 @@ class InputEvent extends Event {
   /** The character for the key that was typed. Valid for: keyTyped. */
   var character: Char = 0
 
-  /** The actor related to the event. Valid for: enter and exit. For enter, this is the actor being exited, or null. For exit, this is the actor being entered, or null.
+  /** The actor related to the event. Valid for: enter and exit. For enter, this is the actor being exited, or null. For exit, this is the actor being entered, or null. Empty when there is no such
+    * neighbouring actor (and always empty for the other event types).
     */
   var relatedActor: Nullable[Actor] = Nullable.empty
 

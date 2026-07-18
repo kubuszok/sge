@@ -26,6 +26,13 @@ package scenes
 package scene2d
 
 /** Low level interface for receiving events. Typically there is a listener class for each specific event class.
+  *
+  * The root listener interface: attach a concrete subtype to an actor with [[Actor.addListener]] (or [[Actor.addCaptureListener]] for the capture phase) — [[InputListener]] for raw touch/mouse/key
+  * events, [[sge.scenes.scene2d.utils.ClickListener]] for clicks, or [[sge.scenes.scene2d.utils.ChangeListener]] for widget value changes. Returning true from [[handle]] marks the event
+  * [[Event.handle handled]], so the owning [[Stage]] consumes the input.
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.scenes.scene2d.EventListener
   * @see
   *   InputListener
   * @see

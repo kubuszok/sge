@@ -34,6 +34,12 @@ import sge.utils.Pool
   * {@link Actor#fire(Event)} will mark events handled if an {@link EventListener} returns true. <p> A cancelled event will be stopped and handled. Additionally, many actors will undo the side-effects
   * of a canceled event. (See {@link #cancel()}.)
   *
+  * An actor fires an event with [[Actor.fire]]; the [[Stage]] then delivers it in two phases — a downward "capture" phase from the root down to the target actor, then an upward "bubble" phase back to
+  * the root (only while [[bubbles]] is true). Any listener may [[stop]] propagation, [[handle]] the event so the stage consumes the input, or [[cancel]] it (which both handles and stops). Concrete
+  * payload lives in subtypes such as [[InputEvent]] and [[sge.scenes.scene2d.utils.ChangeListener.ChangeEvent]].
+  *
+  * @note
+  *   LibGDX: com.badlogic.gdx.scenes.scene2d.Event
   * @see
   *   InputEvent
   * @see
