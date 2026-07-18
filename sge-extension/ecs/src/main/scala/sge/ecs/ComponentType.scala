@@ -30,6 +30,8 @@ import scala.collection.mutable
   *
   * ComponentTypes cannot be instantiated directly. They can only be accessed via [[ComponentType.getFor]]. Each component class will always return the same instance of ComponentType.
   *
+  * @note
+  *   Ashley: `com.badlogic.ashley.core.ComponentType` — package relocated to `sge.ecs`.
   * @author
   *   Stefan Bachmann (original implementation)
   */

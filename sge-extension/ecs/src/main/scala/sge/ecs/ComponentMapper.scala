@@ -27,8 +27,12 @@ import lowlevel.Nullable
 
 /** Provides super fast [[Component]] retrieval from [[Entity]] objects.
   *
+  * Build one per component type via [[ComponentMapper.getFor]], then call [[get]] / [[has]] against entities for O(1) access (preferred over [[Entity.getComponent]]).
+  *
   * @tparam A
   *   the class type of the [[Component]].
+  * @note
+  *   Ashley: `com.badlogic.ashley.core.ComponentMapper` — package relocated to `sge.ecs`.
   * @author
   *   David Saltares (original implementation)
   */

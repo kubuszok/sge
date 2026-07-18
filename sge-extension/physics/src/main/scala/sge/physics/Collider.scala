@@ -22,6 +22,9 @@ package physics
   *
   * Colliders define the shape, density, friction, and restitution of a body's collision geometry. A body can have multiple colliders. Colliders are created via [[RigidBody.attachCollider]] and
   * destroyed via [[PhysicsWorld.destroyCollider]].
+  *
+  * @note
+  *   Origin: SGE-original API (no LibGDX equivalent), backed by a Rapier2D collider.
   */
 class Collider private[physics] (
   private[physics] val world:  PhysicsWorld,

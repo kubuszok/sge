@@ -38,6 +38,11 @@ import sge.utils.Pool
   *   - Create components using [[createComponent]]
   *   - Components should implement [[Pool.Poolable]] when in need to reset their state upon removal
   *
+  * Use it in place of [[Engine]] when entities/components churn frequently. Component types must have a factory registered via [[Engine.registerComponentFactory]] (the pooled path has no reflective
+  * fallback — see [[createComponent]]).
+  *
+  * @note
+  *   Ashley: `com.badlogic.ashley.core.PooledEngine` — package relocated to `sge.ecs`.
   * @author
   *   David Saltares (original implementation)
   */
@@ -60,6 +65,9 @@ class PooledEngine(
 
   /** Retrieves a new [[Component]] from the [[Engine]] pool. It will be placed back in the pool whenever it's removed from an [[Entity]] or the [[Entity]] itself is removed. Overrides the default
     * implementation of Engine (creating a new Object).
+    *
+    * Unlike the base [[Engine.createComponent]], the pooled path has no reflective fallback on any platform: the pool builds instances from a factory. A component type with no factory registered via
+    * [[Engine.registerComponentFactory]] throws `IllegalArgumentException` on first use, rather than resolving to the empty value.
     */
   override def createComponent[T <: Component](componentType: Class[T]): Nullable[T] =
     Nullable(componentPools.obtain(componentType))

@@ -35,6 +35,10 @@ import lowlevel.Nullable
 
 /** Simple containers of [[Component]]s that give them "data". The component's data is then processed by [[EntitySystem]]s.
   *
+  * Obtain one from [[Engine.createEntity]] (or [[PooledEngine.createEntity]] for a pooled instance), populate it with [[add]], then register it via [[Engine.addEntity]].
+  *
+  * @note
+  *   Ashley: `com.badlogic.ashley.core.Entity` — package relocated to `sge.ecs`.
   * @author
   *   Stefan Bachmann (original implementation)
   */

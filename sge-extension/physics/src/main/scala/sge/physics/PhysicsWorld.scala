@@ -27,6 +27,11 @@ import lowlevel.Nullable
   *
   * The world must be [[close]]d when no longer needed to free native resources.
   *
+  * @note
+  *   Origin: SGE-original API (there is no LibGDX equivalent), implemented over the Rapier2D physics engine.
+  * @note
+  *   Platform: on Scala.js the Rapier2D backend is a WebAssembly module that loads asynchronously. Await `sge.platform.PhysicsExtension.load()` (which runs `RAPIER.init()`) before constructing a
+  *   `PhysicsWorld` or any physics call throws `IllegalStateException` (ISS-676). On JVM and Native the native library loads eagerly, so no explicit step is required.
   * @param gravityX
   *   horizontal gravity component (default 0)
   * @param gravityY

@@ -28,6 +28,10 @@ import lowlevel.Nullable
 
 /** Abstract class for processing sets of [[Entity]] objects.
   *
+  * Subclass it, override [[update]] (and optionally [[addedToEngine]] / [[removedFromEngine]]), then register the instance with [[Engine.addSystem]]; the engine calls [[update]] each tick.
+  *
+  * @note
+  *   Ashley: `com.badlogic.ashley.core.EntitySystem` — package relocated to `sge.ecs`.
   * @author
   *   Stefan Bachmann (original implementation)
   */

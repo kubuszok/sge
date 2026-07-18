@@ -21,7 +21,22 @@ import lowlevel.Nullable
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-/** Main API. AABB collision world. Generic over item type E. */
+/** Main API for jbump: an axis-aligned bounding-box (AABB) collision world, generic over the user item type `E`.
+  *
+  * Create a `World[E]()`, register each moving object as an [[Item]] rectangle with [[add]], then drive it with [[move]] / [[check]] (swept collision + response) or reposition it directly with
+  * [[update]]. Spatial queries — [[queryRect]], [[queryPoint]], [[querySegment]], [[queryRay]] and their `WithCoords` variants — report overlapping items. `cellSize` sets the spatial-hash granularity
+  * (default 64).
+  *
+  * Items are tracked by identity: [[Item]] uses reference equality (`this eq other`), so two distinct `Item` instances never collapse in the world's maps even if their user data is equal.
+  *
+  * Queries and swept collision are directed by a [[CollisionFilter]], whose `filter(item, other)` returns the [[Response]] to apply or empty to ignore the pair. In swept collision ([[project]] /
+  * [[check]] / [[move]]) the first param is the item being moved — a `Nullable[Item[?]]` that is empty when [[project]] is called without an originating item — and `other` is the candidate it may
+  * hit. The spatial queries instead invoke the filter with the candidate item as the first param and [[Nullable.Null]] as `other`. ISS-595 made that first param a genuine Nullable so the
+  * possibly-absent moved item flows through with no `getOrElse(null)` laundering.
+  *
+  * @note
+  *   jbump: `com.dongbat.jbump.World`.
+  */
 class World[E](val cellSize: Float = 64f) {
 
   private val cellMap       = mutable.HashMap.empty[Point, Cell]

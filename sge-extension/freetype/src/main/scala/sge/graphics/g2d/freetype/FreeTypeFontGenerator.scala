@@ -54,6 +54,15 @@ import sge.utils.SgeError
   *
   * The generator has to be closed once it is no longer used. The returned {@link BitmapFont} instances are managed by the user and have to be closed as usual.
   *
+  * Lifetime: the generator keeps the loaded font bytes alive for its whole lifetime. The underlying FreeType [[FreeType.Face]] reads glyph tables lazily from that in-memory data, so the data must
+  * stay pinned until generation is finished — this matters especially while incremental glyph generation is active (`FreeTypeFontParameter.incremental`), where new glyphs are rasterised on demand
+  * long after [[generateFont]] returns. [[close]] frees the native face and library; do not close a generator that is still backing an incremental font.
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator` (the gdx-freetype extension).
+  * @note
+  *   Platform: FreeType per-glyph vertical layout metrics (vertical bearing / vertical advance) are absent from the current native provider marshalling (ISS-828). This generator consumes only
+  *   horizontal-layout metrics, which are fully supported on every platform, so its output is unaffected.
   * @author
   *   mzechner
   * @author
@@ -631,7 +640,9 @@ class FreeTypeFontGenerator(fontFile: FileHandle, faceIndex: Int)(using Sge) ext
 
   override def toString: String = name
 
-  /** Cleans up all resources of the generator. Call this if you no longer use the generator. */
+  /** Cleans up all resources of the generator. Call this once you no longer use the generator: it frees the native FreeType face and library. Do not call it while an incrementally-generated font is
+    * still in use — that font reads glyphs lazily through this generator's face (see the lifetime note on the class).
+    */
   override def close(): Unit = {
     face.close()
     library.close()

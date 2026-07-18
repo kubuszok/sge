@@ -21,6 +21,9 @@ package physics
 /** A handle to a rigid body in the physics world.
   *
   * Provides access to position, velocity, forces, and collider attachment. Bodies are created via [[PhysicsWorld.createBody]] and destroyed via [[PhysicsWorld.destroyBody]].
+  *
+  * @note
+  *   Origin: SGE-original API (no LibGDX equivalent), backed by a Rapier2D rigid body.
   */
 class RigidBody private[physics] (
   private[physics] val world:  PhysicsWorld,

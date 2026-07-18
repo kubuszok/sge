@@ -24,6 +24,10 @@ package ecs
 
 /** Marker trait for all components. Components are data holders processed by [[EntitySystem]]s.
   *
+  * Implement it on your own data classes, attach them to an [[Entity]] with [[Entity.add]], and read them back via a [[ComponentMapper]].
+  *
+  * @note
+  *   Ashley: `com.badlogic.ashley.core.Component` — package relocated to `sge.ecs`.
   * @author
   *   Stefan Bachmann (original implementation)
   */

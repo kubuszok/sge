@@ -41,6 +41,10 @@ import lowlevel.Nullable
   *   - Update the main loop
   *   - Register/unregister [[EntityListener]] objects
   *
+  * Construct one directly (`new Engine()`); it needs no application context. For entity/component pooling use the [[PooledEngine]] subclass.
+  *
+  * @note
+  *   Ashley: `com.badlogic.ashley.core.Engine` — package relocated to `sge.ecs`.
   * @author
   *   Stefan Bachmann (original implementation)
   */
