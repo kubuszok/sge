@@ -313,7 +313,19 @@ class SmokeListener()(using sge: Sge) extends ApplicationListener {
       val clipboard = sge.application.clipboard
       val testText  = s"sge-it-${System.nanoTime()}"
       clipboard.contents = Nullable(testText)
-      val readBack = clipboard.contents
+      // AndroidClipboardImpl.setContents routes through ClipboardManager.setPrimaryClip,
+      // an async IPC to the system clipboard service. The matching getPrimaryClip can
+      // momentarily observe the pre-set/empty clip before propagation completes on the
+      // windowless swiftshader CI emulator, so an immediate read-after-write is racy.
+      // Poll the readback with a short bounded wait so the check reflects the eventual
+      // (correct) clipboard state rather than the async-propagation gap (ISS-868).
+      var readBack: Nullable[String] = clipboard.contents
+      var waited:   Int              = 0
+      while (!(readBack.isDefined && readBack.get == testText) && waited < 1000) {
+        Thread.sleep(50)
+        waited += 50
+        readBack = clipboard.contents
+      }
       if (readBack.isDefined && readBack.get == testText) {
         logCheck("CLIPBOARD", passed = true, "Clipboard write/read OK")
       } else {
