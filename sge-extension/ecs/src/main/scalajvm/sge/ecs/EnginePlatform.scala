@@ -15,19 +15,27 @@
 package sge
 package ecs
 
-import scala.util.control.NonFatal
+import java.lang.reflect.InvocationTargetException
 
 import lowlevel.Nullable
 
 /** JVM reflective fallback for [[Engine.createComponent]] on component types without a registered factory.
   *
   * Faithful to Ashley's base Engine.createComponent (com/badlogic/ashley/core/Engine.java:67-73), which calls `ClassReflection.newInstance(componentType)` and returns `null` only when reflection
-  * actually fails (`catch (ReflectionException e) { return null; }`). Here the component is instantiated via its visible no-arg constructor, and any reflection failure yields the
-  * empty/null-equivalent.
+  * actually fails (`catch (ReflectionException e) { return null; }`). Here the component is instantiated via its visible no-arg constructor.
+  *
+  * Exception net is narrowed to strict parity with gdx `ClassReflection.newInstance` (gdx-utils reflect/ClassReflection.java:91-99), which wraps EXACTLY `InstantiationException`,
+  * `IllegalAccessException`, and (via `getConstructor`) `NoSuchMethodException` into `ReflectionException` — Engine.java:70-72 then maps that to `null`, our empty/null-equivalent. A constructor that
+  * throws surfaces as `InvocationTargetException`; ashley's underlying `Class.newInstance` propagates the constructor-thrown exception unwrapped, so we rethrow its cause rather than swallow it.
   */
 private[ecs] object EnginePlatform {
 
   def createComponentReflectively[T <: Component](componentType: Class[T]): Nullable[T] =
     try Nullable(componentType.getConstructor().newInstance())
-    catch { case NonFatal(_) => Nullable.empty[T] } // Engine.java:70-72 — catch ReflectionException -> null
+    catch {
+      // gdx ClassReflection.java:91-99 wraps exactly these three -> ReflectionException -> Engine.java:70-72 catch -> null
+      case _: NoSuchMethodException | _: InstantiationException | _: IllegalAccessException => Nullable.empty[T]
+      // ashley Class.newInstance propagates a constructor's own exception unwrapped; do not swallow it
+      case e: InvocationTargetException => throw e.getCause
+    }
 }

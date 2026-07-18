@@ -292,4 +292,20 @@ class PooledEngineSuite extends munit.FunSuite {
     // The removed component should be reused as one of these, but both should be distinct
     assert(!(newComponent1 eq newComponent2))
   }
+
+  test("createComponent throws IllegalArgumentException for an unregistered component type (ISS-723 c12)") {
+    // A bare PooledEngine has no registered factories, so it cannot build a pool for the type. Its
+    // createComponent MUST fail loudly (PooledEngine createPool None-branch) rather than silently
+    // fall back to reflection/empty — the pooled contract diverges from the base Engine here, and
+    // the message must guide the caller to register a factory. Cross-platform: the throw predates
+    // any reflection, so it holds on JVM/JS/Native alike.
+    val engine = new PooledEngine()
+    val ex     = intercept[IllegalArgumentException] {
+      engine.createComponent(classOf[PooledComponentA])
+    }
+    assert(
+      ex.getMessage.contains("registerComponentFactory"),
+      "expected the message to guide factory registration, got: " + ex.getMessage
+    )
+  }
 }
