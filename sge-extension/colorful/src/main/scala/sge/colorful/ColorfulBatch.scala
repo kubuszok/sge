@@ -12,10 +12,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 14
+ * Covenant-baseline-loc: 26
  * Covenant-baseline-methods: ColorfulBatchLike
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-07-18
  */
 package sge
 package colorful

@@ -17,10 +17,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 146
- * Covenant-baseline-methods: ComponentPools,EntityPool,PooledEngine,PooledEntity,clear,clearPools,componentFactories,componentPools,createComponent,createEntity,createPool,discard,entityPool,free,initialCapacity,max,newObject,obtain,pools,registerComponentFactory,removeEntityInternal,removeInternal,reset
+ * Covenant-baseline-loc: 152
+ * Covenant-baseline-methods: ComponentPools,EntityPool,PooledEngine,PooledEntity,clear,clearPools,componentPools,createComponent,createEntity,createPool,discard,entityPool,free,initialCapacity,max,newObject,obtain,pools,removeEntityInternal,removeInternal,reset
  * Covenant-source-reference: com/badlogic/ashley/core/PooledEngine.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-07-18
  *
  * upstream-commit: d63d542228cd8c62cc2f7adf20055b0ac59a547e
  */

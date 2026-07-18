@@ -31,10 +31,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 523
+ * Covenant-baseline-loc: 522
  * Covenant-baseline-methods: Group,MtlLoader,ObjLoader,ObjLoaderParameters,ObjMaterial,activeGroup,addTexture,build,data,faces,firstChar,g,getIndex,getMaterial,group,groups,hasNorms,hasUVs,i,id,line,load,loadModel,loadModelData,logWarning,mat,materialName,materials,mtl,norms,numFaces,numGroups,parseColor,reader,reset,setActiveGroup,this,tokens,uvs,verts
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/loader/ObjLoader.java
- * Covenant-verified: 2026-06-11
+ * Covenant-verified: 2026-07-18
  *
  * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */

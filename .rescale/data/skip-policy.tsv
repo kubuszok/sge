@@ -33,7 +33,6 @@ sge-extension/ecs/src/main/scala/sge/ecs/EntityManager.scala	shortcuts	ECS defer
 sge-extension/ecs/src/main/scala/sge/ecs/ComponentOperationHandler.scala	shortcuts	ECS deferred-operation queue: 'deferred' is the queue concept being implemented, not a TODO	2026-04-08	dev
 sge-extension/ecs/src/main/scala/sge/ecs/FamilyManager.scala	shortcuts	ECS deferred listener registration via bitmask tracking — 'deferred' describes the design	2026-04-08	dev
 sge-extension/ecs/src/main/scala/sge/ecs/Engine.scala	shortcuts	Throws if pooled entity is reused after free; null-cast for cleanup-on-removal handler	2026-04-08	dev
-sge-extension/ecs/src/test/scala/sge/ecs/EngineSuite.scala	shortcuts	Test asserts UnsupportedOperationException is raised + verifies deferred add semantics	2026-04-08	dev
 sge-extension/jbump/src/main/scala/sge/jbump/World.scala	shortcuts	filter() Java interop: getOrElse(null.asInstanceOf[Item[?]])	2026-04-08	dev
 sge-extension/tools/src/main/scala/sge/tools/texturepacker/MaxRectsPacker.scala	shortcuts	'minimal page size' is the algorithm goal, not a TODO	2026-04-08	dev
 sge-extension/anim8/src/test/scala/sge/anim8/ChunkBufferSuite.scala	shortcuts	Test fixture catch-Throwable for negative test case	2026-04-08	dev
@@ -106,10 +105,8 @@ sge/src/main/scala/sge/graphics/g3d/model/Node.scala	shortcuts	FIXME comment pre
 sge/src/main/scala/sge/graphics/g3d/particles/ParallelArray.scala	shortcuts	FIXME comment preserved from original LibGDX source (ParallelArray.java)	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/model/NodeAnimation.scala	shortcuts	for-now comment preserved from original LibGDX source (NodeAnimation.java)	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/decals/Decal.scala	shortcuts	TODO comment preserved from original LibGDX source (Decal.java)	2026-04-19	dev
-sge-extension/ecs/src/main/scala/sge/ecs/Engine.scala	shortcuts	UnsupportedOperationException in createComponent is intentional: original uses ReflectionPool which is not available; callers should use new directly or PooledEngine	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/particles/ParticleEffectCodecs.scala	shortcuts	SGE-original: UnsupportedOperationException for unknown type dispatch in JSON codecs + for-now comment	2026-04-19	dev
 sge-extension/textra/src/main/scala/sge/textra/TypingLabel.scala	shortcuts	Catch clause for UnsupportedOperationException from external drawable.draw() - not a stub	2026-04-19	dev
-sge-extension/ecs/src/main/scala/sge/ecs/Engine.scala	verify	UnsupportedOperationException in createComponent is intentional: original uses ReflectionPool; callers should use new or PooledEngine	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g2d/TextureAtlas.scala	shortcuts	not-yet-comment at line 503: 'not yet loaded' describes texture lifecycle state from original TextureAtlas.java Javadoc	2026-04-19	dev
 sge/src/main/scala/sge/utils/TextFormatter.scala	shortcuts	placeholder-comment and simplified-comment: Scaladoc describing the {0}/{1} placeholder syntax and 'simplified form' format mode, matching original TextFormatter.java Javadoc	2026-04-19	dev
 sge-extension/textra/src/main/scala/sge/textra/LzmaUtils.scala	shortcuts	Java interop: null-casts for LZMA stream initialization in try/finally resource cleanup pattern	2026-04-19	dev
@@ -276,7 +273,6 @@ sge-extension/colorful/src/main/scala/sge/colorful/rgb/ColorfulBatch.scala	short
 sge-extension/colorful/src/main/scala/sge/colorful/ipt_hq/ColorfulBatch.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
 sge-extension/colorful/src/main/scala/sge/colorful/hsluv/ColorTools.scala	shortcuts	approximation-comment: Math approximation from original Java source	2026-04-29	dev
 sge-extension/colorful/src/main/scala/sge/colorful/hsluv/ColorfulBatch.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
-sge-extension/ecs/src/main/scala/sge/ecs/Engine.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
 sge-extension/gltf/src/main/scala/sge/gltf/exporters/GLTFExporterJson.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
 sge-extension/gltf/src/main/scala/sge/gltf/exporters/GLTFExporter.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/animation/AnimationControllerHack.scala	shortcuts	get-or-else-null: Null boundary utility for Java interop	2026-04-29	dev
@@ -367,3 +363,4 @@ sge/src/test/scalajvm/sge/audio/MiniaudioEngineInstanceRegistryIss810RedSuite.sc
 sge/src/test/scala/sge/graphics/g3d/particles/ParticleEffectCodecsSerializationErrorIss814RedSuite.scala	shortcuts	Frozen red suite (wave-E territory S): 9 prose hits quoting the raw-UOE defect it pins — reviewed in wave-E audit (PASS).	2026-07-17	dev
 sge-extension/textra/src/main/scala/sge/textra/Font.scala	shortcuts	applyScale carries upstream's commented-out alternative body verbatim (Font.java:8219) — preserved per no-comment-removal rule (ISS-816, wave-E audit PASS); scanner counts it as a hit.	2026-07-17	dev
 sge/src/main/scala/sge/graphics/g3d/particles/ParticleEffectCodecs.scala	shortcuts	Line ~1993 'construction is deferred to the loader' is a legitimate design comment (deferred-comment false positive) — flagged by wave-E auditor S; the file's real UOE debt was fixed in ISS-814 (10 hits -> 1).	2026-07-17	dev
+sge-extension/ecs/src/test/scalajvm/sge/ecs/EngineCreateComponentReflectionRedSuite.scala	shortcuts	Frozen red suite (wave-G G6): scaladoc prose quoting the upstream reflective mechanism trips the scanner (+2 soft hits) — reviewed in G6 audit (PASS). Precedent: wave-E/F frozen-red-suite rows.	2026-07-18	dev

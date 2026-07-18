@@ -16,10 +16,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 2
- * Covenant-baseline-loc: 234
- * Covenant-baseline-methods: Engine,addEntity,addEntityInternal,addEntityListener,addSystem,componentAdded,componentOperationHandler,componentRemoved,createComponent,createEntity,delayed,empty,entityAdded,entityManager,entityRemoved,familyManager,getEntities,getEntitiesFor,getSystem,getSystems,receive,removeAllEntities,removeAllSystems,removeEntity,removeEntityInternal,removeEntityListener,removeSystem,systemAdded,systemManager,systemRemoved,systems,update,updating
+ * Covenant-baseline-loc: 251
+ * Covenant-baseline-methods: Engine,addEntity,addEntityInternal,addEntityListener,addSystem,componentAdded,componentOperationHandler,componentFactories,componentRemoved,createComponent,createEntity,delayed,empty,entityAdded,entityManager,entityRemoved,familyManager,getEntities,getEntitiesFor,getSystem,getSystems,registerComponentFactory,receive,removeAllEntities,removeAllSystems,removeEntity,removeEntityInternal,removeEntityListener,removeSystem,systemAdded,systemManager,systemRemoved,systems,update,updating
  * Covenant-source-reference: com/badlogic/ashley/core/Engine.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-07-18
  *
  * upstream-commit: d63d542228cd8c62cc2f7adf20055b0ac59a547e
  */
