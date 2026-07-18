@@ -8,11 +8,8 @@ import munit.FunSuite
 
 /** Pure (no-browser) mutation guard for the ISS-726 c2 console-error allow-list.
   *
-  * This pins the de-theatered behavior so it cannot silently rot back to the old
-  * blanket 404 excusal: a KNOWN-benign request (favicon) stays excused, but a
-  * missing SGE ASSET (a real regression) is reported. Under the pre-c2 logic the
-  * "missing texture" case below was excused (any 404 was) — this suite is red
-  * against that logic and green against [[BrowserConsole]], which is exactly the
+  * This pins the de-theatered behavior so it cannot silently rot back to the old blanket 404 excusal: a KNOWN-benign request (favicon) stays excused, but a missing SGE ASSET (a real regression) is
+  * reported. Under the pre-c2 logic the "missing texture" case below was excused (any 404 was) — this suite is red against that logic and green against [[BrowserConsole]], which is exactly the
   * mutation the reviewer asked to verify.
   */
 class BrowserConsoleClassificationTest extends FunSuite {
