@@ -367,7 +367,38 @@ jobs:
       - uses: sbt/setup-sbt@v1
 
       - name: Run JVM tests with coverage (core + all extensions)
-        run: sbt ci-jvm-3
+        # ISS-699: generalize the ISS-690 guard. These tests run in a forked JVM
+        # (Test / fork := true) that loads native libs; under sbt 2.0 a forked
+        # test JVM that dies uncleanly (native crash) can let the task exit 0
+        # while hiding munit failures. Gate on THREE independent signals:
+        # (a) sbt's own exit code, (b) a munit summary line proving at least one
+        # suite ran to completion (crash => no summary), and (c) the absence of
+        # any munit failure marker in the captured output. shell: bash makes
+        # PIPESTATUS/tee work on the windows legs too (default there is pwsh).
+        # NOTE (ISS-869): in this MULTI-MODULE run a crash in a later module
+        # after an earlier module already printed its summary satisfies (b) and
+        # is caught only by (a)/(c) - documented residual, tracked separately.
+        shell: bash
+        run: |
+          set +e
+          sbt ci-jvm-3 2>&1 | tee "$RUNNER_TEMP/test-jvm.log"
+          code=${PIPESTATUS[0]}
+          set -e
+          fail=0
+          if [ "$code" -ne 0 ]; then
+            echo "::error::sbt ci-jvm-3 exited with code $code"
+            fail=1
+          fi
+          if ! grep -qE 'Passed: Total [1-9]' "$RUNNER_TEMP/test-jvm.log"; then
+            echo "::error::ISS-690 guard: munit summary missing - the forked test JVM died uncleanly (crash), not a clean fail"
+            fail=1
+          fi
+          if grep -qE '==> X ' "$RUNNER_TEMP/test-jvm.log"; then
+            echo "::error::ISS-690 guard: munit failure marker present in output (failures cannot hide behind exit 0)"
+            fail=1
+          fi
+          if [ "$fail" -eq 0 ]; then echo "JVM tests: ran to completion, all checks passed"; fi
+          exit "$fail"
         env:
           # Point the Robolectric test fork at the JDK 21 installed above.
           JAVA21_HOME: ${{ steps.setup-jdk21.outputs.path }}
@@ -461,7 +492,32 @@ jobs:
         run: npx --yes playwright install --with-deps chromium
 
       - name: Run browser integration tests
-        run: sbt 'sge-it-browser/testFull'
+        run: |
+          # ISS-699: ISS-690 guard for this forked testFull (JVM munit driving
+          # Playwright/Chromium). Never trust testFull's exit code alone - under
+          # sbt 2.0 a forked test JVM that dies uncleanly can exit 0 while hiding
+          # munit failures. Gate on (a) testFull's own exit code, (b) a munit
+          # summary line proving the suite ran to completion (crash => no
+          # summary), and (c) the absence of any munit failure marker.
+          set +e
+          sbt 'sge-it-browser/testFull' 2>&1 | tee /tmp/browser-it.log
+          code=${PIPESTATUS[0]}
+          set -e
+          fail=0
+          if [ "$code" -ne 0 ]; then
+            echo "::error::testFull exited with code $code"
+            fail=1
+          fi
+          if ! grep -qE 'Passed: Total [1-9]' /tmp/browser-it.log; then
+            echo "::error::ISS-690 guard: munit summary missing - the forked test JVM died uncleanly (crash), not a clean fail"
+            fail=1
+          fi
+          if grep -qE '==> X ' /tmp/browser-it.log; then
+            echo "::error::ISS-690 guard: munit failure marker present in output (failures cannot hide behind exit 0)"
+            fail=1
+          fi
+          if [ "$fail" -eq 0 ]; then echo "Browser IT: ran to completion, all checks passed"; fi
+          exit "$fail"
 
   # ─── sge-build plugin scripted tests (ISS-562) ─────────────────────
   #
@@ -929,7 +985,33 @@ jobs:
           apps: sbt
 
       - name: Run JVM Platform integration tests
-        run: sbt 'sge-it-jvm-platform/testFull'
+        run: |
+          # ISS-699: ISS-690 guard for this forked testFull (Panama FFI, native
+          # libs from the provider JAR). Never trust testFull's exit code alone -
+          # under sbt 2.0 a forked test JVM that dies uncleanly (native crash)
+          # can exit 0 while hiding munit failures. Gate on (a) testFull's own
+          # exit code, (b) a munit summary line proving the suite ran to
+          # completion (crash => no summary), and (c) the absence of any munit
+          # failure marker in the captured output.
+          set +e
+          sbt 'sge-it-jvm-platform/testFull' 2>&1 | tee /tmp/jvm-platform-it.log
+          code=${PIPESTATUS[0]}
+          set -e
+          fail=0
+          if [ "$code" -ne 0 ]; then
+            echo "::error::testFull exited with code $code"
+            fail=1
+          fi
+          if ! grep -qE 'Passed: Total [1-9]' /tmp/jvm-platform-it.log; then
+            echo "::error::ISS-690 guard: munit summary missing - the forked test JVM died uncleanly (crash), not a clean fail"
+            fail=1
+          fi
+          if grep -qE '==> X ' /tmp/jvm-platform-it.log; then
+            echo "::error::ISS-690 guard: munit failure marker present in output (failures cannot hide behind exit 0)"
+            fail=1
+          fi
+          if [ "$fail" -eq 0 ]; then echo "JVM Platform IT: ran to completion, all checks passed"; fi
+          exit "$fail"
         env:
           # Hard-fail (do not assume-skip) if the native libs are not resolvable
           # from the provider JAR — this job must never silently return to zero
@@ -989,11 +1071,20 @@ jobs:
           # could not see the artifact from). Diagnostics: print the cwd and every
           # .apk produced so the next run reveals the real output path if the test
           # still cannot locate it.
+          # ISS-699: ISS-690 guard on the testFull line. Each script LINE runs
+          # separately via `sh -c` (dash - no PIPESTATUS), so the tee + exit-code
+          # capture is an explicit `bash -ec` one-liner and the follow-up greps
+          # are POSIX one-liners. Under sbt 2.0 a forked test JVM that dies
+          # uncleanly can exit 0 while hiding munit failures; gate on (a) sbt's
+          # exit code, (b) the munit summary line (crash => no summary), (c) no
+          # failure marker in the captured output.
           script: |
             echo "ANDROID-IT cwd=$(pwd) HOME=$HOME"
             sbt 'sge-android-smoke/androidSign'
             echo "=== .apk files produced ==="; find "$(pwd)" -name '*.apk' 2>/dev/null; find "$HOME" -name 'app-debug.apk' 2>/dev/null | head
-            sbt 'sge-it-android/testFull'
+            bash -ec 'sbt "sge-it-android/testFull" 2>&1 | tee /tmp/android-it.log; exit ${PIPESTATUS[0]}'
+            grep -qE 'Passed: Total [1-9]' /tmp/android-it.log || { echo '::error::ISS-690 guard: munit summary missing - the forked test JVM died uncleanly (crash), not a clean fail'; exit 1; }
+            ! grep -qE '==> X ' /tmp/android-it.log || { echo '::error::ISS-690 guard: munit failure marker present in output (failures cannot hide behind exit 0)'; exit 1; }
 
   # ─── Demo smoke (Scala.js) ──────────────────────────────────────
 
