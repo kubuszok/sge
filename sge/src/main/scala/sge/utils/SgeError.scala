@@ -28,8 +28,8 @@ package utils
 /** SGE's typed error hierarchy: a Scala 3 `enum` of the exception variants the engine raises, each carrying a message and an optional cause. Match on a variant to react to a specific failure, or
   * catch [[SgeError]] to handle any of them.
   *
-  * Capability-not-available conditions are, by convention (ISS-771), signalled through [[Unsupported]] rather than a raw JDK runtime exception or [[InvalidInput]] (which means bad user input);
-  * residual raw-UOE sites (unchecked JDK exceptions signalling the same condition) are tracked in ISS-814/815. See [[Unsupported]]'s own note for the convention.
+  * Capability-not-available conditions are, by convention (ISS-771), signalled through [[Unsupported]] rather than a raw JDK runtime exception or [[InvalidInput]] (which means bad user input); some
+  * residual sites still throw a raw JDK exception for the same condition. See [[Unsupported]]'s own note for the convention.
   *
   * @note
   *   LibGDX: replaces `com.badlogic.gdx.utils.GdxRuntimeException`, merged with `com.badlogic.gdx.utils.SerializationException` (now [[SerializationError]]).
