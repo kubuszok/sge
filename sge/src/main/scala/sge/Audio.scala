@@ -31,6 +31,9 @@ import lowlevel.Nullable
   *
   * @note
   *   LibGDX: `com.badlogic.gdx.Audio`.
+  * @note
+  *   Platform: the desktop backends (JVM and Native) are backed by the miniaudio engine and the browser backend by the Web Audio API. Direct-device access ([[newAudioDevice]], [[newAudioRecorder]])
+  *   is not available in the browser (it signals `sge.utils.SgeError.Unsupported`), and recording is additionally unavailable on the Scala Native desktop backend.
   *
   * <p>This interface encapsulates the creation and management of audio resources. It allows you to get direct access to the audio hardware via the {@link AudioDevice} and {@link AudioRecorder}
   * interfaces, create sound effects via the {@link Sound} interface and play music streams via the {@link Music} interface.

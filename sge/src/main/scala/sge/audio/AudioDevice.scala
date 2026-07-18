@@ -26,7 +26,18 @@
 package sge
 package audio
 
-/** Encapsulates an audio device in mono or stereo mode. Use the {@link #writeSamples(float[], int, int)} and {@link #writeSamples(short[], int, int)} methods to write float or 16-bit signed short PCM
+/** Low-level access to the sound card: write raw PCM samples straight to an output device in mono or stereo. For synthesis and custom mixing — most games use [[Sound]] / [[Music]] instead.
+  *
+  * Create one with `Sge().audio.newAudioDevice(samplingRate, isMono)` (see [[Audio.newAudioDevice]]); push 16-bit `short` or `float` samples with [[writeSamples]] (each call blocks until the samples
+  * are consumed) and dispose it with [[close]] when done.
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.audio.AudioDevice`. `getLatency` became [[latency]] and `Disposable` became `java.io.Closeable` (`dispose()` → [[close]]).
+  * @note
+  *   Platform: the desktop backends (JVM and Native, via the miniaudio engine) and Android implement this; the browser backend does not — [[Audio.newAudioDevice]] there signals
+  *   `sge.utils.SgeError.Unsupported`.
+  *
+  * Encapsulates an audio device in mono or stereo mode. Use the {@link #writeSamples(float[], int, int)} and {@link #writeSamples(short[], int, int)} methods to write float or 16-bit signed short PCM
   * data directly to the audio device. Stereo samples are interleaved in the order left channel sample, right channel sample. The {@link #dispose()} method must be called when this AudioDevice is no
   * longer needed.
   *

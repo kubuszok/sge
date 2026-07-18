@@ -25,7 +25,19 @@ package sge
 
 import Input.{ Button, Key }
 
-/** An InputProcessor is used to receive input events from the keyboard and the touch screen (mouse on the desktop). For this it has to be registered with the
+/** Receives keyboard, pointer/touch, and scroll events as callbacks, instead of polling [[Input]] each frame.
+  *
+  * Implement this trait and register your instance with `Sge().input.setInputProcessor(...)` (see [[Input.setInputProcessor]]); the engine invokes the matching callback each frame before rendering.
+  * Every method has a no-op default that returns `false` ("not handled"), so a processor overrides only the events it cares about. Returning `true` marks an event consumed, which stops it propagating
+  * to later processors in an [[InputMultiplexer]].
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.InputProcessor`. The Java interface declares its methods abstract and ships a separate no-op `com.badlogic.gdx.InputAdapter` for partial overrides; here the defaults
+  *   live on the trait itself, so there is no `InputAdapter` equivalent.
+  * @note
+  *   Platform: [[touchCancelled]] fires only on Android and iOS; [[mouseMoved]] and [[scrolled]] are not delivered on iOS.
+  *
+  * An InputProcessor is used to receive input events from the keyboard and the touch screen (mouse on the desktop). For this it has to be registered with the
   * {@link Input#setInputProcessor(InputProcessor)} method. It will be called each frame before the call to {@link ApplicationListener#render()} . Each method returns a boolean in case you want to use
   * this with the {@link InputMultiplexer} to chain input processors.
   *

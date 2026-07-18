@@ -28,7 +28,17 @@
 package sge
 package audio
 
-/** <p> A Music instance represents a streamed audio file. The interface supports pausing, resuming and so on. When you are done with using the Music instance you have to dispose it via the
+/** A streamed music track — the getting-started type for background music and long clips that should not be fully loaded into memory.
+  *
+  * Create one with `Sge().audio.newMusic(fileHandle)` (see [[Audio.newMusic]]); drive it with [[play]] / [[pause]] / [[stop]], adjust [[volume]] / [[looping]] / [[position]], and dispose it with
+  * [[close]] when done. Instances are paused and resumed automatically with the application lifecycle.
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.audio.Music`. The `isPlaying` / `isLooping` / `getVolume` / `getPosition` getters became the Scala accessors [[playing]] / [[looping]] / [[volume]] / [[position]] (with
+  *   the `set*` setters becoming `looping_=` / `volume_=` / `position_=`), the `OnCompletionListener` SAM became the [[onComplete]] function argument, and `Disposable` became `java.io.Closeable`
+  *   (`dispose()` → [[close]]).
+  *
+  * <p> A Music instance represents a streamed audio file. The interface supports pausing, resuming and so on. When you are done with using the Music instance you have to dispose it via the
   * {@link #dispose()} method. </p>
   *
   * <p> Music instances are created via {@link Audio#newMusic(FileHandle)} . </p>

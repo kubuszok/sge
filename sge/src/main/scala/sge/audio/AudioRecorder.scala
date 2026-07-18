@@ -24,7 +24,17 @@
 package sge
 package audio
 
-/** An AudioRecorder allows to record input from an audio device. It has a sampling rate and is either stereo or mono. Samples are returned in signed 16-bit PCM format. Stereo samples are interleaved
+/** Captures microphone input as signed 16-bit PCM samples in mono or stereo.
+  *
+  * Create one with `Sge().audio.newAudioRecorder(samplingRate, isMono)` (see [[Audio.newAudioRecorder]]); pull samples into your own buffer with [[read]] and dispose it with [[close]] when done.
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.audio.AudioRecorder`. `Disposable` became `java.io.Closeable` (`dispose()` → [[close]]).
+  * @note
+  *   Platform: recording is provided on the JVM desktop and Android backends; the browser and Scala Native desktop backends do not implement it — [[Audio.newAudioRecorder]] there signals
+  *   `sge.utils.SgeError.Unsupported`.
+  *
+  * An AudioRecorder allows to record input from an audio device. It has a sampling rate and is either stereo or mono. Samples are returned in signed 16-bit PCM format. Stereo samples are interleaved
   * in the order left channel, right channel. The AudioRecorder has to be disposed if no longer needed via the {@link #dispose()} .
   *
   * @author

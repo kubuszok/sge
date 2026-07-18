@@ -25,7 +25,18 @@
 package sge
 package audio
 
-/** <p> A Sound is a short audio clip that can be played numerous times in parallel. It's completely loaded into memory so only load small audio files. Call the {@link #dispose()} method when you're
+/** A short, fully in-memory sound effect that can be played many times, overlapping — the getting-started type for gunshots, footsteps, and UI clicks.
+  *
+  * Create one with `Sge().audio.newSound(fileHandle)` (see [[Audio.newSound]]); each [[play]] / [[loop]] call returns a [[SoundId]] handle you can pass to [[stop]], [[setVolume]], [[setPitch]], and
+  * the other id-taking methods to steer that one playback. Dispose it with [[close]] when done.
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.audio.Sound`. The `long` play/loop id became the opaque [[SoundId]], the raw `float` volume/pitch/pan arguments became [[Volume]] / [[Pitch]] / [[Pan]], and
+  *   `Disposable` became `java.io.Closeable` (`dispose()` → [[close]]).
+  * @note
+  *   Platform: except on the web backend, panning affects mono sounds only, not stereo sounds.
+  *
+  * <p> A Sound is a short audio clip that can be played numerous times in parallel. It's completely loaded into memory so only load small audio files. Call the {@link #dispose()} method when you're
   * done using the Sound. </p>
   *
   * <p> Sound instances are created via a call to {@link Audio#newSound(FileHandle)} . </p>
