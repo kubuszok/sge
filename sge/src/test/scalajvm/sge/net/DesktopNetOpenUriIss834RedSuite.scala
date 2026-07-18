@@ -31,9 +31,10 @@ package net
 // and can mangle non-ASCII IRIs. This is Windows-only AND fallback-only
 // (java.awt.Desktop.browse covers real desktops), so the *runtime* truncation has NO
 // cross-platform, pure-Scala seam to reproduce — it is OS behavior inside rundll32.
-// The test below is therefore an assertion-first PIN of the current argv seam, not a
-// runtime red: it characterizes that no length guard exists yet. See the report /
-// issue for the fix options (length guard vs documented release-note).
+// FIX (ISS-834b, length guard): openUriCommand now refuses over-2083-char URLs on the
+// Windows branch (returns Nil, so openURI logs + returns false) rather than handing
+// rundll32 a URL it would silently truncate/ANSI-mangle. The pins below assert the
+// guarded behavior at the observable argv seam: > 2083 => Nil, <= 2083 => full command.
 
 class DesktopNetOpenUriIss834RedSuite extends munit.FunSuite {
 
@@ -62,21 +63,31 @@ class DesktopNetOpenUriIss834RedSuite extends munit.FunSuite {
     assertEquals(result, false, "openURI(malformed) must return false (upstream fidelity, ISS-834a)")
   }
 
-  test("Windows rundll32 fallback hands an over-2083-char URI to rundll32 verbatim — truncation gap pinned (ISS-834b)") {
-    // ASSERTION-FIRST PIN (green): the runtime truncation lives inside rundll32's ANSI
-    // FileProtocolHandler on Windows and cannot be reproduced cross-platform. This pins
-    // the observable argv seam so the gap is not silently lost: today NO length guard
-    // exists, so a URL past INTERNET_MAX_URL_LENGTH (2083) is still passed to rundll32
-    // intact. The prescribed fix is a length guard on the Windows fallback (drop rundll32
-    // / return false for over-long URIs) or a documented release-note; either way this
-    // assertion must be revisited when a guard lands.
+  test("Windows rundll32 fallback refuses a URL longer than INTERNET_MAX_URL_LENGTH (ISS-834b guard)") {
+    // The length guard: rundll32's ANSI FileProtocolHandler silently truncates URLs past
+    // INTERNET_MAX_URL_LENGTH (2083) and can mangle non-ASCII IRIs, so openUriCommand must
+    // NOT build the rundll32 command for an over-long URL — it returns Nil, making openURI
+    // log and return false rather than opening a corrupted URL.
     val longUri = "http://example.com/?q=" + ("a" * 2100)
     assert(longUri.length > 2083, s"fixture must exceed INTERNET_MAX_URL_LENGTH; got ${longUri.length}")
     val cmd = DesktopNet.openUriCommand("Windows 10", longUri)
     assertEquals(
       cmd,
-      List("rundll32", "url.dll,FileProtocolHandler", longUri),
-      "current Windows fallback hands the full over-long URI to rundll32 with no guard (ISS-834b)"
+      Nil,
+      s"an over-2083-char URL must not be handed to rundll32 (ISS-834b length guard); got: $cmd"
+    )
+  }
+
+  test("Windows rundll32 fallback still builds the full command for a URL within INTERNET_MAX_URL_LENGTH (ISS-834b)") {
+    // Below the guard threshold the Windows fallback is unchanged: the URI reaches rundll32
+    // intact as a single argument (query ampersands included, per ISS-773).
+    val okUri = "http://example.com/?a=1&b=2&c=3"
+    assert(okUri.length <= 2083, s"fixture must stay within INTERNET_MAX_URL_LENGTH; got ${okUri.length}")
+    val cmd = DesktopNet.openUriCommand("Windows 10", okUri)
+    assertEquals(
+      cmd,
+      List("rundll32", "url.dll,FileProtocolHandler", okUri),
+      s"a within-limit URL must still be launched via rundll32 with the full URI intact (ISS-834b); got: $cmd"
     )
   }
 }
