@@ -22,7 +22,15 @@
  */
 package sge
 
-/** Provides standard access to the filesystem, classpath, Android app storage (internal and external), and Android assets directory.
+/** Resolves paths into [[sge.files.FileHandle]]s across the filesystem, classpath, and Android app/asset storage.
+  *
+  * Reached through the application context as `Sge().files`. The convenience methods ([[classpath]], [[internal]], [[external]], [[absolute]], [[local]]) each fix a [[sge.files.FileType]] so a game
+  * can read bundled assets and write user data portably.
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.Files`; the nested `FileType` enum lives at [[sge.files.FileType]].
+  *
+  * Provides standard access to the filesystem, classpath, Android app storage (internal and external), and Android assets directory.
   * @author
   *   mzechner (original implementation)
   * @author

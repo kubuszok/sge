@@ -24,7 +24,16 @@ package sge
 
 import sge.utils.Clipboard
 
-/** <p> An <code>Application</code> is the main entry point of your project. It sets up a window and rendering surface and manages the different aspects of your application, namely {@link Graphics} ,
+/** The running application: the window and rendering surface plus the engine services it owns.
+  *
+  * In SGE you rarely implement `Application` yourself — a backend provides it and hands the live instance to you through the [[sge.Sge]] context (`Sge().application`). Your code lives in an
+  * [[ApplicationListener]] (or [[Game]]) whose lifecycle methods the `Application` drives. The service accessors below ([[graphics]], [[audio]], [[input]], [[files]], [[net]]) are the same values
+  * `Sge` exposes; reach them through the context rather than caching this instance.
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.Application`.
+  *
+  * <p> An <code>Application</code> is the main entry point of your project. It sets up a window and rendering surface and manages the different aspects of your application, namely {@link Graphics} ,
   * {@link Audio} , {@link Input} and {@link Files} . Think of an Application being equivalent to Swing's <code>JFrame</code> or Android's <code>Activity</code>. </p>
   *
   * <p> An application can be an instance of any of the following: <ul> <li>a desktop application (see <code>JglfwApplication</code> found in gdx-backends-jglfw.jar)</li> <li>an Android application
@@ -103,12 +112,13 @@ trait Application extends FrameHookHost {
     */
   def getPreferences(name: String): Preferences
 
+  /** The system clipboard, for reading and writing text shared with other applications. */
   def clipboard: Clipboard
 
   /** Posts a {@link Runnable} on the main loop thread.
     *
-    * In a multi-window application, the {@linkplain Gdx#graphics} and {@linkplain Gdx#input} values may be unpredictable at the time the Runnable is executed. If graphics or input are needed, they
-    * can be copied to a variable to be used in the Runnable. For example: <p> <code> final Graphics graphics = Gdx.graphics;
+    * In a multi-window application, the `Sge().graphics` and `Sge().input` values may be unpredictable at the time the Runnable is executed. If graphics or input are needed, they can be copied to a
+    * variable to be used in the Runnable. For example: `val graphics = Sge().graphics` captured before the Runnable is posted.
     *
     * @param runnable
     *   the runnable.

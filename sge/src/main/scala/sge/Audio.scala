@@ -24,7 +24,15 @@ package sge
 
 import lowlevel.Nullable
 
-/** This interface encapsulates the creation and management of audio resources. It allows you to get direct access to the audio hardware via the {@link AudioDevice} and {@link AudioRecorder}
+/** Factory for the engine's audio resources: sound effects, music streams, and raw device access.
+  *
+  * Reached through the application context as `Sge().audio`. Everything it creates ([[sge.audio.Sound]], [[sge.audio.Music]], [[sge.audio.AudioDevice]], [[sge.audio.AudioRecorder]]) owns native
+  * resources and must be disposed when no longer used.
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.Audio`.
+  *
+  * <p>This interface encapsulates the creation and management of audio resources. It allows you to get direct access to the audio hardware via the {@link AudioDevice} and {@link AudioRecorder}
   * interfaces, create sound effects via the {@link Sound} interface and play music streams via the {@link Music} interface.
   *
   * <p> All resources created via this interface have to be disposed as soon as they are no longer used. </p>
@@ -92,10 +100,10 @@ trait Audio {
     */
   def newMusic(file: files.FileHandle): audio.Music
 
-  /** Sets a new OutputDevice. The identifier can be retrieved from {@link Audio#getAvailableOutputDevices()} . If null is passed, it will switch to auto.
+  /** Sets a new OutputDevice. The identifier can be retrieved from {@link Audio#getAvailableOutputDevices()} .
     *
     * @param deviceIdentifier
-    *   device identifier to switch to, or null for auto
+    *   device identifier to switch to; empty selects automatic device choice
     */
   def switchOutputDevice(deviceIdentifier: Nullable[String]): Boolean
 

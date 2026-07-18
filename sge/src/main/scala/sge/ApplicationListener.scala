@@ -22,7 +22,16 @@
  */
 package sge
 
-/** <p> An <code>ApplicationListener</code> is called when the {@link Application} is created, resumed, rendering, paused or destroyed. All methods are called in a thread that has the OpenGL context
+/** The lifecycle callback where your game logic lives — SGE's starting point for a game.
+  *
+  * Implement this (or extend [[Game]] for screen management) and hand it to a backend; the [[Application]] then calls [[create]] once, [[render]] every frame, and [[resize]] / [[pause]] / [[resume]]
+  * / [[dispose]] as the lifecycle demands. Most methods have empty default bodies, so a listener needs to override only [[render]]. The [[sge.Sge]] context is threaded in by the backend rather than
+  * read from a global.
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.ApplicationListener`.
+  *
+  * <p> An <code>ApplicationListener</code> is called when the {@link Application} is created, resumed, rendering, paused or destroyed. All methods are called in a thread that has the OpenGL context
   * current. You can thus safely create and manipulate graphics resources. </p>
   *
   * <p> The <code>ApplicationListener</code> interface follows the standard Android activity life-cycle and is emulated on the desktop accordingly. </p>
@@ -36,6 +45,9 @@ trait ApplicationListener {
   def create(): Unit = {}
 
   /** Called when the {@link Application} is resized. This can happen at any point during a non-paused state but will never happen before a call to {@link #create()} .
+    *
+    * @note
+    *   LibGDX: `resize(int, int)` — SGE types the dimensions as [[Pixels]] rather than raw `Int`.
     *
     * @param width
     *   the new width in pixels

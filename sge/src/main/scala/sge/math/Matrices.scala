@@ -37,6 +37,11 @@ import lowlevel.math.MathUtils
 
 /** A 3x3 <a href="http://en.wikipedia.org/wiki/Row-major_order#Column-major_order">column major</a> matrix; useful for 2D transforms.
   *
+  * Backed by a flat 9-element [[values]] float array in column-major order. Methods mutate in place and return `this` for chaining. For 3D transforms use [[Matrix4]].
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.math.Matrix3`.
+  *
   * @author
   *   mzechner (original implementation)
   */
@@ -710,7 +715,14 @@ object Matrix3 {
   }
 }
 
-/** Encapsulates a <a href="http://en.wikipedia.org/wiki/Row-major_order#Column-major_order">column major</a> 4 by 4 matrix. Like the {@link Vector3} class it allows the chaining of methods by
+/** A 4x4 column-major matrix — the standard transform for 3D positions, projections, and camera math, backed by a flat 16-element [[values]] float array.
+  *
+  * Methods mutate in place and return `this` for chaining. For 2D-only transforms [[Matrix3]] is lighter.
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.math.Matrix4`.
+  *
+  * Encapsulates a <a href="http://en.wikipedia.org/wiki/Row-major_order#Column-major_order">column major</a> 4 by 4 matrix. Like the {@link Vector3} class it allows the chaining of methods by
   * returning a reference to itself. For example:
   *
   * <pre> Matrix4 mat = new Matrix4().trn(position).mul(camera.combined); </pre>

@@ -27,7 +27,17 @@ package sge
 import lowlevel.Nullable
 import sge.utils.Nanos
 
-/** <p> Interface to the input facilities. This allows polling the state of the keyboard, the touch screen and the accelerometer. On some backends (desktop, gwt, etc) the touch screen is replaced by
+/** The engine's input service: poll the keyboard, pointer/touch, and motion sensors, or route events to an [[InputProcessor]].
+  *
+  * Reached through the application context as `Sge().input`. Keys and buttons are the opaque [[Input.Key]] / [[Input.Button]] types (see the `Keys` / `Buttons` constants), and pointer coordinates are
+  * typed as [[Pixels]].
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.Input`; the `Input.Keys` int constants became the opaque [[Input.Key]] type and `Input.Buttons` became [[Input.Button]].
+  * @note
+  *   Platform: motion sensors (accelerometer, gyroscope) and vibration are hardware- and backend-dependent — probe with [[isPeripheralAvailable]] before relying on them.
+  *
+  * <p> Interface to the input facilities. This allows polling the state of the keyboard, the touch screen and the accelerometer. On some backends (desktop, gwt, etc) the touch screen is replaced by
   * mouse input. The accelerometer is of course not available on all backends. </p>
   *
   * <p> Instead of polling for events, one can process all input events with an {@link InputProcessor} . You can set the InputProcessor via the {@link #setInputProcessor(InputProcessor)} method. It

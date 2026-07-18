@@ -26,6 +26,15 @@ package sge
 import sge.Graphics
 import scala.annotation.implicitNotFound
 
+/** The per-application context bundling the engine's core services: [[Application]], [[Graphics]], [[Audio]], [[Files]], [[Input]] and [[Net]].
+  *
+  * `Sge` is the entry point for reaching any engine service. Where LibGDX exposes global static fields (`Gdx.graphics`, `Gdx.input`, …), SGE passes a single `Sge` value explicitly through
+  * `(using Sge)` context parameters. Your [[Game]] / [[ApplicationListener]] receives it and propagates it to the classes it constructs; from anywhere it is in scope, summon it with `Sge()` and reach
+  * a service as `Sge().graphics`, `Sge().input`, and so on.
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.Gdx` — the global static holder became this explicitly-passed context.
+  */
 @implicitNotFound(
   "No given `Sge` is in scope. `Sge` is this application's context — graphics, audio, input, files, net — passed explicitly via `(using Sge)` (it replaces LibGDX's global `Gdx.*`). Add a `(using Sge)` parameter to the enclosing class constructor or method, propagating the `Sge` your `Game`/`ApplicationListener` already receives."
 )
@@ -39,5 +48,7 @@ final case class Sge private[sge] (
 )
 object Sge {
 
+  /** Summons the `Sge` context that is in scope. Sugar for `summon[Sge]`; use it to reach a service, e.g. `Sge().graphics`, wherever a `(using Sge)` parameter is available.
+    */
   inline def apply()(using Sge): Sge = summon[Sge]
 }

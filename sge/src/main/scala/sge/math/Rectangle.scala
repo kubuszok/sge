@@ -28,7 +28,15 @@
 package sge
 package math
 
-/** Encapsulates a 2D rectangle defined by its corner point in the bottom left and its extents in x (width) and y (height).
+/** An axis-aligned 2D rectangle — a [[Shape2D]] given by its bottom-left corner ([[x]], [[y]]) and its [[width]] / [[height]] extents.
+  *
+  * A mutable value type used across UI, viewports, and collision. The fields are public `var`s; mutating methods (`set`, `merge`, `setSize`, …) also return `this` for chaining. Companion
+  * [[Rectangle$]] offers reusable scratch instances [[Rectangle.tmp]] / [[Rectangle.tmp2]].
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.math.Rectangle`; the redundant `getX`/`setX` … accessors are dropped in favour of the public fields.
+  *
+  * Encapsulates a 2D rectangle defined by its corner point in the bottom left and its extents in x (width) and y (height).
   * @author
   *   badlogicgames@gmail.com (original implementation)
   */
@@ -417,9 +425,11 @@ class Rectangle() extends Shape2D {
     } else throw utils.SgeError.MathError(s"Malformed Rectangle: $v")
   }
 
+  /** @return the area of this rectangle (`width * height`). */
   def area(): Float =
     this.width * this.height
 
+  /** @return the perimeter of this rectangle (`2 * (width + height)`). */
   def perimeter(): Float =
     2 * (this.width + this.height)
 

@@ -37,7 +37,12 @@ package math
 
 import lowlevel.math.MathUtils
 
-/** Encapsulates a general vector. Allows chaining operations by returning a reference to itself in all modification methods. See {@link Vector2} and {@link Vector3} for specific implementations.
+/** The common interface of SGE's mutable vectors, self-typed on the concrete implementation so chaining methods return the precise type. Sealed over [[Vector2]], [[Vector3]] and [[Vector4]].
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.math.Vector` (an interface there; a sealed trait here).
+  *
+  * Encapsulates a general vector. Allows chaining operations by returning a reference to itself in all modification methods. See {@link Vector2} and {@link Vector3} for specific implementations.
   * @author
   *   Xoppa (original implementation)
   */
@@ -289,6 +294,14 @@ sealed trait Vector[T <: Vector[T]] { self: T =>
   def mulAdd(v: T, mulVec: T): this.type
 }
 
+/** A mutable 2D vector of `x` / `y` floats — SGE's workhorse for positions, sizes, and directions in 2D games.
+  *
+  * Modification methods mutate in place and return `this` for chaining (e.g. `v.set(1, 2).add(dir).scale(speed)`); use [[copy]] first when you need to preserve the original. The companion object
+  * provides the static `angleDeg` / `angleRad` helpers.
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.math.Vector2`.
+  */
 final case class Vector2(var x: Float = 0, var y: Float = 0) extends Vector[Vector2] {
 
   def set(x: Float, y: Float): this.type = {
@@ -602,6 +615,13 @@ object Vector2 {
     Math.atan2(y, x).toFloat
 }
 
+/** A mutable 3D vector of `x` / `y` / `z` floats, used for 3D positions and directions and for transforming points by a [[Matrix4]], [[Matrix3]], or [[Quaternion]].
+  *
+  * Like [[Vector2]], modification methods mutate in place and return `this` for chaining; use [[copy]] to snapshot. The companion object holds the axis constants `X`, `Y`, `Z` and `Zero`.
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.math.Vector3`.
+  */
 final case class Vector3(var x: Float = 0, var y: Float = 0, var z: Float = 0) extends Vector[Vector3] {
 
   def set(x: Float, y: Float, z: Float): this.type = {
@@ -1092,6 +1112,11 @@ object Vector3 {
 }
 
 /** Encapsulates a 4D vector. Allows chaining operations by returning a reference to itself in all modification methods.
+  *
+  * Mutates in place and returns `this` for chaining, like [[Vector2]] / [[Vector3]]; the companion object holds the axis constants `X`, `Y`, `Z`, `W` and `Zero`.
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.math.Vector4`.
   * @author
   *   badlogicgames@gmail.com (original implementation)
   * @author

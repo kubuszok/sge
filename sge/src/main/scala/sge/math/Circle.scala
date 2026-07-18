@@ -29,7 +29,14 @@ package math
 
 import lowlevel.math.MathUtils
 
-/** A convenient 2D circle class.
+/** A 2D circle — a [[Shape2D]] given by its centre ([[x]], [[y]]) and its [[radius]].
+  *
+  * A mutable value type for range checks and simple collision ([[contains]], [[overlaps]]). The fields are public `var`s; `set` / `setPosition` return `this` for chaining.
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.math.Circle`; the redundant `setX`/`setY`/`setRadius` accessors are dropped in favour of the public fields.
+  *
+  * A convenient 2D circle class.
   * @author
   *   mzechner (original implementation)
   */

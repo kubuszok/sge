@@ -28,12 +28,21 @@ import lowlevel.Nullable
 import java.io.InputStream
 import java.util.{ List, Map }
 
-/** Provides methods to perform networking operations, such as simple HTTP get and post requests, and TCP server/client socket communication. </p>
+/** The engine's networking service: HTTP requests plus TCP server/client sockets.
+  *
+  * Reached through the application context as `Sge().net`. HTTP is sttp-backed in SGE, so the LibGDX `HttpRequest` type is gone — obtain a pooled [[sge.net.SgeHttpRequest]] from [[httpClient]]
+  * instead.
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.Net`; `HttpRequest` became [[sge.net.SgeHttpRequest]] and the `sendHttpRequest` / `cancelHttpRequest` / `isHttpRequestPending` methods were replaced by [[httpClient]]
+  *   ([[sge.net.SgeHttpClient]]).
+  *
+  * Provides methods to perform networking operations, such as simple HTTP get and post requests, and TCP server/client socket communication. </p>
   *
   * To perform an HTTP request, obtain a request from the [[httpClient]], configure it, and send it:
   *
   * {{{
-  *   val client  = sge.net.httpClient
+  *   val client  = Sge().net.httpClient
   *   val request = client.obtainRequest()
   *   request.withMethod(Net.HttpMethod.GET).withUrl("https://example.com")
   *   client.send(request, myListener)
