@@ -26,7 +26,7 @@ import scala.collection.mutable
   * (or is cancelled), the client automatically returns the object to its pool.
   *
   * {{{
-  *   val client  = sge.httpClient
+  *   val client  = Sge().net.httpClient
   *   val request = client.obtainRequest()
   *   request.withMethod(Net.HttpMethod.POST).withUrl("https://example.com/api").withContent("{}")
   *   client.send(request, myListener)

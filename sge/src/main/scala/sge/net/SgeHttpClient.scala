@@ -35,6 +35,11 @@ import sge.utils.Pool
   *   // ...
   *   client.close()
   * }}}
+  *
+  * @note
+  *   Platform: the underlying sttp backend differs per target — JVM dispatches over `java.net.http.HttpClient` (sttp `DefaultFutureBackend`), JS over the browser Fetch API (also
+  *   `DefaultFutureBackend`), and Native over curl (`DefaultSyncBackend`) wrapped in a `Future` for API uniformity. In every case [[send]] returns immediately and the listener runs when the effect
+  *   completes.
   */
 final class SgeHttpClient private[sge] (backend: HttpBackendFactory, poolCapacity: Int, poolMax: Int) extends AutoCloseable {
 
