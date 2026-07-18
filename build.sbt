@@ -1097,7 +1097,7 @@ val `sge-android-robolectric` = (projectMatrix in file("sge-test/android-robolec
       // runtime (ByteBuddy), keeping zinc away from instrumented-subclass sources
       // (ISS-730 c5 / ISS-723 c11 swallow-site suite; see AndroidImplRobolectricTest
       // scope-boundary note).
-      "org.mockito"     % "mockito-core"             % "5.18.0"                     % Test,
+      "org.mockito"     % "mockito-core"             % "5.23.0"                     % Test,
       ("androidx.test"    % "monitor" % "1.8.0" % Aar)
         .intransitive()
         .artifacts(Artifact("monitor", "aar", "aar")),
