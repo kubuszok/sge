@@ -29,7 +29,15 @@
 package sge
 package math
 
-/** A point in a 2D grid, with integer x and y coordinates.
+/** A point in a 2D grid with integer [[x]] / [[y]] coordinates — the integer companion to the float-valued [[Vector2]], used for tile and cell indices.
+  *
+  * A `final case class`: construct with `GridPoint2(x, y)`, duplicate with `copy()`, combine with [[add]] / [[sub]] / [[set]], and measure with [[dst]] / [[dst2]]. Equality and hashing are
+  * value-based (case-class derived).
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.math.GridPoint2`; the original `cpy()` is the case-class `copy()`.
+  *
+  * A point in a 2D grid, with integer x and y coordinates.
   *
   * @author
   *   badlogic (original implementation)
@@ -171,7 +179,15 @@ final case class GridPoint2(var x: Int = 0, var y: Int = 0) {
   }
 }
 
-/** A point in a 3D grid, with integer x, y and z coordinates.
+/** A point in a 3D grid with integer [[x]] / [[y]] / [[z]] coordinates — the integer companion to the float-valued [[Vector3]], used for voxel and cell indices.
+  *
+  * A `final case class`: construct with `GridPoint3(x, y, z)`, duplicate with `copy()`, combine with [[add]] / [[sub]] / [[set]], and measure with [[dst]] / [[dst2]]. Equality and hashing are
+  * value-based (case-class derived).
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.math.GridPoint3`; the original `cpy()` is the case-class `copy()`.
+  *
+  * A point in a 3D grid, with integer x, y and z coordinates.
   *
   * @author
   *   badlogic (original implementation)

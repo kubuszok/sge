@@ -35,7 +35,17 @@ import lowlevel.math.MathUtils
 
 import lowlevel.Nullable
 
-/** Encapsulates a 2D polygon defined by it's vertices relative to an origin point (default of 0, 0). */
+/** A 2D polygon defined by a flat float array of vertices relative to an origin, with position, rotation, and scale applied on top — a [[Shape2D]].
+  *
+  * Construct from a vertex array (`x0, y0, x1, y1, …`, at least 3 points) via `new Polygon(verts)`, then move it with [[setPosition]] / [[setRotation]] / [[setScale]]. [[transformedVertices]] returns
+  * the world-space vertices (lazily recomputed after any change), [[contains]] does a point-in-polygon test, and [[boundingRectangle]] returns a cached axis-aligned bounds.
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.math.Polygon`; the `getVertices`/`getTransformedVertices`/`getBoundingRectangle`/`getX`… accessors become the property-style [[vertices]] / [[transformedVertices]] /
+  *   [[boundingRectangle]] / [[x]]….
+  *
+  * Encapsulates a 2D polygon defined by it's vertices relative to an origin point (default of 0, 0).
+  */
 class Polygon() extends Shape2D {
   private var localVertices: Array[Float] = Array.empty[Float]
   private var worldVertices: Array[Float] = scala.compiletime.uninitialized

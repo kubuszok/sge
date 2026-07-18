@@ -34,6 +34,16 @@ import lowlevel.math.MathUtils
 
 import lowlevel.Nullable
 
+/** A 2D polyline — an open chain of connected line segments defined by a flat float array of vertices relative to an origin, with position, rotation, and scale applied on top; a [[Shape2D]].
+  *
+  * Construct from a vertex array (`x0, y0, x1, y1, …`, at least 2 points) via `new Polyline(verts)`, then move it with [[setPosition]] / [[setRotation]] / [[setScale]]. [[transformedVertices]]
+  * returns the world-space vertices (lazily recomputed after a change); [[length]] and [[scaledLength]] give the summed segment length, and [[boundingRectangle]] a cached axis-aligned bounds.
+  *
+  * @note
+  *   LibGDX: `com.badlogic.gdx.math.Polyline`; the `getVertices`/`getLength`/`getBoundingRectangle`… accessors become the property-style [[vertices]] / [[length]] / [[boundingRectangle]]….
+  * @note
+  *   [[contains]] always returns `false`: a polyline has no interior, so it satisfies [[Shape2D]] without ever containing a point.
+  */
 class Polyline() extends Shape2D {
   private var localVertices:               Array[Float] = Array.empty[Float]
   private var worldVertices:               Array[Float] = scala.compiletime.uninitialized

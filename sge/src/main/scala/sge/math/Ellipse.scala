@@ -27,7 +27,12 @@ package math
 
 import lowlevel.math.MathUtils
 
-/** A convenient 2D ellipse class, based on the circle class
+/** An axis-aligned 2D ellipse — a [[Shape2D]] given by its centre ([[x]], [[y]]) and its full [[width]] / [[height]] extents.
+  *
+  * A mutable value type: construct with `new Ellipse(x, y, width, height)` (or from a [[Vector2]] position, or from a [[Circle]]), reposition with [[setPosition]] / [[setSize]], and test points with
+  * [[contains]]. [[area]] and [[circumference]] compute the standard measures.
+  *
+  * A convenient 2D ellipse class, based on the circle class
   * @author
   *   tonyp7 (original implementation)
   */

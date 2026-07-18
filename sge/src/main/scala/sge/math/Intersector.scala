@@ -42,7 +42,14 @@ import lowlevel.util.DynamicArray
 import scala.util.boundary
 import scala.util.boundary.break
 
-/** Class offering various static methods for intersection testing between different geometric objects.
+/** Static helpers for intersection and overlap testing between 2D and 3D geometric primitives.
+  *
+  * Reached as the object `Intersector.*` — no instance is created. Common 2D entry points: [[overlaps]] tests two [[Rectangle]]s, two [[Circle]]s, or a circle against a rectangle;
+  * [[overlapConvexPolygons]] tests convex [[Polygon]]s (optionally filling a [[MinimumTranslationVector]] with the smallest push needed to separate them); [[intersectSegments]] and
+  * [[intersectRectangles]] compute segment / rectangle intersection; and [[nearestSegmentPoint]] / [[isPointInPolygon]] answer closest-point and containment queries. Several of these methods take a
+  * [[lowlevel.Nullable]] out-parameter for the intersection point or MTV — pass `Nullable.empty` when only the boolean result is needed.
+  *
+  * Class offering various static methods for intersection testing between different geometric objects.
   * @author
   *   badlogicgames@gmail.com (original implementation)
   * @author
