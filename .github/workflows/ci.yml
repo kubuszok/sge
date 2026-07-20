@@ -868,7 +868,7 @@ jobs:
 
       - name: Upload gauntlet report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gauntlet-report
           path: target/gauntlet
