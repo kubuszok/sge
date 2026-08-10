@@ -62,7 +62,7 @@ jobs:
           distribution: zulu
           java-version: "21"
 
-      - uses: coursier/setup-action@v3.0.0
+      - uses: coursier/setup-action@v3.0.2
         with:
           jvm: ${{ env.JVM_VERSION }}
           apps: sbt
@@ -166,7 +166,7 @@ jobs:
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
-      - uses: coursier/setup-action@v3.0.0
+      - uses: coursier/setup-action@v3.0.2
         with:
           jvm: ${{ env.JVM_VERSION }}
           apps: sbt
