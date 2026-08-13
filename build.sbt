@@ -1110,7 +1110,7 @@ val `sge-android-robolectric` = (projectMatrix in file("sge-test/android-robolec
       // selection, so depend on tracing-android directly to get the classes.jar.
       // (extractAars additionally tolerates manifest-only AARs, so the bare stub
       // would be skipped harmlessly if it ever entered the resolution.)
-      ("androidx.tracing" % "tracing-android" % "1.3.0" % Aar)
+      ("androidx.tracing" % "tracing-android" % "2.0.0" % Aar)
         .intransitive()
         .artifacts(Artifact("tracing-android", "aar", "aar"))
     ),
