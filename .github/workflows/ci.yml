@@ -140,7 +140,7 @@ jobs:
         with:
           submodules: false
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
@@ -172,7 +172,7 @@ jobs:
         with:
           submodules: false
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
@@ -350,14 +350,14 @@ jobs:
       # this work on every leg — the aarch64 and macOS legs do not expose an x64
       # JDK-21 var. (matrix.architecture is unset on all current rows; it stays
       # wired for any future row that needs a non-default JVM arch.)
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         id: setup-jdk21
         with:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: '21'
           architecture: ${{ matrix.architecture || '' }}
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
@@ -583,7 +583,7 @@ jobs:
         with:
           submodules: false
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
@@ -666,7 +666,7 @@ jobs:
         with:
           submodules: false
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
@@ -802,7 +802,7 @@ jobs:
         with:
           submodules: false
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
@@ -851,7 +851,7 @@ jobs:
         with:
           submodules: false
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
@@ -1261,7 +1261,7 @@ jobs:
         with:
           submodules: false
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
           java-version: ${{ env.JAVA_VERSION }}
