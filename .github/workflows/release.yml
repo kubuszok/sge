@@ -56,7 +56,7 @@ jobs:
       # below wins as the final JAVA_HOME (the primary build JDK); we only need
       # 21's install path, captured via this step's `path` output and handed to
       # the build as JAVA21_HOME. Mirrors ci.yml's test-jvm job.
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         id: setup-jdk21
         with:
           distribution: zulu
