@@ -19,7 +19,7 @@ import sge.math.Vector
   *
   * ADJUDICATION (reproducer verdict): the getter is additive public API surface, not a sanctioned improvement. It is read by NO caller in the port (only the setter is used, Formation.scala:80:
   * `pattern.numberOfSlots = ...`). It is not language-forced: a setter-only trait member `def numberOfSlots_=(v: Int): Unit` compiles and is callable explicitly as `pattern.numberOfSlots_=(n)`; only
-  * the `x = value` assignment SUGAR at the single call site requires the paired getter (verified on Scala 3.8.4). The faithful fix is to drop the getter from the trait (and the concrete overrides)
+  * the `x = value` assignment SUGAR at the single call site requires the paired getter (verified on Scala 3.9.0). The faithful fix is to drop the getter from the trait (and the concrete overrides)
   * and call the setter explicitly at Formation.scala:80 — restoring the original setter-only interface contract.
   *
   * This suite defines a `FormationPattern` implementation that provides EXACTLY the original interface's members. It FAILS TO COMPILE while the port declares the extra abstract `numberOfSlots: Int`
