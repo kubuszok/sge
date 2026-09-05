@@ -25,7 +25,7 @@ object Versions {
 
   // Tests
   val munit           = "1.3.6"
-  val munitScalacheck = "1.3.0"
+  val munitScalacheck = "1.3.1"
 
   // Native component providers (from sge-native-providers repo)
   val multiarch = "0.4.0"
