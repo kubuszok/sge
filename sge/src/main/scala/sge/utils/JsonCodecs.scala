@@ -56,6 +56,11 @@ val JsoniterConfig: hearth.kindlings.jsoniterderivation.JsoniterConfig.type = he
   */
 given JsoniterConfig = hearth.kindlings.jsoniterderivation.JsoniterConfig.default.withTransientDefault.withTransientNone.withTransientEmpty
 
+/** The binary codec follows the text one: a `None` field is OMITTED, never written as a UBJSON null — so a `.g3db` and its `.g3dj` are the same document, and a reader that takes a null child as a
+  * present value (java's g3d loader did) sees none (PROGRESS.md §13.30, JSON step; ADJUSTMENTS.tsv).
+  */
+given hearth.kindlings.ubjsonderivation.UBJsonConfig = hearth.kindlings.ubjsonderivation.UBJsonConfig.default.withTransientNone
+
 /** Re-export of jsoniter-scala's `WriterConfig` for customising JSON serialization. */
 type WriterConfig = com.github.plokhotnyuk.jsoniter_scala.core.WriterConfig
 val WriterConfig: com.github.plokhotnyuk.jsoniter_scala.core.WriterConfig.type = com.github.plokhotnyuk.jsoniter_scala.core.WriterConfig

@@ -21,7 +21,7 @@ package sge
   * @author
   *   See AUTHORS file (original implementation)
   */
-trait DesktopApplicationBase extends Application {
+trait DesktopApplicationBase extends JavaLoggingApplication {
 
   /** Creates the audio subsystem for the given configuration.
     *

@@ -15,6 +15,8 @@
 package sge
 package files
 
+import sge.files.FileType
+
 import java.io.{ BufferedInputStream, BufferedOutputStream, File }
 import java.util.Properties
 import sge.utils.StreamUtils
@@ -64,7 +66,7 @@ class DesktopPreferences(fileHandle: FileHandle) extends sge.Preferences {
     this
   }
 
-  override def put(vals: scala.collection.Map[String, Boolean | Int | Long | Float | String]): sge.Preferences = {
+  override def put(vals: scala.collection.mutable.Map[String, ?]): sge.Preferences = {
     vals.foreach { (key, value) =>
       value match {
         case v: Boolean => putBoolean(key, v)
@@ -72,6 +74,7 @@ class DesktopPreferences(fileHandle: FileHandle) extends sge.Preferences {
         case v: Long    => putLong(key, v)
         case v: Float   => putFloat(key, v)
         case v: String  => putString(key, v)
+        case other => putString(key, String.valueOf(other))
       }
     }
     this
@@ -102,8 +105,8 @@ class DesktopPreferences(fileHandle: FileHandle) extends sge.Preferences {
   override def getString(key: String, defValue: String): String =
     properties.getProperty(key, defValue)
 
-  override def get(): scala.collection.Map[String, Boolean | Int | Long | Float | String] = {
-    val map     = scala.collection.mutable.HashMap.empty[String, Boolean | Int | Long | Float | String]
+  override def get(): scala.collection.mutable.Map[String, ?] = {
+    val map     = scala.collection.mutable.HashMap.empty[String, Any]
     val entries = properties.entrySet().iterator()
     while (entries.hasNext) {
       val entry = entries.next()

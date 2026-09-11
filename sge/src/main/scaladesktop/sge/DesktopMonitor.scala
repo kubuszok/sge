@@ -35,5 +35,5 @@ final case class DesktopMonitor(
 ) {
 
   /** Converts to the core [[Graphics.Monitor]] representation (without native handle). */
-  def toMonitor: Graphics.Monitor = Graphics.Monitor(virtualX, virtualY, name)
+  def toMonitor: Graphics.Monitor = new Graphics.Monitor(virtualX, virtualY, name)
 }

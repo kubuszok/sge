@@ -29,8 +29,8 @@ class AudioControlGraphPool(
   val destinationNode: js.Dynamic
 ) extends utils.Pool[AudioControlGraph] {
 
-  override protected val max:             Int = Int.MaxValue
-  override protected val initialCapacity: Int = 4
+  override protected[sge] val max:             Int = Int.MaxValue
+  override protected[sge] val initialCapacity: Int = 4
 
   override protected def newObject(): AudioControlGraph =
     AudioControlGraph(audioContext, destinationNode)

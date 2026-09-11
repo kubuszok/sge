@@ -94,6 +94,7 @@ class BrowserGraphics(
 
   override def frameId:         Long    = _frameId
   override def deltaTime:       Seconds = _deltaTime
+  override def rawDeltaTime: Float = deltaTime.toFloat
   override def framesPerSecond: Int     = fps.toInt
 
   /** Update frame timing. Called once per frame by BrowserApplication. */
@@ -134,7 +135,7 @@ class BrowserGraphics(
     val sw = (window.screen.width * d).toInt
     val sh = (window.screen.height * d).toInt
     val cd = window.screen.asInstanceOf[js.Dynamic].colorDepth.asInstanceOf[Int]
-    Graphics.DisplayMode(sw, sh, 60, cd)
+    new Graphics.DisplayMode(sw, sh, 60, cd)
   }
 
   override def getDisplayModes(monitor: Graphics.Monitor): Array[Graphics.DisplayMode] =
@@ -143,7 +144,7 @@ class BrowserGraphics(
   override def getDisplayMode(monitor: Graphics.Monitor): Graphics.DisplayMode =
     displayMode
 
-  private val _primaryMonitor: Graphics.Monitor = Graphics.Monitor(0, 0, "Primary Monitor")
+  private val _primaryMonitor: Graphics.Monitor = new Graphics.Monitor(0, 0, "Primary Monitor")
 
   override def primaryMonitor: Graphics.Monitor = _primaryMonitor
 

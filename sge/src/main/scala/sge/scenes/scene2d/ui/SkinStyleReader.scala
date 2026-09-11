@@ -249,8 +249,8 @@ object SkinStyleReader {
     }
 
     def setField(obj: CheckBox.CheckBoxStyle, name: String, json: Json, skin: Skin, readColor: Json => Color, readStyle: (Class[?], Json) => Any): Unit = name match {
-      case "checkboxOn"          => obj.checkboxOn = resolveNullableDrawable(skin, json)
-      case "checkboxOff"         => obj.checkboxOff = resolveNullableDrawable(skin, json)
+      case "checkboxOn"          => obj.checkboxOn = resolveNullableDrawable(skin, json).orNull
+      case "checkboxOff"         => obj.checkboxOff = resolveNullableDrawable(skin, json).orNull
       case "checkboxOnOver"      => obj.checkboxOnOver = resolveNullableDrawable(skin, json)
       case "checkboxOver"        => obj.checkboxOver = resolveNullableDrawable(skin, json)
       case "checkboxOnDisabled"  => obj.checkboxOnDisabled = resolveNullableDrawable(skin, json)

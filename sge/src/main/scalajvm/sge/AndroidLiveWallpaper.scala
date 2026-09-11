@@ -36,7 +36,7 @@ class AndroidLiveWallpaper(
   private val config:     AndroidConfigOps,
   private val provider:   AndroidPlatformProvider,
   private val serviceOps: LiveWallpaperServiceOps
-) extends Application
+) extends JavaLoggingApplication
     with LiveWallpaperAppCallbacks {
 
   // ── Subsystems ──────────────────────────────────────────────────────

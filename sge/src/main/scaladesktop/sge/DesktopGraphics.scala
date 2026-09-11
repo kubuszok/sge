@@ -90,6 +90,9 @@ class DesktopGraphics private[sge] (
     val versionString  = _gl20.glGetString(GL20.GL_VERSION)
     val vendorString   = _gl20.glGetString(GL20.GL_VENDOR)
     val rendererString = _gl20.glGetString(GL20.GL_RENDERER)
+    // the port's GLVersion carries the context (it logs a malformed version string through it); the
+    // context is built after graphics exist, so the window's current one is handed over as-is
+    given Sge = window.sgeContext
     _glVersion = new GLVersion(Application.ApplicationType.Desktop, versionString, vendorString, rendererString)
   }
 
@@ -182,14 +185,16 @@ class DesktopGraphics private[sge] (
 
   // ─── Frame timing ────────────────────────────────────────────────────
 
-  override def frameId:         Long    = _frameId
+  override def frameId: Long = _frameId
+  // java keeps a raw (unsmoothed) delta; sge dropped it — the port's Graphics still declares it
+  override def rawDeltaTime:    Float   = deltaTime.toFloat // java's getRawDeltaTime: sge has no such member, the port keeps the Float
   override def deltaTime:       Seconds = _deltaTime
   override def framesPerSecond: Int     = _fps
 
   // ─── Type / version ──────────────────────────────────────────────────
 
-  override def graphicsType: Graphics.GraphicsType = Graphics.GraphicsType.LWJGL3
-  override def glVersion:    Graphics.GLVersion    = _glVersion
+  override def graphicsType: Graphics.GraphicsType          = Graphics.GraphicsType.LWJGL3
+  override def glVersion:    sge.graphics.glutils.GLVersion = _glVersion
 
   // ─── DPI / density ───────────────────────────────────────────────────
 

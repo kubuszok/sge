@@ -38,5 +38,5 @@ final case class DesktopDisplayMode(
 ) {
 
   /** Converts to the core [[Graphics.DisplayMode]] representation (without native handle). */
-  def toDisplayMode: Graphics.DisplayMode = Graphics.DisplayMode(width, height, refreshRate, bitsPerPixel)
+  def toDisplayMode: Graphics.DisplayMode = new Graphics.DisplayMode(width, height, refreshRate, bitsPerPixel)
 }

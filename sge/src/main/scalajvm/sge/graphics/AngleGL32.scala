@@ -20,6 +20,7 @@ import java.lang.foreign.*
 import java.lang.foreign.ValueLayout.*
 import java.lang.invoke.{ MethodHandle, MethodHandles, MethodType }
 import java.nio.{ Buffer, ByteBuffer, FloatBuffer, IntBuffer }
+import sge.graphics.GL32.DebugProc // port: the java nested interface lives in the companion, sge nests it in the trait
 
 /** OpenGL ES 3.2 implementation via ANGLE (libGLESv2) using Panama FFM downcall handles.
   *

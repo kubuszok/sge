@@ -39,7 +39,7 @@ private[utils] object UIUtilsPlatform {
   private[utils] def isIosFor(platform: String):     Boolean =
     platform.contains("iPhone") || platform.contains("iPod") || platform.contains("iPad")
 
-  private val platform: String = window.navigator.platform
+  private val platform: String = try { window.navigator.platform } catch { case _: Throwable => "" }
 
   val isAndroid: Boolean = isAndroidFor(platform)
   val isMac:     Boolean = isMacFor(platform)

@@ -48,7 +48,7 @@ import sge.utils.Clipboard
 class BrowserApplication(
   listenerFactory: Sge ?=> ApplicationListener,
   config:          BrowserApplicationConfig
-) extends Application {
+) extends JavaLoggingApplication {
 
   // Hard reference to the build-time-generated, self-registering embedded-resources
   // object so Scala.js DCE keeps its initializer (which calls EmbeddedResources.register).

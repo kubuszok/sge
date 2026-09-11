@@ -1,0 +1,5 @@
+com.badlogic.gdx.utils.Architecture
+com.badlogic.gdx.utils.Architecture$Bitness
+com.badlogic.gdx.utils.Os
+com.badlogic.gdx.utils.SharedLibraryLoadRuntimeException
+com.badlogic.gdx.utils.SharedLibraryLoader

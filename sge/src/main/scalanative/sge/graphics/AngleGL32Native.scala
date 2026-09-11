@@ -16,6 +16,8 @@
 package sge
 package graphics
 
+import sge.graphics.GL32.DebugProc
+
 import java.nio.{ Buffer, ByteBuffer, FloatBuffer, IntBuffer }
 
 import scala.scalanative.unsafe.*
@@ -127,7 +129,7 @@ private[graphics] object GL32C {
 // ─── Static debug callback holder (CFuncPtr requires statically reachable symbols) ─
 
 private[graphics] object AngleGL32Native {
-  var debugCallback: GL32#DebugProc = scala.compiletime.uninitialized
+  var debugCallback: GL32.DebugProc = scala.compiletime.uninitialized
 }
 
 // ─── GL32 wrapper ─────────────────────────────────────────────────────────────

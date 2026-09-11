@@ -199,12 +199,13 @@ class AndroidGraphics(
 
   override def frameId:         Long    = _frameId
   override def deltaTime:       Seconds = _deltaTime
+  override def rawDeltaTime:    Float   = deltaTime.toFloat // java's getRawDeltaTime, as the desktop copy
   override def framesPerSecond: Int     = _fps
 
   // ─── Type / version ──────────────────────────────────────────────────
 
-  override def graphicsType: Graphics.GraphicsType = Graphics.GraphicsType.AndroidGL
-  override def glVersion:    Graphics.GLVersion    = _glVersion
+  override def graphicsType: Graphics.GraphicsType          = Graphics.GraphicsType.AndroidGL
+  override def glVersion:    sge.graphics.glutils.GLVersion = _glVersion
 
   // ─── DPI / density ───────────────────────────────────────────────────
 
@@ -218,7 +219,7 @@ class AndroidGraphics(
 
   override def supportsDisplayModeChange(): Boolean = false
 
-  override def primaryMonitor: Graphics.Monitor        = Graphics.Monitor(0, 0, "Primary Monitor")
+  override def primaryMonitor: Graphics.Monitor        = new Graphics.Monitor(0, 0, "Primary Monitor")
   override def monitor:        Graphics.Monitor        = primaryMonitor
   override def monitors:       Array[Graphics.Monitor] = Array(primaryMonitor)
 
@@ -229,7 +230,7 @@ class AndroidGraphics(
   override def displayMode: Graphics.DisplayMode = {
     val bpp                 = config.r + config.g + config.b + config.a
     val (w, h, refresh, bp) = displayMetrics.displayMode(glSurfaceView.view, bpp)
-    Graphics.DisplayMode(w, h, refresh, bp)
+    new Graphics.DisplayMode(w, h, refresh, bp)
   }
 
   override def getDisplayMode(mon: Graphics.Monitor): Graphics.DisplayMode = displayMode

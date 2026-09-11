@@ -46,7 +46,7 @@ class AndroidApplication(
   private val lifecycle:        AndroidLifecycleOps,
   private val context:          AnyRef,
   private val useExternalFiles: Boolean = false
-) extends Application {
+) extends JavaLoggingApplication {
 
   // ── Subsystems ──────────────────────────────────────────────────────
 
@@ -288,6 +288,8 @@ private[sge] class AndroidFiles(ops: FilesOps) extends Files {
 /** Adapts [[AudioEngineOps]] to [[Audio]] trait. Creates adapter instances that delegate to ops. */
 private[sge] class AndroidAudio(ops: AudioEngineOps) extends Audio {
 
+  override def close(): Unit = ops.dispose()
+
   override def newAudioDevice(samplingRate: Int, isMono: Boolean): audio.AudioDevice =
     AndroidAudioDeviceAdapter(ops.newAudioDevice(samplingRate, isMono))
 
@@ -346,12 +348,12 @@ private[sge] class AndroidAudio(ops: AudioEngineOps) extends Audio {
 
 /** Adapts [[PreferencesOps]] to [[Preferences]] trait. */
 private[sge] class AndroidPreferencesAdapter(ops: PreferencesOps) extends Preferences {
-  override def putBoolean(key: String, value: Boolean):                                        Preferences = { ops.putBoolean(key, value); this }
-  override def putInteger(key: String, value: Int):                                            Preferences = { ops.putInteger(key, value); this }
-  override def putLong(key:    String, value: Long):                                           Preferences = { ops.putLong(key, value); this }
-  override def putFloat(key:   String, value: Float):                                          Preferences = { ops.putFloat(key, value); this }
-  override def putString(key:  String, value: String):                                         Preferences = { ops.putString(key, value); this }
-  override def put(vals: scala.collection.Map[String, Boolean | Int | Long | Float | String]): Preferences = {
+  override def putBoolean(key: String, value: Boolean):            Preferences = { ops.putBoolean(key, value); this }
+  override def putInteger(key: String, value: Int):                Preferences = { ops.putInteger(key, value); this }
+  override def putLong(key:    String, value: Long):               Preferences = { ops.putLong(key, value); this }
+  override def putFloat(key:   String, value: Float):              Preferences = { ops.putFloat(key, value); this }
+  override def putString(key:  String, value: String):             Preferences = { ops.putString(key, value); this }
+  override def put(vals: scala.collection.mutable.Map[String, ?]): Preferences = {
     // Convert Scala map entries to individual puts
     vals.foreach { (k, v) =>
       v match {
@@ -364,17 +366,17 @@ private[sge] class AndroidPreferencesAdapter(ops: PreferencesOps) extends Prefer
     }
     this
   }
-  override def getBoolean(key: String):                    Boolean                                                             = ops.getBoolean(key, false)
-  override def getInteger(key: String):                    Int                                                                 = ops.getInteger(key, 0)
-  override def getLong(key:    String):                    Long                                                                = ops.getLong(key, 0L)
-  override def getFloat(key:   String):                    Float                                                               = ops.getFloat(key, 0f)
-  override def getString(key:  String):                    String                                                              = ops.getString(key, "")
-  override def getBoolean(key: String, defValue: Boolean): Boolean                                                             = ops.getBoolean(key, defValue)
-  override def getInteger(key: String, defValue: Int):     Int                                                                 = ops.getInteger(key, defValue)
-  override def getLong(key:    String, defValue: Long):    Long                                                                = ops.getLong(key, defValue)
-  override def getFloat(key:   String, defValue: Float):   Float                                                               = ops.getFloat(key, defValue)
-  override def getString(key:  String, defValue: String):  String                                                              = ops.getString(key, defValue)
-  override def get():                                      scala.collection.Map[String, Boolean | Int | Long | Float | String] = {
+  override def getBoolean(key: String):                    Boolean                                 = ops.getBoolean(key, false)
+  override def getInteger(key: String):                    Int                                     = ops.getInteger(key, 0)
+  override def getLong(key:    String):                    Long                                    = ops.getLong(key, 0L)
+  override def getFloat(key:   String):                    Float                                   = ops.getFloat(key, 0f)
+  override def getString(key:  String):                    String                                  = ops.getString(key, "")
+  override def getBoolean(key: String, defValue: Boolean): Boolean                                 = ops.getBoolean(key, defValue)
+  override def getInteger(key: String, defValue: Int):     Int                                     = ops.getInteger(key, defValue)
+  override def getLong(key:    String, defValue: Long):    Long                                    = ops.getLong(key, defValue)
+  override def getFloat(key:   String, defValue: Float):   Float                                   = ops.getFloat(key, defValue)
+  override def getString(key:  String, defValue: String):  String                                  = ops.getString(key, defValue)
+  override def get():                                      scala.collection.mutable.Map[String, ?] = {
     val all     = ops.getAll
     val builder = scala.collection.mutable.Map.empty[String, Boolean | Int | Long | Float | String]
     val it      = all.entrySet().iterator()
