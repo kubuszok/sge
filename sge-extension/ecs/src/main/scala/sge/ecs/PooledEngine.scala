@@ -109,8 +109,8 @@ class PooledEngine(
   }
 
   private class EntityPool(poolInitialSize: Int, poolMaxSize: Int) extends Pool[PooledEntity] {
-    override protected val initialCapacity: Int = poolInitialSize
-    override protected val max:             Int = poolMaxSize
+    override val initialCapacity: Int = poolInitialSize
+    override val max:             Int = poolMaxSize
 
     override protected def newObject(): PooledEntity = new PooledEntity()
 
@@ -151,9 +151,9 @@ class PooledEngine(
             )
       }
       new Pool[T] {
-        override protected val initialCapacity: Int = poolInitialSize
-        override protected val max:             Int = poolMaxSize
-        override protected def newObject():     T   = factory()
+        override val initialCapacity:       Int = poolInitialSize
+        override val max:                   Int = poolMaxSize
+        override protected def newObject(): T   = factory()
       }
     }
   }

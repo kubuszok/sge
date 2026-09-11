@@ -170,8 +170,8 @@ private[ecs] object EntityOperation {
 
 /** Pool for reusing [[EntityOperation]] instances. */
 final private[ecs] class EntityOperationPool extends Pool[EntityOperation] {
-  override protected val max:             Int = Int.MaxValue
-  override protected val initialCapacity: Int = 16
+  override val max:             Int = Int.MaxValue
+  override val initialCapacity: Int = 16
 
   override protected def newObject(): EntityOperation = new EntityOperation()
 }

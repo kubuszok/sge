@@ -202,8 +202,8 @@ final private[ecs] class EntityListenerData {
 
 /** Pool for reusing [[mutable.BitSet]] instances. */
 final private[ecs] class BitSetPool extends Pool[mutable.BitSet] {
-  override protected val max:             Int = Int.MaxValue
-  override protected val initialCapacity: Int = 16
+  override val max:             Int = Int.MaxValue
+  override val initialCapacity: Int = 16
 
   override protected def newObject(): mutable.BitSet = mutable.BitSet()
 }
