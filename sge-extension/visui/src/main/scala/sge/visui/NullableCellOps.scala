@@ -10,5 +10,5 @@ package sge.visui
 
 import sge.scenes.scene2d.ui.Cell
 
-given nullableCellUnwrap[T]: Conversion[lowlevel.Nullable.Impl[Cell[T]], Cell[T]] =
+given nullableCellUnwrap[T <: sge.scenes.scene2d.Actor]: Conversion[lowlevel.Nullable.Impl[Cell[T]], Cell[T]] =
   _.get

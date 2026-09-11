@@ -28,7 +28,7 @@ import sge.visui.{ FocusManager, VisUI }
   * @see
   *   [[SelectBox]]
   */
-class VisSelectBox[T](selectBoxStyle: SelectBox.SelectBoxStyle)(using Sge) extends SelectBox[T](selectBoxStyle) {
+class VisSelectBox[T <: Object](selectBoxStyle: SelectBox.SelectBoxStyle)(using Sge) extends SelectBox[T](selectBoxStyle) {
 
   init()
 
