@@ -105,13 +105,6 @@ object BalticPorterGen {
       log.info(s"[Baltic Porter] Using cached generated sources ($commit)")
     }
 
-    // Remove generated files that conflict with SGE-original hand-written sources.
-    // Both live under the same package paths (sge/…) so the compiler sees duplicate
-    // definitions. The SGE-originals win: they are the canonical, hand-maintained
-    // versions (opaque types, platform traits, networking, etc.).
-    val sgeOriginalDir = sgeRoot.resolve("sge/src/main/scala")
-    removeConflicts(outDir, sgeOriginalDir, log)
-
     // Collect all generated files: shared + any platform rows
     val managedRoot = portRoot.resolve("src_managed/main")
     collectScalaFiles(managedRoot)
@@ -183,32 +176,6 @@ object BalticPorterGen {
     }
 
     reportRoot
-  }
-
-  /** Delete generated files whose relative path under `generatedDir` matches a
-    * hand-written SGE-original under `sgeOriginalDir`. This prevents E161 "already
-    * defined" errors when both trees are on the classpath.
-    */
-  private def removeConflicts(generatedDir: Path, sgeOriginalDir: Path, log: sbt.util.Logger): Unit = {
-    if (!Files.isDirectory(sgeOriginalDir) || !Files.isDirectory(generatedDir)) return
-    val stream = Files.walk(sgeOriginalDir)
-    try {
-      var removed = 0
-      stream.forEach { p =>
-        if (p.toString.endsWith(".scala")) {
-          val rel = sgeOriginalDir.relativize(p)
-          val generated = generatedDir.resolve(rel)
-          if (Files.exists(generated)) {
-            Files.delete(generated)
-            removed += 1
-          }
-        }
-      }
-      if (removed > 0)
-        log.info(s"[Baltic Porter] Removed $removed generated files that conflict with SGE-originals")
-    } finally {
-      stream.close()
-    }
   }
 
   private def collectScalaFiles(dir: Path): Seq[File] = {
