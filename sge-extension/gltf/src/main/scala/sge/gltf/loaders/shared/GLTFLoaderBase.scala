@@ -200,7 +200,7 @@ class GLTFLoaderBase(private var textureResolver: Nullable[TextureResolver] = Nu
     for ((name, lightIdx) <- lightMap) {
       val node = sceneModel.model.getNode(name, true)
       node.foreach { n =>
-        sceneModel.lights.put(n, lights(lightIdx).asInstanceOf[sge.graphics.g3d.environment.BaseLight[Any]])
+        sceneModel.lights.put(n, lights(lightIdx).asInstanceOf[_root_.sge.graphics.g3d.environment.BaseLight[Any]])
       }
     }
 
