@@ -596,7 +596,7 @@ object KnownFonts {
         atlasRegion.names = region.names
         atlasRegion.values = region.values
         if (region.flip) atlasRegion.flip(false, true)
-        atlas.addRegion(atlasRegion)
+        atlas.addRegion(atlasRegion.name, atlasRegion)
       }
     } else {
       atlas.load(data)

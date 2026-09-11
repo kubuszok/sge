@@ -1828,7 +1828,7 @@ class Font {
     makeGridGlyphs: Boolean
   )(using sge.Sge): Unit = {
     setDistanceField(distanceField)
-    parents = ArrayBuffer.from(bmFont.regions.iterator().asScala)
+    parents = ArrayBuffer.from(balticporter.runtime.JavaIterator.asScala(bmFont.regions.iterator()))
     if (distanceField != Font.DistanceFieldType.STANDARD) {
       for (parent <- parents if parent.texture != null) // @nowarn — texture null check at interop
         parent.texture.setFilter(sge.graphics.Texture.TextureFilter.Linear, sge.graphics.Texture.TextureFilter.Linear)

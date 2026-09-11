@@ -99,11 +99,11 @@ class TextureArrayPolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaul
   }
 
   private val mesh = Mesh(
-    meshType = vertexDataType,
-    isStatic = false,
-    maxVertices = maxVertices,
-    maxIndices = maxTriangles * 3,
-    attributes = VertexAttributes(
+    vertexDataType,
+    false,
+    maxVertices,
+    maxTriangles * 3,
+    VertexAttributes(
       VertexAttribute(Usage.Position, 2, ShaderProgram.POSITION_ATTRIBUTE),
       VertexAttribute(Usage.ColorPacked, 4, ShaderProgram.COLOR_ATTRIBUTE),
       VertexAttribute(Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + "0"),
