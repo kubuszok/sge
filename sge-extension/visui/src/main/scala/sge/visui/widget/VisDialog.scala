@@ -39,9 +39,9 @@ import sge.utils.Seconds
   */
 class VisDialog(title: String, windowStyle: WindowStyle)(using Sge) extends VisWindow(title, windowStyle) {
 
-  var contentTable: Table = scala.compiletime.uninitialized
-  var buttonTable:  Table = scala.compiletime.uninitialized
-  private var skin: Skin  = scala.compiletime.uninitialized
+  var contentTable:        Table = scala.compiletime.uninitialized
+  var buttonTable:         Table = scala.compiletime.uninitialized
+  private var _dialogSkin: Skin  = scala.compiletime.uninitialized
 
   val values:                        mutable.Map[Actor, Nullable[AnyRef]] = mutable.Map.empty
   var cancelHide:                    Boolean                              = false
@@ -56,8 +56,8 @@ class VisDialog(title: String, windowStyle: WindowStyle)(using Sge) extends VisW
     }
   }
 
-  skin = VisUI.getSkin
-  setSkin(Nullable(skin))
+  _dialogSkin = VisUI.getSkin
+  setSkin(Nullable(_dialogSkin))
   initialize()
 
   def this(title: String)(using Sge) = this(title, VisUI.getSkin.get[WindowStyle])
@@ -69,10 +69,10 @@ class VisDialog(title: String, windowStyle: WindowStyle)(using Sge) extends VisW
     titleLabel.setAlignment(VisUI.defaultTitleAlign)
 
     defaults().space(6)
-    contentTable = new Table(Nullable(skin))
+    contentTable = new Table(Nullable(_dialogSkin))
     add(Nullable[Actor](contentTable)).expand().fill()
     row()
-    buttonTable = new Table(Nullable(skin))
+    buttonTable = new Table(Nullable(_dialogSkin))
     add(Nullable[Actor](buttonTable))
 
     contentTable.defaults().space(2).padLeft(3).padRight(3)
@@ -122,7 +122,7 @@ class VisDialog(title: String, windowStyle: WindowStyle)(using Sge) extends VisW
   def getButtonsTable: Table = buttonTable
 
   /** Adds a label to the content table. */
-  def text(text: String): VisDialog = this.text(text, skin.get[Label.LabelStyle])
+  def text(text: String): VisDialog = this.text(text, _dialogSkin.get[Label.LabelStyle])
 
   /** Adds a label to the content table. */
   def text(text: String, labelStyle: Label.LabelStyle): VisDialog = this.text(new Label(Nullable(text: CharSequence), labelStyle))
@@ -141,7 +141,7 @@ class VisDialog(title: String, windowStyle: WindowStyle)(using Sge) extends VisW
     *   The object that will be passed to [[result]] if this button is clicked. May be null.
     */
   def button(text: String, obj: Nullable[AnyRef]): VisDialog =
-    button(text, obj, skin.get[VisTextButton.VisTextButtonStyle])
+    button(text, obj, _dialogSkin.get[VisTextButton.VisTextButtonStyle])
 
   /** Adds a text button to the button table.
     * @param obj
