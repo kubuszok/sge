@@ -46,7 +46,7 @@ class FileSuggestionPopup(chooser: FileChooser)(using Sge) extends AbstractSugge
   private def createSuggestions(files: DynamicArray[FileHandle], fileNameField: VisTextField): Int = {
     clearChildren()
     var suggestions = 0
-    val iter        = files.iterator
+    val iter        = files.iterator()
     while (iter.hasNext && suggestions < AbstractSuggestionPopup.MAX_SUGGESTIONS) {
       val file = iter.next()
       if (file.name.startsWith(fileNameField.text) && !file.name.equals(fileNameField.text)) {
@@ -69,8 +69,8 @@ class FileSuggestionPopup(chooser: FileChooser)(using Sge) extends AbstractSugge
     ) {
       val rule = chooser.getActiveFileTypeFilterRule
 
-      val extIter = rule.getExtensions.iterator
-      while (extIter.hasNext) {
+      val extIter = rule.getExtensions.iterator()
+      while (extIter.hasNext()) {
         val extension     = extIter.next()
         val arbitraryPath = fileNameField.text + extension
         val item          = createMenuItem(arbitraryPath)

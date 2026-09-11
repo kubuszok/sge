@@ -118,7 +118,7 @@ class DirsSuggestionPopup(chooser: FileChooser, pathField: VisTextField)(using s
   private def createRecentDirSuggestions(files: DynamicArray[FileHandle], width: Float): Int = {
     clearChildren()
     var suggestions = 0
-    val iter        = files.iterator
+    val iter        = files.iterator()
     while (iter.hasNext && suggestions < AbstractSuggestionPopup.MAX_SUGGESTIONS) {
       val file = iter.next()
       if (file.exists()) {

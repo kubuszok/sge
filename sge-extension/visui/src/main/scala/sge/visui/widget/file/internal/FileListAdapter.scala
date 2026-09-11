@@ -50,8 +50,8 @@ class FileListAdapter(val chooser: FileChooser, files: DynamicArray[FileHandle])
 
     if (viewMode.isGridMode) {
       viewMode.setupGridGroup(chooser.getSizes, gridGroup)
-      val iter = iterable.iterator
-      while (iter.hasNext) {
+      val iter = iterable.iterator()
+      while (iter.hasNext()) {
         val item = iter.next()
         val view = getView(item)
         orderedViews.add(view)
@@ -60,8 +60,8 @@ class FileListAdapter(val chooser: FileChooser, files: DynamicArray[FileHandle])
       }
       itemsTable.add(Nullable[Actor](gridGroup)).growX().minWidth(0)
     } else {
-      val iter = iterable.iterator
-      while (iter.hasNext) {
+      val iter = iterable.iterator()
+      while (iter.hasNext()) {
         val item = iter.next()
         val view = getView(item)
         orderedViews.add(view)

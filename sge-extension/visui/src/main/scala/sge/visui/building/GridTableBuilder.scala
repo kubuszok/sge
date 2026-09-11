@@ -35,8 +35,8 @@ class GridTableBuilder(rowSize: Int, estimatedWidgetsAmount: Int, estimatedRowsA
 
   override protected def fillTable(table: Table): Unit = {
     var widgetsCounter = 0
-    val iter           = getWidgets.iterator
-    while (iter.hasNext) {
+    val iter           = getWidgets.iterator()
+    while (iter.hasNext()) {
       iter.next().buildCell(table, Nullable(getDefaultWidgetPadding))
       widgetsCounter += 1
       if (widgetsCounter == rowSize) { widgetsCounter -= rowSize; table.row() }

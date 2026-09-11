@@ -128,7 +128,7 @@ class HighlightTextArea(text: String, visStyle: VisTextField.VisTextFieldStyle)(
               lineProgress = h.start
             }
 
-            val chunk = renderChunks.peek
+            val chunk = renderChunks.peek()
             layout.setText(style.font, chunk.text)
             chunkOffset += layout.width
             // current highlight needs to be applied to next line meaning that there is no other highlights that can be applied to currently parsed line

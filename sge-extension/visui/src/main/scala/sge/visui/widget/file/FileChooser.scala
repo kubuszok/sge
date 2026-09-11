@@ -525,7 +525,7 @@ class FileChooser private (private var _mode: FileChooser.Mode, private val _ski
           else if (!Character.isLetterOrDigit(character)) false
           else {
             val name  = String.valueOf(character)
-            val iter  = currentFiles.iterator
+            val iter  = currentFiles.iterator()
             var found = false
             while (iter.hasNext && !found) {
               val file = iter.next()
@@ -597,8 +597,8 @@ class FileChooser private (private var _mode: FileChooser.Mode, private val _ski
     val f = files.get
 
     if (_mode == Mode.OPEN) {
-      val iter = f.iterator
-      while (iter.hasNext)
+      val iter = f.iterator()
+      while (iter.hasNext())
         if (!iter.next().exists()) { showDialog(POPUP_SELECTED_FILE_DOES_NOT_EXIST.get); return; } // @nowarn -- early return
     }
 
@@ -628,12 +628,12 @@ class FileChooser private (private var _mode: FileChooser.Mode, private val _ski
   private def getFileListFromSelected(): Nullable[DynamicArray[FileHandle]] = {
     val list = DynamicArray[FileHandle]()
     if (_mode == Mode.OPEN) {
-      val iter = selectedItems.iterator
-      while (iter.hasNext) list.add(iter.next().getFile)
+      val iter = selectedItems.iterator()
+      while (iter.hasNext()) list.add(iter.next().getFile)
       Nullable(list)
     } else if (selectedItems.size > 0) {
-      val iter = selectedItems.iterator
-      while (iter.hasNext) list.add(iter.next().getFile)
+      val iter = selectedItems.iterator()
+      while (iter.hasNext()) list.add(iter.next().getFile)
       showOverwriteQuestion(list)
       Nullable.empty
     } else {
@@ -709,8 +709,8 @@ class FileChooser private (private var _mode: FileChooser.Mode, private val _ski
   private def rebuildShortcutsFavoritesPanel(): Unit = {
     shortcutsFavoritesPanel.clear()
     if (favorites.size > 0) {
-      val iter = favorites.iterator
-      while (iter.hasNext) {
+      val iter = favorites.iterator()
+      while (iter.hasNext()) {
         val f = iter.next()
         shortcutsFavoritesPanel.addActor(new ShortcutItem(f.file, f.name, _chooserStyle.iconFolder.get))
       }
@@ -740,8 +740,8 @@ class FileChooser private (private var _mode: FileChooser.Mode, private val _ski
             val files = FileUtils.sortFiles(listFilteredCurrentDirectory(), _sorting.get().comparator, !_sortingOrderAscending.get())
             if (Thread.currentThread().isInterrupted) { return; } // @nowarn -- early return
             val metadata = new java.util.IdentityHashMap[FileHandle, FileHandleMetadata](files.size)
-            val iter     = files.iterator
-            while (iter.hasNext) { val file = iter.next(); metadata.put(file, FileHandleMetadata.of(file)) }
+            val iter     = files.iterator()
+            while (iter.hasNext()) { val file = iter.next(); metadata.put(file, FileHandleMetadata.of(file)) }
             if (Thread.currentThread().isInterrupted) { return; } // @nowarn -- early return
             Sge().application.postRunnable(new Runnable { override def run(): Unit = buildFileList(files, metadata, selectedFiles, stageChanged) })
           }
@@ -826,15 +826,15 @@ class FileChooser private (private var _mode: FileChooser.Mode, private val _ski
   private def deselectAll(): Unit = deselectAll(updateTextField = true)
 
   private def deselectAll(updateTextField: Boolean): Unit = {
-    val iter = selectedItems.iterator
-    while (iter.hasNext) iter.next().deselect(removeFromList = false)
+    val iter = selectedItems.iterator()
+    while (iter.hasNext()) iter.next().deselect(removeFromList = false)
     selectedItems.clear()
     if (updateTextField) updateSelectedFileFieldText()
   }
 
   private def selectAll(): Unit = {
-    val iter = fileListAdapter.getOrderedViews.iterator
-    while (iter.hasNext) iter.next().select(deselectIfAlreadySelected = false)
+    val iter = fileListAdapter.getOrderedViews.iterator()
+    while (iter.hasNext()) iter.next().select(deselectIfAlreadySelected = false)
     removeInvalidSelections()
     updateSelectedFileFieldText()
   }
@@ -866,8 +866,8 @@ class FileChooser private (private var _mode: FileChooser.Mode, private val _ski
     else if (selectedItems.size == 1) selectedFileTextField.setText(selectedItems(0).getFile.name)
     else {
       val builder = new java.lang.StringBuilder()
-      val iter    = selectedItems.iterator
-      while (iter.hasNext) {
+      val iter    = selectedItems.iterator()
+      while (iter.hasNext()) {
         builder.append('"'); builder.append(iter.next().file.name); builder.append("\" ")
       }
       selectedFileTextField.setText(builder.toString)
