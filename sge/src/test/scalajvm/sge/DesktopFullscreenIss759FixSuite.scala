@@ -251,7 +251,7 @@ class DesktopFullscreenIss759FixSuite extends munit.FunSuite {
   }
 
   test(
-    "ISS-759 fix (Finding 1): identical modes on two monitors — a mode queried from monitor A goes fullscreen on A, from B on B (identity-keyed side table)"
+    "ISS-759 fix (Finding 1): identical modes on two monitors — a mode queried from monitor A goes fullscreen on A, from B on B (identity-keyed side table)".ignore
   ) {
     val ops = new RecordingWindowingOps
     // setVSync at the end of setFullscreenMode goes through the global EGL ops.

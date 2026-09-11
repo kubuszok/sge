@@ -211,10 +211,8 @@ class VectorArithmeticTest extends munit.ScalaCheckSuite {
   }
 
   test("Vector2 epsilonEquals") {
-    @annotation.nowarn("msg=unused")
-    given Epsilon = Epsilon(0.01f)
-    assert(Vector2(1f, 2f).epsilonEquals(Vector2(1.005f, 2.005f)))
-    assert(!Vector2(1f, 2f).epsilonEquals(Vector2(1.02f, 2f)))
+    assert(Vector2(1f, 2f).epsilonEquals(Vector2(1.005f, 2.005f), 0.01f))
+    assert(!Vector2(1f, 2f).epsilonEquals(Vector2(1.02f, 2f), 0.01f))
   }
 
   test("Vector2 mulAdd") {

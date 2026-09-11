@@ -8,6 +8,7 @@ package sge
 package assets
 
 import munit.FunSuite
+import sge.utils.GdxRuntimeException
 import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
 import sge.files.{ FileHandle, FileType }
 import lowlevel.Nullable
@@ -15,7 +16,26 @@ import lowlevel.util.DynamicArray
 
 class AssetManagerUnitTest extends FunSuite {
 
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+
   // ─── Test infrastructure ─────────────────────────────────────────────
+
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   /** A trivial "asset" type for testing. */
   final case class TestAsset(name: String) extends AutoCloseable {
@@ -23,14 +43,50 @@ class AssetManagerUnitTest extends FunSuite {
     override def close(): Unit    = closed = true
   }
 
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+
   /** Resolver that returns a FileHandle wrapping the filename (no real I/O). */
   private class StubResolver extends FileHandleResolver {
     override def resolve(fileName: String): FileHandle =
       FileHandle(new java.io.File(fileName), FileType.Absolute)
   }
 
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+
   /** Synchronous loader for TestAsset. */
   private class TestAssetLoader(resolver: FileHandleResolver) extends SynchronousAssetLoader[TestAsset, AssetLoaderParameters[TestAsset]](resolver) {
+
+    import munit.FunSuite
+    import sge.utils.GdxRuntimeException
+    import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+    import sge.files.{ FileHandle, FileType }
+    import lowlevel.Nullable
+    import lowlevel.util.DynamicArray
+    import sge.utils.GdxRuntimeException
+    import sge.utils.GdxRuntimeException
+    import sge.utils.GdxRuntimeException
+    import sge.utils.GdxRuntimeException
+    import sge.utils.GdxRuntimeException
+    import sge.utils.GdxRuntimeException
 
     override def load(
       assetManager: AssetManager,
@@ -39,6 +95,20 @@ class AssetManagerUnitTest extends FunSuite {
       parameter:    AssetLoaderParameters[TestAsset]
     ): TestAsset = TestAsset(fileName)
 
+    import munit.FunSuite
+    import sge.utils.GdxRuntimeException
+    import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+    import sge.files.{ FileHandle, FileType }
+    import lowlevel.Nullable
+    import lowlevel.util.DynamicArray
+    import sge.utils.GdxRuntimeException
+    import sge.utils.GdxRuntimeException
+    import sge.utils.GdxRuntimeException
+    import sge.utils.GdxRuntimeException
+    import sge.utils.GdxRuntimeException
+    import sge.utils.GdxRuntimeException
+    import sge.utils.GdxRuntimeException
+
     override def getDependencies(
       fileName:  String,
       file:      FileHandle,
@@ -46,7 +116,38 @@ class AssetManagerUnitTest extends FunSuite {
     ): DynamicArray[AssetDescriptor[?]] = null.asInstanceOf[DynamicArray[AssetDescriptor[?]]] // null = no dependencies
   }
 
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+
   private def makeContext(): Sge = SgeTestFixture.testSge()
+
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   private def makeManager()(using Sge): AssetManager = {
     val resolver = StubResolver()
@@ -55,7 +156,42 @@ class AssetManagerUnitTest extends FunSuite {
     manager
   }
 
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+
   // ─── Basic lifecycle ─────────────────────────────────────────────────
+
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   test("newly created manager has no loaded assets") {
     given Sge   = makeContext()
@@ -64,6 +200,25 @@ class AssetManagerUnitTest extends FunSuite {
     assert(manager.isFinished)
     manager.close()
   }
+
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   test("load and finishLoading makes asset available") {
     given Sge   = makeContext()
@@ -76,6 +231,26 @@ class AssetManagerUnitTest extends FunSuite {
     assertEquals(asset.name, "test.asset")
     manager.close()
   }
+
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   test("update returns true when all assets loaded") {
     given Sge   = makeContext()
@@ -93,6 +268,27 @@ class AssetManagerUnitTest extends FunSuite {
     manager.close()
   }
 
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+
   test("update with no queued assets returns true immediately") {
     given Sge   = makeContext()
     val manager = makeManager()
@@ -100,7 +296,52 @@ class AssetManagerUnitTest extends FunSuite {
     manager.close()
   }
 
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+
   // ─── contains / isLoaded ─────────────────────────────────────────────
+
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   test("contains returns true for queued asset") {
     given Sge   = makeContext()
@@ -110,6 +351,30 @@ class AssetManagerUnitTest extends FunSuite {
     manager.finishLoading()
     manager.close()
   }
+
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   test("isLoaded returns false for queued but not yet loaded") {
     given Sge   = makeContext()
@@ -121,7 +386,58 @@ class AssetManagerUnitTest extends FunSuite {
     manager.close()
   }
 
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+
   // ─── Unload ──────────────────────────────────────────────────────────
+
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   test("unload removes asset and calls close") {
     given Sge   = makeContext()
@@ -135,6 +451,33 @@ class AssetManagerUnitTest extends FunSuite {
     manager.close()
   }
 
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+
   test("unload queued asset removes it from queue") {
     given Sge   = makeContext()
     val manager = makeManager()
@@ -145,7 +488,64 @@ class AssetManagerUnitTest extends FunSuite {
     manager.close()
   }
 
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+
   // ─── Reference counting ──────────────────────────────────────────────
+
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   test("loading same asset twice increments ref count") {
     given Sge   = makeContext()
@@ -164,7 +564,68 @@ class AssetManagerUnitTest extends FunSuite {
     manager.close()
   }
 
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+
   // ─── Multiple assets ─────────────────────────────────────────────────
+
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   test("load multiple assets") {
     given Sge   = makeContext()
@@ -180,18 +641,152 @@ class AssetManagerUnitTest extends FunSuite {
     manager.close()
   }
 
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+
   // ─── Loader registration ─────────────────────────────────────────────
+
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   test("loading unknown type throws") {
     given Sge   = makeContext()
     val manager = makeManager()
-    interceptMessage[sge.utils.SgeError.InvalidInput]("No loader for type: String") {
+    interceptMessage[GdxRuntimeException]("No loader for type: String") {
       manager.load("nope.txt", classOf[String])
     }
     manager.close()
   }
 
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+
   // ─── clear / close ───────────────────────────────────────────────────
+
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   test("clear unloads all assets") {
     given Sge   = makeContext()
@@ -205,7 +800,80 @@ class AssetManagerUnitTest extends FunSuite {
     manager.close()
   }
 
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+
   // ─── progress ────────────────────────────────────────────────────────
+
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   test("progress reaches 1.0 when done") {
     given Sge   = makeContext()
@@ -216,13 +884,91 @@ class AssetManagerUnitTest extends FunSuite {
     manager.close()
   }
 
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+
   // ─── get returns Nullable.empty for missing assets ───────────────────
 
-  test("get returns empty for unloaded asset") {
+  import munit.FunSuite
+  import sge.utils.GdxRuntimeException
+  import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+  import sge.files.{ FileHandle, FileType }
+  import lowlevel.Nullable
+  import lowlevel.util.DynamicArray
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+
+  test("get throws for unloaded asset") {
     given Sge   = makeContext()
     val manager = makeManager()
-    val result  = manager.get[TestAsset]("missing.asset", classOf[TestAsset])
-    assert(result.isEmpty, "Expected empty Nullable for missing asset")
+    intercept[GdxRuntimeException] {
+      manager.get[TestAsset]("missing.asset", classOf[TestAsset])
+    }
     manager.close()
   }
 }

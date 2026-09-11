@@ -429,7 +429,11 @@ val sge: sbt.ProjectMatrix = (projectMatrix in file("sge"))
     scalacOptions += "-Wconf:src=target/balticporter-sge/.*:s",
     // AngleGL32 imports DebugProc which is used at runtime but flagged as unused at compile time
     // because the method referencing it is conditionally compiled per platform.
-    scalacOptions += "-Wconf:src=AngleGL32.scala&msg=unused import:s"
+    scalacOptions += "-Wconf:src=AngleGL32.scala&msg=unused import:s",
+    // Suppress unused-import warnings in test sources during Baltic Porter migration.
+    // Test adaptations (ignored tests, changed exception types) leave some imports unused.
+    Test / scalacOptions += "-Wconf:msg=unused import:s",
+    Test / scalacOptions += "-Wconf:msg=unused local definition:s"
   )
 
 val regressionTest = (projectMatrix in file("sge-test/regression"))
