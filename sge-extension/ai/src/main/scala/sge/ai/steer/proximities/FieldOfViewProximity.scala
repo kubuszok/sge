@@ -80,7 +80,7 @@ class FieldOfViewProximity[T <: Vector[T]](
       for (currentAgent <- agents)
         // Make sure the agent being examined isn't the owner
         if (currentAgent ne owner) {
-          toAgent.set(currentAgent.position).-(ownerPosition)
+          toAgent.set(currentAgent.position).sub(ownerPosition)
 
           // The bounding radius of the current agent is taken into account
           // by adding it to the radius proximity

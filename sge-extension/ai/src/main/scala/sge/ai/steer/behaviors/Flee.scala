@@ -44,7 +44,7 @@ class Flee[T <: Vector[T]](
   override protected def calculateRealSteering(steering: SteeringAcceleration[T]): SteeringAcceleration[T] = {
     // We just do the opposite of seek, i.e. (owner.position - target.position)
     // instead of (target.position - owner.position)
-    steering.linear.set(owner.position).-(target.getOrElse(throw new IllegalStateException("target not set")).position).normalize().scale(getActualLimiter().maxLinearAcceleration)
+    steering.linear.set(owner.position).sub(target.getOrElse(throw new IllegalStateException("target not set")).position).normalize().scale(getActualLimiter().maxLinearAcceleration)
 
     // No angular acceleration
     steering.angular = 0

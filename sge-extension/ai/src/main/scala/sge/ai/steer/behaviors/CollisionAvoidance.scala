@@ -73,7 +73,7 @@ class CollisionAvoidance[T <: Vector[T]](
       // If we're going to hit exactly, or if we're already
       // colliding, then do the steering based on current position.
       if (firstMinSeparation <= 0 || firstDistance < owner.boundingRadius + fn.boundingRadius) {
-        relativePosition.set(fn.position).-(owner.position)
+        relativePosition.set(fn.position).sub(owner.position)
       } else {
         // Otherwise calculate the future relative position
         relativePosition.set(firstRelativePosition).mulAdd(firstRelativeVelocity, shortestTime)
@@ -93,8 +93,8 @@ class CollisionAvoidance[T <: Vector[T]](
 
   override def reportNeighbor(neighbor: Steerable[T]): Boolean = {
     // Calculate the time to collision
-    relativePosition.set(neighbor.position).-(owner.position)
-    relativeVelocity.set(neighbor.linearVelocity).-(owner.linearVelocity)
+    relativePosition.set(neighbor.position).sub(owner.position)
+    relativeVelocity.set(neighbor.linearVelocity).sub(owner.linearVelocity)
     val relativeSpeed2 = relativeVelocity.lengthSq
 
     // Collision can't happen when the agents have the same linear velocity.

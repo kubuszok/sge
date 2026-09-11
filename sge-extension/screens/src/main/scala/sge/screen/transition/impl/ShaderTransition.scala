@@ -17,7 +17,7 @@ package screen
 package transition
 package impl
 
-import sge.graphics.{ Mesh, PrimitiveMode, UniformLocation }
+import sge.graphics.{ Mesh, PrimitiveMode }
 import sge.graphics.g2d.TextureRegion
 import sge.graphics.g3d.utils.{ DefaultTextureBinder, RenderContext }
 import sge.graphics.glutils.ShaderProgram
@@ -79,10 +79,10 @@ class ShaderTransition(
   /** A screen filling quad. */
   private var screenQuad: Nullable[Mesh] = Nullable.empty
 
-  private val projTransLoc:  UniformLocation = program.getUniformLocation("u_projTrans")
-  private val lastScreenLoc: UniformLocation = program.getUniformLocation("lastScreen")
-  private val currScreenLoc: UniformLocation = program.getUniformLocation("currScreen")
-  private val progressLoc:   UniformLocation = program.getUniformLocation("progress")
+  private val projTransLoc:  Int = program.getUniformLocation("u_projTrans")
+  private val lastScreenLoc: Int = program.getUniformLocation("lastScreen")
+  private val currScreenLoc: Int = program.getUniformLocation("currScreen")
+  private val progressLoc:   Int = program.getUniformLocation("progress")
 
   def this(vert: String, frag: String, ignorePrepend: Boolean, duration: Float)(using Sge) =
     this(vert, frag, ignorePrepend, duration, Nullable.empty)

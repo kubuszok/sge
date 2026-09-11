@@ -46,7 +46,7 @@ class SingleRayConfiguration[T <: Vector[T]](
 
   override def updateRays(): Array[Ray[T]] = {
     rays(0).start.set(owner.position)
-    rays(0).end.set(owner.linearVelocity).normalize().scale(length).+(rays(0).start)
+    rays(0).end.set(owner.linearVelocity).normalize().scale(length).add(rays(0).start)
     rays
   }
 }

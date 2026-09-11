@@ -46,7 +46,7 @@ class Seek[T <: Vector[T]](
   override protected def calculateRealSteering(steering: SteeringAcceleration[T]): SteeringAcceleration[T] = {
     // Try to match the position of the character with the position of the target by calculating
     // the direction to the target and by moving toward it as fast as possible.
-    steering.linear.set(target.getOrElse(throw new IllegalStateException("target not set")).position).-(owner.position).normalize().scale(getActualLimiter().maxLinearAcceleration)
+    steering.linear.set(target.getOrElse(throw new IllegalStateException("target not set")).position).sub(owner.position).normalize().scale(getActualLimiter().maxLinearAcceleration)
 
     // No angular acceleration
     steering.angular = 0

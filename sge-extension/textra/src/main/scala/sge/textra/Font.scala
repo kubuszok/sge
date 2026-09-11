@@ -3173,10 +3173,10 @@ class Font {
         x = cs * fx - sn * fy + worldOriginX
         y = sn * fx + cs * fy + worldOriginY
 
-        if (align.isCenterHorizontal) {
+        if (sge.utils.Align.isCenterHorizontal(align)) {
           x -= cs * (line.width * 0.5f)
           y -= sn * (line.width * 0.5f)
-        } else if (align.isRight) {
+        } else if (sge.utils.Align.isRight(align)) {
           x -= cs * line.width
           y -= sn * line.width
         }

@@ -63,8 +63,8 @@ class RadialBlurEffect(passes: Int)(using Sge)
 
   /** Specify the zoom origin in [[Align]] bits. */
   def setOrigin(align: Align): Unit = {
-    val ox = if (align.isLeft) 0f else if (align.isRight) 1f else 0.5f
-    val oy = if (align.isBottom) 0f else if (align.isTop) 1f else 0.5f
+    val ox = if (Align.isLeft(align)) 0f else if (Align.isRight(align)) 1f else 0.5f
+    val oy = if (Align.isBottom(align)) 0f else if (Align.isTop(align)) 1f else 0.5f
     setOrigin(ox, oy)
   }
 

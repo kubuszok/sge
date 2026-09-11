@@ -67,7 +67,7 @@ class StackStateMachine[E, S <: State[E]: scala.reflect.ClassTag](
     if (stateStack.size == 0) {
       Nullable.empty
     } else {
-      Nullable(stateStack.peek)
+      Nullable(stateStack.peek())
     }
 
   override def changeState(newState: S): Unit =

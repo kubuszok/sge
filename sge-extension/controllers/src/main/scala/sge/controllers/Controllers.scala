@@ -103,7 +103,7 @@ object Controllers {
     *   the running application context (resolved from an in-scope `given Sge`)
     */
   def installAutoPoll()(using sge: Sge): Unit =
-    installAutoPollInto(sge.application)
+    installAutoPollInto(sge.application.asInstanceOf[FrameHookHost])
 
   /** Registers the per-frame poll into the given [[FrameHookHost]] (the running [[Application]]), tracking the registration so [[dispose]] removes it. Removes any previously installed app hook first
     * (idempotent). This is the reliable seam behind [[installAutoPoll]]: it takes the host directly, so it is driven the same way the running main loop drives it (via

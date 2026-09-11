@@ -58,7 +58,7 @@ class Alignment[T <: Vector[T]](
 
       // Match the average velocity.
       // Notice that steering.linear and averageVelocity are the same vector here.
-      averageVelocity.-(owner.linearVelocity).limit(getActualLimiter().maxLinearAcceleration)
+      averageVelocity.sub(owner.linearVelocity).limit(getActualLimiter().maxLinearAcceleration)
     }
 
     steering
@@ -66,7 +66,7 @@ class Alignment[T <: Vector[T]](
 
   override def reportNeighbor(neighbor: Steerable[T]): Boolean = {
     // Accumulate neighbor velocity
-    averageVelocity.+(neighbor.linearVelocity)
+    averageVelocity.add(neighbor.linearVelocity)
     true
   }
 }

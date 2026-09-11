@@ -62,7 +62,7 @@ class SteeringAcceleration[T <: Vector[T]](
     *   this steering acceleration for chaining
     */
   def add(steering: SteeringAcceleration[T]): SteeringAcceleration[T] = {
-    linear.+(steering.linear)
+    linear.add(steering.linear)
     angular += steering.angular
     this
   }

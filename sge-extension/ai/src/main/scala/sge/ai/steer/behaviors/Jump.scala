@@ -106,8 +106,8 @@ class Jump[T <: Vector[T]](
       val tgt = target.getOrElse(throw new IllegalStateException())
 
       // Check if the owner has reached target position and velocity with acceptable tolerance
-      if (owner.position.epsilonEquals(tgt.position)(using Epsilon(takeoffPositionTolerance))) {
-        if (owner.linearVelocity.epsilonEquals(tgt.linearVelocity)(using Epsilon(takeoffVelocityTolerance))) {
+      if (owner.position.epsilonEquals(tgt.position, takeoffPositionTolerance)) {
+        if (owner.linearVelocity.epsilonEquals(tgt.linearVelocity, takeoffVelocityTolerance)) {
           isJumpAchievable = false
           // Perform the jump, and return no steering (the owner is airborne, no need to steer).
           callback.takeoff(maxVerticalVelocity, airborneTime)
@@ -224,7 +224,7 @@ object Jump {
     def set(takeoffPosition: T, landingPosition: T): Unit = {
       this.takeoffPosition.set(takeoffPosition)
       this.landingPosition.set(landingPosition)
-      this.delta.set(landingPosition).-(takeoffPosition)
+      this.delta.set(landingPosition).sub(takeoffPosition)
     }
   }
 

@@ -67,7 +67,7 @@ final class UniformFloatDistribution(val low: Float, val high: Float) extends Fl
 
 /** A Gaussian (normal) float distribution. */
 final class GaussianFloatDistribution(val mean: Float, val standardDeviation: Float) extends FloatDistribution {
-  override def nextFloat(): Float = mean + MathUtils.randomGenerator.nextGaussian().toFloat * standardDeviation
+  override def nextFloat(): Float = mean + MathUtils.random$field.nextGaussian().toFloat * standardDeviation
 }
 
 object GaussianFloatDistribution {
@@ -101,12 +101,12 @@ final class ConstantDoubleDistribution(val value: Double) extends DoubleDistribu
 /** A uniform double distribution in the range [low, high]. */
 final class UniformDoubleDistribution(val low: Double, val high: Double) extends DoubleDistribution {
   def this(high: Double) = this(0, high)
-  override def nextDouble(): Double = low + MathUtils.randomGenerator.nextDouble() * (high - low)
+  override def nextDouble(): Double = low + MathUtils.random$field.nextDouble() * (high - low)
 }
 
 /** A Gaussian (normal) double distribution. */
 final class GaussianDoubleDistribution(val mean: Double, val standardDeviation: Double) extends DoubleDistribution {
-  override def nextDouble(): Double = mean + MathUtils.randomGenerator.nextGaussian() * standardDeviation
+  override def nextDouble(): Double = mean + MathUtils.random$field.nextGaussian() * standardDeviation
 }
 
 object GaussianDoubleDistribution {
@@ -119,7 +119,7 @@ final class TriangularDoubleDistribution(val low: Double, val high: Double, val 
   def this(low:  Double, high: Double) = this(low, high, (low + high) * 0.5)
 
   override def nextDouble(): Double = {
-    val u = MathUtils.randomGenerator.nextDouble()
+    val u = MathUtils.random$field.nextDouble()
     val d = high - low
     if (u <= (mode - low) / d) low + Math.sqrt(u * d * (mode - low))
     else high - Math.sqrt((1 - u) * d * (high - mode))
@@ -187,8 +187,8 @@ final class UniformLongDistribution(val low: Long, val high: Long) extends LongD
   def this(high: Long) = this(0, high)
   override def nextLong(): Long = {
     val d = high - low
-    if (d >= 0) low + (MathUtils.randomGenerator.nextDouble() * d).toLong
-    else low + ((MathUtils.randomGenerator.nextDouble() * 0.5 + 0.5) * d).toLong // overflow-safe
+    if (d >= 0) low + (MathUtils.random$field.nextDouble() * d).toLong
+    else low + ((MathUtils.random$field.nextDouble() * 0.5 + 0.5) * d).toLong // overflow-safe
   }
 }
 
@@ -198,7 +198,7 @@ final class TriangularLongDistribution(val low: Long, val high: Long, val mode: 
   def this(low:  Long, high: Long) = this(low, high, (low + high) * 0.5)
 
   override def nextLong(): Long = {
-    val u = MathUtils.randomGenerator.nextDouble()
+    val u = MathUtils.random$field.nextDouble()
     val d = (high - low).toDouble
     if (u <= (mode - low) / d) (low + Math.sqrt(u * d * (mode - low))).toLong
     else (high - Math.sqrt((1 - u) * d * (high - mode))).toLong

@@ -106,7 +106,7 @@ class Wander[T <: Vector[T]](
       owner.angleToVector(steering.linear, owner.orientation).scale(maxLinearAcceleration)
     } else {
       // Seek the internal target position
-      steering.linear.set(internalTargetPosition).-(owner.position).normalize().scale(maxLinearAcceleration)
+      steering.linear.set(internalTargetPosition).sub(owner.position).normalize().scale(maxLinearAcceleration)
 
       // No angular acceleration
       steering.angular = 0

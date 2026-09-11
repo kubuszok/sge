@@ -427,6 +427,8 @@ val sge: sbt.ProjectMatrix = (projectMatrix in file("sge"))
     }.taskValue,
     // Suppress warnings from generated code (porter notes, unused imports, etc.)
     scalacOptions += "-Wconf:src=target/balticporter-sge/.*:s",
+    // Nonce to bypass sbt2 CAS disk cache replaying stale failures (ENGINE-LIMITS M5.14)
+    Compile / scalacOptions += s"-Xmacro-settings:balticporter.nonce=${System.nanoTime}",
     // AngleGL32 imports DebugProc which is used at runtime but flagged as unused at compile time
     // because the method referencing it is conditionally compiled per platform.
     scalacOptions += "-Wconf:src=AngleGL32.scala&msg=unused import:s",

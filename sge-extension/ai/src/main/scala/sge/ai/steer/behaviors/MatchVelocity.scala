@@ -47,7 +47,7 @@ class MatchVelocity[T <: Vector[T]](
     val tgt = target.getOrElse(throw new IllegalStateException("target not set"))
 
     // Acceleration tries to get to the target velocity without exceeding max acceleration
-    steering.linear.set(tgt.linearVelocity).-(owner.linearVelocity).scale(1f / timeToTarget).limit(getActualLimiter().maxLinearAcceleration)
+    steering.linear.set(tgt.linearVelocity).sub(owner.linearVelocity).scale(1f / timeToTarget).limit(getActualLimiter().maxLinearAcceleration)
 
     // No angular acceleration
     steering.angular = 0

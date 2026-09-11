@@ -61,7 +61,7 @@ class LinePath[T <: Vector[T]](waypoints: DynamicArray[T], val isOpen: Boolean =
 
   override def startPoint: T = segments.first.begin
 
-  override def endPoint: T = segments.peek.end
+  override def endPoint: T = segments.peek().end
 
   /** Returns the square distance of the nearest point on line segment `a-b`, from point `c`. Also, the `out` vector is assigned to the nearest point.
     * @param out
@@ -78,10 +78,10 @@ class LinePath[T <: Vector[T]](waypoints: DynamicArray[T], val isOpen: Boolean =
     tmpB.set(b)
     tmpC.set(c)
 
-    val ab     = tmpB.-(a)
+    val ab     = tmpB.sub(a)
     val abLen2 = ab.lengthSq
     if (abLen2 != 0) {
-      val t = tmpC.-(a).dot(ab) / abLen2
+      val t = tmpC.sub(a).dot(ab) / abLen2
       out.mulAdd(ab, MathUtils.clamp(t, 0, 1))
     }
 
@@ -222,7 +222,7 @@ class LinePath[T <: Vector[T]](waypoints: DynamicArray[T], val isOpen: Boolean =
     // begin-------targetPos-------end
     val distance = desiredSegment.cumulativeLength - targetDistance
 
-    out.set(desiredSegment.begin).-(desiredSegment.end).scale(distance / desiredSegment.length).+(desiredSegment.end)
+    out.set(desiredSegment.begin).sub(desiredSegment.end).scale(distance / desiredSegment.length).add(desiredSegment.end)
   }
 
   /** Sets up this [[Path]] using the given way points.

@@ -47,7 +47,7 @@ class Face[T <: Vector[T]](
 
   protected def face(steering: SteeringAcceleration[T], targetPosition: T): SteeringAcceleration[T] = {
     // Get the direction to target
-    val toTarget = steering.linear.set(targetPosition).-(owner.position)
+    val toTarget = steering.linear.set(targetPosition).sub(owner.position)
 
     // Check for a zero direction, and return no steering if so
     if (toTarget.isZero(getActualLimiter().zeroLinearSpeedThreshold)) {

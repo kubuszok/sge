@@ -56,7 +56,7 @@ class Cohesion[T <: Vector[T]](
       centerOfMass.scale(1f / neighborCount)
 
       // Now seek towards that position.
-      centerOfMass.-(owner.position).normalize().scale(getActualLimiter().maxLinearAcceleration)
+      centerOfMass.sub(owner.position).normalize().scale(getActualLimiter().maxLinearAcceleration)
     }
 
     steering
@@ -64,7 +64,7 @@ class Cohesion[T <: Vector[T]](
 
   override def reportNeighbor(neighbor: Steerable[T]): Boolean = {
     // Accumulate neighbor position
-    centerOfMass.+(neighbor.position)
+    centerOfMass.add(neighbor.position)
     true
   }
 }

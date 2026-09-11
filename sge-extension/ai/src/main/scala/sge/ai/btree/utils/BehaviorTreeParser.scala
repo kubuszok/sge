@@ -719,7 +719,7 @@ object BehaviorTreeParser {
         }
 
         // Check the max number of children of the parent
-        val stackedParent = stack.peek
+        val stackedParent = stack.peek()
         val maxChildren   = stackedParent.metadata.maxChildren
         if (stackedParent.task.getChildCount >= maxChildren) {
           throw stackedTaskException(
