@@ -103,7 +103,7 @@ object AssetLoadingScene extends RegressionScene {
         assetManager = new AssetManager(FileHandleResolver.Internal())
         assetManager.load[Texture]("regression/test-texture.png")
         assetManager.finishLoading()
-        texture = assetManager[Texture]("regression/test-texture.png")
+        texture = assetManager.get[Texture]("regression/test-texture.png").get
         val w = texture.width.toInt
         val h = texture.height.toInt
         SmokeResult.logCheck("ASSET_LOAD", w > 0 && h > 0, s"Texture loaded: ${w}x${h} (headless sync)")
@@ -136,7 +136,7 @@ object AssetLoadingScene extends RegressionScene {
         val done = assetManager.update()
         if (done) {
           loadFinished = true
-          texture = assetManager[Texture]("regression/test-texture.png")
+          texture = assetManager.get[Texture]("regression/test-texture.png").get
           val w  = texture.width.toInt
           val h  = texture.height.toInt
           val ok = w > 0 && h > 0

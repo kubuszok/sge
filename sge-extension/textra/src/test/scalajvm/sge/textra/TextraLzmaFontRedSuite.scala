@@ -72,7 +72,14 @@ import sge.noop.{ NoopAudio, NoopGraphics, NoopInput }
 class TextraLzmaFontRedSuite extends munit.FunSuite {
 
   // Class-level Sge for FileHandleStream subclasses constructed in lazy vals
-  private given sge.Sge = sge.SgeTestFixture.testSge()
+  private given sge.Sge = sge.Sge(
+    application = new sge.noop.NoopApplication {},
+    graphics    = new sge.noop.NoopGraphics(),
+    audio       = new sge.noop.NoopAudio(),
+    files       = sge.noop.NoopFiles,
+    input       = new sge.noop.NoopInput(),
+    net         = new sge.noop.NoopNet()
+  )
 
   /** Minimal Structured JSON font (msdf-atlas-gen/fontwriter shape) accepted by Font.loadJSON and BitmapFontSupport.JsonFontData:
     *   - "atlas" with "size" 32 (drives all metric scaling; "type" standard avoids distance-field shaders),
