@@ -9,7 +9,7 @@ class CumulativeDistributionTest extends munit.ScalaCheckSuite {
   // ---- ensureCapacity fix: adding > 10 values must not throw ----
 
   test("add more than initial capacity (10) without ArrayIndexOutOfBoundsException") {
-    val cd = new CumulativeDistribution[Int]()
+    val cd = new CumulativeDistribution[java.lang.Integer]()
     for (i <- 0 until 50)
       cd.add(i, 1.0f)
     assertEquals(cd.size(), 50)
@@ -27,7 +27,7 @@ class CumulativeDistributionTest extends munit.ScalaCheckSuite {
   // ---- generate() ----
 
   test("generate produces monotonically increasing frequencies") {
-    val cd = new CumulativeDistribution[Int]()
+    val cd = new CumulativeDistribution[java.lang.Integer]()
     cd.add(1, 0.2f)
     cd.add(2, 0.3f)
     cd.add(3, 0.5f)
@@ -42,20 +42,20 @@ class CumulativeDistributionTest extends munit.ScalaCheckSuite {
   // ---- generateNormalized() ----
 
   test("generateNormalized last frequency approaches 1.0") {
-    val cd = new CumulativeDistribution[Int]()
+    val cd = new CumulativeDistribution[java.lang.Integer]()
     cd.add(1, 10.0f)
     cd.add(2, 20.0f)
     cd.add(3, 30.0f)
     cd.generateNormalized()
     // The last cumulative frequency should be approximately 1.0
     // We verify via value(1.0f) returning the last element
-    assertEquals(cd.value(1.0f), 3)
+    assertEquals(cd.value(1.0f), java.lang.Integer.valueOf(3))
   }
 
   // ---- generateUniform() ----
 
   test("generateUniform distributes equally") {
-    val cd = new CumulativeDistribution[Int]()
+    val cd = new CumulativeDistribution[java.lang.Integer]()
     for (i <- 0 until 4) cd.add(i, 999.0f) // original intervals are irrelevant
     cd.generateUniform()
     // Each interval should be 1/4 = 0.25
@@ -78,11 +78,11 @@ class CumulativeDistributionTest extends munit.ScalaCheckSuite {
   }
 
   test("value with probability 0 returns first element") {
-    val cd = new CumulativeDistribution[Int]()
+    val cd = new CumulativeDistribution[java.lang.Integer]()
     cd.add(42, 1.0f)
     cd.add(99, 1.0f)
     cd.generate()
-    assertEquals(cd.value(0.0f), 42)
+    assertEquals(cd.value(0.0f), java.lang.Integer.valueOf(42))
   }
 
   // ---- setInterval ----
@@ -106,7 +106,7 @@ class CumulativeDistributionTest extends munit.ScalaCheckSuite {
   // ---- clear ----
 
   test("clear resets size to zero") {
-    val cd = new CumulativeDistribution[Int]()
+    val cd = new CumulativeDistribution[java.lang.Integer]()
     cd.add(1, 1.0f)
     cd.add(2, 1.0f)
     cd.clear()
@@ -117,7 +117,7 @@ class CumulativeDistributionTest extends munit.ScalaCheckSuite {
 
   property("adding N values gives size N") {
     forAll(Gen.choose(1, 100)) { (n: Int) =>
-      val cd = new CumulativeDistribution[Int]()
+      val cd = new CumulativeDistribution[java.lang.Integer]()
       for (i <- 0 until n) cd.add(i, 1.0f)
       assertEquals(cd.size(), n)
     }
@@ -125,7 +125,7 @@ class CumulativeDistributionTest extends munit.ScalaCheckSuite {
 
   property("value() does not throw for probability in [0, last frequency] after generate") {
     forAll(Gen.choose(2, 50), Gen.choose(0.0f, 1.0f)) { (n: Int, prob: Float) =>
-      val cd = new CumulativeDistribution[Int]()
+      val cd = new CumulativeDistribution[java.lang.Integer]()
       for (i <- 0 until n) cd.add(i, 1.0f)
       cd.generateNormalized()
       // prob is in [0, 1], and generateNormalized produces frequencies in [0, 1]
@@ -136,7 +136,7 @@ class CumulativeDistributionTest extends munit.ScalaCheckSuite {
 
   property("generateUniform intervals all equal 1/size") {
     forAll(Gen.choose(1, 100)) { (n: Int) =>
-      val cd = new CumulativeDistribution[Int]()
+      val cd = new CumulativeDistribution[java.lang.Integer]()
       for (i <- 0 until n) cd.add(i, 99.0f)
       cd.generateUniform()
       val expected = 1.0f / n

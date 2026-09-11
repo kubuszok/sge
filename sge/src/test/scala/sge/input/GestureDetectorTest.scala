@@ -151,10 +151,7 @@ class GestureDetectorTest extends FunSuite {
     given Sge    = makeContext()
     val listener = RecordingListener()
     // Use a very large maxFlingDelay so fling is not time-gated
-    val detector = GestureDetector(
-      maxFlingDelay = Seconds(Integer.MAX_VALUE),
-      listener = listener
-    )
+    val detector = GestureDetector(20f, Seconds(0.4f), Seconds(1.1f), Seconds(Integer.MAX_VALUE), listener)
     detector.touchDown(100f, 100f, 0, btn0)
     detector.touchDragged(200f, 100f, 0)
     detector.touchUp(200f, 100f, 0, btn0)

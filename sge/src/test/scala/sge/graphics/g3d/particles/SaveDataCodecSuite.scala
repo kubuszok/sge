@@ -205,7 +205,11 @@ class SaveDataCodecSuite extends munit.FunSuite {
         """},"indices":[]}],"unique":{}}"""
     val rd = ResourceData.fromJson[ParticleEffect](readFromString[Json](text))
     val sd = rd.saveData
-    assertEquals(sd.load[Int]("index").getOrElse(-1), 42, "java.lang.Integer value must load as an Int")
+    assertEquals(
+      sd.load[java.lang.Integer]("index").getOrElse(java.lang.Integer.valueOf(-1)),
+      java.lang.Integer.valueOf(42),
+      "java.lang.Integer value must load as an Int"
+    )
     assertEquals(sd.load[String]("name").getOrElse(""), "flame", "java.lang.String value must load as a String")
   }
 
