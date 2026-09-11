@@ -157,8 +157,8 @@ class FlushablePoolTest extends munit.FunSuite {
   }
 
   private class EqualItemPool extends Pool.Flushable[EqualItem] {
-    override protected val max:             Int = Int.MaxValue
-    override protected val initialCapacity: Int = 16
+    override protected[utils] val max:             Int = Int.MaxValue
+    override protected[utils] val initialCapacity: Int = 16
 
     override def newObject(): EqualItem = new EqualItem
 

@@ -60,6 +60,7 @@ class SpriteCacheRedSuite extends munit.FunSuite {
     * with the managed-textures map.
     */
   final private class DummyTextureData extends TextureData {
+    def `type`: sge.graphics.TextureData.TextureDataType = sge.graphics.TextureData.TextureDataType.Pixmap
     def dataType:                                 TextureData.TextureDataType = TextureData.TextureDataType.Custom
     def isPrepared:                               Boolean                     = true
     def prepare():                                Unit                        = ()

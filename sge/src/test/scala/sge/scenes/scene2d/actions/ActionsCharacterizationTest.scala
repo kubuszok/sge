@@ -19,13 +19,13 @@ class ActionsCharacterizationTest extends munit.FunSuite {
 
   // Records TemporalAction lifecycle callbacks and every percent value passed to update().
   final private class RecordingTemporal extends TemporalAction {
-    var beginCount:                       Int                                         = 0
-    var endCount:                         Int                                         = 0
-    val percents:                         scala.collection.mutable.ArrayBuffer[Float] = scala.collection.mutable.ArrayBuffer.empty
-    override protected def begin():       Unit                                        = beginCount += 1
-    override protected def end():         Unit                                        = endCount += 1
-    protected def update(percent: Float): Unit                                        = percents += percent
-    def lastPercent:                      Float                                       = percents.last
+    var beginCount:                                Int                                         = 0
+    var endCount:                                  Int                                         = 0
+    val percents:                                  scala.collection.mutable.ArrayBuffer[Float] = scala.collection.mutable.ArrayBuffer.empty
+    override protected[actions] def begin():       Unit                                        = beginCount += 1
+    override protected[actions] def end():         Unit                                        = endCount += 1
+    protected[actions] def update(percent: Float): Unit                                        = percents += percent
+    def lastPercent:                               Float                                       = percents.last
   }
 
   // A leaf Action that reports how many times it was acted / restarted and the last delta it saw.

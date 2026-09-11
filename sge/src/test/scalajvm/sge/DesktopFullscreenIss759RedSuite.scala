@@ -37,7 +37,7 @@ class DesktopFullscreenIss759RedSuite extends munit.FunSuite {
   final private class StopBeforeGlInit extends RuntimeException("test drive stops before GL bindings init")
 
   /** A do-nothing listener; `render()` is the only abstract member and is never reached (the drive stops before the loop). */
-  private def listener: ApplicationListener = new ApplicationListener {
+  private def listener: ApplicationListener = new ApplicationListener with ApplicationListenerDefaults {
     override def render(): Unit = {}
   }
 

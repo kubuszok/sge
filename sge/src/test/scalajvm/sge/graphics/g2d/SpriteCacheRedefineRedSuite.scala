@@ -62,6 +62,7 @@ class SpriteCacheRedefineRedSuite extends munit.FunSuite {
     */
   final private class DummyTextureData extends TextureData {
     def dataType:                                 TextureData.TextureDataType = TextureData.TextureDataType.Custom
+    def `type`:                                   TextureData.TextureDataType = dataType
     def isPrepared:                               Boolean                     = true
     def prepare():                                Unit                        = ()
     def consumePixmap():                          Pixmap                      = throw new UnsupportedOperationException("dummy texture has no pixmap")

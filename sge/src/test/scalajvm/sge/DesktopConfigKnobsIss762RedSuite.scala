@@ -28,7 +28,7 @@ import sge.platform.WindowingOps
 class DesktopConfigKnobsIss762RedSuite extends munit.FunSuite {
 
   /** Named (non-anonymous, non-local) listener class so `getClass.getSimpleName` is stable and non-empty — the original's title fallback uses exactly that name (Lwjgl3Application.java:129). */
-  final private class Iss762FallbackTitleListener extends ApplicationListener {
+  final private class Iss762FallbackTitleListener extends ApplicationListener with ApplicationListenerDefaults {
     override def render(): Unit = {}
   }
 

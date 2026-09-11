@@ -18,9 +18,9 @@ class HeadlessApplicationTest extends FunSuite {
     val renderCount = AtomicInteger(0)
     val latch       = CountDownLatch(3) // wait for at least 3 render calls
 
-    val listener = new ApplicationListener {
+    val listener = new ApplicationListener with ApplicationListenerDefaults {
       override def create():                              Unit = createCount.incrementAndGet()
-      def render():                                       Unit = { renderCount.incrementAndGet(); latch.countDown() }
+      override def render():                              Unit = { renderCount.incrementAndGet(); latch.countDown() }
       override def resize(width: Pixels, height: Pixels): Unit = ()
       override def pause():                               Unit = ()
       override def resume():                              Unit = ()
@@ -43,9 +43,9 @@ class HeadlessApplicationTest extends FunSuite {
   test("exit stops the main loop") {
     val disposeLatch = CountDownLatch(1)
 
-    val listener = new ApplicationListener {
+    val listener = new ApplicationListener with ApplicationListenerDefaults {
       override def create():                              Unit = ()
-      def render():                                       Unit = ()
+      override def render():                              Unit = ()
       override def resize(width: Pixels, height: Pixels): Unit = ()
       override def pause():                               Unit = ()
       override def resume():                              Unit = ()
@@ -64,9 +64,9 @@ class HeadlessApplicationTest extends FunSuite {
     val latch          = CountDownLatch(1)
     val runnableThread = new Array[Thread](1)
 
-    val listener = new ApplicationListener {
+    val listener = new ApplicationListener with ApplicationListenerDefaults {
       override def create():                              Unit = ()
-      def render():                                       Unit = ()
+      override def render():                              Unit = ()
       override def resize(width: Pixels, height: Pixels): Unit = ()
       override def pause():                               Unit = ()
       override def resume():                              Unit = ()
@@ -90,9 +90,9 @@ class HeadlessApplicationTest extends FunSuite {
   // ---- Application trait methods ----
 
   test("getType returns HeadlessDesktop") {
-    val listener = new ApplicationListener {
+    val listener = new ApplicationListener with ApplicationListenerDefaults {
       override def create():                              Unit = ()
-      def render():                                       Unit = ()
+      override def render():                              Unit = ()
       override def resize(width: Pixels, height: Pixels): Unit = ()
       override def pause():                               Unit = ()
       override def resume():                              Unit = ()
@@ -114,9 +114,9 @@ class HeadlessApplicationTest extends FunSuite {
   // ---- sgeContext ----
 
   test("sgeContext provides valid Sge") {
-    val listener = new ApplicationListener {
+    val listener = new ApplicationListener with ApplicationListenerDefaults {
       override def create():                              Unit = ()
-      def render():                                       Unit = ()
+      override def render():                              Unit = ()
       override def resize(width: Pixels, height: Pixels): Unit = ()
       override def pause():                               Unit = ()
       override def resume():                              Unit = ()
@@ -155,9 +155,9 @@ class HeadlessApplicationTest extends FunSuite {
     val disposeCount = AtomicInteger(0)
     val latch        = CountDownLatch(1)
 
-    val listener = new ApplicationListener {
+    val listener = new ApplicationListener with ApplicationListenerDefaults {
       override def create():                              Unit = ()
-      def render():                                       Unit = ()
+      override def render():                              Unit = ()
       override def resize(width: Pixels, height: Pixels): Unit = ()
       override def pause():                               Unit = ()
       override def resume():                              Unit = ()
@@ -183,9 +183,9 @@ class HeadlessApplicationTest extends FunSuite {
   // ---- preferences ----
 
   test("getPreferences returns same instance for same name") {
-    val listener = new ApplicationListener {
+    val listener = new ApplicationListener with ApplicationListenerDefaults {
       override def create():                              Unit = ()
-      def render():                                       Unit = ()
+      override def render():                              Unit = ()
       override def resize(width: Pixels, height: Pixels): Unit = ()
       override def pause():                               Unit = ()
       override def resume():                              Unit = ()

@@ -37,7 +37,7 @@ package graphics
 package g3d
 package particles
 
-import sge.graphics.{ GL20, OrthographicCamera, UniformLocation }
+import sge.graphics.{ GL20, OrthographicCamera }
 import sge.graphics.g3d.{ Renderable, Shader }
 import sge.graphics.g3d.shaders.BaseShader
 import sge.graphics.glutils.ShaderProgram
@@ -64,7 +64,7 @@ class ParticleShaderScreenWidthRedSuite extends munit.FunSuite {
 
     override def compiled: Boolean = true
 
-    override def setUniformf(location: UniformLocation, value: Float): Unit =
+    override def setUniformf(location: Int, value: Float): Unit =
       captured = Nullable(value)
   }
 

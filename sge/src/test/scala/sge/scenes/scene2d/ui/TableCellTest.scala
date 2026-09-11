@@ -508,6 +508,6 @@ class TableCellTest extends munit.FunSuite {
     val table = Table()
     val cell  = table.add(Nullable(Actor()))
     val same  = cell.size(50f).pad(5f).fill().expand().colspan(2)
-    assert(same.orNull eq cell)
+    assert(same.getOrElse(null) eq cell)
   }
 }
