@@ -181,9 +181,9 @@ class FileChooser private (private var _mode: FileChooser.Mode, private val _ski
     this("default", title, mode)
 
   private def init(directory: Nullable[FileHandle]): Unit = {
-    isModal = true
-    isResizable = true
-    isMovable = true
+    modal = true
+    resizable = true
+    movable = true
     addCloseButton()
     closeOnEscape()
 
@@ -364,7 +364,7 @@ class FileChooser private (private var _mode: FileChooser.Mode, private val _ski
 
   private def rebuildViewModePopupMenu(): Unit = {
     viewModePopupMenu.clearChildren()
-    for (mode <- ViewMode.values())
+    for (mode <- ViewMode.values)
       if (!mode.thumbnailMode || _iconProvider.isThumbnailModesSupported) {
         val capturedMode = mode
         viewModePopupMenu.addItem(
@@ -527,7 +527,7 @@ class FileChooser private (private var _mode: FileChooser.Mode, private val _ski
             val name  = String.valueOf(character)
             val iter  = currentFiles.iterator()
             var found = false
-            while (iter.hasNext && !found) {
+            while (iter.hasNext() && !found) {
               val file = iter.next()
               if (file.name.toLowerCase.startsWith(name)) {
                 deselectAll()
@@ -1442,7 +1442,7 @@ class FileChooser private (private var _mode: FileChooser.Mode, private val _ski
     }
 
     def setLabelText(text: String): Unit   = _nameLabel.setText(text)
-    def getLabelText:               String = new String(_nameLabel.text.toArray)
+    def getLabelText:               String = new String(_nameLabel.text.toArray())
 
     private def selectShortcut(): Unit = {
       if (selectedShortcut.isDefined) selectedShortcut.get.deselect()

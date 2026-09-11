@@ -133,9 +133,9 @@ class VisImageTextButton(text: String, buttonStyle: VisImageTextButton.VisImageT
   // DynamicArray[Char], whose toString is a bracketed element list ("[P, l, a,
   // y]"), so build the String from its chars — the same conversion Label uses
   // internally (new String(_text.toArray)).
-  def getText: String = new String(_label.text.toArray)
+  def getText: String = new String(_label.text.toArray())
 
-  override def toString: String = super.toString + ": " + new String(_label.text.toArray)
+  override def toString: String = super.toString + ": " + new String(_label.text.toArray())
 
   override def disabled_=(value: Boolean): Unit = {
     super.disabled_=(value)

@@ -81,7 +81,7 @@ class TextraLabel(using Sge) extends Widget {
 
   def setColor(c: Color): Unit = if (c != null) color.set(c) // @nowarn — Java interop boundary (callers pass possibly-null Color)
 
-  def setColor(r: Float, g: Float, b: Float, a: Float): Unit = color.set(r, g, b, a)
+  override def setColor(r: Float, g: Float, b: Float, a: Float): Unit = color.set(r, g, b, a)
 
   /** Creates a TextraLabel that uses the default font with white color. */
   def this(dummy: Unit)(using Sge) = {

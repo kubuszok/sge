@@ -324,8 +324,8 @@ class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
   def getColor:           Color = color
   def setColor(c: Color): Unit  = if (c != null) color.set(c)
 
-  def getRight: Float = x + width
-  def getTop:   Float = y + height
+  override def getRight: Float = x + width
+  override def getTop:   Float = y + height
 
   // --- Padding (Java-getter shims) ---
 
@@ -476,7 +476,7 @@ class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
   }
 
   /** Draws the window background and the title table. */
-  override protected def drawBackground(batch: Batch, parentAlpha: Float, x: Float, y: Float): Unit = {
+  override def drawBackground(batch: Batch, parentAlpha: Float, x: Float, y: Float): Unit = {
     super.drawBackground(batch, parentAlpha, x, y)
 
     // Manually draw the title table before clipping is done.

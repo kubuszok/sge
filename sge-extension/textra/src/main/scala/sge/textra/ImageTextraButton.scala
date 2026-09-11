@@ -168,7 +168,7 @@ class ImageTextraButton(
     * Nullable[Drawable] the same way the rest of the textra package does (pattern-match `case d: Drawable`).
     */
   protected def getImageDrawable: Nullable[Drawable] = boundary {
-    if (isDisabled && _style.imageDisabled.isDefined) break(asDrawable(_style.imageDisabled))
+    if (disabled && _style.imageDisabled.isDefined) break(asDrawable(_style.imageDisabled))
     if (isPressed) {
       if (checked && _style.imageCheckedDown.isDefined) break(asDrawable(_style.imageCheckedDown))
       if (_style.imageDown.isDefined) break(asDrawable(_style.imageDown))
@@ -203,7 +203,7 @@ class ImageTextraButton(
 
   /** Returns the appropriate label font color from the style based on the current button state. */
   protected def getFontColor: Nullable[Color] = boundary {
-    if (isDisabled && _style.disabledFontColor.isDefined) break(_style.disabledFontColor)
+    if (disabled && _style.disabledFontColor.isDefined) break(_style.disabledFontColor)
     if (isPressed) {
       if (checked && _style.checkedDownFontColor.isDefined) break(_style.checkedDownFontColor)
       if (_style.downFontColor.isDefined) break(_style.downFontColor)
@@ -254,11 +254,8 @@ class ImageTextraButton(
   def skipToTheEnd(): Unit =
     label.skipToTheEnd()
 
-  /** Upstream reads `isDisabled()` (inherited from Button); SGE renamed it to the `disabled` property, exposed here under the Java name this button's own state-driven image/font logic is written
-    * against. `isChecked`/`isPressed`/`isOver`/`hasKeyboardFocus`/`setChecked`/`toggle` come from the inherited Button.
-    */
-  def isDisabled:                   Boolean = disabled
-  def isDisabled_=(value: Boolean): Unit    = disabled = value
+  // isDisabled is inherited as a var from Button; `disabled` is the property accessor.
+  // No override needed — both point to Button.isDisabled.
 
   override def toString: String =
     name.getOrElse {

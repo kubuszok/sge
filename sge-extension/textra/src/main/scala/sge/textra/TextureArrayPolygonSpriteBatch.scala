@@ -54,7 +54,6 @@ import sge.math.{ Affine2, Matrix4 }
 import lowlevel.Nullable
 import sge.utils.{ BufferUtils, SgeError }
 
-import scala.annotation.publicInBinary
 import scala.language.implicitConversions
 
 /** TextureArrayPolygonSpriteBatch behaves like a SpriteBatch with the polygon drawing features of a PolygonSpriteBatch and optimizations for Batches that switch between Textures frequently. This can
@@ -1237,7 +1236,7 @@ class TextureArrayPolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaul
     vertexIndex = idx + SPRITE_SIZE
   }
 
-  @publicInBinary override private[sge] def begin(): Unit = {
+  override def begin(): Unit = {
     if (_drawing) throw new IllegalStateException("TextureArrayPolygonSpriteBatch.end must be called before begin.")
     renderCalls = 0
 
@@ -1249,7 +1248,7 @@ class TextureArrayPolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaul
     _drawing = true
   }
 
-  @publicInBinary override private[sge] def end(): Unit = {
+  override def end(): Unit = {
     if (!_drawing) throw new IllegalStateException("TextureArrayPolygonSpriteBatch.begin must be called before end.")
     if (vertexIndex > 0) flush()
     _drawing = false

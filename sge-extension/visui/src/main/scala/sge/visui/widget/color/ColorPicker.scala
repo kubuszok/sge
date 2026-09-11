@@ -60,8 +60,8 @@ class ColorPicker(styleName: String, title: Nullable[String], initListener: Null
 
     if (title.isEmpty) titleLabel.setText(TITLE.get)
 
-    isModal = true
-    isMovable = true
+    modal = true
+    movable = true
 
     addCloseButton()
     closeOnEscape()

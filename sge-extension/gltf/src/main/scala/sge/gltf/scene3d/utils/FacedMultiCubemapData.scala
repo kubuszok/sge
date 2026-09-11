@@ -124,7 +124,7 @@ class FacedMultiCubemapData(
       var i = 0
       while (i < 6) {
         val index = level * 6 + i
-        if (data(index).dataType == TextureData.TextureDataType.Custom) {
+        if (data(index).`type` == TextureData.TextureDataType.Custom) {
           data(index).consumeCustomData(TextureTarget(GL20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i))
         } else {
           var pixmap        = data(index).consumePixmap()

@@ -319,7 +319,7 @@ class SceneManager(using sge: Sge) {
   def removeScene(scene: Scene): Unit = {
     renderableProviders.removeValue(scene)
     scene.lights.foreachValue { light =>
-      environment.removeLight(light)
+      environment.remove(light)
     }
   }
 

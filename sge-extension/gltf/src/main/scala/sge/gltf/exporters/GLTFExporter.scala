@@ -281,7 +281,7 @@ class GLTFExporter(private val config: GLTFExporterConfig)(using Sge) {
       }
 
       // recursive children export
-      data.children = exportNodes(scene, node.children)
+      data.children = exportNodes(scene, node.children$field)
       nIdx += 1
     }
     indices

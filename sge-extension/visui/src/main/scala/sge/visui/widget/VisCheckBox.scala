@@ -39,8 +39,8 @@ class VisCheckBox(text: String, checkStyle: VisCheckBox.VisCheckBoxStyle)(using 
   import VisCheckBox._
 
   private var _style:              VisCheckBoxStyle = checkStyle
-  private val bgImage:             Image            = new Image(checkStyle.checkBackground)
-  private val tickImage:           Image            = new Image(checkStyle.tick)
+  private val bgImage:             Image            = new Image(checkStyle.checkBackground, sge.utils.Scaling.stretch)
+  private val tickImage:           Image            = new Image(checkStyle.tick, sge.utils.Scaling.stretch)
   private val imageStack:          Stack            = new Stack()
   private var _imageStackCell:     Cell[Stack]      = scala.compiletime.uninitialized
   private var drawBorder:          Boolean          = false

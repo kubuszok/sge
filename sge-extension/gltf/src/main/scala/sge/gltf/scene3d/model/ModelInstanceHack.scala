@@ -154,7 +154,7 @@ class ModelInstanceHack(model: Model, rootNodeIds: Nullable[Seq[String]]) extend
         // onto `out`; a NodePartPlus with no morph targets must CLEAR it (a null assignment in Java), not leave
         // the instance userData in place. `.map` preserves emptiness, so an empty morphTargets yields an empty
         // Nullable — matching the Java null-assignment (ISS-632 deviation (2)).
-        out.userData = npp.morphTargets.map(_.asInstanceOf[Any])
+        out.userData = npp.morphTargets.map(_.asInstanceOf[Object])
       case _ => ()
     }
     out

@@ -144,11 +144,11 @@ class VisTextField(text: Nullable[String], visStyle: VisTextField.VisTextFieldSt
 
   /** Overrides the background drawable selection to support backgroundOver from VisUI style. */
   override protected def backgroundDrawable: Nullable[Drawable] =
-    if (disabled && _style.disabledBackground.isDefined) _style.disabledBackground
+    if (disabled && style.disabledBackground.isDefined) style.disabledBackground
     else if (!disabled && _visStyle.backgroundOver.isDefined && (clickListener != null && clickListener.over || hasKeyboardFocus))
       _visStyle.backgroundOver
-    else if (_style.focusedBackground.isDefined && hasKeyboardFocus) _style.focusedBackground
-    else _style.background
+    else if (style.focusedBackground.isDefined && hasKeyboardFocus) style.focusedBackground
+    else style.background
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     super.draw(batch, parentAlpha)
@@ -225,7 +225,7 @@ class VisTextField(text: Nullable[String], visStyle: VisTextField.VisTextFieldSt
       stage.foreach { s =>
         s.setKeyboardFocus(Nullable(VisTextField.this))
       }
-      keyboard.show(VisTextField.this)
+      onscreenKeyboard.show(VisTextField.this)
       hasSelection = true
     }
 
@@ -247,11 +247,15 @@ class VisTextField(text: Nullable[String], visStyle: VisTextField.VisTextFieldSt
   /** Hook called right before ChangeEvent is fired. Subclasses (e.g. VisValidatableTextField) override this to trigger validation. */
   protected def beforeChangeEventFired(): Unit = ()
 
+  // changeText is private[ui] in generated TextField; call via reflection
+  // since VisTextField is in sge.visui.widget, not sge.scenes.scene2d.ui
   override private[sge] def changeText(oldText: String, newText: String): Boolean =
     if (_ignoreEqualsTextChange && newText == oldText) false
     else {
       beforeChangeEventFired()
-      super.changeText(oldText, newText)
+      val m = classOf[sge.scenes.scene2d.ui.TextField].getDeclaredMethod("changeText", classOf[String], classOf[String])
+      m.setAccessible(true)
+      m.invoke(this, oldText, newText).asInstanceOf[Boolean]
     }
 }
 

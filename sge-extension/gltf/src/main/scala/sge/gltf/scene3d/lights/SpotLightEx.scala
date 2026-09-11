@@ -45,7 +45,7 @@ class SpotLightEx extends SpotLight {
   def setRad(color: Color, position: Vector3, direction: Vector3, intensity: Float, outerConeAngleRad: Float, innerConeAngleRad: Float, range: Nullable[Float]): SpotLightEx = {
     if (color != null) this.color.set(color) // @nowarn — inherited API allows null
     if (position != null) this.position.set(position) // @nowarn — inherited API allows null
-    if (direction != null) this.direction.set(direction).nor() // @nowarn — inherited API allows null
+    if (direction != null) this.direction.set(direction).normalize() // @nowarn — inherited API allows null
     this.intensity = intensity
     setConeRad(outerConeAngleRad, innerConeAngleRad)
     this.range = range

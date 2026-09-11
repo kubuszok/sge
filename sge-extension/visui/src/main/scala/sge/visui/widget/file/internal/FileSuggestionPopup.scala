@@ -47,7 +47,7 @@ class FileSuggestionPopup(chooser: FileChooser)(using Sge) extends AbstractSugge
     clearChildren()
     var suggestions = 0
     val iter        = files.iterator()
-    while (iter.hasNext && suggestions < AbstractSuggestionPopup.MAX_SUGGESTIONS) {
+    while (iter.hasNext() && suggestions < AbstractSuggestionPopup.MAX_SUGGESTIONS) {
       val file = iter.next()
       if (file.name.startsWith(fileNameField.text) && !file.name.equals(fileNameField.text)) {
         val item = createMenuItem(getTrimmedName(file.name))

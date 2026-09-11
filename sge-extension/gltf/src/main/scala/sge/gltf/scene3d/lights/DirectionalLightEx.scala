@@ -48,25 +48,25 @@ class DirectionalLightEx extends DirectionalLight {
 
   override def set(color: Nullable[Color], direction: Nullable[Vector3]): DirectionalLightEx = {
     color.foreach(c => this.baseColor.set(c))
-    direction.foreach(d => this.direction.set(d).nor())
+    direction.foreach(d => this.direction.set(d).normalize())
     this
   }
 
   override def set(r: Float, g: Float, b: Float, direction: Nullable[Vector3]): DirectionalLightEx = {
     this.baseColor.set(r, g, b, 1f)
-    direction.foreach(d => this.direction.set(d).nor())
+    direction.foreach(d => this.direction.set(d).normalize())
     this
   }
 
   override def set(color: Nullable[Color], dirX: Float, dirY: Float, dirZ: Float): DirectionalLightEx = {
     color.foreach(c => this.baseColor.set(c))
-    this.direction.set(dirX, dirY, dirZ).nor()
+    this.direction.set(dirX, dirY, dirZ).normalize()
     this
   }
 
   override def set(r: Float, g: Float, b: Float, dirX: Float, dirY: Float, dirZ: Float): DirectionalLightEx = {
     this.baseColor.set(r, g, b, 1f).clamp()
-    this.direction.set(dirX, dirY, dirZ).nor()
+    this.direction.set(dirX, dirY, dirZ).normalize()
     this
   }
 

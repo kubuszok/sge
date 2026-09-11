@@ -227,7 +227,7 @@ class GLTFLoaderBase(private var textureResolver: Nullable[TextureResolver] = Nu
         GLTFLoaderBase.meshPartSet.add(part.meshPart)
         GLTFLoaderBase.materialSet.add(part.material)
       }
-      collectData(model, node.children)
+      collectData(model, node.children$field)
     }
 
   private def copySetToArray[T](src: HashSet[T], dst: DynamicArray[T]): Unit =

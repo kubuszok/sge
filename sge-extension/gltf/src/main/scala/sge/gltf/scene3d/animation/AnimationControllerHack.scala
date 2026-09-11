@@ -162,7 +162,7 @@ object AnimationControllerHack {
   private val transforms: ObjectMap[Node, Transform] = ObjectMap[Node, Transform]()
   private val tmpT:       Transform                  = Transform()
 
-  private def getFirstKeyframeIndexAtTime[T](arr: DynamicArray[NodeKeyframe[T]], time: Float): Int = boundary {
+  private def getFirstKeyframeIndexAtTime[T <: Object](arr: DynamicArray[NodeKeyframe[T]], time: Float): Int = boundary {
     val n = arr.size - 1
     var i = 0
     while (i < n) {
@@ -225,7 +225,7 @@ object AnimationControllerHack {
     // p(t) = (2t3 - 3t2 + 1)p0 + (t3 - 2t2 + t)m0 + (-2t3 + 3t2)p1 + (t3 - t2)m1
     val t2 = t * t
     val t3 = t2 * t
-    out.set(p0).scl(2 * t3 - 3 * t2 + 1).mulAdd(m0, t3 - 2 * t2 + t).mulAdd(p1, -2 * t3 + 3 * t2).mulAdd(m1, t3 - t2)
+    out.set(p0).scale(2 * t3 - 3 * t2 + 1).mulAdd(m0, t3 - 2 * t2 + t).mulAdd(p1, -2 * t3 + 3 * t2).mulAdd(m1, t3 - t2)
   }
 
   private val q1: Quaternion = Quaternion()

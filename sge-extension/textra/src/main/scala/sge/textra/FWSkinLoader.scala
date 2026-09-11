@@ -41,6 +41,6 @@ class FWSkinLoader(resolver: FileHandleResolver)(using Sge) extends SkinLoader(r
     * @return
     *   A new FWSkin instance based on the provided TextureAtlas.
     */
-  override protected def newSkin(atlas: TextureAtlas): Skin =
+  override def newSkin(atlas: TextureAtlas): Skin =
     new FWSkin(atlas)
 }

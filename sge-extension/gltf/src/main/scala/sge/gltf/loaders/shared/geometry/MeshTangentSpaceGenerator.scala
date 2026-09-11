@@ -94,7 +94,7 @@ object MeshTangentSpaceGenerator {
 
         vab.set(bx, by, bz).sub(ax, ay, az)
         vac.set(cx, cy, cz).sub(ax, ay, az)
-        val n = vab.crs(vac).nor()
+        val n = vab.crs(vac).normalize()
 
         vertices(vIndexA * stride + normalOffset) = n.x
         vertices(vIndexA * stride + normalOffset + 1) = n.y
@@ -129,7 +129,7 @@ object MeshTangentSpaceGenerator {
 
         vab.set(bx, by, bz).sub(ax, ay, az)
         vac.set(cx, cy, cz).sub(ax, ay, az)
-        val n = vab.crs(vac).nor()
+        val n = vab.crs(vac).normalize()
 
         vertices(vIndexA * stride + normalOffset) = n.x
         vertices(vIndexA * stride + normalOffset + 1) = n.y
@@ -219,7 +219,7 @@ object MeshTangentSpaceGenerator {
       normal.set(nx, ny, nz)
 
       val t1 = tan1(i)
-      tangent.set(t1).mulAdd(normal, -normal.dot(t1)).nor()
+      tangent.set(t1).mulAdd(normal, -normal.dot(t1)).normalize()
 
       val t2 = tan2(i)
       biNormal.set(normal).crs(tangent)

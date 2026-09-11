@@ -65,7 +65,7 @@ class VisDialog(title: String, windowStyle: WindowStyle)(using Sge) extends VisW
   def this(title: String, windowStyleName: String)(using Sge) = this(title, VisUI.getSkin.get[WindowStyle](windowStyleName))
 
   private def initialize(): Unit = {
-    isModal = true
+    modal = true
     titleLabel.setAlignment(VisUI.defaultTitleAlign)
 
     defaults().space(6)
@@ -101,8 +101,8 @@ class VisDialog(title: String, windowStyle: WindowStyle)(using Sge) extends VisW
       private def focusChanged(event: FocusListener.FocusEvent): Unit =
         VisDialog.this.stage.foreach { s =>
           if (
-            isModal && s.root.children.size > 0
-            && (s.root.children.peek.eq(VisDialog.this))
+            modal && s.root.children.size > 0
+            && (s.root.children.peek().eq(VisDialog.this))
           ) {
             event.relatedActor.foreach { nfa =>
               if (!nfa.isDescendantOf(VisDialog.this)) event.cancel()

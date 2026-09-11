@@ -112,8 +112,8 @@ object Locales {
 
     override def name:                       String = entryName
     override def get:                        String = getCommonBundle(using VisUI.sgeInstance).get(entryName)
-    override def format():                   String = getCommonBundle(using VisUI.sgeInstance).format(entryName)
-    override def format(arguments: AnyRef*): String = getCommonBundle(using VisUI.sgeInstance).format(entryName, arguments*)
+    override def format():                   String = getCommonBundle(using VisUI.sgeInstance).format(entryName, Array.empty[AnyRef])
+    override def format(arguments: AnyRef*): String = getCommonBundle(using VisUI.sgeInstance).format(entryName, arguments.toArray)
     override def toString:                   String = get
   }
 }

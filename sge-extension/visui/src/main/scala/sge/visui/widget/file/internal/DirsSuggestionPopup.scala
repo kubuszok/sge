@@ -119,7 +119,7 @@ class DirsSuggestionPopup(chooser: FileChooser, pathField: VisTextField)(using s
     clearChildren()
     var suggestions = 0
     val iter        = files.iterator()
-    while (iter.hasNext && suggestions < AbstractSuggestionPopup.MAX_SUGGESTIONS) {
+    while (iter.hasNext() && suggestions < AbstractSuggestionPopup.MAX_SUGGESTIONS) {
       val file = iter.next()
       if (file.exists()) {
         val item = createMenuItem(file.path)

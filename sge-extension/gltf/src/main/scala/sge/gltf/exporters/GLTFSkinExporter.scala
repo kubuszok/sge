@@ -58,7 +58,7 @@ private[exporters] class GLTFSkinExporter(private val base: GLTFExporter) {
               invBoneBinds.foreachEntry { (boneNode, matrix) =>
                 val boneID = base.nodeMapping.indexOfByRef(boneNode)
                 skin.joints.get += boneID
-                matrixBuffer.put(matrix.values())
+                matrixBuffer.put(matrix.values)
               }
               val accessor = base.obtainAccessor()
               accessor.bufferView = Nullable(base.binManager.end())

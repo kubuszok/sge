@@ -225,7 +225,7 @@ class MultiSplitPane(private val vertical: Boolean, initStyle: MultiSplitPane.Mu
       currentX += handleWidth
       i += 1
     }
-    if (widgetBounds.size != 0) widgetBounds.peek.set(currentX, 0, availWidth - areaUsed, h)
+    if (widgetBounds.size != 0) widgetBounds.peek().set(currentX, 0, availWidth - areaUsed, h)
   }
 
   private def calculateVertBoundsAndPositions(): Unit = {
@@ -247,7 +247,7 @@ class MultiSplitPane(private val vertical: Boolean, initStyle: MultiSplitPane.Mu
       currentY -= handleHeight
       i += 1
     }
-    if (widgetBounds.size != 0) widgetBounds.peek.set(0, 0, w, availHeight - areaUsed)
+    if (widgetBounds.size != 0) widgetBounds.peek().set(0, 0, w, availHeight - areaUsed)
   }
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {

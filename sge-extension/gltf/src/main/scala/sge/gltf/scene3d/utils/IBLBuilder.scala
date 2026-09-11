@@ -238,7 +238,7 @@ object IBLBuilder {
     ibl.nearSkyColor.set(0.7f, 0.8f, 1f, 1f)
     ibl.farSkyColor.set(0.9f, 0.95f, 1f, 1f)
     val light = Light()
-    light.direction.set(sun.direction).nor()
+    light.direction.set(sun.direction).normalize()
     light.color.set(sun.color)
     light.exponent = 30f
     ibl.lights.add(light)
@@ -253,7 +253,7 @@ object IBLBuilder {
     ibl.farSkyColor.set(tint)
     ibl.nearSkyColor.set(tint).mul(2f)
     val light = Light()
-    light.direction.set(sun.direction).nor()
+    light.direction.set(sun.direction).normalize()
     light.color.set(1f, 0.5f, 0f, 1f).mul(0.3f)
     light.exponent = 3f
     ibl.lights.add(light)
@@ -263,7 +263,7 @@ object IBLBuilder {
   def createCustom(sun: DirectionalLight)(using Sge): IBLBuilder = {
     val ibl   = IBLBuilder()
     val light = Light()
-    light.direction.set(sun.direction).nor()
+    light.direction.set(sun.direction).normalize()
     light.color.set(sun.color)
     light.exponent = 100f
     ibl.lights.add(light)

@@ -128,7 +128,7 @@ class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replac
 
   /** Returns the appropriate label font color from the style based on the current button state. */
   protected def getFontColor: Nullable[Color] = boundary {
-    if (isDisabled && _style.disabledFontColor.isDefined) break(_style.disabledFontColor)
+    if (disabled && _style.disabledFontColor.isDefined) break(_style.disabledFontColor)
     if (isPressed) {
       if (checked && _style.checkedDownFontColor.isDefined) break(_style.checkedDownFontColor)
       if (_style.downFontColor.isDefined) break(_style.downFontColor)
@@ -199,11 +199,7 @@ class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replac
   def skipToTheEnd(): Unit =
     label.skipToTheEnd()
 
-  /** Upstream reads `isDisabled()` (inherited from Button); SGE renamed it to the `disabled` property, exposed here under the Java name the textra package (and TextraButton's own state-driven font
-    * logic) is written against. `isChecked`/`isPressed`/`isOver`/`hasKeyboardFocus`/`setChecked`/`toggle` come from the inherited Button.
-    */
-  def isDisabled:                   Boolean = disabled
-  def isDisabled_=(value: Boolean): Unit    = disabled = value
+  // isDisabled is inherited as a var from Button; `disabled` is the property accessor.
 
   override def toString: String =
     if (name.isDefined) name.get

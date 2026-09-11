@@ -241,7 +241,7 @@ object Dialogs {
 
     {
       TableUtils.setSpacingDefaults(this)
-      isModal = true
+      modal = true
 
       if (cancelable) {
         addCloseButton()
@@ -349,7 +349,7 @@ object Dialogs {
     private val buttonBar: ButtonBar = new ButtonBar()
 
     {
-      isModal = true
+      modal = true
 
       add(Nullable[Actor](new VisLabel(text, Align.center)))
       row()
@@ -439,7 +439,7 @@ object Dialogs {
         copyButton.addListener(
           new ChangeListener() {
             override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
-              sge.application.clipboard.contents = Nullable(new String(detailsLabel.text.toArray))
+              sge.application.clipboard.contents = Nullable(new String(detailsLabel.text.toArray()))
               copyButton.setText(Nullable(Text.COPIED.get))
             }
           }
@@ -580,8 +580,8 @@ object Dialogs {
 
     override def name:                       String = entryName
     override def get:                        String = Locales.getDialogsBundle(using VisUI.sgeInstance).get(entryName)
-    override def format():                   String = Locales.getDialogsBundle(using VisUI.sgeInstance).format(entryName)
-    override def format(arguments: AnyRef*): String = Locales.getDialogsBundle(using VisUI.sgeInstance).format(entryName, arguments*)
+    override def format():                   String = Locales.getDialogsBundle(using VisUI.sgeInstance).format(entryName, Array.empty[AnyRef])
+    override def format(arguments: AnyRef*): String = Locales.getDialogsBundle(using VisUI.sgeInstance).format(entryName, arguments.toArray)
     override def toString:                   String = get
   }
 }

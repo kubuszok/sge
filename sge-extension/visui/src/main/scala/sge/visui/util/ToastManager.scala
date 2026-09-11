@@ -61,7 +61,7 @@ class ToastManager(protected val root: Group)(using Sge) {
     this(
       {
         val widgetGroup = new WidgetGroup()
-        widgetGroup.fillParent = true
+        widgetGroup.setFillParent(true)
         widgetGroup.touchable = Touchable.childrenOnly
         stage.addActor(widgetGroup)
         widgetGroup
@@ -159,9 +159,9 @@ class ToastManager(protected val root: Group)(using Sge) {
   def toFront(): Unit = root.toFront()
 
   protected def updateToastsPositions(): Unit = {
-    val bottom = alignment.isBottom
-    val left   = alignment.isLeft
-    val center = alignment.isCenter
+    val bottom = sge.utils.Align.isBottom(alignment)
+    val left   = sge.utils.Align.isLeft(alignment)
+    val center = sge.utils.Align.isCenterHorizontal(alignment)
     var y      = if (bottom) screenPaddingY.toFloat else root.height - screenPaddingY
 
     var i = 0

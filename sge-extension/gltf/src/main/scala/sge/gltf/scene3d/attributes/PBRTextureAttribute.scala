@@ -60,7 +60,7 @@ class PBRTextureAttribute(
     PBRTextureAttribute(this)
 
   override def compare(that: Attribute): Int = {
-    val r = super.compare(that)
+    val r = super.compareTo(that)
     if (r != 0) r
     else {
       that match {

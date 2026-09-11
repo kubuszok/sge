@@ -44,7 +44,7 @@ private[exporters] class GLTFMaterialExporter(private val base: GLTFExporter)(us
         exportMaterial(node.parts(j).material)
         j += 1
       }
-      exportMaterials(node.children)
+      exportMaterials(node.children$field)
       i += 1
     }
   }

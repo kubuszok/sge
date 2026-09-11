@@ -71,7 +71,7 @@ class HighlightTextArea(text: String, visStyle: VisTextField.VisTextFieldStyle)(
       // no chunk update needed
     } else {
       chunkUpdateScheduled = false
-      highlights.sort()(using (a: Highlight, b: Highlight) => a.compareTo(b))
+      highlights.sort(Ordering.fromLessThan[Highlight]((a, b) => a.compareTo(b) < 0))
       renderChunks.clear()
 
       val currentText = this.text

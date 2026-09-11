@@ -179,17 +179,17 @@ class PBRShader(
 
   override def init(program: ShaderProgram, renderable: Renderable): Unit = {
     super.init(program, renderable)
-    u_mipmapScale = program.fetchUniformLocation("u_mipmapScale", false)
-    u_texCoord0Transform = program.fetchUniformLocation("u_texCoord0Transform", false)
-    u_texCoord1Transform = program.fetchUniformLocation("u_texCoord1Transform", false)
-    u_morphTargets1 = program.fetchUniformLocation("u_morphTargets1", false)
-    u_morphTargets2 = program.fetchUniformLocation("u_morphTargets2", false)
-    u_ambientLight = program.fetchUniformLocation("u_ambientLight", false)
-    u_csmPCFClip = program.fetchUniformLocation("u_csmPCFClip", false)
-    u_csmTransforms = program.fetchUniformLocation("u_csmTransforms", false)
+    u_mipmapScale = UniformLocation(program.fetchUniformLocation("u_mipmapScale", false))
+    u_texCoord0Transform = UniformLocation(program.fetchUniformLocation("u_texCoord0Transform", false))
+    u_texCoord1Transform = UniformLocation(program.fetchUniformLocation("u_texCoord1Transform", false))
+    u_morphTargets1 = UniformLocation(program.fetchUniformLocation("u_morphTargets1", false))
+    u_morphTargets2 = UniformLocation(program.fetchUniformLocation("u_morphTargets2", false))
+    u_ambientLight = UniformLocation(program.fetchUniformLocation("u_ambientLight", false))
+    u_csmPCFClip = UniformLocation(program.fetchUniformLocation("u_csmPCFClip", false))
+    u_csmTransforms = UniformLocation(program.fetchUniformLocation("u_csmTransforms", false))
     var i = 0
     while (i < cascadeCount) {
-      u_csmSamplers(i) = program.fetchUniformLocation("u_csmSamplers" + i, false)
+      u_csmSamplers(i) = UniformLocation(program.fetchUniformLocation("u_csmSamplers" + i, false))
       i += 1
     }
   }
@@ -350,7 +350,7 @@ object PBRShader {
   val normalScaleSetter:  BaseShader.Setter  = new BaseShader.LocalSetter {
     override def set(shader: BaseShader, inputID: Int, renderable: Renderable, combinedAttributes: Attributes): Unit = {
       val normalScale = combinedAttributes.getAs[PBRFloatAttribute](PBRFloatAttribute.NormalScale).map(_.value).getOrElse(1f)
-      shader.setFloat(inputID, normalScale)
+      shader.set(inputID, normalScale)
     }
   }
 
@@ -358,7 +358,7 @@ object PBRShader {
   val occlusionStrengthSetter:  BaseShader.Setter  = new BaseShader.LocalSetter {
     override def set(shader: BaseShader, inputID: Int, renderable: Renderable, combinedAttributes: Attributes): Unit = {
       val occlusionStrength = combinedAttributes.getAs[PBRFloatAttribute](PBRFloatAttribute.OcclusionStrength).map(_.value).getOrElse(1f)
-      shader.setFloat(inputID, occlusionStrength)
+      shader.set(inputID, occlusionStrength)
     }
   }
 
@@ -616,7 +616,7 @@ object PBRShader {
   val viewportInvSetter:  BaseShader.Setter  = new BaseShader.LocalSetter {
     override def set(shader: BaseShader, inputID: Int, renderable: Renderable, combinedAttributes: Attributes): Unit =
       shader.camera.foreach { cam =>
-        shader.setFloat(inputID, 1f / cam.viewportWidth.toFloat, 1f / cam.viewportHeight.toFloat)
+        shader.set(inputID, 1f / cam.viewportWidth.toFloat, 1f / cam.viewportHeight.toFloat)
       }
   }
 
@@ -624,7 +624,7 @@ object PBRShader {
   val clippingPlaneSetter:  BaseShader.Setter  = new BaseShader.LocalSetter {
     override def set(shader: BaseShader, inputID: Int, renderable: Renderable, combinedAttributes: Attributes): Unit = {
       val a = combinedAttributes.getAs[ClippingPlaneAttribute](ClippingPlaneAttribute.Type).get
-      shader.setFloat(inputID, a.plane.normal.x, a.plane.normal.y, a.plane.normal.z, a.plane.d)
+      shader.set(inputID, a.plane.normal.x, a.plane.normal.y, a.plane.normal.z, a.plane.d)
     }
   }
 
