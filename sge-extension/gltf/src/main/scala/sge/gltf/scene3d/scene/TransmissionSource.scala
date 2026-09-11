@@ -47,10 +47,10 @@ class TransmissionSource(shaderProvider: ShaderProvider, sorter: RenderableSorte
   private val allRenderables:      DynamicArray[Renderable]   = DynamicArray[Renderable]()
   private val selectedRenderables: DynamicArray[Renderable]   = DynamicArray[Renderable]()
   private val renderablePool:      Pool.Flushable[Renderable] = new Pool.Flushable[Renderable] {
-    override protected val initialCapacity: Int        = 16
-    override protected val max:             Int        = Int.MaxValue
-    override protected def newObject():     Renderable = Renderable()
-    override def obtain():                  Renderable = {
+    override val initialCapacity:       Int        = 16
+    override val max:                   Int        = Int.MaxValue
+    override protected def newObject(): Renderable = Renderable()
+    override def obtain():              Renderable = {
       val renderable = super.obtain()
       renderable.environment = Nullable.empty
       renderable.material = Nullable.empty

@@ -128,7 +128,7 @@ object Scene2dButtonProbe extends FeatureProbe {
             pressedDuringDown = b.isPressed
           case 4 =>
             val _ = ctx.injectTouchUp(CenterScreenX, CenterScreenY)
-            checkedAfterClick = b.isChecked
+            checkedAfterClick = b.checked
           case 5 =>
             // move the pointer away: checked, not hovered. ClickListener keeps the
             // button "visually pressed" for 0.1s wall time after touchUp — wait it

@@ -23,7 +23,7 @@ class MirrorAttribute(
   `type`: Long
 ) extends Attribute(`type`) {
 
-  override def compare(that: Attribute): Int =
+  override def compareTo(that: Attribute): Int =
     if (`type` != that.`type`) { if (`type` < that.`type`) -1 else 1 }
     else 0
 

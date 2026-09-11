@@ -64,7 +64,7 @@ class PBRDepthShader(
     }
   }
 
-  override protected def bindMaterial(attributes: Attributes): Unit = {
+  override def bindMaterial(attributes: Attributes): Unit = {
     super.bindMaterial(attributes)
     if (u_texCoordTransform != UniformLocation.notFound) {
       val attr             = attributes.getAs[PBRTextureAttribute](PBRTextureAttribute.BaseColorTexture)

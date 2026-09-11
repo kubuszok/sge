@@ -38,7 +38,7 @@ class NodePlus extends Node {
     result
   }
 
-  override protected def set(other: Node): Node = {
+  override def set(other: Node): Node = {
     other match {
       case np: NodePlus =>
         np.weights.foreach { w =>

@@ -42,7 +42,7 @@ class NodePartPlus extends NodePart {
     result
   }
 
-  override protected def set(other: NodePart): NodePart = {
+  override def set(other: NodePart): NodePart = {
     super.set(other)
     other match {
       case npp: NodePartPlus =>

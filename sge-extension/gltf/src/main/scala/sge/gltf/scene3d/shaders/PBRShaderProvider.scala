@@ -95,7 +95,7 @@ class PBRShaderProvider(config: PBRShaderConfig)(using sge: Sge)
     sb.toString
   }
 
-  override protected def createShader(renderable: Renderable): Shader = {
+  override def createShader(renderable: Renderable): Shader = {
     val cfg = this.config.asInstanceOf[PBRShaderConfig]
     val sb  = new StringBuilder(createPrefixBase(renderable, cfg))
 

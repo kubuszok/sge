@@ -55,7 +55,7 @@ class PBRDepthShaderProvider(config: DepthShader.Config)(using Sge) extends Dept
     sb.toString
   }
 
-  override protected def createShader(renderable: Renderable): Shader = {
+  override def createShader(renderable: Renderable): Shader = {
     PBRCommon.checkVertexAttributes(renderable)
     PBRDepthShader(renderable, config, DepthShader.createPrefix(renderable, config) + morphTargetsPrefix(renderable))
   }

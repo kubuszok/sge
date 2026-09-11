@@ -194,7 +194,7 @@ class PBRShader(
     }
   }
 
-  override protected def bindMaterial(attributes: Attributes): Unit = {
+  override def bindMaterial(attributes: Attributes): Unit = {
     super.bindMaterial(attributes)
 
     val transformTexture = Array.ofDim[PBRTextureAttribute](2)
@@ -246,7 +246,7 @@ class PBRShader(
     super.render(renderable, combinedAttributes)
   }
 
-  override protected def bindLights(renderable: Renderable, attributes: Attributes): Unit = {
+  override def bindLights(renderable: Renderable, attributes: Attributes): Unit = {
     // Update color (to apply intensity) before default binding
     attributes.getAs[DirectionalLightsAttribute](DirectionalLightsAttribute.Type).foreach { dla =>
       var i = 0

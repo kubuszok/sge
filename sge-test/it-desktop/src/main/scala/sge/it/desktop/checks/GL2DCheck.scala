@@ -106,12 +106,15 @@ object GL2DCheck {
         // white (255,255,255,255). Both colors are exact 8-bit (0 or 255), so
         // there is no rounding tolerance and no transcendental drift.
         val fbo              = new FrameBuffer(Pixmap.Format.RGBA8888, Pixels(32), Pixels(32), false)
-        val (corner, center) = fbo.use {
-          while (gl.glGetError() != 0) {}
-          gl.glClearColor(0f, 0f, 1f, 1f) // blue
-          gl.glClear(ClearMask.ColorBufferBit)
-          mesh.render(shader, PrimitiveMode.Triangles)
-          (readPixel(gl, 0, 0), readPixel(gl, 16, 16))
+        val (corner, center) = {
+          fbo.begin()
+          try {
+            while (gl.glGetError() != 0) {}
+            gl.glClearColor(0f, 0f, 1f, 1f) // blue
+            gl.glClear(ClearMask.ColorBufferBit)
+            mesh.render(shader, PrimitiveMode.Triangles)
+            (readPixel(gl, 0, 0), readPixel(gl, 16, 16))
+          } finally fbo.end()
         }
         fbo.close()
 

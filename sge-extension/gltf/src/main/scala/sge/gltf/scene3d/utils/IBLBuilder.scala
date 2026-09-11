@@ -89,7 +89,7 @@ class IBLBuilder private (using sge: Sge) extends AutoCloseable {
     */
   def buildEnvMap(size: Int): Cubemap = {
     val fbo = new FrameBufferCubemap(Pixmap.Format.RGBA8888, size, size, false) {
-      override protected def disposeColorTexture(colorTexture: Cubemap): Unit = {
+      override def disposeColorTexture(colorTexture: Cubemap): Unit = {
         // intentionally empty — preserve the cubemap after FBO disposal
       }
     }
@@ -117,7 +117,7 @@ class IBLBuilder private (using sge: Sge) extends AutoCloseable {
     */
   def buildIrradianceMap(size: Int): Cubemap = {
     val fbo = new FrameBufferCubemap(Pixmap.Format.RGBA8888, size, size, false) {
-      override protected def disposeColorTexture(colorTexture: Cubemap): Unit = {
+      override def disposeColorTexture(colorTexture: Cubemap): Unit = {
         // intentionally empty — preserve the cubemap after FBO disposal
       }
     }

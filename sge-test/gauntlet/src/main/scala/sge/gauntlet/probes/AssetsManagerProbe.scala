@@ -52,7 +52,7 @@ object AssetsManagerProbe extends FeatureProbe {
     path = fixture.path
     val resolver = new FileHandleResolver.Absolute()
     val m        = new AssetManager(resolver, true)
-    m.setLoader[TextFixture](new TextFixtureLoader(resolver))
+    m.setLoader(classOf[TextFixture], new TextFixtureLoader(resolver))
     m.load[TextFixture](path)
     manager = Some(m)
   }

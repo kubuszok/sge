@@ -132,7 +132,7 @@ object ParticleEffectProbe extends FeatureProbe {
     fx.loadEmitters(file)
     emitterCountAtStart = fx.emitters.size
     if (fx.emitters.size > 0) {
-      fx.emitters(0).setSprites(Array(new Sprite(tex)))
+      fx.emitters(0).setSprites { val da = new lowlevel.util.DynamicArray[sge.graphics.g2d.Sprite](); da.add(new Sprite(tex)); da }
       fx.setPosition(PosX.toFloat, PosY.toFloat)
       fx.start()
     }
