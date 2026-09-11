@@ -47,7 +47,7 @@ class VisValidatableTextField(initialText: Nullable[String], visStyle: VisTextFi
   setProgrammaticChangeEvents(true)
   setIgnoreEqualsTextChange(false)
 
-  override protected def beforeChangeEventFired(): Unit = validateInput()
+  override def beforeChangeEventFired(): Unit = validateInput()
 
   def this()(using Sge) = this(Nullable(""), VisUI.getSkin.get[VisTextField.VisTextFieldStyle])
   def this(text: String)(using Sge) = this(Nullable(text), VisUI.getSkin.get[VisTextField.VisTextFieldStyle])

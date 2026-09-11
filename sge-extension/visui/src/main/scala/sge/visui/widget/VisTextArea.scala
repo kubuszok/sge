@@ -75,7 +75,7 @@ class VisTextArea(text: Nullable[String], visStyle: VisTextField.VisTextFieldSty
   def this(text: String, styleName: String)(using Sge) = this(Nullable(text), VisUI.getSkin.get[VisTextField.VisTextFieldStyle](styleName))
   def this(text: String, style:     VisTextField.VisTextFieldStyle)(using Sge) = this(Nullable(text), style)
 
-  override protected def initialize(): Unit = {
+  override def initialize(): Unit = {
     super.initialize()
     writeEnters = true
     linesBreak = DynamicArray[Int]()
@@ -85,7 +85,7 @@ class VisTextArea(text: Nullable[String], visStyle: VisTextField.VisTextFieldSty
     linesShowing = 0
   }
 
-  override protected def letterUnderCursor(x: Float): Int = boundary {
+  override def letterUnderCursor(x: Float): Int = boundary {
     if (linesBreak.size > 0) {
       if (cursorLine * 2 >= linesBreak.size) {
         boundary.break(_text.length())
@@ -201,7 +201,7 @@ class VisTextArea(text: Nullable[String], visStyle: VisTextField.VisTextFieldSty
 
   // OVERRIDE from TextField
 
-  override protected def sizeChanged(): Unit = {
+  override def sizeChanged(): Unit = {
     lastText = Nullable.empty // Cause calculateOffsets to recalculate the line breaks.
 
     // The number of lines showed must be updated whenever the height is updated
@@ -211,7 +211,7 @@ class VisTextArea(text: Nullable[String], visStyle: VisTextField.VisTextFieldSty
     linesShowing = Math.floor(availableHeight / font.lineHeight).toInt
   }
 
-  override protected def getTextY(font: BitmapFont, background: Nullable[Drawable]): Float = {
+  override def getTextY(font: BitmapFont, background: Nullable[Drawable]): Float = {
     var textY = height
     background.foreach { bg =>
       textY = (textY - bg.topHeight).toInt.toFloat
@@ -219,7 +219,7 @@ class VisTextArea(text: Nullable[String], visStyle: VisTextField.VisTextFieldSty
     textY
   }
 
-  override protected def drawSelection(selection: Drawable, batch: Batch, font: BitmapFont, x: Float, y: Float): Unit = {
+  override def drawSelection(selection: Drawable, batch: Batch, font: BitmapFont, x: Float, y: Float): Unit = {
     var i        = firstLineShowing * 2
     var offsetY  = 0f
     val minIndex = Math.min(cursor, _selectionStart)
@@ -248,7 +248,7 @@ class VisTextArea(text: Nullable[String], visStyle: VisTextField.VisTextFieldSty
     }
   }
 
-  override protected def drawText(batch: Batch, font: BitmapFont, x: Float, y: Float): Unit = {
+  override def drawText(batch: Batch, font: BitmapFont, x: Float, y: Float): Unit = {
     var offsetY = 0f
     var i       = firstLineShowing * 2
     while (i < (firstLineShowing + linesShowing) * 2 && i < linesBreak.size) {
@@ -258,7 +258,7 @@ class VisTextArea(text: Nullable[String], visStyle: VisTextField.VisTextFieldSty
     }
   }
 
-  override protected def drawCursor(cursorPatch: Drawable, batch: Batch, font: BitmapFont, x: Float, y: Float): Unit = {
+  override def drawCursor(cursorPatch: Drawable, batch: Batch, font: BitmapFont, x: Float, y: Float): Unit = {
     val textOffset =
       if (cursor >= glyphPositions.size || cursorLine * 2 >= linesBreak.size) 0f
       else glyphPositions(cursor) - glyphPositions(linesBreak.items(cursorLine * 2))
@@ -272,7 +272,7 @@ class VisTextArea(text: Nullable[String], visStyle: VisTextField.VisTextFieldSty
     )
   }
 
-  override protected def calculateOffsets(): Unit = {
+  override def calculateOffsets(): Unit = {
     super.calculateOffsets()
     if (lastText.forall(_ != this._text)) {
       this.lastText = Nullable(_text)
@@ -316,7 +316,7 @@ class VisTextArea(text: Nullable[String], visStyle: VisTextField.VisTextFieldSty
     }
   }
 
-  override protected def createInputListener(): InputListener =
+  override def createInputListener(): InputListener =
     TextAreaListener()
 
   override def setSelection(selectionStart: Int, selectionEnd: Int): Unit = {
@@ -324,7 +324,7 @@ class VisTextArea(text: Nullable[String], visStyle: VisTextField.VisTextFieldSty
     updateCurrentLine()
   }
 
-  override protected def moveCursor(forward: Boolean, jump: Boolean): Unit = {
+  override def moveCursor(forward: Boolean, jump: Boolean): Unit = {
     val count = if (forward) 1 else -1
     val index = (cursorLine * 2) + count
     if (
@@ -342,7 +342,7 @@ class VisTextArea(text: Nullable[String], visStyle: VisTextField.VisTextFieldSty
     updateCurrentLine()
   }
 
-  override protected def continueCursor(index: Int, offset: Int): Boolean = {
+  override def continueCursor(index: Int, offset: Int): Boolean = {
     val pos = calculateCurrentLineIndex(index + offset)
     super.continueCursor(index, offset) && (pos < 0 || pos >= linesBreak.size - 2 || (linesBreak.items(pos + 1) != index)
       || (linesBreak.items(pos + 1) == linesBreak.items(pos + 2)))
@@ -358,7 +358,7 @@ class VisTextArea(text: Nullable[String], visStyle: VisTextField.VisTextFieldSty
   /** Input listener for the text area * */
   class TextAreaListener extends TextFieldClickListener {
 
-    override protected def setCursorPosition(x: Float, y: Float): Unit = {
+    override def setCursorPosition(x: Float, y: Float): Unit = {
       moveOffset = -1
 
       val background = style.background
@@ -434,14 +434,14 @@ class VisTextArea(text: Nullable[String], visStyle: VisTextField.VisTextFieldSty
       result
     }
 
-    override protected def goHome(jump: Boolean): Unit =
+    override def goHome(jump: Boolean): Unit =
       if (jump) {
         cursor = 0
       } else if (cursorLine * 2 < linesBreak.size) {
         cursor = linesBreak(cursorLine * 2)
       }
 
-    override protected def goEnd(jump: Boolean): Unit =
+    override def goEnd(jump: Boolean): Unit =
       if (jump || cursorLine >= lines) {
         cursor = _text.length()
       } else if (cursorLine * 2 + 1 < linesBreak.size) {

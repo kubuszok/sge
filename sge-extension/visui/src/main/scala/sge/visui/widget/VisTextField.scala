@@ -51,7 +51,7 @@ class VisTextField(text: Nullable[String], visStyle: VisTextField.VisTextFieldSt
   private var _enterKeyFocusTraversal: Boolean           = false
 
   // Replace the basic focus-switch listener with the full initialize() pattern
-  override protected def initialize(): Unit = {
+  override def initialize(): Unit = {
     super.initialize()
     clickListener = new ClickListener() {
       override def enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Nullable[Actor]): Unit = {
@@ -86,7 +86,7 @@ class VisTextField(text: Nullable[String], visStyle: VisTextField.VisTextFieldSt
     * In the original VisUI, VisTextField fully reimplements `TextFieldClickListener` with these flags woven into `keyDown`/`keyTyped` (VisTextField.java lines 1069-1254). This port extends SGE's core
     * TextField, so the gating is added by subclassing the core `TextFieldClickListener` and overriding only the points where VisUI diverges.
     */
-  override protected def createInputListener(): InputListener =
+  override def createInputListener(): InputListener =
     new VisTextFieldClickListener()
 
   /** Core `TextFieldClickListener` specialised with VisUI's `readOnly` / `enterKeyFocusTraversal` semantics. */
@@ -102,7 +102,7 @@ class VisTextField(text: Nullable[String], visStyle: VisTextField.VisTextFieldSt
     /** Mirrors VisTextField.java line 1211: when `enterKeyFocusTraversal` is enabled, the Android-Enter character (`'\n'`, VisTextField.java `ENTER_ANDROID`) triggers focus traversal via `next(...)`
       * instead of being inserted. The core's TAB and platform-Enter (Android/iOS) traversal behaviour is preserved by delegating to `super`.
       */
-    override protected def checkFocusTraversal(character: Char): Boolean =
+    override def checkFocusTraversal(character: Char): Boolean =
       super.checkFocusTraversal(character) ||
         (getFocusTraversal && character == '\n' && _enterKeyFocusTraversal)
 
@@ -143,7 +143,7 @@ class VisTextField(text: Nullable[String], visStyle: VisTextField.VisTextFieldSt
   def this(text: String, styleName: String)(using Sge) = this(Nullable(text), VisUI.getSkin.get[VisTextField.VisTextFieldStyle](styleName))
 
   /** Overrides the background drawable selection to support backgroundOver from VisUI style. */
-  override protected def backgroundDrawable: Nullable[Drawable] =
+  override def backgroundDrawable: Nullable[Drawable] =
     if (disabled && style.disabledBackground.isDefined) style.disabledBackground
     else if (!disabled && _visStyle.backgroundOver.isDefined && (clickListener != null && clickListener.over || hasKeyboardFocus))
       _visStyle.backgroundOver
@@ -161,7 +161,7 @@ class VisTextField(text: Nullable[String], visStyle: VisTextField.VisTextFieldSt
   }
 
   /** Override cursor drawing to support cursorPercentHeight. */
-  override protected def drawCursor(cursorPatch: Drawable, batch: Batch, font: BitmapFont, x: Float, y: Float): Unit = {
+  override def drawCursor(cursorPatch: Drawable, batch: Batch, font: BitmapFont, x: Float, y: Float): Unit = {
     val cursorHeight   = textHeight * _cursorPercentHeight
     val cursorYPadding = (textHeight - cursorHeight) / 2
     cursorPatch.draw(

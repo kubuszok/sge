@@ -60,12 +60,12 @@ class HighlightTextArea(text: String, visStyle: VisTextField.VisTextFieldStyle)(
   private def init(): Unit =
     softwrap = false
 
-  override protected def updateDisplayText(): Unit = {
+  override def updateDisplayText(): Unit = {
     super.updateDisplayText()
     processHighlighter()
   }
 
-  override protected def calculateOffsets(): Unit = {
+  override def calculateOffsets(): Unit = {
     super.calculateOffsets()
     if (!chunkUpdateScheduled) {
       // no chunk update needed
@@ -156,7 +156,7 @@ class HighlightTextArea(text: String, visStyle: VisTextField.VisTextFieldStyle)(
     }
   }
 
-  override protected def drawText(batch: Batch, font: BitmapFont, x: Float, y: Float): Unit = {
+  override def drawText(batch: Batch, font: BitmapFont, x: Float, y: Float): Unit = {
     maxAreaHeight = 0
     var offsetY     = 0f
     val parentAlpha = font.color.a

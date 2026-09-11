@@ -33,7 +33,7 @@ class OneColumnTableBuilder(estimatedWidgetsAmount: Int, estimatedRowsAmount: In
   def this(defaultWidgetPadding:   Padding) = this(10, 3, defaultWidgetPadding)
   def this(estimatedWidgetsAmount: Int, estimatedRowsAmount: Int) = this(estimatedWidgetsAmount, estimatedRowsAmount, Padding.PAD_0)
 
-  override protected def fillTable(table: Table): Unit = {
+  override def fillTable(table: Table): Unit = {
     val iter = getWidgets.iterator()
     while (iter.hasNext()) iter.next().buildCell(table, Nullable(getDefaultWidgetPadding)).row()
   }

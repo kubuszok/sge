@@ -587,7 +587,7 @@ class FileChooser private (private var _mode: FileChooser.Mode, private val _ski
     }
   }
 
-  override protected def close(): Unit = {
+  override def close(): Unit = {
     _listener.canceled()
     super.close()
   }

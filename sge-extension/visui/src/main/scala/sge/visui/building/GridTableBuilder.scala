@@ -33,7 +33,7 @@ class GridTableBuilder(rowSize: Int, estimatedWidgetsAmount: Int, estimatedRowsA
   def this(defaultWidgetPadding: Padding, rowSize:            Int) = this(rowSize, 10, 3, defaultWidgetPadding)
   def this(rowSize:              Int, estimatedWidgetsAmount: Int, estimatedRowsAmount: Int) = this(rowSize, estimatedWidgetsAmount, estimatedRowsAmount, Padding.PAD_0)
 
-  override protected def fillTable(table: Table): Unit = {
+  override def fillTable(table: Table): Unit = {
     var widgetsCounter = 0
     val iter           = getWidgets.iterator()
     while (iter.hasNext()) {

@@ -62,7 +62,7 @@ class ExtendedColorPicker(initStyle: ColorPickerWidgetStyle, initListener: Nulla
   def this(styleName: String, listener: Nullable[ColorPickerListener])(using Sge) =
     this(VisUI.getSkin.get(styleName, classOf[ColorPickerWidgetStyle]), listener)
 
-  override protected def createUI(): Unit = {
+  override def createUI(): Unit = {
     super.createUI()
 
     val extendedTable = new VisTable(true) // displayed next to mainTable
@@ -86,12 +86,12 @@ class ExtendedColorPicker(initStyle: ColorPickerWidgetStyle, initListener: Nulla
     add(Nullable[sge.scenes.scene2d.Actor](extendedTable)).expand().left().top().pad(0, 9, 4, 4)
   }
 
-  override protected def createColorWidgets(): Unit = {
+  override def createColorWidgets(): Unit = {
     palette = new Palette(
       commons,
       100,
       new PickerChangeListener() {
-        override protected def updateLinkedWidget(): Unit = {
+        override def updateLinkedWidget(): Unit = {
           sBar.setValue(palette.getS)
           vBar.setValue(palette.getV)
         }
@@ -102,13 +102,13 @@ class ExtendedColorPicker(initStyle: ColorPickerWidgetStyle, initListener: Nulla
       commons,
       360,
       new PickerChangeListener() {
-        override protected def updateLinkedWidget(): Unit =
+        override def updateLinkedWidget(): Unit =
           hBar.setValue(verticalBar.getValue)
       }
     )
 
     val svListener = new HsvChannelBarListener() {
-      override protected def updateLinkedWidget(): Unit =
+      override def updateLinkedWidget(): Unit =
         palette.setValue(sBar.getValue, vBar.getValue)
     }
 
@@ -118,7 +118,7 @@ class ExtendedColorPicker(initStyle: ColorPickerWidgetStyle, initListener: Nulla
       ChannelBar.MODE_H,
       360,
       new HsvChannelBarListener() {
-        override protected def updateLinkedWidget(): Unit =
+        override def updateLinkedWidget(): Unit =
           verticalBar.setValue(hBar.getValue)
       }
     )
@@ -139,7 +139,7 @@ class ExtendedColorPicker(initStyle: ColorPickerWidgetStyle, initListener: Nulla
     super.allowAlphaEdit_=(allowAlphaEdit)
   }
 
-  override protected def updateValuesFromCurrentColor(): Unit = {
+  override def updateValuesFromCurrentColor(): Unit = {
     val hsv = ColorUtils.RGBtoHSV(pickerColor)
     val ch  = hsv(0)
     val cs  = hsv(1)
@@ -165,7 +165,7 @@ class ExtendedColorPicker(initStyle: ColorPickerWidgetStyle, initListener: Nulla
   }
 
   /** Updates picker from H, S and V bars */
-  override protected def updateValuesFromHSVFields(): Unit = {
+  override def updateValuesFromHSVFields(): Unit = {
     val hsv = ColorUtils.RGBtoHSV(pickerColor)
     var h   = hsv(0)
     var s   = hsv(1)

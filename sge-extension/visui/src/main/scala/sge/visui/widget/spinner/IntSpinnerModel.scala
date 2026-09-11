@@ -72,7 +72,7 @@ class IntSpinnerModel(initialValue: Int, private var _min: Int, private var _max
     }
   }
 
-  override protected def incrementModel(): Boolean =
+  override def incrementModel(): Boolean =
     if (current + _step > _max) {
       if (current == _max) {
         if (wrap) { current = _min; true }
@@ -86,7 +86,7 @@ class IntSpinnerModel(initialValue: Int, private var _min: Int, private var _max
       true
     }
 
-  override protected def decrementModel(): Boolean =
+  override def decrementModel(): Boolean =
     if (current - _step < _min) {
       if (current == _min) {
         if (wrap) { current = _max; true }

@@ -44,7 +44,7 @@ class ScrollableTextArea(text: String, visStyle: VisTextField.VisTextFieldStyle)
 
   def this(text: String, styleName: String)(using Sge) = this(text, VisUI.getSkin.get[VisTextField.VisTextFieldStyle](styleName))
 
-  override protected def createInputListener(): InputListener =
+  override def createInputListener(): InputListener =
     new ScrollTextAreaListener()
 
   override protected[sge] def setParent(parent: Nullable[Group]): Unit = {
@@ -88,7 +88,7 @@ class ScrollableTextArea(text: String, visStyle: VisTextField.VisTextFieldStyle)
     scrollPane
   }
 
-  override protected def sizeChanged(): Unit = {
+  override def sizeChanged(): Unit = {
     super.sizeChanged()
     linesShowing = 1000000000 // aka a lot, forces text area not to use its internal scrolling
   }

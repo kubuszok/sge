@@ -63,10 +63,10 @@ class MultiSplitPane(private val vertical: Boolean, initStyle: MultiSplitPane.Mu
   private def initialize(): Unit = {
     addListener(
       new SplitPaneCursorManager(this, vertical) {
-        override protected def handleBoundsContains(x: Float, y: Float): Boolean =
+        override def handleBoundsContains(x: Float, y: Float): Boolean =
           getHandleContaining(x, y).isDefined
 
-        override protected def contains(x: Float, y: Float): Boolean = {
+        override def contains(x: Float, y: Float): Boolean = {
           var i     = 0
           var found = false
           while (i < widgetBounds.size && !found) {

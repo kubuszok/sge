@@ -31,7 +31,7 @@ import sge.visui.VisUI
 class MenuBar(style: MenuBar.MenuBarStyle)(using Sge) {
 
   private val mainTable: VisTable = new VisTable() {
-    override protected def sizeChanged(): Unit = {
+    override def sizeChanged(): Unit = {
       super.sizeChanged()
       closeMenu()
     }

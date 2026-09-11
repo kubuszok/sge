@@ -274,7 +274,7 @@ object Dialogs {
       centerWindow()
     }
 
-    override protected def close(): Unit = {
+    override def close(): Unit = {
       super.close()
       listener.canceled()
     }
@@ -464,7 +464,7 @@ object Dialogs {
       centerWindow()
     }
 
-    override protected def result(obj: Nullable[AnyRef]): Unit =
+    override def result(obj: Nullable[AnyRef]): Unit =
       obj.foreach {
         case result: Integer if result.intValue() == BUTTON_DETAILS =>
           setDetailsVisible(!_detailsVisible)
@@ -536,7 +536,7 @@ object Dialogs {
       centerWindow()
     }
 
-    override protected def result(obj: Nullable[AnyRef]): Unit =
+    override def result(obj: Nullable[AnyRef]): Unit =
       obj.foreach { o =>
         listener.result(o.asInstanceOf[T])
       }

@@ -75,7 +75,7 @@ class FloatSpinnerModel(
     }
   }
 
-  override protected def incrementModel(): Boolean =
+  override def incrementModel(): Boolean =
     if (current.add(_step).compareTo(_max) > 0) {
       if (current.compareTo(_max) == 0) {
         if (wrap) { current = _min.setScale(_scale, RoundingMode.HALF_UP); true }
@@ -89,7 +89,7 @@ class FloatSpinnerModel(
       true
     }
 
-  override protected def decrementModel(): Boolean =
+  override def decrementModel(): Boolean =
     if (current.subtract(_step).compareTo(_min) < 0) {
       if (current.compareTo(_min) == 0) {
         if (wrap) { current = _max.setScale(_scale, RoundingMode.HALF_UP); true }

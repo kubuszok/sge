@@ -33,7 +33,7 @@ class CenteredTableBuilder(estimatedWidgetsAmount: Int, estimatedRowsAmount: Int
   def this(defaultWidgetPadding:   Padding) = this(10, 3, defaultWidgetPadding)
   def this(estimatedWidgetsAmount: Int, estimatedRowsAmount: Int) = this(estimatedWidgetsAmount, estimatedRowsAmount, Padding.PAD_0)
 
-  override protected def fillTable(table: Table): Unit = {
+  override def fillTable(table: Table): Unit = {
     val rowSizes     = getRowSizes
     val widgetsInRow = TableBuilder.getLowestCommonMultiple(rowSizes)
     var rowIndex     = 0
