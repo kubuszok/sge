@@ -20,3 +20,7 @@ ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" 
 // deps are already provided as _3 by sbt-scalajs 1.22, and pulling their _2.13
 // variants triggers a conflicting-cross-version-suffix error.
 libraryDependencies += ("org.scala-js" % "scalajs-env-jsdom-nodejs_2.13" % "1.1.1").intransitive()
+
+// Baltic Porter: Java->Scala 3 porting engine, runs as a sourceGenerator
+resolvers += Resolver.defaultLocal
+libraryDependencies += "com.kubuszok" %% "balticporter-corpus" % "0.1.0-SNAPSHOT"

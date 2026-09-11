@@ -419,6 +419,15 @@ val sge: sbt.ProjectMatrix = (projectMatrix in file("sge"))
       "io.github.cquiroz" %% "scala-java-locales" % Versions.scalaJavaLocales
     )
   )
+  .settings(
+    // Baltic Porter: generate sge-core Scala sources from libGDX Java originals.
+    // Runs once (cached by upstream commit), writing to target/balticporter-sge/.
+    Compile / sourceGenerators += Def.task {
+      BalticPorterGen.generate((ThisBuild / baseDirectory).value, streams.value.log)
+    }.taskValue,
+    // Suppress warnings from generated code (porter notes, unused imports, etc.)
+    scalacOptions += "-Wconf:src=target/balticporter-sge/.*:s"
+  )
 
 val regressionTest = (projectMatrix in file("sge-test/regression"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(Versions.scala3))
