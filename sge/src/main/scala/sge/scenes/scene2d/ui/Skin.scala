@@ -47,7 +47,6 @@ import lowlevel.util.DynamicArray
 import sge.utils.Json
 import sge.utils.LenientJson
 import lowlevel.Nullable
-import lowlevel.leanView
 import sge.utils.SgeError
 
 import scala.reflect.ClassTag

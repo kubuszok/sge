@@ -14,7 +14,6 @@ import lowlevel.util.DynamicArray
 extension (da: DynamicArray.type) {
 
   inline def createRef[A](capacity: Int = 16, preserveOrder: Boolean = true): DynamicArray[A] = {
-    @annotation.nowarn("msg=unused local definition") // consumed by summonInline at inline expansion sites
     given MkArray[A] = MkArray.anyRef[AnyRef].asInstanceOf[MkArray[A]]
     DynamicArray[A](preserveOrder, capacity)
   }

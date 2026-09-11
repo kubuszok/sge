@@ -128,6 +128,7 @@ class NoopGraphics(
   // the port's GLVersion reads the context only to log a malformed version string; a no-op graphics
   // has no context and "0.0.0" parses, so none is handed in (ADJUSTMENTS.tsv)
   private lazy val noopGlVersion: sge.graphics.glutils.GLVersion = {
+    @scala.annotation.nowarn("msg=unused")
     given Sge = null.asInstanceOf[Sge]
     new sge.graphics.glutils.GLVersion(Application.ApplicationType.HeadlessDesktop, "0.0.0", "Noop", "Noop")
   }

@@ -26,7 +26,7 @@ final class TextFormatter(locale: Locale, useAdvanced: Boolean) {
   private def replaceEscapeChars(pattern: String): String = {
     buffer.setLength(0)
     var changed = false
-    var len     = pattern.length
+    val len     = pattern.length
     var i       = 0
     while (i < len) {
       val ch = pattern.charAt(i)
@@ -48,7 +48,7 @@ final class TextFormatter(locale: Locale, useAdvanced: Boolean) {
   private def simpleFormat(pattern: String, args: Array[java.lang.Object]): String = {
     buffer.setLength(0)
     var changed = false
-    var len     = pattern.length
+    val len     = pattern.length
     var i       = 0
     while (i < len) {
       val ch = pattern.charAt(i)

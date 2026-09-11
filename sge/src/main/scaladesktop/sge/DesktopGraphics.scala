@@ -92,6 +92,7 @@ class DesktopGraphics private[sge] (
     val rendererString = _gl20.glGetString(GL20.GL_RENDERER)
     // the port's GLVersion carries the context (it logs a malformed version string through it); the
     // context is built after graphics exist, so the window's current one is handed over as-is
+    @scala.annotation.nowarn("msg=unused")
     given Sge = window.sgeContext
     _glVersion = new GLVersion(Application.ApplicationType.Desktop, versionString, vendorString, rendererString)
   }
