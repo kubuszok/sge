@@ -50,8 +50,8 @@ class MessageDispatcherRemoveByRefIss730RedSuite extends munit.FunSuite {
   /** Private Telegram pool so this suite never leaks into the global shared pool. */
   private def newDispatcher(): MessageDispatcher = {
     val pool = new Pool[Telegram] {
-      override protected val max:             Int      = Int.MaxValue
-      override protected val initialCapacity: Int      = 16
+      override val max:             Int      = Int.MaxValue
+      override val initialCapacity: Int      = 16
       override protected def newObject():     Telegram = new Telegram()
     }
     new MessageDispatcher(pool)
