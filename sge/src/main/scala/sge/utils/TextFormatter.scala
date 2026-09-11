@@ -62,9 +62,11 @@ final class TextFormatter(locale: Locale, useAdvanced: Boolean) {
           if (end < 0) throw new IllegalArgumentException("Unmatched '{' in pattern: " + pattern)
           val placeholder = pattern.substring(i + 1, end)
           if (placeholder.isEmpty) throw new IllegalArgumentException("Empty placeholder in pattern: " + pattern)
-          val idx = try { placeholder.toInt } catch {
-            case _: NumberFormatException => throw new IllegalArgumentException("Non-numeric placeholder '{" + placeholder + "}' in pattern: " + pattern)
-          }
+          val idx =
+            try placeholder.toInt
+            catch {
+              case _: NumberFormatException => throw new IllegalArgumentException("Non-numeric placeholder '{" + placeholder + "}' in pattern: " + pattern)
+            }
           if (idx < 0 || idx >= args.length) throw new IllegalArgumentException("Placeholder index " + idx + " out of range [0, " + args.length + ") in pattern: " + pattern)
           buffer.append(if (args(idx) == null) "null" else args(idx).toString)
           i = end

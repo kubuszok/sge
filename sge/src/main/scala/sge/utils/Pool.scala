@@ -92,7 +92,7 @@ trait Pool[A] {
   /** Returns an object from this pool. The object may be new (from [[newObject]]) or reused (previously [[free]]). */
   def obtain(): A =
     lock.synchronized {
-      if (freeObjects.isEmpty()) newObject() else freeObjects.pop()
+      if (freeObjects.isEmpty) newObject() else freeObjects.pop()
     }
 
   /** Puts the specified object in the pool, making it eligible to be returned by {@link #obtain()} . If the pool already contains {@link #max} free objects, the specified object is
@@ -173,7 +173,7 @@ trait Pool[A] {
   /** The number of objects available to be obtained. */
   /** java's spelling of [[free]] for the ported callers, until the property step renames them. */
   def getFree(): Int = free
-  def free: Int =
+  def free:      Int =
     lock.synchronized {
       freeObjects.size
     }
@@ -190,11 +190,11 @@ object Pool {
 
   /** A ready-made [[Pool]] that builds instances with the supplied factory and resets them through the given [[sge.utils.Poolable]] type class instance instead of the [[Pool.Poolable]] trait.
     *
-    * `reset` checks [[Pool.Poolable]] at runtime first: when the call site has no
-    * `Pool.Poolable` bound on `A` the compiler resolves `Poolable[A]` to the noop
-    * fallback, so the type class alone would skip the object's own `reset()`.
+    * `reset` checks [[Pool.Poolable]] at runtime first: when the call site has no `Pool.Poolable` bound on `A` the compiler resolves `Poolable[A]` to the noop fallback, so the type class alone would
+    * skip the object's own `reset()`.
     */
-  class Default[A](createNewObject: () => A, override protected[utils] val initialCapacity: Int = 16, override protected[utils] val max: Int = Int.MaxValue)(using poolable: sge.utils.Poolable[A]) extends Pool[A] {
+  class Default[A](createNewObject: () => A, override protected[utils] val initialCapacity: Int = 16, override protected[utils] val max: Int = Int.MaxValue)(using poolable: sge.utils.Poolable[A])
+      extends Pool[A] {
     override def newObject():             A    = createNewObject()
     override protected def reset(obj: A): Unit = obj match {
       case p: Pool.Poolable => p.reset()
@@ -475,7 +475,7 @@ object Pool {
         }
         i += 4
       }
-      if (!found && result.isEmpty()) break(false)
+      if (!found && result.isEmpty) break(false)
       result.clear()
       result.add(finalNearValue)
       result.add(finalNearX)

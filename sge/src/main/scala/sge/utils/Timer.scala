@@ -20,7 +20,7 @@ class Timer(using sge.Sge) {
         task.synchronized {
           if (task._timer.isDefined) throw new IllegalArgumentException("The same task may not be scheduled twice.")
           task._timer = Some(this)
-          val timeMillis = System.nanoTime() / 1000000
+          val timeMillis        = System.nanoTime() / 1000000
           var executeTimeMillis = timeMillis + delaySeconds.toMillis
           if (currentThread.pauseTimeMillis > 0) executeTimeMillis -= timeMillis - currentThread.pauseTimeMillis
           task._executeTimeMillis = executeTimeMillis
@@ -44,7 +44,7 @@ class Timer(using sge.Sge) {
   def start(): Unit =
     threadLock.synchronized {
       val currentThread = thread()
-      val instances = currentThread.instances
+      val instances     = currentThread.instances
       if (!instances.contains(this)) {
         instances.add(this)
         if (stopTimeMillis > 0) {
@@ -69,11 +69,11 @@ class Timer(using sge.Sge) {
       }
     }
 
-  def isEmpty: Boolean = synchronized(tasks.isEmpty())
+  def isEmpty: Boolean = synchronized(tasks.isEmpty)
 
   private[Timer] def update(thread: TimerThread, timeMillis: Long, waitMillis: Long): Long = synchronized {
     var currentWaitMillis = waitMillis
-    var i = 0
+    var i                 = 0
     while (i < tasks.size) {
       val task = tasks.get(i)
       task.synchronized {
@@ -132,16 +132,16 @@ object Timer {
       currentThread.get
     }
 
-  def post(task: Task)(using sge.Sge): Task = instance().postTask(task)
-  def schedule(task: Task, delaySeconds: Seconds)(using sge.Sge): Task = instance().scheduleTask(task, delaySeconds)
-  def schedule(task: Task, delaySeconds: Seconds, intervalSeconds: Seconds)(using sge.Sge): Task = instance().scheduleTask(task, delaySeconds, intervalSeconds, -1)
+  def post(task:     Task)(using sge.Sge):                                                                    Task = instance().postTask(task)
+  def schedule(task: Task, delaySeconds: Seconds)(using sge.Sge):                                             Task = instance().scheduleTask(task, delaySeconds)
+  def schedule(task: Task, delaySeconds: Seconds, intervalSeconds: Seconds)(using sge.Sge):                   Task = instance().scheduleTask(task, delaySeconds, intervalSeconds, -1)
   def schedule(task: Task, delaySeconds: Seconds, intervalSeconds: Seconds, repeatCount: Int)(using sge.Sge): Task = instance().scheduleTask(task, delaySeconds, intervalSeconds, repeatCount)
 
   abstract class Task(using sge.Sge) extends Runnable {
-    private[Timer] var _executeTimeMillis: Long = 0
-    private[Timer] var _intervalMillis: Long = 0
-    private[Timer] var _repeatCount: Int = 0
-    @volatile private[Timer] var _timer: Option[Timer] = None
+    private[Timer] var _executeTimeMillis: Long          = 0
+    private[Timer] var _intervalMillis:    Long          = 0
+    private[Timer] var _repeatCount:       Int           = 0
+    @volatile private[Timer] var _timer:   Option[Timer] = None
 
     def run(): Unit
 
@@ -162,20 +162,20 @@ object Timer {
       _timer = None
     }
 
-    def isScheduled: Boolean = _timer.isDefined
-    def executeTime: Long = synchronized(_executeTimeMillis)
-    def executeTimeMillis: Long = synchronized(_executeTimeMillis)
-    def intervalMillis: Long = _intervalMillis
-    def repeatCount: Int = _repeatCount
+    def isScheduled:       Boolean = _timer.isDefined
+    def executeTime:       Long    = synchronized(_executeTimeMillis)
+    def executeTimeMillis: Long    = synchronized(_executeTimeMillis)
+    def intervalMillis:    Long    = _intervalMillis
+    def repeatCount:       Int     = _repeatCount
   }
 
   private[utils] class TimerThread(using sge.Sge) extends sge.LifecycleListener {
-    val files = sge.Sge().files
+    val files     = sge.Sge().files
     val instances = DynamicArray[Timer]()
-    var _instance: Option[Timer] = None
-    var pauseTimeMillis: Long = 0
+    var _instance:       Option[Timer] = None
+    var pauseTimeMillis: Long          = 0
 
-    val postedTasks = DynamicArray[Task]()
+    val postedTasks      = DynamicArray[Task]()
     private val runTasks = DynamicArray[Task]()
     private val runPostedTasksRunnable: Runnable = () => runPostedTasks()
 
@@ -200,7 +200,7 @@ object Timer {
         var waitMillis = 5000L
         if (pauseTimeMillis == 0) {
           val timeMillis = System.nanoTime() / 1000000
-          var i = 0
+          var i          = 0
           while (i < instances.size) {
             try waitMillis = instances.get(i).update(this, timeMillis, waitMillis)
             catch { case ex: Throwable => throw new RuntimeException("Task failed: " + instances.get(i).getClass.getName, ex) }
@@ -223,12 +223,12 @@ object Timer {
 
     def addPostedTask(task: Task): Unit =
       postedTasks.synchronized {
-        if (postedTasks.isEmpty()) sge.Sge().application.postRunnable(runPostedTasksRunnable)
+        if (postedTasks.isEmpty) sge.Sge().application.postRunnable(runPostedTasksRunnable)
         postedTasks.add(task)
       }
 
     def removePostedTask(task: Task): Unit =
-      postedTasks.synchronized { postedTasks.removeValue(task) }
+      postedTasks.synchronized(postedTasks.removeValue(task))
 
     def resume(): Unit =
       threadLock.synchronized {
@@ -246,7 +246,7 @@ object Timer {
 
     def dispose(): Unit = {
       threadLock.synchronized {
-        postedTasks.synchronized { postedTasks.clear() }
+        postedTasks.synchronized(postedTasks.clear())
         if (currentThread.exists(_ == this)) currentThread = None
         instances.clear()
         wakeUp()

@@ -32,9 +32,12 @@ object BalticPorterGen {
     val outDir = portRoot.resolve("src_managed/main/scala")
     val marker = portRoot.resolve(".generated-marker")
 
-    // Cache key: the vendored tree's commit
+    // Cache key: the vendored tree's commit.
+    // During development, force regeneration with -Dbalticporter.forceRegen=true to pick up
+    // corpus changes. Default false: delete target/balticporter-sge/.generated-marker instead.
+    val forceRegen = sys.props.getOrElse("balticporter.forceRegen", "false").toBoolean
     val commit = balticporter.runner.VendoredCommit.of(libgdxSrc)
-    val cached = Files.exists(marker) &&
+    val cached = !forceRegen && Files.exists(marker) &&
       Files.exists(outDir) &&
       Files.readString(marker).trim == commit
 
@@ -48,12 +51,18 @@ object BalticPorterGen {
 
       // Step 2: Run the sge-core port (L0 ladder) as a dependent of the lls port.
       val steps = balticporter.corpus.libgdx.LibgdxLadder.DefaultSteps
-      // Disable parity check: the hand-ported files are being replaced by these generated ones.
-      // Remove inject: sge's hand-written inject files live in sge/src/main/scala and are added
-      // by the build as unmanagedSources (not duplicated into src_managed).
+      // parity with compare=false: the derive mechanism reads the FULL hand-ported sge source
+      // (master branch) to learn the reference's naming conventions (field names, property shapes,
+      // parenless methods, opaque type seeds). Without this, BeanPropertyTransform falls back to
+      // generic naming (active$field instead of _active), NullaryArityTransform doesn't derive
+      // parenless, and opaque Key/Button/Pixels seeds are empty.
+      // The reference is extracted from sge's master branch into target/parity-reference because
+      // the current branch (balticporter-generated) removed the hand-ported files.
       // Remove platformDirs: sge's platform-specific files live in sge/src/main/ already.
+      val parityRef = extractParityReference(sgeRoot, log)
       val manifest = balticporter.corpus.libgdx.LibgdxLadder.universal(bpRoot, steps)
-        .copy(parity = None, platformDirs = Map.empty,
+        .copy(parity = Some(balticporter.core.ParityRef(roots = parityRef, compare = false)),
+              platformDirs = Map.empty,
               baseReports = List(llsReportRoot))
 
       // Collect the files to port: all .java under gdx/src minus the lls set.
@@ -99,15 +108,25 @@ object BalticPorterGen {
           log.warn(s"[Baltic Porter] Port completed with findings (files written): ${e.getMessage}")
       }
 
+      // Post-process: fix API name mismatches between generated code and sge's types.
+      // The engine's bean-property and nullary-arity transforms rename members in declarations
+      // but not in all call sites within method bodies (an engine limitation). These replacements
+      // patch the generated bodies until the engine covers them.
+      postProcess(outDir, log)
+
       Files.createDirectories(marker.getParent)
       Files.writeString(marker, commit)
     } else {
       log.info(s"[Baltic Porter] Using cached generated sources ($commit)")
     }
 
-    // Collect all generated files: shared + any platform rows
+    // Collect generated files, excluding any that also exist in sge's hand-written source tree.
+    // The engine outputs inject files alongside generated translations; sge's src/main/scala has
+    // its own (possibly adapted) versions of those same types. Keeping both would produce
+    // duplicate class definitions.
     val managedRoot = portRoot.resolve("src_managed/main")
-    collectScalaFiles(managedRoot)
+    val sgeUnmanaged = sgeRoot.resolve("sge/src/main")
+    collectScalaFiles(managedRoot, excludeDuplicatesOf = Some(sgeUnmanaged))
   }
 
   /** Run the lls port (the base) and return the report root directory where its port-map.tsv
@@ -178,17 +197,127 @@ object BalticPorterGen {
     reportRoot
   }
 
-  private def collectScalaFiles(dir: Path): Seq[File] = {
+  /** Extract sge's master-branch hand-ported source into target/parity-reference so the derive
+    * mechanism can read the full reference's naming conventions. On the balticporter-generated
+    * branch, the hand-ported files are removed, so the current tree is incomplete. */
+  private def extractParityReference(sgeRoot: Path, log: sbt.util.Logger): List[Path] = {
+    val refDir = sgeRoot.resolve("target/parity-reference")
+    val marker = refDir.resolve(".extracted-marker")
+    if (!Files.exists(marker)) {
+      log.info("[Baltic Porter] Extracting parity reference from sge master branch")
+      if (Files.exists(refDir)) {
+        Files.walk(refDir).sorted(java.util.Comparator.reverseOrder()).forEach(Files.delete)
+      }
+      Files.createDirectories(refDir)
+      val pb = new ProcessBuilder("git", "archive", "master", "sge/src/main/scala", "sge/src/main/scalajvm", "sge/src/main/scaladesktop")
+      pb.directory(sgeRoot.toFile)
+      pb.redirectErrorStream(true)
+      val tarPb = new ProcessBuilder("tar", "-x", "-C", refDir.toString, "--strip-components=3")
+      tarPb.directory(sgeRoot.toFile)
+      val gitProc = pb.start()
+      val tarProc = tarPb.start()
+      gitProc.getInputStream.transferTo(tarProc.getOutputStream)
+      tarProc.getOutputStream.close()
+      gitProc.waitFor()
+      tarProc.waitFor()
+      Files.writeString(marker, "extracted")
+      val count = Files.walk(refDir).filter(p => p.toString.endsWith(".scala")).count()
+      log.info(s"[Baltic Porter] Extracted $count reference files to $refDir")
+    }
+    List("scala", "scalajvm", "scaladesktop").map(d => refDir.resolve(d)).filter(Files.isDirectory(_))
+  }
+
+  private def collectScalaFiles(dir: Path, excludeDuplicatesOf: Option[Path] = None): Seq[File] = {
     if (!Files.isDirectory(dir)) return Seq.empty
+    // Build set of relative paths that exist in the exclusion tree (sge's hand-written sources).
+    // Any generated file whose relative path matches is an inject duplicate — skip it.
+    val excluded: Set[String] = excludeDuplicatesOf.filter(Files.isDirectory(_)).map { excl =>
+      val s = Files.walk(excl)
+      try {
+        val b = Set.newBuilder[String]
+        s.forEach { p =>
+          if (p.toString.endsWith(".scala")) b += excl.relativize(p).toString
+        }
+        b.result()
+      } finally s.close()
+    }.getOrElse(Set.empty)
+
     val stream = Files.walk(dir)
     try {
       val builder = Seq.newBuilder[File]
       stream.forEach { p =>
-        if (p.toString.endsWith(".scala")) builder += p.toFile
+        if (p.toString.endsWith(".scala")) {
+          val rel = dir.relativize(p).toString
+          if (!excluded.contains(rel)) builder += p.toFile
+        }
       }
       builder.result()
     } finally {
       stream.close()
     }
+  }
+
+  /** Fix API name mismatches in generated code.
+    *
+    * The engine's BeanPropertyTransform and NullaryArityTransform rename DECLARATIONS but
+    * some call sites in method bodies still reference the old names. These text-level
+    * replacements patch the generated Scala until the engine's body-rewrite coverage is
+    * complete. Each replacement is documented with its cause.
+    */
+  private def postProcess(outDir: Path, log: sbt.util.Logger): Unit = {
+    if (!Files.isDirectory(outDir)) return
+    // word-boundary-safe patterns: the replacement text is always shorter or equal, so
+    // repeated application is idempotent.
+    val replacements: List[(String, String, String)] = List(
+      // first→head: BeanPropertyTransform renames declarations but not call sites in bodies.
+      // The post-process regex replaces .first()→.head and .first→.head, skipping files that
+      // DEFINE their own `first` member (Selection.scala) to avoid renaming unrelated methods.
+      ("\\.first\\(\\)", ".head", "first()→head (BeanPropertyTransform+NullaryArityTransform)"),
+      ("\\.first\\b", ".head", "first→head (BeanPropertyTransform)"),
+      // NullaryArityTransform removed parens from isEmpty, head.
+      // exists() is NOT parenless on FileHandle — its NullaryArityTransform scope doesn't cover it.
+      ("\\.isEmpty\\(\\)", ".isEmpty", "isEmpty() parenless (NullaryArityTransform)"),
+      ("\\.head\\(\\)", ".head", "head() parenless (NullaryArityTransform)"),
+      ("\\.orderedItems\\(\\)", ".orderedItems", "orderedItems() parenless (NullaryArityTransform)"),
+      // BeanPropertyTransform renamed scheduled→isScheduled
+      ("\\.scheduled\\b", ".isScheduled", "scheduled→isScheduled (BeanPropertyTransform)"),
+      // isDirectory→directory and multiLine→isMultiLine are NOT safe as global replacements:
+      // they also hit java.io.File.isDirectory() and other unrelated types. Fix those in
+      // hand-written files only.
+    )
+    var count = 0
+    val stream = Files.walk(outDir)
+    try {
+      stream.forEach { p =>
+        if (p.toString.endsWith(".scala")) {
+          var content = Files.readString(p)
+          var changed = false
+          for ((pattern, replacement, _) <- replacements) {
+            // SortedIntList has `var first` — a linked-list FIELD, not a DynamicArray call.
+            // Skip the entire file; the field and its accesses should keep the name `first`.
+            val skip = pattern.contains("first") && content.contains("var first:")
+            if (!skip) {
+              val updated = content.replaceAll(pattern, replacement)
+              if (updated != content) { content = updated; changed = true }
+            }
+          }
+          // Restore references the first→head replacement wrongly renamed:
+          // 1. Selection defines `def first: Nullable[T]` — its definition must stay `first`
+          // 2. Calls like `selection$field.head` should be `selection$field.first` because
+          //    Selection's method is `first`, not `head`
+          if (content.contains("def head:") && !content.contains("def first:")) {
+            content = content.replace("def head:", "def first:")
+            changed = true
+          }
+          // selection$field.head → selection$field.first (Selection's own method)
+          if (content.contains("selection$field.head")) {
+            content = content.replace("selection$field.head", "selection$field.first")
+            changed = true
+          }
+          if (changed) { Files.writeString(p, content); count += 1 }
+        }
+      }
+    } finally stream.close()
+    if (count > 0) log.info(s"[Baltic Porter] Post-processed $count files (API name fixes)")
   }
 }

@@ -49,8 +49,9 @@ import sge.utils.{ SgeError, readJson, readUBJson }
 /** Loads G3D models from `.g3dj` (JSON text) files. For binary `.g3db` (UBJson) format, see [[G3dBinaryModelLoader]]. */
 class G3dModelLoader(resolver: FileHandleResolver, binary: Boolean = false)(using Sge) extends ModelLoader[ModelLoader.ModelParameters](resolver) {
 
-  /** java's constructor shape, kept for the emitted AssetManager (`new G3dModelLoader(new UBJsonReader(), resolver)`):
-    * the reader only says which spelling of the document this loader reads (ADJUSTMENTS.tsv). */
+  /** java's constructor shape, kept for the emitted AssetManager (`new G3dModelLoader(new UBJsonReader(), resolver)`): the reader only says which spelling of the document this loader reads
+    * (ADJUSTMENTS.tsv).
+    */
   def this(reader: sge.utils.BaseJsonReader, resolver: FileHandleResolver)(using Sge) =
     this(resolver, reader.isInstanceOf[sge.utils.UBJsonReader])
   override def loadModelData(fileHandle: FileHandle, parameters: Nullable[ModelLoader.ModelParameters]): Nullable[ModelData] =

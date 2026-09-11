@@ -116,8 +116,8 @@ class NoopGraphics(
 
   override def frameId: Long = _frameId
 
-  override def rawDeltaTime: Float = deltaTime.toFloat  // java's getRawDeltaTime: sge has no such member, the port keeps the Float
-  override def deltaTime: Seconds = _deltaTime
+  override def rawDeltaTime: Float   = deltaTime.toFloat // java's getRawDeltaTime: sge has no such member, the port keeps the Float
+  override def deltaTime:    Seconds = _deltaTime
 
   override def framesPerSecond: Int = _fps
 
