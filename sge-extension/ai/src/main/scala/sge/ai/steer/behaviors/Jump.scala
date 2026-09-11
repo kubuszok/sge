@@ -24,7 +24,7 @@ package ai
 package steer
 package behaviors
 
-import sge.math.{ Epsilon, Vector }
+import sge.math.Vector
 import lowlevel.Nullable
 
 import scala.compiletime.uninitialized

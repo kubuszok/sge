@@ -170,17 +170,17 @@ class ImageTextraButton(
   protected def getImageDrawable: Nullable[Drawable] = boundary {
     if (isDisabled && _style.imageDisabled.isDefined) break(asDrawable(_style.imageDisabled))
     if (isPressed) {
-      if (isChecked && _style.imageCheckedDown.isDefined) break(asDrawable(_style.imageCheckedDown))
+      if (checked && _style.imageCheckedDown.isDefined) break(asDrawable(_style.imageCheckedDown))
       if (_style.imageDown.isDefined) break(asDrawable(_style.imageDown))
     }
     if (isOver) {
-      if (isChecked) {
+      if (checked) {
         if (_style.imageCheckedOver.isDefined) break(asDrawable(_style.imageCheckedOver))
       } else {
         if (_style.imageOver.isDefined) break(asDrawable(_style.imageOver))
       }
     }
-    if (isChecked) {
+    if (checked) {
       if (_style.imageChecked.isDefined) break(asDrawable(_style.imageChecked))
       if (isOver && _style.imageOver.isDefined) break(asDrawable(_style.imageOver))
     }
@@ -205,18 +205,18 @@ class ImageTextraButton(
   protected def getFontColor: Nullable[Color] = boundary {
     if (isDisabled && _style.disabledFontColor.isDefined) break(_style.disabledFontColor)
     if (isPressed) {
-      if (isChecked && _style.checkedDownFontColor.isDefined) break(_style.checkedDownFontColor)
+      if (checked && _style.checkedDownFontColor.isDefined) break(_style.checkedDownFontColor)
       if (_style.downFontColor.isDefined) break(_style.downFontColor)
     }
     if (isOver) {
-      if (isChecked) {
+      if (checked) {
         if (_style.checkedOverFontColor.isDefined) break(_style.checkedOverFontColor)
       } else {
         if (_style.overFontColor.isDefined) break(_style.overFontColor)
       }
     }
     val focused = hasKeyboardFocus
-    if (isChecked) {
+    if (checked) {
       if (focused && _style.checkedFocusedFontColor.isDefined) break(_style.checkedFocusedFontColor)
       if (_style.checkedFontColor.isDefined) break(_style.checkedFontColor)
       if (isOver && _style.overFontColor.isDefined) break(_style.overFontColor)

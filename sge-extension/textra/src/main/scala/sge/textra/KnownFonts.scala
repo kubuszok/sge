@@ -545,7 +545,7 @@ object KnownFonts {
     if (JSON_NAMES.contains(baseName) || LIMITED_JSON_NAMES.contains(baseName)) {
       val known = BitmapFontSupport.loadStructuredJson(summon[Sge].files.internal(Font.getJsonExtension(prefix + rootName)), rootName + ".png")
       known.region.texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Nearest)
-      known.integerPositions = false
+      known.integer = false
       known.data.scaleX = 32f / known.data.lineHeight
       known.data.scaleY = 32f / known.data.lineHeight
       known.data.name = Nullable(baseName + Font.DistanceFieldType.STANDARD.namePart)

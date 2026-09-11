@@ -480,7 +480,7 @@ object SimplePalette {
     * and HSLuv colors.
     */
   def editKnownColors(): Unit =
-    for (c <- Colors.getColors().values) {
+    for (c <- Colors.getColors().values()) {
       val f = ColorTools.fromColor(c)
       c.set(ColorTools.channelH(f), ColorTools.channelS(f), ColorTools.channelL(f), c.a)
     }

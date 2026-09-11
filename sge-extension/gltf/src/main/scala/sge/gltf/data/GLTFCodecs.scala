@@ -595,7 +595,7 @@ object GLTFCodecs {
         key match {
           case "count"   => obj.count = in.readInt()
           case "indices" => obj.indices = readNullableObj[GLTFAccessorSparseIndices](in, obj.indices)
-          case "values"  => obj.values = readNullableObj[GLTFAccessorSparseValues](in, obj.values)
+          case "values"  => obj.values = readNullableObj[GLTFAccessorSparseValues](in, obj.values())
           case _         => if (!readObjectField(key, obj, in)) in.skip()
         }
       }
@@ -603,7 +603,7 @@ object GLTFCodecs {
       out.writeObjectStart()
       out.writeKey("count"); out.writeVal(x.count)
       writeNullableObj[GLTFAccessorSparseIndices](out, "indices", x.indices)
-      writeNullableObj[GLTFAccessorSparseValues](out, "values", x.values)
+      writeNullableObj[GLTFAccessorSparseValues](out, "values", x.values())
       writeObjectFields(out, x)
       out.writeObjectEnd()
     }

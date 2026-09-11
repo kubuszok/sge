@@ -1828,7 +1828,7 @@ class Font {
     makeGridGlyphs: Boolean
   )(using sge.Sge): Unit = {
     setDistanceField(distanceField)
-    parents = ArrayBuffer.from(bmFont.regions.toArray)
+    parents = ArrayBuffer.from(bmFont.regions.iterator().asScala)
     if (distanceField != Font.DistanceFieldType.STANDARD) {
       for (parent <- parents if parent.texture != null) // @nowarn — texture null check at interop
         parent.texture.setFilter(sge.graphics.Texture.TextureFilter.Linear, sge.graphics.Texture.TextureFilter.Linear)
@@ -1997,7 +1997,7 @@ class Font {
     originalCellHeight = cellHeight
     isMono = minWidth == cellWidth && kerning.isEmpty
 
-    integerPosition = bmFont.integerPositions
+    integerPosition = bmFont.integer
 
     inlineImageOffsetX = 0f
     inlineImageOffsetY = 0f

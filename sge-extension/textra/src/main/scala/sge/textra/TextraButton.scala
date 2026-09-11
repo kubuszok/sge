@@ -130,18 +130,18 @@ class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replac
   protected def getFontColor: Nullable[Color] = boundary {
     if (isDisabled && _style.disabledFontColor.isDefined) break(_style.disabledFontColor)
     if (isPressed) {
-      if (isChecked && _style.checkedDownFontColor.isDefined) break(_style.checkedDownFontColor)
+      if (checked && _style.checkedDownFontColor.isDefined) break(_style.checkedDownFontColor)
       if (_style.downFontColor.isDefined) break(_style.downFontColor)
     }
     if (isOver) {
-      if (isChecked) {
+      if (checked) {
         if (_style.checkedOverFontColor.isDefined) break(_style.checkedOverFontColor)
       } else {
         if (_style.overFontColor.isDefined) break(_style.overFontColor)
       }
     }
     val focused = hasKeyboardFocus
-    if (isChecked) {
+    if (checked) {
       if (focused && _style.checkedFocusedFontColor.isDefined) break(_style.checkedFocusedFontColor)
       if (_style.checkedFontColor.isDefined) break(_style.checkedFontColor)
       if (isOver && _style.overFontColor.isDefined) break(_style.overFontColor)

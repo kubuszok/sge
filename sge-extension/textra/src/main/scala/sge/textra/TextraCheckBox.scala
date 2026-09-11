@@ -90,7 +90,7 @@ class TextraCheckBox(
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     var checkbox: Nullable[AnyRef] = Nullable.empty
     if (isDisabled) {
-      if (isChecked && _checkStyle.checkboxOnDisabled.isDefined) {
+      if (checked && _checkStyle.checkboxOnDisabled.isDefined) {
         checkbox = _checkStyle.checkboxOnDisabled
       } else {
         checkbox = _checkStyle.checkboxOffDisabled
@@ -98,7 +98,7 @@ class TextraCheckBox(
     }
     if (checkbox.isEmpty) {
       val over = isOver && !isDisabled
-      if (isChecked && _checkStyle.checkboxOn.isDefined) {
+      if (checked && _checkStyle.checkboxOn.isDefined) {
         checkbox = if (over && _checkStyle.checkboxOnOver.isDefined) _checkStyle.checkboxOnOver else _checkStyle.checkboxOn
       } else if (over && _checkStyle.checkboxOver.isDefined) {
         checkbox = _checkStyle.checkboxOver

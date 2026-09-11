@@ -186,7 +186,7 @@ class TextureUnpacker {
     */
   private def extractImage(
     page:          BufferedImage,
-    region:        TextureAtlas.TextureAtlasData.Region,
+    region:        TextureAtlasData.Region,
     outputDirFile: File,
     padding:       Int
   ): BufferedImage = {
@@ -232,7 +232,7 @@ class TextureUnpacker {
     */
   private def extractNinePatch(
     page:          BufferedImage,
-    region:        TextureAtlas.TextureAtlasData.Region,
+    region:        TextureAtlasData.Region,
     outputDirFile: File
   ): BufferedImage = {
     val splitImage = extractImage(page, region, outputDirFile, NINEPATCH_PADDING)

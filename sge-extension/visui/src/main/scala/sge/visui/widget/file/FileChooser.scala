@@ -364,7 +364,7 @@ class FileChooser private (private var _mode: FileChooser.Mode, private val _ski
 
   private def rebuildViewModePopupMenu(): Unit = {
     viewModePopupMenu.clearChildren()
-    for (mode <- ViewMode.values)
+    for (mode <- ViewMode.values())
       if (!mode.thumbnailMode || _iconProvider.isThumbnailModesSupported) {
         val capturedMode = mode
         viewModePopupMenu.addItem(
