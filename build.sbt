@@ -1148,7 +1148,7 @@ val `sge-android-robolectric` = (projectMatrix in file("sge-test/android-robolec
     testOptions += Tests.Argument(TestFramework("com.novocode.junit.JUnitFramework"), "-a", "-v"),
 
     libraryDependencies ++= Seq(
-      "org.robolectric" % "robolectric"              % "4.16.1"                     % Test,
+      "org.robolectric" % "robolectric"              % "4.17"                     % Test,
       // Provided (not Test): the android.* framework jar must be on the COMPILE
       // classpath so the impl sources type-check, and on the test classpath at
       // runtime. Provided keeps it off any published artifact (this module is
@@ -1160,7 +1160,7 @@ val `sge-android-robolectric` = (projectMatrix in file("sge-test/android-robolec
       // signatures while type-checking the impl sources, so `sandbox` must be on
       // the COMPILE classpath too — robolectric itself is Test-scoped and would
       // otherwise leave sandbox off compile.
-      "org.robolectric" % "sandbox"                  % "4.16.1"                     % Provided,
+      "org.robolectric" % "sandbox"                  % "4.17"                     % Provided,
       "com.github.sbt"  % "junit-interface"          % "0.13.3"                     % Test,
       "junit"           % "junit"                    % "4.13.2"                     % Test,
       // Mockito injects the exact caught exception types into MediaPlayer seams at
