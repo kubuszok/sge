@@ -52,18 +52,15 @@ package sge
 package maps
 package tiled
 
-
 import java.io.ByteArrayOutputStream
 import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
 import sge.utils.GdxRuntimeException
-
 
 import java.io.ByteArrayOutputStream
 import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
 import sge.utils.GdxRuntimeException
 import scala.util.{ Failure, Success, Try }
 import sge.utils.GdxRuntimeException
-
 
 import java.io.ByteArrayOutputStream
 import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
@@ -75,14 +72,14 @@ import sge.utils.GdxRuntimeException
 
 class TmxTileIdsEofRedSuite extends munit.FunSuite {
 
-import java.io.ByteArrayOutputStream
-import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
-import sge.utils.GdxRuntimeException
-import scala.util.{ Failure, Success, Try }
-import sge.utils.GdxRuntimeException
-import sge.utils.XmlReader
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
+  import java.io.ByteArrayOutputStream
+  import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
+  import sge.utils.GdxRuntimeException
+  import scala.util.{ Failure, Success, Try }
+  import sge.utils.GdxRuntimeException
+  import sge.utils.XmlReader
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   /** Raw little-endian layer data: tile i (1-based) has all four bytes == i, hence id i * 0x01010101. */
   private def rawTileBytes(tileCount: Int): Array[Byte] = {
@@ -95,15 +92,15 @@ import sge.utils.GdxRuntimeException
     bytes
   }
 
-import java.io.ByteArrayOutputStream
-import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
-import sge.utils.GdxRuntimeException
-import scala.util.{ Failure, Success, Try }
-import sge.utils.GdxRuntimeException
-import sge.utils.XmlReader
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
+  import java.io.ByteArrayOutputStream
+  import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
+  import sge.utils.GdxRuntimeException
+  import scala.util.{ Failure, Success, Try }
+  import sge.utils.GdxRuntimeException
+  import sge.utils.XmlReader
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   /** Complete, well-formed gzip stream of `raw`, base64-encoded (no line breaks — the port uses the basic decoder). */
   private def gzipBase64(raw: Array[Byte]): String = {
@@ -114,16 +111,16 @@ import sge.utils.GdxRuntimeException
     java.util.Base64.getEncoder().encodeToString(bos.toByteArray)
   }
 
-import java.io.ByteArrayOutputStream
-import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
-import sge.utils.GdxRuntimeException
-import scala.util.{ Failure, Success, Try }
-import sge.utils.GdxRuntimeException
-import sge.utils.XmlReader
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
+  import java.io.ByteArrayOutputStream
+  import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
+  import sge.utils.GdxRuntimeException
+  import scala.util.{ Failure, Success, Try }
+  import sge.utils.GdxRuntimeException
+  import sge.utils.XmlReader
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   /** Complete, well-formed zlib stream of `raw`, base64-encoded. */
   private def zlibBase64(raw: Array[Byte]): String = {
@@ -134,17 +131,17 @@ import sge.utils.GdxRuntimeException
     java.util.Base64.getEncoder().encodeToString(bos.toByteArray)
   }
 
-import java.io.ByteArrayOutputStream
-import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
-import sge.utils.GdxRuntimeException
-import scala.util.{ Failure, Success, Try }
-import sge.utils.GdxRuntimeException
-import sge.utils.XmlReader
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
+  import java.io.ByteArrayOutputStream
+  import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
+  import sge.utils.GdxRuntimeException
+  import scala.util.{ Failure, Success, Try }
+  import sge.utils.GdxRuntimeException
+  import sge.utils.XmlReader
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   /** Minimal TMX layer element with base64 data; payload kept on one line so the basic Base64 decoder accepts it. */
   private def layerElement(payload: String, compression: String): XmlReader.Element =
@@ -152,36 +149,36 @@ import sge.utils.GdxRuntimeException
       s"""<layer name="layer1" width="4" height="4"><data encoding="base64" compression="$compression">$payload</data></layer>"""
     )
 
-import java.io.ByteArrayOutputStream
-import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
-import sge.utils.GdxRuntimeException
-import scala.util.{ Failure, Success, Try }
-import sge.utils.GdxRuntimeException
-import sge.utils.XmlReader
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
+  import java.io.ByteArrayOutputStream
+  import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
+  import sge.utils.GdxRuntimeException
+  import scala.util.{ Failure, Success, Try }
+  import sge.utils.GdxRuntimeException
+  import sge.utils.XmlReader
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   /** 64 raw bytes for the full 4x4 layer; the truncated variants keep only 62 (mid final tile group). */
   private val fullRaw      = rawTileBytes(16)
   private val truncatedRaw = java.util.Arrays.copyOf(fullRaw, 62)
 
-import java.io.ByteArrayOutputStream
-import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
-import sge.utils.GdxRuntimeException
-import scala.util.{ Failure, Success, Try }
-import sge.utils.GdxRuntimeException
-import sge.utils.XmlReader
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
+  import java.io.ByteArrayOutputStream
+  import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
+  import sge.utils.GdxRuntimeException
+  import scala.util.{ Failure, Success, Try }
+  import sge.utils.GdxRuntimeException
+  import sge.utils.XmlReader
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   private def assertPrematureEof(element: XmlReader.Element): Unit =
     Try(BaseTmxMapLoader.getTileIds(element, 4, 4)) match {
@@ -201,61 +198,61 @@ import sge.utils.GdxRuntimeException
         fail(s"expected IllegalArgumentException('... Premature end of tile data'), got ${e.getClass.getName}: ${e.getMessage}")
     }
 
-import java.io.ByteArrayOutputStream
-import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
-import sge.utils.GdxRuntimeException
-import scala.util.{ Failure, Success, Try }
-import sge.utils.GdxRuntimeException
-import sge.utils.XmlReader
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
+  import java.io.ByteArrayOutputStream
+  import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
+  import sge.utils.GdxRuntimeException
+  import scala.util.{ Failure, Success, Try }
+  import sge.utils.GdxRuntimeException
+  import sge.utils.XmlReader
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   test("ISS-506: gzip data decompressing to 62 of 64 bytes must throw 'Premature end of tile data'") {
     assertPrematureEof(layerElement(gzipBase64(truncatedRaw), "gzip"))
   }
 
-import java.io.ByteArrayOutputStream
-import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
-import sge.utils.GdxRuntimeException
-import scala.util.{ Failure, Success, Try }
-import sge.utils.GdxRuntimeException
-import sge.utils.XmlReader
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
+  import java.io.ByteArrayOutputStream
+  import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
+  import sge.utils.GdxRuntimeException
+  import scala.util.{ Failure, Success, Try }
+  import sge.utils.GdxRuntimeException
+  import sge.utils.XmlReader
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   test("ISS-506: zlib data decompressing to 62 of 64 bytes must throw 'Premature end of tile data'") {
     assertPrematureEof(layerElement(zlibBase64(truncatedRaw), "zlib"))
   }
 
-import java.io.ByteArrayOutputStream
-import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
-import sge.utils.GdxRuntimeException
-import scala.util.{ Failure, Success, Try }
-import sge.utils.GdxRuntimeException
-import sge.utils.XmlReader
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
+  import java.io.ByteArrayOutputStream
+  import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
+  import sge.utils.GdxRuntimeException
+  import scala.util.{ Failure, Success, Try }
+  import sge.utils.GdxRuntimeException
+  import sge.utils.XmlReader
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   test("ISS-506 control (green at red commit): complete gzip layer parses to the exact 16 tile ids") {
     val ids = BaseTmxMapLoader.getTileIds(layerElement(gzipBase64(fullRaw), "gzip"), 4, 4)
@@ -263,23 +260,23 @@ import sge.utils.GdxRuntimeException
     assertEquals(ids.toList, (1 to 16).map(_ * 0x01010101).toList)
   }
 
-import java.io.ByteArrayOutputStream
-import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
-import sge.utils.GdxRuntimeException
-import scala.util.{ Failure, Success, Try }
-import sge.utils.GdxRuntimeException
-import sge.utils.XmlReader
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
-import sge.utils.GdxRuntimeException
+  import java.io.ByteArrayOutputStream
+  import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
+  import sge.utils.GdxRuntimeException
+  import scala.util.{ Failure, Success, Try }
+  import sge.utils.GdxRuntimeException
+  import sge.utils.XmlReader
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
+  import sge.utils.GdxRuntimeException
 
   test("ISS-506 control (green at red commit): complete zlib layer parses to the exact 16 tile ids") {
     val ids = BaseTmxMapLoader.getTileIds(layerElement(zlibBase64(fullRaw), "zlib"), 4, 4)

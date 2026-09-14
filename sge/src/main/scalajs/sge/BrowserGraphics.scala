@@ -94,7 +94,7 @@ class BrowserGraphics(
 
   override def frameId:         Long    = _frameId
   override def deltaTime:       Seconds = _deltaTime
-  override def rawDeltaTime: Float = deltaTime.toFloat
+  override def rawDeltaTime:    Float   = deltaTime.toFloat
   override def framesPerSecond: Int     = fps.toInt
 
   /** Update frame timing. Called once per frame by BrowserApplication. */
