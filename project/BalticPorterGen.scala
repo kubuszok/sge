@@ -25,8 +25,11 @@ object BalticPorterGen {
       sgeRoot.resolve("../balticporter").toString)).toAbsolutePath.normalize
 
     val libgdxSrc = sgeRoot.resolve("original-src/libgdx/gdx/src")
-    require(Files.isDirectory(libgdxSrc),
-      s"libGDX sources not found at $libgdxSrc — run: git submodule update --init")
+    if (!Files.isDirectory(libgdxSrc) || !Files.isDirectory(bpRoot.resolve("balticporter/corpus"))) {
+      log.warn("[Baltic Porter] No libGDX submodule or balticporter sibling — skipping sge-core generation")
+      val outDir = sgeRoot.resolve("target/balticporter-sge/src_managed/main/scala")
+      return if (Files.isDirectory(outDir)) collectScalaFiles(outDir) else Nil
+    }
 
     val portRoot = sgeRoot.resolve("target/balticporter-sge")
     val outDir = portRoot.resolve("src_managed/main/scala")
