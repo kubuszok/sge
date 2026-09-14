@@ -140,6 +140,15 @@ jobs:
         with:
           submodules: false
 
+      - name: Checkout libGDX submodule
+        run: git submodule update --init --depth=1 original-src/libgdx
+
+      - name: Setup Baltic Porter
+        shell: bash
+        run: |
+          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
+          cd ../balticporter && sbt --batch publishLocal
+
       - uses: actions/setup-java@v6
         with:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -171,6 +180,15 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+
+      - name: Checkout libGDX submodule
+        run: git submodule update --init --depth=1 original-src/libgdx
+
+      - name: Setup Baltic Porter
+        shell: bash
+        run: |
+          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
+          cd ../balticporter && sbt --batch publishLocal
 
       - uses: actions/setup-java@v6
         with:
@@ -303,6 +321,15 @@ jobs:
         with:
           submodules: false
 
+      - name: Checkout libGDX submodule
+        run: git submodule update --init --depth=1 original-src/libgdx
+
+      - name: Setup Baltic Porter
+        shell: bash
+        run: |
+          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
+          cd ../balticporter && sbt --batch publishLocal
+
       - uses: coursier/setup-action@v3.0.2
         with:
           jvm: ${{ env.JVM_VERSION }}
@@ -341,6 +368,15 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+
+      - name: Checkout libGDX submodule
+        run: git submodule update --init --depth=1 original-src/libgdx
+
+      - name: Setup Baltic Porter
+        shell: bash
+        run: |
+          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
+          cd ../balticporter && sbt --batch publishLocal
 
       # JDK 21 for the sge-android-robolectric test fork (Robolectric 4.16's ASM
       # cannot run on JDK 25). Installed FIRST so the JDK 25 step below wins as the
@@ -437,6 +473,15 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+
+      - name: Checkout libGDX submodule
+        run: git submodule update --init --depth=1 original-src/libgdx
+
+      - name: Setup Baltic Porter
+        shell: bash
+        run: |
+          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
+          cd ../balticporter && sbt --batch publishLocal
 
       - uses: coursier/setup-action@v3.0.2
         with:
@@ -583,6 +628,15 @@ jobs:
         with:
           submodules: false
 
+      - name: Checkout libGDX submodule
+        run: git submodule update --init --depth=1 original-src/libgdx
+
+      - name: Setup Baltic Porter
+        shell: bash
+        run: |
+          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
+          cd ../balticporter && sbt --batch publishLocal
+
       - uses: actions/setup-java@v6
         with:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -665,6 +719,15 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+
+      - name: Checkout libGDX submodule
+        run: git submodule update --init --depth=1 original-src/libgdx
+
+      - name: Setup Baltic Porter
+        shell: bash
+        run: |
+          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
+          cd ../balticporter && sbt --batch publishLocal
 
       - uses: actions/setup-java@v6
         with:
@@ -802,6 +865,15 @@ jobs:
         with:
           submodules: false
 
+      - name: Checkout libGDX submodule
+        run: git submodule update --init --depth=1 original-src/libgdx
+
+      - name: Setup Baltic Porter
+        shell: bash
+        run: |
+          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
+          cd ../balticporter && sbt --batch publishLocal
+
       - uses: actions/setup-java@v6
         with:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -851,6 +923,15 @@ jobs:
         with:
           submodules: false
 
+      - name: Checkout libGDX submodule
+        run: git submodule update --init --depth=1 original-src/libgdx
+
+      - name: Setup Baltic Porter
+        shell: bash
+        run: |
+          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
+          cd ../balticporter && sbt --batch publishLocal
+
       - uses: actions/setup-java@v6
         with:
           distribution: ${{ env.JAVA_DISTRIBUTION }}
@@ -888,6 +969,15 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+
+      - name: Checkout libGDX submodule
+        run: git submodule update --init --depth=1 original-src/libgdx
+
+      - name: Setup Baltic Porter
+        shell: bash
+        run: |
+          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
+          cd ../balticporter && sbt --batch publishLocal
 
       - uses: coursier/setup-action@v3.0.2
         with:
@@ -1031,6 +1121,15 @@ jobs:
         with:
           submodules: false
 
+      - name: Checkout libGDX submodule
+        run: git submodule update --init --depth=1 original-src/libgdx
+
+      - name: Setup Baltic Porter
+        shell: bash
+        run: |
+          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
+          cd ../balticporter && sbt --batch publishLocal
+
       - uses: coursier/setup-action@v3.0.2
         with:
           jvm: ${{ env.JVM_VERSION }}
@@ -1087,6 +1186,15 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+
+      - name: Checkout libGDX submodule
+        run: git submodule update --init --depth=1 original-src/libgdx
+
+      - name: Setup Baltic Porter
+        shell: bash
+        run: |
+          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
+          cd ../balticporter && sbt --batch publishLocal
 
       - uses: coursier/setup-action@v3.0.2
         with:
@@ -1152,6 +1260,15 @@ jobs:
         with:
           submodules: false
 
+      - name: Checkout libGDX submodule
+        run: git submodule update --init --depth=1 original-src/libgdx
+
+      - name: Setup Baltic Porter
+        shell: bash
+        run: |
+          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
+          cd ../balticporter && sbt --batch publishLocal
+
       - uses: coursier/setup-action@v3.0.2
         with:
           jvm: ${{ env.JVM_VERSION }}
@@ -1188,6 +1305,15 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+
+      - name: Checkout libGDX submodule
+        run: git submodule update --init --depth=1 original-src/libgdx
+
+      - name: Setup Baltic Porter
+        shell: bash
+        run: |
+          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
+          cd ../balticporter && sbt --batch publishLocal
 
       - uses: coursier/setup-action@v3.0.2
         with:
@@ -1260,6 +1386,15 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+
+      - name: Checkout libGDX submodule
+        run: git submodule update --init --depth=1 original-src/libgdx
+
+      - name: Setup Baltic Porter
+        shell: bash
+        run: |
+          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
+          cd ../balticporter && sbt --batch publishLocal
 
       - uses: actions/setup-java@v6
         with:
