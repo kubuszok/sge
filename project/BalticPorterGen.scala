@@ -1,28 +1,23 @@
 import sbt.*
 import sbt.Keys.*
 
-import java.nio.file.{Files, Path}
+import java.nio.file.{ Files, Path }
 import scala.jdk.CollectionConverters.*
 
-/** sbt sourceGenerator that uses Baltic Porter to mechanically port the libGDX
-  * core sources (minus the twelve lls utilities) into Scala 3.
+/** sbt sourceGenerator that uses Baltic Porter to mechanically port the libGDX core sources (minus the twelve lls utilities) into Scala 3.
   *
   * Requires:
   *   - libGDX sources at `original-src/libgdx/gdx/src` (git submodule)
-  *   - balticporter checkout at `../balticporter` (sibling directory) for inject files
-  *     and classpath cache; override with `-Dbalticporter.root=<path>`
+  *   - balticporter checkout at `../balticporter` (sibling directory) for inject files and classpath cache; override with `-Dbalticporter.root=<path>`
   *   - `balticporter-corpus` 0.1.0-SNAPSHOT published locally (`sbt publishLocal` in balticporter)
   */
 object BalticPorterGen {
 
-  /** Generate sge-core Scala sources from libGDX Java originals.
-    * Returns the list of generated files (shared + all platform rows).
-    * Caches by upstream commit.
+  /** Generate sge-core Scala sources from libGDX Java originals. Returns the list of generated files (shared + all platform rows). Caches by upstream commit.
     */
   def generate(buildBase: File, log: sbt.util.Logger): Seq[File] = {
     val sgeRoot = buildBase.toPath.toAbsolutePath.normalize
-    val bpRoot = Path.of(sys.props.getOrElse("balticporter.root",
-      sgeRoot.resolve("../balticporter").toString)).toAbsolutePath.normalize
+    val bpRoot  = Path.of(sys.props.getOrElse("balticporter.root", sgeRoot.resolve("../balticporter").toString)).toAbsolutePath.normalize
 
     val libgdxSrc = sgeRoot.resolve("original-src/libgdx/gdx/src")
     if (!Files.isDirectory(libgdxSrc) || !Files.isDirectory(bpRoot.resolve("balticporter/corpus"))) {
@@ -32,15 +27,15 @@ object BalticPorterGen {
     }
 
     val portRoot = sgeRoot.resolve("target/balticporter-sge")
-    val outDir = portRoot.resolve("src_managed/main/scala")
-    val marker = portRoot.resolve(".generated-marker")
+    val outDir   = portRoot.resolve("src_managed/main/scala")
+    val marker   = portRoot.resolve(".generated-marker")
 
     // Cache key: the vendored tree's commit.
     // During development, force regeneration with -Dbalticporter.forceRegen=true to pick up
     // corpus changes. Default false: delete target/balticporter-sge/.generated-marker instead.
     val forceRegen = sys.props.getOrElse("balticporter.forceRegen", "false").toBoolean
-    val commit = balticporter.runner.VendoredCommit.of(libgdxSrc)
-    val cached = !forceRegen && Files.exists(marker) &&
+    val commit     = balticporter.runner.VendoredCommit.of(libgdxSrc)
+    val cached     = !forceRegen && Files.exists(marker) &&
       Files.exists(outDir) &&
       Files.readString(marker).trim == commit
 
@@ -63,18 +58,25 @@ object BalticPorterGen {
       // the current branch (balticporter-generated) removed the hand-ported files.
       // Remove platformDirs: sge's platform-specific files live in sge/src/main/ already.
       val parityRef = extractParityReference(sgeRoot, log)
-      val manifest = balticporter.corpus.libgdx.LibgdxLadder.universal(bpRoot, steps)
-        .copy(parity = Some(balticporter.core.ParityRef(roots = parityRef, compare = false)),
-              platformDirs = Map.empty,
-              baseReports = List(llsReportRoot))
+      val manifest  = balticporter.corpus.libgdx.LibgdxLadder
+        .universal(bpRoot, steps)
+        .copy(
+          parity = Some(balticporter.core.ParityRef(roots = parityRef, compare = false)),
+          platformDirs = Map.empty,
+          baseReports = List(llsReportRoot)
+        )
 
       // Collect the files to port: all .java under gdx/src minus the lls set.
-      val files = Files.walk(libgdxSrc).iterator().asScala
+      val files = Files
+        .walk(libgdxSrc)
+        .iterator()
+        .asScala
         .filter(p => p.toString.endsWith(".java"))
         .map(p => libgdxSrc.relativize(p).toString)
         .filterNot(f => f.endsWith("package-info.java") || f.endsWith("module-info.java"))
         .filterNot(balticporter.corpus.lls.LlsMigrate.Files.toSet)
-        .toList.sorted
+        .toList
+        .sorted
 
       // The PortRun writes all files then runs post-emission checks; some checks fail
       // because the inject replacements are at the RENAMED package path (sge/) but the
@@ -82,29 +84,33 @@ object BalticPorterGen {
       // already written before the check runs, so catch the fatal check exception and
       // report it as a warning.
       try {
-        val result = balticporter.runner.PortRun(
-          label     = "sge-core",
-          portRoot  = portRoot,
-          sourceSet = balticporter.runner.SourceSet.Main,
-          frontend  = balticporter.core.FrontendConfig(
-            libgdxSrc,
-            files,
-            balticporter.corpus.JnigenClasspath.entries(bpRoot),
-            resolutionRoots = List(libgdxSrc),
-          ),
-          phases    = Nil,
-          manifest  = Some(manifest),
-          provenance = Some(balticporter.core.Provenance(
-            upstreamName     = "libGDX",
-            upstreamCommit   = commit,
-            originalLicense  = "Apache-2.0",
-            sourcePathPrefix = "gdx/src",
-            sourceRoot       = libgdxSrc.toString,
-          )),
-          runtimeMode = balticporter.core.RuntimeMode.Vendored,
-          determinism = balticporter.runner.Determinism.Emission,
-          nextStep    = "",
-        ).execute()
+        val result = balticporter.runner
+          .PortRun(
+            label = "sge-core",
+            portRoot = portRoot,
+            sourceSet = balticporter.runner.SourceSet.Main,
+            frontend = balticporter.core.FrontendConfig(
+              libgdxSrc,
+              files,
+              balticporter.corpus.JnigenClasspath.entries(bpRoot),
+              resolutionRoots = List(libgdxSrc)
+            ),
+            phases = Nil,
+            manifest = Some(manifest),
+            provenance = Some(
+              balticporter.core.Provenance(
+                upstreamName = "libGDX",
+                upstreamCommit = commit,
+                originalLicense = "Apache-2.0",
+                sourcePathPrefix = "gdx/src",
+                sourceRoot = libgdxSrc.toString
+              )
+            ),
+            runtimeMode = balticporter.core.RuntimeMode.Vendored,
+            determinism = balticporter.runner.Determinism.Emission,
+            nextStep = ""
+          )
+          .execute()
         log.info(s"[Baltic Porter] Generated ${result.written} files to $outDir")
       } catch {
         case e: RuntimeException if e.getMessage != null && e.getMessage.contains("fatal finding") =>
@@ -127,22 +133,22 @@ object BalticPorterGen {
     // The engine outputs inject files alongside generated translations; sge's src/main/scala has
     // its own (possibly adapted) versions of those same types. Keeping both would produce
     // duplicate class definitions.
-    val managedRoot = portRoot.resolve("src_managed/main")
+    val managedRoot  = portRoot.resolve("src_managed/main")
     val sgeUnmanaged = sgeRoot.resolve("sge/src/main")
     collectScalaFiles(managedRoot, excludeDuplicatesOf = Some(sgeUnmanaged))
   }
 
-  /** Run the lls port (the base) and return the report root directory where its port-map.tsv
-    * was written. The sge port then uses this as `baseReports` to discover the base's contract. */
+  /** Run the lls port (the base) and return the report root directory where its port-map.tsv was written. The sge port then uses this as `baseReports` to discover the base's contract.
+    */
   private def runLlsPort(
-      sgeRoot: Path,
-      bpRoot: Path,
-      libgdxSrc: Path,
-      commit: String,
-      log: sbt.util.Logger
+    sgeRoot:   Path,
+    bpRoot:    Path,
+    libgdxSrc: Path,
+    commit:    String,
+    log:       sbt.util.Logger
   ): Path = {
     val llsPortRoot = sgeRoot.resolve("target/balticporter-lls")
-    val llsMarker = llsPortRoot.resolve(".generated-marker")
+    val llsMarker   = llsPortRoot.resolve(".generated-marker")
     // The report dir is relative to the port root so the sge port can discover it.
     val reportRoot = sgeRoot.resolve("target/balticporter-reports")
     // reportDir is the CheckReport.dir; CheckReport.runDir adds "run-latest" under it.
@@ -156,36 +162,39 @@ object BalticPorterGen {
     if (!llsCached) {
       log.info(s"[Baltic Porter] Running lls base port first (required for sge-core contract)")
 
-      val rungs = balticporter.corpus.lls.LlsPolicy.DefaultRungs
-      val manifest = balticporter.corpus.lls.LlsPolicy.core(bpRoot, rungs)
-        .copy(parity = None, inject = Nil)
+      val rungs    = balticporter.corpus.lls.LlsPolicy.DefaultRungs
+      val manifest = balticporter.corpus.lls.LlsPolicy.core(bpRoot, rungs).copy(parity = None, inject = Nil)
 
       // Set reportDir so the port map is written where the sge port can find it
       System.setProperty("balticporter.reportDir", llsReportDir.toAbsolutePath.normalize.toString)
 
-      balticporter.runner.PortRun(
-        label     = "lls",
-        portRoot  = llsPortRoot,
-        sourceSet = balticporter.runner.SourceSet.Main,
-        frontend  = balticporter.core.FrontendConfig(
-          libgdxSrc,
-          balticporter.corpus.lls.LlsMigrate.Files,
-          balticporter.corpus.GdxCoreClasspath.entries(bpRoot),
-          resolutionRoots = Nil,
-        ),
-        phases    = Nil,
-        manifest  = Some(manifest),
-        provenance = Some(balticporter.core.Provenance(
-          upstreamName     = "libGDX",
-          upstreamCommit   = commit,
-          originalLicense  = "Apache-2.0",
-          sourcePathPrefix = "gdx/src",
-          sourceRoot       = libgdxSrc.toString,
-        )),
-        runtimeMode = balticporter.core.RuntimeMode.Vendored,
-        determinism = balticporter.runner.Determinism.Off,
-        nextStep    = "",
-      ).execute()
+      balticporter.runner
+        .PortRun(
+          label = "lls",
+          portRoot = llsPortRoot,
+          sourceSet = balticporter.runner.SourceSet.Main,
+          frontend = balticporter.core.FrontendConfig(
+            libgdxSrc,
+            balticporter.corpus.lls.LlsMigrate.Files,
+            balticporter.corpus.GdxCoreClasspath.entries(bpRoot),
+            resolutionRoots = Nil
+          ),
+          phases = Nil,
+          manifest = Some(manifest),
+          provenance = Some(
+            balticporter.core.Provenance(
+              upstreamName = "libGDX",
+              upstreamCommit = commit,
+              originalLicense = "Apache-2.0",
+              sourcePathPrefix = "gdx/src",
+              sourceRoot = libgdxSrc.toString
+            )
+          ),
+          runtimeMode = balticporter.core.RuntimeMode.Vendored,
+          determinism = balticporter.runner.Determinism.Off,
+          nextStep = ""
+        )
+        .execute()
 
       // Clear reportDir so the sge port uses its own default
       System.clearProperty("balticporter.reportDir")
@@ -200,9 +209,9 @@ object BalticPorterGen {
     reportRoot
   }
 
-  /** Extract sge's master-branch hand-ported source into target/parity-reference so the derive
-    * mechanism can read the full reference's naming conventions. On the balticporter-generated
-    * branch, the hand-ported files are removed, so the current tree is incomplete. */
+  /** Extract sge's master-branch hand-ported source into target/parity-reference so the derive mechanism can read the full reference's naming conventions. On the balticporter-generated branch, the
+    * hand-ported files are removed, so the current tree is incomplete.
+    */
   private def extractParityReference(sgeRoot: Path, log: sbt.util.Logger): List[Path] = {
     val refDir = sgeRoot.resolve("target/parity-reference")
     val marker = refDir.resolve(".extracted-marker")
@@ -234,16 +243,19 @@ object BalticPorterGen {
     if (!Files.isDirectory(dir)) return Seq.empty
     // Build set of relative paths that exist in the exclusion tree (sge's hand-written sources).
     // Any generated file whose relative path matches is an inject duplicate — skip it.
-    val excluded: Set[String] = excludeDuplicatesOf.filter(Files.isDirectory(_)).map { excl =>
-      val s = Files.walk(excl)
-      try {
-        val b = Set.newBuilder[String]
-        s.forEach { p =>
-          if (p.toString.endsWith(".scala")) b += excl.relativize(p).toString
-        }
-        b.result()
-      } finally s.close()
-    }.getOrElse(Set.empty)
+    val excluded: Set[String] = excludeDuplicatesOf
+      .filter(Files.isDirectory(_))
+      .map { excl =>
+        val s = Files.walk(excl)
+        try {
+          val b = Set.newBuilder[String]
+          s.forEach { p =>
+            if (p.toString.endsWith(".scala")) b += excl.relativize(p).toString
+          }
+          b.result()
+        } finally s.close()
+      }
+      .getOrElse(Set.empty)
 
     val stream = Files.walk(dir)
     try {
@@ -255,17 +267,14 @@ object BalticPorterGen {
         }
       }
       builder.result()
-    } finally {
+    } finally
       stream.close()
-    }
   }
 
   /** Fix API name mismatches in generated code.
     *
-    * The engine's BeanPropertyTransform and NullaryArityTransform rename DECLARATIONS but
-    * some call sites in method bodies still reference the old names. These text-level
-    * replacements patch the generated Scala until the engine's body-rewrite coverage is
-    * complete. Each replacement is documented with its cause.
+    * The engine's BeanPropertyTransform and NullaryArityTransform rename DECLARATIONS but some call sites in method bodies still reference the old names. These text-level replacements patch the
+    * generated Scala until the engine's body-rewrite coverage is complete. Each replacement is documented with its cause.
     */
   private def postProcess(outDir: Path, log: sbt.util.Logger): Unit = {
     if (!Files.isDirectory(outDir)) return
@@ -283,14 +292,14 @@ object BalticPorterGen {
       ("\\.head\\(\\)", ".head", "head() parenless (NullaryArityTransform)"),
       ("\\.orderedItems\\(\\)", ".orderedItems", "orderedItems() parenless (NullaryArityTransform)"),
       // BeanPropertyTransform renamed scheduled→isScheduled
-      ("\\.scheduled\\b", ".isScheduled", "scheduled→isScheduled (BeanPropertyTransform)"),
+      ("\\.scheduled\\b", ".isScheduled", "scheduled→isScheduled (BeanPropertyTransform)")
       // isDirectory→directory and multiLine→isMultiLine are NOT safe as global replacements:
       // they also hit java.io.File.isDirectory() and other unrelated types. Fix those in
       // hand-written files only.
     )
-    var count = 0
+    var count  = 0
     val stream = Files.walk(outDir)
-    try {
+    try
       stream.forEach { p =>
         if (p.toString.endsWith(".scala")) {
           var content = Files.readString(p)
@@ -320,7 +329,7 @@ object BalticPorterGen {
           if (changed) { Files.writeString(p, content); count += 1 }
         }
       }
-    } finally stream.close()
+    finally stream.close()
     if (count > 0) log.info(s"[Baltic Porter] Post-processed $count files (API name fixes)")
   }
 }
