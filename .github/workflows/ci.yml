@@ -155,7 +155,7 @@ jobs:
       - name: Setup Baltic Porter
         run: |
           git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch 'set ThisBuild / packageDoc / publishArtifact := false; publishLocal'
+          cd ../balticporter && sbt --batch 'set every (Compile / doc / sources) := Nil; publishLocal'
 
       - name: Test/compile all published modules (JVM + JS + Native)
         run: sbt 'testCompile-jvm-3; testCompile-js-3; testCompile-native-3'
@@ -196,7 +196,7 @@ jobs:
       - name: Setup Baltic Porter
         run: |
           git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch 'set ThisBuild / packageDoc / publishArtifact := false; publishLocal'
+          cd ../balticporter && sbt --batch 'set every (Compile / doc / sources) := Nil; publishLocal'
 
       - name: Generate scaladoc for all published modules (JVM + JS + Native)
         # Dotty scaladoc crashes NONDETERMINISTICALLY with
@@ -335,7 +335,7 @@ jobs:
       - name: Setup Baltic Porter
         run: |
           git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch 'set ThisBuild / packageDoc / publishArtifact := false; publishLocal'
+          cd ../balticporter && sbt --batch 'set every (Compile / doc / sources) := Nil; publishLocal'
 
       - uses: actions/setup-node@v7
         with:
@@ -402,7 +402,7 @@ jobs:
       - name: Setup Baltic Porter
         run: |
           git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch 'set ThisBuild / packageDoc / publishArtifact := false; publishLocal'
+          cd ../balticporter && sbt --batch 'set every (Compile / doc / sources) := Nil; publishLocal'
 
       - name: Run JVM tests with coverage (core + all extensions)
         # ISS-699: generalize the ISS-690 guard. These tests run in a forked JVM
@@ -490,7 +490,7 @@ jobs:
       - name: Setup Baltic Porter
         run: |
           git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch 'set ThisBuild / packageDoc / publishArtifact := false; publishLocal'
+          cd ../balticporter && sbt --batch 'set every (Compile / doc / sources) := Nil; publishLocal'
 
       - uses: actions/setup-node@v7
         with:
@@ -599,7 +599,7 @@ jobs:
       - name: Setup Baltic Porter
         run: |
           git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch 'set ThisBuild / packageDoc / publishArtifact := false; publishLocal'
+          cd ../balticporter && sbt --batch 'set every (Compile / doc / sources) := Nil; publishLocal'
 
       - uses: actions/setup-node@v7
         with:
@@ -656,7 +656,7 @@ jobs:
       - name: Setup Baltic Porter
         run: |
           git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch 'set ThisBuild / packageDoc / publishArtifact := false; publishLocal'
+          cd ../balticporter && sbt --batch 'set every (Compile / doc / sources) := Nil; publishLocal'
 
       - name: Install Scala Native system dependencies (Linux)
         if: runner.os == 'Linux'
@@ -748,7 +748,7 @@ jobs:
       - name: Setup Baltic Porter
         run: |
           git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch 'set ThisBuild / packageDoc / publishArtifact := false; publishLocal'
+          cd ../balticporter && sbt --batch 'set every (Compile / doc / sources) := Nil; publishLocal'
 
       - name: Install Scala Native system dependencies (Linux)
         if: runner.os == 'Linux'
@@ -892,7 +892,7 @@ jobs:
       - name: Setup Baltic Porter
         run: |
           git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch 'set ThisBuild / packageDoc / publishArtifact := false; publishLocal'
+          cd ../balticporter && sbt --batch 'set every (Compile / doc / sources) := Nil; publishLocal'
 
       - name: Install Scala Native system dependencies
         run: |
@@ -950,7 +950,7 @@ jobs:
       - name: Setup Baltic Porter
         run: |
           git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch 'set ThisBuild / packageDoc / publishArtifact := false; publishLocal'
+          cd ../balticporter && sbt --batch 'set every (Compile / doc / sources) := Nil; publishLocal'
 
       - name: Run gauntlet (headless)
         run: sbt "sge-gauntlet/run --headless --report ${{ github.workspace }}/target/gauntlet"
@@ -996,7 +996,7 @@ jobs:
       - name: Setup Baltic Porter
         run: |
           git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch 'set ThisBuild / packageDoc / publishArtifact := false; publishLocal'
+          cd ../balticporter && sbt --batch 'set every (Compile / doc / sources) := Nil; publishLocal'
 
       # GLFW windowing + ANGLE GLES need a display and X11/GL runtime libs.
       # xvfb provides a virtual display. ANGLE (libEGL/libGLESv2 from the
@@ -1149,7 +1149,7 @@ jobs:
       - name: Setup Baltic Porter
         run: |
           git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch 'set ThisBuild / packageDoc / publishArtifact := false; publishLocal'
+          cd ../balticporter && sbt --batch 'set every (Compile / doc / sources) := Nil; publishLocal'
 
       - name: Run JVM Platform integration tests
         run: |
@@ -1217,7 +1217,7 @@ jobs:
       - name: Setup Baltic Porter
         run: |
           git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch 'set ThisBuild / packageDoc / publishArtifact := false; publishLocal'
+          cd ../balticporter && sbt --batch 'set every (Compile / doc / sources) := Nil; publishLocal'
 
       - name: Publish SGE to local Maven (all platforms)
         run: sbt 'sge/publishM2; writeDemoVersion'
@@ -1292,7 +1292,7 @@ jobs:
       - name: Setup Baltic Porter
         run: |
           git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch 'set ThisBuild / packageDoc / publishArtifact := false; publishLocal'
+          cd ../balticporter && sbt --batch 'set every (Compile / doc / sources) := Nil; publishLocal'
 
       - uses: actions/setup-node@v7
         with:
@@ -1340,7 +1340,7 @@ jobs:
       - name: Setup Baltic Porter
         run: |
           git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch 'set ThisBuild / packageDoc / publishArtifact := false; publishLocal'
+          cd ../balticporter && sbt --batch 'set every (Compile / doc / sources) := Nil; publishLocal'
 
       - name: Install Scala Native system dependencies
         run: |
@@ -1425,7 +1425,7 @@ jobs:
       - name: Setup Baltic Porter
         run: |
           git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch 'set ThisBuild / packageDoc / publishArtifact := false; publishLocal'
+          cd ../balticporter && sbt --batch 'set every (Compile / doc / sources) := Nil; publishLocal'
 
       - name: Install Scala Native system dependencies (Linux)
         if: runner.os == 'Linux'
