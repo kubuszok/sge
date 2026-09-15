@@ -149,6 +149,8 @@ jobs:
 
       - uses: sbt/setup-sbt@v1
 
+      - uses: coursier/setup-action@v3.0.2
+
       - name: Checkout libGDX submodule
         run: git submodule update --init --depth=1 original-src/libgdx
 
@@ -189,6 +191,8 @@ jobs:
           cache: sbt
 
       - uses: sbt/setup-sbt@v1
+
+      - uses: coursier/setup-action@v3.0.2
 
       - name: Checkout libGDX submodule
         run: git submodule update --init --depth=1 original-src/libgdx
@@ -395,6 +399,8 @@ jobs:
           architecture: ${{ matrix.architecture || '' }}
 
       - uses: sbt/setup-sbt@v1
+
+      - uses: coursier/setup-action@v3.0.2
 
       - name: Checkout libGDX submodule
         run: git submodule update --init --depth=1 original-src/libgdx
@@ -650,6 +656,8 @@ jobs:
 
       - uses: sbt/setup-sbt@v1
 
+      - uses: coursier/setup-action@v3.0.2
+
       - name: Checkout libGDX submodule
         run: git submodule update --init --depth=1 original-src/libgdx
 
@@ -741,6 +749,8 @@ jobs:
           architecture: ${{ matrix.architecture || '' }}
 
       - uses: sbt/setup-sbt@v1
+
+      - uses: coursier/setup-action@v3.0.2
 
       - name: Checkout libGDX submodule
         run: git submodule update --init --depth=1 original-src/libgdx
@@ -886,6 +896,8 @@ jobs:
 
       - uses: sbt/setup-sbt@v1
 
+      - uses: coursier/setup-action@v3.0.2
+
       - name: Checkout libGDX submodule
         run: git submodule update --init --depth=1 original-src/libgdx
 
@@ -943,6 +955,8 @@ jobs:
           cache: sbt
 
       - uses: sbt/setup-sbt@v1
+
+      - uses: coursier/setup-action@v3.0.2
 
       - name: Checkout libGDX submodule
         run: git submodule update --init --depth=1 original-src/libgdx
@@ -1418,6 +1432,8 @@ jobs:
           architecture: ${{ matrix.architecture || '' }}
 
       - uses: sbt/setup-sbt@v1
+
+      - uses: coursier/setup-action@v3.0.2
 
       - name: Checkout libGDX submodule
         run: git submodule update --init --depth=1 original-src/libgdx
