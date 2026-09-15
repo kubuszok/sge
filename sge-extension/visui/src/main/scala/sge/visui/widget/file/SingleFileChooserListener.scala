@@ -30,7 +30,7 @@ import lowlevel.util.DynamicArray
   */
 abstract class SingleFileChooserListener extends FileChooserListener {
   final override def selected(files: DynamicArray[FileHandle]): Unit =
-    selected(files.first)
+    selected(files.head)
 
   /** Called for first file in selection. See [[SingleFileChooserListener]]. */
   protected def selected(file: FileHandle): Unit

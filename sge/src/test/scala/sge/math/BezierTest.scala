@@ -39,7 +39,7 @@ class BezierTest extends munit.FunSuite {
         case ImportType.ScalaArrays =>
           new Bezier[Vector2](points, 0, points.length)
         case ImportType.VarArgs =>
-          new Bezier[Vector2](points*)
+          new Bezier[Vector2](points, 0, points.length)
       }
     }
 

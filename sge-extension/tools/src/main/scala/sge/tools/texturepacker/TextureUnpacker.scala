@@ -87,8 +87,8 @@ class TextureUnpacker {
       if (!quiet) System.out.println(String.format("Creating directory: %s", outputDirFile.getPath()))
     }
 
-    val pageIter = atlas.pages.iterator
-    while (pageIter.hasNext) {
+    val pageIter = atlas.pages.iterator()
+    while (pageIter.hasNext()) {
       val page = pageIter.next()
       // load the image file belonging to this page as a Buffered Image
       val file = page.textureFile.get.internalFile
@@ -101,8 +101,8 @@ class TextureUnpacker {
           printExceptionAndExit(e)
       }
 
-      val regionIter = atlas.regions.iterator
-      while (regionIter.hasNext) {
+      val regionIter = atlas.regions.iterator()
+      while (regionIter.hasNext()) {
         val region = regionIter.next()
         if (!quiet) {
           System.out.println(
@@ -186,7 +186,7 @@ class TextureUnpacker {
     */
   private def extractImage(
     page:          BufferedImage,
-    region:        TextureAtlasData#Region,
+    region:        TextureAtlasData.Region,
     outputDirFile: File,
     padding:       Int
   ): BufferedImage = {
@@ -232,7 +232,7 @@ class TextureUnpacker {
     */
   private def extractNinePatch(
     page:          BufferedImage,
-    region:        TextureAtlasData#Region,
+    region:        TextureAtlasData.Region,
     outputDirFile: File
   ): BufferedImage = {
     val splitImage = extractImage(page, region, outputDirFile, NINEPATCH_PADDING)

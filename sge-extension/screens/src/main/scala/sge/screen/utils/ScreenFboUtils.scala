@@ -46,12 +46,13 @@ object ScreenFboUtils {
     *   a texture region which contains the rendered screen
     */
   def screenToTexture(screen: ManagedScreen, fbo: FrameBuffer, delta: Seconds)(using Sge): TextureRegion = {
-    fbo.use {
+    fbo.begin()
+    try {
       screen.clearColor.foreach { color =>
         ScreenUtils.clear(color, true)
       }
       screen.render(delta)
-    }
+    } finally fbo.end()
 
     val texture: Texture = fbo.colorBufferTexture
 

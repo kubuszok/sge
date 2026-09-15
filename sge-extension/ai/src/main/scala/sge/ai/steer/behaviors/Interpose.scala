@@ -52,7 +52,7 @@ class Interpose[T <: Vector[T]](
     // time T in the future. This is approximated by determining the time
     // taken by the owner to reach the desired point between the 2 agents
     // at the current time at the max speed.
-    internalTargetPosition.set(agentB.position).-(agentA.position).scale(interpositionRatio).+(agentA.position)
+    internalTargetPosition.set(agentB.position).sub(agentA.position).scale(interpositionRatio).add(agentA.position)
 
     val timeToTargetPosition = owner.position.distance(internalTargetPosition) / getActualLimiter().maxLinearSpeed
 
@@ -64,7 +64,7 @@ class Interpose[T <: Vector[T]](
     internalTargetPosition.set(agentB.position).mulAdd(agentB.linearVelocity, timeToTargetPosition)
 
     // Calculate the target position between these predicted positions
-    internalTargetPosition.-(steering.linear).scale(interpositionRatio).+(steering.linear)
+    internalTargetPosition.sub(steering.linear).scale(interpositionRatio).add(steering.linear)
 
     // Finally delegate to Arrive
     arrive(steering, internalTargetPosition)

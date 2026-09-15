@@ -62,6 +62,7 @@ class BitmapFontRegionsAndGlyphMetricIss734RedSuite extends munit.FunSuite {
   /** Custom-type dummy texture: no Pixmap, no real GL upload, width/height as given. */
   final private class DummyTextureData(w: Int, h: Int) extends TextureData {
     def dataType:                                 TextureData.TextureDataType = TextureData.TextureDataType.Custom
+    def `type`:                                   TextureData.TextureDataType = dataType
     def isPrepared:                               Boolean                     = true
     def prepare():                                Unit                        = ()
     def consumePixmap():                          Pixmap                      = throw new UnsupportedOperationException("dummy texture has no pixmap")

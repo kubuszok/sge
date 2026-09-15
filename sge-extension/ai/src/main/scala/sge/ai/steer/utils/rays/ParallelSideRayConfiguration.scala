@@ -53,15 +53,15 @@ class ParallelSideRayConfiguration[T <: Vector[T]](
     val velocityAngle = owner.vectorToAngle(owner.linearVelocity)
 
     // Update ray 0
-    owner.angleToVector(rays(0).start, velocityAngle - HALF_PI).scale(sideOffset).+(owner.position)
+    owner.angleToVector(rays(0).start, velocityAngle - HALF_PI).scale(sideOffset).add(owner.position)
     rays(0).end.set(owner.linearVelocity).normalize().scale(length) // later we'll add rays(0).start
 
     // Update ray 1
-    owner.angleToVector(rays(1).start, velocityAngle + HALF_PI).scale(sideOffset).+(owner.position)
-    rays(1).end.set(rays(0).end).+(rays(1).start)
+    owner.angleToVector(rays(1).start, velocityAngle + HALF_PI).scale(sideOffset).add(owner.position)
+    rays(1).end.set(rays(0).end).add(rays(1).start)
 
     // add start position to ray 0
-    rays(0).end.+(rays(0).start)
+    rays(0).end.add(rays(0).start)
 
     rays
   }

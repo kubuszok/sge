@@ -90,8 +90,11 @@ class GauntletApp(
     */
   private def runPhase(probe: FeatureProbe, phase: String)(body: => Unit): Unit =
     try
-      if (probe.requiresGpu) ensureGpu().fbo.use(body)
-      else body
+      if (probe.requiresGpu) {
+        val _fbo = ensureGpu().fbo; _fbo.begin();
+        try body
+        finally _fbo.end()
+      } else body
     catch {
       case e: Throwable =>
         ctx.foreach(_.log(s"exception in $phase: $e"))

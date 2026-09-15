@@ -134,9 +134,17 @@ class DownloadPixmapRedSuite extends FunSuite {
       posted.add(runnable)
       postedSignal.countDown()
     }
-    def exit():                                               Unit = ()
-    def addLifecycleListener(listener:    LifecycleListener): Unit = ()
-    def removeLifecycleListener(listener: LifecycleListener): Unit = ()
+    def log(tag:                          String, message: String):                       Unit              = ()
+    def log(tag:                          String, message: String, exception: Throwable): Unit              = ()
+    def error(tag:                        String, message: String):                       Unit              = ()
+    def error(tag:                        String, message: String, exception: Throwable): Unit              = ()
+    def debug(tag:                        String, message: String):                       Unit              = ()
+    def debug(tag:                        String, message: String, exception: Throwable): Unit              = ()
+    var logLevel:                                                                         Int               = 0
+    var applicationLogger:                                                                ApplicationLogger = null.asInstanceOf[ApplicationLogger]
+    def exit():                                                                           Unit              = ()
+    def addLifecycleListener(listener:    LifecycleListener):                             Unit              = ()
+    def removeLifecycleListener(listener: LifecycleListener):                             Unit              = ()
   }
 
   /** Net backed by the real HTTP client — downloadFromUrl must go through Sge().net (Pixmap.java:208). */

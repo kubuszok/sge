@@ -61,17 +61,18 @@ class SpriteCacheRedefineRedSuite extends munit.FunSuite {
     * with the managed-textures map.
     */
   final private class DummyTextureData extends TextureData {
-    def dataType:                                 TextureData.TextureDataType = TextureData.TextureDataType.Custom
-    def isPrepared:                               Boolean                     = true
-    def prepare():                                Unit                        = ()
-    def consumePixmap():                          Pixmap                      = throw new UnsupportedOperationException("dummy texture has no pixmap")
-    def disposePixmap:                            Boolean                     = false
-    def consumeCustomData(target: TextureTarget): Unit                        = ()
-    def width:                                    Int                         = 4
-    def height:                                   Int                         = 4
-    def getFormat:                                Pixmap.Format               = Pixmap.Format.RGBA8888
-    def useMipMaps:                               Boolean                     = false
-    def isManaged:                                Boolean                     = false
+    def `type`:                                   sge.graphics.TextureData.TextureDataType = sge.graphics.TextureData.TextureDataType.Pixmap
+    def dataType:                                 TextureData.TextureDataType              = TextureData.TextureDataType.Custom
+    def isPrepared:                               Boolean                                  = true
+    def prepare():                                Unit                                     = ()
+    def consumePixmap():                          Pixmap                                   = throw new UnsupportedOperationException("dummy texture has no pixmap")
+    def disposePixmap:                            Boolean                                  = false
+    def consumeCustomData(target: TextureTarget): Unit                                     = ()
+    def width:                                    Int                                      = 4
+    def height:                                   Int                                      = 4
+    def getFormat:                                Pixmap.Format                            = Pixmap.Format.RGBA8888
+    def useMipMaps:                               Boolean                                  = false
+    def isManaged:                                Boolean                                  = false
   }
 
   private def dummyTexture()(using Sge): Texture = new Texture(new DummyTextureData)

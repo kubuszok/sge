@@ -327,14 +327,16 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
     callback.fold {
       // Empty clears the application callback (trait contract) — drop back to GLFW having no callback.
       appErrorCallback = Nullable.empty
-      hSetErrorCb.invoke(MemorySegment.NULL)
+      // `: Unit` — a signature-polymorphic invoke takes its return type from the EXPECTED type; under
+      // `fold`'s free `B` the port's build inferred Nothing and the adapted handle threw ClassCastException
+      hSetErrorCb.invoke(MemorySegment.NULL): Unit
     } { cb =>
       // Record the application callback and install the persistent dispatcher stub. Field-dispatch
       // (not a fresh per-callback stub) is what lets a callback installed BEFORE init() survive
       // init()'s own installation of the same stub (ISS-807). The stub outlives this call — GLFW
       // retains it for the process lifetime — so it lives in the long-lived upcallArena.
       appErrorCallback = Nullable(cb)
-      hSetErrorCb.invoke(errorCallbackStub)
+      hSetErrorCb.invoke(errorCallbackStub): Unit
     }
 
   // ─── Window lifecycle ──────────────────────────────────────────────────

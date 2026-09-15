@@ -25,6 +25,7 @@ import lowlevel.Nullable
 /** A no-op [[sge.Audio]] implementation for headless/testing use. Returns noop instances for all audio resource factory methods.
   */
 class NoopAudio extends Audio {
+  override def close(): Unit = {}
 
   override def newAudioDevice(samplingRate: Int, isMono: Boolean): audio.AudioDevice =
     NoopAudioDevice(isMono)

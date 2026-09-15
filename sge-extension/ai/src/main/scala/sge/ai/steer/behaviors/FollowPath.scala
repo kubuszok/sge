@@ -98,7 +98,7 @@ class FollowPath[T <: Vector[T], P <: PathParam](
     }
 
     // Seek the target position
-    steering.linear.set(internalTargetPosition).-(owner.position).normalize().scale(getActualLimiter().maxLinearAcceleration)
+    steering.linear.set(internalTargetPosition).sub(owner.position).normalize().scale(getActualLimiter().maxLinearAcceleration)
 
     // No angular acceleration
     steering.angular = 0

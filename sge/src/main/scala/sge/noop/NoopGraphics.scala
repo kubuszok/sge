@@ -116,7 +116,8 @@ class NoopGraphics(
 
   override def frameId: Long = _frameId
 
-  override def deltaTime: Seconds = _deltaTime
+  override def rawDeltaTime: Float   = deltaTime.toFloat // java's getRawDeltaTime: sge has no such member, the port keeps the Float
+  override def deltaTime:    Seconds = _deltaTime
 
   override def framesPerSecond: Int = _fps
 
@@ -124,8 +125,14 @@ class NoopGraphics(
 
   override def graphicsType: Graphics.GraphicsType = Graphics.GraphicsType.Mock
 
-  override def glVersion: Graphics.GLVersion =
-    GLVersion(Application.ApplicationType.HeadlessDesktop, "0.0.0", "Noop", "Noop")
+  // the port's GLVersion reads the context only to log a malformed version string; a no-op graphics
+  // has no context and "0.0.0" parses, so none is handed in (ADJUSTMENTS.tsv)
+  private lazy val noopGlVersion: sge.graphics.glutils.GLVersion = {
+    @scala.annotation.nowarn("msg=unused")
+    given Sge = null.asInstanceOf[Sge]
+    new sge.graphics.glutils.GLVersion(Application.ApplicationType.HeadlessDesktop, "0.0.0", "Noop", "Noop")
+  }
+  override def glVersion: sge.graphics.glutils.GLVersion = noopGlVersion
 
   // ---- density / PPI ----
 
@@ -143,9 +150,9 @@ class NoopGraphics(
 
   override def supportsDisplayModeChange(): Boolean = false
 
-  private val noopMonitor: Graphics.Monitor = Graphics.Monitor(0, 0, "Noop Monitor")
+  private val noopMonitor: Graphics.Monitor = new Graphics.Monitor(0, 0, "Noop Monitor")
 
-  private val noopDisplayMode: Graphics.DisplayMode = Graphics.DisplayMode(noopWidth, noopHeight, 60, 32)
+  private val noopDisplayMode: Graphics.DisplayMode = new Graphics.DisplayMode(noopWidth, noopHeight, 60, 32)
 
   override def primaryMonitor: Graphics.Monitor = noopMonitor
 
@@ -180,7 +187,7 @@ class NoopGraphics(
   // ---- buffer format ----
 
   override def bufferFormat: Graphics.BufferFormat =
-    Graphics.BufferFormat(r = 8, g = 8, b = 8, a = 8, depth = 24, stencil = 8, samples = 0, coverageSampling = false)
+    new Graphics.BufferFormat(8, 8, 8, 8, 24, 8, 0, false)
 
   override def supportsExtension(extension: String): Boolean = false
 

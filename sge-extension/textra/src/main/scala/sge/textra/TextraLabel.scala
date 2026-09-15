@@ -81,7 +81,7 @@ class TextraLabel(using Sge) extends Widget {
 
   def setColor(c: Color): Unit = if (c != null) color.set(c) // @nowarn — Java interop boundary (callers pass possibly-null Color)
 
-  def setColor(r: Float, g: Float, b: Float, a: Float): Unit = color.set(r, g, b, a)
+  override def setColor(r: Float, g: Float, b: Float, a: Float): Unit = color.set(r, g, b, a)
 
   /** Creates a TextraLabel that uses the default font with white color. */
   def this(dummy: Unit)(using Sge) = {
@@ -417,27 +417,27 @@ class TextraLabel(using Sge) extends Widget {
     // These two blocks use different height measurements, so center vertical is offset once by half the layout
     // height, and once by half the widget height.
     val layoutHeight = baseLayout.getHeight * scaleY
-    if (align.isBottom) {
+    if (sge.utils.Align.isBottom(align)) {
       baseX -= sn * layoutHeight
       baseY += cs * layoutHeight
-    } else if (align.isCenterVertical) {
+    } else if (sge.utils.Align.isCenterVertical(align)) {
       baseX -= sn * layoutHeight * 0.5f
       baseY += cs * layoutHeight * 0.5f
     }
     val widgetHeight = height * scaleY
-    if (align.isTop) {
+    if (sge.utils.Align.isTop(align)) {
       baseX -= sn * widgetHeight
       baseY += cs * widgetHeight
-    } else if (align.isCenterVertical) {
+    } else if (sge.utils.Align.isCenterVertical(align)) {
       baseX -= sn * widgetHeight * 0.5f
       baseY += cs * widgetHeight * 0.5f
     }
 
     val widgetWidth = width * scaleX
-    if (align.isRight) {
+    if (sge.utils.Align.isRight(align)) {
       baseX += cs * widgetWidth
       baseY += sn * widgetWidth
-    } else if (align.isCenterHorizontal) {
+    } else if (sge.utils.Align.isCenterHorizontal(align)) {
       baseX += cs * widgetWidth * 0.5f
       baseY += sn * widgetWidth * 0.5f
     }
@@ -446,20 +446,20 @@ class TextraLabel(using Sge) extends Widget {
       Nullable.foreach(s.background) { bgAny =>
         bgAny match {
           case bg: Drawable =>
-            if (align.isLeft) {
+            if (sge.utils.Align.isLeft(align)) {
               baseX += cs * bg.leftWidth
               baseY += sn * bg.leftWidth
-            } else if (align.isRight) {
+            } else if (sge.utils.Align.isRight(align)) {
               baseX -= cs * bg.rightWidth
               baseY -= sn * bg.rightWidth
             } else {
               baseX += cs * (bg.leftWidth - bg.rightWidth) * 0.5f
               baseY += sn * (bg.leftWidth - bg.rightWidth) * 0.5f
             }
-            if (align.isBottom) {
+            if (sge.utils.Align.isBottom(align)) {
               baseX -= sn * bg.bottomHeight
               baseY += cs * bg.bottomHeight
-            } else if (align.isTop) {
+            } else if (sge.utils.Align.isTop(align)) {
               baseX += sn * bg.topHeight
               baseY -= cs * bg.topHeight
             } else {
@@ -524,10 +524,10 @@ class TextraLabel(using Sge) extends Widget {
         x = cs * fx - sn * fy + worldOriginX
         y = sn * fx + cs * fy + worldOriginY
 
-        if (align.isCenterHorizontal) {
+        if (sge.utils.Align.isCenterHorizontal(align)) {
           x -= cs * (lineWidth * 0.5f)
           y -= sn * (lineWidth * 0.5f)
-        } else if (align.isRight) {
+        } else if (sge.utils.Align.isRight(align)) {
           x -= cs * lineWidth
           y -= sn * lineWidth
         }

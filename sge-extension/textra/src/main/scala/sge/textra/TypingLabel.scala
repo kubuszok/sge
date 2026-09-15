@@ -1181,27 +1181,27 @@ class TypingLabel(using Sge) extends TextraLabel {
     // These two blocks use different height measurements, so center vertical is offset once by half the layout
     // height, and once by half the widget height.
     val layoutHeight = workingLayout.getHeight * getScaleY
-    if (align.isBottom) {
+    if (sge.utils.Align.isBottom(align)) {
       baseX -= sn * layoutHeight
       baseY += cs * layoutHeight
-    } else if (align.isCenterVertical) {
+    } else if (sge.utils.Align.isCenterVertical(align)) {
       baseX -= sn * layoutHeight * 0.5f
       baseY += cs * layoutHeight * 0.5f
     }
     val widgetHeight = getHeight * getScaleY
-    if (align.isTop) {
+    if (sge.utils.Align.isTop(align)) {
       baseX -= sn * widgetHeight
       baseY += cs * widgetHeight
-    } else if (align.isCenterVertical) {
+    } else if (sge.utils.Align.isCenterVertical(align)) {
       baseX -= sn * widgetHeight * 0.5f
       baseY += cs * widgetHeight * 0.5f
     }
 
     val widgetWidth = getWidth * getScaleX
-    if (align.isRight) {
+    if (sge.utils.Align.isRight(align)) {
       baseX += cs * widgetWidth
       baseY += sn * widgetWidth
-    } else if (align.isCenterHorizontal) {
+    } else if (sge.utils.Align.isCenterHorizontal(align)) {
       baseX += cs * widgetWidth * 0.5f
       baseY += sn * widgetWidth * 0.5f
     }
@@ -1210,20 +1210,20 @@ class TypingLabel(using Sge) extends TextraLabel {
       Nullable.foreach(s.background) { bgAny =>
         bgAny match {
           case bg: Drawable =>
-            if (align.isLeft) {
+            if (sge.utils.Align.isLeft(align)) {
               baseX += cs * bg.leftWidth
               baseY += sn * bg.leftWidth
-            } else if (align.isRight) {
+            } else if (sge.utils.Align.isRight(align)) {
               baseX -= cs * bg.rightWidth
               baseY -= sn * bg.rightWidth
             } else {
               baseX += cs * (bg.leftWidth - bg.rightWidth) * 0.5f
               baseY += sn * (bg.leftWidth - bg.rightWidth) * 0.5f
             }
-            if (align.isBottom) {
+            if (sge.utils.Align.isBottom(align)) {
               baseX -= sn * bg.bottomHeight
               baseY += cs * bg.bottomHeight
-            } else if (align.isTop) {
+            } else if (sge.utils.Align.isTop(align)) {
               baseX += sn * bg.topHeight
               baseY -= cs * bg.topHeight
             } else {
@@ -1324,10 +1324,10 @@ class TypingLabel(using Sge) extends TextraLabel {
               var xChange = 0f
               var yChange = 0f
 
-              if (align.isCenterHorizontal) {
+              if (sge.utils.Align.isCenterHorizontal(align)) {
                 x -= cs * (lineWidth * 0.5f)
                 y -= sn * (lineWidth * 0.5f)
-              } else if (align.isRight) {
+              } else if (sge.utils.Align.isRight(align)) {
                 x -= cs * lineWidth
                 y -= sn * lineWidth
               }
@@ -1500,10 +1500,10 @@ class TypingLabel(using Sge) extends TextraLabel {
           var xChange = 0f
           var yChange = 0f
 
-          if (align.isCenterHorizontal) {
+          if (sge.utils.Align.isCenterHorizontal(align)) {
             x -= cs * (lineWidth * 0.5f)
             y -= sn * (lineWidth * 0.5f)
-          } else if (align.isRight) {
+          } else if (sge.utils.Align.isRight(align)) {
             x -= cs * lineWidth
             y -= sn * lineWidth
           }

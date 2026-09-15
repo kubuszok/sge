@@ -175,7 +175,7 @@ class Formation[T <: Vector[T]](
     positionOffset.set(currentAnchor.position)
     var orientationOffset = currentAnchor.orientation
     motionModerator.foreach { mod =>
-      positionOffset.-(driftOffset.position)
+      positionOffset.sub(driftOffset.position)
       orientationOffset -= driftOffset.orientation
     }
 
@@ -208,7 +208,7 @@ class Formation[T <: Vector[T]](
       }
 
       // Add the anchor and drift components
-      relativeLocPosition.+(positionOffset)
+      relativeLocPosition.add(positionOffset)
       relativeLoc.orientation = relativeLoc.orientation + orientationOffset
       i += 1
     }

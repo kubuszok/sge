@@ -57,15 +57,15 @@ class CentralRayWithWhiskersConfiguration[T <: Vector[T]](
 
     // Update central ray
     rays(0).start.set(ownerPosition)
-    rays(0).end.set(ownerVelocity).normalize().scale(rayLength).+(ownerPosition)
+    rays(0).end.set(ownerVelocity).normalize().scale(rayLength).add(ownerPosition)
 
     // Update left ray
     rays(1).start.set(ownerPosition)
-    owner.angleToVector(rays(1).end, velocityAngle - whiskerAngle).scale(whiskerLength).+(ownerPosition)
+    owner.angleToVector(rays(1).end, velocityAngle - whiskerAngle).scale(whiskerLength).add(ownerPosition)
 
     // Update right ray
     rays(2).start.set(ownerPosition)
-    owner.angleToVector(rays(2).end, velocityAngle + whiskerAngle).scale(whiskerLength).+(ownerPosition)
+    owner.angleToVector(rays(2).end, velocityAngle + whiskerAngle).scale(whiskerLength).add(ownerPosition)
 
     rays
   }

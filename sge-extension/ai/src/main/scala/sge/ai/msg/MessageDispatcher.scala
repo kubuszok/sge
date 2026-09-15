@@ -361,9 +361,9 @@ object MessageDispatcher {
 
   /** The global Telegram pool shared by all dispatchers created without an explicit pool. */
   private val defaultPool: Pool[Telegram] = new Pool[Telegram] {
-    override protected val max:             Int      = Int.MaxValue
-    override protected val initialCapacity: Int      = 16
-    override protected def newObject():     Telegram = Telegram()
+    override val max:                   Int      = Int.MaxValue
+    override val initialCapacity:       Int      = 16
+    override protected def newObject(): Telegram = Telegram()
   }
 }
 

@@ -83,8 +83,8 @@ enum FileChooserText(val entryName: String) extends BundleText {
 
   override def name:                       String = entryName
   override def get:                        String = FileChooserText.getBundle.get(entryName)
-  override def format():                   String = FileChooserText.getBundle.format(entryName)
-  override def format(arguments: AnyRef*): String = FileChooserText.getBundle.format(entryName, arguments*)
+  override def format():                   String = FileChooserText.getBundle.format(entryName, Array.empty[AnyRef])
+  override def format(arguments: AnyRef*): String = FileChooserText.getBundle.format(entryName, arguments.toArray)
   override def toString:                   String = get
 }
 

@@ -40,19 +40,19 @@ enum Alignment(val alignment: Align) {
   def apply(cell: Cell[?]): Unit = cell.align(alignment)
 
   /** @return true for TOP, TOP_LEFT and TOP_RIGHT. */
-  def isAlignedWithTop: Boolean = alignment.isTop
+  def isAlignedWithTop: Boolean = sge.utils.Align.isTop(alignment)
 
   /** @return true for BOTTOM, BOTTOM_LEFT and BOTTOM_RIGHT. */
-  def isAlignedWithBottom: Boolean = alignment.isBottom
+  def isAlignedWithBottom: Boolean = sge.utils.Align.isBottom(alignment)
 
   /** @return true for LEFT, BOTTOM_LEFT and TOP_LEFT. */
-  def isAlignedWithLeft: Boolean = alignment.isLeft
+  def isAlignedWithLeft: Boolean = sge.utils.Align.isLeft(alignment)
 
   /** @return true for RIGHT, BOTTOM_RIGHT and TOP_RIGHT. */
-  def isAlignedWithRight: Boolean = alignment.isRight
+  def isAlignedWithRight: Boolean = sge.utils.Align.isRight(alignment)
 
   /** @return true for CENTER. */
-  def isCentered: Boolean = alignment.isCenter
+  def isCentered: Boolean = sge.utils.Align.isCenterHorizontal(alignment) && sge.utils.Align.isCenterVertical(alignment)
 }
 
 object Alignment {

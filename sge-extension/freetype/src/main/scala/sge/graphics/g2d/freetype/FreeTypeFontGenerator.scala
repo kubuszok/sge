@@ -144,7 +144,7 @@ class FreeTypeFontGenerator(fontFile: FileHandle, faceIndex: Int)(using Sge) ext
       if (r.size == 0) throw SgeError.GraphicsError("Unable to create a font with no texture regions.")
     }
     val font = BitmapFont(data, data.regions, true)
-    font.ownsTexture = parameter.packer.isEmpty
+    font.ownsTexture$field = parameter.packer.isEmpty
     font
   }
 
@@ -317,9 +317,9 @@ class FreeTypeFontGenerator(fontFile: FileHandle, faceIndex: Int)(using Sge) ext
       val packStrategy: PixmapPacker.PackStrategy =
         if (incremental) PixmapPacker.GuillotineStrategy() else PixmapPacker.SkylineStrategy()
       val p = PixmapPacker(size, size, Format.RGBA8888, 1, false, packStrategy)
-      p.transparentColor = Color(parameter.color.r, parameter.color.g, parameter.color.b, 0f)
+      p.transparentColor$field = Color(parameter.color.r, parameter.color.g, parameter.color.b, 0f)
       if (parameter.borderWidth > 0) {
-        p.transparentColor = Color(parameter.borderColor.r, parameter.borderColor.g, parameter.borderColor.b, 0f)
+        p.transparentColor$field = Color(parameter.borderColor.r, parameter.borderColor.g, parameter.borderColor.b, 0f)
       }
       p
     }
@@ -767,7 +767,7 @@ object FreeTypeFontGenerator {
   /** {@link BitmapFont.BitmapFontData} used for fonts generated via the {@link FreeTypeFontGenerator}. The texture storing the glyphs is held in memory, thus the imagePaths and fontFile will be
     * empty/null.
     */
-  class FreeTypeBitmapFontData(isFlipped: Boolean = false) extends BitmapFontData(flipped = isFlipped) {
+  class FreeTypeBitmapFontData(isFlipped: Boolean = false) extends BitmapFontData(lowlevel.Nullable.empty, isFlipped) {
     var regions: Nullable[DynamicArray[TextureRegion]] = Nullable.empty
 
     // Fields for incremental glyph generation.
@@ -818,7 +818,7 @@ object FreeTypeFontGenerator {
       glyph
     }
 
-    override def getGlyphs(run: GlyphRun, str: CharSequence, start: Int, end: Int, lastGlyph: Nullable[BitmapFont.Glyph]): Unit = {
+    override def getGlyphs(run: GlyphRun, str: CharSequence, start: Int, end: Int, lastGlyph: BitmapFont.Glyph): Unit = {
       incrementalPacker.foreach(_.packToTexture = true) // All glyphs added after this are packed directly to the texture.
       super.getGlyphs(run, str, start, end, lastGlyph)
       if (dirty) {

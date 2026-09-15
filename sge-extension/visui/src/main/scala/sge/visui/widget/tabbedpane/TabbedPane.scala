@@ -626,8 +626,8 @@ object TabbedPane {
 
     override def name:                       String = entryName
     override def get:                        String = getBundle.get(entryName)
-    override def format():                   String = getBundle.format(entryName)
-    override def format(arguments: AnyRef*): String = getBundle.format(entryName, arguments*)
+    override def format():                   String = getBundle.format(entryName, Array.empty[AnyRef])
+    override def format(arguments: AnyRef*): String = getBundle.format(entryName, arguments.toArray)
     override def toString:                   String = get
   }
 }

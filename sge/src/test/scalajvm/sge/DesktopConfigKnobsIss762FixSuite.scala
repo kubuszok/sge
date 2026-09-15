@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets
   */
 class DesktopConfigKnobsIss762FixSuite extends munit.FunSuite {
 
-  private def listener: ApplicationListener = new ApplicationListener {
+  private def listener: ApplicationListener = new ApplicationListener with ApplicationListenerDefaults {
     override def render(): Unit = {}
   }
 

@@ -95,10 +95,10 @@ class Hide[T <: Vector[T]](
     val distanceAway = obstacleRadius + distanceFromBoundary
 
     // Calculate the normalized vector toward the obstacle from the target
-    toObstacle.set(obstaclePosition).-(targetPosition).normalize()
+    toObstacle.set(obstaclePosition).sub(targetPosition).normalize()
 
     // Scale it to size and add to the obstacle's position to get
     // the hiding spot.
-    toObstacle.scale(distanceAway).+(obstaclePosition)
+    toObstacle.scale(distanceAway).add(obstaclePosition)
   }
 }

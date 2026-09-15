@@ -26,30 +26,9 @@ package g3d
 package loader
 
 import sge.assets.loaders.FileHandleResolver
-import sge.files.FileHandle
-import sge.graphics.g3d.model.data.ModelData
-import sge.utils.readUBJson
 
 /** Loads G3D models from `.g3db` (Universal Binary JSON) files.
   *
   * Reuses all parsing logic from [[G3dModelLoader]] — only the deserialization format differs.
   */
-class G3dBinaryModelLoader(resolver: FileHandleResolver)(using Sge) extends G3dModelLoader(resolver) {
-
-  override def parseModel(handle: FileHandle): ModelData = {
-    val json  = handle.readUBJson[G3dModelJson]
-    val model = sge.graphics.g3d.model.data.ModelData()
-
-    model.version(0) = json.version(0)
-    model.version(1) = json.version(1)
-    if (model.version(0) != G3dModelLoader.VERSION_HI || model.version(1) != G3dModelLoader.VERSION_LO)
-      throw sge.utils.SgeError.InvalidInput("Model version not supported")
-
-    model.id = json.id
-    parseMeshes(model, json.meshes)
-    parseMaterials(model, json.materials, handle.parent().path)
-    parseNodes(model, json.nodes)
-    parseAnimations(model, json.animations)
-    model
-  }
-}
+class G3dBinaryModelLoader(resolver: FileHandleResolver)(using Sge) extends G3dModelLoader(resolver, binary = true)

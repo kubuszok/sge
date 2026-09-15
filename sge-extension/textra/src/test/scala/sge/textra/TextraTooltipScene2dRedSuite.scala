@@ -196,8 +196,8 @@ class TextraTooltipScene2dRedSuite extends munit.FunSuite {
     // At the red commit there is no inherited `manager` field (standalone class).
     val manager: TooltipManager = tooltip.manager
     assert(
-      manager eq TooltipManager.instance,
-      "the tooltip's manager is the per-Sge TooltipManager singleton (Tooltip secondary ctor uses TooltipManager.instance)"
+      manager eq TooltipManager.getInstance(),
+      "the tooltip's manager is the per-Sge TooltipManager singleton (Tooltip secondary ctor uses TooltipManager.getInstance())"
     )
   }
 

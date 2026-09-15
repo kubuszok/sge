@@ -45,6 +45,23 @@ converted, 0 not started, 66 skipped (stdlib replacements), 0 deferred.
 | `.rescale/runners.yaml` | (optional) test-runner adapters |
 | `docs/` | Architecture, conversion guides |
 
+## Generated Code (Baltic Porter)
+
+sge-core is mechanically ported from libGDX Java sources by
+[Baltic Porter](https://github.com/kubuszok/balticporter). A `sourceGenerator` in
+`build.sbt` calls `BalticPorterGen.generate` which runs the full porting engine at
+build time. Output goes to `target/balticporter-sge/src_managed/main/scala`.
+
+Requirements:
+- `original-src/libgdx` submodule checked out (upstream Java sources)
+- `../balticporter` sibling checkout (conf files, classpath entries)
+- `balticporter-corpus` and `balticporter-frontend-ts` 0.1.0-SNAPSHOT published
+
+Rules:
+- **Never edit generated files** — change the manifest/conf in balticporter, then regenerate.
+- `sge/src/main/scala/` holds hand-written code that compiles as-is (platform glue, overrides).
+- Regenerate: delete `target/balticporter-sge/.generated-marker` or pass `-Dbalticporter.forceRegen=true`.
+
 ## CLI Toolkit: `re-scale`
 
 **Use `re-scale` commands for all development tasks.** The PreToolUse hook

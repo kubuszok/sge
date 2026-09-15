@@ -38,16 +38,16 @@ class AnimationControllerHack(target: ModelInstance) extends AnimationController
   import AnimationControllerHack.*
 
   private val transformPool: Pool[Transform] = new Pool[Transform] {
-    override protected val initialCapacity: Int       = 16
-    override protected val max:             Int       = Int.MaxValue
-    override protected def newObject():     Transform = Transform()
+    override val initialCapacity:       Int       = 16
+    override val max:                   Int       = Int.MaxValue
+    override protected def newObject(): Transform = Transform()
   }
 
   private var applying:    Boolean = false
   var calculateTransforms: Boolean = true
 
   /** Begin applying multiple animations to the instance, must be followed by one or more calls to [[apply]] and finally [[end]]. */
-  override protected def begin(): Unit = {
+  override def begin(): Unit = {
     if (applying) throw SgeError.InvalidInput("You must call end() after each call to begin()")
     applying = true
   }
@@ -56,13 +56,13 @@ class AnimationControllerHack(target: ModelInstance) extends AnimationController
     * @param weight
     *   The blend weight of this animation relative to the previous applied animations.
     */
-  override protected def apply(animation: Animation, time: Seconds, weight: Float): Unit = {
+  override def apply(animation: Animation, time: Seconds, weight: Float): Unit = {
     if (!applying) throw SgeError.InvalidInput("You must call begin() before adding an animation")
     applyAnimationPlus(transforms, transformPool, weight, animation, time.toFloat)
   }
 
   /** End applying multiple animations to the instance and update it to reflect the changes. */
-  override protected def end(): Unit = {
+  override def end(): Unit = {
     if (!applying) throw SgeError.InvalidInput("You must call begin() first")
     transforms.foreachEntry { (key, value) =>
       value.toMatrix4(key.localTransform)
@@ -74,14 +74,14 @@ class AnimationControllerHack(target: ModelInstance) extends AnimationController
   }
 
   /** Apply a single animation to the [[sge.graphics.g3d.ModelInstance]] and update the it to reflect the changes. */
-  override protected def applyAnimation(animation: Animation, time: Seconds): Unit = {
+  override def applyAnimation(animation: Animation, time: Seconds): Unit = {
     if (applying) throw SgeError.InvalidInput("Call end() first")
     applyAnimationPlus(null, null, 1f, animation, time.toFloat) // @nowarn — null means direct apply (no blending)
     if (calculateTransforms) target.calculateTransforms()
   }
 
   /** Apply two animations, blending the second onto to first using weight. */
-  override protected def applyAnimations(anim1: Nullable[Animation], time1: Seconds, anim2: Nullable[Animation], time2: Seconds, weight: Float): Unit =
+  override def applyAnimations(anim1: Nullable[Animation], time1: Seconds, anim2: Nullable[Animation], time2: Seconds, weight: Float): Unit =
     if (anim2.isEmpty || weight == 0f) {
       anim1.foreach(a => applyAnimation(a, time1))
     } else if (anim1.isEmpty || weight == 1f) {
@@ -162,7 +162,7 @@ object AnimationControllerHack {
   private val transforms: ObjectMap[Node, Transform] = ObjectMap[Node, Transform]()
   private val tmpT:       Transform                  = Transform()
 
-  private def getFirstKeyframeIndexAtTime[T](arr: DynamicArray[NodeKeyframe[T]], time: Float): Int = boundary {
+  private def getFirstKeyframeIndexAtTime[T <: Object](arr: DynamicArray[NodeKeyframe[T]], time: Float): Int = boundary {
     val n = arr.size - 1
     var i = 0
     while (i < n) {
@@ -225,7 +225,7 @@ object AnimationControllerHack {
     // p(t) = (2t3 - 3t2 + 1)p0 + (t3 - 2t2 + t)m0 + (-2t3 + 3t2)p1 + (t3 - t2)m1
     val t2 = t * t
     val t3 = t2 * t
-    out.set(p0).scl(2 * t3 - 3 * t2 + 1).mulAdd(m0, t3 - 2 * t2 + t).mulAdd(p1, -2 * t3 + 3 * t2).mulAdd(m1, t3 - t2)
+    out.set(p0).scale(2 * t3 - 3 * t2 + 1).mulAdd(m0, t3 - 2 * t2 + t).mulAdd(p1, -2 * t3 + 3 * t2).mulAdd(m1, t3 - t2)
   }
 
   private val q1: Quaternion = Quaternion()

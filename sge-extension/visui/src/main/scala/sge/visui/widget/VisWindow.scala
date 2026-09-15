@@ -186,9 +186,9 @@ class VisWindow(title: String, windowStyle: WindowStyle)(using Sge) extends Wind
         val parentWidth  = p.width
         val parentHeight = p.height
         if (this.x < 0) setX(0)
-        if (right > parentWidth) setX(parentWidth - this.width)
+        if (getRight > parentWidth) setX(parentWidth - this.width)
         if (this.y < 0) setY(0)
-        if (top > parentHeight) setY(parentHeight - this.height)
+        if (getTop > parentHeight) setY(parentHeight - this.height)
       }
     }
     super.draw(batch, parentAlpha)

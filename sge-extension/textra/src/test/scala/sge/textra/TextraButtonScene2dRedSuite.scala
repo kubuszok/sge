@@ -294,14 +294,14 @@ class TextraButtonScene2dRedSuite extends munit.FunSuite {
     given Sge  = headlessSge()
     val button = new TextraButton(Nullable("toggle"), newStyle())
 
-    assert(!button.isChecked, "a fresh button is unchecked")
+    assert(!button.checked, "a fresh button is unchecked")
     button.setChecked(true)
-    assert(button.isChecked, "setChecked(true) via the inherited Button API checks it")
+    assert(button.checked, "setChecked(true) via the inherited Button API checks it")
 
     // toggle() is a Button-only method: it flips isChecked. A standalone class
     // with hand-rolled state has no toggle().
     button.toggle()
-    assert(!button.isChecked, "toggle() (Button API) flips the checked state back")
+    assert(!button.checked, "toggle() (Button API) flips the checked state back")
 
     // The button is a real Actor and can be nested in a Table.
     val table = new Table()

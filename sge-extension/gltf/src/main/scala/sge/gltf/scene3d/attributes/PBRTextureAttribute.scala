@@ -59,8 +59,8 @@ class PBRTextureAttribute(
   override def copy(): Attribute =
     PBRTextureAttribute(this)
 
-  override def compare(that: Attribute): Int = {
-    val r = super.compare(that)
+  override def compareTo(that: Attribute): Int = {
+    val r = super.compareTo(that)
     if (r != 0) r
     else {
       that match {

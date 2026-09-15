@@ -1,6 +1,6 @@
 -Dfile.encoding=UTF8
 -Xms1G
--Xmx3G
+-Xmx6G
 -Xss4M
 -XX:+UseG1GC
 # ISS-799: JDK 24/25 C2 JIT nondeterministically miscompiles dotty scaladoc's

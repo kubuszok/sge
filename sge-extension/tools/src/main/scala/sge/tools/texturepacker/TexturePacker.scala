@@ -414,8 +414,8 @@ class TexturePacker(rootDir: File, val settings: TexturePacker.Settings) {
       for (page <- pages)
         for (rect <- page.outputRects) {
           val rectName = Rect.getAtlasName(rect.name.get, settings.flattenPaths)
-          val regIter  = textureAtlasData.regions.iterator
-          while (regIter.hasNext) {
+          val regIter  = textureAtlasData.regions.iterator()
+          while (regIter.hasNext()) {
             val region = regIter.next()
             if (region.name.equals(rectName)) {
               throw new RuntimeException(

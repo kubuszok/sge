@@ -61,8 +61,8 @@ class MirrorSource(using Sge) extends AutoCloseable {
   }
 
   def setPlane(nx: Float, ny: Float, nz: Float, d: Float): Unit = {
-    clippingPlane.plane.normal.set(nx, ny, nz).nor()
-    clippingPlane.plane.d = d
+    clippingPlane.plane.normal.set(nx, ny, nz).normalize()
+    clippingPlane.plane.d$field = d
     mirrorAttribute.normal.set(clippingPlane.plane.normal)
   }
 
@@ -104,7 +104,7 @@ class MirrorSource(using Sge) extends AutoCloseable {
     originalCameraPosition.set(camera.position)
     originalCameraDirection.set(camera.direction)
     originalCameraUp.set(camera.up)
-    planeOrigin.set(clippingPlane.plane.normal).scl(clippingPlane.plane.d)
+    planeOrigin.set(clippingPlane.plane.normal).scale(clippingPlane.plane.d)
     planeToCamera.set(camera.position).sub(planeOrigin)
     camera.position.sub(planeToCamera)
     reflect(planeToCamera, clippingPlane.plane.normal)

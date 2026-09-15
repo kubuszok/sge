@@ -60,7 +60,7 @@ class Arrive[T <: Vector[T]](
 
   protected def arrive(steering: SteeringAcceleration[T], targetPosition: T): SteeringAcceleration[T] = {
     // Get the direction and distance to the target
-    val toTarget = steering.linear.set(targetPosition).-(owner.position)
+    val toTarget = steering.linear.set(targetPosition).sub(owner.position)
     val distance = toTarget.length
 
     // Check if we are there, return no steering
@@ -79,7 +79,7 @@ class Arrive[T <: Vector[T]](
 
       // Acceleration tries to get to the target velocity without exceeding max acceleration
       // Notice that steering.linear and targetVelocity are the same vector
-      targetVelocity.-(owner.linearVelocity).scale(1f / timeToTarget).limit(actualLimiter.maxLinearAcceleration)
+      targetVelocity.sub(owner.linearVelocity).scale(1f / timeToTarget).limit(actualLimiter.maxLinearAcceleration)
 
       // No angular acceleration
       steering.angular = 0f

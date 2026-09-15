@@ -101,7 +101,7 @@ private[exporters] class GLTFAnimationExporter(private val base: GLTFExporter) {
 
 private[exporters] object GLTFAnimationExporter {
 
-  abstract class ChannelExporter[T](
+  abstract class ChannelExporter[T <: Object](
     val numComponents: Int,
     val outputType:    String,
     val numElements:   Int = 1

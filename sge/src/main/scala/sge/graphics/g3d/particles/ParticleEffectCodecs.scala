@@ -203,7 +203,7 @@ object ParticleEffectCodecs {
       val value = if (default != null) default else new ParticleValue()
       readFields(in, value) { (key, v, reader) =>
         key match {
-          case "active" => v.active = readBoolean(reader); true
+          case "active" => v._active = readBoolean(reader); true
           case _        => false
         }
       }
@@ -212,7 +212,7 @@ object ParticleEffectCodecs {
     override def encodeValue(x: ParticleValue, out: JsonWriter): Unit = {
       out.writeObjectStart()
       out.writeKey("active")
-      out.writeVal(x.active)
+      out.writeVal(x._active)
       out.writeObjectEnd()
     }
 
@@ -226,7 +226,7 @@ object ParticleEffectCodecs {
       val value = if (default != null) default else new NumericValue()
       readFields(in, value) { (key, v, reader) =>
         key match {
-          case "active" => v.active = readBoolean(reader); true
+          case "active" => v._active = readBoolean(reader); true
           case "value"  => v.value = readFloat(reader); true
           case _        => false
         }
@@ -236,7 +236,7 @@ object ParticleEffectCodecs {
     override def encodeValue(x: NumericValue, out: JsonWriter): Unit = {
       out.writeObjectStart()
       out.writeKey("active")
-      out.writeVal(x.active)
+      out.writeVal(x._active)
       out.writeKey("value")
       out.writeVal(x.value)
       out.writeObjectEnd()
@@ -252,7 +252,7 @@ object ParticleEffectCodecs {
       val value = if (default != null) default else new RangedNumericValue()
       readFields(in, value) { (key, v, reader) =>
         key match {
-          case "active" => v.active = readBoolean(reader); true
+          case "active" => v._active = readBoolean(reader); true
           case "lowMin" => v.lowMin = readFloat(reader); true
           case "lowMax" => v.lowMax = readFloat(reader); true
           case _        => false
@@ -263,7 +263,7 @@ object ParticleEffectCodecs {
     override def encodeValue(x: RangedNumericValue, out: JsonWriter): Unit = {
       out.writeObjectStart()
       out.writeKey("active")
-      out.writeVal(x.active)
+      out.writeVal(x._active)
       out.writeKey("lowMin")
       out.writeVal(x.lowMin)
       out.writeKey("lowMax")
@@ -281,7 +281,7 @@ object ParticleEffectCodecs {
       val value = if (default != null) default else new ScaledNumericValue()
       readFields(in, value) { (key, v, reader) =>
         key match {
-          case "active"   => v.active = readBoolean(reader); true
+          case "active"   => v._active = readBoolean(reader); true
           case "lowMin"   => v.lowMin = readFloat(reader); true
           case "lowMax"   => v.lowMax = readFloat(reader); true
           case "highMin"  => v.highMin = readFloat(reader); true
@@ -297,7 +297,7 @@ object ParticleEffectCodecs {
     override def encodeValue(x: ScaledNumericValue, out: JsonWriter): Unit = {
       out.writeObjectStart()
       out.writeKey("active")
-      out.writeVal(x.active)
+      out.writeVal(x._active)
       out.writeKey("lowMin")
       out.writeVal(x.lowMin)
       out.writeKey("lowMax")
@@ -325,7 +325,7 @@ object ParticleEffectCodecs {
       val value = if (default != null) default else new GradientColorValue()
       readFields(in, value) { (key, v, reader) =>
         key match {
-          case "active"   => v.active = readBoolean(reader); true
+          case "active"   => v._active = readBoolean(reader); true
           case "colors"   => v.colors = readFloatArray(reader); true
           case "timeline" => v.timeline = readFloatArray(reader); true
           case _          => false
@@ -336,7 +336,7 @@ object ParticleEffectCodecs {
     override def encodeValue(x: GradientColorValue, out: JsonWriter): Unit = {
       out.writeObjectStart()
       out.writeKey("active")
-      out.writeVal(x.active)
+      out.writeVal(x._active)
       out.writeKey("colors")
       writeFloatArray(x.colors, out)
       out.writeKey("timeline")
@@ -364,7 +364,7 @@ object ParticleEffectCodecs {
 
   // Base SpawnShapeValue fields reader
   private def readSpawnShapeValueFields(key: String, v: SpawnShapeValue, reader: JsonReader): Boolean = key match {
-    case "active"       => v.active = readBoolean(reader); true
+    case "active"       => v._active = readBoolean(reader); true
     case "xOffsetValue" => v.xOffsetValue = readRangedNumericValue(reader); true
     case "yOffsetValue" => v.yOffsetValue = readRangedNumericValue(reader); true
     case "zOffsetValue" => v.zOffsetValue = readRangedNumericValue(reader); true
@@ -374,7 +374,7 @@ object ParticleEffectCodecs {
   // Base SpawnShapeValue fields writer
   private def writeSpawnShapeValueFields(x: SpawnShapeValue, out: JsonWriter): Unit = {
     out.writeKey("active")
-    out.writeVal(x.active)
+    out.writeVal(x._active)
     out.writeKey("xOffsetValue")
     writeRangedNumericValue(x.xOffsetValue, out)
     out.writeKey("yOffsetValue")
@@ -1918,7 +1918,7 @@ object ParticleEffectCodecs {
       }
       out.writeObjectEnd()
       out.writeKey("indices")
-      writeIntArray(x.assets.toArray, out)
+      writeIntArray(x.assets.toArray(), out)
       out.writeObjectEnd()
     }
 
@@ -1928,8 +1928,8 @@ object ParticleEffectCodecs {
   // ResourceData codec
   given resourceDataCodec: JsonValueCodec[ResourceData[?]] = new JsonValueCodec[ResourceData[?]] {
     override def decodeValue(in: JsonReader, default: ResourceData[?]): ResourceData[?] = {
-      val value = if (default != null) default else new ResourceData[Any]()
-      readFields(in, value.asInstanceOf[ResourceData[Any]]) { (key, v, reader) =>
+      val value = if (default != null) default else new ResourceData[AnyRef]()
+      readFields(in, value.asInstanceOf[ResourceData[AnyRef]]) { (key, v, reader) =>
         key match {
           case "unique" =>
             // ObjectMap<String, SaveData>
@@ -1972,7 +1972,7 @@ object ParticleEffectCodecs {
                 boundary {
                   while (true) {
                     val assetData = assetDataCodec.decodeValue(reader, null)
-                    v.sharedAssets.add(assetData.asInstanceOf[ResourceData.AssetData[Any]])
+                    v.sharedAssets.add(assetData.asInstanceOf[ResourceData.AssetData[AnyRef]])
                     if (!reader.isNextToken(',')) break(())
                   }
                 }

@@ -1828,7 +1828,7 @@ class Font {
     makeGridGlyphs: Boolean
   )(using sge.Sge): Unit = {
     setDistanceField(distanceField)
-    parents = ArrayBuffer.from(bmFont.regions.toArray)
+    parents = ArrayBuffer.from(balticporter.runtime.JavaIterator.asScala(bmFont.regions.iterator()))
     if (distanceField != Font.DistanceFieldType.STANDARD) {
       for (parent <- parents if parent.texture != null) // @nowarn — texture null check at interop
         parent.texture.setFilter(sge.graphics.Texture.TextureFilter.Linear, sge.graphics.Texture.TextureFilter.Linear)
@@ -1997,7 +1997,7 @@ class Font {
     originalCellHeight = cellHeight
     isMono = minWidth == cellWidth && kerning.isEmpty
 
-    integerPosition = bmFont.integerPositions
+    integerPosition = bmFont.integer
 
     inlineImageOffsetX = 0f
     inlineImageOffsetY = 0f
@@ -3173,10 +3173,10 @@ class Font {
         x = cs * fx - sn * fy + worldOriginX
         y = sn * fx + cs * fy + worldOriginY
 
-        if (align.isCenterHorizontal) {
+        if (sge.utils.Align.isCenterHorizontal(align)) {
           x -= cs * (line.width * 0.5f)
           y -= sn * (line.width * 0.5f)
-        } else if (align.isRight) {
+        } else if (sge.utils.Align.isRight(align)) {
           x -= cs * line.width
           y -= sn * line.width
         }

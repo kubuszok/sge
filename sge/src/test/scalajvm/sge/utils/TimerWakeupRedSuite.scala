@@ -112,9 +112,17 @@ class TimerWakeupRedSuite extends munit.FunSuite {
       queue += runnable
       ()
     }
-    def exit():                                               Unit = ()
-    def addLifecycleListener(listener:    LifecycleListener): Unit = ()
-    def removeLifecycleListener(listener: LifecycleListener): Unit = ()
+    def log(tag:                          String, message: String):                       Unit              = ()
+    def log(tag:                          String, message: String, exception: Throwable): Unit              = ()
+    def error(tag:                        String, message: String):                       Unit              = ()
+    def error(tag:                        String, message: String, exception: Throwable): Unit              = ()
+    def debug(tag:                        String, message: String):                       Unit              = ()
+    def debug(tag:                        String, message: String, exception: Throwable): Unit              = ()
+    var logLevel:                                                                         Int               = 0
+    var applicationLogger:                                                                ApplicationLogger = null.asInstanceOf[ApplicationLogger]
+    def exit():                                                                           Unit              = ()
+    def addLifecycleListener(listener:    LifecycleListener):                             Unit              = ()
+    def removeLifecycleListener(listener: LifecycleListener):                             Unit              = ()
   }
 
   /** Pumps posted runnables until the latch opens or timeoutMillis elapses. Returns true if the latch opened. */

@@ -29,7 +29,7 @@ import sge.visui.{ FocusManager, VisUI }
   * @see
   *   [[Tree]]
   */
-class VisTree[N <: Tree.Node[N, V, ? <: Actor], V](treeStyle: Tree.TreeStyle)(using Sge) extends Tree[N, V](treeStyle) {
+class VisTree[N <: Tree.Node[N, V, ? <: Actor], V <: Object](treeStyle: Tree.TreeStyle)(using Sge) extends Tree[N, V](treeStyle) {
 
   init()
 

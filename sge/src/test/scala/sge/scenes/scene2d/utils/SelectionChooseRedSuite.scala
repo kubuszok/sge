@@ -20,8 +20,8 @@ class SelectionChooseRedSuite extends munit.FunSuite {
 
   /** Selection subclass instrumenting the protected changed() hook. */
   final private class CountingSelection(using Sge) extends Selection[String] {
-    var changedCalls:                 Int  = 0
-    override protected def changed(): Unit =
+    var changedCalls:                        Int  = 0
+    override protected[utils] def changed(): Unit =
       changedCalls += 1
   }
 

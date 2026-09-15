@@ -19,7 +19,7 @@ object TextureCheck {
         val texture = Texture(pixmap)
         try {
           val handle = texture.textureObjectHandle
-          if (handle != TextureHandle.none) {
+          if (handle != TextureHandle.none.toInt) {
             CheckResult("texture", passed = true, s"Texture created from Pixmap, GL handle=${handle.toInt}")
           } else {
             CheckResult("texture", passed = false, s"Invalid texture handle: ${handle.toInt}")

@@ -67,7 +67,7 @@ class FollowFlowField[T <: Vector[T]](
         val actualLimiter = getActualLimiter()
 
         // Calculate linear acceleration
-        steering.linear.mulAdd(fv, actualLimiter.maxLinearSpeed).-(owner.linearVelocity).limit(actualLimiter.maxLinearAcceleration)
+        steering.linear.mulAdd(fv, actualLimiter.maxLinearSpeed).sub(owner.linearVelocity).limit(actualLimiter.maxLinearAcceleration)
       }
     }
 

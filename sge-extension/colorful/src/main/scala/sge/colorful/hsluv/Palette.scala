@@ -806,7 +806,7 @@ object Palette {
 
   /** Converts existing Color entries in [[sge.graphics.Colors]] from RGBA to HSLuv format. */
   def editKnownColors(): Unit =
-    for (c <- sge.graphics.Colors.colors.values) {
+    for (c <- sge.graphics.Colors.getColors().values()) {
       val f = ColorTools.fromColor(c)
       c.set(ColorTools.channelH(f), ColorTools.channelS(f), ColorTools.channelL(f), c.a)
     }

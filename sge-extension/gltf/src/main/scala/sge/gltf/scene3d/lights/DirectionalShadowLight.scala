@@ -108,8 +108,8 @@ class DirectionalShadowLight(
 
   protected def validate()(using sge: Sge): Unit = {
     val halfDepth = cam.near + 0.5f * (cam.far - cam.near)
-    cam.position.set(direction).scl(-halfDepth).add(center)
-    cam.direction.set(direction).nor()
+    cam.position.set(direction).scale(-halfDepth).add(center)
+    cam.direction.set(direction).normalize()
     cam.normalizeUp()
     cam.update()
   }

@@ -31,8 +31,8 @@ import lowlevel.util.DynamicArray
 abstract class StreamingFileChooserListener extends FileChooserListener {
   final override def selected(files: DynamicArray[FileHandle]): Unit = {
     begin()
-    val iter = files.iterator
-    while (iter.hasNext)
+    val iter = files.iterator()
+    while (iter.hasNext())
       selected(iter.next())
     end()
   }

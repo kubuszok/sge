@@ -369,7 +369,7 @@ class TableCellTest extends munit.FunSuite {
     val cell  = table.add(Nullable(Actor()))
     cell.fillX()
     assert(cell._fillX.exists(_ == 1f))
-    assertEquals(cell._fillY.getOrElse(-1f), 0f) // default is 0
+    assertEquals(cell._fillY.getOrElse(java.lang.Float.valueOf(-1f)).floatValue(), 0f) // default is 0
   }
 
   // ---------------------------------------------------------------------------
@@ -508,6 +508,6 @@ class TableCellTest extends munit.FunSuite {
     val table = Table()
     val cell  = table.add(Nullable(Actor()))
     val same  = cell.size(50f).pad(5f).fill().expand().colspan(2)
-    assert(same eq cell)
+    assert(same.getOrElse(null) eq cell)
   }
 }

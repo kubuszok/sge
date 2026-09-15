@@ -74,7 +74,7 @@ class MenuItem private (text: String, initImage: Nullable[Image], initStyle: Men
     add(Nullable[Actor](_shortcutLabel)).padLeft(10).right()
     shortcutLabelColor = _shortcutLabel.style.fontColor
 
-    subMenuImage = new Image(Nullable(_style.subMenu))
+    subMenuImage = new Image(_style.subMenu)
     subMenuIconCell = add(Nullable(subMenuImage)).padLeft(3).padRight(3).size(_style.subMenu.minWidth, _style.subMenu.minHeight)
     subMenuIconCell.setActor(Nullable.empty)
 
@@ -111,13 +111,13 @@ class MenuItem private (text: String, initImage: Nullable[Image], initStyle: Men
     this(text, Nullable.empty, VisUI.getSkin.get[MenuItem.MenuItemStyle])
     addListener(changeListener)
   }
-  def this(text: String, drawable: Drawable)(using Sge) = this(text, Nullable(new Image(Nullable(drawable))), VisUI.getSkin.get[MenuItem.MenuItemStyle])
+  def this(text: String, drawable: Drawable)(using Sge) = this(text, Nullable(new Image(drawable)), VisUI.getSkin.get[MenuItem.MenuItemStyle])
   def this(text: String, drawable: Drawable, changeListener: ChangeListener)(using Sge) = {
-    this(text, Nullable(new Image(Nullable(drawable))), VisUI.getSkin.get[MenuItem.MenuItemStyle])
+    this(text, Nullable(new Image(drawable)), VisUI.getSkin.get[MenuItem.MenuItemStyle])
     addListener(changeListener)
   }
   def this(text: String, drawable: Drawable, styleName: String)(using Sge) =
-    this(text, Nullable(new Image(Nullable(drawable))), VisUI.getSkin.get[MenuItem.MenuItemStyle](styleName))
+    this(text, Nullable(new Image(drawable)), VisUI.getSkin.get[MenuItem.MenuItemStyle](styleName))
   def this(text: String, image: Image)(using Sge) = this(text, Nullable(image), VisUI.getSkin.get[MenuItem.MenuItemStyle])
   def this(text: String, image: Image, changeListener: ChangeListener)(using Sge) = {
     this(text, Nullable(image), VisUI.getSkin.get[MenuItem.MenuItemStyle])
@@ -126,7 +126,7 @@ class MenuItem private (text: String, initImage: Nullable[Image], initStyle: Men
   def this(text: String, image: Image, styleName: String)(using Sge) =
     this(text, Nullable(image), VisUI.getSkin.get[MenuItem.MenuItemStyle](styleName))
   def this(text: String, drawable: Drawable, menuItemStyle: MenuItem.MenuItemStyle)(using Sge) =
-    this(text, Nullable(new Image(Nullable(drawable))), menuItemStyle)
+    this(text, Nullable(new Image(drawable)), menuItemStyle)
 
   def subMenu: Nullable[PopupMenu] = _subMenu
 
@@ -253,7 +253,7 @@ class MenuItem private (text: String, initImage: Nullable[Image], initStyle: Men
   // DynamicArray[Char], whose toString is a bracketed element list ("[L, -, C,
   // t, r, l]"), so build the String from its chars — the same conversion Label
   // uses internally (new String(_text.toArray)).
-  def getShortcut: String = new String(_shortcutLabel.text.toArray)
+  def getShortcut: String = new String(_shortcutLabel.text.toArray())
 
   def setShortcut(text: String): MenuItem = {
     _shortcutLabel.setText(text)
@@ -276,7 +276,7 @@ class MenuItem private (text: String, initImage: Nullable[Image], initStyle: Men
   def getImageCell:          Cell[Image]              = imageCell
   def getLabel:              Label                    = _label
   def getLabelCell:          Nullable[Cell[Label]]    = getCell(_label)
-  def getText:               String                   = new String(_label.text.toArray)
+  def getText:               String                   = new String(_label.text.toArray())
   def setText(text: String): Unit                     = _label.setText(text)
   def getSubMenuIconCell:    Cell[Image]              = subMenuIconCell
   def getShortcutCell:       Nullable[Cell[VisLabel]] = getCell(_shortcutLabel)

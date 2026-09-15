@@ -23,7 +23,7 @@ class EnvironmentCache extends Environment {
 
   /** fast way to copy only references */
   def setCache(env: Environment): Unit = {
-    this.mask = env.getMask
+    this.mask = env.getMask()
     this.attributes.clear()
     env.foreach(a => this.attributes.add(a))
     this.shadowMap = env.shadowMap

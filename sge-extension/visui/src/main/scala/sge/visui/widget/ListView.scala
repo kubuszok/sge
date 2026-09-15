@@ -64,7 +64,7 @@ class ListView[ItemT](adapter: ListAdapter[ItemT], listViewStyle: ListViewStyle)
 
   private def rebuildView(full: Boolean): Unit = {
     scrollTable.clearChildren()
-    scrollTable.top
+    scrollTable.top()
     _header.foreach { h =>
       scrollTable.add(Nullable[Actor](h)).growX()
       scrollTable.row()

@@ -651,26 +651,26 @@ class ColorfulSprite() extends TextureRegion {
     vertices(V4) = v2
   }
 
-  override def u_=(u: Float): Unit = {
-    super.u_=(u)
+  override def setU(u: Float): Unit = {
+    super.setU(u)
     _vertices(U1) = u
     _vertices(U2) = u
   }
 
-  override def v_=(v: Float): Unit = {
-    super.v_=(v)
+  override def setV(v: Float): Unit = {
+    super.setV(v)
     _vertices(V2) = v
     _vertices(V3) = v
   }
 
-  override def u2_=(u2: Float): Unit = {
-    super.u2_=(u2)
+  override def setU2(u2: Float): Unit = {
+    super.setU2(u2)
     _vertices(U3) = u2
     _vertices(U4) = u2
   }
 
-  override def v2_=(v2: Float): Unit = {
-    super.v2_=(v2)
+  override def setV2(v2: Float): Unit = {
+    super.setV2(v2)
     _vertices(V1) = v2
     _vertices(V4) = v2
   }

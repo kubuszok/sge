@@ -447,7 +447,7 @@ object SimplePalette {
     * and IPT_HQ colors.
     */
   def editKnownColors(): Unit =
-    for (c <- Colors.colors.values) {
+    for (c <- Colors.getColors().values()) {
       val f = ColorTools.fromColor(c)
       c.set(ColorTools.intensity(f), ColorTools.protan(f), ColorTools.tritan(f), c.a)
     }

@@ -28,7 +28,7 @@ import sge.visui.{ FocusManager, VisUI }
   * @see
   *   [[SgeList]]
   */
-class VisList[T](listStyle: SgeList.ListStyle)(using Sge) extends SgeList[T](listStyle) {
+class VisList[T <: Object](listStyle: SgeList.ListStyle)(using Sge) extends SgeList[T](listStyle) {
 
   init()
 

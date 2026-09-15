@@ -24,7 +24,7 @@ import scala.collection.mutable.ArrayBuffer
 class DesktopCustomCursorIss764RedSuite extends munit.FunSuite {
 
   /** A do-nothing listener; `render()` is the only abstract member and is never reached (no render loop runs in these tests). */
-  private def listener: ApplicationListener = new ApplicationListener {
+  private def listener: ApplicationListener = new ApplicationListener with ApplicationListenerDefaults {
     override def render(): Unit = {}
   }
 

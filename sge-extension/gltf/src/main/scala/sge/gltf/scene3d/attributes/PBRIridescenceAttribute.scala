@@ -30,7 +30,7 @@ class PBRIridescenceAttribute(
   def this() =
     this(1f, 1.3f, 100f, 400f)
 
-  override def compare(that: Attribute): Int =
+  override def compareTo(that: Attribute): Int =
     if (`type` != that.`type`) { if (`type` < that.`type`) -1 else 1 }
     else {
       val other = that.asInstanceOf[PBRIridescenceAttribute]

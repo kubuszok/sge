@@ -60,8 +60,8 @@ class ColorPicker(styleName: String, title: Nullable[String], initListener: Null
 
     if (title.isEmpty) titleLabel.setText(TITLE.get)
 
-    isModal = true
-    isMovable = true
+    modal = true
+    movable = true
 
     addCloseButton()
     closeOnEscape()
@@ -140,7 +140,7 @@ class ColorPicker(styleName: String, title: Nullable[String], initListener: Null
 
   def closeAfterPickingFinished: Boolean = _closeAfterPickingFinished
 
-  override protected def close(): Unit = {
+  override def close(): Unit = {
     if (_listener.isDefined) _listener.get.canceled(picker.oldColor)
     super.close()
   }

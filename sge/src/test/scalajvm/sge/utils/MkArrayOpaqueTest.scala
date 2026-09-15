@@ -39,7 +39,7 @@ class MkArrayOpaqueTest extends munit.FunSuite {
 
   // Helper to verify the backing array is the expected primitive type, not Array[Object]
   private def assertBackingType[A](da: DynamicArray[A], expectedComponentType: Class[?])(using loc: munit.Location): Unit = {
-    val itemsField = da.getClass.getDeclaredField("_items")
+    val itemsField = da.getClass.getDeclaredField("items")
     itemsField.setAccessible(true)
     val backingArray = itemsField.get(da)
     assertEquals(

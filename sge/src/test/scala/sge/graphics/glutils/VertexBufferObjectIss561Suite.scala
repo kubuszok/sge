@@ -81,7 +81,7 @@ class VertexBufferObjectIss561Suite extends munit.FunSuite {
   private val ArrayBufferRaw = BufferTarget.ArrayBuffer.toInt
   private val StaticDrawRaw  = BufferUsage.StaticDraw.toInt
   private val DynamicDrawRaw = BufferUsage.DynamicDraw.toInt
-  private val NoLocations    = Nullable.empty[Array[AttributeLocation]]
+  private val NoLocations    = Nullable.empty[Array[Int]]
 
   // Position() == 3 float components == 12 bytes per vertex.
   private def positionAttr(): VertexAttribute = VertexAttribute.Position()

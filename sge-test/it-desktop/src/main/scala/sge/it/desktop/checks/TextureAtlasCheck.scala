@@ -27,12 +27,12 @@ object TextureAtlasCheck {
       val r2         = atlas.findRegion("region2")
       atlas.close()
 
-      if (allRegions.length < 2) {
-        CheckResult("atlas", passed = false, s"Expected >= 2 regions, got ${allRegions.length}")
+      if (allRegions.size < 2) {
+        CheckResult("atlas", passed = false, s"Expected >= 2 regions, got ${allRegions.size}")
       } else if (r1.isEmpty || r2.isEmpty) {
         CheckResult("atlas", passed = false, s"findRegion failed: r1=${r1.isDefined}, r2=${r2.isDefined}")
       } else {
-        CheckResult("atlas", passed = true, s"Atlas OK: ${allRegions.length} regions, r1=${r1.get.regionWidth}x${r1.get.regionHeight}")
+        CheckResult("atlas", passed = true, s"Atlas OK: ${allRegions.size} regions, r1=${r1.get.regionWidth}x${r1.get.regionHeight}")
       }
     } catch {
       case e: Exception =>

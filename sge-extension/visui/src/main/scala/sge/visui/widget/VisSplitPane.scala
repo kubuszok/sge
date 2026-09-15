@@ -66,10 +66,10 @@ class VisSplitPane(private var firstWidget: Nullable[Actor], private var secondW
   private def initialize(): Unit = {
     addListener(
       new SplitPaneCursorManager(this, vertical) {
-        override protected def handleBoundsContains(x: Float, y: Float): Boolean =
+        override def handleBoundsContains(x: Float, y: Float): Boolean =
           handleBounds.contains(x, y)
 
-        override protected def contains(x: Float, y: Float): Boolean =
+        override def contains(x: Float, y: Float): Boolean =
           firstWidgetBounds.contains(x, y) || secondWidgetBounds.contains(x, y) || handleBounds.contains(x, y)
       }
     )

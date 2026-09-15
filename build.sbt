@@ -22,6 +22,10 @@ def blankMappings(mappings: Seq[(File, String)], conv: FileConverter): Seq[(Hash
 // `val versions = new {…}` refinement, which does not survive the sbt-2.0
 // Scala-3 build dialect).
 
+// Exclude Baltic Porter generated code from scoverage — coverageAggregate cannot find
+// source roots for files under target/balticporter-*/src_managed/.
+ThisBuild / coverageExcludedFiles := ".*target/balticporter.*/src_managed/.*"
+
 val dev = new DevProperties(
   scala213 = None,
   scala3 = Some(Versions.scala3),
@@ -418,6 +422,24 @@ val sge: sbt.ProjectMatrix = (projectMatrix in file("sge"))
       "io.github.cquiroz" %% "scala-java-time" % Versions.scalaJavaTime,
       "io.github.cquiroz" %% "scala-java-locales" % Versions.scalaJavaLocales
     )
+  )
+  .settings(
+    // Baltic Porter: generate sge-core Scala sources from libGDX Java originals.
+    // Runs once (cached by upstream commit), writing to target/balticporter-sge/.
+    Compile / sourceGenerators += Def.task {
+      BalticPorterGen.generate((ThisBuild / baseDirectory).value, streams.value.log)
+    }.taskValue,
+    // Suppress warnings from generated code (porter notes, unused imports, etc.)
+    scalacOptions += "-Wconf:src=target/balticporter-sge/.*:s",
+    // Nonce to bypass sbt2 CAS disk cache replaying stale failures (ENGINE-LIMITS M5.14)
+    Compile / scalacOptions += s"-Xmacro-settings:balticporter.nonce=${System.nanoTime}",
+    // AngleGL32 imports DebugProc which is used at runtime but flagged as unused at compile time
+    // because the method referencing it is conditionally compiled per platform.
+    scalacOptions += "-Wconf:src=AngleGL32.scala&msg=unused import:s",
+    // Suppress unused-import warnings in test sources during Baltic Porter migration.
+    // Test adaptations (ignored tests, changed exception types) leave some imports unused.
+    Test / scalacOptions += "-Wconf:msg=unused import:s",
+    Test / scalacOptions += "-Wconf:msg=unused local definition:s"
   )
 
 val regressionTest = (projectMatrix in file("sge-test/regression"))

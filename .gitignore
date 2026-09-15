@@ -11,6 +11,7 @@ project/*
 !project/TestAssets.scala
 !project/Versions.scala
 !project/RemoteCacheSetup.scala
+!project/BalticPorterGen.scala
 target/
 .sbt/
 

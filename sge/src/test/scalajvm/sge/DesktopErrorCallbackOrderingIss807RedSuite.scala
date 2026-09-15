@@ -28,7 +28,7 @@ import scala.collection.mutable.ArrayBuffer
   */
 class DesktopErrorCallbackOrderingIss807RedSuite extends munit.FunSuite {
 
-  final private class Iss807Listener extends ApplicationListener {
+  final private class Iss807Listener extends ApplicationListener with ApplicationListenerDefaults {
     override def render(): Unit = {}
   }
 

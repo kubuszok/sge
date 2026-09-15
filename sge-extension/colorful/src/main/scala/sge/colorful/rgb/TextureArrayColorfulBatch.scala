@@ -39,7 +39,6 @@ import sge.math.{ Affine2, Matrix4 }
 import lowlevel.Nullable
 import sge.utils.{ BufferUtils, NumberUtils }
 
-import scala.annotation.publicInBinary
 import scala.compiletime.uninitialized
 import scala.language.implicitConversions
 import scala.util.boundary
@@ -230,7 +229,7 @@ class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[Shader
     mesh.setIndices(indices)
   }
 
-  @publicInBinary override private[sge] def begin(): Unit = {
+  override def begin(): Unit = {
     if (drawing) throw new IllegalStateException("TextureArrayColorfulBatch.end must be called before begin.")
 
     renderCalls = 0
@@ -248,7 +247,7 @@ class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[Shader
     drawing = true
   }
 
-  @publicInBinary override private[sge] def end(): Unit = {
+  override def end(): Unit = {
     if (!drawing) throw new IllegalStateException("TextureArrayColorfulBatch.begin must be called before end.")
 
     if (idx > 0) flush()

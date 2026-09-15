@@ -45,14 +45,14 @@ class DefaultGraphPath[N](val nodes: DynamicArray[N]) extends GraphPath[N] {
 
   override def reverse(): Unit = nodes.reverse()
 
-  override def iterator: Iterator[N] = nodes.iterator
+  override def iterator: Iterator[N] = nodes.iterator().asScala
 }
 
 object DefaultGraphPath {
 
   /** Creates a `DefaultGraphPath` with no nodes. */
-  inline def apply[N](): DefaultGraphPath[N] = new DefaultGraphPath[N](DynamicArray[N]())
+  inline def apply[N: lowlevel.MkArray](): DefaultGraphPath[N] = new DefaultGraphPath[N](DynamicArray[N]())
 
   /** Creates a `DefaultGraphPath` with the given capacity and no nodes. */
-  inline def apply[N](capacity: Int): DefaultGraphPath[N] = new DefaultGraphPath[N](DynamicArray[N](capacity))
+  inline def apply[N: lowlevel.MkArray](capacity: Int): DefaultGraphPath[N] = new DefaultGraphPath[N](DynamicArray[N](capacity))
 }

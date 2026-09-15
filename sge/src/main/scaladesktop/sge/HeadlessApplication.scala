@@ -37,7 +37,7 @@ import scala.util.boundary.break
 class HeadlessApplication(
   listenerFactory: Sge ?=> ApplicationListener,
   config:          HeadlessApplicationConfig = HeadlessApplicationConfig()
-) extends Application {
+) extends JavaLoggingApplication {
 
   private val _files:    DesktopFiles = DesktopFiles()
   private val _graphics: NoopGraphics = NoopGraphics()

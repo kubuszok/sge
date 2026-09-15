@@ -44,9 +44,10 @@ import scala.util.boundary.break
 trait Pool[A] {
 
   /** The maximum number of objects that will be pooled. */
-  protected val max: Int
+  /** java's defaults (`Pool()` is `Pool(16, Integer.MAX_VALUE)`): a site passing no argument owes nothing. */
+  protected[utils] val max: Int = Int.MaxValue // java's protected: the package sees it too (its own tests do)
 
-  protected val initialCapacity: Int
+  protected[utils] val initialCapacity: Int = 16
 
   var peak: Int = 0
 
@@ -146,7 +147,7 @@ trait Pool[A] {
       peak = peak max freeObjects.size
     }
 
-  def freeAll(objects: DynamicArray[? <: A]): Unit =
+  def freeAll(objects: DynamicArray[A]): Unit = // java's exact shape: `FlushablePool.freeAll(Array<T>)` overrides it
     lock.synchronized {
       objects.foreach { obj =>
         if (obj.asInstanceOf[AnyRef] ne null) { // @nowarn — null guard: original skips null items in the array
@@ -170,7 +171,9 @@ trait Pool[A] {
     }
 
   /** The number of objects available to be obtained. */
-  def free: Int =
+  /** java's spelling of [[free]] for the ported callers, until the property step renames them. */
+  def getFree(): Int = free
+  def free:      Int =
     lock.synchronized {
       freeObjects.size
     }
@@ -186,16 +189,23 @@ object Pool {
   }
 
   /** A ready-made [[Pool]] that builds instances with the supplied factory and resets them through the given [[sge.utils.Poolable]] type class instance instead of the [[Pool.Poolable]] trait.
+    *
+    * `reset` checks [[Pool.Poolable]] at runtime first: when the call site has no `Pool.Poolable` bound on `A` the compiler resolves `Poolable[A]` to the noop fallback, so the type class alone would
+    * skip the object's own `reset()`.
     */
-  class Default[A](createNewObject: () => A, protected val initialCapacity: Int = 16, protected val max: Int = Int.MaxValue)(using poolable: sge.utils.Poolable[A]) extends Pool[A] {
+  class Default[A](createNewObject: () => A, override protected[utils] val initialCapacity: Int = 16, override protected[utils] val max: Int = Int.MaxValue)(using poolable: sge.utils.Poolable[A])
+      extends Pool[A] {
     override def newObject():             A    = createNewObject()
-    override protected def reset(obj: A): Unit = poolable.reset(obj)
+    override protected def reset(obj: A): Unit = obj match {
+      case p: Pool.Poolable => p.reset()
+      case _ => poolable.reset(obj)
+    }
   }
 
   /** A [[Pool]] that additionally tracks every [[obtain]]ed instance so the whole batch can be returned at once with [[flush]], rather than freeing each one individually.
     */
   trait Flushable[A] extends Pool[A] {
-    protected val obtained = DynamicArray.createRef[A]()
+    protected[utils] val obtained = DynamicArray.createRef[A]()
 
     // `obtained` is additional shared state on top of the base `freeObjects`;
     // guard it on the same reentrant monitor so a Flushable pool is as
@@ -211,7 +221,7 @@ object Pool {
     /** Frees all obtained instances. */
     def flush(): Unit =
       lock.synchronized {
-        super.freeAll(obtained.iterator.toSeq)
+        super.freeAll(obtained) // the `DynamicArray` overload; this port's iterator is java-shaped
         obtained.clear()
       }
 
@@ -241,7 +251,7 @@ object Pool {
     // would free them again — a double-free (same instance in the free list twice).
     // Removal mutates `obtained` under the same reentrant lock; super.freeAll
     // re-acquires it reentrantly. See Pool.lock.
-    override def freeAll(objects: DynamicArray[? <: A]): Unit =
+    override def freeAll(objects: DynamicArray[A]): Unit =
       lock.synchronized {
         obtained.removeAllByRef(objects)
         super.freeAll(objects)

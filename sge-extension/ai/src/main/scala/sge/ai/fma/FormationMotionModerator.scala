@@ -79,7 +79,7 @@ abstract class FormationMotionModerator[T <: Vector[T]] {
     var i                   = 0
     while (i < numberOfAssignments) {
       pattern.calculateSlotLocation(tl, slotAssignments(i).slotNumber)
-      centerOfMassPos.+(tempLocationPos)
+      centerOfMassPos.add(tempLocationPos)
       centerOfMassOrientation += tl.orientation
       i += 1
     }

@@ -1,16 +1,7 @@
 /*
- * Ported from libGDX - https://github.com/libgdx/libgdx
- * Original source: backends/gdx-backend-headless/.../HeadlessFileHandle.java
- * Original authors: mzechner, Nathan Sweet
- * Licensed under the Apache License, Version 2.0
- *
- * Migration notes:
- *   Renames: HeadlessFileHandle -> DesktopFileHandle (reused by desktop backend)
- *   Convention: child/sibling/parent return DesktopFileHandle; file() resolves external/local paths
- *   Idiom: split packages; externalStoragePath passed to parent FileHandle
- *   Audited: 2026-03-05
- *
- * Scala port copyright 2025-2026 Mateusz Kubuszok
+ * sge's DesktopFileHandle (sge/src/main/scaladesktop/sge/files/DesktopFileHandle.scala): the port's
+ * FileHandle carries the external storage path as a field given at construction, so the value is
+ * assigned at the head of the body instead of passed to the super constructor (ADJUSTMENTS.tsv).
  */
 package sge
 package files
@@ -18,37 +9,31 @@ package files
 import java.io.File
 import lowlevel.Nullable
 
-/** A [[FileHandle]] backed by `java.io.File` for desktop and headless environments.
-  *
-  * @author
-  *   mzechner (original implementation)
-  * @author
-  *   Nathan Sweet (original implementation)
-  */
-class DesktopFileHandle(internalFile: File, fileType: FileType, externalStoragePath: String) extends FileHandle(internalFile, fileType, Nullable(externalStoragePath)) {
+class DesktopFileHandle(internalFile: File, fileType: FileType, externalPath: String) extends FileHandle(internalFile, fileType) {
+  this.externalStoragePath = Nullable(externalPath)
 
-  def this(fileName: String, fileType: FileType, externalStoragePath: String) =
-    this(new File(fileName), fileType, externalStoragePath)
+  def this(fileName: String, fileType: FileType, externalPath: String) =
+    this(new File(fileName), fileType, externalPath)
 
   override def child(name: String): FileHandle =
-    if (internalFile.getPath().length() == 0) DesktopFileHandle(new File(name), fileType, externalStoragePath)
-    else DesktopFileHandle(new File(internalFile, name), fileType, externalStoragePath)
+    if (internalFile.getPath().length() == 0) DesktopFileHandle(new File(name), fileType, externalPath)
+    else DesktopFileHandle(new File(internalFile, name), fileType, externalPath)
 
   override def sibling(name: String): FileHandle = {
     if (internalFile.getPath().length() == 0) throw utils.SgeError.FileReadError(this, "Cannot get the sibling of the root.")
-    DesktopFileHandle(new File(internalFile.getParent(), name), fileType, externalStoragePath)
+    DesktopFileHandle(new File(internalFile.getParent(), name), fileType, externalPath)
   }
 
-  override def parent(): FileHandle =
-    Nullable(internalFile.getParentFile()).fold {
-      if (fileType == FileType.Absolute) DesktopFileHandle(new File("/"), fileType, externalStoragePath)
-      else DesktopFileHandle(new File(""), fileType, externalStoragePath)
-    } { parent =>
-      DesktopFileHandle(parent, fileType, externalStoragePath)
-    }
+  override def parent(): FileHandle = {
+    val p = internalFile.getParentFile()
+    if (p == null) {
+      if (fileType == FileType.Absolute) DesktopFileHandle(new File("/"), fileType, externalPath)
+      else DesktopFileHandle(new File(""), fileType, externalPath)
+    } else DesktopFileHandle(p, fileType, externalPath)
+  }
 
   override def file: File =
-    if (fileType == FileType.External) new File(externalStoragePath, internalFile.getPath())
+    if (fileType == FileType.External) new File(externalPath, internalFile.getPath())
     else if (fileType == FileType.Local) new File(DesktopFileHandle.localPath, internalFile.getPath())
     else internalFile
 }

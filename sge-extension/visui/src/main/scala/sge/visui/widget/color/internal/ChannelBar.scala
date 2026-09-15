@@ -83,7 +83,7 @@ class ChannelBar(commons: PickerCommons, private val mode: Int, private val maxV
     Actor.POOLS.free(changeEvent)
   }
 
-  override protected def setShaderUniforms(shader: ShaderProgram): Unit = {
+  override def setShaderUniforms(shader: ShaderProgram): Unit = {
     shader.setUniformi("u_mode", mode)
     if (_channelBarListener.isDefined) _channelBarListener.get.setShaderUniforms(shader)
   }

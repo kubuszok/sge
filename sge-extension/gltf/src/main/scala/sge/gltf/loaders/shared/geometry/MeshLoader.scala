@@ -245,7 +245,7 @@ class MeshLoader {
             }
           }
 
-          val attributesGroup = new VertexAttributes(vertexAttributes.toArray*)
+          val attributesGroup = new VertexAttributes(vertexAttributes.toArray)
 
           val vertexFloats = attributesGroup.vertexSize / 4
           val maxVertices  = if (glAccessors.nonEmpty && glAccessors.head != null) glAccessors.head.count else 0 // @nowarn — null check for placeholder
@@ -463,7 +463,7 @@ class MeshLoader {
       }
       meshMap.put(glMesh, parts)
     }
-    node.parts.addAll(parts)
+    node.parts.addAll(parts.toArray)
   }
 
   private def generateParts(

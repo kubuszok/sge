@@ -12,7 +12,7 @@ import scala.compiletime.testing.*
   *
   * The canonical custom message (verbatim, baked into the annotation) is:
   *
-  * "No given `Sge` is in scope. `Sge` is this application's context — graphics, audio, input, files, net — passed explicitly via `(using Sge)` (it replaces LibGDX's global `Gdx.*`). Add a
+  * "No given `Sge` is in scope. `Sge` is this application's context — graphics, audio, input, files, net — passed explicitly through `(using Sge)` (it replaces LibGDX's global `Gdx.*`). Add a
   * `(using Sge)` parameter to the enclosing class constructor or method, propagating the `Sge` your `Game`/`ApplicationListener` already receives."
   *
   * This suite is RED today: with no `@implicitNotFound` annotation, the compiler emits its generic "no given instance" diagnostic, which does NOT contain the distinctive phrases "passed explicitly
@@ -31,12 +31,12 @@ class SgeImplicitNotFoundIss555RedSuite extends munit.FunSuite {
 
     val messages = errors.map(_.message)
     assert(
-      messages.exists(_.contains("passed explicitly via")),
-      s"expected the custom @implicitNotFound message containing \"passed explicitly via\"; got: $messages"
+      messages.exists(_.contains("passed explicitly through")),
+      s"expected the custom @implicitNotFound message containing \"passed explicitly through\"; got: $messages"
     )
     assert(
-      messages.exists(_.contains("replaces LibGDX's global")),
-      s"expected the custom @implicitNotFound message containing \"replaces LibGDX's global\"; got: $messages"
+      messages.exists(_.contains("replaces libGDX's global")),
+      s"expected the custom @implicitNotFound message containing \"replaces libGDX's global\"; got: $messages"
     )
   }
 

@@ -58,13 +58,13 @@ class PBRDepthShader(
   override def init(): Unit = {
     super.init()
     program.foreach { p =>
-      u_morphTargets1 = p.fetchUniformLocation("u_morphTargets1", false)
-      u_morphTargets2 = p.fetchUniformLocation("u_morphTargets2", false)
-      u_texCoordTransform = p.fetchUniformLocation("u_texCoordTransform", false)
+      u_morphTargets1 = UniformLocation(p.fetchUniformLocation("u_morphTargets1", false))
+      u_morphTargets2 = UniformLocation(p.fetchUniformLocation("u_morphTargets2", false))
+      u_texCoordTransform = UniformLocation(p.fetchUniformLocation("u_texCoordTransform", false))
     }
   }
 
-  override protected def bindMaterial(attributes: Attributes): Unit = {
+  override def bindMaterial(attributes: Attributes): Unit = {
     super.bindMaterial(attributes)
     if (u_texCoordTransform != UniformLocation.notFound) {
       val attr             = attributes.getAs[PBRTextureAttribute](PBRTextureAttribute.BaseColorTexture)

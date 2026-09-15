@@ -133,7 +133,7 @@ class CollapsibleWidget(using Sge) extends WidgetGroup {
     addActor(table)
   }
 
-  override protected def childrenChanged(): Unit = {
+  override def childrenChanged(): Unit = {
     super.childrenChanged()
     if (children.size > 1) throw sge.utils.SgeError.InvalidInput("Only one actor can be added to CollapsibleWidget")
   }
@@ -141,7 +141,7 @@ class CollapsibleWidget(using Sge) extends WidgetGroup {
 
 private[widget] object CollapsibleWidget {
   private class CollapseAction(widget: CollapsibleWidget) extends FloatAction {
-    override protected def update(percent: Float): Unit = {
+    override def update(percent: Float): Unit = {
       super.update(percent)
       widget.currentHeight = value
       if (percent == 1) {

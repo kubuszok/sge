@@ -62,7 +62,7 @@ class Separation[T <: Vector[T]](
   }
 
   override def reportNeighbor(neighbor: Steerable[T]): Boolean = {
-    toAgent.set(owner.position).-(neighbor.position)
+    toAgent.set(owner.position).sub(neighbor.position)
     val distanceSqr = toAgent.lengthSq
 
     if (distanceSqr == 0) {

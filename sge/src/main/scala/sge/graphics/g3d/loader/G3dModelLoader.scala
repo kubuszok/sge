@@ -44,16 +44,21 @@ import sge.graphics.g3d.model.data._
 import sge.math.{ Matrix4, Quaternion, Vector2, Vector3 }
 import lowlevel.Nullable
 import lowlevel.util.{ ArrayMap, DynamicArray }
-import sge.utils.{ SgeError, readJson }
+import sge.utils.{ SgeError, readJson, readUBJson }
 
 /** Loads G3D models from `.g3dj` (JSON text) files. For binary `.g3db` (UBJson) format, see [[G3dBinaryModelLoader]]. */
-class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoader[ModelLoader.ModelParameters](resolver) {
+class G3dModelLoader(resolver: FileHandleResolver, binary: Boolean = false)(using Sge) extends ModelLoader[ModelLoader.ModelParameters](resolver) {
 
+  /** java's constructor shape, kept for the emitted AssetManager (`new G3dModelLoader(new UBJsonReader(), resolver)`): the reader only says which spelling of the document this loader reads
+    * (ADJUSTMENTS.tsv).
+    */
+  def this(reader: sge.utils.BaseJsonReader, resolver: FileHandleResolver)(using Sge) =
+    this(resolver, reader.isInstanceOf[sge.utils.UBJsonReader])
   override def loadModelData(fileHandle: FileHandle, parameters: Nullable[ModelLoader.ModelParameters]): Nullable[ModelData] =
     Nullable(parseModel(fileHandle))
 
   def parseModel(handle: FileHandle): ModelData = {
-    val json  = handle.readJson[G3dModelJson]
+    val json  = if (binary) handle.readUBJson[G3dModelJson] else handle.readJson[G3dModelJson]
     val model = ModelData()
 
     model.version(0) = json.version(0)
@@ -92,7 +97,7 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
         jsonPart.indices = meshPart.indices.toArray
         parts.add(jsonPart)
       }
-      jsonMesh.parts = parts.toArray
+      jsonMesh.parts = parts.toArray()
       model.meshes.add(jsonMesh)
     }
   }
@@ -136,7 +141,7 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
           "Unknown vertex attribute '" + attr + "', should be one of position, normal, uv, tangent or binormal"
         )
       }
-    vertexAttributes.toArray
+    vertexAttributes.toArray()
   }
 
   protected def parseMaterials(model: ModelData, materials: List[G3dMaterialJson], materialDir: String): Unit = {
@@ -322,7 +327,7 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
                     if (Nullable(nodeAnim.translation).isEmpty) nodeAnim.translation = DynamicArray[ModelNodeKeyframe[Vector3]]()
                     val tkf = ModelNodeKeyframe[Vector3]()
                     tkf.keytime = keytime
-                    tkf.value = Nullable(Vector3(translation(0), translation(1), translation(2)))
+                    tkf.value = Vector3(translation(0), translation(1), translation(2))
                     nodeAnim.translation.add(tkf)
                   }
                 }
@@ -331,7 +336,7 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
                     if (Nullable(nodeAnim.rotation).isEmpty) nodeAnim.rotation = DynamicArray[ModelNodeKeyframe[Quaternion]]()
                     val rkf = ModelNodeKeyframe[Quaternion]()
                     rkf.keytime = keytime
-                    rkf.value = Nullable(Quaternion(rotation(0), rotation(1), rotation(2), rotation(3)))
+                    rkf.value = Quaternion(rotation(0), rotation(1), rotation(2), rotation(3))
                     nodeAnim.rotation.add(rkf)
                   }
                 }
@@ -340,7 +345,7 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
                     if (Nullable(nodeAnim.scaling).isEmpty) nodeAnim.scaling = DynamicArray[ModelNodeKeyframe[Vector3]]()
                     val skf = ModelNodeKeyframe[Vector3]()
                     skf.keytime = keytime
-                    skf.value = Nullable(Vector3(scale(0), scale(1), scale(2)))
+                    skf.value = Vector3(scale(0), scale(1), scale(2))
                     nodeAnim.scaling.add(skf)
                   }
                 }
@@ -356,7 +361,7 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
                   kf.keytime = kfVal.keytime / 1000.0f
                   val v = kfVal.value
                   if (v.size >= 3)
-                    kf.value = Nullable(Vector3(v(0), v(1), v(2)))
+                    kf.value = Vector3(v(0), v(1), v(2))
                 }
               }
 
@@ -369,7 +374,7 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
                   kf.keytime = kfVal.keytime / 1000.0f
                   val v = kfVal.value
                   if (v.size >= 4)
-                    kf.value = Nullable(Quaternion(v(0), v(1), v(2), v(3)))
+                    kf.value = Quaternion(v(0), v(1), v(2), v(3))
                 }
               }
 
@@ -382,7 +387,7 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
                   kf.keytime = kfVal.keytime / 1000.0f
                   val v = kfVal.value
                   if (v.size >= 3)
-                    kf.value = Nullable(Vector3(v(0), v(1), v(2)))
+                    kf.value = Vector3(v(0), v(1), v(2))
                 }
               }
           }

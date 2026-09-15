@@ -28,10 +28,10 @@ class ActorPropertyHookRedSuite extends munit.FunSuite {
     var scaleChangedCalls:    Int = 0
     var rotationChangedCalls: Int = 0
 
-    override protected def positionChanged(): Unit = positionChangedCalls += 1
-    override protected def sizeChanged():     Unit = sizeChangedCalls += 1
-    override protected def scaleChanged():    Unit = scaleChangedCalls += 1
-    override protected def rotationChanged(): Unit = rotationChangedCalls += 1
+    override protected[scene2d] def positionChanged(): Unit = positionChangedCalls += 1
+    override protected[scene2d] def sizeChanged():     Unit = sizeChangedCalls += 1
+    override protected[scene2d] def scaleChanged():    Unit = scaleChangedCalls += 1
+    override protected[scene2d] def rotationChanged(): Unit = rotationChangedCalls += 1
   }
 
   // ---------------------------------------------------------------------------

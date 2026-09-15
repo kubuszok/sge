@@ -480,7 +480,7 @@ object SimplePalette {
     * and CIELAB colors.
     */
   def editKnownColors(): Unit =
-    for (c <- Colors.colors.values) {
+    for (c <- Colors.getColors().values()) {
       val f = ColorTools.fromColor(c)
       c.set(ColorTools.channelL(f), ColorTools.channelA(f), ColorTools.channelB(f), c.a)
     }

@@ -91,7 +91,7 @@ class RaycastObstacleAvoidance[T <: Vector[T]](
       steering.linear
         .set(minOutputCollision.point)
         .mulAdd(minOutputCollision.normal, owner.boundingRadius + distanceFromBoundary)
-        .-(owner.position)
+        .sub(owner.position)
         .normalize()
         .scale(getActualLimiter().maxLinearAcceleration)
 

@@ -34,7 +34,7 @@ import sge.visui.widget.{ VisLabel, VisProgressBar, VisWindow }
   */
 class AsyncTaskProgressDialog(title: String, val task: AsyncTask)(using Sge) extends VisWindow(title) {
 
-  isModal = true
+  modal = true
   TableUtils.setSpacingDefaults(this)
 
   private val statusLabel: VisLabel       = new VisLabel(CommonText.PleaseWait.get)

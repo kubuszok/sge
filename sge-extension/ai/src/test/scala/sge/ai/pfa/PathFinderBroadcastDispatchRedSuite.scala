@@ -53,9 +53,9 @@ class PathFinderBroadcastDispatchRedSuite extends munit.FunSuite {
   /** Private dispatcher pool so this suite cannot leak telegrams into the global pool shared with other tests. */
   private def newDispatcher(): MessageDispatcher = {
     val pool = new Pool[Telegram] {
-      override protected val max:             Int      = Int.MaxValue
-      override protected val initialCapacity: Int      = 16
-      override protected def newObject():     Telegram = new Telegram()
+      override val max:                   Int      = Int.MaxValue
+      override val initialCapacity:       Int      = 16
+      override protected def newObject(): Telegram = new Telegram()
     }
     new MessageDispatcher(pool)
   }

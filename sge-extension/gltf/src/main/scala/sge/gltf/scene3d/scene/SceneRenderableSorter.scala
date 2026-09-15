@@ -42,7 +42,7 @@ class SceneRenderableSorter extends RenderableSorter with Comparator[Renderable]
   override def sort(camera: Nullable[Camera], renderables: DynamicArray[Renderable]): Unit =
     camera.foreach { cam =>
       this.camera = cam
-      renderables.sort()(using Ordering.comparatorToOrdering(this))
+      renderables.sort(Ordering.comparatorToOrdering(this))
     }
 
   private def getTranslation(worldTransform: Matrix4, center: Vector3, output: Vector3): Vector3 = {

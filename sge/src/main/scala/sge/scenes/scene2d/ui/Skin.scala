@@ -47,7 +47,6 @@ import lowlevel.util.DynamicArray
 import sge.utils.Json
 import sge.utils.LenientJson
 import lowlevel.Nullable
-import lowlevel.leanView
 import sge.utils.SgeError
 
 import scala.reflect.ClassTag
@@ -117,7 +116,7 @@ class Skin()(using Sge) extends AutoCloseable {
       // and values, optional commas, // and block comments — which the strict
       // jsoniter reader rejects. Parse it through the lenient reader that mirrors
       // libGDX's JsonReader so stock skins load unchanged.
-      val root = LenientJson.parse(skinFile.readString(Nullable("UTF-8")))
+      val root = LenientJson.parse(skinFile.readString("UTF-8"))
       root match {
         case Json.Obj(rootObj) =>
           rootObj.fields.foreach { case (typeName, typeValue) =>
@@ -207,11 +206,11 @@ class Skin()(using Sge) extends AutoCloseable {
       val font: BitmapFont = {
         val regions = getRegions(regionName)
         if (regions.isDefined)
-          BitmapFont(BitmapFontData(Nullable(fontFile), flip), regions, true)
+          BitmapFont(new BitmapFontData(fontFile, flip), regions.get, true)
         else {
           val region = optional(regionName, classOf[TextureRegion])
           if (region.isDefined)
-            BitmapFont(fontFile, region, flip)
+            BitmapFont(fontFile, region.get, flip)
           else {
             val imageFile = fontFile.parent().child(regionName + ".png")
             if (imageFile.exists())
@@ -222,7 +221,7 @@ class Skin()(using Sge) extends AutoCloseable {
         }
       }
       font.data.markupEnabled = markupEnabled
-      font.integerPositions = useIntPositions
+      font.setUseIntegerPositions(useIntPositions)
       // Scaled size is the desired cap height to scale the font to.
       if (scaledSize != -1) font.data.setScale(scaledSize / font.capHeight)
       font
@@ -240,7 +239,7 @@ class Skin()(using Sge) extends AutoCloseable {
     val drawable     = newDrawable(drawableName, color)
     drawable match {
       case named: BaseDrawable =>
-        named.name = Nullable(entryName + " (" + drawableName + ", " + color + ")")
+        named.setName(Nullable(entryName + " (" + drawableName + ", " + color + ")"))
       case _ =>
     }
     drawable
@@ -285,7 +284,7 @@ class Skin()(using Sge) extends AutoCloseable {
   /** Adds all named texture regions from the atlas. The atlas will not be automatically disposed when the skin is disposed. */
   def addRegions(atlas: TextureAtlas): Unit = {
     val regions = atlas.regions
-    regions.leanView.foreach { region =>
+    regions.foreach { region =>
       var name = region.name
       if (region.index != -1) {
         name = name + "_" + region.index
@@ -423,10 +422,10 @@ class Skin()(using Sge) extends AutoCloseable {
     existing.foreach(e => break(e))
 
     val tiled = TiledDrawable(getRegion(name))
-    tiled.name = Nullable(name)
+    tiled.setName(Nullable(name))
     if (_scale != 1) {
       scale(tiled)
-      tiled.scale = _scale
+      tiled.setScale(_scale)
     }
     add(name, tiled, classOf[TiledDrawable])
     tiled
@@ -533,7 +532,7 @@ class Skin()(using Sge) extends AutoCloseable {
 
     val result = drawable.getOrElse(throw SgeError.InvalidInput("No Drawable registered with name: " + name))
     result match {
-      case bd: BaseDrawable => bd.name = Nullable(name)
+      case bd: BaseDrawable => bd.setName(Nullable(name))
       case _ =>
     }
 
@@ -592,8 +591,8 @@ class Skin()(using Sge) extends AutoCloseable {
     result match {
       case named: BaseDrawable =>
         drawable match {
-          case bd: BaseDrawable => named.name = Nullable(bd.name.getOrElse("") + " (" + tint + ")")
-          case _ => named.name = Nullable(" (" + tint + ")")
+          case bd: BaseDrawable => named.setName(Nullable(bd.name.getOrElse("") + " (" + tint + ")"))
+          case _ => named.setName(Nullable(" (" + tint + ")"))
         }
       case _ =>
     }
@@ -623,7 +622,7 @@ class Skin()(using Sge) extends AutoCloseable {
   /** Sets the style on the actor to disabled or enabled. This is done by appending "-disabled" to the style name when enabled is false, and removing "-disabled" from the style name when enabled is
     * true. If the style was not found in the skin, an exception is thrown.
     */
-  def setEnabled[V](styleable: Styleable[V], enabled: Boolean): Unit = {
+  def setEnabled[V <: AnyRef](styleable: Styleable[V], enabled: Boolean): Unit = {
     val style = styleable.style
     val name  = find(style)
     name.foreach { n =>

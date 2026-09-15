@@ -109,9 +109,9 @@ class DraggableKeepWithinParentRedSuite extends munit.FunSuite {
       throw new IllegalStateException(s"StubBatch.$member must not be touched by the Draggable drag test")
 
     @scala.annotation.publicInBinary
-    private[sge] def begin(): Unit = ()
+    def begin(): Unit = ()
     @scala.annotation.publicInBinary
-    private[sge] def end(): Unit = ()
+    def end(): Unit = ()
 
     def color_=(tint:              Color):                               Unit  = ()
     def setColor(r:                Float, g: Float, b: Float, a: Float): Unit  = ()

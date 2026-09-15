@@ -64,15 +64,15 @@ class TypingTooltip(
   }
 
   def this(text: Nullable[String], skin: Skin)(using Sge) =
-    this(text, TooltipManager.instance, skin.get[Styles.TextTooltipStyle])
+    this(text, TooltipManager.getInstance(), skin.get[Styles.TextTooltipStyle])
 
   def this(text: Nullable[String], skin: Skin, styleName: String)(using Sge) =
-    this(text, TooltipManager.instance, skin.get[Styles.TextTooltipStyle](styleName))
+    this(text, TooltipManager.getInstance(), skin.get[Styles.TextTooltipStyle](styleName))
 
   def this(text: Nullable[String], style: Styles.TextTooltipStyle)(using Sge) =
     this(
       text,
-      TooltipManager.instance,
+      TooltipManager.getInstance(),
       style,
       Nullable.fold(style.label)(new Font())(ls => Nullable.fold(ls.font)(new Font())(identity))
     )
@@ -92,13 +92,13 @@ class TypingTooltip(
     )
 
   def this(text: Nullable[String], skin: Skin, replacementFont: Font)(using Sge) =
-    this(text, TooltipManager.instance, skin.get[Styles.TextTooltipStyle], replacementFont)
+    this(text, TooltipManager.getInstance(), skin.get[Styles.TextTooltipStyle], replacementFont)
 
   def this(text: Nullable[String], skin: Skin, styleName: String, replacementFont: Font)(using Sge) =
-    this(text, TooltipManager.instance, skin.get[Styles.TextTooltipStyle](styleName), replacementFont)
+    this(text, TooltipManager.getInstance(), skin.get[Styles.TextTooltipStyle](styleName), replacementFont)
 
   def this(text: Nullable[String], style: Styles.TextTooltipStyle, replacementFont: Font)(using Sge) =
-    this(text, TooltipManager.instance, style, replacementFont)
+    this(text, TooltipManager.getInstance(), style, replacementFont)
 
   def this(text: Nullable[String], manager: TooltipManager, skin: Skin, replacementFont: Font)(using Sge) =
     this(text, manager, skin.get[Styles.TextTooltipStyle], replacementFont)

@@ -95,7 +95,7 @@ private[ecs] class EntityManager(listener: EntityListener) {
       pendingOperations += operation
     } else {
       while (entitiesToRemove.size > 0)
-        removeEntity(entitiesToRemove.first, delayed = false)
+        removeEntity(entitiesToRemove.head, delayed = false)
     }
 
   def getEntities: ImmutableArray[Entity] = immutableEntities
@@ -115,7 +115,7 @@ private[ecs] class EntityManager(listener: EntityListener) {
         case EntityOperation.Type.RemoveAll =>
           operation.entities.foreach { ents =>
             while (ents.size > 0)
-              removeEntityInternal(ents.first)
+              removeEntityInternal(ents.head)
           }
       }
 
@@ -170,8 +170,8 @@ private[ecs] object EntityOperation {
 
 /** Pool for reusing [[EntityOperation]] instances. */
 final private[ecs] class EntityOperationPool extends Pool[EntityOperation] {
-  override protected val max:             Int = Int.MaxValue
-  override protected val initialCapacity: Int = 16
+  override val max:             Int = Int.MaxValue
+  override val initialCapacity: Int = 16
 
   override protected def newObject(): EntityOperation = new EntityOperation()
 }

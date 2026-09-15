@@ -69,9 +69,9 @@ class AiPriorityQueueRedSuite extends munit.FunSuite {
     // Private pool so the broken queue's stale/double-freed telegrams cannot
     // leak into the global pool shared with other tests.
     val pool = new Pool[Telegram] {
-      override protected val max:             Int      = Int.MaxValue
-      override protected val initialCapacity: Int      = 16
-      override protected def newObject():     Telegram = new Telegram()
+      override val max:                   Int      = Int.MaxValue
+      override val initialCapacity:       Int      = 16
+      override protected def newObject(): Telegram = new Telegram()
     }
     val dispatcher = new MessageDispatcher(pool)
     val listener   = new Iss502RecordingTelegraph()

@@ -32,7 +32,7 @@ import sge.utils.SgeError
 
 class PBREmissiveShaderProvider(config: PBRShaderConfig)(using Sge) extends PBRShaderProvider(config) {
 
-  override protected def createShader(renderable: Renderable): Shader = {
+  override def createShader(renderable: Renderable): Shader = {
     val cfg = this.config.asInstanceOf[PBRShaderConfig]
 
     val mat      = renderable.material.get

@@ -53,7 +53,7 @@ class Pursue[T <: Vector[T]](
     val targetPosition = tgt.position
 
     // Get the square distance to the evader (the target)
-    val squareDistance = steering.linear.set(targetPosition).-(owner.position).lengthSq
+    val squareDistance = steering.linear.set(targetPosition).sub(owner.position).lengthSq
 
     // Work out our current square speed
     val squareSpeed = owner.linearVelocity.lengthSq
@@ -69,7 +69,7 @@ class Pursue[T <: Vector[T]](
     }
 
     // Calculate and seek/flee the predicted position of the target
-    steering.linear.set(targetPosition).mulAdd(tgt.linearVelocity, predictionTime).-(owner.position).normalize().scale(getActualMaxLinearAcceleration())
+    steering.linear.set(targetPosition).mulAdd(tgt.linearVelocity, predictionTime).sub(owner.position).normalize().scale(getActualMaxLinearAcceleration())
 
     // No angular acceleration
     steering.angular = 0

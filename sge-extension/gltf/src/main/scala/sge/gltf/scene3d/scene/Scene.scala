@@ -89,7 +89,7 @@ class Scene(
     sceneModel.lights.foreachEntry { (key, value) =>
       val node = modelInstance.getNode(key.id, true)
       if (node.isDefined) {
-        lights.put(node.get, createLight(value))
+        lights.put(node.get, createLight(value).asInstanceOf[BaseLight[Nothing]])
       }
     }
     syncCameras()

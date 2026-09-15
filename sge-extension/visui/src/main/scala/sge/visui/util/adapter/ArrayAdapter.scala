@@ -43,8 +43,8 @@ abstract class ArrayAdapter[ItemT, ViewT <: Actor](private val array: DynamicArr
   }
 
   override protected def sort(comparator: Comparator[ItemT]): Unit = {
-    given Ordering[ItemT] = (a: ItemT, b: ItemT) => comparator.compare(a, b)
-    array.sort()
+    val ord: Ordering[ItemT] = (a: ItemT, b: ItemT) => comparator.compare(a, b)
+    array.sort(ord)
   }
 
   override def iterable: Iterable[ItemT] = {

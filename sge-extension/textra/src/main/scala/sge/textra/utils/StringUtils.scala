@@ -49,7 +49,7 @@ object StringUtils {
     *   text with its words shuffled randomly
     */
   def shuffleWords(text: String): String =
-    shuffleWords(text, MathUtils.randomGenerator)
+    shuffleWords(text, MathUtils.random$field)
 
   /** Shuffles the words in text using the given Random generator, joins them with a space as the delimiter, and returns that String. The generator can be seeded to get replicable results.
     *

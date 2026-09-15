@@ -77,7 +77,7 @@ class Palette(commons: PickerCommons, private val maxValue: Int, listener: Chang
     )
   }
 
-  override protected def setShaderUniforms(shader: ShaderProgram): Unit =
+  override def setShaderUniforms(shader: ShaderProgram): Unit =
     shader.setUniformf("u_h", _pickerHue)
 
   def setPickerHue(pickerHue: Int): Unit =

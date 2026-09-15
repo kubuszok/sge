@@ -7,9 +7,9 @@ package utils
 
 class PoolTest extends munit.FunSuite {
 
-  private class StringPool(override protected val max: Int = 100, override protected val initialCapacity: Int = 16) extends Pool[String] {
-    var created:                        Int    = 0
-    override protected def newObject(): String = {
+  private class StringPool(override protected[utils] val max: Int = 100, override protected[utils] val initialCapacity: Int = 16) extends Pool[String] {
+    var created:                               Int    = 0
+    override protected[utils] def newObject(): String = {
       created += 1
       s"obj-$created"
     }

@@ -44,14 +44,17 @@ object FboRoundtripProbe extends FeatureProbe {
       val fbo = new FrameBuffer(Pixmap.Format.RGBA8888, Pixels(64), Pixels(64), false)
       inner = Some(fbo)
       val gl = ctx.sgeCtx.graphics.gl20
-      val rb = fbo.use {
-        while (gl.glGetError() != 0) {}
-        gl.glClearColor(1f, 0f, 0f, 1f)
-        gl.glClear(ClearMask.ColorBufferBit)
-        val buf = java.nio.ByteBuffer.allocateDirect(4)
-        buf.order(java.nio.ByteOrder.nativeOrder())
-        gl.glReadPixels(Pixels(32), Pixels(32), Pixels(1), Pixels(1), PixelFormat.RGBA, DataType.UnsignedByte, buf)
-        (buf.get(0) & 0xff, buf.get(1) & 0xff, buf.get(2) & 0xff, buf.get(3) & 0xff)
+      val rb = {
+        fbo.begin()
+        try {
+          while (gl.glGetError() != 0) {}
+          gl.glClearColor(1f, 0f, 0f, 1f)
+          gl.glClear(ClearMask.ColorBufferBit)
+          val buf = java.nio.ByteBuffer.allocateDirect(4)
+          buf.order(java.nio.ByteOrder.nativeOrder())
+          gl.glReadPixels(Pixels(32), Pixels(32), Pixels(1), Pixels(1), PixelFormat.RGBA, DataType.UnsignedByte, buf)
+          (buf.get(0) & 0xff, buf.get(1) & 0xff, buf.get(2) & 0xff, buf.get(3) & 0xff)
+        } finally fbo.end()
       }
       readback = Some(rb)
       // fbo.use() rebound the DEFAULT framebuffer; the runner re-binds the probe FBO next frame.

@@ -26,7 +26,7 @@ class PBRFlagAttribute(
   override def copy(): Attribute =
     PBRFlagAttribute(`type`)
 
-  override def compare(that: Attribute): Int =
+  override def compareTo(that: Attribute): Int =
     (`type` - that.`type`).toInt
 }
 

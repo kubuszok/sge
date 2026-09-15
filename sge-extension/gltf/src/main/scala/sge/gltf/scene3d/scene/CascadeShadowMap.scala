@@ -69,7 +69,7 @@ class CascadeShadowMap(protected val cascadeCount: Int)(using Sge) extends AutoC
       throw new IllegalArgumentException("Invalid splitRates, expected " + (cascadeCount + 2) + " items.")
     }
 
-    base.direction.nor()
+    base.direction.normalize()
     syncExtraCascades(base)
     setBaseLightBounds(base, sceneCamera, minLightDepth)
 

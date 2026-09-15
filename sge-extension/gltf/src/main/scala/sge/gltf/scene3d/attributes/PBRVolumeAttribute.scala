@@ -31,7 +31,7 @@ class PBRVolumeAttribute(
   def this() =
     this(0f, 0f, Color(Color.WHITE))
 
-  override def compare(that: Attribute): Int =
+  override def compareTo(that: Attribute): Int =
     if (`type` != that.`type`) { if (`type` < that.`type`) -1 else 1 }
     else {
       val other = that.asInstanceOf[PBRVolumeAttribute]

@@ -51,7 +51,7 @@ class GLFrameBufferIss572Suite extends munit.FunSuite {
     }
 
     // GLFrameBuffer.scala:99/:286 shape: `.first` narrowing the Object[] head.
-    def firstTarget(): Int = attachments.first.glTarget
+    def firstTarget(): Int = attachments.head.glTarget
   }
 
   final class ConcreteFrameBuffer(specs: Int*) extends FakeFrameBuffer[Attachment] {

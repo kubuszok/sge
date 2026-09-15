@@ -75,7 +75,7 @@ import lowlevel.Nullable
 class ObjLoaderFanRedSuite extends munit.FunSuite {
 
   /** In-memory OBJ "file": only read() is exercised by loadModelData when the OBJ has no mtllib line, so no real filesystem (and no GL) is touched on any platform. */
-  final private class StringObjFileHandle(content: String) extends FileHandleStream("iss498-test.obj") {
+  final private class StringObjFileHandle(content: String)(using Sge) extends FileHandleStream("iss498-test.obj") {
     override def read(): InputStream =
       new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))
   }

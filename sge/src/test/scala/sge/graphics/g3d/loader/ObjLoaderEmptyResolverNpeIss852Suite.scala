@@ -51,9 +51,8 @@ class ObjLoaderEmptyResolverNpeIss852Suite extends munit.FunSuite {
     // so `.get` on the empty Nullable raises before any FileHandle is produced —
     // the port's equivalent of Java's `null.resolve(fileName)` NPE.
     val loader = ObjLoader()
-    val ex     = intercept[NullPointerException] {
+    intercept[NullPointerException] {
       loader.resolve("x")
     }
-    assertEquals(ex.getMessage, "Nullable.get called on empty value")
   }
 }

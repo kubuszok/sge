@@ -75,8 +75,8 @@ class BrowserPreferences(name: String) extends Preferences {
 
   override def putString(key: String, value: String): Preferences = { values.put(key, value); this }
 
-  override def put(vals: scala.collection.Map[String, Boolean | Int | Long | Float | String]): Preferences = {
-    vals.foreach((k, v) => values.put(k, v))
+  override def put(vals: scala.collection.mutable.Map[String, ?]): Preferences = {
+    vals.foreach((k, v) => values.put(k, v.asInstanceOf[Boolean | Int | Long | Float | String]))
     this
   }
 
@@ -126,8 +126,8 @@ class BrowserPreferences(name: String) extends Preferences {
     case _       => defValue
   }
 
-  override def get(): scala.collection.Map[String, Boolean | Int | Long | Float | String] =
-    values.toMap
+  override def get(): scala.collection.mutable.Map[String, ?] =
+    scala.collection.mutable.Map.from(values)
 
   override def contains(key: String): Boolean = values.contains(key)
 

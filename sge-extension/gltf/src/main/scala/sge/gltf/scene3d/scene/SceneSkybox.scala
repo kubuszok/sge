@@ -188,7 +188,7 @@ class SceneSkybox(using sge: Sge) extends RenderableProvider with Updatable with
       u_lod = UniformLocation(Sge().graphics.gl.glGetUniformLocation(program.get.handle, "u_lod"))
     }
 
-    override protected def bindMaterial(attributes: Attributes): Unit = {
+    override def bindMaterial(attributes: Attributes): Unit = {
       super.bindMaterial(attributes)
       if (u_lod >= 0) program.foreach(_.setUniformf(u_lod, lodBias))
     }
@@ -196,7 +196,7 @@ class SceneSkybox(using sge: Sge) extends RenderableProvider with Updatable with
 
   private class SkyboxShaderProvider(config: DefaultShader.Config, fsPrefix: String)(using Sge) extends DefaultShaderProvider(config) {
 
-    override protected def createShader(renderable: Renderable): Shader = {
+    override def createShader(renderable: Renderable): Shader = {
       val oldFS = ShaderProgram.prependFragmentCode
       ShaderProgram.prependFragmentCode = fsPrefix
       val shader = SkyboxShader(renderable, config)

@@ -23,7 +23,7 @@ class AdapterDefaultsIss557RedSuite extends munit.FunSuite {
   test("ISS-557 minimal ApplicationListener overriding only render() compiles via defaults") {
     // Per AD-003, the other lifecycle methods (create/resize/pause/resume/dispose)
     // must have default no-op bodies. If they are abstract this fails to compile.
-    val listener: ApplicationListener = new ApplicationListener {
+    val listener: ApplicationListener = new ApplicationListener with ApplicationListenerDefaults {
       override def render(): Unit = ()
     }
     listener.create()
@@ -42,6 +42,7 @@ class AdapterDefaultsIss557RedSuite extends munit.FunSuite {
     // default no-op bodies. If they are abstract this fails to compile.
     val screen: Screen = new Screen {
       override def render(delta: Seconds): Unit = ()
+      override def close():                Unit = ()
     }
     screen.show()
     screen.render(Seconds(0.016f))
