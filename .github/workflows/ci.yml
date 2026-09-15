@@ -139,6 +139,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+          fetch-depth: 0
 
 
       - uses: actions/setup-java@v6
@@ -182,6 +183,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+          fetch-depth: 0
 
 
       - uses: actions/setup-java@v6
@@ -232,6 +234,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+          fetch-depth: 0
 
       - uses: coursier/setup-action@v3.0.2
         with:
@@ -279,6 +282,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+          fetch-depth: 0
 
       - uses: coursier/setup-action@v3.0.2
         with:
@@ -324,6 +328,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+          fetch-depth: 0
 
 
       - uses: coursier/setup-action@v3.0.2
@@ -374,6 +379,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+          fetch-depth: 0
 
 
       # JDK 21 for the sge-android-robolectric test fork (Robolectric 4.16's ASM
@@ -481,6 +487,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+          fetch-depth: 0
 
 
       - uses: coursier/setup-action@v3.0.2
@@ -593,6 +600,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+          fetch-depth: 0
 
       - uses: coursier/setup-action@v3.0.2
         with:
@@ -645,6 +653,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+          fetch-depth: 0
 
 
       - uses: actions/setup-java@v6
@@ -739,6 +748,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+          fetch-depth: 0
 
 
       - uses: actions/setup-java@v6
@@ -886,6 +896,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+          fetch-depth: 0
 
 
       - uses: actions/setup-java@v6
@@ -946,6 +957,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+          fetch-depth: 0
 
 
       - uses: actions/setup-java@v6
@@ -995,6 +1007,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+          fetch-depth: 0
 
 
       - uses: coursier/setup-action@v3.0.2
@@ -1148,6 +1161,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+          fetch-depth: 0
 
 
       - uses: coursier/setup-action@v3.0.2
@@ -1216,6 +1230,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+          fetch-depth: 0
 
 
       - uses: coursier/setup-action@v3.0.2
@@ -1291,6 +1306,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+          fetch-depth: 0
 
 
       - uses: coursier/setup-action@v3.0.2
@@ -1339,6 +1355,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+          fetch-depth: 0
 
 
       - uses: coursier/setup-action@v3.0.2
@@ -1422,6 +1439,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+          fetch-depth: 0
 
 
       - uses: actions/setup-java@v6
