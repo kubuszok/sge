@@ -221,7 +221,16 @@ object BalticPorterGen {
         Files.walk(refDir).sorted(java.util.Comparator.reverseOrder()).forEach(Files.delete)
       }
       Files.createDirectories(refDir)
-      val pb = new ProcessBuilder("git", "archive", "master", "sge/src/main/scala", "sge/src/main/scalajvm", "sge/src/main/scaladesktop")
+      // Use origin/master in CI (shallow checkouts lack a local master ref);
+      // fall back to master for local dev where the branch exists.
+      val ref = {
+        val check = new ProcessBuilder("git", "rev-parse", "--verify", "master")
+        check.directory(sgeRoot.toFile)
+        check.redirectErrorStream(true)
+        val p = check.start(); val out = new String(p.getInputStream.readAllBytes()).trim; p.waitFor()
+        if (p.exitValue() == 0) "master" else "origin/master"
+      }
+      val pb = new ProcessBuilder("git", "archive", ref, "sge/src/main/scala", "sge/src/main/scalajvm", "sge/src/main/scaladesktop")
       pb.directory(sgeRoot.toFile)
       pb.redirectErrorStream(true)
       val tarPb = new ProcessBuilder("tar", "-x", "-C", refDir.toString, "--strip-components=3")
