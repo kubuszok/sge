@@ -22,6 +22,10 @@ def blankMappings(mappings: Seq[(File, String)], conv: FileConverter): Seq[(Hash
 // `val versions = new {…}` refinement, which does not survive the sbt-2.0
 // Scala-3 build dialect).
 
+// Exclude Baltic Porter generated code from scoverage — coverageAggregate cannot find
+// source roots for files under target/balticporter-*/src_managed/.
+ThisBuild / coverageExcludedFiles := ".*target/balticporter.*/src_managed/.*"
+
 val dev = new DevProperties(
   scala213 = None,
   scala3 = Some(Versions.scala3),
