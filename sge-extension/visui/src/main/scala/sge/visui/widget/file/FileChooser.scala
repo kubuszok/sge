@@ -645,7 +645,7 @@ class FileChooser private (private var _mode: FileChooser.Mode, private val _ski
         if (_activeFileTypeRule.isDefined) {
           val ruleExts = _activeFileTypeRule.get.getExtensions
           if (ruleExts.size > 0 && !ruleExts.contains(file.extension)) {
-            file = file.sibling(file.nameWithoutExtension + "." + ruleExts.first)
+            file = file.sibling(file.nameWithoutExtension + "." + ruleExts.head)
           }
         }
         list.add(file)
@@ -984,7 +984,7 @@ class FileChooser private (private var _mode: FileChooser.Mode, private val _ski
     else {
       require(ftf.get.getRules.size != 0, "FileTypeFilter doesn't have any rules added")
       _fileTypeFilter = Nullable(new FileTypeFilter(ftf.get))
-      _activeFileTypeRule = Nullable(_fileTypeFilter.get.getRules.first)
+      _activeFileTypeRule = Nullable(_fileTypeFilter.get.getRules.head)
     }
     updateFileTypeSelectBox()
     rebuildFileList()

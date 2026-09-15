@@ -97,7 +97,7 @@ object TableBuilder {
     valueA * (valueB / getGreatestCommonDenominator(valueA, valueB))
 
   def getLowestCommonMultiple(values: DynamicArray[Int]): Int = {
-    var lcm = values.first
+    var lcm = values.head
     var i   = 1
     while (i < values.size) { lcm = getLowestCommonMultiple(lcm, values(i)); i += 1 }
     lcm

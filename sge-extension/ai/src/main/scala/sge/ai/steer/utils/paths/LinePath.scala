@@ -50,16 +50,16 @@ class LinePath[T <: Vector[T]](waypoints: DynamicArray[T], val isOpen: Boolean =
 
   private var segments:                     DynamicArray[LinePath.Segment[T]] = uninitialized
   private var pathLength:                   Float                             = 0f
-  private val nearestPointOnCurrentSegment: T                                 = waypoints.first.copy
-  private val nearestPointOnPath:           T                                 = waypoints.first.copy
-  private val tmpB:                         T                                 = waypoints.first.copy
-  private val tmpC:                         T                                 = waypoints.first.copy
+  private val nearestPointOnCurrentSegment: T                                 = waypoints.head.copy
+  private val nearestPointOnPath:           T                                 = waypoints.head.copy
+  private val tmpB:                         T                                 = waypoints.head.copy
+  private val tmpC:                         T                                 = waypoints.head.copy
 
   createPath(waypoints)
 
   override def length: Float = pathLength
 
-  override def startPoint: T = segments.first.begin
+  override def startPoint: T = segments.head.begin
 
   override def endPoint: T = segments.peek().end
 
@@ -207,7 +207,7 @@ class LinePath[T <: Vector[T]](waypoints: DynamicArray[T], val isOpen: Boolean =
     }
 
     // Walk through lines to see on which line we are
-    var desiredSegment: LinePath.Segment[T] = segments.first
+    var desiredSegment: LinePath.Segment[T] = segments.head
     var i     = 0
     var found = false
     while (i < segments.size && !found) {
@@ -236,7 +236,7 @@ class LinePath[T <: Vector[T]](waypoints: DynamicArray[T], val isOpen: Boolean =
 
     segments = DynamicArray[LinePath.Segment[T]](waypoints.size)
     pathLength = 0
-    var curr = waypoints.first
+    var curr = waypoints.head
     var i    = 1
     while (i <= waypoints.size) {
       val prev = curr
@@ -245,7 +245,7 @@ class LinePath[T <: Vector[T]](waypoints: DynamicArray[T], val isOpen: Boolean =
       } else if (isOpen) {
         i = waypoints.size + 1 // break: keep the path open
       } else {
-        curr = waypoints.first // close the path
+        curr = waypoints.head // close the path
       }
       if (i <= waypoints.size) {
         val segment = new LinePath.Segment[T](prev, curr)
