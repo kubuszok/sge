@@ -350,7 +350,7 @@ class AndroidSmokeTest extends FunSuite {
       // subsystem check (so nothing crashed before or during frame 5) AND
       // rendered enough frames to prove the loop sustained itself. We deliberately
       // do NOT require SMOKE_TEST_PASSED: that marker only fires when ALL checks
-      // pass, but JSON_XML / FILEHANDLE_TYPES legitimately fail on the headless CI
+      // pass, but FILEHANDLE_TYPES legitimately fails on the headless CI
       // emulator (see below), so it never fires on CI. The
       // frame-phase check set + frame floor is a stronger, honest signal than the
       // old "SMOKE_TEST_PASSED || any single frame" condition.
@@ -410,10 +410,11 @@ class AndroidSmokeTest extends FunSuite {
         // Marker per gap (drawn from SmokeListener's own FAIL branches):
         //   value = (expected known-gap FAIL-message marker, isFramePhase)
         val excusedGaps: Map[String, (String, Boolean)] = Map(
-          // JSON_XML: XML secure-processing feature is unavailable on the emulator SDK
-          // image, so XmlReader.parse throws — "Exception: ...". A successful-but-wrong
-          // parse would report "XML root name: ..." (a regression) and is NOT excused.
-          "JSON_XML" -> ("Exception:", true),
+          // JSON_XML was LIFTED (ISS-694): the generated XmlReader is libGDX's own
+          // parser and asks the platform for no secure-processing feature, so the
+          // frame-phase check PASSes on the CI emulator (run 35111211566, ratchet
+          // fired). It is now a NORMAL required-pass check (kept in framePhaseChecks,
+          // no excusedGaps entry); any future FAIL fails the test via unexpectedFails.
           // FILEHANDLE_TYPES: external-storage write needs a runtime
           // WRITE_EXTERNAL_STORAGE grant the smoke APK does not request, so the write
           // throws — "Exception: ...". A write that succeeds but reads back wrong data
