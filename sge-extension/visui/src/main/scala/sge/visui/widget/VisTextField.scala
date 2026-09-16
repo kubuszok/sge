@@ -247,15 +247,16 @@ class VisTextField(text: Nullable[String], visStyle: VisTextField.VisTextFieldSt
   /** Hook called right before ChangeEvent is fired. Subclasses (e.g. VisValidatableTextField) override this to trigger validation. */
   protected def beforeChangeEventFired(): Unit = ()
 
-  // changeText is private[ui] in generated TextField; call via reflection
-  // since VisTextField is in sge.visui.widget, not sge.scenes.scene2d.ui
   override private[sge] def changeText(oldText: String, newText: String): Boolean =
     if (_ignoreEqualsTextChange && newText == oldText) false
     else {
       beforeChangeEventFired()
-      val m = classOf[sge.scenes.scene2d.ui.TextField].getDeclaredMethod("changeText", classOf[String], classOf[String])
-      m.setAccessible(true)
-      m.invoke(this, oldText, newText).asInstanceOf[Boolean]
+      // Use MethodHandle.invokeWithArguments to call the *declaring class's* version,
+      // bypassing virtual dispatch (unlike Method.invoke which dispatches to this override).
+      val lookup = java.lang.invoke.MethodHandles.privateLookupIn(classOf[sge.scenes.scene2d.ui.TextField], java.lang.invoke.MethodHandles.lookup())
+      val mt     = java.lang.invoke.MethodType.methodType(classOf[Boolean], classOf[String], classOf[String])
+      val mh     = lookup.findSpecial(classOf[sge.scenes.scene2d.ui.TextField], "changeText", mt, this.getClass)
+      mh.invokeWithArguments(this, oldText, newText).asInstanceOf[Boolean]
     }
 }
 
