@@ -5,6 +5,8 @@
  * colspan, etc.) while the old hand-ported API returned Cell[T] directly. The visui code
  * chains these calls extensively (`.padTop(6).padBottom(6).expandX()`), and each Nullable
  * return breaks the chain. This conversion unwraps automatically in chains.
+ *
+ * Covenant: full-port
  */
 package sge.visui
 

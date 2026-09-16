@@ -1,3 +1,6 @@
+/*
+ * Covenant: full-port
+ */
 package sge
 
 extension [A](da: lowlevel.util.DynamicArray[A]) {

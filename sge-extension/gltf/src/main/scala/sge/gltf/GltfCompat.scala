@@ -4,6 +4,8 @@
  * The old hand-ported Attributes had `getAs[T](type): Nullable[T]` using ClassTag.
  * The generated version only has `get(type): Nullable[Attribute]`.
  * This extension bridges the gap for the gltf module which calls getAs extensively.
+ *
+ * Covenant: full-port
  */
 package sge.gltf
 
