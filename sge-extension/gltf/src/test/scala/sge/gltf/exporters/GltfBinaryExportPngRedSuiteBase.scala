@@ -76,7 +76,7 @@ abstract class GltfBinaryExportPngRedSuiteBase extends munit.FunSuite {
   }
 
   /** Captures the bytes savePNG writes "to disk" in memory (PNG.write uses file.write(false), PixmapIO.scala:217), so no platform needs a real filesystem. */
-  final private class CapturingFileHandle extends FileHandleStream("gltf-export/image0.png") {
+  final private class CapturingFileHandle(using Sge) extends FileHandleStream("gltf-export/image0.png") {
     val captured = new ByteArrayOutputStream()
 
     override def write(append: Boolean): OutputStream = captured
@@ -118,32 +118,32 @@ object GltfBinaryExportPngRedSuiteBase {
   // (the WebGL guard at GLTFBinaryExporter.java:146-147 / scala :155-156 is not
   // what ISS-533 is about).
   private object NoopApplicationStub extends Application {
-    def applicationListener:                                  ApplicationListener         = throw new UnsupportedOperationException
-    def graphics:                                             Graphics                    = throw new UnsupportedOperationException
-    def audio:                                                Audio                       = throw new UnsupportedOperationException
-    def input:                                                Input                       = throw new UnsupportedOperationException
-    def files:                                                Files                       = throw new UnsupportedOperationException
-    def net:                                                  Net                         = throw new UnsupportedOperationException
-    def applicationType:                                      Application.ApplicationType = Application.ApplicationType.HeadlessDesktop
-    def version:                                              Int                         = 0
-    def javaHeap:                                             Long                        = 0L
-    def nativeHeap:                                           Long                        = 0L
-    def getPreferences(name:              String):            Preferences                 = throw new UnsupportedOperationException
-    def clipboard:                                            sge.utils.Clipboard         = throw new UnsupportedOperationException
-    def postRunnable(runnable:            Runnable):          Unit                        = ()
-    def exit():                                               Unit                        = ()
-    def addLifecycleListener(listener:    LifecycleListener): Unit                        = ()
-    def removeLifecycleListener(listener: LifecycleListener): Unit                        = ()
-    def applicationLogger:                                                ApplicationLogger           = throw new UnsupportedOperationException
-    def applicationLogger_=(applicationLogger: ApplicationLogger):        Unit                        = ()
-    def log(tag: String, message: String):                                Unit                        = ()
-    def log(tag: String, message: String, exception: Throwable):          Unit                        = ()
-    def debug(tag: String, message: String):                              Unit                        = ()
-    def debug(tag: String, message: String, exception: Throwable):        Unit                        = ()
-    def error(tag: String, message: String):                              Unit                        = ()
-    def error(tag: String, message: String, exception: Throwable):        Unit                        = ()
-    def logLevel:                                                         Int                         = 0
-    def logLevel_=(logLevel: Int):                                        Unit                        = ()
+    def applicationListener:                                                                   ApplicationListener         = throw new UnsupportedOperationException
+    def graphics:                                                                              Graphics                    = throw new UnsupportedOperationException
+    def audio:                                                                                 Audio                       = throw new UnsupportedOperationException
+    def input:                                                                                 Input                       = throw new UnsupportedOperationException
+    def files:                                                                                 Files                       = throw new UnsupportedOperationException
+    def net:                                                                                   Net                         = throw new UnsupportedOperationException
+    def applicationType:                                                                       Application.ApplicationType = Application.ApplicationType.HeadlessDesktop
+    def version:                                                                               Int                         = 0
+    def javaHeap:                                                                              Long                        = 0L
+    def nativeHeap:                                                                            Long                        = 0L
+    def getPreferences(name:                   String):                                        Preferences                 = throw new UnsupportedOperationException
+    def clipboard:                                                                             sge.utils.Clipboard         = throw new UnsupportedOperationException
+    def postRunnable(runnable:                 Runnable):                                      Unit                        = ()
+    def exit():                                                                                Unit                        = ()
+    def addLifecycleListener(listener:         LifecycleListener):                             Unit                        = ()
+    def removeLifecycleListener(listener:      LifecycleListener):                             Unit                        = ()
+    def applicationLogger:                                                                     ApplicationLogger           = throw new UnsupportedOperationException
+    def applicationLogger_=(applicationLogger: ApplicationLogger):                             Unit                        = ()
+    def log(tag:                               String, message: String):                       Unit                        = ()
+    def log(tag:                               String, message: String, exception: Throwable): Unit                        = ()
+    def debug(tag:                             String, message: String):                       Unit                        = ()
+    def debug(tag:                             String, message: String, exception: Throwable): Unit                        = ()
+    def error(tag:                             String, message: String):                       Unit                        = ()
+    def error(tag:                             String, message: String, exception: Throwable): Unit                        = ()
+    def logLevel:                                                                              Int                         = 0
+    def logLevel_=(logLevel:                   Int):                                           Unit                        = ()
   }
 
   private object NoopFilesStub extends Files {

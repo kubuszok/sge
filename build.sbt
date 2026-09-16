@@ -432,7 +432,7 @@ val sge: sbt.ProjectMatrix = (projectMatrix in file("sge"))
     // Register the generated source root so packageSrc uses relative paths (not bare filenames).
     // Without this, two files named Animation.scala from different packages collide in the
     // source JAR (ZipException: duplicate entry).
-    Compile / managedSourceDirectories += target.value / "balticporter-sge" / "src_managed" / "main" / "scala",
+    Compile / managedSourceDirectories += (ThisBuild / baseDirectory).value / "target" / "balticporter-sge" / "src_managed" / "main" / "scala",
     // Suppress warnings from generated code (porter notes, unused imports, etc.)
     scalacOptions += "-Wconf:src=target/balticporter-sge/.*:s",
     // Nonce to bypass sbt2 CAS disk cache replaying stale failures (ENGINE-LIMITS M5.14)

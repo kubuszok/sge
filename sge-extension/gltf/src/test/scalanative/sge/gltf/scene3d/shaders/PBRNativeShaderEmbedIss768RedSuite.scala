@@ -72,22 +72,30 @@ class PBRNativeShaderEmbedIss768RedSuite extends munit.FunSuite {
   /** Minimal headless Sge with a real (classpath-capable) Files implementation. */
   private given Sge = {
     val app = new Application {
-      def applicationListener:                                  ApplicationListener         = throw new UnsupportedOperationException
-      def graphics:                                             Graphics                    = throw new UnsupportedOperationException
-      def audio:                                                Audio                       = throw new UnsupportedOperationException
-      def input:                                                Input                       = throw new UnsupportedOperationException
-      def files:                                                Files                       = throw new UnsupportedOperationException
-      def net:                                                  Net                         = throw new UnsupportedOperationException
-      def applicationType:                                      Application.ApplicationType = Application.ApplicationType.HeadlessDesktop
-      def version:                                              Int                         = 0
-      def javaHeap:                                             Long                        = 0L
-      def nativeHeap:                                           Long                        = 0L
-      def getPreferences(name:              String):            Preferences                 = throw new UnsupportedOperationException
-      def clipboard:                                            sge.utils.Clipboard         = throw new UnsupportedOperationException
-      def postRunnable(runnable:            Runnable):          Unit                        = ()
-      def exit():                                               Unit                        = ()
-      def addLifecycleListener(listener:    LifecycleListener): Unit                        = ()
-      def removeLifecycleListener(listener: LifecycleListener): Unit                        = ()
+      def applicationListener:                                                              ApplicationListener         = throw new UnsupportedOperationException
+      def graphics:                                                                         Graphics                    = throw new UnsupportedOperationException
+      def audio:                                                                            Audio                       = throw new UnsupportedOperationException
+      def input:                                                                            Input                       = throw new UnsupportedOperationException
+      def files:                                                                            Files                       = throw new UnsupportedOperationException
+      def net:                                                                              Net                         = throw new UnsupportedOperationException
+      def applicationType:                                                                  Application.ApplicationType = Application.ApplicationType.HeadlessDesktop
+      def version:                                                                          Int                         = 0
+      def javaHeap:                                                                         Long                        = 0L
+      def nativeHeap:                                                                       Long                        = 0L
+      def getPreferences(name:              String):                                        Preferences                 = throw new UnsupportedOperationException
+      def clipboard:                                                                        sge.utils.Clipboard         = throw new UnsupportedOperationException
+      def postRunnable(runnable:            Runnable):                                      Unit                        = ()
+      def exit():                                                                           Unit                        = ()
+      def addLifecycleListener(listener:    LifecycleListener):                             Unit                        = ()
+      def removeLifecycleListener(listener: LifecycleListener):                             Unit                        = ()
+      var applicationLogger:                                                                ApplicationLogger           = null.asInstanceOf[ApplicationLogger]
+      def log(tag:                          String, message: String):                       Unit                        = ()
+      def log(tag:                          String, message: String, exception: Throwable): Unit                        = ()
+      def debug(tag:                        String, message: String):                       Unit                        = ()
+      def debug(tag:                        String, message: String, exception: Throwable): Unit                        = ()
+      def error(tag:                        String, message: String):                       Unit                        = ()
+      def error(tag:                        String, message: String, exception: Throwable): Unit                        = ()
+      var logLevel:                                                                         Int                         = 0
     }
     Sge(app, new NoopGraphics(), new NoopAudio(), new DesktopFiles(), new NoopInput(), null.asInstanceOf[Net]) // @nowarn — net unused in these tests
   }

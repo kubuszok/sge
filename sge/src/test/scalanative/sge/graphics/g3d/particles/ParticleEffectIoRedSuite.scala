@@ -91,7 +91,7 @@ class ParticleEffectIoRedSuite extends munit.FunSuite {
   // --- Headless fixture ------------------------------------------------------
 
   /** In-memory "file": writeString goes through writer() (FileHandles.scala line 356), so capturing the Writer is enough to observe the saved JSON; read() serves it back for the loader's readJson. */
-  final private class MemoryFileHandle(path: String) extends FileHandleStream(path) {
+  final private class MemoryFileHandle(path: String)(using Sge) extends FileHandleStream(path) {
 
     var content: String = ""
 
@@ -216,7 +216,7 @@ class ParticleEffectIoRedSuite extends munit.FunSuite {
     // (ResourceData.scala 304-310), so the unboxing below throws
     // ClassCastException (Long cannot be cast to Integer) — exactly the
     // MeshSpawnShapeValue.load crash (MeshSpawnShapeValue.scala line 88) — RED.
-    val restored: Int = sd2.load[Int]("index").getOrElse(-1)
+    val restored: Int = sd2.load[java.lang.Integer]("index").getOrElse(-1)
     assertEquals(restored, 7, "Integer SaveData value must survive the round-trip as an Int")
   }
 

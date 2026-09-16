@@ -71,6 +71,22 @@ import sge.noop.{ NoopAudio, NoopGraphics, NoopInput }
 
 class TextraLzmaFontRedSuite extends munit.FunSuite {
 
+  // Class-level Sge for FileHandleStream subclasses constructed in lazy vals
+  private given sge.Sge = sge.Sge(StubApplication, new NoopGraphics(), new NoopAudio(), StubFiles, new NoopInput(), StubNet)
+
+  private object StubFiles extends sge.Files {
+    def getFileHandle(path: String, fileType: sge.files.FileType): sge.files.FileHandle = throw new UnsupportedOperationException
+    def classpath(path:     String):                               sge.files.FileHandle = throw new UnsupportedOperationException
+    def internal(path:      String):                               sge.files.FileHandle = throw new UnsupportedOperationException
+    def external(path:      String):                               sge.files.FileHandle = throw new UnsupportedOperationException
+    def absolute(path:      String):                               sge.files.FileHandle = throw new UnsupportedOperationException
+    def local(path:         String):                               sge.files.FileHandle = throw new UnsupportedOperationException
+    def externalStoragePath:                                       String               = ""
+    def isExternalStorageAvailable:                                Boolean              = false
+    def localStoragePath:                                          String               = ""
+    def isLocalStorageAvailable:                                   Boolean              = false
+  }
+
   /** Minimal Structured JSON font (msdf-atlas-gen/fontwriter shape) accepted by Font.loadJSON and BitmapFontSupport.JsonFontData:
     *   - "atlas" with "size" 32 (drives all metric scaling; "type" standard avoids distance-field shaders),
     *   - a space glyph (finalizeJsonFont requires ' ' or 'l'),
@@ -94,19 +110,19 @@ class TextraLzmaFontRedSuite extends munit.FunSuite {
   private val fixtureJsonBytes: Array[Byte] = FixtureJson.getBytes(StandardCharsets.UTF_8)
 
   /** In-memory readable "file": only read() (and the base-class helpers built on it) is exercised. */
-  final private class BytesFileHandle(fileName: String, bytes: Array[Byte]) extends FileHandleStream(fileName) {
+  final private class BytesFileHandle(fileName: String, bytes: Array[Byte])(using Sge) extends FileHandleStream(fileName) {
     override def read(): InputStream = new ByteArrayInputStream(bytes)
   }
 
   /** In-memory writable "file" capturing everything written through write(false). */
-  final private class CapturingFileHandle(fileName: String) extends FileHandleStream(fileName) {
+  final private class CapturingFileHandle(fileName: String)(using Sge) extends FileHandleStream(fileName) {
     private val sink = new ByteArrayOutputStream()
     override def write(append: Boolean): OutputStream = sink
     def bytes:                           Array[Byte]  = sink.toByteArray
   }
 
   /** A path probed by getJsonExtension that must report absence. */
-  final private class MissingFileHandle(fileName: String) extends FileHandleStream(fileName) {
+  final private class MissingFileHandle(fileName: String)(using Sge) extends FileHandleStream(fileName) {
     override def exists(): Boolean = false
   }
 
@@ -118,7 +134,7 @@ class TextraLzmaFontRedSuite extends munit.FunSuite {
   }
 
   /** Files stub resolving internal() lookups from an in-memory map; absent names report exists() == false. */
-  final private class MapFiles(handles: Map[String, FileHandle]) extends Files {
+  final private class MapFiles(handles: Map[String, FileHandle])(using Sge) extends Files {
     def getFileHandle(path: String, fileType: FileType): FileHandle = internal(path)
     def classpath(path:     String):                     FileHandle = internal(path)
     def internal(path:      String):                     FileHandle = handles.getOrElse(path, new MissingFileHandle(path))
@@ -132,32 +148,32 @@ class TextraLzmaFontRedSuite extends munit.FunSuite {
   }
 
   private object StubApplication extends Application {
-    def applicationListener:                                  ApplicationListener         = throw new UnsupportedOperationException
-    def graphics:                                             Graphics                    = throw new UnsupportedOperationException
-    def audio:                                                Audio                       = throw new UnsupportedOperationException
-    def input:                                                Input                       = throw new UnsupportedOperationException
-    def files:                                                Files                       = throw new UnsupportedOperationException
-    def net:                                                  Net                         = throw new UnsupportedOperationException
-    def applicationType:                                      Application.ApplicationType = Application.ApplicationType.HeadlessDesktop
-    def version:                                              Int                         = 0
-    def javaHeap:                                             Long                        = 0L
-    def nativeHeap:                                           Long                        = 0L
-    def getPreferences(name:              String):            Preferences                 = throw new UnsupportedOperationException
-    def clipboard:                                            sge.utils.Clipboard         = throw new UnsupportedOperationException
-    def postRunnable(runnable:            Runnable):          Unit                        = ()
-    def exit():                                               Unit                        = ()
-    def addLifecycleListener(listener:    LifecycleListener): Unit                        = ()
-    def removeLifecycleListener(listener: LifecycleListener): Unit                        = ()
-    def applicationLogger:                                                ApplicationLogger           = throw new UnsupportedOperationException
-    def applicationLogger_=(applicationLogger: ApplicationLogger):        Unit                        = ()
-    def log(tag: String, message: String):                                Unit                        = ()
-    def log(tag: String, message: String, exception: Throwable):          Unit                        = ()
-    def debug(tag: String, message: String):                              Unit                        = ()
-    def debug(tag: String, message: String, exception: Throwable):        Unit                        = ()
-    def error(tag: String, message: String):                              Unit                        = ()
-    def error(tag: String, message: String, exception: Throwable):        Unit                        = ()
-    def logLevel:                                                         Int                         = 0
-    def logLevel_=(logLevel: Int):                                        Unit                        = ()
+    def applicationListener:                                                                   ApplicationListener         = throw new UnsupportedOperationException
+    def graphics:                                                                              Graphics                    = throw new UnsupportedOperationException
+    def audio:                                                                                 Audio                       = throw new UnsupportedOperationException
+    def input:                                                                                 Input                       = throw new UnsupportedOperationException
+    def files:                                                                                 Files                       = throw new UnsupportedOperationException
+    def net:                                                                                   Net                         = throw new UnsupportedOperationException
+    def applicationType:                                                                       Application.ApplicationType = Application.ApplicationType.HeadlessDesktop
+    def version:                                                                               Int                         = 0
+    def javaHeap:                                                                              Long                        = 0L
+    def nativeHeap:                                                                            Long                        = 0L
+    def getPreferences(name:                   String):                                        Preferences                 = throw new UnsupportedOperationException
+    def clipboard:                                                                             sge.utils.Clipboard         = throw new UnsupportedOperationException
+    def postRunnable(runnable:                 Runnable):                                      Unit                        = ()
+    def exit():                                                                                Unit                        = ()
+    def addLifecycleListener(listener:         LifecycleListener):                             Unit                        = ()
+    def removeLifecycleListener(listener:      LifecycleListener):                             Unit                        = ()
+    def applicationLogger:                                                                     ApplicationLogger           = throw new UnsupportedOperationException
+    def applicationLogger_=(applicationLogger: ApplicationLogger):                             Unit                        = ()
+    def log(tag:                               String, message: String):                       Unit                        = ()
+    def log(tag:                               String, message: String, exception: Throwable): Unit                        = ()
+    def debug(tag:                             String, message: String):                       Unit                        = ()
+    def debug(tag:                             String, message: String, exception: Throwable): Unit                        = ()
+    def error(tag:                             String, message: String):                       Unit                        = ()
+    def error(tag:                             String, message: String, exception: Throwable): Unit                        = ()
+    def logLevel:                                                                              Int                         = 0
+    def logLevel_=(logLevel:                   Int):                                           Unit                        = ()
   }
 
   private object StubNet extends Net {

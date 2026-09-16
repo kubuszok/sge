@@ -67,6 +67,9 @@ jobs:
           jvm: ${{ env.JVM_VERSION }}
           apps: sbt
 
+      - name: Checkout libGDX submodule
+        run: git submodule update --init --depth=1 original-src/libgdx
+
       # ANCESTOR CHECK (tag events only). Guards "tag on a commit that was never
       # on master": require the tagged commit to be an ancestor of origin/master,
       # so only reviewed, already-CI'd history can be released. On master pushes
@@ -170,6 +173,8 @@ jobs:
         with:
           jvm: ${{ env.JVM_VERSION }}
           apps: sbt
+      - name: Checkout libGDX submodule
+        run: git submodule update --init --depth=1 original-src/libgdx
       - name: Publish all projects
         # Validate natives before publishing: sgeValidateNativeLibs checks that the
         # resolved pnm-provider-sge-* dependency (the JAR users resolve to get natives)

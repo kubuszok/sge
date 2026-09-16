@@ -27,32 +27,32 @@ import lowlevel.Nullable
 object HeadlessTextraSge {
 
   private object StubApplication extends Application {
-    def applicationListener:                                  ApplicationListener         = throw new UnsupportedOperationException
-    def graphics:                                             Graphics                    = throw new UnsupportedOperationException
-    def audio:                                                Audio                       = throw new UnsupportedOperationException
-    def input:                                                Input                       = throw new UnsupportedOperationException
-    def files:                                                Files                       = throw new UnsupportedOperationException
-    def net:                                                  Net                         = throw new UnsupportedOperationException
-    def applicationType:                                      Application.ApplicationType = Application.ApplicationType.HeadlessDesktop
-    def version:                                              Int                         = 0
-    def javaHeap:                                             Long                        = 0L
-    def nativeHeap:                                           Long                        = 0L
-    def getPreferences(name:              String):            Preferences                 = throw new UnsupportedOperationException
-    def clipboard:                                            sge.utils.Clipboard         = throw new UnsupportedOperationException
-    def postRunnable(runnable:            Runnable):          Unit                        = ()
-    def exit():                                               Unit                        = ()
-    def addLifecycleListener(listener:    LifecycleListener): Unit                        = ()
-    def removeLifecycleListener(listener: LifecycleListener): Unit                        = ()
-    def applicationLogger:                                                ApplicationLogger           = throw new UnsupportedOperationException
-    def applicationLogger_=(applicationLogger: ApplicationLogger):        Unit                        = ()
-    def log(tag: String, message: String):                                Unit                        = ()
-    def log(tag: String, message: String, exception: Throwable):          Unit                        = ()
-    def debug(tag: String, message: String):                              Unit                        = ()
-    def debug(tag: String, message: String, exception: Throwable):        Unit                        = ()
-    def error(tag: String, message: String):                              Unit                        = ()
-    def error(tag: String, message: String, exception: Throwable):        Unit                        = ()
-    def logLevel:                                                         Int                         = 0
-    def logLevel_=(logLevel: Int):                                        Unit                        = ()
+    def applicationListener:                                                                   ApplicationListener         = throw new UnsupportedOperationException
+    def graphics:                                                                              Graphics                    = throw new UnsupportedOperationException
+    def audio:                                                                                 Audio                       = throw new UnsupportedOperationException
+    def input:                                                                                 Input                       = throw new UnsupportedOperationException
+    def files:                                                                                 Files                       = throw new UnsupportedOperationException
+    def net:                                                                                   Net                         = throw new UnsupportedOperationException
+    def applicationType:                                                                       Application.ApplicationType = Application.ApplicationType.HeadlessDesktop
+    def version:                                                                               Int                         = 0
+    def javaHeap:                                                                              Long                        = 0L
+    def nativeHeap:                                                                            Long                        = 0L
+    def getPreferences(name:                   String):                                        Preferences                 = throw new UnsupportedOperationException
+    def clipboard:                                                                             sge.utils.Clipboard         = throw new UnsupportedOperationException
+    def postRunnable(runnable:                 Runnable):                                      Unit                        = ()
+    def exit():                                                                                Unit                        = ()
+    def addLifecycleListener(listener:         LifecycleListener):                             Unit                        = ()
+    def removeLifecycleListener(listener:      LifecycleListener):                             Unit                        = ()
+    def applicationLogger:                                                                     ApplicationLogger           = throw new UnsupportedOperationException
+    def applicationLogger_=(applicationLogger: ApplicationLogger):                             Unit                        = ()
+    def log(tag:                               String, message: String):                       Unit                        = ()
+    def log(tag:                               String, message: String, exception: Throwable): Unit                        = ()
+    def debug(tag:                             String, message: String):                       Unit                        = ()
+    def debug(tag:                             String, message: String, exception: Throwable): Unit                        = ()
+    def error(tag:                             String, message: String):                       Unit                        = ()
+    def error(tag:                             String, message: String, exception: Throwable): Unit                        = ()
+    def logLevel:                                                                              Int                         = 0
+    def logLevel_=(logLevel:                   Int):                                           Unit                        = ()
   }
 
   private object NoNet extends Net {
@@ -91,6 +91,7 @@ object HeadlessTextraSge {
   /** Custom-type TextureData so `new Texture(...)` needs no GL (only width/height + a no-op consume). */
   final class DummyTextureData(w: Int, h: Int) extends TextureData {
     def dataType:                                 TextureData.TextureDataType = TextureData.TextureDataType.Custom
+    def `type`:                                   TextureData.TextureDataType = TextureData.TextureDataType.Custom
     def isPrepared:                               Boolean                     = true
     def prepare():                                Unit                        = ()
     def consumePixmap():                          Pixmap                      = throw new UnsupportedOperationException("dummy texture has no pixmap")
@@ -116,9 +117,9 @@ object HeadlessTextraSge {
     private val _tranMx: Matrix4           = new Matrix4()
 
     @scala.annotation.publicInBinary
-    private[sge] def begin(): Unit = ()
+    def begin(): Unit = ()
     @scala.annotation.publicInBinary
-    private[sge] def end(): Unit = ()
+    def end(): Unit = ()
 
     def color_=(tint:              Color):                               Unit  = ()
     def setColor(r:                Float, g: Float, b: Float, a: Float): Unit  = ()

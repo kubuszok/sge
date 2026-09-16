@@ -767,7 +767,8 @@ object FreeTypeFontGenerator {
   /** {@link BitmapFont.BitmapFontData} used for fonts generated via the {@link FreeTypeFontGenerator}. The texture storing the glyphs is held in memory, thus the imagePaths and fontFile will be
     * empty/null.
     */
-  class FreeTypeBitmapFontData(isFlipped: Boolean = false) extends BitmapFontData(lowlevel.Nullable.empty, isFlipped) {
+  class FreeTypeBitmapFontData(isFlipped: Boolean = false) extends BitmapFontData() {
+    this.flipped = isFlipped
     var regions: Nullable[DynamicArray[TextureRegion]] = Nullable.empty
 
     // Fields for incremental glyph generation.

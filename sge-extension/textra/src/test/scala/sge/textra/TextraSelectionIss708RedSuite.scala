@@ -87,32 +87,32 @@ class TextraSelectionIss708RedSuite extends munit.FunSuite {
   }
 
   private class RecordingApplication(clip: Clipboard) extends Application {
-    def applicationListener:                                  ApplicationListener         = throw new UnsupportedOperationException
-    def graphics:                                             Graphics                    = throw new UnsupportedOperationException
-    def audio:                                                Audio                       = throw new UnsupportedOperationException
-    def input:                                                Input                       = throw new UnsupportedOperationException
-    def files:                                                Files                       = throw new UnsupportedOperationException
-    def net:                                                  Net                         = throw new UnsupportedOperationException
-    def applicationType:                                      Application.ApplicationType = Application.ApplicationType.HeadlessDesktop
-    def version:                                              Int                         = 0
-    def javaHeap:                                             Long                        = 0L
-    def nativeHeap:                                           Long                        = 0L
-    def getPreferences(name:              String):            Preferences                 = throw new UnsupportedOperationException
-    def clipboard:                                            Clipboard                   = clip
-    def postRunnable(runnable:            Runnable):          Unit                        = ()
-    def exit():                                               Unit                        = ()
-    def addLifecycleListener(listener:    LifecycleListener): Unit                        = ()
-    def removeLifecycleListener(listener: LifecycleListener): Unit                        = ()
-    def applicationLogger:                                                ApplicationLogger           = throw new UnsupportedOperationException
-    def applicationLogger_=(applicationLogger: ApplicationLogger):        Unit                        = ()
-    def log(tag: String, message: String):                                Unit                        = ()
-    def log(tag: String, message: String, exception: Throwable):          Unit                        = ()
-    def debug(tag: String, message: String):                              Unit                        = ()
-    def debug(tag: String, message: String, exception: Throwable):        Unit                        = ()
-    def error(tag: String, message: String):                              Unit                        = ()
-    def error(tag: String, message: String, exception: Throwable):        Unit                        = ()
-    def logLevel:                                                         Int                         = 0
-    def logLevel_=(logLevel: Int):                                        Unit                        = ()
+    def applicationListener:                                                                   ApplicationListener         = throw new UnsupportedOperationException
+    def graphics:                                                                              Graphics                    = throw new UnsupportedOperationException
+    def audio:                                                                                 Audio                       = throw new UnsupportedOperationException
+    def input:                                                                                 Input                       = throw new UnsupportedOperationException
+    def files:                                                                                 Files                       = throw new UnsupportedOperationException
+    def net:                                                                                   Net                         = throw new UnsupportedOperationException
+    def applicationType:                                                                       Application.ApplicationType = Application.ApplicationType.HeadlessDesktop
+    def version:                                                                               Int                         = 0
+    def javaHeap:                                                                              Long                        = 0L
+    def nativeHeap:                                                                            Long                        = 0L
+    def getPreferences(name:                   String):                                        Preferences                 = throw new UnsupportedOperationException
+    def clipboard:                                                                             Clipboard                   = clip
+    def postRunnable(runnable:                 Runnable):                                      Unit                        = ()
+    def exit():                                                                                Unit                        = ()
+    def addLifecycleListener(listener:         LifecycleListener):                             Unit                        = ()
+    def removeLifecycleListener(listener:      LifecycleListener):                             Unit                        = ()
+    def applicationLogger:                                                                     ApplicationLogger           = throw new UnsupportedOperationException
+    def applicationLogger_=(applicationLogger: ApplicationLogger):                             Unit                        = ()
+    def log(tag:                               String, message: String):                       Unit                        = ()
+    def log(tag:                               String, message: String, exception: Throwable): Unit                        = ()
+    def debug(tag:                             String, message: String):                       Unit                        = ()
+    def debug(tag:                             String, message: String, exception: Throwable): Unit                        = ()
+    def error(tag:                             String, message: String):                       Unit                        = ()
+    def error(tag:                             String, message: String, exception: Throwable): Unit                        = ()
+    def logLevel:                                                                              Int                         = 0
+    def logLevel_=(logLevel:                   Int):                                           Unit                        = ()
   }
 
   private object NoNet extends Net {
@@ -145,6 +145,7 @@ class TextraSelectionIss708RedSuite extends munit.FunSuite {
     */
   final private class DummyTextureData(w: Int, h: Int) extends TextureData {
     def dataType:                                 TextureData.TextureDataType = TextureData.TextureDataType.Custom
+    def `type`:                                   TextureData.TextureDataType = TextureData.TextureDataType.Custom
     def isPrepared:                               Boolean                     = true
     def prepare():                                Unit                        = ()
     def consumePixmap():                          Pixmap                      = throw new UnsupportedOperationException("dummy texture has no pixmap")

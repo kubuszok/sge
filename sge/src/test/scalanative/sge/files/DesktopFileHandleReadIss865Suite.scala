@@ -31,10 +31,12 @@ import lowlevel.Nullable
 
 class DesktopFileHandleReadIss865Suite extends FunSuite {
 
+  private given Sge = SgeTestFixture.testSge()
+
   private val ext = "/iss865-ext/"
 
   /** In-memory file: only read() is backed; base FileHandle decodes it. */
-  final private class StringFileHandle(path: String, content: String) extends FileHandleStream(path) {
+  final private class StringFileHandle(path: String, content: String)(using Sge) extends FileHandleStream(path) {
     override def read(): InputStream =
       new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))
   }

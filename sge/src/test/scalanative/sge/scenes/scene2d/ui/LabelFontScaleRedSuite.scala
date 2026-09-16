@@ -84,7 +84,7 @@ class LabelFontScaleRedSuite extends munit.FunSuite {
     var observedLineHeight: Float = Float.NaN
     var observedCapHeight:  Float = Float.NaN
 
-    override protected def computePrefSize(layout: GlyphLayout): Unit = {
+    override protected[ui] def computePrefSize(layout: GlyphLayout): Unit = {
       observedLineHeight = style.font.data.lineHeight
       observedCapHeight = style.font.data.capHeight
       super.computePrefSize(layout)

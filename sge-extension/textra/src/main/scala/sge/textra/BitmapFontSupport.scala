@@ -116,7 +116,8 @@ object BitmapFontSupport {
   }
 
   /** Mainly for internal use; allows loading BitmapFontData from a Structured JSON Font instead of a .fnt file. */
-  class JsonFontData(jsonFont: Nullable[FileHandle], val path: Nullable[String], flip: Boolean) extends BitmapFontData(Nullable.empty, flip) {
+  class JsonFontData(jsonFont: Nullable[FileHandle], val path: Nullable[String], flip: Boolean) extends BitmapFontData() {
+    this.flipped = flip
 
     def this() = this(Nullable.empty, Nullable.empty, false)
 
