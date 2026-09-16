@@ -194,6 +194,16 @@ private object StubApplication extends Application {
   def exit():                                               Unit                        = ()
   def addLifecycleListener(listener:    LifecycleListener): Unit                        = ()
   def removeLifecycleListener(listener: LifecycleListener): Unit                        = ()
+    def applicationLogger:                                                ApplicationLogger           = throw new UnsupportedOperationException
+    def applicationLogger_=(applicationLogger: ApplicationLogger):        Unit                        = ()
+    def log(tag: String, message: String):                                Unit                        = ()
+    def log(tag: String, message: String, exception: Throwable):          Unit                        = ()
+    def debug(tag: String, message: String):                              Unit                        = ()
+    def debug(tag: String, message: String, exception: Throwable):        Unit                        = ()
+    def error(tag: String, message: String):                              Unit                        = ()
+    def error(tag: String, message: String, exception: Throwable):        Unit                        = ()
+    def logLevel:                                                         Int                         = 0
+    def logLevel_=(logLevel: Int):                                        Unit                        = ()
 }
 
 /** No-op GL20 — minimal replica of sge/src/test/scala/sge/NoopGL20.scala (not on this module's test classpath; see suite header). glCreateShader returns 0 so ShaderProgram construction completes

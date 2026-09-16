@@ -46,7 +46,7 @@ class ModelInstanceHackUserDataRedSuite extends munit.FunSuite {
   test("ISS-632(2): getRenderable with EMPTY morphTargets clears out.userData (ModelInstanceHack.java:85-87)") {
     val hack = new ModelInstanceHack(new Model())
     // Instance-level userData that the base getRenderable (ModelInstance.scala:319) propagates.
-    hack.userData = Nullable("INSTANCE-USERDATA".asInstanceOf[Any])
+    hack.userData = Nullable("INSTANCE-USERDATA".asInstanceOf[AnyRef])
 
     val npp = freshNodePartPlus() // morphTargets stays empty
     val out = new Renderable()
@@ -64,7 +64,7 @@ class ModelInstanceHackUserDataRedSuite extends munit.FunSuite {
   // failure above to the missing null-assignment branch.
   test("ISS-632(2) control: getRenderable with a DEFINED morphTarget sets out.userData to it (GREEN)") {
     val hack = new ModelInstanceHack(new Model())
-    hack.userData = Nullable("INSTANCE-USERDATA".asInstanceOf[Any])
+    hack.userData = Nullable("INSTANCE-USERDATA".asInstanceOf[AnyRef])
 
     val npp = freshNodePartPlus()
     val wv  = new WeightVector()

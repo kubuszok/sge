@@ -109,6 +109,16 @@ class TextraButtonScene2dRedSuite extends munit.FunSuite {
     def exit():                                               Unit                        = ()
     def addLifecycleListener(listener:    LifecycleListener): Unit                        = ()
     def removeLifecycleListener(listener: LifecycleListener): Unit                        = ()
+    def applicationLogger:                                                ApplicationLogger           = throw new UnsupportedOperationException
+    def applicationLogger_=(applicationLogger: ApplicationLogger):        Unit                        = ()
+    def log(tag: String, message: String):                                Unit                        = ()
+    def log(tag: String, message: String, exception: Throwable):          Unit                        = ()
+    def debug(tag: String, message: String):                              Unit                        = ()
+    def debug(tag: String, message: String, exception: Throwable):        Unit                        = ()
+    def error(tag: String, message: String):                              Unit                        = ()
+    def error(tag: String, message: String, exception: Throwable):        Unit                        = ()
+    def logLevel:                                                         Int                         = 0
+    def logLevel_=(logLevel: Int):                                        Unit                        = ()
   }
 
   private object NoNet extends Net {
