@@ -78,7 +78,10 @@ object BalticPorterGen {
         .iterator()
         .asScala
         .filter(p => p.toString.endsWith(".java"))
-        .map(p => libgdxSrc.relativize(p).toString)
+        // slash-separated: `LlsMigrate.Files` names its files with `/`, and on Windows `relativize`
+        // spells them with `\` — unnormalised, the twelve lls utilities were ported a second time
+        // into sge-core and shadowed the published lls (Windows rows: 581 files written, 568 elsewhere)
+        .map(p => libgdxSrc.relativize(p).toString.replace('\\', '/'))
         .filterNot(f => f.endsWith("package-info.java") || f.endsWith("module-info.java"))
         .filterNot(balticporter.corpus.lls.LlsMigrate.Files.toSet)
         .toList
