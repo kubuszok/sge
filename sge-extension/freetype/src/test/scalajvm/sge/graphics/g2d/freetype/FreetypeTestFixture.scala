@@ -70,22 +70,32 @@ object FreetypeTestFixture {
     throw new IllegalStateException(s"$member must not be touched by the headless FreeType tests")
 
   private object StubApplication extends Application {
-    def applicationListener:                                  ApplicationListener         = unused("Application.applicationListener")
-    def graphics:                                             Graphics                    = unused("Application.graphics")
-    def audio:                                                Audio                       = unused("Application.audio")
-    def input:                                                Input                       = unused("Application.input")
-    def files:                                                Files                       = unused("Application.files")
-    def net:                                                  Net                         = unused("Application.net")
-    def applicationType:                                      Application.ApplicationType = Application.ApplicationType.HeadlessDesktop
-    def version:                                              Int                         = 0
-    def javaHeap:                                             Long                        = 0L
-    def nativeHeap:                                           Long                        = 0L
-    def getPreferences(name:              String):            Preferences                 = unused("Application.getPreferences")
-    def clipboard:                                            sge.utils.Clipboard         = unused("Application.clipboard")
-    def postRunnable(runnable:            Runnable):          Unit                        = ()
-    def exit():                                               Unit                        = ()
-    def addLifecycleListener(listener:    LifecycleListener): Unit                        = ()
-    def removeLifecycleListener(listener: LifecycleListener): Unit                        = ()
+    def applicationListener:                                                                   ApplicationListener         = unused("Application.applicationListener")
+    def graphics:                                                                              Graphics                    = unused("Application.graphics")
+    def audio:                                                                                 Audio                       = unused("Application.audio")
+    def input:                                                                                 Input                       = unused("Application.input")
+    def files:                                                                                 Files                       = unused("Application.files")
+    def net:                                                                                   Net                         = unused("Application.net")
+    def applicationType:                                                                       Application.ApplicationType = Application.ApplicationType.HeadlessDesktop
+    def version:                                                                               Int                         = 0
+    def javaHeap:                                                                              Long                        = 0L
+    def nativeHeap:                                                                            Long                        = 0L
+    def getPreferences(name:                   String):                                        Preferences                 = unused("Application.getPreferences")
+    def clipboard:                                                                             sge.utils.Clipboard         = unused("Application.clipboard")
+    def postRunnable(runnable:                 Runnable):                                      Unit                        = ()
+    def exit():                                                                                Unit                        = ()
+    def addLifecycleListener(listener:         LifecycleListener):                             Unit                        = ()
+    def removeLifecycleListener(listener:      LifecycleListener):                             Unit                        = ()
+    def applicationLogger:                                                                     ApplicationLogger           = unused("Application.applicationLogger")
+    def applicationLogger_=(applicationLogger: ApplicationLogger):                             Unit                        = ()
+    def log(tag:                               String, message: String):                       Unit                        = ()
+    def log(tag:                               String, message: String, exception: Throwable): Unit                        = ()
+    def debug(tag:                             String, message: String):                       Unit                        = ()
+    def debug(tag:                             String, message: String, exception: Throwable): Unit                        = ()
+    def error(tag:                             String, message: String):                       Unit                        = ()
+    def error(tag:                             String, message: String, exception: Throwable): Unit                        = ()
+    def logLevel:                                                                              Int                         = 0
+    def logLevel_=(logLevel:                   Int):                                           Unit                        = ()
   }
 
   private object StubNet extends Net {

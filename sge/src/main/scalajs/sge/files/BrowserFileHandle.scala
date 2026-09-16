@@ -75,6 +75,13 @@ class BrowserFileHandle(
 
   // ─── Read methods ─────────────────────────────────────────────────────
 
+  // The generated FileHandle.readString() (no-arg) delegates to readString(charset). Because this
+  // override uses a default parameter, Scala does NOT emit a no-arg bridge — so the inherited
+  // FileHandle.readString() body is used, which the Scala.js linker traces into
+  // FileHandle.read() -> FileInputStream (absent on JS). Override the no-arg method explicitly
+  // to break the linker chain.
+  override def readString(): String = readString(Nullable.empty)
+
   override def read(): InputStream = {
     val p = path
     assetLoader.readBytes(p) match {
