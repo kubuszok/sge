@@ -45,7 +45,7 @@ class CenteredTableBuilder(estimatedWidgetsAmount: Int, estimatedRowsAmount: Int
       val totalWidgets         = widgetIndex + rowSize
 
       while (widgetIndex < totalWidgets) {
-        val cell = getWidget(widgetIndex).buildCell(table, Nullable(getDefaultWidgetPadding)).colspan(currentWidgetColspan).getOrElse(null)
+        val cell = getWidget(widgetIndex).buildCell(table, Nullable(getDefaultWidgetPadding)).colspan(currentWidgetColspan)
         if (isFirst) { isFirst = false; cell.expandX().right() }
         else if (isLast(widgetIndex, rowSize, totalWidgets)) cell.expandX().left()
         widgetIndex += 1

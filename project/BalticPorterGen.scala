@@ -15,7 +15,13 @@ object BalticPorterGen {
 
   /** Generate sge-core Scala sources from libGDX Java originals. Returns the list of generated files (shared + all platform rows). Caches by upstream commit.
     */
-  def generate(buildBase: File, log: sbt.util.Logger): Seq[File] = {
+  // sbt evaluates the JVM/JS/Native rows' managedSources in parallel; the port writes one shared
+  // output tree and hands state between runs through system properties, so the rows serialise here
+  // and the later ones read the cache marker the first one wrote.
+  def generate(buildBase: File, log: sbt.util.Logger): Seq[File] =
+    BalticPorterGen.synchronized(generateUnlocked(buildBase, log))
+
+  private def generateUnlocked(buildBase: File, log: sbt.util.Logger): Seq[File] = {
     val sgeRoot = buildBase.toPath.toAbsolutePath.normalize
     val bpRoot  = Path.of(sys.props.getOrElse("balticporter.root", sgeRoot.resolve("../balticporter").toString)).toAbsolutePath.normalize
 

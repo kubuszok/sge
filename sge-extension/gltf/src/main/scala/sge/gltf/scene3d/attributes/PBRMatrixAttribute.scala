@@ -39,7 +39,7 @@ class PBRMatrixAttribute(
   override def copy(): Attribute =
     PBRMatrixAttribute(`type`).set(matrix)
 
-  override def compareTo(that: Attribute): Int =
+  override def compare(that: Attribute): Int =
     (`type` - that.`type`).toInt
 }
 

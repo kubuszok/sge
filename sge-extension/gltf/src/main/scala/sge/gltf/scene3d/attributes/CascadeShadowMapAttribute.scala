@@ -24,7 +24,7 @@ class CascadeShadowMapAttribute(
   val cascadeShadowMap: CascadeShadowMap
 ) extends Attribute(CascadeShadowMapAttribute.Type) {
 
-  override def compareTo(that: Attribute): Int =
+  override def compare(that: Attribute): Int =
     (`type` - that.`type`).toInt
 
   override def copy(): Attribute =

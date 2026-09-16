@@ -54,21 +54,8 @@ package tiled
 
 import java.io.ByteArrayOutputStream
 import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
-import sge.utils.GdxRuntimeException
-
-import java.io.ByteArrayOutputStream
-import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
-import sge.utils.GdxRuntimeException
 import scala.util.{ Failure, Success, Try }
-import sge.utils.GdxRuntimeException
-
-import java.io.ByteArrayOutputStream
-import java.util.zip.{ DeflaterOutputStream, GZIPOutputStream }
-import sge.utils.GdxRuntimeException
-import scala.util.{ Failure, Success, Try }
-import sge.utils.GdxRuntimeException
-import sge.utils.XmlReader
-import sge.utils.GdxRuntimeException
+import sge.utils.{ GdxRuntimeException, XmlReader }
 
 class TmxTileIdsEofRedSuite extends munit.FunSuite {
 
@@ -189,13 +176,13 @@ class TmxTileIdsEofRedSuite extends munit.FunSuite {
             " (2 fresh bytes | 2 stale bytes of the previous tile's buffer) — " +
             "Java throws 'Error Reading TMX Layer Data: Premature end of tile data'"
         )
-      case Failure(e: RuntimeException) =>
+      case Failure(e: GdxRuntimeException) =>
         assert(
           e.getMessage.contains("Premature end of tile data"),
           s"expected the premature-EOF message, got: ${e.getMessage}"
         )
       case Failure(e) =>
-        fail(s"expected RuntimeException('... Premature end of tile data'), got ${e.getClass.getName}: ${e.getMessage}")
+        fail(s"expected GdxRuntimeException('... Premature end of tile data'), got ${e.getClass.getName}: ${e.getMessage}")
     }
 
   import java.io.ByteArrayOutputStream

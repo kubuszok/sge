@@ -39,7 +39,7 @@ class PBRHDRColorAttribute(
   override def copy(): Attribute =
     PBRHDRColorAttribute(`type`, r, g, b)
 
-  override def compareTo(that: Attribute): Int =
+  override def compare(that: Attribute): Int =
     if (`type` != that.`type`) (`type` - that.`type`).toInt
     else {
       val a  = that.asInstanceOf[PBRHDRColorAttribute]

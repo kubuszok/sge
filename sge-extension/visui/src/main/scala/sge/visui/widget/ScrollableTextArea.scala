@@ -103,7 +103,7 @@ class ScrollableTextArea(text: String, visStyle: VisTextField.VisTextFieldStyle)
     }
   }
 
-  override private[sge] def changeText(oldText: String, newText: String): Boolean = {
+  override def changeText(oldText: String, newText: String): Boolean = {
     val changed = super.changeText(oldText, newText)
     updateScrollLayout()
     changed

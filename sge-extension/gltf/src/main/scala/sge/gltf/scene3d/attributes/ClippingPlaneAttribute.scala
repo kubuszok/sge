@@ -28,7 +28,7 @@ class ClippingPlaneAttribute(
   def this(normal: Vector3, d: Float) =
     this(Plane(normal, d))
 
-  override def compareTo(that: Attribute): Int =
+  override def compare(that: Attribute): Int =
     if (`type` != that.`type`) { if (`type` < that.`type`) -1 else 1 }
     else {
       val other       = that.asInstanceOf[ClippingPlaneAttribute]
