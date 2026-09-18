@@ -27,6 +27,9 @@ runs:
         GUARDED_SENTINEL: ${{ inputs.sentinel }}
       run: |
         log="$RUNNER_TEMP/sbt-guarded.log"
+        # In bash on Windows `sbt` is the thin client, which cannot start its server there
+        # ('Cannot run program "C:/Program Files"'); sbt.bat — what `sbt` means in PowerShell — can.
+        if [ "$RUNNER_OS" = "Windows" ]; then GUARDED_COMMAND="${GUARDED_COMMAND/#sbt /sbt.bat }"; fi
         if [ -n "$GUARDED_SENTINEL" ]; then rm -f "$GUARDED_SENTINEL"; fi
         set +e
         bash -c "$GUARDED_COMMAND" 2>&1 | tee "$log"

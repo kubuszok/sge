@@ -68,6 +68,11 @@ jobs:
         with:
           jdk21: "true"
 
+      # before the first sbt call of the job: the sbt server keeps the environment it started with
+      - name: Point the Robolectric test fork at JDK 21
+        if: github.event_name != 'pull_request'
+        run: echo "JAVA21_HOME=${{ steps.scala.outputs.java21-home }}" >> "$GITHUB_ENV"
+
       - uses: ./.github/actions/check-format
         if: github.event_name != 'pull_request'
 
@@ -81,10 +86,6 @@ jobs:
         if: github.event_name != 'pull_request'
         with:
           mode: generate
-
-      - name: Point the Robolectric test fork at JDK 21
-        if: github.event_name != 'pull_request'
-        run: echo "JAVA21_HOME=${{ steps.scala.outputs.java21-home }}" >> "$GITHUB_ENV"
 
       # One representative leg (JVM) is enough here — the ancestor check guarantees the commit
       # already went through the full ci.yml matrix on master.

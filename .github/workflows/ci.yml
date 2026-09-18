@@ -284,8 +284,13 @@ jobs:
         with:
           key: ${{ needs.generate.outputs.key }}
 
+      # `sbt` on a runner is a thin client of ONE server per job, which keeps the environment of the
+      # step that started it — so the server is stopped here, or the doc step's SGE_REMOTE_CACHE=off
+      # would never reach the build.
       - name: Restore compile outputs (remote cache on)
-        run: sbt 'testCompile-jvm-3; testCompile-js-3; testCompile-native-3'
+        run: |
+          sbt 'testCompile-jvm-3; testCompile-js-3; testCompile-native-3'
+          sbt shutdown
 
       - name: Generate scaladoc for all published modules (JVM + JS + Native)
         env:

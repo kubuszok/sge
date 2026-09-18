@@ -32,7 +32,7 @@ runs:
         tree=$(git rev-parse --verify --quiet origin/master:sge/src/main || git rev-parse --verify master:sge/src/main)
         echo "tree=$tree" >> "$GITHUB_OUTPUT"
 
-    - uses: kubuszok/balticporter/.github/actions/generated-port@38742ae59addfc2e6bc9865c5f22620fbf807323
+    - uses: kubuszok/balticporter/.github/actions/generated-port@8d0cf549f1e8a501c772975301013f3b3b0af19f
       id: port
       with:
         mode: ${{ inputs.mode }}
