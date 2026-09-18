@@ -17,7 +17,7 @@ import sge.math.Vector3
 import lowlevel.util.ArrayMap
 import lowlevel.util.DynamicArray
 import lowlevel.Nullable
-import lowlevel.util.ObjectMap
+import sge.utils.IntMap
 import lowlevel.util.OrderedMap
 import sge.utils.ScreenUtils
 import sge.utils.viewport.FitViewport
@@ -46,9 +46,10 @@ object HexTacticsGame extends DemoScene {
   private var shapeRenderer: ShapeRenderer = uninitialized
   private var viewport:      FitViewport   = uninitialized
 
-  private var terrain:    ArrayMap[Int, String]       = uninitialized
-  private var units:      OrderedMap[String, HexUnit] = uninitialized
-  private var hexCenters: ObjectMap[Int, Vector2]     = uninitialized
+  private var terrain: ArrayMap[Int, String]       = uninitialized
+  private var units:   OrderedMap[String, HexUnit] = uninitialized
+  // int-keyed: libGDX's own IntMap (ObjectMap is an open-addressed table of REFERENCES, null = empty slot)
+  private var hexCenters: IntMap[Vector2] = uninitialized
 
   private var selectedHex:  Int    = -1 // encoded col*100+row, -1 = none
   private var selectedUnit: String = "" // empty = none
@@ -59,7 +60,7 @@ object HexTacticsGame extends DemoScene {
     viewport = FitViewport(WorldUnits(W), WorldUnits(H))
     terrain = ArrayMap[Int, String]()
     units = OrderedMap[String, HexUnit]()
-    hexCenters = ObjectMap[Int, Vector2]()
+    hexCenters = IntMap[Vector2]()
     generateMap()
     placeUnits()
     cacheHexCenters()
@@ -246,8 +247,7 @@ object HexTacticsGame extends DemoScene {
 
   private def getHexCenter(col: Int, row: Int): Vector2 = {
     val key = col * 100 + row
-    val cached: Nullable[Vector2] = hexCenters.get(key)
-    if (cached.isDefined) cached.get
+    if (hexCenters.containsKey(key)) hexCenters.get(key)
     else {
       val v = computeHexCenter(col, row)
       hexCenters.put(key, v)
@@ -386,7 +386,7 @@ object HexTacticsGame extends DemoScene {
   }
 
   private def cacheHexCenters(): Unit = {
-    hexCenters = ObjectMap[Int, Vector2]()
+    hexCenters = IntMap[Vector2]()
     var c = 0
     while (c < Cols) {
       var r = 0
