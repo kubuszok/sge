@@ -50,3 +50,26 @@ runs:
       with:
         jvm: ${{ inputs.architecture == '' && inputs.jvm || '' }}
         apps: sbt
+
+    # For an sbt 2 build the `sbt` launcher defaults to a THIN CLIENT that starts a background
+    # server. On a runner that is wrong three times over: the server keeps the environment of the
+    # step that started it (a publish step's credentials never reach the build), in bash on Windows
+    # the client cannot start it at all, and under it the Scala Native test binary on Windows never
+    # reported a test. `--server` runs sbt in the foreground, one JVM per call, as before sbt 2.
+    # Put a wrapper that adds the flag first on the PATH, so no workflow step can forget it.
+    - name: Make `sbt` run in the foreground
+      shell: bash
+      run: |
+        set -euo pipefail
+        dir="$RUNNER_TEMP/sbt-foreground"
+        mkdir -p "$dir"
+        real="$(command -v sbt)"
+        printf '#!/usr/bin/env bash\nexec "%s" --server "$@"\n' "$real" > "$dir/sbt"
+        chmod +x "$dir/sbt"
+        if [ "$RUNNER_OS" = "Windows" ]; then
+          realbat="$(cygpath -w "$(command -v sbt.bat)")"
+          printf '@echo off\r\ncall "%s" --server %%*\r\n' "$realbat" > "$dir/sbt.bat"
+          cygpath -w "$dir" >> "$GITHUB_PATH"
+        else
+          echo "$dir" >> "$GITHUB_PATH"
+        fi
