@@ -1,6 +1,6 @@
 name: Setup Scala toolchain
 description: >
-  The ONE definition of the build toolchain: the JDK, sbt and coursier (with its dependency cache).
+  The ONE definition of the build toolchain: the JDK, sbt and coursier.
   Every job that runs sbt uses this action, so a JDK or sbt bump is a one-line change here.
 
 inputs:
@@ -42,8 +42,10 @@ runs:
         java-version: ${{ inputs.java-version }}
         architecture: ${{ inputs.architecture }}
 
-    - uses: coursier/cache-action@v8
-
+    # Deliberately NO dependency cache here (coursier/cache-action, setup-java's `cache: sbt`): each
+    # job saves its own 1-2 GB entry, which fills the repository's 10 GB Actions-cache quota within
+    # one run and evicts the 12 MB generated-port entry every other job depends on. Resolving from
+    # Maven Central on a runner costs far less than those entries do.
     - uses: coursier/setup-action@v3.0.2
       with:
         jvm: ${{ inputs.architecture == '' && inputs.jvm || '' }}

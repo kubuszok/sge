@@ -87,7 +87,7 @@ jobs:
             {"os":"ubuntu-latest","label":"linux-x86_64","platform":"linux-x86_64","timeout":45},
             {"os":"ubuntu-24.04-arm","label":"linux-aarch64","platform":"linux-aarch64","timeout":45},
             {"os":"macos-latest","label":"macos-aarch64","platform":"macos-aarch64","timeout":45},
-            {"os":"windows-latest","label":"windows-x86_64","platform":"windows-x86_64","timeout":45}
+            {"os":"windows-latest","label":"windows-x86_64","platform":"windows-x86_64","architecture":"x64","timeout":30}
           ]'
           ffi='[
             {"os":"ubuntu-latest","label":"linux-x86_64","timeout":30},
@@ -396,7 +396,13 @@ jobs:
         with:
           submodules: false
 
+      # The Windows row names an architecture, which makes setup-scala install the JDK with
+      # actions/setup-java: coursier's `zulu:25` is a CRaC build on Windows, and under it the native
+      # test binary started and then never reported a single test (two runs, 42 min each, until the
+      # timeout) — Scala Native's test runner talks to the sbt JVM over a local socket.
       - uses: ./.github/actions/setup-scala
+        with:
+          architecture: ${{ matrix.architecture || '' }}
 
       - uses: ./.github/actions/generated-port
         with:
