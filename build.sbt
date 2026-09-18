@@ -257,6 +257,16 @@ val nativeProviderSettings = MatrixAction.ForPlatforms(VirtualAxis.native).Confi
   _.settings(_root_.multiarch.sbt.NativeProviderPlugin.projectSettings)
 )
 
+// Baltic Porter: the port's PLATFORM ROWS — `target/balticporter-sge/src_managed/<row>/scala` holds the
+// files only that row compiles (the ladder's `async` step: java's executor on JVM/Native, libGDX's GWT
+// emulation on JS). `row` is sbt-projectmatrix's name (`jvm`/`js`/`native`).
+def balticPorterRowSettings(row: String): Seq[Setting[?]] = Seq(
+  Compile / sourceGenerators += Def.task {
+    BalticPorterGen.platformSources((ThisBuild / baseDirectory).value, row, streams.value.log)
+  }.taskValue,
+  Compile / managedSourceDirectories += (ThisBuild / baseDirectory).value / "target" / "balticporter-sge" / "src_managed" / row / "scala"
+)
+
 val jvmPlatformApiClasspath = MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(
   Compile / unmanagedClasspath ++= Def.uncached {
     val conv    = fileConverter.value
@@ -401,6 +411,9 @@ val sge: sbt.ProjectMatrix = (projectMatrix in file("sge"))
         "com.kubuszok" % "sn-provider-curl" % Versions.curlProvider
       )
     )),
+    MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(balticPorterRowSettings("jvm") *)),
+    MatrixAction.ForPlatforms(VirtualAxis.js).Configure(_.settings(balticPorterRowSettings("js") *)),
+    MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(balticPorterRowSettings("native") *)),
     uncachedNativeToolchainSettings // ISS-792: LAST, so nothing re-caches nativeConfig
   )) *)
   .settings(publishSettings)

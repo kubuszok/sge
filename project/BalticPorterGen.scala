@@ -62,13 +62,16 @@ object BalticPorterGen {
       // parenless, and opaque Key/Button/Pixels seeds are empty.
       // The reference is extracted from sge's master branch into target/parity-reference because
       // the current branch (balticporter-generated) removed the hand-ported files.
-      // Remove platformDirs: sge's platform-specific files live in sge/src/main/ already.
+      // platformDirs: sge hand-writes its backend layers (sge/src/main/scala{jvm,js,native,desktop}), so the
+      // ladder's backend steps contribute nothing here; the steps the PORT owns per row (`async`: java's
+      // executor on JVM/Native, libGDX's GWT emulation on JS) land in src_managed/<row>/scala, which
+      // build.sbt attaches to that row only (`platformSources`).
       val parityRef = extractParityReference(sgeRoot, log)
       val manifest  = balticporter.corpus.libgdx.LibgdxLadder
         .universal(bpRoot, steps)
         .copy(
           parity = Some(balticporter.core.ParityRef(roots = parityRef, compare = false)),
-          platformDirs = Map.empty,
+          platformDirs = portOwnedPlatformDirs(bpRoot, steps),
           baseReports = List(llsReportRoot)
         )
 
@@ -145,6 +148,26 @@ object BalticPorterGen {
     val managedRoot  = portRoot.resolve("src_managed/main")
     val sgeUnmanaged = sgeRoot.resolve("sge/src/main")
     collectScalaFiles(managedRoot, excludeDuplicatesOf = Some(sgeUnmanaged))
+  }
+
+  /** the ladder steps whose platform files sge hand-writes itself (sge/src/main/scala{jvm,js,native,desktop}) */
+  private val HandWrittenPlatformSteps: Set[String] = Set("backend-jvm", "backend-desktop")
+
+  /** `PortManifest.platformDirs` for the steps the port owns per row — merged the way `LibgdxLadder.universal` merges them, minus [[HandWrittenPlatformSteps]]. */
+  private def portOwnedPlatformDirs(bpRoot: Path, steps: Set[String]): Map[String, List[Path]] = {
+    val ladder = balticporter.corpus.libgdx.LibgdxLadder
+    ladder.StepOrder.filter(steps -- HandWrittenPlatformSteps).flatMap(ladder.stepPlatformInjects(bpRoot)(_).toList).groupMapReduce(_._1)(_._2)(_ ++ _)
+  }
+
+  /** The generated files of ONE platform row (`jvm`/`js`/`native`, sbt-projectmatrix's names): `src_managed/<row>/scala`, which only that row compiles. Generates first (cached, synchronized), so a
+    * row's generator may run before or after the shared one.
+    */
+  def platformSources(buildBase: File, row: String, log: sbt.util.Logger): Seq[File] = {
+    generate(buildBase, log)
+    val sgeRoot  = buildBase.toPath.toAbsolutePath.normalize
+    val rowRoot  = sgeRoot.resolve("target/balticporter-sge/src_managed").resolve(row)
+    val handRoot = sgeRoot.resolve("sge/src/main").resolve("scala" + row)
+    collectScalaFiles(rowRoot, excludeDuplicatesOf = Some(handRoot))
   }
 
   /** Run the lls port (the base) and return the report root directory where its port-map.tsv was written. The sge port then uses this as `baseReports` to discover the base's contract.

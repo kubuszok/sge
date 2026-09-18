@@ -24,6 +24,6 @@ libraryDependencies += ("org.scala-js" % "scalajs-env-jsdom-nodejs_2.13" % "1.1.
 // Baltic Porter: Java->Scala 3 porting engine, runs as a sourceGenerator
 resolvers += Resolver.defaultLocal
 resolvers += "Central Portal Snapshots" at "https://central.sonatype.com/repository/maven-snapshots"
-libraryDependencies += "com.kubuszok" %% "balticporter-corpus" % "83904ca0bf743f84cad7a582c93a7e55f88110f9-SNAPSHOT"
+libraryDependencies += "com.kubuszok" %% "balticporter-corpus" % "1cd6edd377555f356e40de136e33787d14015866-SNAPSHOT"
 // Non-Java frontend: RAST readers, ParityDerive, body translators (Phase 3 proof)
-libraryDependencies += "com.kubuszok" %% "balticporter-frontend-ts" % "83904ca0bf743f84cad7a582c93a7e55f88110f9-SNAPSHOT"
+libraryDependencies += "com.kubuszok" %% "balticporter-frontend-ts" % "1cd6edd377555f356e40de136e33787d14015866-SNAPSHOT"
