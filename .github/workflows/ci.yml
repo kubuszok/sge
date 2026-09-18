@@ -156,9 +156,7 @@ jobs:
         run: git submodule update --init --depth=1 original-src/libgdx
 
       - name: Setup Baltic Porter
-        run: |
-          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch publishLocal
+        uses: ./.github/actions/setup-balticporter
 
       - name: Test/compile all published modules (JVM + JS + Native)
         run: sbt 'testCompile-jvm-3; testCompile-js-3; testCompile-native-3'
@@ -200,9 +198,7 @@ jobs:
         run: git submodule update --init --depth=1 original-src/libgdx
 
       - name: Setup Baltic Porter
-        run: |
-          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch publishLocal
+        uses: ./.github/actions/setup-balticporter
 
       - name: Generate scaladoc for all published modules (JVM + JS + Native)
         # Dotty scaladoc crashes NONDETERMINISTICALLY with
@@ -342,9 +338,7 @@ jobs:
         run: git submodule update --init --depth=1 original-src/libgdx
 
       - name: Setup Baltic Porter
-        run: |
-          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch publishLocal
+        uses: ./.github/actions/setup-balticporter
 
       - uses: actions/setup-node@v7
         with:
@@ -412,9 +406,7 @@ jobs:
         run: git submodule update --init --depth=1 original-src/libgdx
 
       - name: Setup Baltic Porter
-        run: |
-          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch publishLocal
+        uses: ./.github/actions/setup-balticporter
 
       - name: Run JVM tests with coverage (core + all extensions)
         # ISS-699: generalize the ISS-690 guard. These tests run in a forked JVM
@@ -501,9 +493,7 @@ jobs:
         run: git submodule update --init --depth=1 original-src/libgdx
 
       - name: Setup Baltic Porter
-        run: |
-          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch publishLocal
+        uses: ./.github/actions/setup-balticporter
 
       - uses: actions/setup-node@v7
         with:
@@ -611,9 +601,7 @@ jobs:
         run: git submodule update --init --depth=1 original-src/libgdx
 
       - name: Setup Baltic Porter
-        run: |
-          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch publishLocal
+        uses: ./.github/actions/setup-balticporter
 
       - uses: actions/setup-node@v7
         with:
@@ -673,9 +661,7 @@ jobs:
         run: git submodule update --init --depth=1 original-src/libgdx
 
       - name: Setup Baltic Porter
-        run: |
-          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch publishLocal
+        uses: ./.github/actions/setup-balticporter
 
       - name: Install Scala Native system dependencies (Linux)
         if: runner.os == 'Linux'
@@ -768,9 +754,7 @@ jobs:
         run: git submodule update --init --depth=1 original-src/libgdx
 
       - name: Setup Baltic Porter
-        run: |
-          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch publishLocal
+        uses: ./.github/actions/setup-balticporter
 
       - name: Install Scala Native system dependencies (Linux)
         if: runner.os == 'Linux'
@@ -915,9 +899,7 @@ jobs:
         run: git submodule update --init --depth=1 original-src/libgdx
 
       - name: Setup Baltic Porter
-        run: |
-          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch publishLocal
+        uses: ./.github/actions/setup-balticporter
 
       - name: Install Scala Native system dependencies
         run: |
@@ -976,9 +958,7 @@ jobs:
         run: git submodule update --init --depth=1 original-src/libgdx
 
       - name: Setup Baltic Porter
-        run: |
-          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch publishLocal
+        uses: ./.github/actions/setup-balticporter
 
       - name: Run gauntlet (headless)
         run: sbt "sge-gauntlet/run --headless --report ${{ github.workspace }}/target/gauntlet"
@@ -1023,9 +1003,7 @@ jobs:
         run: git submodule update --init --depth=1 original-src/libgdx
 
       - name: Setup Baltic Porter
-        run: |
-          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch publishLocal
+        uses: ./.github/actions/setup-balticporter
 
       # GLFW windowing + ANGLE GLES need a display and X11/GL runtime libs.
       # xvfb provides a virtual display. ANGLE (libEGL/libGLESv2 from the
@@ -1177,9 +1155,7 @@ jobs:
         run: git submodule update --init --depth=1 original-src/libgdx
 
       - name: Setup Baltic Porter
-        run: |
-          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch publishLocal
+        uses: ./.github/actions/setup-balticporter
 
       - name: Run JVM Platform integration tests
         run: |
@@ -1246,9 +1222,7 @@ jobs:
         run: git submodule update --init --depth=1 original-src/libgdx
 
       - name: Setup Baltic Porter
-        run: |
-          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch publishLocal
+        uses: ./.github/actions/setup-balticporter
 
       - name: Publish SGE to local Maven (all platforms)
         run: sbt 'sge/publishM2; writeDemoVersion'
@@ -1322,9 +1296,7 @@ jobs:
         run: git submodule update --init --depth=1 original-src/libgdx
 
       - name: Setup Baltic Porter
-        run: |
-          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch publishLocal
+        uses: ./.github/actions/setup-balticporter
 
       - uses: actions/setup-node@v7
         with:
@@ -1371,9 +1343,7 @@ jobs:
         run: git submodule update --init --depth=1 original-src/libgdx
 
       - name: Setup Baltic Porter
-        run: |
-          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch publishLocal
+        uses: ./.github/actions/setup-balticporter
 
       - name: Install Scala Native system dependencies
         run: |
@@ -1459,9 +1429,7 @@ jobs:
         run: git submodule update --init --depth=1 original-src/libgdx
 
       - name: Setup Baltic Porter
-        run: |
-          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch publishLocal
+        uses: ./.github/actions/setup-balticporter
 
       - name: Install Scala Native system dependencies (Linux)
         if: runner.os == 'Linux'

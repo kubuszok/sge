@@ -54,6 +54,9 @@ class BrowserApplication(
   // object so Scala.js DCE keeps its initializer (which calls EmbeddedResources.register).
   // Assets are embedded at compile time and served synchronously via PlatformResources.
   val _: AnyRef = _root_.sge.platform.GeneratedEmbeddedResources
+  // …and the port's own classpath resources (libGDX's default shaders and font, at the upstream paths
+  // the generated code reads), embedded by the same generator into a second registering object.
+  val _: AnyRef = _root_.sge.platform.GeneratedPortResources
 
   // --- Runnables ---
 

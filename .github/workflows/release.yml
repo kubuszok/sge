@@ -71,9 +71,7 @@ jobs:
         run: git submodule update --init --depth=1 original-src/libgdx
 
       - name: Setup Baltic Porter
-        run: |
-          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch publishLocal
+        uses: ./.github/actions/setup-balticporter
 
       # ANCESTOR CHECK (tag events only). Guards "tag on a commit that was never
       # on master": require the tagged commit to be an ancestor of origin/master,
@@ -168,6 +166,10 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
+          # Baltic Porter derives sge's spellings from the master branch's hand port
+          # (`git archive origin/master`); a shallow checkout has no such ref and the
+          # port is generated from an empty reference.
+          fetch-depth: 0
       - uses: coursier/cache-action@v8
       - name: Import GPG key for signing the release
         uses: crazy-max/ghaction-import-gpg@v7
@@ -181,9 +183,7 @@ jobs:
       - name: Checkout libGDX submodule
         run: git submodule update --init --depth=1 original-src/libgdx
       - name: Setup Baltic Porter
-        run: |
-          git clone --depth=1 https://github.com/kubuszok/balticporter.git ../balticporter
-          cd ../balticporter && sbt --batch publishLocal
+        uses: ./.github/actions/setup-balticporter
       - name: Publish all projects
         # Validate natives before publishing: sgeValidateNativeLibs checks that the
         # resolved pnm-provider-sge-* dependency (the JAR users resolve to get natives)

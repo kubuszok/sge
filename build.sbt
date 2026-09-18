@@ -267,6 +267,20 @@ def balticPorterRowSettings(row: String): Seq[Setting[?]] = Seq(
   Compile / managedSourceDirectories += (ThisBuild / baseDirectory).value / "target" / "balticporter-sge" / "src_managed" / row / "scala"
 )
 
+// Scala.js has no classpath: multiarch embeds ONE directory (`Compile / resourceDirectory`), so the port's
+// own resources (libGDX's default shaders and font, under target/balticporter-sge/.../resources) get a
+// second self-registering object, generated AFTER the port ran. BrowserApplication references it (DCE).
+val balticPorterEmbeddedResources: Seq[Setting[?]] = Seq(
+  Compile / sourceGenerators += Def.task {
+    val base = (ThisBuild / baseDirectory).value
+    val log  = streams.value.log
+    BalticPorterGen.resources(base, log)
+    val out  = (Compile / sourceManaged).value / "sge" / "platform" / "GeneratedPortResources.scala"
+    val dir  = base / "target" / "balticporter-sge" / "src_managed" / "main" / "resources"
+    Seq(multiarch.sbt.EmbeddedResourcesGen.generate(dir, out, "sge.platform.GeneratedPortResources", log))
+  }.taskValue
+)
+
 val jvmPlatformApiClasspath = MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(
   Compile / unmanagedClasspath ++= Def.uncached {
     val conv    = fileConverter.value
@@ -412,7 +426,7 @@ val sge: sbt.ProjectMatrix = (projectMatrix in file("sge"))
       )
     )),
     MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(balticPorterRowSettings("jvm") *)),
-    MatrixAction.ForPlatforms(VirtualAxis.js).Configure(_.settings(balticPorterRowSettings("js") *)),
+    MatrixAction.ForPlatforms(VirtualAxis.js).Configure(_.settings((balticPorterRowSettings("js") ++ balticPorterEmbeddedResources) *)),
     MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(balticPorterRowSettings("native") *)),
     uncachedNativeToolchainSettings // ISS-792: LAST, so nothing re-caches nativeConfig
   )) *)
@@ -446,6 +460,12 @@ val sge: sbt.ProjectMatrix = (projectMatrix in file("sge"))
     // Without this, two files named Animation.scala from different packages collide in the
     // source JAR (ZipException: duplicate entry).
     Compile / managedSourceDirectories += (ThisBuild / baseDirectory).value / "target" / "balticporter-sge" / "src_managed" / "main" / "scala",
+    // The port's classpath resources (libGDX's default shaders and font, at the upstream paths the
+    // generated code reads): without them DefaultShader / BitmapFont() fail with "Asset not found".
+    Compile / resourceGenerators += Def.task {
+      BalticPorterGen.resources((ThisBuild / baseDirectory).value, streams.value.log)
+    }.taskValue,
+    Compile / managedResourceDirectories += (ThisBuild / baseDirectory).value / "target" / "balticporter-sge" / "src_managed" / "main" / "resources",
     // Suppress warnings from generated code (porter notes, unused imports, etc.)
     scalacOptions += "-Wconf:src=target/balticporter-sge/.*:s",
     // Nonce to bypass sbt2 CAS disk cache replaying stale failures (ENGINE-LIMITS M5.14)

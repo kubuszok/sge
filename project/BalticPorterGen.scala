@@ -170,6 +170,20 @@ object BalticPorterGen {
     collectScalaFiles(rowRoot, excludeDuplicatesOf = Some(handRoot))
   }
 
+  /** The classpath RESOURCES the port ships, at the upstream paths the generated code names (`com/badlogic/gdx/graphics/g3d/shaders/default.vertex.glsl`, the default font, …):
+    * `src_managed/main/resources`. Off the classpath, `DefaultShader` and `BitmapFont()` throw "Asset not found" at first use, on every platform.
+    */
+  def resources(buildBase: File, log: sbt.util.Logger): Seq[File] = {
+    generate(buildBase, log)
+    val root = buildBase.toPath.toAbsolutePath.normalize.resolve("target/balticporter-sge/src_managed/main/resources")
+    if (!Files.isDirectory(root)) Nil
+    else {
+      val s = Files.walk(root)
+      try s.iterator().asScala.filter(Files.isRegularFile(_)).map(_.toFile).toList.sortBy(_.getPath)
+      finally s.close()
+    }
+  }
+
   /** Run the lls port (the base) and return the report root directory where its port-map.tsv was written. The sge port then uses this as `baseReports` to discover the base's contract.
     */
   private def runLlsPort(
@@ -271,10 +285,18 @@ object BalticPorterGen {
       val tarProc = tarPb.start()
       gitProc.getInputStream.transferTo(tarProc.getOutputStream)
       tarProc.getOutputStream.close()
-      gitProc.waitFor()
+      val gitExit = gitProc.waitFor()
       tarProc.waitFor()
-      Files.writeString(marker, "extracted")
       val count = Files.walk(refDir).filter(p => p.toString.endsWith(".scala")).count()
+      // An empty reference derives NOTHING (no opaque seeds, no property shapes) and the port then
+      // fails to compile against sge's hand files with hundreds of type mismatches that name no
+      // cause (release run 35313268095: a shallow checkout has neither `master` nor `origin/master`).
+      if (gitExit != 0 || count == 0)
+        sys.error(
+          s"[Baltic Porter] no parity reference: `git archive $ref sge/src/main/...` exited $gitExit and extracted $count file(s). " +
+            "The checkout needs the master branch (actions/checkout `fetch-depth: 0`)."
+        )
+      Files.writeString(marker, "extracted")
       log.info(s"[Baltic Porter] Extracted $count reference files to $refDir")
     }
     List("scala", "scalajvm", "scaladesktop").map(d => refDir.resolve(d)).filter(Files.isDirectory(_))
