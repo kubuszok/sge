@@ -1,0 +1,43 @@
+name: Setup Scala Native toolchain
+description: >
+  What Scala Native needs to LINK on this runner: clang (+ libstdc++) on Linux, LLVM and a
+  from-source zlib on Windows. macOS runners ship everything. Compiling to NIR needs none of this —
+  only jobs that link or run native binaries use this action.
+
+runs:
+  using: composite
+  steps:
+    - name: Install clang (Linux)
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang
+        sudo apt-get install -y libstdc++-12-dev || sudo apt-get install -y libstdc++-14-dev || true
+
+    # zlib: Scala Native's javalib z.c (java.util.zip) includes <zlib.h> and links `z`. Linux and
+    # macOS have a system zlib; Windows does not, and vcpkg never materialised the import lib on
+    # the hosted runner — so build zlib from source with the MSVC toolchain. clang finds the header
+    # through CPATH and `-lz` through LIBRARY_PATH (z.lib); link.exe searches the MSVC `LIB`
+    # variable and wants zlib.lib (the LNK1104 'cannot open zlib.lib' fix).
+    - name: Install LLVM and build zlib (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        $ErrorActionPreference = "Stop"
+        choco install llvm --yes
+        $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
+        Import-Module "$vs\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+        Enter-VsDevShell -VsInstallPath $vs -DevCmdArguments "-arch=x64" -SkipAutomaticLocation
+        $z = "$env:RUNNER_TEMP\zlib-src"
+        git clone --depth=1 -b v1.3.1 https://github.com/madler/zlib "$z"
+        Push-Location $z
+        if (-not (Test-Path "$z\zconf.h")) { Copy-Item "$z\zconf.h.in" "$z\zconf.h" -Force }
+        nmake -f win32/Makefile.msc zlib.lib
+        Pop-Location
+        if (-not (Test-Path "$z\zlib.lib")) { throw "zlib.lib was not built under $z" }
+        Copy-Item "$z\zlib.lib" "$z\z.lib" -Force
+        Write-Host "Built zlib static lib: $z\zlib.lib ; header: $z\zlib.h"
+        "CPATH=$z"        | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+        "LIBRARY_PATH=$z" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+        "LIB=$z;$env:LIB" | Out-File $env:GITHUB_ENV -Append -Encoding utf8

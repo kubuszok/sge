@@ -1,0 +1,22 @@
+name: Check formatting
+description: >
+  scalafmt over the three sbt builds of this repository. sge-build is a SEPARATE build, so the root
+  check does not cover its sources (ISS-750); demos/ is another one whose sbt needs the published
+  sge-build plugin — too heavy for a format check — so the scalafmt CLI is used there (it reads
+  version and dialect from the repo-root .scalafmt.conf, ISS-726). Needs the Scala toolchain.
+
+runs:
+  using: composite
+  steps:
+    - name: Check formatting
+      shell: bash
+      run: sbt "scalafmtCheckAll; scalafmtSbtCheck"
+
+    - name: Check formatting (sge-build)
+      shell: bash
+      working-directory: sge-build
+      run: sbt "scalafmtCheckAll; scalafmtSbtCheck"
+
+    - name: Check formatting (demos)
+      shell: bash
+      run: cs launch scalafmt -- --config .scalafmt.conf --check demos/

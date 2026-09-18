@@ -1,0 +1,29 @@
+name: Covenant and shortcut gate
+description: >
+  Installs the pinned re-scale and runs the set-based ratchet (.rescale/scripts/covenant-gate.sh):
+  it recomputes the live failing (file, kind) set and fails iff a pair is absent from the committed
+  baseline (.rescale/data/covenant-gate-baseline.tsv). Needs the Scala toolchain and clang.
+
+runs:
+  using: composite
+  steps:
+    # Pinned to the immutable sha behind tag 0.1.5, the version the committed baseline was built
+    # with: re-scale's covenant computation drifts between releases and a tag is mutable
+    # (ISS-726 c5), so an unpinned install makes the gate non-reproducible.
+    - name: Install re-scale
+      shell: bash
+      run: |
+        set -euo pipefail
+        git clone https://github.com/kubuszok/re-scale.git "$RUNNER_TEMP/re-scale"
+        cd "$RUNNER_TEMP/re-scale"
+        git checkout --detach 19edff7d0dae7fa429ee2e5085f06ad66c109314
+        test "$(git rev-parse HEAD)" = "19edff7d0dae7fa429ee2e5085f06ad66c109314"
+        sbt install
+        echo "$RUNNER_TEMP/re-scale/bin" >> "$GITHUB_PATH"
+
+    - name: Covenant + shortcut ratchet gate
+      shell: bash
+      run: |
+        export PATH="$RUNNER_TEMP/re-scale/bin:$PATH"
+        re-scale version
+        .rescale/scripts/covenant-gate.sh

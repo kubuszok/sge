@@ -15,50 +15,48 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+# ─── Shape of this workflow ─────────────────────────────────────────
+#
+#   wave 0   plan · format · enforce · sge-build scripted     (need nothing from the generator)
+#            generate                                         (the ONLY job that touches the libGDX
+#                                                              submodule and runs Baltic Porter)
+#   wave 1   compile (jvm | js | native, in parallel)         (every module compiled ONCE, on Linux,
+#                                                              into the BuildBuddy remote cache)
+#   wave 2   tests, links, integration tests, scaladoc        (restore the generated port, restore
+#                                                              compile outputs from the remote
+#                                                              cache, then only link and run)
+#
+# The demos (browser IT, demo smoke/compile, release verification) consume sge as PUBLISHED
+# artifacts: release.yml runs them against the snapshot it publishes (demos.yml). Only fork PRs,
+# for which nothing is published, run them from here against locally published artifacts.
+#
+# Every repeated step lives in ONE composite action under .github/actions/:
+#   setup-scala · generated-port · setup-js · setup-native-toolchain · setup-gl-xvfb ·
+#   sbt-guarded · sge-artifacts
+# The build JDK and Node versions are those actions' input defaults — change them there.
+
 env:
-  # Zulu 25 — Panama FFM stable since JDK 22, all 6 desktop platforms
-  # including Windows aarch64 (which Temurin 25 lacks).
-  # Same JDK used for release packaging (see demos/build.sbt jdkUrls).
-  JVM_VERSION: "zulu:25.0.3"
-  JAVA_VERSION: "25"
-  JAVA_DISTRIBUTION: "zulu"
-  NODE_VERSION: "24"
-  # BuildBuddy remote cache for sbt 2's Bazel-gRPC cache client (ISS-792).
-  # Workflow-level so EVERY sbt-running job reads/writes the shared cache
-  # (org-level Actions secret; secrets are valid in workflow-level `env`).
-  # On fork PRs the secret is unavailable → the env var is empty → the build's
-  # key-gated wiring (project/RemoteCacheSetup.scala) leaves the remote cache
-  # OFF and the build behaves exactly as before. Same-repo PRs and master both
-  # get read-write access (see RemoteCacheSetup.scala for the policy note).
-  # The cache is namespaced per (ci|dev) × os × arch via the Bazel instance
-  # name (RemoteCacheSetup.scala): run 29498350131 showed machine-specific
-  # task outputs (discovered clang paths, dev-Mac compile seeds) poisoning
-  # other OSes, so only same-OS/arch CI jobs share entries — the linux-x64
-  # namespace (compile-gate + the whole ubuntu fan-out) is the main win.
-  # NOTE: deliberately NO actions/cache for ~/.cache/sbt/v2 (the investigated
-  # Phase 1 of docs/reviews/ci-cache-investigation-2026-07-16.md) — the
-  # persistent remote cache supersedes per-OS actions/cache keying entirely.
+  # BuildBuddy remote cache for sbt 2's Bazel-gRPC cache client (ISS-792). Workflow-level so EVERY
+  # sbt-running job reads/writes the shared cache. On fork PRs the secret is unavailable, the
+  # variable is empty and project/RemoteCacheSetup.scala leaves the remote cache OFF. The cache is
+  # namespaced per (ci|dev) × os × arch (RemoteCacheSetup.scala): run 29498350131 showed
+  # machine-specific task outputs poisoning other OSes, so only same-OS/arch jobs share entries —
+  # the linux-x64 namespace (compile + the whole ubuntu fan-out) is the main win.
+  # Deliberately NO actions/cache for ~/.cache/sbt/v2 (docs/reviews/ci-cache-investigation-2026-07-16.md):
+  # the remote cache supersedes it. The Actions cache carries only the generated port.
   BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
 
 jobs:
   # ─── Plan: compute platform matrices per event (ISS-790) ───────────
   #
-  # PLATFORM WITHDRAWAL (user decision 2026-07-16, see
-  # docs/architecture/platform-targets.md "Withdrawn (for now)"):
-  # macos-x86_64 (Rosetta) and windows-aarch64 legs are REMOVED from all
-  # matrices — Apple has ended Intel support (gamers on outdated MacBooks are
-  # a sliver of an already-small userbase) and Scala Native cannot target
-  # windows-aarch64 (its JVM users are similarly rare). Release artifacts for
-  # these platforms still ship (untested); revisit once everything else works.
-  # The Rosetta legs were also 3-5x slower than every sibling (Scala Native
-  # alone: ~50m of the old ~73m wall).
+  # PLATFORM WITHDRAWAL (user decision 2026-07-16, docs/architecture/platform-targets.md):
+  # macos-x86_64 (Rosetta) and windows-aarch64 legs are REMOVED from all matrices. Release
+  # artifacts for these platforms still ship (untested); revisit once everything else works.
   #
-  # The IS_PR filter below is currently a no-op (kept as the tiering
-  # mechanism: give a row `"tier":"master"` and extend the jq filter to
-  # re-introduce master-only legs). Every row carries a `timeout` (minutes,
-  # ~2-3x observed duration) consumed via
-  # `timeout-minutes: ${{ matrix.timeout }}` so a hung runner fails fast
-  # instead of burning the 6h default (see ci-babysitter.yml for the retry).
+  # The IS_PR filter is currently a no-op, kept as the tiering mechanism (give a row
+  # `"tier":"master"` and extend the jq filter to re-introduce master-only legs). Every row carries
+  # a `timeout` (minutes, ~2-3x observed duration) so a hung runner fails fast instead of burning
+  # the 6h default (see ci-babysitter.yml for the retry).
 
   plan:
     name: Plan matrix
@@ -68,12 +66,15 @@ jobs:
       matrix_jvm: ${{ steps.matrices.outputs.jvm }}
       matrix_native: ${{ steps.matrices.outputs.native }}
       matrix_native_ffi: ${{ steps.matrices.outputs.ffi }}
-      matrix_release: ${{ steps.matrices.outputs.release }}
+      # demos run from HERE only when release.yml will not publish a snapshot for this commit:
+      # a pull request whose author is not an org member (release.yml's own guard, ISS-484)
+      demos_here: ${{ steps.matrices.outputs.demos_here }}
     steps:
       - name: Compute platform matrices
         id: matrices
         env:
           IS_PR: ${{ github.event_name == 'pull_request' }}
+          AUTHOR_ASSOCIATION: ${{ github.event.pull_request.author_association }}
         run: |
           set -euo pipefail
           jvm='[
@@ -94,12 +95,6 @@ jobs:
             {"os":"macos-latest","label":"macos-aarch64","timeout":30},
             {"os":"windows-latest","label":"windows-x86_64","timeout":30}
           ]'
-          release='[
-            {"os":"ubuntu-latest","label":"linux-x86_64","platform":"linux-x86_64","native":true,"timeout":45},
-            {"os":"ubuntu-24.04-arm","label":"linux-aarch64","platform":"linux-aarch64","native":true,"timeout":45},
-            {"os":"macos-latest","label":"macos-aarch64","platform":"macos-aarch64","native":true,"timeout":45},
-            {"os":"windows-latest","label":"windows-x86_64","platform":"windows-x86_64","native":false,"timeout":45}
-          ]'
           emit() {
             if [ "$IS_PR" = "true" ]; then
               jq -c 'map(select(.label != "macos-x86_64"))' <<<"$2"
@@ -110,117 +105,17 @@ jobs:
           emit jvm "$jvm"
           emit native "$native"
           emit ffi "$ffi"
-          emit release "$release"
+          demos_here=false
+          if [ "$IS_PR" = "true" ]; then
+            case "$AUTHOR_ASSOCIATION" in
+              OWNER|MEMBER|COLLABORATOR) ;;
+              *) demos_here=true ;;
+            esac
+          fi
+          echo "demos_here=$demos_here" >> "$GITHUB_OUTPUT"
           echo "matrices written (PR mode: $IS_PR)"; cat "$GITHUB_OUTPUT"
 
-  # ─── Compile gate (ISS-792 phase 2) ─────────────────────────────────
-  #
-  # One cheap ubuntu job that Test/compiles every published module on all
-  # three platform rows (testCompile-{jvm,js,native}-3 aliases in build.sbt,
-  # derived from al.publishLocal exactly like doc-*-3). Two purposes:
-  #   1. Fail fast: a compile error reds ONE small job instead of surfacing
-  #      minutes later inside 6+ expensive matrix/IT legs.
-  #   2. Seed the BuildBuddy remote cache: downstream sbt jobs (same env var)
-  #      restore compile outputs instead of recompiling from scratch.
-  # The heavyweight fan-in jobs below are repointed from `needs: [test-jvm]`/
-  # `[test-js]`/`[test-native]` to `needs: [compile-gate]` — those edges never
-  # transferred artifacts (pure ordering), so gating on the matrix jobs only
-  # serialized the pipeline (23.5 min PR wall). The matrix test jobs themselves
-  # stay ungated (they ARE the merge gate; see the investigation doc).
-  # Test/compile alone needs no clang/node: linking (nativeLink/fastLinkJS)
-  # and test execution stay in the downstream jobs (same as the `docs` job,
-  # which compiles native rows for scaladoc without clang).
-
-  compile-gate:
-    name: Compile gate (JVM + JS + Native)
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          submodules: false
-          fetch-depth: 0
-
-
-      - uses: actions/setup-java@v6
-        with:
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-          java-version: ${{ env.JAVA_VERSION }}
-          cache: sbt
-
-      - uses: sbt/setup-sbt@v1
-
-      - uses: coursier/setup-action@v3.0.2
-
-      - name: Checkout libGDX submodule
-        run: git submodule update --init --depth=1 original-src/libgdx
-
-      - name: Setup Baltic Porter
-        uses: ./.github/actions/setup-balticporter
-
-      - name: Test/compile all published modules (JVM + JS + Native)
-        run: sbt 'testCompile-jvm-3; testCompile-js-3; testCompile-native-3'
-
-  # ─── Scaladoc (published modules) ───────────────────────────────────
-  #
-  # BLOCKING (ISS-753). Maven Central release validation rejects artifacts
-  # without javadoc JARs, and packageDoc/publishArtifact is re-enabled for
-  # release (non-snapshot) versions in build.sbt — so scaladoc must build for
-  # every PUBLISHED module. The doc-*-3 aliases cover exactly those modules
-  # (root `doc` would also aggregate test/IT modules, which never gate a
-  # release). This replaces the former non-blocking `sge/doc` probe in the
-  # Scala.js job (the upstream compiler issue that motivated it is fixed).
-  # NOTE: sge-build is a separate sbt build and is NOT covered here — its doc
-  # gate rides with its publishing work (ISS-752).
-
-  docs:
-    name: Scaladoc (published modules)
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          submodules: false
-          fetch-depth: 0
-
-
-      - uses: actions/setup-java@v6
-        with:
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-          java-version: ${{ env.JAVA_VERSION }}
-          cache: sbt
-
-      - uses: sbt/setup-sbt@v1
-
-      - uses: coursier/setup-action@v3.0.2
-
-      - name: Checkout libGDX submodule
-        run: git submodule update --init --depth=1 original-src/libgdx
-
-      - name: Setup Baltic Porter
-        uses: ./.github/actions/setup-balticporter
-
-      - name: Generate scaladoc for all published modules (JVM + JS + Native)
-        # Dotty scaladoc crashes NONDETERMINISTICALLY with
-        # "SignatureBuilder.content() is null" (~1 in 3 runs; observed on
-        # runs 29498350131, 29537430503, 29546055910 WITH cache off —
-        # tracked as ISS-799, upstream-flake class). Two defenses:
-        # (1) SGE_REMOTE_CACHE=off — sbt 2's action cache can REPLAY a
-        #     cached doc failure (CachedCompileFailure semantics), which
-        #     would make one crash sticky across runs via the shared remote
-        #     (run 29547152814 failed in 1m51s — replay-fast);
-        # (2) one retry with the LOCAL action cache purged, so the second
-        #     attempt genuinely re-executes. A real doc error fails both
-        #     attempts deterministically, so genuine breakage still gates.
-        env:
-          SGE_REMOTE_CACHE: "off"
-        run: |
-          if sbt 'doc-jvm-3; doc-js-3; doc-native-3'; then exit 0; fi
-          echo "::warning::scaladoc crashed (ISS-799 nondeterministic dotty NPE class) — purging local action cache and retrying once"
-          rm -rf ~/.cache/sbt/v2
-          sbt 'doc-jvm-3; doc-js-3; doc-native-3'
-
-  # ─── Scalafmt check ────────────────────────────────────────────────
+  # ─── Scalafmt + workflow lint ──────────────────────────────────────
 
   format:
     name: Scalafmt check
@@ -230,45 +125,26 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
-          fetch-depth: 0
 
-      - uses: coursier/setup-action@v3.0.2
-        with:
-          jvm: ${{ env.JVM_VERSION }}
-          apps: sbt
+      - uses: ./.github/actions/setup-scala
 
-      - name: Check formatting
-        run: sbt "scalafmtCheckAll; scalafmtSbtCheck"
+      - uses: ./.github/actions/check-format
 
-      # ISS-750: sge-build is a SEPARATE sbt build, so the main-build
-      # scalafmtCheckAll above does not cover its sources. Check them here too
-      # (its scalafmtConfig points at the repo-root .scalafmt.conf).
-      - name: Check formatting (sge-build)
-        working-directory: sge-build
-        run: sbt "scalafmtCheckAll; scalafmtSbtCheck"
-
-      # ISS-726 c4: demos/ is ALSO a separate sub-build, and running its sbt
-      # needs the published sge-build plugin — too heavy for a format check.
-      # Use the scalafmt CLI directly (it reads version+dialect from the
-      # repo-root .scalafmt.conf) over the demo sources instead.
-      - name: Check formatting (demos)
-        run: cs launch scalafmt -- --config .scalafmt.conf --check demos/
+      - name: Lint the workflows
+        run: |
+          bash <(curl -sSf https://raw.githubusercontent.com/rhysd/actionlint/v1.7.7/scripts/download-actionlint.bash) 1.7.7 "$RUNNER_TEMP"
+          # workflow structure, expressions, action inputs and `needs` graphs; the shellcheck pass
+          # over the run scripts stays off until those scripts have been cleaned against it
+          "$RUNNER_TEMP/actionlint" -color -shellcheck=
 
   # ─── re-scale enforce gate (covenant verify + shortcut budget) ──────
   #
-  # BLOCKING (ISS-483). Validates that every file with a `Covenant: full-port`
-  # header still passes (no method dropped, no shortcut introduced) and that no
-  # new shortcut markers leaked into covenanted files.
-  #
-  # The campaign starts with a large backlog of covenant/shortcut failures
-  # (193 file+kind pairs as of 2026-06-10) that is the open remediation work.
-  # Rather than block on the whole backlog (CI would be permanently red) or use
-  # a count gate (one new failure could hide behind one fixed file), the gate is
-  # a SET-BASED RATCHET: .rescale/scripts/covenant-gate.sh recomputes the live
-  # failing set and fails iff any live (file, kind) pair is absent from the
-  # committed baseline (.rescale/data/covenant-gate-baseline.tsv). Fixed files
-  # are reported as "shrink — update the baseline" but never fail the gate;
-  # baseline shrinks are applied manually by the orchestrator.
+  # BLOCKING (ISS-483). Validates that every file with a `Covenant: full-port` header still passes
+  # (no method dropped, no shortcut introduced) and that no new shortcut markers leaked into
+  # covenanted files. The gate is a SET-BASED RATCHET: .rescale/scripts/covenant-gate.sh recomputes
+  # the live failing set and fails iff any live (file, kind) pair is absent from the committed
+  # baseline (.rescale/data/covenant-gate-baseline.tsv). Fixed files are reported as "shrink —
+  # update the baseline" but never fail the gate.
 
   enforce:
     name: re-scale enforce
@@ -278,309 +154,19 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
-          fetch-depth: 0
 
-      - uses: coursier/setup-action@v3.0.2
-        with:
-          jvm: ${{ env.JVM_VERSION }}
-          apps: sbt
+      - uses: ./.github/actions/setup-scala
 
-      - name: Install Scala Native deps
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang
+      - uses: ./.github/actions/setup-native-toolchain
 
-      - name: Install re-scale
-        run: |
-          set -euo pipefail
-          # Pin to the SAME tag the local dev install + the committed covenant-gate
-          # baseline were built with (0.1.5). Cloning latest master made the gate
-          # non-reproducible: re-scale's covenant method-set/shortcut computation
-          # drifts between releases, so files clean locally were flagged on CI
-          # (and vice versa) with no way to reconcile. A pinned gate is a real gate.
-          # ISS-726 c5: a tag is MUTABLE — pin the immutable sha behind tag 0.1.5
-          # (19edff7d) and verify the checkout matches it, so a moved/retagged
-          # upstream cannot silently change the gate.
-          git clone https://github.com/kubuszok/re-scale.git "$RUNNER_TEMP/re-scale"
-          cd "$RUNNER_TEMP/re-scale"
-          git checkout --detach 19edff7d0dae7fa429ee2e5085f06ad66c109314
-          test "$(git rev-parse HEAD)" = "19edff7d0dae7fa429ee2e5085f06ad66c109314"
-          sbt install
-          echo "$RUNNER_TEMP/re-scale/bin" >> "$GITHUB_PATH"
+      - uses: ./.github/actions/covenant-gate
 
-      - name: Print re-scale version
-        run: re-scale version
-
-      - name: Covenant + shortcut ratchet gate
-        run: .rescale/scripts/covenant-gate.sh
-
-  # ─── Scala.js compile + test (pure Scala, no native dependencies) ───
-
-  test-js:
-    name: Scala.js tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          submodules: false
-          fetch-depth: 0
-
-
-      - uses: coursier/setup-action@v3.0.2
-        with:
-          jvm: ${{ env.JVM_VERSION }}
-          apps: sbt
-
-
-
-      - name: Checkout libGDX submodule
-        run: git submodule update --init --depth=1 original-src/libgdx
-
-      - name: Setup Baltic Porter
-        uses: ./.github/actions/setup-balticporter
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      # The Scala.js unit tests run under the jsdom jsEnv; jsdom (+ rapier compat)
-      # are declared in package.json but must be installed into node_modules, or
-      # the JS env aborts with "Cannot find module 'jsdom'" (RunTerminatedException).
-      - name: Install JS test deps (jsdom)
-        run: npm ci
-
-      - name: Run Scala.js tests (core + all extensions)
-        run: sbt test-js-3
-
-      # The former non-blocking "Test scaladoc generation" probe moved to the
-      # dedicated BLOCKING `docs` job above (ISS-753).
-
-  # ─── JVM compile + test (uses Panama provider JARs) ─────────────────
-
-  test-jvm:
-    name: JVM tests (${{ matrix.label }})
-    needs: [plan]
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: ${{ matrix.timeout }}
-    strategy:
-      fail-fast: false
-      matrix:
-        # Rows computed by the `plan` job (ISS-790; macos-x86_64/windows-aarch64
-        # withdrawn 2026-07-16 — see the plan job's comment).
-        include: ${{ fromJSON(needs.plan.outputs.matrix_jvm) }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          submodules: false
-          fetch-depth: 0
-
-
-      # JDK 21 for the sge-android-robolectric test fork (Robolectric 4.16's ASM
-      # cannot run on JDK 25). Installed FIRST so the JDK 25 step below wins as the
-      # final JAVA_HOME (the primary build JDK); we only need 21's install path,
-      # captured via this step's `path` output and handed to the build as
-      # JAVA21_HOME. Using setup-java (not the hosted JAVA_HOME_21_X64 var) makes
-      # this work on every leg — the aarch64 and macOS legs do not expose an x64
-      # JDK-21 var. (matrix.architecture is unset on all current rows; it stays
-      # wired for any future row that needs a non-default JVM arch.)
-      - uses: actions/setup-java@v6
-        id: setup-jdk21
-        with:
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-          java-version: '21'
-          architecture: ${{ matrix.architecture || '' }}
-
-      - uses: actions/setup-java@v6
-        with:
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-          java-version: ${{ env.JAVA_VERSION }}
-          cache: sbt
-          architecture: ${{ matrix.architecture || '' }}
-
-      - uses: sbt/setup-sbt@v1
-
-      - uses: coursier/setup-action@v3.0.2
-
-      - name: Checkout libGDX submodule
-        run: git submodule update --init --depth=1 original-src/libgdx
-
-      - name: Setup Baltic Porter
-        uses: ./.github/actions/setup-balticporter
-
-      - name: Run JVM tests with coverage (core + all extensions)
-        # ISS-699: generalize the ISS-690 guard. These tests run in a forked JVM
-        # (Test / fork := true) that loads native libs; under sbt 2.0 a forked
-        # test JVM that dies uncleanly (native crash) can let the task exit 0
-        # while hiding munit failures. Gate on THREE independent signals:
-        # (a) sbt's own exit code, (b) a munit summary line proving at least one
-        # suite ran to completion (crash => no summary), and (c) the absence of
-        # any munit failure marker in the captured output. shell: bash makes
-        # PIPESTATUS/tee work on the windows legs too (default there is pwsh).
-        # NOTE (ISS-869): in this MULTI-MODULE run a crash in a later module
-        # after an earlier module already printed its summary satisfies (b) and
-        # is caught only by (a)/(c) - documented residual, tracked separately.
-        shell: bash
-        run: |
-          set +e
-          sbt ci-jvm-3 2>&1 | tee "$RUNNER_TEMP/test-jvm.log"
-          code=${PIPESTATUS[0]}
-          set -e
-          fail=0
-          if [ "$code" -ne 0 ]; then
-            echo "::error::sbt ci-jvm-3 exited with code $code"
-            fail=1
-          fi
-          if ! grep -qE 'Passed: Total [1-9]' "$RUNNER_TEMP/test-jvm.log"; then
-            echo "::error::ISS-690 guard: munit summary missing - the forked test JVM died uncleanly (crash), not a clean fail"
-            fail=1
-          fi
-          if grep -qE '==> X ' "$RUNNER_TEMP/test-jvm.log"; then
-            echo "::error::ISS-690 guard: munit failure marker present in output (failures cannot hide behind exit 0)"
-            fail=1
-          fi
-          if [ "$fail" -eq 0 ]; then echo "JVM tests: ran to completion, all checks passed"; fi
-          exit "$fail"
-        env:
-          # Point the Robolectric test fork at the JDK 21 installed above.
-          JAVA21_HOME: ${{ steps.setup-jdk21.outputs.path }}
-          # Hard-fail the build if that JDK 21 is somehow not resolvable, so this
-          # module can never silently degrade to a green run with zero Robolectric
-          # tests executed. Mirrors SGE_CI_REQUIRE_DISPLAY (ISS-485). See build.sbt.
-          SGE_CI_REQUIRE_JDK21: "1"
-
-      - name: Upload coverage to Codecov
-        if: always()
-        # scoverage does not emit an aggregate report on Scala 3.8.x under sbt 2.0
-        # (the report at the path below is not produced); codecov-action v5 hard-
-        # fails when its explicit `files:` are absent even with fail_ci_if_error
-        # false, which would red the whole JVM job though every test passed.
-        # Coverage upload is reporting-only — keep it non-fatal until scoverage
-        # report generation is restored (tracked follow-up).
-        continue-on-error: true
-        uses: codecov/codecov-action@v7
-        with:
-          files: target/scala-3.8.4/scoverage-report/scoverage.xml
-          flags: ${{ matrix.platform }}
-          fail_ci_if_error: false
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-  # ─── Browser integration tests (Scala.js + Playwright) ─────────────
-
-  test-browser-it:
-    name: Browser IT tests
-    # ISS-792: gated on the cheap compile-gate (fail-fast + warm remote cache)
-    # instead of test-js — the old edge transferred nothing, only ordering.
-    needs: [compile-gate]
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          submodules: false
-          fetch-depth: 0
-
-
-      - uses: coursier/setup-action@v3.0.2
-        with:
-          jvm: ${{ env.JVM_VERSION }}
-          apps: sbt
-
-
-
-      - name: Checkout libGDX submodule
-        run: git submodule update --init --depth=1 original-src/libgdx
-
-      - name: Setup Baltic Porter
-        uses: ./.github/actions/setup-balticporter
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Publish SGE to local Maven
-        # publishM2 delivers sge core to mavenLocal (used by sge-it-browser);
-        # publishLocal-js-3 delivers sge core + ALL extensions to Ivy local so
-        # demos depending on extensions (e.g. tileWorld → sge-extension-noise)
-        # resolve them. writeDemoVersion pins .sge-version for both.
-        run: sbt 'sge/publishM2; sgeJS/publishM2; writeDemoVersion; publishLocal-jvm-3; publishLocal-js-3'
-
-      - name: Publish sge-build plugin to Ivy local
-        working-directory: sge-build
-        run: sbt publishLocal
-
-      - name: Compile regression test JS for browser bootstrap test
-        run: sbt 'regressionTestJS/fastLinkJS'
-
-      - name: Compile demo JS for browser smoke tests
-        working-directory: demos
-        run: sbt 'pongJS/fastLinkJS; spaceShooterJS/fastLinkJS; curvePlaygroundJS/fastLinkJS; viewportGalleryJS/fastLinkJS; shaderLabJS/fastLinkJS; tileWorldJS/fastLinkJS; hexTacticsJS/fastLinkJS; netChatJS/fastLinkJS; viewer3dJS/fastLinkJS; particleShowJS/fastLinkJS'
-
-      # ISS-558: real browser-packaging coverage. Unlike the fastLinkJS demos above
-      # (dev build, synthetic HTML, no embedded assets), package AssetShowcase via
-      # sgePackageBrowser — which runs fullLinkJS AND the multiarch-resources
-      # embedded-resources sourceGenerator (base64) AND generates index.html — so
-      # the AssetShowcase smoke test loads REAL assets over HTTP through
-      # BrowserFileHandle/AssetManager on JS (previously .ignore'd for lack of this).
-      - name: Package AssetShowcase browser (fullLinkJS + embedded resources)
-        working-directory: demos
-        # Retry: fullLinkJS + plugin resolution occasionally hits a transient sbt
-        # launcher / coursier cross-version resolution flake (seen once as an
-        # empty 0.7s exit-1). Retry up to 3x so a transient fetch/resolution blip
-        # doesn't red the packaged-output asset coverage; a genuine failure still
-        # fails after the retries with full output.
-        run: |
-          for attempt in 1 2 3; do
-            echo "::group::assetShowcaseJS/sgePackageBrowser (attempt $attempt)"
-            if sbt 'assetShowcaseJS/sgePackageBrowser'; then
-              echo "::endgroup::"; echo "packaged on attempt $attempt"; exit 0
-            fi
-            echo "::endgroup::"; echo "attempt $attempt failed"; sleep 5
-          done
-          echo "sgePackageBrowser failed after 3 attempts"; exit 1
-
-      - name: Install Playwright
-        run: npx --yes playwright install --with-deps chromium
-
-      - name: Run browser integration tests
-        run: |
-          # ISS-699: ISS-690 guard for this forked testFull (JVM munit driving
-          # Playwright/Chromium). Never trust testFull's exit code alone - under
-          # sbt 2.0 a forked test JVM that dies uncleanly can exit 0 while hiding
-          # munit failures. Gate on (a) testFull's own exit code, (b) a munit
-          # summary line proving the suite ran to completion (crash => no
-          # summary), and (c) the absence of any munit failure marker.
-          set +e
-          sbt 'sge-it-browser/testFull' 2>&1 | tee /tmp/browser-it.log
-          code=${PIPESTATUS[0]}
-          set -e
-          fail=0
-          if [ "$code" -ne 0 ]; then
-            echo "::error::testFull exited with code $code"
-            fail=1
-          fi
-          if ! grep -qE 'Passed: Total [1-9]' /tmp/browser-it.log; then
-            echo "::error::ISS-690 guard: munit summary missing - the forked test JVM died uncleanly (crash), not a clean fail"
-            fail=1
-          fi
-          if grep -qE '==> X ' /tmp/browser-it.log; then
-            echo "::error::ISS-690 guard: munit failure marker present in output (failures cannot hide behind exit 0)"
-            fail=1
-          fi
-          if [ "$fail" -eq 0 ]; then echo "Browser IT: ran to completion, all checks passed"; fi
-          exit "$fail"
-
-  # ─── sge-build plugin scripted tests (ISS-562) ─────────────────────
+  # ─── sge-build plugin unit + scripted tests (ISS-562, ISS-703) ─────
   #
-  # The plugin's packaging tasks (sgePackageBrowser, releasePackage,
-  # androidSign) were verified only indirectly. These sbt scripted tests
-  # run a fresh hello-world game project against the locally published
-  # plugin and assert the packaged output directly (see
-  # sge-build/src/sbt-test/packaging/*). packaging/android exercises
-  # androidSign end-to-end (D8 -> aapt2 -> zipalign -> apksigner) and needs
-  # the SDK build-tools, so we provision one and export ANDROID_HOME, which
-  # the fixture's build.sbt resolves first.
+  # sge-build is a separate sbt build: it needs neither the generated port nor the root build.
+  # The scripted tests run a fresh hello-world game project against the locally published plugin
+  # and assert the packaged output directly (sge-build/src/sbt-test/packaging/*).
+  # packaging/android exercises androidSign end-to-end and needs the SDK build-tools.
 
   test-sge-build-scripted:
     name: sge-build scripted tests
@@ -590,22 +176,12 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: false
-          fetch-depth: 0
 
-      - uses: coursier/setup-action@v3.0.2
+      - uses: ./.github/actions/setup-scala
+
+      - uses: ./.github/actions/setup-js
         with:
-          jvm: ${{ env.JVM_VERSION }}
-          apps: sbt
-
-      - name: Checkout libGDX submodule
-        run: git submodule update --init --depth=1 original-src/libgdx
-
-      - name: Setup Baltic Porter
-        uses: ./.github/actions/setup-balticporter
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: ${{ env.NODE_VERSION }}
+          install-deps: "false"
 
       - uses: android-actions/setup-android@v4
         with:
@@ -615,9 +191,6 @@ jobs:
         working-directory: sge-build
         run: sbt publishLocal
 
-      # ISS-703: sge-build's own unit tests (e.g. SgePluginFlagsSuite, ISS-556)
-      # were never executed in CI — every sge-build step ran only publishLocal or
-      # scripted. Run them here so plugin-logic regressions are caught.
       - name: Run sge-build unit tests
         working-directory: sge-build
         run: sbt test
@@ -626,237 +199,248 @@ jobs:
         working-directory: sge-build
         run: sbt 'scripted packaging/browser packaging/browser-rapier2d packaging/asset-manifest packaging/android'
 
-  # ─── Scala Native tests (uses provider JARs from Sonatype) ──────────
+  # ─── Generate (Baltic Porter) ───────────────────────────────────────
+  #
+  # The ONLY job that initialises the libGDX submodule and runs the generator, and the only one
+  # that needs full history (the generator derives sge's spellings from the hand port on master).
+  # The generated tree is stored in the Actions cache under a key made of everything it depends
+  # on, so a push that changes none of them skips generation altogether; every other job restores
+  # that entry by the key this job outputs.
 
-  test-native:
-    name: Scala Native tests (${{ matrix.label }})
-    needs: [plan]
+  generate:
+    name: Generate port (Baltic Porter)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      key: ${{ steps.port.outputs.key }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: false
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup-scala
+
+      - uses: ./.github/actions/generated-port
+        id: port
+        with:
+          mode: generate
+
+  # ─── Compile (once per platform row) ────────────────────────────────
+  #
+  # Test/compile of every published module, one job per platform row, on Linux. Two purposes:
+  #   1. Fail fast: a compile error reds ONE small job instead of surfacing minutes later inside
+  #      every expensive matrix/IT leg.
+  #   2. Fill the BuildBuddy remote cache: the downstream jobs restore compile outputs instead of
+  #      recompiling. Compiling needs no clang/node — linking and running stay downstream.
+
+  compile:
+    name: Compile (${{ matrix.row }})
+    needs: [generate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        row: [jvm, js, native]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: false
+
+      - uses: ./.github/actions/setup-scala
+
+      - uses: ./.github/actions/generated-port
+        with:
+          key: ${{ needs.generate.outputs.key }}
+
+      - name: Test/compile all published modules
+        run: sbt 'testCompile-${{ matrix.row }}-3'
+
+  # ─── Scaladoc (published modules) ───────────────────────────────────
+  #
+  # BLOCKING (ISS-753). Maven Central rejects artifacts without javadoc JARs, so scaladoc must
+  # build for every PUBLISHED module (the doc-*-3 aliases cover exactly those).
+  # Dotty scaladoc crashes NONDETERMINISTICALLY with "SignatureBuilder.content() is null" (~1 in 3
+  # runs, ISS-799). Two defenses: (1) the doc step runs with the REMOTE cache off — sbt 2's action
+  # cache can REPLAY a cached doc failure, which would make one crash sticky across runs;
+  # (2) one retry with the LOCAL action cache purged, so the second attempt genuinely re-executes.
+  # A real doc error fails both attempts, so genuine breakage still gates. The compile outputs
+  # scaladoc needs are restored from the remote cache by a separate first step.
+
+  docs:
+    name: Scaladoc (published modules)
+    needs: [generate, compile]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: false
+
+      - uses: ./.github/actions/setup-scala
+
+      - uses: ./.github/actions/generated-port
+        with:
+          key: ${{ needs.generate.outputs.key }}
+
+      - name: Restore compile outputs (remote cache on)
+        run: sbt 'testCompile-jvm-3; testCompile-js-3; testCompile-native-3'
+
+      - name: Generate scaladoc for all published modules (JVM + JS + Native)
+        env:
+          SGE_REMOTE_CACHE: "off"
+        run: |
+          if sbt 'doc-jvm-3; doc-js-3; doc-native-3'; then exit 0; fi
+          echo "::warning::scaladoc crashed (ISS-799 nondeterministic dotty NPE class) — purging local action cache and retrying once"
+          rm -rf ~/.cache/sbt/v2
+          sbt 'doc-jvm-3; doc-js-3; doc-native-3'
+
+  # ─── Scala.js tests (pure Scala, no native dependencies) ────────────
+
+  test-js:
+    name: Scala.js tests
+    needs: [generate, compile]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: false
+
+      - uses: ./.github/actions/setup-scala
+
+      - uses: ./.github/actions/generated-port
+        with:
+          key: ${{ needs.generate.outputs.key }}
+
+      - uses: ./.github/actions/setup-js
+
+      - name: Run Scala.js tests (core + all extensions)
+        run: sbt test-js-3
+
+  # ─── JVM tests (uses Panama provider JARs) ──────────────────────────
+
+  test-jvm:
+    name: JVM tests (${{ matrix.label }})
+    needs: [plan, generate, compile]
     runs-on: ${{ matrix.os }}
     timeout-minutes: ${{ matrix.timeout }}
     strategy:
       fail-fast: false
       matrix:
-        # Rows computed by the `plan` job (ISS-790; macos-x86_64/windows-aarch64
-        # withdrawn 2026-07-16 — see the plan job's comment).
+        include: ${{ fromJSON(needs.plan.outputs.matrix_jvm) }}
+    env:
+      # Hard-fail the build if JDK 21 is somehow not resolvable, so the Robolectric module can never
+      # silently degrade to a green run with zero tests executed (ISS-485). See build.sbt.
+      SGE_CI_REQUIRE_JDK21: "1"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: false
+
+      # JDK 21 for the sge-android-robolectric test fork (Robolectric 4.16's ASM cannot run on 25)
+      - uses: ./.github/actions/setup-scala
+        id: scala
+        with:
+          jdk21: "true"
+
+      - name: Point the Robolectric test fork at JDK 21
+        shell: bash
+        run: echo "JAVA21_HOME=${{ steps.scala.outputs.java21-home }}" >> "$GITHUB_ENV"
+
+      - uses: ./.github/actions/generated-port
+        with:
+          key: ${{ needs.generate.outputs.key }}
+
+      # ISS-869: in this MULTI-MODULE run a crash in a later module after an earlier module already
+      # printed its summary satisfies the completion check and is caught only by the exit code and
+      # the failure marker - documented residual.
+      - name: Run JVM tests (core + all extensions)
+        uses: ./.github/actions/sbt-guarded
+        with:
+          command: sbt ci-jvm-3
+
+      - name: Upload coverage to Codecov
+        if: always()
+        # scoverage does not emit an aggregate report on Scala 3.8.x under sbt 2.0; codecov-action
+        # hard-fails when its explicit `files:` are absent even with fail_ci_if_error false.
+        # Coverage upload is reporting-only — keep it non-fatal until report generation is restored.
+        continue-on-error: true
+        uses: codecov/codecov-action@v7
+        with:
+          files: target/scala-3.8.4/scoverage-report/scoverage.xml
+          flags: ${{ matrix.platform }}
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  # ─── Scala Native tests (uses provider JARs from Sonatype) ──────────
+
+  test-native:
+    name: Scala Native tests (${{ matrix.label }})
+    needs: [plan, generate, compile]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: ${{ matrix.timeout }}
+    strategy:
+      fail-fast: false
+      matrix:
         include: ${{ fromJSON(needs.plan.outputs.matrix_native) }}
     steps:
       - uses: actions/checkout@v7
         with:
           submodules: false
-          fetch-depth: 0
 
+      - uses: ./.github/actions/setup-scala
 
-      - uses: actions/setup-java@v6
+      - uses: ./.github/actions/generated-port
         with:
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-          java-version: ${{ env.JAVA_VERSION }}
-          cache: sbt
-          architecture: ${{ matrix.architecture || '' }}
+          key: ${{ needs.generate.outputs.key }}
 
-      - uses: sbt/setup-sbt@v1
-
-      - uses: coursier/setup-action@v3.0.2
-
-      - name: Checkout libGDX submodule
-        run: git submodule update --init --depth=1 original-src/libgdx
-
-      - name: Setup Baltic Porter
-        uses: ./.github/actions/setup-balticporter
-
-      - name: Install Scala Native system dependencies (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang
-          sudo apt-get install -y libstdc++-12-dev || sudo apt-get install -y libstdc++-14-dev || true
-
-      - name: Install Scala Native system dependencies (Windows)
-        if: runner.os == 'Windows'
-        # zlib: the migration links Scala Native's javalib z.c (java.util.zip /
-        # ZipCodec) which #include <zlib.h> and @link("z"). Linux/macOS have
-        # system zlib; Windows does not. Provide it via vcpkg and expose it to
-        # clang through CPATH (headers) + LIBRARY_PATH (libs); clang's `-lz`
-        # resolves z.lib, so we copy vcpkg's real import lib to z.lib.
-        #
-        # vcpkg's exact install layout/lib name varies (zlib.lib vs
-        # zlibstatic.lib, triplet subdir vs not), so DISCOVER the real lib +
-        # header by recursive search under VCPKG_INSTALLATION_ROOT rather than
-        # hard-coding a path. Fail loudly (and log what was found) if either is
-        # missing so the next run has diagnostics.
-        run: |
-          $ErrorActionPreference = "Stop"
-          choco install llvm --yes
-          # vcpkg never materialized the import lib on this runner (manifest-mode
-          # interference, repeated attempts). Build zlib deterministically from
-          # source with the MSVC toolchain instead. Enter the VS dev shell so
-          # nmake/cl + the Windows SDK are on PATH for THIS step's build; the sbt
-          # Scala Native build sets up its own clang env, we only export
-          # CPATH/LIBRARY_PATH (additive) so its clang finds zlib.h + z.lib.
-          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
-          Import-Module "$vs\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
-          Enter-VsDevShell -VsInstallPath $vs -DevCmdArguments "-arch=x64" -SkipAutomaticLocation
-          $z = "$env:RUNNER_TEMP\zlib-src"
-          git clone --depth=1 -b v1.3.1 https://github.com/madler/zlib "$z"
-          Push-Location $z
-          # zlib's release tree ships zconf.h; regenerate from the template if absent.
-          if (-not (Test-Path "$z\zconf.h")) { Copy-Item "$z\zconf.h.in" "$z\zconf.h" -Force }
-          nmake -f win32/Makefile.msc zlib.lib
-          Pop-Location
-          if (-not (Test-Path "$z\zlib.lib")) { throw "zlib.lib was not built under $z" }
-          # clang's `-lz` resolves z.lib; the MSVC makefile emits zlib.lib (static).
-          Copy-Item "$z\zlib.lib" "$z\z.lib" -Force
-          Write-Host "Built zlib static lib: $z\zlib.lib ; header: $z\zlib.h"
-          "CPATH=$z"        | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-          "LIBRARY_PATH=$z" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-          # Scala Native links on Windows via clang++/link.exe, which searches the
-          # MSVC `LIB` env (NOT LIBRARY_PATH) and wants `zlib.lib` (the @link("z")
-          # name maps to zlib on Windows). Prepend the from-source zlib dir to LIB
-          # so the linker finds zlib.lib (the LNK1104 'cannot open zlib.lib' fix).
-          "LIB=$z;$env:LIB" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
+      - uses: ./.github/actions/setup-native-toolchain
 
       - name: Run Scala Native tests
         run: sbt test-native-3
 
-  # ─── Native FFI IT tests ────────────────────────────────────────
+  # ─── Native FFI IT tests ────────────────────────────────────────────
+  #
+  # ISS-702: the GLFW+EGL+GLESv2 FFI section must actually execute somewhere — headless skips that
+  # whole section, so a broken native GL binding was green on every platform. On linux-x86_64 it
+  # runs WITHOUT --headless under xvfb. The validator exits 0 even when the GL section silently
+  # skips, so the guard requires "PASS  glfwTerminate", the section's final check. linux-aarch64,
+  # macOS and Windows stay headless (no proven display setup on those runners).
 
   test-native-ffi-it:
     name: Native FFI IT tests (${{ matrix.label }})
-    # ISS-792: gated on compile-gate instead of the full test-native matrix
-    # (pure-ordering edge). `plan` stays — this job consumes its matrix output.
-    needs: [plan, compile-gate]
+    needs: [plan, generate, compile]
     runs-on: ${{ matrix.os }}
     timeout-minutes: ${{ matrix.timeout }}
     strategy:
       fail-fast: false
       matrix:
-        # Rows computed by the `plan` job (ISS-790; macos-x86_64/windows-aarch64
-        # withdrawn 2026-07-16 — see the plan job's comment).
         include: ${{ fromJSON(needs.plan.outputs.matrix_native_ffi) }}
     steps:
       - uses: actions/checkout@v7
         with:
           submodules: false
-          fetch-depth: 0
 
+      - uses: ./.github/actions/setup-scala
 
-      - uses: actions/setup-java@v6
+      - uses: ./.github/actions/generated-port
         with:
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-          java-version: ${{ env.JAVA_VERSION }}
-          cache: sbt
-          architecture: ${{ matrix.architecture || '' }}
+          key: ${{ needs.generate.outputs.key }}
 
-      - uses: sbt/setup-sbt@v1
+      - uses: ./.github/actions/setup-native-toolchain
 
-      - uses: coursier/setup-action@v3.0.2
-
-      - name: Checkout libGDX submodule
-        run: git submodule update --init --depth=1 original-src/libgdx
-
-      - name: Setup Baltic Porter
-        uses: ./.github/actions/setup-balticporter
-
-      - name: Install Scala Native system dependencies (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang
-          sudo apt-get install -y libstdc++-12-dev || sudo apt-get install -y libstdc++-14-dev || true
-
-      - name: Install Scala Native system dependencies (Windows)
-        if: runner.os == 'Windows'
-        # zlib: the migration links Scala Native's javalib z.c (java.util.zip /
-        # ZipCodec) which #include <zlib.h> and @link("z"). Linux/macOS have
-        # system zlib; Windows does not. Provide it via vcpkg and expose it to
-        # clang through CPATH (headers) + LIBRARY_PATH (libs); clang's `-lz`
-        # resolves z.lib, so we copy vcpkg's real import lib to z.lib.
-        #
-        # vcpkg's exact install layout/lib name varies (zlib.lib vs
-        # zlibstatic.lib, triplet subdir vs not), so DISCOVER the real lib +
-        # header by recursive search under VCPKG_INSTALLATION_ROOT rather than
-        # hard-coding a path. Fail loudly (and log what was found) if either is
-        # missing so the next run has diagnostics.
-        run: |
-          $ErrorActionPreference = "Stop"
-          choco install llvm --yes
-          # vcpkg never materialized the import lib on this runner (manifest-mode
-          # interference, repeated attempts). Build zlib deterministically from
-          # source with the MSVC toolchain instead. Enter the VS dev shell so
-          # nmake/cl + the Windows SDK are on PATH for THIS step's build; the sbt
-          # Scala Native build sets up its own clang env, we only export
-          # CPATH/LIBRARY_PATH (additive) so its clang finds zlib.h + z.lib.
-          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
-          Import-Module "$vs\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
-          Enter-VsDevShell -VsInstallPath $vs -DevCmdArguments "-arch=x64" -SkipAutomaticLocation
-          $z = "$env:RUNNER_TEMP\zlib-src"
-          git clone --depth=1 -b v1.3.1 https://github.com/madler/zlib "$z"
-          Push-Location $z
-          # zlib's release tree ships zconf.h; regenerate from the template if absent.
-          if (-not (Test-Path "$z\zconf.h")) { Copy-Item "$z\zconf.h.in" "$z\zconf.h" -Force }
-          nmake -f win32/Makefile.msc zlib.lib
-          Pop-Location
-          if (-not (Test-Path "$z\zlib.lib")) { throw "zlib.lib was not built under $z" }
-          # clang's `-lz` resolves z.lib; the MSVC makefile emits zlib.lib (static).
-          Copy-Item "$z\zlib.lib" "$z\z.lib" -Force
-          Write-Host "Built zlib static lib: $z\zlib.lib ; header: $z\zlib.h"
-          "CPATH=$z"        | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-          "LIBRARY_PATH=$z" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-          # Scala Native links on Windows via clang++/link.exe, which searches the
-          # MSVC `LIB` env (NOT LIBRARY_PATH) and wants `zlib.lib` (the @link("z")
-          # name maps to zlib on Windows). Prepend the from-source zlib dir to LIB
-          # so the linker finds zlib.lib (the LNK1104 'cannot open zlib.lib' fix).
-          "LIB=$z;$env:LIB" | Out-File $env:GITHUB_ENV -Append -Encoding utf8
-
-      # ISS-702: the GLFW+EGL+GLESv2 FFI section must actually execute somewhere -
-      # before this, every leg ran --headless, which skips that whole section, so
-      # a broken native GL binding was green on every platform. On linux-x86_64,
-      # run WITHOUT --headless under xvfb (mirroring test-desktop-it's setup).
-      # ANGLE's libEGL/libGLESv2 come from the provider JARs (default
-      # GL-over-llvmpipe backend, same as test-desktop-it) - this step only
-      # provides the display + X11/GL runtime libs, not the ANGLE libs.
-      # linux-aarch64 stays headless: test-desktop-it has no aarch64 leg (it runs
-      # on ubuntu-latest x86_64 only), so there is no proven xvfb/ANGLE-over-
-      # llvmpipe pattern on the arm runner to mirror; macOS/windows stay headless
-      # because those runners have no display server at all.
-      - name: Install virtual display + GL/Vulkan runtime libs
+      - uses: ./.github/actions/setup-gl-xvfb
         if: matrix.label == 'linux-x86_64'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            xvfb \
-            libgl1-mesa-dri \
-            libegl1 \
-            libgles2 \
-            mesa-vulkan-drivers libvulkan1 vulkan-tools \
-            libx11-6 libxext6 libxrandr2 libxinerama1 libxcursor1 libxi6 \
-            libxkbcommon0 libwayland-client0
 
       - name: Run native FFI validation (under xvfb)
         if: matrix.label == 'linux-x86_64'
-        run: |
-          # ISS-690-style guard: never trust the exit code alone. The validator
-          # exits 0 even when the GL section silently skips ("SKIP  EGL/GL tests
-          # (no window created)" / "SKIP  GL tests (no EGL context)"), so a
-          # display/EGL failure could read green without validating a single GL
-          # binding. Gate on the exit code AND the GL-section-completed marker:
-          # "PASS  glfwTerminate" is the section's final check, only reachable
-          # after the whole GLFW+EGL+GLESv2 block executed.
-          set +e
-          xvfb-run -a --server-args="-screen 0 1280x1024x24" \
-            sbt 'sge-it-native-ffi/run' 2>&1 | tee /tmp/native-ffi.log
-          code=${PIPESTATUS[0]}
-          set -e
-          fail=0
-          if ! grep -q 'PASS  glfwTerminate' /tmp/native-ffi.log; then
-            echo "::error::ISS-702 guard: marker 'PASS  glfwTerminate' missing - the GLFW+EGL+GLESv2 section did not run to completion"
-            fail=1
-          fi
-          if [ "$code" -ne 0 ]; then
-            echo "::error::native FFI validation exited with code $code"
-            fail=1
-          fi
-          if [ "$fail" -eq 0 ]; then echo "Native FFI: GL section executed under xvfb, all checks passed"; fi
-          exit "$fail"
+        uses: ./.github/actions/sbt-guarded
+        with:
+          command: xvfb-run -a --server-args="-screen 0 1280x1024x24" sbt 'sge-it-native-ffi/run'
+          require: "PASS  glfwTerminate"
 
       - name: Run native FFI validation (headless)
         if: matrix.label != 'linux-x86_64'
@@ -864,48 +448,27 @@ jobs:
 
   # ─── Native app runtime (execute a Scala Native binary) ────────────
   #
-  # ISS-560: prove app-level Scala Native runtime, not just nativeLink. Links
-  # the RegressionApp native binary and EXECUTES it headless (Sge lifecycle ->
-  # file/asset FFI -> render loop -> clean exit under HeadlessApplication),
-  # asserting SMOKE_TEST_PASSED and exit 0. Shader/Model3D scenes and the
-  # JVM-only ASSET_LOAD path (ISS-693) are not exercised here; native ASSET_LOAD
-  # is asserted for real.
+  # ISS-560: prove app-level Scala Native runtime, not just nativeLink. Links the RegressionApp
+  # native binary and EXECUTES it headless (Sge lifecycle -> file/asset FFI -> render loop -> clean
+  # exit), asserting SMOKE_TEST_PASSED and exit 0.
 
   test-native-runtime:
     name: Native runtime (linux-x86_64)
-    # ISS-792: gated on compile-gate instead of the full test-native matrix
-    # (pure-ordering edge; nothing was handed off).
-    needs: [compile-gate]
+    needs: [generate, compile]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
         with:
           submodules: false
-          fetch-depth: 0
 
+      - uses: ./.github/actions/setup-scala
 
-      - uses: actions/setup-java@v6
+      - uses: ./.github/actions/generated-port
         with:
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-          java-version: ${{ env.JAVA_VERSION }}
-          cache: sbt
+          key: ${{ needs.generate.outputs.key }}
 
-      - uses: sbt/setup-sbt@v1
-
-      - uses: coursier/setup-action@v3.0.2
-
-      - name: Checkout libGDX submodule
-        run: git submodule update --init --depth=1 original-src/libgdx
-
-      - name: Setup Baltic Porter
-        uses: ./.github/actions/setup-balticporter
-
-      - name: Install Scala Native system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang
-          sudo apt-get install -y libstdc++-12-dev || sudo apt-get install -y libstdc++-14-dev || true
+      - uses: ./.github/actions/setup-native-toolchain
 
       - name: Link + execute RegressionApp native binary (headless)
         run: |
@@ -923,42 +486,26 @@ jobs:
           test "$RC" -eq 0 || { echo "FAIL: native binary exited $RC"; exit 1; }
           echo "OK: native RegressionApp ran headless, SMOKE_TEST_PASSED, exit 0"
 
-  # ─── Gauntlet (headless feature probes, ISS-766) ───────────────
+  # ─── Gauntlet (headless feature probes, ISS-766) ───────────────────
   #
-  # Runs the sge-test/gauntlet feature-verification app in --headless mode:
-  # non-GPU probes (files, assets, json/xml, net loopback, jbump, ai fsm,
-  # audio lifecycle) execute and must pass; requiresGpu probes are reported
-  # as skipped_gpu — the honest partial verification a display-less runner
-  # can do. The report (report.json + report.md) is uploaded as an artifact.
-  # Exit code = hard failures (failed + unexpected_pass).
+  # Non-GPU probes (files, assets, json/xml, net loopback, jbump, ai fsm, audio lifecycle) execute
+  # and must pass; requiresGpu probes are reported as skipped_gpu. Exit code = hard failures.
 
   gauntlet-headless:
     name: Gauntlet (headless probes)
-    needs: [compile-gate]
+    needs: [generate, compile]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
         with:
           submodules: false
-          fetch-depth: 0
 
+      - uses: ./.github/actions/setup-scala
 
-      - uses: actions/setup-java@v6
+      - uses: ./.github/actions/generated-port
         with:
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-          java-version: ${{ env.JAVA_VERSION }}
-          cache: sbt
-
-      - uses: sbt/setup-sbt@v1
-
-      - uses: coursier/setup-action@v3.0.2
-
-      - name: Checkout libGDX submodule
-        run: git submodule update --init --depth=1 original-src/libgdx
-
-      - name: Setup Baltic Porter
-        uses: ./.github/actions/setup-balticporter
+          key: ${{ needs.generate.outputs.key }}
 
       - name: Run gauntlet (headless)
         run: sbt "sge-gauntlet/run --headless --report ${{ github.workspace }}/target/gauntlet"
@@ -975,261 +522,99 @@ jobs:
           path: target/gauntlet
           if-no-files-found: warn
 
-  # ─── Desktop IT tests (GLFW + native libs) ─────────────────────
+  # ─── Desktop IT tests (GLFW + native libs) ─────────────────────────
+  #
+  # GLFW windowing + ANGLE GLES need a display and X11/GL runtime libs; xvfb provides the display
+  # and ANGLE runs on its default GL-over-llvmpipe backend. ANGLE's Vulkan backend was ruled out:
+  # device init fails identically on mesa lavapipe AND Chrome's SwiftShader ("Internal Vulkan error
+  # -3", vk_renderer.cpp:2318), so ISS-538 clause 2 (cross-window context sharing) cannot pass here
+  # (honest 6/7). The suite writes a completion sentinel in afterAll; its absence means the forked
+  # JVM crashed mid-run.
 
   test-desktop-it:
     name: Desktop IT tests
-    # ISS-792: gated on compile-gate instead of the full 6-OS test-jvm matrix
-    # (pure-ordering edge; the macOS legs' runner scarcity — ISS-740 — made
-    # this job start hours late for no benefit).
-    needs: [compile-gate]
+    needs: [generate, compile]
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      SGE_IT_SENTINEL: ${{ github.workspace }}/target/desktop-it-sentinel
+      # Hard-fail (do not assume-skip) if the display or native libs are unavailable — this job must
+      # never silently return to zero executed checks (requireOrAssume, ISS-485).
+      SGE_CI_REQUIRE_DISPLAY: "1"
+      # Force software rendering so ANGLE/GLFW get a usable GL context with no GPU on the runner.
+      LIBGL_ALWAYS_SOFTWARE: "true"
+      GALLIUM_DRIVER: "llvmpipe"
     steps:
       - uses: actions/checkout@v7
         with:
           submodules: false
-          fetch-depth: 0
 
+      - uses: ./.github/actions/setup-scala
 
-      - uses: coursier/setup-action@v3.0.2
+      - uses: ./.github/actions/generated-port
         with:
-          jvm: ${{ env.JVM_VERSION }}
-          apps: sbt
+          key: ${{ needs.generate.outputs.key }}
 
-
-
-      - name: Checkout libGDX submodule
-        run: git submodule update --init --depth=1 original-src/libgdx
-
-      - name: Setup Baltic Porter
-        uses: ./.github/actions/setup-balticporter
-
-      # GLFW windowing + ANGLE GLES need a display and X11/GL runtime libs.
-      # xvfb provides a virtual display. ANGLE (libEGL/libGLESv2 from the
-      # provider JARs) drives a software backend: we select ANGLE's VULKAN
-      # backend over mesa lavapipe (software Vulkan) instead of the default
-      # GL-over-llvmpipe backend, because the GL backend does not honour
-      # cross-window EGL context resource sharing under llvmpipe (the ISS-538
-      # clause-2 multi-window texture-sharing check fails with the texture
-      # invalid even in its own context). ANGLE/Vulkan over lavapipe implements
-      # shared contexts correctly. mesa-vulkan-drivers provides lavapipe;
-      # the llvmpipe GL libs remain for GLFW's own GL needs.
-      - name: Install virtual display + GL/Vulkan runtime libs
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            xvfb \
-            libgl1-mesa-dri \
-            libegl1 \
-            libgles2 \
-            mesa-vulkan-drivers libvulkan1 vulkan-tools \
-            libx11-6 libxext6 libxrandr2 libxinerama1 libxcursor1 libxi6 \
-            libxkbcommon0 libwayland-client0
-
-      # ANGLE's Vulkan backend over mesa lavapipe fails device init ("Internal
-      # Vulkan error (-3)") — lavapipe does not satisfy ANGLE's requirements.
-      # SwiftShader IS ANGLE's companion software Vulkan (ANGLE is conformance-
-      # tested against it, shared contexts included), and Google Chrome — present
-      # on the runner image — bundles it (libvk_swiftshader.so +
-      # vk_swiftshader_icd.json). Locate that ICD and, if found, export it +
-      # ANGLE_DEFAULT_PLATFORM=vulkan for the run step via $GITHUB_ENV so ANGLE
-      # drives SwiftShader (fixes ISS-538 clause 2). Fall back to the GL backend
-      # (6/7 green) if SwiftShader cannot be located.
-      - name: Locate SwiftShader Vulkan ICD (ANGLE backend for clause 2)
-        run: |
-          set -x
-          icd=""
-          for c in \
-            /opt/google/chrome/vk_swiftshader_icd.json \
-            /opt/google/chrome-*/vk_swiftshader_icd.json \
-            /usr/lib/chromium/vk_swiftshader_icd.json \
-            /usr/lib/chromium-browser/vk_swiftshader_icd.json \
-            /usr/bin/chrome/vk_swiftshader_icd.json; do
-            if [ -f "$c" ]; then icd="$c"; break; fi
-          done
-          if [ -z "$icd" ]; then
-            icd="$(find / -name vk_swiftshader_icd.json 2>/dev/null | head -1)"
-          fi
-          echo "located SwiftShader ICD: '${icd:-<none>}'"
-          echo "--- swiftshader libs nearby ---"
-          [ -n "$icd" ] && ls -la "$(dirname "$icd")"/libvk_swiftshader.so* 2>&1 || true
-          echo "--- any swiftshader libs on system ---"
-          find / -name 'libvk_swiftshader.so*' 2>/dev/null | head || true
-          if [ -n "$icd" ] && [ -f "$icd" ]; then
-            cat "$icd" || true
-            echo "--- vulkaninfo via SwiftShader ---"
-            VK_ICD_FILENAMES="$icd" vulkaninfo --summary 2>&1 | head -30 || true
-          fi
-          # Vulkan backend is NOT exported to the run: ANGLE's Vulkan device init
-          # fails identically on BOTH available software Vulkans — mesa lavapipe
-          # (1.3.275) AND Chrome's SwiftShader (1.0.5) — at vk_renderer.cpp
-          # initialize:2318 ("Internal Vulkan error -3" -> eglInitialize 0x3001),
-          # i.e. a feature no software Vulkan provides on this GPU-less runner. So
-          # the run uses the default ANGLE GL backend (honest 6/7; ISS-538 clause 2
-          # cannot pass here). Driving Vulkan additionally exposed a forked-JVM
-          # false-green (harness CRASH vs clean fail let testFull exit 0), which
-          # the GL backend avoids.
+      - uses: ./.github/actions/setup-gl-xvfb
 
       - name: Run Desktop integration tests (under xvfb)
-        run: |
-          # ISS-690 guard: never trust testFull's exit code alone. Under sbt 2.0
-          # a forked test JVM that dies uncleanly (native GL/Vulkan crash) can
-          # exit 0 while hiding munit failures. Gate the job on THREE independent
-          # signals: (a) testFull's own exit code, (b) the completion sentinel the
-          # suite writes in afterAll (absent => the JVM crashed mid-run), and
-          # (c) the absence of any munit failure marker in the captured output.
-          rm -f "$SGE_IT_SENTINEL"
-          set +e
-          xvfb-run -a --server-args="-screen 0 1280x1024x24" \
-            sbt 'sge-it-desktop/testFull' 2>&1 | tee /tmp/desktop-it.log
-          code=${PIPESTATUS[0]}
-          set -e
-          fail=0
-          if [ ! -f "$SGE_IT_SENTINEL" ]; then
-            echo "::error::ISS-690 guard: completion sentinel missing — the forked test JVM died uncleanly (crash), not a clean fail"
-            fail=1
-          fi
-          if grep -qE '==> X ' /tmp/desktop-it.log; then
-            echo "::error::ISS-690 guard: munit failure marker present in output (failures cannot hide behind exit 0)"
-            fail=1
-          fi
-          if [ "$code" -ne 0 ]; then
-            echo "::error::testFull exited with code $code"
-            fail=1
-          fi
-          if [ "$fail" -eq 0 ]; then echo "Desktop IT: ran to completion, all checks passed"; fi
-          exit "$fail"
-        env:
-          # Liveness sentinel for the ISS-690 guard (written by the suite's
-          # afterAll; checked above). Lives in the runner temp dir.
-          SGE_IT_SENTINEL: ${{ runner.temp }}/desktop-it-sentinel
-          # Hard-fail (do not assume-skip) if the display or native libs are
-          # unavailable — this job must never silently return to zero executed
-          # checks. See requireOrAssume in DesktopIntegrationTest (ISS-485).
-          SGE_CI_REQUIRE_DISPLAY: "1"
-          # Force software rendering so ANGLE/GLFW get a usable GL context with
-          # no GPU present on the runner.
-          LIBGL_ALWAYS_SOFTWARE: "true"
-          GALLIUM_DRIVER: "llvmpipe"
-          # ANGLE_DEFAULT_PLATFORM + VK_ICD_FILENAMES are exported by the
-          # "Locate SwiftShader" step above via $GITHUB_ENV when SwiftShader is
-          # found (→ ANGLE Vulkan/SwiftShader, which honours shared EGL contexts
-          # so ISS-538 clause 2 passes). If SwiftShader is absent they stay unset
-          # and ANGLE uses its default GL-over-llvmpipe backend (6/7; clause 2
-          # fails). lavapipe was ruled out: ANGLE Vulkan device init fails on it
-          # ("Internal Vulkan error (-3)", vk_renderer.cpp:2318).
+        uses: ./.github/actions/sbt-guarded
+        with:
+          command: xvfb-run -a --server-args="-screen 0 1280x1024x24" sbt 'sge-it-desktop/testFull'
+          require: ""
+          sentinel: ${{ github.workspace }}/target/desktop-it-sentinel
 
-  # ─── JVM Platform IT tests (Panama, Android ops) ───────────────
+  # ─── JVM Platform IT tests (Panama, Android ops) ───────────────────
 
   test-jvm-platform-it:
     name: JVM Platform IT tests
-    # No `needs:` (ISS-740). This job self-contains its build — a fresh checkout
-    # plus coursier JVM plus `sbt sge-it-jvm-platform/testFull` — and consumes NO
-    # artifact from any other job (test-jvm publishes only to Codecov; there are
-    # no upload/download-artifact steps in this workflow). Gating it on test-jvm
-    # was pure ordering, but `needs:` waits on the WHOLE 6-OS matrix including the
-    # macos-x86_64/macos-aarch64 legs, whose runners are effectively unavailable
-    # (jobs sit status:queued for hours and are never assigned). That kept the
-    # ISS-697 panama FFI suite (SGE_CI_REQUIRE_PANAMA below) from ever running on
-    # CI. Decoupling lets it run as soon as the ubuntu runner is free.
-    # (Follow-up, out of scope here: the macOS JVM legs should be marked
-    # non-required so PRs are not blocked on those queued-forever runners.)
+    needs: [generate, compile]
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      # Hard-fail (do not assume-skip) if the native libs are not resolvable from the provider JAR —
+      # this job must never silently return to zero executed FFI checks (ISS-697).
+      SGE_CI_REQUIRE_PANAMA: "1"
     steps:
       - uses: actions/checkout@v7
         with:
           submodules: false
-          fetch-depth: 0
 
+      - uses: ./.github/actions/setup-scala
 
-      - uses: coursier/setup-action@v3.0.2
+      - uses: ./.github/actions/generated-port
         with:
-          jvm: ${{ env.JVM_VERSION }}
-          apps: sbt
-
-
-
-      - name: Checkout libGDX submodule
-        run: git submodule update --init --depth=1 original-src/libgdx
-
-      - name: Setup Baltic Porter
-        uses: ./.github/actions/setup-balticporter
+          key: ${{ needs.generate.outputs.key }}
 
       - name: Run JVM Platform integration tests
-        run: |
-          # ISS-699: ISS-690 guard for this forked testFull (Panama FFI, native
-          # libs from the provider JAR). Never trust testFull's exit code alone -
-          # under sbt 2.0 a forked test JVM that dies uncleanly (native crash)
-          # can exit 0 while hiding munit failures. Gate on (a) testFull's own
-          # exit code, (b) a munit summary line proving the suite ran to
-          # completion (crash => no summary), and (c) the absence of any munit
-          # failure marker in the captured output.
-          set +e
-          sbt 'sge-it-jvm-platform/testFull' 2>&1 | tee /tmp/jvm-platform-it.log
-          code=${PIPESTATUS[0]}
-          set -e
-          fail=0
-          if [ "$code" -ne 0 ]; then
-            echo "::error::testFull exited with code $code"
-            fail=1
-          fi
-          if ! grep -qE 'Passed: Total [1-9]' /tmp/jvm-platform-it.log; then
-            echo "::error::ISS-690 guard: munit summary missing - the forked test JVM died uncleanly (crash), not a clean fail"
-            fail=1
-          fi
-          if grep -qE '==> X ' /tmp/jvm-platform-it.log; then
-            echo "::error::ISS-690 guard: munit failure marker present in output (failures cannot hide behind exit 0)"
-            fail=1
-          fi
-          if [ "$fail" -eq 0 ]; then echo "JVM Platform IT: ran to completion, all checks passed"; fi
-          exit "$fail"
-        env:
-          # Hard-fail (do not assume-skip) if the native libs are not resolvable
-          # from the provider JAR — this job must never silently return to zero
-          # executed FFI checks. See requireOrAssume in
-          # PanamaBufferOpsIntegrationTest (ISS-697).
-          SGE_CI_REQUIRE_PANAMA: "1"
+        uses: ./.github/actions/sbt-guarded
+        with:
+          command: sbt 'sge-it-jvm-platform/testFull'
 
-  # ─── Android IT tests (emulator) ──────────────────────────────
+  # ─── Android IT tests (emulator) ───────────────────────────────────
   #
-  # ISS-698: a former `test-android` job here ran `sge-android-smoke/testFull` on
-  # a booted emulator, but sge-android-smoke has NO test sources — a vacuous
-  # 0-test pass that also gated this job via `needs`. Deleted; `test-android-it`
-  # below independently builds the smoke APK and runs the real smoke IT in its own
-  # emulator, so it is the actual Android coverage and needs no separate gate.
+  # Builds the smoke APK and runs the real smoke IT in its own emulator (ISS-698).
 
   test-android-it:
     name: Android IT tests
+    needs: [generate, compile]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
         with:
           submodules: false
-          fetch-depth: 0
 
+      - uses: ./.github/actions/setup-scala
 
-      - uses: coursier/setup-action@v3.0.2
+      - uses: ./.github/actions/generated-port
         with:
-          jvm: ${{ env.JVM_VERSION }}
-          apps: sbt
+          key: ${{ needs.generate.outputs.key }}
 
-
-
-      - name: Checkout libGDX submodule
-        run: git submodule update --init --depth=1 original-src/libgdx
-
-      - name: Setup Baltic Porter
-        uses: ./.github/actions/setup-balticporter
-
-      - name: Publish SGE to local Maven (all platforms)
-        run: sbt 'sge/publishM2; writeDemoVersion'
-
-      - name: Publish sge-build plugin to Ivy local
-        working-directory: sge-build
-        run: sbt publishLocal
+      - uses: ./.github/actions/sge-artifacts
+        with:
+          platforms: jvm
+          extensions: "false"
 
       - name: Build smoke APK
         run: sbt 'sge-android-smoke/androidSign'
@@ -1249,207 +634,27 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -no-metrics
           disable-animations: true
-          # Build the smoke APK INSIDE the emulator-runner environment right before
-          # the IT (the separate "Build smoke APK" step runs in a context the test
-          # could not see the artifact from). Diagnostics: print the cwd and every
-          # .apk produced so the next run reveals the real output path if the test
-          # still cannot locate it.
-          # ISS-699: ISS-690 guard on the testFull line. Each script LINE runs
-          # separately via `sh -c` (dash - no PIPESTATUS), so the tee + exit-code
-          # capture is an explicit `bash -ec` one-liner and the follow-up greps
-          # are POSIX one-liners. Under sbt 2.0 a forked test JVM that dies
-          # uncleanly can exit 0 while hiding munit failures; gate on (a) sbt's
-          # exit code, (b) the munit summary line (crash => no summary), (c) no
-          # failure marker in the captured output.
+          # The smoke APK is rebuilt INSIDE the emulator-runner environment right before the IT (the
+          # separate step above runs in a context the test could not see the artifact from).
+          # Each script LINE runs separately via `sh -c` (dash - no PIPESTATUS), so the guard of
+          # the sbt-guarded action is spelled out here: (a) sbt's exit code through an explicit
+          # `bash -ec`, (b) the munit summary line (crash => no summary), (c) no failure marker.
           script: |
             echo "ANDROID-IT cwd=$(pwd) HOME=$HOME"
             sbt 'sge-android-smoke/androidSign'
             echo "=== .apk files produced ==="; find "$(pwd)" -name '*.apk' 2>/dev/null; find "$HOME" -name 'app-debug.apk' 2>/dev/null | head
             bash -ec 'sbt "sge-it-android/testFull" 2>&1 | tee /tmp/android-it.log; exit ${PIPESTATUS[0]}'
-            grep -qE 'Passed: Total [1-9]' /tmp/android-it.log || { echo '::error::ISS-690 guard: munit summary missing - the forked test JVM died uncleanly (crash), not a clean fail'; exit 1; }
-            ! grep -qE '==> X ' /tmp/android-it.log || { echo '::error::ISS-690 guard: munit failure marker present in output (failures cannot hide behind exit 0)'; exit 1; }
+            grep -qE 'Passed: Total [1-9]' /tmp/android-it.log || { echo '::error::munit summary missing - the forked test JVM died uncleanly (crash), not a clean fail'; exit 1; }
+            ! grep -qE '==> X ' /tmp/android-it.log || { echo '::error::munit failure marker present in output (failures cannot hide behind exit 0)'; exit 1; }
 
-  # ─── Demo smoke (Scala.js) ──────────────────────────────────────
+  # ─── Demos, for commits release.yml publishes no snapshot for ───────
 
-  demo-smoke-js:
-    name: Demo smoke (JS)
-    # ISS-792: gated on compile-gate (fail-fast + warm remote cache) instead
-    # of test-js (pure-ordering edge).
-    needs: [compile-gate]
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          submodules: false
-          fetch-depth: 0
-
-
-      - uses: coursier/setup-action@v3.0.2
-        with:
-          jvm: ${{ env.JVM_VERSION }}
-          apps: sbt
-
-
-
-      - name: Checkout libGDX submodule
-        run: git submodule update --init --depth=1 original-src/libgdx
-
-      - name: Setup Baltic Porter
-        uses: ./.github/actions/setup-balticporter
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Publish SGE JS to local Maven
-        # publishLocal-js-3 covers sge core + ALL JS extensions to Ivy local
-        # (demos resolve from Ivy local + mavenLocal). publishM2 keeps sge core
-        # in mavenLocal for any consumer that resolves there.
-        run: sbt 'sge/publishM2; sgeJS/publishM2; writeDemoVersion; publishLocal-js-3'
-
-      - name: Publish sge-build plugin to Ivy local
-        working-directory: sge-build
-        run: sbt publishLocal
-
-      - name: Compile Pong JS demo
-        working-directory: demos
-        run: sbt 'pongJS/fastLinkJS'
-
-  # ─── Demo compile all (JVM + JS + Native) ──────────────────────
-
-  demo-compile-all:
-    name: Demo compile all
-    # ISS-792: gated on compile-gate (fail-fast + warm remote cache) instead
-    # of test-js (pure-ordering edge).
-    needs: [compile-gate]
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          submodules: false
-          fetch-depth: 0
-
-
-      - uses: coursier/setup-action@v3.0.2
-        with:
-          jvm: ${{ env.JVM_VERSION }}
-          apps: sbt
-
-
-
-      - name: Checkout libGDX submodule
-        run: git submodule update --init --depth=1 original-src/libgdx
-
-      - name: Setup Baltic Porter
-        uses: ./.github/actions/setup-balticporter
-
-      - name: Install Scala Native system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang
-          sudo apt-get install -y libstdc++-12-dev || sudo apt-get install -y libstdc++-14-dev || true
-
-      - name: Publish SGE to local Maven (all platforms)
-        # demos compile on JVM + JS + Native and several depend on extensions
-        # (e.g. tileWorld → sge-extension-noise). The publishLocal-{jvm,js,native}-3
-        # aliases deliver sge core + ALL extensions per platform to Ivy local;
-        # publishM2 keeps sge core in mavenLocal. writeDemoVersion pins the version.
-        run: sbt 'sge/publishM2; sgeJS/publishM2; sgeNative/publishM2; writeDemoVersion; publishLocal-jvm-3; publishLocal-js-3; publishLocal-native-3'
-
-      - name: Publish sge-build plugin to Ivy local
-        working-directory: sge-build
-        run: sbt publishLocal
-
-      - name: Compile all demos (JVM + JS + Native)
-        working-directory: demos
-        run: sbt compile
-
-      - name: Verify all demos link for Scala Native
-        working-directory: demos
-        # ISS-739: this step intermittently exited 1 in <1s with ZERO sbt output
-        # (thin-client/lingering-server flake), reading as a false red. Liveness
-        # guard: capture output; a nonzero exit WITHOUT any sbt banner/error text
-        # is the silent-death signature — kill the server and retry once. A real
-        # link failure prints sbt output and fails immediately.
-        run: |
-          set -o pipefail
-          run_links() {
-            sbt 'pongNative/nativeLink; spaceShooterNative/nativeLink; curvePlaygroundNative/nativeLink; viewportGalleryNative/nativeLink; shaderLabNative/nativeLink; tileWorldNative/nativeLink; hexTacticsNative/nativeLink; viewer3dNative/nativeLink; particleShowNative/nativeLink; netChatNative/nativeLink; assetShowcaseNative/nativeLink' 2>&1 | tee /tmp/demo-native-link.log
-          }
-          if run_links; then
-            exit 0
-          fi
-          if grep -qE '\[error\]|\[info\]' /tmp/demo-native-link.log; then
-            echo "real sbt failure (output present) — not the ISS-739 silent-death flake"
-            exit 1
-          fi
-          echo "ISS-739 silent-death signature (exit!=0, no sbt output) — killing server and retrying once"
-          pkill -f 'sbt-launch' || true
-          rm -f project/target/active.json
-          sleep 5
-          run_links
-
-  # ─── Verify release packaging ──────────────────────────────────
-
-  verify-release:
-    name: Verify release (${{ matrix.label }})
-    # ISS-792: gated on plan (matrix source) + compile-gate instead of the
-    # full test-jvm AND test-native matrices — those edges were pure ordering
-    # and serialized ~20 min of release verification behind the slowest legs.
-    needs: [plan, compile-gate]
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: ${{ matrix.timeout }}
-    strategy:
-      fail-fast: false
-      matrix:
-        # Rows computed by the `plan` job (ISS-790; macos-x86_64/windows-aarch64
-        # withdrawn 2026-07-16 — see the plan job's comment).
-        include: ${{ fromJSON(needs.plan.outputs.matrix_release) }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          submodules: false
-          fetch-depth: 0
-
-
-      - uses: actions/setup-java@v6
-        with:
-          distribution: ${{ env.JAVA_DISTRIBUTION }}
-          java-version: ${{ env.JAVA_VERSION }}
-          cache: sbt
-          architecture: ${{ matrix.architecture || '' }}
-
-      - uses: sbt/setup-sbt@v1
-
-      - uses: coursier/setup-action@v3.0.2
-
-      - name: Checkout libGDX submodule
-        run: git submodule update --init --depth=1 original-src/libgdx
-
-      - name: Setup Baltic Porter
-        uses: ./.github/actions/setup-balticporter
-
-      - name: Install Scala Native system dependencies (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang
-          sudo apt-get install -y libstdc++-12-dev || sudo apt-get install -y libstdc++-14-dev || true
-
-      - name: Publish SGE to local Maven (all platforms)
-        run: sbt 'sge/publishM2; sgeJS/publishM2; sgeNative/publishM2; writeDemoVersion'
-
-      - name: Publish sge-build plugin to Ivy local
-        working-directory: sge-build
-        run: sbt publishLocal
-
-      - name: Build Pong JVM release
-        working-directory: demos
-        run: sbt 'pong/releasePackage'
-
-      - name: Build Pong Native release
-        if: matrix.native
-        working-directory: demos
-        run: sbt 'pongNative/nativeLink'
+  demos:
+    name: Demos (locally published)
+    needs: [plan, generate, compile]
+    if: needs.plan.outputs.demos_here == 'true'
+    uses: ./.github/workflows/demos.yml
+    with:
+      generated-key: ${{ needs.generate.outputs.key }}
+    secrets:
+      BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}

@@ -5,9 +5,9 @@ on:
     branches: [master]
     tags: ["*"]
   # Snapshot publishing on PRs is intentional: it is the organization's mechanism
-  # for testing cross-repository artifacts on CI. The job-level `if` below restricts
-  # it to PRs opened by org members so external-fork PRs never publish (and never
-  # receive the signing/Sonatype secrets). ISS-484.
+  # for testing cross-repository artifacts on CI — and what the demos are built against
+  # (the `demos` job below). The job-level `if` restricts it to PRs opened by org members so
+  # external-fork PRs never publish (and never receive the signing/Sonatype secrets). ISS-484.
   pull_request:
     branches: [master]
 
@@ -16,68 +16,41 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  JVM_VERSION: "zulu:25"
-
 jobs:
   # ─── Release gate (ISS-695) ─────────────────────────────────────────
   #
-  # A tag can point at ANY commit — including one that never landed on master
-  # and therefore never went through ci.yml (format / enforce / tests). ci.yml
-  # does not run on tags at all, so before this gate the ONLY pre-publish check
-  # was sgeValidateNativeLibs: `git tag <sha> && git push --tags` could publish a
-  # full Sonatype release from unformatted / covenant-breaking / failing-test
-  # code. This job re-runs the blocking ci.yml checks (format, enforce, JVM
-  # tests) plus an ancestor check, and build-and-publish `needs: [gate]` — so a
-  # broken commit turns the release run RED here and publish is SKIPPED, never
-  # reaching ci-release. Secrets (GPG / Sonatype) live ONLY in build-and-publish,
-  # never in this job.
+  # A tag can point at ANY commit — including one that never landed on master and therefore never
+  # went through ci.yml, which does not run on tags at all. This job re-runs the blocking ci.yml
+  # checks (format, covenant gate, JVM tests — the SAME composite actions ci.yml uses) plus an
+  # ancestor check, and build-and-publish `needs: [gate]`, so a broken commit turns the release run
+  # RED here and publish is SKIPPED. Secrets (GPG / Sonatype) live ONLY in build-and-publish.
+  # On pull requests the checks are skipped (ISS-794): ci.yml runs them on the same commit in
+  # parallel. They run on master pushes and — the reason this gate exists — on TAG pushes.
   gate:
     name: Validate release commit
     runs-on: ubuntu-latest
 
-    # Same fork-secret guard as build-and-publish (ISS-484): external-fork PRs
-    # must not run this heavy validation. Push events (master / tags) always run.
+    # Same fork-secret guard as build-and-publish (ISS-484). Push events always run.
     if: >-
       github.event_name != 'pull_request' ||
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)
+
+    env:
+      # Hard-fail if JDK 21 is not resolvable, so the JVM leg can never silently degrade to a green
+      # run with zero Robolectric tests executed (mirrors ci.yml test-jvm; ISS-485).
+      SGE_CI_REQUIRE_JDK21: "1"
 
     steps:
       - uses: actions/checkout@v7
         with:
           submodules: false
-          # Full history so the ancestor check below can decide whether the
-          # tagged commit is reachable from origin/master (the default shallow
-          # checkout cannot answer that).
+          # Full history: the ancestor check asks whether the tagged commit is reachable from
+          # origin/master, and the generator reads the reference tree from master.
           fetch-depth: 0
 
-      # JDK 21 for the sge-android-robolectric leg of ci-jvm-3 (Robolectric
-      # 4.16's ASM cannot run on JDK 25). Installed FIRST so the coursier JVM
-      # below wins as the final JAVA_HOME (the primary build JDK); we only need
-      # 21's install path, captured via this step's `path` output and handed to
-      # the build as JAVA21_HOME. Mirrors ci.yml's test-jvm job.
-      - uses: actions/setup-java@v6
-        id: setup-jdk21
-        with:
-          distribution: zulu
-          java-version: "21"
-
-      - uses: coursier/setup-action@v3.0.2
-        with:
-          jvm: ${{ env.JVM_VERSION }}
-          apps: sbt
-
-      - name: Checkout libGDX submodule
-        run: git submodule update --init --depth=1 original-src/libgdx
-
-      - name: Setup Baltic Porter
-        uses: ./.github/actions/setup-balticporter
-
-      # ANCESTOR CHECK (tag events only). Guards "tag on a commit that was never
-      # on master": require the tagged commit to be an ancestor of origin/master,
-      # so only reviewed, already-CI'd history can be released. On master pushes
-      # GITHUB_SHA is already on master; on PRs GITHUB_SHA is the PR head — both
-      # would spuriously fail this check, so it runs on tag pushes only.
+      # ANCESTOR CHECK (tag events only): only reviewed, already-CI'd history can be released. On
+      # master pushes GITHUB_SHA is already on master; on PRs it is the PR head — both would
+      # spuriously fail this check.
       - name: Require tagged commit to be an ancestor of master
         if: github.ref_type == 'tag'
         run: |
@@ -89,136 +62,122 @@ jobs:
           fi
           echo "OK: $GITHUB_SHA is an ancestor of origin/master"
 
-      # The format / enforce / test steps below are SKIPPED on pull_request
-      # events (ISS-794): ci.yml runs the identical checks on the same commit
-      # in parallel, so re-running them here was ~15-19 min of pure
-      # duplication per PR. They still run on master pushes and — the reason
-      # this gate exists — on TAG pushes, where ci.yml does not run at all
-      # (ISS-695). The snapshot publish itself stays on PRs (intentional
-      # cross-repo artifact-testing mechanism, ISS-484).
-
-      # FORMAT (ci.yml format job).
-      - name: Check formatting
+      - uses: ./.github/actions/setup-scala
+        id: scala
         if: github.event_name != 'pull_request'
-        run: sbt "scalafmtCheckAll; scalafmtSbtCheck"
+        with:
+          jdk21: "true"
 
-      # ENFORCE (ci.yml enforce job): install clang + the pinned re-scale 0.1.5,
-      # then run the covenant + shortcut ratchet gate.
-      - name: Install Scala Native deps
+      - uses: ./.github/actions/check-format
         if: github.event_name != 'pull_request'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang
 
-      - name: Install re-scale
+      - uses: ./.github/actions/setup-native-toolchain
         if: github.event_name != 'pull_request'
-        run: |
-          set -euo pipefail
-          # Pin to the SAME tag the committed covenant-gate baseline was built
-          # with (0.1.5) — re-scale's covenant computation drifts between
-          # releases, so an unpinned clone makes the gate non-reproducible.
-          git clone --depth=1 --branch 0.1.5 https://github.com/kubuszok/re-scale.git "$RUNNER_TEMP/re-scale"
-          cd "$RUNNER_TEMP/re-scale"
-          sbt install
-          echo "$RUNNER_TEMP/re-scale/bin" >> "$GITHUB_PATH"
 
-      - name: Print re-scale version
+      - uses: ./.github/actions/covenant-gate
         if: github.event_name != 'pull_request'
-        run: re-scale version
 
-      - name: Covenant + shortcut ratchet gate
+      - uses: ./.github/actions/generated-port
         if: github.event_name != 'pull_request'
-        run: .rescale/scripts/covenant-gate.sh
+        with:
+          mode: generate
 
-      # TESTS (ci.yml:185). One representative gate leg (JVM 3) is enough here —
-      # the ancestor check guarantees the commit already went through the full
-      # ci.yml matrix on master.
+      - name: Point the Robolectric test fork at JDK 21
+        if: github.event_name != 'pull_request'
+        run: echo "JAVA21_HOME=${{ steps.scala.outputs.java21-home }}" >> "$GITHUB_ENV"
+
+      # One representative leg (JVM) is enough here — the ancestor check guarantees the commit
+      # already went through the full ci.yml matrix on master.
       - name: Run JVM tests (core + all extensions)
         if: github.event_name != 'pull_request'
-        run: sbt ci-jvm-3
-        env:
-          # Point the Robolectric test fork at the JDK 21 installed above.
-          JAVA21_HOME: ${{ steps.setup-jdk21.outputs.path }}
-          # Hard-fail if that JDK 21 is somehow not resolvable, so this leg can
-          # never silently degrade to a green run with zero Robolectric tests
-          # executed (mirrors ci.yml test-jvm; ISS-485).
-          SGE_CI_REQUIRE_JDK21: "1"
+        uses: ./.github/actions/sbt-guarded
+        with:
+          command: sbt ci-jvm-3
 
   build-and-publish:
     runs-on: macos-latest
 
-    # Publish only after the gate passes — GitHub skips this job whenever `gate`
-    # fails (or is itself skipped), so an unvalidated / broken commit can never
-    # reach ci-release. ISS-695.
+    # Publish only after the gate passes — GitHub skips this job whenever `gate` fails (or is
+    # itself skipped), so an unvalidated / broken commit can never reach ci-release. ISS-695.
     needs: [gate]
 
-    # Push events (master / tags) always run. Pull-request events publish a
-    # snapshot ONLY when the PR author is an org member/owner/collaborator —
-    # external-fork PRs must not publish, as that would expose the GPG/Sonatype
-    # secrets. ISS-484.
+    # Push events (master / tags) always run. Pull-request events publish a snapshot ONLY when the
+    # PR author is an org member/owner/collaborator. ISS-484.
     if: >-
       github.event_name != 'pull_request' ||
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.pull_request.author_association)
 
     name: ${{ startsWith(github.ref, 'refs/tags/') && 'Publish Tag as Release' || 'Publish Snapshot' }}
 
+    env:
+      # Snapshots build with the BuildBuddy remote cache (unchanged modules are restored instead of
+      # recompiled); a TAGGED release always builds from source.
+      BUILDBUDDY_API_KEY: ${{ github.ref_type != 'tag' && secrets.BUILDBUDDY_API_KEY || '' }}
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      generated-key: ${{ steps.port.outputs.key }}
+
     steps:
       - uses: actions/checkout@v7
         with:
           submodules: false
           # Baltic Porter derives sge's spellings from the master branch's hand port
-          # (`git archive origin/master`); a shallow checkout has no such ref and the
-          # port is generated from an empty reference.
+          # (`git archive origin/master`); a shallow checkout has no such ref.
           fetch-depth: 0
-      - uses: coursier/cache-action@v8
+
       - name: Import GPG key for signing the release
         uses: crazy-max/ghaction-import-gpg@v7
         with:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
-      - uses: coursier/setup-action@v3.0.2
+
+      - uses: ./.github/actions/setup-scala
+
+      - uses: ./.github/actions/generated-port
+        id: port
         with:
-          jvm: ${{ env.JVM_VERSION }}
-          apps: sbt
-      - name: Checkout libGDX submodule
-        run: git submodule update --init --depth=1 original-src/libgdx
-      - name: Setup Baltic Porter
-        uses: ./.github/actions/setup-balticporter
+          mode: generate
+
       - name: Publish all projects
-        # Validate natives before publishing: sgeValidateNativeLibs checks that the
-        # resolved pnm-provider-sge-* dependency (the JAR users resolve to get natives)
-        # carries every binary its manifest promises for all desktop platforms. sbt runs
-        # commands in sequence and aborts on the first failure, so a gap blocks ci-release.
-        # No skip flag — nothing unvalidated reaches Sonatype.
-        # sbt 2.0 joins multiple CLI args into ONE command line (so
-        # `sbt "a" "b"` parses as `a b` and fails); sequence with `;` in a
-        # single arg so native-lib validation runs before ci-release.
-        #
-        # writeDemoVersion pins the root's git-tag version into ./.sge-version
-        # (ISS-752): sge-build is a SEPARATE build whose version reads that file,
-        # so it MUST be written with the release version BEFORE the sge-build
-        # publish step below (otherwise sge-build falls back to a `<sha>-SNAPSHOT`
-        # and a tagged release would ship a snapshot-versioned plugin).
+        # sgeValidateNativeLibs checks that the resolved pnm-provider-sge-* dependency carries every
+        # binary its manifest promises for all desktop platforms; sbt aborts on the first failure,
+        # so a gap blocks ci-release. sbt 2 joins multiple CLI args into ONE command line, so the
+        # commands are sequenced with `;` in a single argument.
+        # writeDemoVersion pins the root's version into ./.sge-version (ISS-752): sge-build is a
+        # SEPARATE build whose version reads that file, so it MUST be written before the sge-build
+        # publish step below (otherwise a tagged release would ship a snapshot-versioned plugin).
         run: sbt "sge / sgeValidateNativeLibs; writeDemoVersion; ci-release"
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+
       - name: Publish sbt plugin (sge-build)
-        # ISS-752: the sbt plugin every new game project needs
-        # (docs/getting-started.md: addSbtPlugin("com.kubuszok" % "sge-build")).
-        # It lives in a SEPARATE sbt build, so the root ci-release above never
-        # touches it — CI previously published it to Ivy-local only, leaving the
-        # documented entry point unresolvable from Maven Central. This runs the
-        # SAME `ci-release` mechanism (sbt-kubuszok in sge-build/project/plugins.sbt)
-        # in the sge-build build: on a TAG it stages + `sonaRelease`s a signed
-        # release; on a master push (no tag) it `+publishSigned`s a snapshot for
-        # cross-repo consumers (ISS-484). It reads its version from ../.sge-version,
-        # written by the writeDemoVersion above. The GPG key imported at job level
-        # and the Sonatype credentials below sign/authenticate exactly as for the
-        # root — no extra setup. This step inherits the job-level author-association
-        # guard, so external-fork PRs neither run it nor see the secrets.
+        # ISS-752: the sbt plugin every game project needs lives in a SEPARATE sbt build, so the
+        # root ci-release never touches it. Same `ci-release` mechanism: on a TAG it stages and
+        # releases a signed release; otherwise it publishes a signed snapshot. It reads its version
+        # from ../.sge-version, written by writeDemoVersion above.
         working-directory: sge-build
         run: sbt ci-release
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+
+      - name: Report the published version
+        id: version
+        run: echo "version=$(cat .sge-version)" >> "$GITHUB_OUTPUT"
+
+  # ─── Demos, built against the snapshot just published ───────────────
+  #
+  # A tagged release is staged, not served from the snapshot repository, so the demos run for
+  # snapshots only (the tagged commit's snapshot was already verified on master).
+  demos:
+    name: Demos (published snapshot)
+    needs: [build-and-publish]
+    if: github.ref_type != 'tag'
+    uses: ./.github/workflows/demos.yml
+    with:
+      sge-version: ${{ needs.build-and-publish.outputs.version }}
+      generated-key: ${{ needs.build-and-publish.outputs.generated-key }}
+    secrets:
+      BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}

@@ -5,6 +5,12 @@
   "permissions": {
     "allow": ["Bash", "mcp__metals__*", "WebFetch", "WebSearch"]
   },
+  "extraKnownMarketplaces": {
+    "balticporter": { "source": { "source": "github", "repo": "kubuszok/balticporter" } }
+  },
+  "enabledPlugins": {
+    "balticporter@balticporter": true
+  },
   "enabledMcpjsonServers": ["metals"],
   "enableAllProjectMcpServers": true,
   "attribution": {

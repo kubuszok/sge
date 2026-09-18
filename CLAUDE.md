@@ -54,13 +54,26 @@ build time. Output goes to `target/balticporter-sge/src_managed/main/scala`.
 
 Requirements:
 - `original-src/libgdx` submodule checked out (upstream Java sources)
-- `../balticporter` sibling checkout (conf files, classpath entries)
-- `balticporter-corpus` and `balticporter-frontend-ts` 0.1.0-SNAPSHOT published
+- the `balticporter-corpus` / `balticporter-frontend-ts` snapshot pinned in `project/plugins.sbt`,
+  resolved from Maven Central's snapshot repository (no engine checkout: the jar carries the files
+  the port's policy injects; `-Dbalticporter.root=<checkout>` reads them from a checkout instead)
+- JDK 25 for the sbt server (the generated code depends on the JDK major) and `cs` on the PATH
+
+The generated tree is reused while `target/balticporter-sge/.generated-marker` matches the engine
+pin, the libGDX commit, the generator source and the JDK major. CI generates it once (the
+`generate` job) and every other job restores it — those jobs have no submodule.
 
 Rules:
 - **Never edit generated files** — change the manifest/conf in balticporter, then regenerate.
 - `sge/src/main/scala/` holds hand-written code that compiles as-is (platform glue, overrides).
-- Regenerate: delete `target/balticporter-sge/.generated-marker` or pass `-Dbalticporter.forceRegen=true`.
+- Regenerate: delete `target/balticporter-sge/.generated-marker` or pass `-Dbalticporter.forceRegen=true`;
+  `sbt --client generatePort` runs the generation alone.
+- Before any push: commit, then `sbt --client verifyLocal` (JVM, Scala.js and Scala Native tests; it
+  records the verified commit in `target/local-verification`). A hook refuses the push otherwise.
+- The procedures — tracing a generated defect to the rule that produced it, bumping the engine pin,
+  driving sbt 2, what CI does with the generated tree — are skills of the `balticporter` Claude Code
+  plugin this repository enables (`.claude/settings.json`): `generated-code`, `root-cause-port`,
+  `consumer-ci`, `sbt2-client`, `cross-platform-port`.
 
 ## CLI Toolkit: `re-scale`
 

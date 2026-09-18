@@ -8,8 +8,8 @@ import scala.jdk.CollectionConverters.*
   *
   * Requires:
   *   - libGDX sources at `original-src/libgdx/gdx/src` (git submodule)
-  *   - balticporter checkout at `../balticporter` (sibling directory) for inject files and classpath cache; override with `-Dbalticporter.root=<path>`
-  *   - `balticporter-corpus` 0.1.0-SNAPSHOT published locally (`sbt publishLocal` in balticporter)
+  *   - the `balticporter-corpus` artifact pinned in `project/plugins.sbt` (it carries the files the policy injects; no engine checkout is needed)
+  *   - `cs` (coursier) on the PATH, to resolve the classpath libGDX's own sources are read against
   */
 object BalticPorterGen {
 
@@ -23,35 +23,45 @@ object BalticPorterGen {
 
   private def generateUnlocked(buildBase: File, log: sbt.util.Logger): Seq[File] = {
     val sgeRoot = buildBase.toPath.toAbsolutePath.normalize
-    val bpRoot  = Path.of(sys.props.getOrElse("balticporter.root", sgeRoot.resolve("../balticporter").toString)).toAbsolutePath.normalize
 
     val libgdxSrc = sgeRoot.resolve("original-src/libgdx/gdx/src")
-    if (!Files.isDirectory(libgdxSrc) || !Files.isDirectory(bpRoot.resolve("balticporter/corpus"))) {
-      log.warn("[Baltic Porter] No libGDX submodule or balticporter sibling — skipping sge-core generation")
-      val outDir = sgeRoot.resolve("target/balticporter-sge/src_managed/main/scala")
-      return if (Files.isDirectory(outDir)) collectScalaFiles(outDir) else Nil
-    }
+    val portRoot  = sgeRoot.resolve("target/balticporter-sge")
+    val outDir    = portRoot.resolve("src_managed/main/scala")
+    val marker    = portRoot.resolve(".generated-marker")
 
-    val portRoot = sgeRoot.resolve("target/balticporter-sge")
-    val outDir   = portRoot.resolve("src_managed/main/scala")
-    val marker   = portRoot.resolve(".generated-marker")
-
-    // Cache key: the vendored tree's commit.
-    // During development, force regeneration with -Dbalticporter.forceRegen=true to pick up
-    // corpus changes. Default false: delete target/balticporter-sge/.generated-marker instead.
+    // Cache key: everything the generated tree depends on (see `fingerprint`), readable without the
+    // submodule's files — so a checkout that RECEIVED the generated tree (a CI job downloading the
+    // `generate` job's output) reuses it and needs neither the submodule nor a generation run.
+    // During development, force regeneration with -Dbalticporter.forceRegen=true, or delete
+    // target/balticporter-sge/.generated-marker.
     val forceRegen = sys.props.getOrElse("balticporter.forceRegen", "false").toBoolean
-    val commit     = balticporter.runner.VendoredCommit.of(libgdxSrc)
+    val expected   = fingerprint(sgeRoot)
     val cached     = !forceRegen && Files.exists(marker) &&
       Files.exists(outDir) &&
-      Files.readString(marker).trim == commit
+      Files.readString(marker).trim == expected
+
+    if (!cached && !Files.isDirectory(libgdxSrc))
+      sys.error(
+        "[Baltic Porter] The generated sge-core sources are missing or stale (" + marker + " does not read `" + expected + "`) and the libGDX submodule is not " +
+          "initialised. Run `git submodule update --init --depth=1 original-src/libgdx`, or place a generated tree with a matching marker under " + portRoot + "."
+      )
 
     if (!cached) {
+      val commit = balticporter.runner.VendoredCommit.of(libgdxSrc)
       log.info(s"[Baltic Porter] Generating sge-core sources from libGDX ($commit)")
+
+      // The files the port's policy injects by path ship inside the published corpus jar and are
+      // unpacked under target/; -Dbalticporter.root=<engine checkout> reads them from a checkout
+      // instead (engine development only).
+      val bpRoot = sys.props.get("balticporter.root") match {
+        case Some(root) => Path.of(root).toAbsolutePath.normalize
+        case None       => balticporter.corpus.BundledCorpus.root(sgeRoot.resolve("target/balticporter-engine"))
+      }
 
       // Step 1: Run the lls port first so its port-map.tsv is fresh and discoverable.
       // sge-core is a DEPENDENT of lls; it needs the base's published port map to answer
       // contract questions about the base's types (CLAUDE.md section 1.5).
-      val llsReportRoot = runLlsPort(sgeRoot, bpRoot, libgdxSrc, commit, log)
+      val llsReportRoot = runLlsPort(sgeRoot, bpRoot, libgdxSrc, commit, expected, log)
 
       // Step 2: Run the sge-core port (L0 ladder) as a dependent of the lls port.
       val steps = balticporter.corpus.libgdx.LibgdxLadder.DefaultSteps
@@ -68,7 +78,7 @@ object BalticPorterGen {
       // build.sbt attaches to that row only (`platformSources`).
       val parityRef = extractParityReference(sgeRoot, log)
       val manifest  = balticporter.corpus.libgdx.LibgdxLadder
-        .universal(bpRoot, steps)
+        .universal(bpRoot, steps, upstreamResources = Some(sgeRoot.resolve("original-src/libgdx/gdx/res")))
         .copy(
           parity = Some(balticporter.core.ParityRef(roots = parityRef, compare = false)),
           platformDirs = portOwnedPlatformDirs(bpRoot, steps),
@@ -136,9 +146,9 @@ object BalticPorterGen {
       postProcess(outDir, log)
 
       Files.createDirectories(marker.getParent)
-      Files.writeString(marker, commit)
+      Files.writeString(marker, expected)
     } else {
-      log.info(s"[Baltic Porter] Using cached generated sources ($commit)")
+      log.info(s"[Baltic Porter] Using cached generated sources ($expected)")
     }
 
     // Collect generated files, excluding any that also exist in sge's hand-written source tree.
@@ -148,6 +158,34 @@ object BalticPorterGen {
     val managedRoot  = portRoot.resolve("src_managed/main")
     val sgeUnmanaged = sgeRoot.resolve("sge/src/main")
     collectScalaFiles(managedRoot, excludeDuplicatesOf = Some(sgeUnmanaged))
+  }
+
+  /** What the generated tree depends on, as one line, readable on a shallow checkout WITHOUT the submodule's files: the engine artifact pinned in `project/plugins.sbt`, the libGDX commit (the
+    * submodule's HEAD when it is initialised, else the commit this checkout records for it), this generator (line endings normalised, so every OS agrees) and the JDK feature version.
+    */
+  def fingerprint(sgeRoot: Path): String = {
+    def git(dir: Path, args: String*): Option[String] = {
+      val pb = new ProcessBuilder(("git" +: args)*)
+      pb.directory(dir.toFile)
+      pb.redirectErrorStream(true)
+      val p   = pb.start()
+      val out = new String(p.getInputStream.readAllBytes()).trim
+      if (p.waitFor() == 0 && out.nonEmpty) Some(out) else None
+    }
+    val pin = """balticporter-corpus" % "([^"]+)"""".r
+      .findFirstMatchIn(Files.readString(sgeRoot.resolve("project/plugins.sbt")))
+      .map(_.group(1))
+      .getOrElse(sys.error("[Baltic Porter] project/plugins.sbt pins no balticporter-corpus version"))
+    val submodule = sgeRoot.resolve("original-src/libgdx")
+    val libgdx    = (if (Files.exists(submodule.resolve(".git"))) git(submodule, "rev-parse", "HEAD") else None)
+      .orElse(git(sgeRoot, "ls-tree", "HEAD", "original-src/libgdx").flatMap(_.split("\\s+").lift(2)))
+      .getOrElse(
+        sys.error("[Baltic Porter] cannot read the libGDX commit this checkout records (git ls-tree HEAD original-src/libgdx)")
+      )
+    val source    = Files.readString(sgeRoot.resolve("project/BalticPorterGen.scala")).replace("\r", "")
+    val generator = java.security.MessageDigest.getInstance("SHA-256").digest(source.getBytes("UTF-8")).take(8).map(b => f"$b%02x").mkString
+    // the JDK the generator runs on decides what a member overrides (`CharSequence.getChars` exists from 25 on)
+    s"engine=$pin libgdx=$libgdx generator=$generator jdk=${java.lang.Runtime.version().feature()}"
   }
 
   /** the ladder steps whose platform files sge hand-writes itself (sge/src/main/scala{jvm,js,native,desktop}) */
@@ -191,6 +229,7 @@ object BalticPorterGen {
     bpRoot:    Path,
     libgdxSrc: Path,
     commit:    String,
+    key:       String,
     log:       sbt.util.Logger
   ): Path = {
     val llsPortRoot = sgeRoot.resolve("target/balticporter-lls")
@@ -203,7 +242,7 @@ object BalticPorterGen {
 
     val llsCached = Files.exists(llsMarker) &&
       Files.exists(llsReportDir.resolve("run-latest/port-map.tsv")) &&
-      Files.readString(llsMarker).trim == commit
+      Files.readString(llsMarker).trim == key
 
     if (!llsCached) {
       log.info(s"[Baltic Porter] Running lls base port first (required for sge-core contract)")
@@ -246,7 +285,7 @@ object BalticPorterGen {
       System.clearProperty("balticporter.reportDir")
 
       Files.createDirectories(llsMarker.getParent)
-      Files.writeString(llsMarker, commit)
+      Files.writeString(llsMarker, key)
       log.info(s"[Baltic Porter] lls base port complete, port-map at $llsReportDir")
     } else {
       log.info(s"[Baltic Porter] Using cached lls base port ($commit)")

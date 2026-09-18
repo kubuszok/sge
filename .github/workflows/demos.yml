@@ -1,0 +1,208 @@
+name: Demos
+
+# Everything that consumes sge the way a game project does: through PUBLISHED artifacts, from the
+# separate `demos/` sbt build. Called by release.yml right after it publishes a snapshot (the demos
+# then resolve that snapshot from Maven Central — nothing is published locally), and by ci.yml for
+# fork PRs, where no snapshot exists and the artifacts are published locally instead.
+
+on:
+  workflow_call:
+    inputs:
+      sge-version:
+        description: published sge snapshot to build against; empty = publish locally from this checkout
+        type: string
+        default: ""
+      generated-key:
+        description: cache key of the generated port (the `generated-port` action's output)
+        type: string
+        required: true
+    secrets:
+      BUILDBUDDY_API_KEY:
+        required: false
+
+env:
+  BUILDBUDDY_API_KEY: ${{ secrets.BUILDBUDDY_API_KEY }}
+
+jobs:
+  # ─── Browser integration tests (Scala.js + Playwright) ─────────────
+  browser-it:
+    name: Browser IT tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: false
+
+      - uses: ./.github/actions/setup-scala
+
+      # the regression app and the IT suite live in the ROOT build, which compiles the generated core
+      - uses: ./.github/actions/generated-port
+        with:
+          key: ${{ inputs.generated-key }}
+
+      - uses: ./.github/actions/setup-js
+        with:
+          install-deps: "false"
+
+      - uses: ./.github/actions/sge-artifacts
+        with:
+          version: ${{ inputs.sge-version }}
+          platforms: jvm js
+
+      - name: Link the regression app for the browser bootstrap test
+        run: sbt 'regressionTestJS/fastLinkJS'
+
+      - name: Link the demos for the browser smoke tests
+        working-directory: demos
+        run: sbt 'pongJS/fastLinkJS; spaceShooterJS/fastLinkJS; curvePlaygroundJS/fastLinkJS; viewportGalleryJS/fastLinkJS; shaderLabJS/fastLinkJS; tileWorldJS/fastLinkJS; hexTacticsJS/fastLinkJS; netChatJS/fastLinkJS; viewer3dJS/fastLinkJS; particleShowJS/fastLinkJS'
+
+      # Real browser-packaging coverage: unlike the fastLinkJS demos above (dev build, synthetic
+      # HTML, no embedded assets), sgePackageBrowser runs fullLinkJS AND the embedded-resources
+      # generator AND writes index.html, so the AssetShowcase smoke test loads REAL assets over
+      # HTTP. Retried: fullLinkJS + plugin resolution occasionally hits a transient launcher /
+      # coursier flake (an empty 0.7s exit 1); a genuine failure still fails all three attempts.
+      - name: Package AssetShowcase for the browser (fullLinkJS + embedded resources)
+        working-directory: demos
+        run: |
+          for attempt in 1 2 3; do
+            echo "::group::assetShowcaseJS/sgePackageBrowser (attempt $attempt)"
+            if sbt 'assetShowcaseJS/sgePackageBrowser'; then
+              echo "::endgroup::"; echo "packaged on attempt $attempt"; exit 0
+            fi
+            echo "::endgroup::"; echo "attempt $attempt failed"; sleep 5
+          done
+          echo "sgePackageBrowser failed after 3 attempts"; exit 1
+
+      - name: Install Playwright
+        run: npx --yes playwright install --with-deps chromium
+
+      - name: Run browser integration tests
+        uses: ./.github/actions/sbt-guarded
+        with:
+          command: sbt 'sge-it-browser/testFull'
+
+  # ─── Demo smoke (Scala.js) ──────────────────────────────────────
+  demo-smoke-js:
+    name: Demo smoke (JS)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: false
+
+      - uses: ./.github/actions/setup-scala
+
+      - uses: ./.github/actions/generated-port
+        if: inputs.sge-version == ''
+        with:
+          key: ${{ inputs.generated-key }}
+
+      - uses: ./.github/actions/setup-js
+        with:
+          install-deps: "false"
+
+      - uses: ./.github/actions/sge-artifacts
+        with:
+          version: ${{ inputs.sge-version }}
+          platforms: jvm js
+
+      - name: Link the Pong JS demo
+        working-directory: demos
+        run: sbt 'pongJS/fastLinkJS'
+
+  # ─── Demo compile all (JVM + JS + Native) ──────────────────────
+  demo-compile-all:
+    name: Demo compile all
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: false
+
+      - uses: ./.github/actions/setup-scala
+
+      - uses: ./.github/actions/generated-port
+        if: inputs.sge-version == ''
+        with:
+          key: ${{ inputs.generated-key }}
+
+      - uses: ./.github/actions/setup-native-toolchain
+
+      - uses: ./.github/actions/sge-artifacts
+        with:
+          version: ${{ inputs.sge-version }}
+
+      - name: Compile all demos (JVM + JS + Native)
+        working-directory: demos
+        run: sbt compile
+
+      # This step intermittently exited 1 in under a second with ZERO sbt output (a thin-client /
+      # lingering-server flake), reading as a false red. A nonzero exit WITHOUT any sbt output is
+      # that signature: stop the server and retry once. A real link failure prints output and
+      # fails immediately.
+      - name: Verify all demos link for Scala Native
+        working-directory: demos
+        run: |
+          set -o pipefail
+          run_links() {
+            sbt 'pongNative/nativeLink; spaceShooterNative/nativeLink; curvePlaygroundNative/nativeLink; viewportGalleryNative/nativeLink; shaderLabNative/nativeLink; tileWorldNative/nativeLink; hexTacticsNative/nativeLink; viewer3dNative/nativeLink; particleShowNative/nativeLink; netChatNative/nativeLink; assetShowcaseNative/nativeLink' 2>&1 | tee /tmp/demo-native-link.log
+          }
+          if run_links; then
+            exit 0
+          fi
+          if grep -qE '\[error\]|\[info\]' /tmp/demo-native-link.log; then
+            echo "real sbt failure (output present) — not the silent-death flake"
+            exit 1
+          fi
+          echo "silent-death signature (exit!=0, no sbt output) — stopping the server and retrying once"
+          sbt shutdown || true
+          rm -f project/target/active.json
+          sleep 5
+          run_links
+
+  # ─── Verify release packaging ──────────────────────────────────
+  verify-release:
+    name: Verify release (${{ matrix.label }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: ${{ matrix.timeout }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # macos-x86_64 and windows-aarch64 are withdrawn (see ci.yml's plan job); Scala Native
+        # cannot link the release on the Windows runner, so that row verifies the JVM package only.
+        include:
+          - { os: ubuntu-latest, label: linux-x86_64, native: true, timeout: 45 }
+          - { os: ubuntu-24.04-arm, label: linux-aarch64, native: true, timeout: 45 }
+          - { os: macos-latest, label: macos-aarch64, native: true, timeout: 45 }
+          - { os: windows-latest, label: windows-x86_64, native: false, timeout: 45 }
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: false
+
+      - uses: ./.github/actions/setup-scala
+
+      - uses: ./.github/actions/generated-port
+        if: inputs.sge-version == ''
+        with:
+          key: ${{ inputs.generated-key }}
+
+      - uses: ./.github/actions/setup-native-toolchain
+        if: matrix.native
+
+      - uses: ./.github/actions/sge-artifacts
+        with:
+          version: ${{ inputs.sge-version }}
+          extensions: "false"
+
+      - name: Build the Pong JVM release
+        working-directory: demos
+        run: sbt 'pong/releasePackage'
+
+      - name: Link the Pong Native release
+        if: matrix.native
+        working-directory: demos
+        run: sbt 'pongNative/nativeLink'

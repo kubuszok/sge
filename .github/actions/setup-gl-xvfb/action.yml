@@ -1,0 +1,21 @@
+name: Setup virtual display and GL runtime
+description: >
+  xvfb plus the X11 / Mesa GL / Vulkan runtime libraries GLFW and ANGLE need on a GPU-less Linux
+  runner. ANGLE's own libEGL/libGLESv2 come from the provider JARs; this only provides the display
+  and the software drivers underneath (llvmpipe for GL, lavapipe for Vulkan).
+
+runs:
+  using: composite
+  steps:
+    - name: Install xvfb + GL/Vulkan runtime libs
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          xvfb \
+          libgl1-mesa-dri \
+          libegl1 \
+          libgles2 \
+          mesa-vulkan-drivers libvulkan1 vulkan-tools \
+          libx11-6 libxext6 libxrandr2 libxinerama1 libxcursor1 libxi6 \
+          libxkbcommon0 libwayland-client0

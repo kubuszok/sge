@@ -1,0 +1,53 @@
+name: Guarded sbt run
+description: >
+  Run an sbt command whose tests execute in a forked JVM or a native process, and never trust the
+  exit code alone: under sbt 2 a fork that dies uncleanly (a native crash) can let the task exit 0
+  while hiding failures. The run passes only when (a) sbt exits 0, (b) the output proves the run
+  reached its end — a line matching `require`, and the `sentinel` file when one is named — and
+  (c) no munit failure marker appears in the output.
+
+inputs:
+  command:
+    description: the full command line, e.g. `sbt ci-jvm-3` or `xvfb-run -a sbt 'x/testFull'`
+    required: true
+  require:
+    description: extended regex that must match at least one output line (empty = not checked)
+    default: "Passed: Total [1-9]"
+  sentinel:
+    description: path of a file the run writes on clean completion (empty = not checked)
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        GUARDED_COMMAND: ${{ inputs.command }}
+        GUARDED_REQUIRE: ${{ inputs.require }}
+        GUARDED_SENTINEL: ${{ inputs.sentinel }}
+      run: |
+        log="$RUNNER_TEMP/sbt-guarded.log"
+        if [ -n "$GUARDED_SENTINEL" ]; then rm -f "$GUARDED_SENTINEL"; fi
+        set +e
+        bash -c "$GUARDED_COMMAND" 2>&1 | tee "$log"
+        code=${PIPESTATUS[0]}
+        set -e
+        fail=0
+        if [ "$code" -ne 0 ]; then
+          echo "::error::the command exited with code $code"
+          fail=1
+        fi
+        if [ -n "$GUARDED_REQUIRE" ] && ! grep -qE "$GUARDED_REQUIRE" "$log"; then
+          echo "::error::completion line /$GUARDED_REQUIRE/ missing - the forked process died uncleanly (a crash), not a clean fail"
+          fail=1
+        fi
+        if [ -n "$GUARDED_SENTINEL" ] && [ ! -f "$GUARDED_SENTINEL" ]; then
+          echo "::error::completion sentinel $GUARDED_SENTINEL missing - the forked test JVM died uncleanly (a crash), not a clean fail"
+          fail=1
+        fi
+        if grep -qE '==> X ' "$log"; then
+          echo "::error::munit failure marker present in the output (failures cannot hide behind exit 0)"
+          fail=1
+        fi
+        if [ "$fail" -eq 0 ]; then echo "ran to completion, all checks passed"; fi
+        exit "$fail"

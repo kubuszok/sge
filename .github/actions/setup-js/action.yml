@@ -1,0 +1,25 @@
+name: Setup Node.js
+description: >
+  Node.js for Scala.js linking and tests. `install-deps` also installs the repository's npm
+  packages: the Scala.js unit tests run under the jsdom environment, and without `npm ci` the JS
+  env aborts with "Cannot find module 'jsdom'".
+
+inputs:
+  node-version:
+    description: Node.js major version
+    default: "24"
+  install-deps:
+    description: run `npm ci` in the repository root
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v7
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Install JS test dependencies
+      if: inputs.install-deps == 'true'
+      shell: bash
+      run: npm ci

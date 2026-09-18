@@ -1,0 +1,42 @@
+name: Generated port
+description: >
+  The Baltic Porter output (target/balticporter-sge) for this commit, generated ONCE per distinct
+  input set and shared between jobs and workflows through the Actions cache — see the action this
+  wraps. `generate` needs a full-history checkout (the generator derives sge's spellings from the
+  hand port on master, so that tree is part of the key) and the Scala toolchain; `restore` needs
+  neither, and no submodule.
+  The `uses:` line below is the ONE place the shared action's version is pinned.
+
+inputs:
+  mode:
+    description: generate | restore
+    default: restore
+  key:
+    description: cache key to restore (the `key` output of the `generate` mode); required for `restore`
+    default: ""
+
+outputs:
+  key:
+    description: the cache key the generated tree is stored under
+    value: ${{ steps.port.outputs.key }}
+
+runs:
+  using: composite
+  steps:
+    - name: Hash the reference tree on master
+      id: reference
+      if: inputs.mode == 'generate'
+      shell: bash
+      run: |
+        set -euo pipefail
+        tree=$(git rev-parse --verify --quiet origin/master:sge/src/main || git rev-parse --verify master:sge/src/main)
+        echo "tree=$tree" >> "$GITHUB_OUTPUT"
+
+    - uses: kubuszok/balticporter/.github/actions/generated-port@38742ae59addfc2e6bc9865c5f22620fbf807323
+      id: port
+      with:
+        mode: ${{ inputs.mode }}
+        key: ${{ inputs.key }}
+        path: target/balticporter-sge
+        submodule: original-src/libgdx
+        key-extra: ${{ steps.reference.outputs.tree }}

@@ -1,0 +1,73 @@
+name: SGE artifacts for the demos build
+description: >
+  Makes one sge version resolvable by the `demos/` sub-build (a separate sbt build that consumes sge
+  and the sge-build plugin as PUBLISHED artifacts, exactly as a game project does).
+  With `version` set, that published snapshot is used: the version is pinned in .sge-version and
+  the action waits until Maven Central's snapshot repository serves it. With `version` empty (a
+  fork PR, where nothing is published) the artifacts are published locally from this checkout,
+  which then needs the generated port and the Scala toolchain.
+
+inputs:
+  version:
+    description: the published sge snapshot version; empty = publish locally
+    default: ""
+  platforms:
+    description: space-separated platform rows to publish locally (jvm js native)
+    default: "jvm js native"
+  extensions:
+    description: also publish every extension module of those rows (the demos depend on several); false = sge core only
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - name: Use the published snapshot
+      if: inputs.version != ''
+      shell: bash
+      env:
+        SGE_VERSION: ${{ inputs.version }}
+      run: |
+        set -euo pipefail
+        printf '%s' "$SGE_VERSION" > .sge-version
+        printf '%s' "$SGE_VERSION" > demos/.sge-version
+        base=https://central.sonatype.com/repository/maven-snapshots/com/kubuszok
+        for artifact in sge_3 sge_sjs1_3 sge_native0.5_3 sge-build_sbt2_3; do
+          # the pom, not the version's maven-metadata.xml: the snapshot repository serves the latter
+          # for some artifacts only
+          url="$base/$artifact/$SGE_VERSION/$artifact-$SGE_VERSION.pom"
+          for attempt in $(seq 1 40); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$url" || true)
+            if [ "$code" = "200" ]; then echo "$artifact $SGE_VERSION is published"; continue 2; fi
+            echo "waiting for $artifact $SGE_VERSION (HTTP $code, attempt $attempt/40)"; sleep 15
+          done
+          echo "::error::$artifact $SGE_VERSION never appeared at $url"; exit 1
+        done
+
+    - name: Publish sge locally
+      if: inputs.version == ''
+      shell: bash
+      env:
+        PLATFORMS: ${{ inputs.platforms }}
+        EXTENSIONS: ${{ inputs.extensions }}
+      run: |
+        set -euo pipefail
+        # publishM2 puts sge core in mavenLocal; the publishLocal-<row>-3 aliases put core + every
+        # extension in Ivy local (the demos resolve from both); writeDemoVersion pins .sge-version
+        commands="writeDemoVersion"
+        for p in $PLATFORMS; do
+          case "$p" in
+            jvm)    core="sge/publishM2" ;;
+            js)     core="sgeJS/publishM2" ;;
+            native) core="sgeNative/publishM2" ;;
+            *) echo "::error::unknown platform row '$p'"; exit 1 ;;
+          esac
+          commands="$core; $commands"
+          if [ "$EXTENSIONS" = "true" ]; then commands="$commands; publishLocal-$p-3"; fi
+        done
+        sbt "$commands"
+
+    - name: Publish the sge-build plugin locally
+      if: inputs.version == ''
+      shell: bash
+      working-directory: sge-build
+      run: sbt publishLocal

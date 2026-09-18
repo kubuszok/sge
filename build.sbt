@@ -103,9 +103,20 @@ def testFullify(cmd: String): String = cmd.replace("/test", "/testFull")
 def dropCoverage(cmd: String): String =
   cmd.replace("coverage ; ", "").replace(" ; coverageAggregate ; coverageOff", "")
 
+// The ci alias opens with `clean`, which deletes target/balticporter-sge — the generated core — and
+// forces a full regeneration (and, on CI, throws away the tree the `generate` job produced). A CI
+// runner starts from an empty target/, so the step buys nothing there; locally run `clean` yourself.
+def dropClean(cmd: String): String = cmd.stripPrefix("clean ; ")
+
 lazy val sgeCommandAliases: Seq[Def.Setting[State => State]] =
+  // generatePort: run the Baltic Porter generation (shared tree, every platform row, resources) and
+  // nothing else — what the CI `generate` job runs before publishing target/balticporter-sge.
+  addCommandAlias("generatePort", "sge/Compile/managedSources ; sge/Compile/managedResources") ++
+  // verifyLocal: the gate before a push — every platform's tests, then record the verified commit
+  // (target/local-verification; the push hook of the balticporter Claude Code plugin reads it).
+  addCommandAlias("verifyLocal", "ci-jvm-3 ; test-js-3 ; test-native-3 ; markVerified") ++
   sgeAliasCombinations.flatMap { case (platform, scalaBin) =>
-    addCommandAlias(sgeAliasName("ci", platform, scalaBin), dropCoverage(testFullify(al.ci(platform, scalaBin)))) ++
+    addCommandAlias(sgeAliasName("ci", platform, scalaBin), dropClean(dropCoverage(testFullify(al.ci(platform, scalaBin))))) ++
       addCommandAlias(sgeAliasName("test", platform, scalaBin), testFullify(al.test(platform, scalaBin))) ++
       addCommandAlias(sgeAliasName("publishLocal", platform, scalaBin), al.publishLocal(platform, scalaBin).mkString(" ; ")) ++
       // doc-<platform>-3: scaladoc for exactly the PUBLISHED modules (derived
@@ -1571,6 +1582,20 @@ ThisBuild / writeDemoVersion := {
   IO.write(base / ".sge-version", v)
   IO.write(base / "demos" / ".sge-version", v)
   streams.value.log.info(s"[sge] Wrote .sge-version: $v")
+}
+
+// Records the commit the local gate (`verifyLocal`) passed on. A dirty tree is not a commit, so
+// nothing is recorded for one: commit first, then verify that commit.
+val markVerified = taskKey[Unit]("Record HEAD as locally verified (target/local-verification)")
+ThisBuild / markVerified := Def.uncached {
+  import scala.sys.process.*
+  val base  = (ThisBuild / baseDirectory).value
+  val log   = streams.value.log
+  val dirty = Process(Seq("git", "status", "--porcelain", "--untracked-files=no"), base).!!.trim
+  if (dirty.nonEmpty) sys.error("[verifyLocal] the working tree has uncommitted changes — commit first, then verify that commit:\n" + dirty)
+  val head = Process(Seq("git", "rev-parse", "HEAD"), base).!!.trim
+  IO.write(base / "target" / "local-verification", head)
+  log.info(s"[verifyLocal] recorded $head")
 }
 
 // ── Root project — git-based versioning ──────────────────────────────
