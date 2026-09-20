@@ -298,8 +298,8 @@ object BalticPorterGen {
   private val HandPortReference      = "ec6647df8dc9e4600794c81624922e994cecea72"
   private val HandPortReferenceFiles = 549L
 
-  /** Extract sge's hand-written core (as of [[HandPortReference]]) into target/parity-reference, so the derive mechanism can read the reference's naming conventions: the current tree no longer
-    * holds those files.
+  /** Extract sge's hand-written core (as of [[HandPortReference]]) into target/parity-reference, so the derive mechanism can read the reference's naming conventions: the current tree no longer holds
+    * those files.
     */
   private def extractParityReference(sgeRoot: Path, log: sbt.util.Logger): List[Path] = {
     val refDir = sgeRoot.resolve("target/parity-reference")
