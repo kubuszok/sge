@@ -202,7 +202,7 @@ jobs:
   # ─── Generate (Baltic Porter) ───────────────────────────────────────
   #
   # The ONLY job that initialises the libGDX submodule and runs the generator, and the only one
-  # that needs full history (the generator derives sge's spellings from the hand port on master).
+  # that needs full history (the generator derives sge's spellings from the hand-written core at one pinned commit).
   # The generated tree is stored in the Actions cache under a key made of everything it depends
   # on, so a push that changes none of them skips generation altogether; every other job restores
   # that entry by the key this job outputs.

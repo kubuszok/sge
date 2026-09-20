@@ -66,12 +66,12 @@ object BalticPorterGen {
       // Step 2: Run the sge-core port (L0 ladder) as a dependent of the lls port.
       val steps = balticporter.corpus.libgdx.LibgdxLadder.DefaultSteps
       // parity with compare=false: the derive mechanism reads the FULL hand-ported sge source
-      // (master branch) to learn the reference's naming conventions (field names, property shapes,
+      // (one pinned commit, `HandPortReference`) to learn the reference's naming conventions (field names, property shapes,
       // parenless methods, opaque type seeds). Without this, BeanPropertyTransform falls back to
       // generic naming (active$field instead of _active), NullaryArityTransform doesn't derive
       // parenless, and opaque Key/Button/Pixels seeds are empty.
-      // The reference is extracted from sge's master branch into target/parity-reference because
-      // the current branch (balticporter-generated) removed the hand-ported files.
+      // The reference is extracted from that commit into target/parity-reference because the
+      // hand-ported files are gone from the current tree.
       // platformDirs: sge hand-writes its backend layers (sge/src/main/scala{jvm,js,native,desktop}), so the
       // ladder's backend steps contribute nothing here; the steps the PORT owns per row (`async`: java's
       // executor on JVM/Native, libGDX's GWT emulation on JS) land in src_managed/<row>/scala, which
@@ -294,27 +294,27 @@ object BalticPorterGen {
     reportRoot
   }
 
-  /** Extract sge's master-branch hand-ported source into target/parity-reference so the derive mechanism can read the full reference's naming conventions. On the balticporter-generated branch, the
-    * hand-ported files are removed, so the current tree is incomplete.
+  /** The last commit on master that holds the hand-written core (2026-09-05), and how many Scala files it has under `sge/src/main/scala` alone. */
+  private val HandPortReference      = "ec6647df8dc9e4600794c81624922e994cecea72"
+  private val HandPortReferenceFiles = 549L
+
+  /** Extract sge's hand-written core (as of [[HandPortReference]]) into target/parity-reference, so the derive mechanism can read the reference's naming conventions: the current tree no longer
+    * holds those files.
     */
   private def extractParityReference(sgeRoot: Path, log: sbt.util.Logger): List[Path] = {
     val refDir = sgeRoot.resolve("target/parity-reference")
     val marker = refDir.resolve(".extracted-marker")
-    if (!Files.exists(marker)) {
-      log.info("[Baltic Porter] Extracting parity reference from sge master branch")
+    // The hand-written core is read from ONE fixed commit: the last one on master that still holds
+    // it. A branch name is not a reference — once the generated core was merged, `master` itself
+    // stopped containing the hand port, the derived policy came out empty-ish and master's own CI
+    // failed to compile (run 35427945953) while the pull request's run had passed.
+    val ref = HandPortReference
+    if (!Files.exists(marker) || Files.readString(marker).trim != ref) {
+      log.info(s"[Baltic Porter] Extracting parity reference from sge's hand-written core at $ref")
       if (Files.exists(refDir)) {
         Files.walk(refDir).sorted(java.util.Comparator.reverseOrder()).forEach(Files.delete)
       }
       Files.createDirectories(refDir)
-      // Use origin/master in CI (shallow checkouts lack a local master ref);
-      // fall back to master for local dev where the branch exists.
-      val ref = {
-        val check = new ProcessBuilder("git", "rev-parse", "--verify", "master")
-        check.directory(sgeRoot.toFile)
-        check.redirectErrorStream(true)
-        val p = check.start(); val out = new String(p.getInputStream.readAllBytes()).trim; p.waitFor()
-        if (p.exitValue() == 0) "master" else "origin/master"
-      }
       val pb = new ProcessBuilder("git", "archive", ref, "sge/src/main/scala", "sge/src/main/scalajvm", "sge/src/main/scaladesktop")
       pb.directory(sgeRoot.toFile)
       pb.redirectErrorStream(true)
@@ -330,12 +330,12 @@ object BalticPorterGen {
       // An empty reference derives NOTHING (no opaque seeds, no property shapes) and the port then
       // fails to compile against sge's hand files with hundreds of type mismatches that name no
       // cause (release run 35313268095: a shallow checkout has neither `master` nor `origin/master`).
-      if (gitExit != 0 || count == 0)
+      if (gitExit != 0 || count < HandPortReferenceFiles)
         sys.error(
-          s"[Baltic Porter] no parity reference: `git archive $ref sge/src/main/...` exited $gitExit and extracted $count file(s). " +
-            "The checkout needs the master branch (actions/checkout `fetch-depth: 0`)."
+          s"[Baltic Porter] no parity reference: `git archive $ref sge/src/main/...` exited $gitExit and extracted $count file(s), expected at least $HandPortReferenceFiles. " +
+            "The checkout needs that commit (actions/checkout `fetch-depth: 0`)."
         )
-      Files.writeString(marker, "extracted")
+      Files.writeString(marker, ref)
       log.info(s"[Baltic Porter] Extracted $count reference files to $refDir")
     }
     List("scala", "scalajvm", "scaladesktop").map(d => refDir.resolve(d)).filter(Files.isDirectory(_))
