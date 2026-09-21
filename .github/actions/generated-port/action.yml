@@ -4,7 +4,7 @@ description: >
   input set and shared between jobs and workflows through the Actions cache — see the action this
   wraps. `generate` needs a full-history checkout (the generator derives sge's spellings from the
   hand-written core at ONE pinned commit, which is part of the key) and the Scala toolchain; `restore` needs
-  neither, and no submodule.
+  neither, and no submodule. sge's own porting policy (sge-port/) is part of the key too.
   The `uses:` line below is the ONE place the shared action's version is pinned.
 
 inputs:
@@ -32,9 +32,15 @@ runs:
         # the ONE commit the generator reads the hand-written core from (project/BalticPorterGen.scala)
         commit=$(grep -oE 'HandPortReference += +"[0-9a-f]{40}"' project/BalticPorterGen.scala | grep -oE '[0-9a-f]{40}')
         git cat-file -e "$commit^{commit}"
-        echo "tree=$commit" >> "$GITHUB_OUTPUT"
+        # sge's own porting policy (sge-port/: the policy sources and the files it injects), as the
+        # tree git records for it — a change to any file under it generates a new tree
+        policy=$(git rev-parse "HEAD:sge-port")
+        # the lls base's policy: the lls-port artifact, at the version of the lls dependency
+        base=$(grep -oE 'val lls += +"[^"]+' project/Versions.scala | head -1 | sed 's/.*"//')
+        test -n "$base"
+        echo "tree=$commit-$policy-$base" >> "$GITHUB_OUTPUT"
 
-    - uses: kubuszok/balticporter/.github/actions/generated-port@8d0cf549f1e8a501c772975301013f3b3b0af19f
+    - uses: kubuszok/balticporter/.github/actions/generated-port@55be328a2265f34c8d41d30634569229539cf562
       id: port
       with:
         mode: ${{ inputs.mode }}

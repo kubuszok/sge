@@ -52,19 +52,28 @@ sge-core is mechanically ported from libGDX Java sources by
 `build.sbt` calls `BalticPorterGen.generate` which runs the full porting engine at
 build time. Output goes to `target/balticporter-sge/src_managed/main/scala`.
 
+The engine names no library. **How libGDX is ported is sge's own policy, in `sge-port/`**:
+- `sge-port/src/main/scala/sge/port/` — the policy (`LibgdxLadder`: the steps, drops, renames and
+  phases), compiled into the meta-build by `project/build.sbt`, so a policy change needs no new
+  engine artifact;
+- `sge-port/overrides/<step>/` — the hand-written files the policy injects by path. They are inputs
+  of the generation, not sources of any module: a copy that also exists under `sge/src/main/`
+  wins in the build.
+The lls base's policy is lls's own: the `lls-port` artifact, at the version of the lls dependency
+(`Versions.lls`).
+
 Requirements:
 - `original-src/libgdx` submodule checked out (upstream Java sources)
-- the `balticporter-corpus` / `balticporter-frontend-ts` snapshot pinned in `project/plugins.sbt`,
-  resolved from Maven Central's snapshot repository (no engine checkout: the jar carries the files
-  the port's policy injects; `-Dbalticporter.root=<checkout>` reads them from a checkout instead)
+- the `balticporter-engine` snapshot pinned in `project/plugins.sbt` (`lls-port` follows `Versions.lls`)
 - JDK 25 for the sbt server (the generated code depends on the JDK major) and `cs` on the PATH
 
 The generated tree is reused while `target/balticporter-sge/.generated-marker` matches the engine
-pin, the libGDX commit, the generator source and the JDK major. CI generates it once (the
-`generate` job) and every other job restores it — those jobs have no submodule.
+and lls-port pins, the libGDX commit, the generator source, a hash of `sge-port/**` and the JDK major. CI
+generates it once (the `generate` job) and every other job restores it — those jobs have no submodule.
 
 Rules:
-- **Never edit generated files** — change the manifest/conf in balticporter, then regenerate.
+- **Never edit generated files** — change the policy in `sge-port/` (or, for a translation rule every
+  library would want, the engine), then regenerate.
 - `sge/src/main/scala/` holds hand-written code that compiles as-is (platform glue, overrides).
 - Regenerate: delete `target/balticporter-sge/.generated-marker` or pass `-Dbalticporter.forceRegen=true`;
   `sbt --client generatePort` runs the generation alone.

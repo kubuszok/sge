@@ -8,7 +8,9 @@ import scala.jdk.CollectionConverters.*
   *
   * Requires:
   *   - libGDX sources at `original-src/libgdx/gdx/src` (git submodule)
-  *   - the `balticporter-corpus` artifact pinned in `project/plugins.sbt` (it carries the files the policy injects; no engine checkout is needed)
+  *   - the `balticporter-engine` artifact pinned in `project/plugins.sbt` (the engine alone: it names no library)
+  *   - sge's own porting policy in `sge-port/`: the Scala under `sge-port/src/main/scala` is compiled into this meta-build (`project/build.sbt`), the hand-written files it injects are read by path
+  *     from `sge-port/overrides`
   *   - `cs` (coursier) on the PATH, to resolve the classpath libGDX's own sources are read against
   */
 object BalticPorterGen {
@@ -50,40 +52,28 @@ object BalticPorterGen {
       val commit = balticporter.runner.VendoredCommit.of(libgdxSrc)
       log.info(s"[Baltic Porter] Generating sge-core sources from libGDX ($commit)")
 
-      // The files the port's policy injects by path ship inside the published corpus jar and are
-      // unpacked under target/; -Dbalticporter.root=<engine checkout> reads them from a checkout
-      // instead (engine development only).
-      val bpRoot = sys.props.get("balticporter.root") match {
-        case Some(root) => Path.of(root).toAbsolutePath.normalize
-        case None       => balticporter.corpus.BundledCorpus.root(sgeRoot.resolve("target/balticporter-engine"))
-      }
+      // The hand-written files the policy injects by path, and where the resolved frontend classpaths are cached.
+      val overrides    = sgeRoot.resolve("sge-port/overrides")
+      val classpathDir = sgeRoot.resolve("target/balticporter-classpath")
 
       // Step 1: Run the lls port first so its port-map.tsv is fresh and discoverable.
       // sge-core is a DEPENDENT of lls; it needs the base's published port map to answer
-      // contract questions about the base's types (CLAUDE.md section 1.5).
-      val llsReportRoot = runLlsPort(sgeRoot, bpRoot, libgdxSrc, commit, expected, log)
+      // contract questions about the base's types.
+      val llsReportRoot = runLlsPort(sgeRoot, classpathDir, libgdxSrc, commit, expected, log)
 
-      // Step 2: Run the sge-core port (L0 ladder) as a dependent of the lls port.
-      val steps = balticporter.corpus.libgdx.LibgdxLadder.DefaultSteps
-      // parity with compare=false: the derive mechanism reads the FULL hand-ported sge source
+      // Step 2: Run the sge-core port as a dependent of the lls port.
+      // The derive mechanism reads the FULL hand-ported sge source
       // (one pinned commit, `HandPortReference`) to learn the reference's naming conventions (field names, property shapes,
       // parenless methods, opaque type seeds). Without this, BeanPropertyTransform falls back to
       // generic naming (active$field instead of _active), NullaryArityTransform doesn't derive
       // parenless, and opaque Key/Button/Pixels seeds are empty.
       // The reference is extracted from that commit into target/parity-reference because the
       // hand-ported files are gone from the current tree.
-      // platformDirs: sge hand-writes its backend layers (sge/src/main/scala{jvm,js,native,desktop}), so the
-      // ladder's backend steps contribute nothing here; the steps the PORT owns per row (`async`: java's
-      // executor on JVM/Native, libGDX's GWT emulation on JS) land in src_managed/<row>/scala, which
-      // build.sbt attaches to that row only (`platformSources`).
+      // Platform rows: sge hand-writes its backend layers (sge/src/main/scala{jvm,js,native,desktop}); the
+      // files the PORT owns per row (`async`: java's executor on JVM/Native, libGDX's GWT emulation on JS)
+      // land in src_managed/<row>/scala, which build.sbt attaches to that row only (`platformSources`).
       val parityRef = extractParityReference(sgeRoot, log)
-      val manifest  = balticporter.corpus.libgdx.LibgdxLadder
-        .universal(bpRoot, steps, upstreamResources = Some(sgeRoot.resolve("original-src/libgdx/gdx/res")))
-        .copy(
-          parity = Some(balticporter.core.ParityRef(roots = parityRef, compare = false)),
-          platformDirs = portOwnedPlatformDirs(bpRoot, steps),
-          baseReports = List(llsReportRoot)
-        )
+      val manifest  = sge.port.LibgdxLadder.universal(overrides, upstreamResources = sgeRoot.resolve("original-src/libgdx/gdx/res"), parityRoots = parityRef).copy(baseReports = List(llsReportRoot))
 
       // Collect the files to port: all .java under gdx/src minus the lls set.
       val files = Files
@@ -96,7 +86,7 @@ object BalticPorterGen {
         // into sge-core and shadowed the published lls (Windows rows: 581 files written, 568 elsewhere)
         .map(p => libgdxSrc.relativize(p).toString.replace('\\', '/'))
         .filterNot(f => f.endsWith("package-info.java") || f.endsWith("module-info.java"))
-        .filterNot(balticporter.corpus.lls.LlsMigrate.Files.toSet)
+        .filterNot(lowlevel.port.LlsMigrate.Files.toSet)
         .toList
         .sorted
 
@@ -114,7 +104,7 @@ object BalticPorterGen {
             frontend = balticporter.core.FrontendConfig(
               libgdxSrc,
               files,
-              balticporter.corpus.JnigenClasspath.entries(bpRoot),
+              sge.port.JnigenClasspath.entries(classpathDir),
               resolutionRoots = List(libgdxSrc)
             ),
             phases = Nil,
@@ -160,8 +150,9 @@ object BalticPorterGen {
     collectScalaFiles(managedRoot, excludeDuplicatesOf = Some(sgeUnmanaged))
   }
 
-  /** What the generated tree depends on, as one line, readable on a shallow checkout WITHOUT the submodule's files: the engine artifact pinned in `project/plugins.sbt`, the libGDX commit (the
-    * submodule's HEAD when it is initialised, else the commit this checkout records for it), this generator (line endings normalised, so every OS agrees) and the JDK feature version.
+  /** What the generated tree depends on, as one line, readable on a shallow checkout WITHOUT the submodule's files: the engine artifact pinned in `project/plugins.sbt`, the lls-port version
+    * (`Versions.lls`), the libGDX commit (the submodule's HEAD when it is initialised, else the commit this checkout records for it), this generator and the policy in `sge-port/` (sources and
+    * injected files; line endings normalised, so every OS agrees) and the JDK feature version.
     */
   def fingerprint(sgeRoot: Path): String = {
     def git(dir: Path, args: String*): Option[String] = {
@@ -172,10 +163,12 @@ object BalticPorterGen {
       val out = new String(p.getInputStream.readAllBytes()).trim
       if (p.waitFor() == 0 && out.nonEmpty) Some(out) else None
     }
-    val pin = """balticporter-corpus" % "([^"]+)"""".r
+    val pin = """balticporter-engine" % "([^"]+)"""".r
       .findFirstMatchIn(Files.readString(sgeRoot.resolve("project/plugins.sbt")))
       .map(_.group(1))
-      .getOrElse(sys.error("[Baltic Porter] project/plugins.sbt pins no balticporter-corpus version"))
+      .getOrElse(sys.error("[Baltic Porter] project/plugins.sbt pins no balticporter-engine version"))
+    // the base's policy: lls-port, at the version of the lls dependency (`project/plugins.sbt` reads the same line)
+    val base      = Versions.lls
     val submodule = sgeRoot.resolve("original-src/libgdx")
     val libgdx    = (if (Files.exists(submodule.resolve(".git"))) git(submodule, "rev-parse", "HEAD") else None)
       .orElse(git(sgeRoot, "ls-tree", "HEAD", "original-src/libgdx").flatMap(_.split("\\s+").lift(2)))
@@ -185,16 +178,32 @@ object BalticPorterGen {
     val source    = Files.readString(sgeRoot.resolve("project/BalticPorterGen.scala")).replace("\r", "")
     val generator = java.security.MessageDigest.getInstance("SHA-256").digest(source.getBytes("UTF-8")).take(8).map(b => f"$b%02x").mkString
     // the JDK the generator runs on decides what a member overrides (`CharSequence.getChars` exists from 25 on)
-    s"engine=$pin libgdx=$libgdx generator=$generator jdk=${java.lang.Runtime.version().feature()}"
+    s"engine=$pin base=$base libgdx=$libgdx generator=$generator policy=${policyHash(sgeRoot.resolve("sge-port"))} jdk=${java.lang.Runtime.version().feature()}"
   }
 
-  /** the ladder steps whose platform files sge hand-writes itself (sge/src/main/scala{jvm,js,native,desktop}) */
-  private val HandWrittenPlatformSteps: Set[String] = Set("backend-jvm", "backend-desktop")
-
-  /** `PortManifest.platformDirs` for the steps the port owns per row — merged the way `LibgdxLadder.universal` merges them, minus [[HandWrittenPlatformSteps]]. */
-  private def portOwnedPlatformDirs(bpRoot: Path, steps: Set[String]): Map[String, List[Path]] = {
-    val ladder = balticporter.corpus.libgdx.LibgdxLadder
-    ladder.StepOrder.filter(steps -- HandWrittenPlatformSteps).flatMap(ladder.stepPlatformInjects(bpRoot)(_).toList).groupMapReduce(_._1)(_._2)(_ ++ _)
+  /** One hash over every file under `sge-port/` (the policy's Scala and the files it injects): each file's slash-separated relative path and its text without carriage returns, in path order. */
+  private def policyHash(policyRoot: Path): String = {
+    if (!Files.isDirectory(policyRoot)) sys.error(s"[Baltic Porter] no porting policy: $policyRoot is not a directory")
+    val digest = java.security.MessageDigest.getInstance("SHA-256")
+    val stream = Files.walk(policyRoot)
+    val files  =
+      try
+        stream
+          .iterator()
+          .asScala
+          // a dot file (`.DS_Store`) is the operating system's, not the policy's
+          .filter(p => Files.isRegularFile(p) && !p.getFileName.toString.startsWith("."))
+          .map(p => policyRoot.relativize(p).toString.replace('\\', '/') -> p)
+          .toList
+          .sortBy(_._1)
+      finally stream.close()
+    files.foreach { case (rel, p) =>
+      digest.update(rel.getBytes("UTF-8"))
+      digest.update(0.toByte)
+      digest.update(Files.readAllBytes(p).filter(_ != '\r'.toByte))
+      digest.update(0.toByte)
+    }
+    digest.digest().take(8).map(b => f"$b%02x").mkString
   }
 
   /** The generated files of ONE platform row (`jvm`/`js`/`native`, sbt-projectmatrix's names): `src_managed/<row>/scala`, which only that row compiles. Generates first (cached, synchronized), so a
@@ -225,12 +234,12 @@ object BalticPorterGen {
   /** Run the lls port (the base) and return the report root directory where its port-map.tsv was written. The sge port then uses this as `baseReports` to discover the base's contract.
     */
   private def runLlsPort(
-    sgeRoot:   Path,
-    bpRoot:    Path,
-    libgdxSrc: Path,
-    commit:    String,
-    key:       String,
-    log:       sbt.util.Logger
+    sgeRoot:      Path,
+    classpathDir: Path,
+    libgdxSrc:    Path,
+    commit:       String,
+    key:          String,
+    log:          sbt.util.Logger
   ): Path = {
     val llsPortRoot = sgeRoot.resolve("target/balticporter-lls")
     val llsMarker   = llsPortRoot.resolve(".generated-marker")
@@ -247,8 +256,8 @@ object BalticPorterGen {
     if (!llsCached) {
       log.info(s"[Baltic Porter] Running lls base port first (required for sge-core contract)")
 
-      val rungs    = balticporter.corpus.lls.LlsPolicy.DefaultRungs
-      val manifest = balticporter.corpus.lls.LlsPolicy.core(bpRoot, rungs).copy(parity = None, inject = Nil)
+      // lls's own policy (the published `lls-port` artifact): it injects nothing and compares against nothing
+      val manifest = lowlevel.port.LlsPolicy.core(lowlevel.port.LlsPolicy.DefaultRungs)
 
       // Set reportDir so the port map is written where the sge port can find it
       System.setProperty("balticporter.reportDir", llsReportDir.toAbsolutePath.normalize.toString)
@@ -260,8 +269,8 @@ object BalticPorterGen {
           sourceSet = balticporter.runner.SourceSet.Main,
           frontend = balticporter.core.FrontendConfig(
             libgdxSrc,
-            balticporter.corpus.lls.LlsMigrate.Files,
-            balticporter.corpus.GdxCoreClasspath.entries(bpRoot),
+            lowlevel.port.LlsMigrate.Files,
+            lowlevel.port.GdxCoreClasspath.entries(classpathDir),
             resolutionRoots = Nil
           ),
           phases = Nil,
