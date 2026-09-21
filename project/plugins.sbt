@@ -28,8 +28,6 @@ resolvers += "Central Portal Snapshots" at "https://central.sonatype.com/reposit
 libraryDependencies += "com.kubuszok" %% "balticporter-engine" % "ef590071441380e946ed1e704a160e1a396eb73b-SNAPSHOT"
 // sge's port is a dependent of the lls port: the base's policy is lls's own, published as lls-port at the
 // version of the lls dependency itself (`Versions.lls`, read as text: this file cannot see the meta-build's sources).
-// SCRATCH: lls-port at the current `Versions.lls` is a local artifact (~/.ivy2/local) until lls releases lls-port;
-// bump `Versions.lls` to that release before this leaves the machine.
 libraryDependencies += "com.kubuszok" %% "lls-port" % {
   val versions = IO.read(baseDirectory.value / "Versions.scala")
   """val lls\s*=\s*"([^"]+)"""".r.findFirstMatchIn(versions).map(_.group(1)).getOrElse(sys.error("project/Versions.scala states no lls version"))

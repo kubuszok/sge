@@ -95,7 +95,7 @@ val shared = (projectMatrix in file("shared"))
     publish / skip := true,
     // the same lls sge itself depends on (project/Versions.scala `lls`): a second spelling here is an
     // eviction error under early-semver ("0.3.0-…-SNAPSHOT is selected over 0.3.0", CI run 35115474743)
-    libraryDependencies += "com.kubuszok" %% "lls" % "0.3.0-45-g1459e14-SNAPSHOT"
+    libraryDependencies += "com.kubuszok" %% "lls" % "0.3.0-50-ged7e53f-SNAPSHOT"
   )
   .jvmPlatform(desktopSources("shared"))
   .jsPlatform()
