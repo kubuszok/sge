@@ -1,0 +1,9 @@
+#file	origin	adjustment	why
+sge/utils/JsonCodecs.scala	sge/src/main/scala/sge/utils/JsonCodecs.scala	+given UBJsonConfig = default.withTransientNone	the binary codec omits None like the text one; sge's default wrote UBJSON nulls java's g3d loader read as present values
+sge/graphics/g3d/loader/G3dModelLoader.scala	sge/src/main/scala/sge/graphics/g3d/loader/G3dModelLoader.scala	binary flag + java-shaped secondary ctor (reader, resolver)	the emitted AssetManager registers `new G3dModelLoader(new JsonReader()/UBJsonReader(), resolver)`; the reader only selects the spelling
+sge/graphics/g3d/loader/G3dBinaryModelLoader.scala	sge/src/main/scala/sge/graphics/g3d/loader/G3dBinaryModelLoader.scala	body folded into the flag	same class, sge's name kept
+sge/graphics/g3d/loader/G3dModelJson.scala	sge/src/main/scala/sge/graphics/g3d/loader/G3dModelJson.scala	copied verbatim	the typed g3d document with derived JSON and UBJSON codecs
+
+sge/scenes/scene2d/ui/Skin.scala	sge/src/main/scala/sge/scenes/scene2d/ui/Skin.scala	readString(String); BitmapFontData with a FileHandle; regions.get/region.get at BitmapFont ctors; setUseIntegerPositions/setName/setScale; regions.foreach (runtime JavaIterable) for leanView; setEnabled[V <: AnyRef]	the port keeps java's accessor shapes and non-nullable ctor arguments; lls's ArrayView is not on the port's DynamicArray; the port's Styleable keeps java's implicit Object bound
+sge/scenes/scene2d/ui/SkinStyleReader.scala	sge/src/main/scala/sge/scenes/scene2d/ui/SkinStyleReader.scala	.orNull where the port's style field is a plain Drawable	the nullability step marks fewer style fields than sge
+sge/utils/LenientJson.scala	sge/src/main/scala/sge/utils/LenientJson.scala	copied verbatim	libGDX's lenient skin JSON dialect over the Kindlings AST

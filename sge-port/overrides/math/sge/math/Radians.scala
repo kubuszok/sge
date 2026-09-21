@@ -1,0 +1,48 @@
+/*
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   SGE-original opaque type, no LibGDX counterpart
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
+ * AUDIT: N/A (SGE-original opaque type, no LibGDX counterpart)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 40
+ * Covenant-baseline-methods: HalfPi,Pi,Radians,TwoPi,apply,cos,sin,toDegrees,toFloat,unary_,zero
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
+ */
+package sge
+package math
+
+import lowlevel.math.MathUtils
+
+opaque type Radians = Float
+object Radians {
+  def apply(value: Float): Radians = value
+
+  given lowlevel.MkArray.OfFloats[Radians] = lowlevel.MkArray.ofFloatAs[Radians]
+
+  inline def Pi:     Radians = 3.1415927f
+  inline def TwoPi:  Radians = 6.2831855f
+  inline def HalfPi: Radians = 1.5707964f
+  val zero:          Radians = 0f
+
+  extension (r: Radians) {
+    inline def toFloat:   Float   = r
+    inline def toDegrees: Degrees = Degrees(r * MathUtils.radiansToDegrees)
+    def sin:              Float   = MathUtils.sin(r)
+    def cos:              Float   = MathUtils.cos(r)
+    @annotation.targetName("plus")
+    def +(other: Radians): Radians = r + other
+    @annotation.targetName("minus")
+    def -(other: Radians): Radians = r - other
+    @annotation.targetName("times")
+    def *(scalar: Float): Radians = r * scalar
+    @annotation.targetName("negate")
+    def unary_- : Radians = -r
+  }
+}

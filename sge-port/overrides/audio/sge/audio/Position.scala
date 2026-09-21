@@ -1,0 +1,33 @@
+/*
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Convention: SGE-original opaque type wrapping Float; replaces raw float position (seconds)
+ *     parameters in Music; validated range [0, +inf)
+ *   Audited: 2026-03-03
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 26
+ * Covenant-baseline-methods: Position,parse,toFloatSeconds,unsafeMake
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-19
+ */
+package sge
+package audio
+
+opaque type Position = Float
+object Position {
+
+  given lowlevel.MkArray.OfFloats[Position] = lowlevel.MkArray.ofFloatAs[Position]
+
+  def parse(seconds: Float): Either[String, Position] =
+    if (seconds < 0.0) Left(s"Position must be greater than 0, got $seconds")
+    else Right(seconds)
+
+  def unsafeMake(seconds: Float): Position = seconds
+
+  extension (position: Position) {
+    inline def toFloatSeconds: Float = position
+  }
+}

@@ -1,0 +1,2 @@
+#file	origin	adjustment	why
+sge/audio/AudioUtils.scala	sge/src/main/scala/sge/audio/AudioUtils.scala	copied verbatim	sge-only helper (no java twin) the suite uses; a whole file, so an injection rather than a spliced member

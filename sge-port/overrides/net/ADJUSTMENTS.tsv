@@ -1,0 +1,2 @@
+file	origin	adjustment	why
+sge/Net.scala, sge/net/*.scala (15)	sge/src/main/scala	copied verbatim	sge's HTTP stack (an sttp client behind `Net.httpClient`) replaces java's HttpRequest/HttpResponseListener API and the java `net` helpers; the rows' HttpBackendFactoryImpl are injected with the backend rows

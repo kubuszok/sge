@@ -1,0 +1,3 @@
+file	origin	adjustment	why
+sge/utils/BufferUtils.scala, sge/graphics/g2d/Gdx2DPixmap.scala, sge/graphics/glutils/ETC1.scala, sge/scenes/scene2d/utils/UIUtils.scala, sge/graphics/g2d/Gdx2dDraw.scala	sge/src/main/scala	copied verbatim	sge routes buffers, pixmaps, ETC1 and UI platform queries through the platform ops traits, one implementation per row (injected with the backend rows); java's JNI classes are dropped
+sge/graphics/Pixmap.scala	sge/src/main/scala	copied verbatim	written against sge's Gdx2DPixmap/ETC1 (getters spelled sge's way); java's Pixmap is dropped with it

@@ -1,0 +1,2 @@
+file	origin	adjustment	why
+sge/math/{Epsilon,Degrees,Radians}.scala	sge/src/main/scala	copied verbatim	sge's float opaques for tolerances and angles; seeded off sge's tree by the derive step

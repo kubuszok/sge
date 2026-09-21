@@ -20,3 +20,9 @@ runs:
     - name: Check formatting (demos)
       shell: bash
       run: cs launch scalafmt -- --config .scalafmt.conf --check demos/
+
+    # sge-port's sources compile in the META-build, which `scalafmtCheckAll` does not reach; the files
+    # under sge-port/overrides are injected verbatim and excluded in .scalafmt.conf
+    - name: Check formatting (sge-port)
+      shell: bash
+      run: cs launch scalafmt -- --config .scalafmt.conf --check sge-port/
