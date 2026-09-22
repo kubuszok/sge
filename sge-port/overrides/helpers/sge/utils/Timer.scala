@@ -1,3 +1,22 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/utils/Timer.java
+ * Original authors: Nathan Sweet
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Migration notes:
+ *   Convention: the application context arrives as `(using sge.Sge)` instead of the `Gdx.app` global
+ *   Idiom: Seconds for delays and intervals, Nullable for the optional thread
+ *
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 269
+ * Covenant-baseline-methods: Task,Timer,TimerThread,_executeTimeMillis,_instance,_intervalMillis,_repeatCount,addPostedTask,cancel,clear,currentThread,currentWaitMillis,delay,dispose,disposeThread,executeTime,executeTimeMillis,files,i,instance,instances,intervalMillis,isEmpty,isScheduled,loopHandle,loopStep,pause,pauseTimeMillis,post,postTask,postedTasks,removePostedTask,repeatCount,reset,resume,run,runPostedTasks,runPostedTasksRunnable,runTasks,schedule,scheduleTask,start,stop,stopTimeMillis,tasks,thread,threadLock,update,wakeUp
+ * Covenant-source-reference: com/badlogic/gdx/utils/Timer.java
+ * Covenant-verified: 2026-09-22
+ */
 package sge.utils
 
 import lowlevel.Nullable

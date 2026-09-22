@@ -15,10 +15,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 211
- * Covenant-baseline-methods: NoopGraphics,_continuous,_deltaTime,_fps,_frameCounter,_frameCounterStart,_frameId,_lastFrameTime,backBufferHeight,backBufferScale,backBufferWidth,bufferFormat,continuousRendering,deltaTime,density,displayMode,displayModes,elapsed,frameId,framesPerSecond,fullscreen,getDisplayMode,getDisplayModes,gl20,gl20_,gl30,gl30Available,gl30_,gl31,gl31Available,gl31_,gl32,gl32Available,gl32_,glVersion,graphicsType,height,monitor,monitors,newCursor,noopDisplayMode,noopHeight,noopMonitor,noopWidth,now,ppcX,ppcY,ppiX,ppiY,primaryMonitor,requestRendering,safeInsetBottom,safeInsetLeft,safeInsetRight,safeInsetTop,setContinuousRendering,setCursor,setForegroundFPS,setFullscreenMode,setResizable,setSystemCursor,setTitle,setUndecorated,setVSync,setWindowedMode,supportsDisplayModeChange,supportsExtension,updateTime,width
+ * Covenant-baseline-loc: 209
+ * Covenant-baseline-methods: NoopGraphics,_continuous,_deltaTime,_fps,_frameCounter,_frameCounterStart,_frameId,_gl20,_lastFrameTime,backBufferHeight,backBufferScale,backBufferWidth,bufferFormat,continuousRendering,deltaTime,density,displayMode,displayModes,elapsed,frameId,framesPerSecond,fullscreen,getDisplayMode,getDisplayModes,gl20,gl20_,gl30,gl30Available,gl30_,gl31,gl31Available,gl31_,gl32,gl32Available,gl32_,glVersion,graphicsType,height,monitor,monitors,newCursor,noopDisplayMode,noopGlVersion,noopHeight,noopMonitor,noopWidth,now,ppcX,ppcY,ppiX,ppiY,primaryMonitor,rawDeltaTime,requestRendering,safeInsetBottom,safeInsetLeft,safeInsetRight,safeInsetTop,setContinuousRendering,setCursor,setForegroundFPS,setFullscreenMode,setResizable,setSystemCursor,setTitle,setUndecorated,setVSync,setWindowedMode,supportsDisplayModeChange,supportsExtension,updateTime,width
  * Covenant-source-reference: backends/gdx-backend-headless/src/com/badlogic/gdx/backends/headless/mock/graphics/MockGraphics.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  *
  * upstream-commit: 5f2dae5f6879556f663774ba9d9ff439b5bae822
  */
@@ -125,12 +125,10 @@ class NoopGraphics(
 
   override def graphicsType: Graphics.GraphicsType = Graphics.GraphicsType.Mock
 
-  // the port's GLVersion reads the context only to log a malformed version string; a no-op graphics
-  // has no context and "0.0.0" parses, so none is handed in (ADJUSTMENTS.tsv)
-  private lazy val noopGlVersion: sge.graphics.glutils.GLVersion = {
-    given Sge = null.asInstanceOf[Sge]
+  // the port's GLVersion logs a malformed version string through sge.utils.Log, so it needs no context;
+  // "0.0.0" parses, so nothing is logged (ADJUSTMENTS.tsv)
+  private lazy val noopGlVersion: sge.graphics.glutils.GLVersion =
     new sge.graphics.glutils.GLVersion(Application.ApplicationType.HeadlessDesktop, "0.0.0", "Noop", "Noop")
-  }
   override def glVersion: sge.graphics.glutils.GLVersion = noopGlVersion
 
   // ---- density / PPI ----

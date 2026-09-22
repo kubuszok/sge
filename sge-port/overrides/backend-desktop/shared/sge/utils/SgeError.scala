@@ -15,10 +15,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 45
+ * Covenant-baseline-loc: 54
  * Covenant-baseline-methods: SgeError
  * Covenant-source-reference: com/badlogic/gdx/utils/GdxRuntimeException.java
- * Covenant-verified: 2026-07-17
+ * Covenant-verified: 2026-09-22
  *
  * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */

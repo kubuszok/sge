@@ -13,10 +13,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 101
+ * Covenant-baseline-loc: 110
  * Covenant-baseline-methods: NetJavaSocketImpl,applyHints,close,inputStream,isConnected,outputStream,remoteAddress,this
  * Covenant-source-reference: com/badlogic/gdx/net/NetJavaSocketImpl.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  *
  * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */

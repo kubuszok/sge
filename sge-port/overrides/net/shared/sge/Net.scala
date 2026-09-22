@@ -14,10 +14,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 206
+ * Covenant-baseline-loc: 224
  * Covenant-baseline-methods: HttpMethod,HttpResponse,HttpResponseListener,Net,Protocol,cancelled,failed,getHeader,handleHttpResponse,headers,httpClient,newClientSocket,newServerSocket,openURI,result,resultAsStream,resultAsString,status
  * Covenant-source-reference: com/badlogic/gdx/Net.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  *
  * upstream-commit: 2b691f735f4b167c062f8f68186a6d7237d3d855
  */
@@ -111,7 +111,7 @@ trait Net {
   def newClientSocket(protocol: Protocol, host: String, port: Int, hints: SocketHints): Socket
 
   /** Launches the default browser to display a URI. If the default browser is not able to handle the specified URI, the application registered for handling URIs of the specified type is invoked. The
-    * application is determined from the protocol and path of the URI. A best effort is made to open the given URI; however, since external applications are involved, no guarantee can be made as to
+    * application is determined from the protocol and path of the URI. The URI is handed to the platform to open; however, since external applications are involved, no guarantee can be made as to
     * whether the URI was actually opened. If it is known that the URI was not opened, false will be returned; otherwise, true will be returned.
     *
     * @param URI

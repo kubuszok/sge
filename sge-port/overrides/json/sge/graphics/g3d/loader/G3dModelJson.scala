@@ -10,10 +10,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 120
+ * Covenant-baseline-loc: 127
  * Covenant-baseline-methods: G3dAnimBoneJson,G3dAnimationJson,G3dBoneJson,G3dKeyframeV1Json,G3dKeyframeV2Json,G3dMaterialJson,G3dMeshJson,G3dMeshPartJson,G3dModelJson,G3dNodeJson,G3dNodePartJson,G3dTextureJson
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package graphics

@@ -13,9 +13,9 @@
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 51
- * Covenant-baseline-methods: OwnedExecutor,executor,shutdown,ConcurrencyOps,createExecutor,yieldThread
+ * Covenant-baseline-methods: ConcurrencyOps,OwnedExecutor,createExecutor,executor,shutdown,yieldThread
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-06-19
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package platform

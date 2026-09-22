@@ -500,7 +500,7 @@ compute_live_set() {
   # MUST exist — a missing root would silently yield zero dup rows (fail-open), so
   # we exit 2 if any expected root is absent.
   local dup_root
-  local dup_roots=("sge/src" "sge-extension" "sge-jvm-platform")
+  local dup_roots=("sge/src" "sge-port/overrides" "sge-extension" "sge-jvm-platform")
   for dup_root in "${dup_roots[@]}"; do
     if [ ! -d "$REPO_ROOT/$dup_root" ]; then
       echo "covenant-gate: FAIL (exit 2) — dup-covenant-header scan root missing: $dup_root (cannot prove absence of duplicate covenant headers)." >&2

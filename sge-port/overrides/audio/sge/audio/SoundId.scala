@@ -8,10 +8,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 22
+ * Covenant-baseline-loc: 29
  * Covenant-baseline-methods: SoundId,apply,toLong
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package audio

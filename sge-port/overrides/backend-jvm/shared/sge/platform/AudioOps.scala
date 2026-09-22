@@ -10,10 +10,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 204
+ * Covenant-baseline-loc: 212
  * Covenant-baseline-methods: AudioOps,createAudioDevice,createMusic,createSound,disposeAudioDevice,disposeMusic,disposeSound,getAudioDeviceLatency,getAvailableOutputDevices,getMusicDuration,getMusicPosition,getMusicVolume,initEngine,isMusicLooping,isMusicPlaying,pauseAllInstances,pauseAudioDevice,pauseMusic,pauseSound,playMusic,playSound,resumeAllInstances,resumeAudioDevice,resumeSound,setAudioDeviceVolume,setMusicLooping,setMusicPan,setMusicPitch,setMusicPosition,setMusicVolume,setSoundLooping,setSoundPan,setSoundPitch,setSoundVolume,shutdownEngine,stopAllInstances,stopMusic,stopSound,switchOutputDevice,updateEngine,writeAudioDevice
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package platform

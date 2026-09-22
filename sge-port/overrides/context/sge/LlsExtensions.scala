@@ -1,3 +1,16 @@
+/*
+ * SGE-original file, no LibGDX counterpart: extension methods giving the lls base's collections
+ * the member names sge's hand-written code uses.
+ *
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 21
+ * Covenant-baseline-methods: first,length,right,top
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-09-22
+ */
 package sge
 
 extension [A](da: lowlevel.util.DynamicArray[A]) {

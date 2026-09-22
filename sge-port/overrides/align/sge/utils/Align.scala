@@ -16,10 +16,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 84
- * Covenant-baseline-methods: Align,bottom,bottomLeft,bottomRight,buffer,center,isBottom,isCenter,isCenterHorizontal,isCenterVertical,isLeft,isRight,isTop,left,right,show,showImpl,toInt,top,topLeft,topRight,unary_
+ * Covenant-baseline-loc: 97
+ * Covenant-baseline-methods: Align,apply,bottom,bottomLeft,bottomRight,buffer,center,isBottom,isCenter,isCenterHorizontal,isCenterVertical,isLeft,isRight,isTop,left,render,right,show,showImpl,toInt,top,topLeft,topRight,unary_
  * Covenant-source-reference: com/badlogic/gdx/utils/Align.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  *
  * upstream-commit: aa0cbc52417eb705004c0a94361b6777c1bf8636
  */

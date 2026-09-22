@@ -22,9 +22,9 @@
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 2060
- * Covenant-baseline-methods: EffectReference,ParticleEffectCodecs,buf,controllerIndices,decodeDynamicsModifier,decodeEmitter,decodeInfluencer,decodeRenderer,decodeResource,decodeSpawnShapeValue,decodeValue,effectFilename,emitterTypes,encodeResource,encodeValue,i,influencerTypes,jsonAstCodec,modifierTypes,nullValue,readAngularFields,readBoolean,readDynamicsModifierFields,readEffectReference,readEffectReferences,readEmitterFields,readFields,readFloat,readFloatArray,readFromArray,readInt,readIntArray,readPolymorphicObject,readPrimitiveSpawnShapeValueFields,readRangedNumericValue,readRegionInfluencerFields,readScaledNumericValue,readSimpleInfluencerFields,readSpawnShapeValueFields,readStrengthFields,readString,readStringArray,rendererTypes,spawnShapeTypes,writeAngularFields,writeDynamicsModifierFields,writeEffectReference,writeEffectReferences,writeEmitterFields,writeFloatArray,writeIntArray,writePrimitiveSpawnShapeValueFields,writeRangedNumericValue,writeRegionInfluencerFields,writeScaledNumericValue,writeSimpleInfluencerFields,writeSpawnShapeValueFields,writeStrengthFields,writeStringArray
+ * Covenant-baseline-methods: EffectReference,ParticleEffectCodecs,buf,controllerIndices,controllerNodes,decodeDynamicsModifier,decodeEmitter,decodeInfluencer,decodeRenderer,decodeResource,decodeSpawnShapeValue,decodeValue,effect,effectFilename,emitterTypes,encodeResource,encodeValue,i,influencerTypes,jsonAstCodec,modifierTypes,nullValue,readAngularFields,readBoolean,readDynamicsModifierFields,readEffectReference,readEffectReferences,readEmitterFields,readFields,readFloat,readFloatArray,readFromArray,readInt,readIntArray,readPolymorphicObject,readPrimitiveSpawnShapeValueFields,readRangedNumericValue,readRegionInfluencerFields,readScaledNumericValue,readSimpleInfluencerFields,readSpawnShapeValueFields,readStrengthFields,readString,readStringArray,rendererTypes,spawnShapeTypes,token,writeAngularFields,writeDynamicsModifierFields,writeEffectReference,writeEffectReferences,writeEmitterFields,writeFloatArray,writeIntArray,writePrimitiveSpawnShapeValueFields,writeRangedNumericValue,writeRegionInfluencerFields,writeScaledNumericValue,writeSimpleInfluencerFields,writeSpawnShapeValueFields,writeStrengthFields,writeStringArray
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/particles/ParticleControllerComponent.java
- * Covenant-verified: 2026-07-17
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package graphics
@@ -1990,9 +1990,9 @@ object ParticleEffectCodecs {
             } else {
               // Buffer the resource object and capture it as a Json AST node, the
               // same representation ResourceData.fromJson stores in resourceJson.
-              // The (using Sge)-dependent ParticleEffect construction is deferred
-              // to the loader (ParticleEffectLoader.loadSync via decodeResource),
-              // exactly as the AST pipeline does. No reflection: ResourceData
+              // The ParticleEffect itself is built later, by the loader
+              // (ParticleEffectLoader.loadSync via decodeResource) where a Sge is
+              // in scope, exactly as the AST pipeline does. No reflection: ResourceData
               // resolves class names through its cross-platform classNameMap
               // (Class.forName is unavailable on Scala.js / Scala Native).
               val (classNameOpt, bytes) = readPolymorphicObject(reader)

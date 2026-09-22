@@ -13,10 +13,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 171
+ * Covenant-baseline-loc: 180
  * Covenant-baseline-methods: AcceptRanges,AccessControlAllowOrigin,Age,Allow,CacheControl,Connection,ContentDisposition,ContentEncoding,ContentLanguage,ContentLength,ContentLocation,ContentMD5,ContentRange,ContentType,Date,ETag,Expires,HttpResponseHeader,LastModified,Link,Location,P3P,Pragma,ProxyAuthenticate,Refresh,RetryAfter,Server,SetCookie,Status,StrictTransportSecurity,Trailer,TransferEncoding,Upgrade,Vary,Via,WWWAuthenticate,Warning
  * Covenant-source-reference: com/badlogic/gdx/net/HttpResponseHeader.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  *
  * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */

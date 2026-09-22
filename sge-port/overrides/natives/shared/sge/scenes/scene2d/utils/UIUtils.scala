@@ -23,7 +23,7 @@
  * Covenant-baseline-loc: 86
  * Covenant-baseline-methods: UIUtils,alt,ctrl,isAndroid,isIos,isLinux,isMac,isWindows,left,middle,right,shift
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/utils/UIUtils.java
- * Covenant-verified: 2026-06-16
+ * Covenant-verified: 2026-09-22
  *
  * upstream-commit: 70725e2c7598f7fa02214814a85adad5134bb277
  */

@@ -11,10 +11,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 151
+ * Covenant-baseline-loc: 160
  * Covenant-baseline-methods: NoopInput,_cursorCatched,_inputProcessor,accelerometerX,accelerometerY,accelerometerZ,azimuth,closeTextInputField,currentEventTime,cursorCatched,deltaX,deltaY,getRotationMatrix,getTextInput,gyroscopeX,gyroscopeY,gyroscopeZ,inputProcessor,isButtonJustPressed,isButtonPressed,isCatchKey,isKeyJustPressed,isKeyPressed,isPeripheralAvailable,isTouched,justTouched,maxPointers,nativeOrientation,openTextInputField,pitch,pressure,roll,rotation,setCatchKey,setCursorCatched,setCursorPosition,setInputProcessor,setKeyboardHeightObserver,setOnscreenKeyboardVisible,touched,vibrate,x,y
  * Covenant-source-reference: backends/gdx-backend-headless/src/com/badlogic/gdx/backends/headless/mock/input/MockInput.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  *
  * upstream-commit: 892dee6814526372c81d9d72276e0d9df86da0c5
  */

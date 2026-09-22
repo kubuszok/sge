@@ -10,10 +10,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 241
- * Covenant-baseline-methods: NoopBackendFactory,PendingEntry,SgeHttpClient,apply,buildSttpRequest,cancel,claimFree,close,entries,entry,freeRequest,future,isPending,listener,method,noop,obtainRequest,pending,r,requestPool,send,sttpRequest,toSttpMethod,uri
+ * Covenant-baseline-loc: 246
+ * Covenant-baseline-methods: NoopBackendFactory,PendingEntry,SgeHttpClient,apply,buildSttpRequest,cancel,claimFree,close,entries,entry,freeRequest,future,inFlight,isPending,listener,method,noop,obtainRequest,r,requestPool,send,sttpRequest,toSttpMethod,uri
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-06-12
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package net
@@ -66,7 +66,7 @@ final class SgeHttpClient private[sge] (backend: HttpBackendFactory, poolCapacit
     @volatile var freed:     Boolean = false
   )
 
-  private val pending: mutable.Map[SgeHttpRequest, PendingEntry] = mutable.Map.empty
+  private val inFlight: mutable.Map[SgeHttpRequest, PendingEntry] = mutable.Map.empty
 
   /** Obtains a fresh (reset) request from the pool. */
   def obtainRequest(): SgeHttpRequest = requestPool.obtain()
@@ -83,8 +83,8 @@ final class SgeHttpClient private[sge] (backend: HttpBackendFactory, poolCapacit
     val future      = backend.send(sttpRequest)
 
     val entry = new PendingEntry(future, listener)
-    pending.synchronized {
-      pending.put(request, entry)
+    inFlight.synchronized {
+      inFlight.put(request, entry)
     }
 
     future.onComplete { result =>
@@ -105,10 +105,10 @@ final class SgeHttpClient private[sge] (backend: HttpBackendFactory, poolCapacit
     }
   }
 
-  /** Cancels a pending request. Invokes `listener.cancelled()` and returns the request to the pool.
+  /** Cancels an in-flight request. Invokes `listener.cancelled()` and returns the request to the pool.
     *
-    * Faithful to NetJavaImpl.cancelHttpRequest (NetJavaImpl.java:256-264): the cancellation only takes effect — `cancelled()` fires and the request is released — if the request is still pending (in
-    * the original, only if `getFromListeners(httpRequest) != null`). If the in-flight completion already removed and freed the request, `pending.remove` returns nothing here and cancel is a no-op,
+    * Faithful to NetJavaImpl.cancelHttpRequest (NetJavaImpl.java:256-264): the cancellation only takes effect — `cancelled()` fires and the request is released — if the request is still in flight
+    * (in the original, only if `getFromListeners(httpRequest) != null`). If the completion already removed and freed the request, `inFlight.remove` returns nothing here and cancel is a no-op,
     * exactly as the upstream map remove makes the second cancel a no-op. The single free is guarded by [[claimFree]] so cancel and the future's onComplete never free the same request twice (ISS-505).
     *
     * In-flight transport abort is NOT performed, and this matches the upstream contract: NetJavaImpl.cancelHttpRequest only removes the request from its listeners/connections maps so the eventual
@@ -119,13 +119,13 @@ final class SgeHttpClient private[sge] (backend: HttpBackendFactory, poolCapacit
     * call runs to completion in the background and its result is discarded (the `cancelled` flag in [[send]]'s onComplete suppresses delivery).
     */
   def cancel(request: SgeHttpRequest): Unit =
-    pending
+    inFlight
       .synchronized {
-        pending.remove(request)
+        inFlight.remove(request)
       }
       .foreach { entry =>
         entry.cancelled = true
-        // cancelled() fires exactly once: this entry was just removed from `pending`,
+        // cancelled() fires exactly once: this entry was just removed from `inFlight`,
         // so no other cancel() can re-enter here, and onComplete's path never calls
         // cancelled(). Matches NetJavaImpl firing cancelled() once per live request.
         entry.listener.foreach(_.cancelled())
@@ -135,24 +135,24 @@ final class SgeHttpClient private[sge] (backend: HttpBackendFactory, poolCapacit
         if (claimFree(entry)) requestPool.free(request)
       }
 
-  /** Returns true if the given request is still pending. */
+  /** Returns true if the given request is still in flight: sent, and neither completed nor cancelled yet. */
   def isPending(request: SgeHttpRequest): Boolean =
-    pending.synchronized {
-      pending.contains(request)
+    inFlight.synchronized {
+      inFlight.contains(request)
     }
 
-  /** Cancels all pending requests, clears the pool, and closes the backend. */
+  /** Cancels every in-flight request, clears the pool, and closes the backend. */
   override def close(): Unit = {
-    val entries = pending.synchronized {
-      val snapshot = pending.toSeq
-      pending.clear()
+    val entries = inFlight.synchronized {
+      val snapshot = inFlight.toSeq
+      inFlight.clear()
       snapshot
     }
     for ((req, entry) <- entries) {
       entry.cancelled = true
       entry.listener.foreach(_.cancelled())
       // Same single-ownership discipline as cancel(): each entry was just removed
-      // from `pending` by the snapshot-and-clear above, so a concurrent onComplete
+      // from `inFlight` by the snapshot-and-clear above, so a concurrent onComplete
       // can no longer find it via freeRequest's remove; claimFree still guards the
       // free so a completion already in flight for this entry frees at most once
       // overall (ISS-505).
@@ -163,21 +163,21 @@ final class SgeHttpClient private[sge] (backend: HttpBackendFactory, poolCapacit
   }
 
   /** Frees `request` back to the pool after its in-flight future completes — the sole free for the completion path, skipped if cancel()/close() already claimed ownership of `entry` (ISS-505). The
-    * `pending.remove` mirrors NetJavaImpl.removeFromConnectionsAndListeners (NetJavaImpl.java:233): idempotent, so the entry may already be absent if it was cancelled.
+    * `inFlight.remove` mirrors NetJavaImpl.removeFromConnectionsAndListeners (NetJavaImpl.java:233): idempotent, so the entry may already be absent if it was cancelled.
     */
   private def freeRequest(request: SgeHttpRequest, entry: PendingEntry): Unit = {
-    pending.synchronized {
-      pending.remove(request)
+    inFlight.synchronized {
+      inFlight.remove(request)
     }
     if (claimFree(entry)) requestPool.free(request)
   }
 
   /** Atomically claims the right to perform the single `requestPool.free` for `entry`. Returns true to exactly one caller across the entry's whole lifecycle ({cancel, close, onComplete}); every
-    * subsequent caller gets false and must not free. Synchronizing on `pending` (the same monitor that guards entry insertion/removal) makes the check-and-set atomic without touching Pool, whose own
+    * subsequent caller gets false and must not free. Synchronizing on `inFlight` (the same monitor that guards entry insertion/removal) makes the check-and-set atomic without touching Pool, whose own
     * no-double-free contract (Pool.scala:62) stays intact (ISS-505).
     */
   private def claimFree(entry: PendingEntry): Boolean =
-    pending.synchronized {
+    inFlight.synchronized {
       if (entry.freed) false
       else {
         entry.freed = true

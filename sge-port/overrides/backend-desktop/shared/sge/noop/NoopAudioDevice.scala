@@ -10,10 +10,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 33
+ * Covenant-baseline-loc: 42
  * Covenant-baseline-methods: NoopAudioDevice,close,latency,pause,resume,setVolume,writeSamples
  * Covenant-source-reference: backends/gdx-backend-headless/src/com/badlogic/gdx/backends/headless/mock/audio/MockAudioDevice.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  *
  * upstream-commit: 990cedd5fc6c79a5181711ee67faccbb82a42c57
  */

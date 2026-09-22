@@ -14,10 +14,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 161
+ * Covenant-baseline-loc: 170
  * Covenant-baseline-methods: WavInputStream,bitDepth,channels,codecType,dataRemaining,fmtChunkLength,getCodecName,read,remaining,sampleRate,seekToChunk,skipFully
  * Covenant-source-reference: backends/gdx-backend-lwjgl3/src/com/badlogic/gdx/backends/lwjgl3/audio/Wav.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  *
  * upstream-commit: ba0d0bda8b946fe2492bd3b80169a650d09f55d0
  */

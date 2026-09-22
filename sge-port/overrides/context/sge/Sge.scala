@@ -1,3 +1,16 @@
+/*
+ * SGE-original file: the application context that replaces libGDX's static globals
+ * (com/badlogic/gdx/Gdx.java); the context step threads it as `(using sge.Sge)`.
+ *
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 34
+ * Covenant-baseline-methods: Sge,apply
+ * Covenant-source-reference: com/badlogic/gdx/Gdx.java
+ * Covenant-verified: 2026-09-22
+ */
 package sge
 
 import scala.annotation.implicitNotFound

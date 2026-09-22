@@ -1,3 +1,21 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/utils/TextFormatter.java
+ * Original authors: davebaol
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Migration notes:
+ *   Convention: java.text.MessageFormat is reached through TextFormatterPlatform, per platform
+ *
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 91
+ * Covenant-baseline-methods: TextFormatter,advancedFormatter,buffer,changed,format,i,len,replaceEscapeChars,safeArgs,simpleFormat,this
+ * Covenant-source-reference: com/badlogic/gdx/utils/TextFormatter.java
+ * Covenant-verified: 2026-09-22
+ */
 package sge.utils
 
 import java.util.Locale

@@ -13,10 +13,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 46
- * Covenant-baseline-methods: G3dBinaryModelLoader,json,model,parseModel
+ * Covenant-baseline-loc: 34
+ * Covenant-baseline-methods: G3dBinaryModelLoader
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/loader/G3dModelLoader.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  *
  * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */

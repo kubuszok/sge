@@ -8,10 +8,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 36
+ * Covenant-baseline-loc: 45
  * Covenant-baseline-methods: Seconds,abs,apply,toFloat,toMillis,unary_,zero
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package utils

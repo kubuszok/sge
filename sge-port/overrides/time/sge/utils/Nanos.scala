@@ -8,10 +8,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 38
+ * Covenant-baseline-loc: 47
  * Covenant-baseline-methods: Nanos,apply,nanosPerMilli,toFloat,toLong,toMillis,zero
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package utils

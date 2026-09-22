@@ -4,6 +4,13 @@
  * elements when no concrete MkArray is available at compile time.
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 21
+ * Covenant-baseline-methods: createRef
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package utils

@@ -10,10 +10,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 40
+ * Covenant-baseline-loc: 48
  * Covenant-baseline-methods: HalfPi,Pi,Radians,TwoPi,apply,cos,sin,toDegrees,toFloat,unary_,zero
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package math

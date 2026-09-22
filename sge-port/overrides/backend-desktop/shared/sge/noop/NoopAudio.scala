@@ -10,10 +10,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 35
- * Covenant-baseline-methods: NoopAudio,availableOutputDevices,newAudioDevice,newAudioRecorder,newMusic,newSound,switchOutputDevice
+ * Covenant-baseline-loc: 45
+ * Covenant-baseline-methods: NoopAudio,availableOutputDevices,close,newAudioDevice,newAudioRecorder,newMusic,newSound,switchOutputDevice
  * Covenant-source-reference: backends/gdx-backend-headless/src/com/badlogic/gdx/backends/headless/mock/audio/MockAudio.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  *
  * upstream-commit: 4c9b9758fbe5efe39126a52fee8f9d5fb4119b31
  */

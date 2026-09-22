@@ -8,10 +8,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 29
+ * Covenant-baseline-loc: 36
  * Covenant-baseline-methods: AudioUtils,left,p,panToStereoVolumes,right,v
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package audio

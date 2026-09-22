@@ -13,10 +13,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 56
+ * Covenant-baseline-loc: 63
  * Covenant-baseline-methods: DecodeResult,Gdx2dOps,decodeImage,failureReason
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package platform

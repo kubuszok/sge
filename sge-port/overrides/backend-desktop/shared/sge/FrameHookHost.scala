@@ -7,10 +7,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 57
+ * Covenant-baseline-loc: 64
  * Covenant-baseline-methods: FrameHookHost,_,_frameHooks,i,registerFrameHook,removeFrameHook,runFrameHooks,snapshot
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-06-14
+ * Covenant-verified: 2026-09-22
  */
 package sge
 

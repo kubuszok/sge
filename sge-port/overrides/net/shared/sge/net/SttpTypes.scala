@@ -13,7 +13,7 @@
  * Covenant-baseline-loc: 41
  * Covenant-baseline-methods: SttpHeader,SttpMethod,SttpResponse,SttpStatusCode,SttpUri,sttpAsByteArrayAlways,sttpBasicRequest
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-06-12
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package net

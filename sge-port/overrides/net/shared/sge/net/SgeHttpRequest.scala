@@ -10,10 +10,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 104
+ * Covenant-baseline-loc: 112
  * Covenant-baseline-methods: SgeHttpRequest,content,contentBytes,followRedirects,headers,method,reset,timeoutMs,url,withContent,withContentBytes,withFollowRedirects,withHeader,withMethod,withTimeoutMs,withUrl
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package net

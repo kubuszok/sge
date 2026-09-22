@@ -11,11 +11,18 @@
  *   Idiom: split packages
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 57
+ * Covenant-baseline-methods: AsyncExecutor,close,executor,submit,this
+ * Covenant-source-reference: com/badlogic/gdx/utils/async/AsyncExecutor.java
+ * Covenant-verified: 2026-09-22
  */
 package sge.utils.async
 
-/** Allows asynchronous execution of [[AsyncTask]] instances on a separate thread. Needs to be disposed via a call to `close()` when no longer used, in which case the executor waits for running tasks
-  * to finish. Scheduled but not yet running tasks will not be executed.
+/** Allows asynchronous execution of [[AsyncTask]] instances on a separate thread. Needs to be disposed via a call to `close()` when no longer used, in which case the executor waits for running
+  * [[AsyncTask]] instances to finish, then destroys any resources like threads. Can not be used after `close()` is called.
   */
 class AsyncExecutor(maxConcurrent$p: scala.Int, name$p: java.lang.String) extends java.lang.AutoCloseable {
 

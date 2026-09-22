@@ -10,10 +10,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 42
+ * Covenant-baseline-loc: 49
  * Covenant-baseline-methods: TiledProjectJson,TiledProjectMemberJson,TiledProjectPropertyTypeJson
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package maps

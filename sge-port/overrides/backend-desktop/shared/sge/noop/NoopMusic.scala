@@ -12,10 +12,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 58
+ * Covenant-baseline-loc: 67
  * Covenant-baseline-methods: NoopMusic,_listener,_looping,_position,_volume,close,looping,looping_,onComplete,pause,play,playing,position,position_,setPan,stop,volume,volume_
  * Covenant-source-reference: backends/gdx-backend-headless/src/com/badlogic/gdx/backends/headless/mock/audio/MockMusic.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  *
  * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */

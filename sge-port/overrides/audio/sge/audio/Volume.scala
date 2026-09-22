@@ -11,7 +11,7 @@
  * Covenant-baseline-loc: 42
  * Covenant-baseline-methods: Volume,apply,max,min,parse,toFloat,unsafeMake
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-06-19
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package audio

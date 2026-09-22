@@ -9,10 +9,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 53
+ * Covenant-baseline-loc: 60
  * Covenant-baseline-methods: Pixels,abs,apply,max,min,toDouble,toFloat,toInt,unary_,zero
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  */
 package sge
 

@@ -10,10 +10,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 177
+ * Covenant-baseline-loc: 184
  * Covenant-baseline-methods: TmjAnimFrameJson,TmjLayerJson,TmjMapJson,TmjObjectGroupJson,TmjObjectJson,TmjPointJson,TmjPropertyJson,TmjTemplateJson,TmjTextJson,TmjTileJson,TmjTileOffsetJson,TmjTilesetRefJson
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package maps

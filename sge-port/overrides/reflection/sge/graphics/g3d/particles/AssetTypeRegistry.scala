@@ -1,3 +1,16 @@
+/*
+ * SGE-original file, no LibGDX counterpart: the name-to-type registry that replaces the one
+ * runtime class lookup libGDX's particle ResourceData performed.
+ *
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 39
+ * Covenant-baseline-methods: AssetTypeRegistry,byName,classFor,register,registered
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-09-22
+ */
 package sge.graphics.g3d.particles
 
 import sge.utils.reflect.ReflectionException

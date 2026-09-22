@@ -72,10 +72,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 546
+ * Covenant-baseline-loc: 553
  * Covenant-baseline-methods: CommaResult,LenientJson,Parser,atEnd,isSpace,isWs,isWs2,length,numberOrString,parse,parseArray,parseComma,parseName,parseNameValue,parseObject,parseQuotedString,parseUnquotedValue,parseValue,parser,pos,readUnquoted,skipComment,skipWs,skipWs2,typeUnquotedValue,unescape
  * Covenant-source-reference: com/badlogic/gdx/utils/JsonReader.java
- * Covenant-verified: 2026-06-12
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package utils

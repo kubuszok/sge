@@ -13,10 +13,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 193
+ * Covenant-baseline-loc: 200
  * Covenant-baseline-methods: BufferOps,copy,find,freeMemory,getBufferAddress,newDisposableByteBuffer,transformV2M3,transformV2M4,transformV3M3,transformV3M4,transformV4M4
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package platform

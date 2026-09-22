@@ -8,10 +8,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 131
+ * Covenant-baseline-loc: 138
  * Covenant-baseline-methods: AttributeLocation,BufferHandle,FramebufferHandle,GLHandleOps,ProgramHandle,RenderbufferHandle,ShaderHandle,TextureHandle,UniformLocation,apply,bindTexture,deleteBuffer,deleteFramebuffer,deleteRenderbuffer,deleteTexture,genBuffer,genFramebuffer,genRenderbuffer,genTexture,none,notFound,toInt
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package graphics

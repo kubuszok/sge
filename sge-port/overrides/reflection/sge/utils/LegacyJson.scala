@@ -1,5 +1,24 @@
-// (json step) java's reflective `Json` lives on under the name `LegacyJson` — the name `Json` is the Kindlings JSON AST
-// (`sge.utils.JsonCodecs`); the stub goes with the particle system's and Skin's last references.
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/utils/Json.java
+ * Original authors: Nathan Sweet
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Migration notes:
+ *   Renames: Json -> LegacyJson (json step): the name `Json` is the Kindlings JSON AST (`sge.utils.JsonCodecs`)
+ *   Convention: the configuration and the explicit write path are real (they drive the ported JsonWriter);
+ *     every reflective read/write path refuses at run time — the reflection step's seam, injected in place
+ *     of the dropped java type. The file goes with the particle system's and Skin's last references to it.
+ *
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 313
+ * Covenant-baseline-methods: LegacyJson,ReadOnlySerializer,Serializable,Serializer,addClassTag,buffer,classToSerializer,classToTag,codec,copyFields,defaultSerializer,enumNames,fromJson,getClass,getIgnoreUnknownFields,getReader,getSerializer,getTag,getWriter,ignoreDeprecated,ignoreUnknownField,ignoreUnknownFields,jw,outputType,prettyPrint,primary,quoteLongValues,read,readDeprecated,readField,readFields,readValue,reader,setDefaultSerializer,setDeprecated,setElementType,setEnumNames,setIgnoreDeprecated,setIgnoreUnknownFields,setOutputType,setQuoteLongValues,setReadDeprecated,setReader,setSerializer,setSortFields,setTypeName,setUsePrototypes,setWriter,sortFields,tagToClass,this,toJson,typeName,usePrototypes,write,writeArrayEnd,writeArrayStart,writeField,writeFields,writeObjectEnd,writeObjectStart,writeType,writeValue,writer
+ * Covenant-source-reference: com/badlogic/gdx/utils/Json.java
+ * Covenant-verified: 2026-09-22
+ */
 package sge.utils
 
 import sge.files.FileHandle

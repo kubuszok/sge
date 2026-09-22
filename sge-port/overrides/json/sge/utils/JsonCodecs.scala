@@ -10,10 +10,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 126
- * Covenant-baseline-methods: Json,JsonCodec,JsonObject,JsoniterConfig,UBJsonCodec,WriterConfig,bytes,readFromStream,readFromString,readJson,readUBJson,stream,writeToString,writeUBJson
+ * Covenant-baseline-loc: 142
+ * Covenant-baseline-methods: Json,JsonCodec,JsonObject,JsoniterConfig,ReaderConfig,UBJsonCodec,WriterConfig,bytes,readFromStream,readFromString,readJson,readUBJson,stream,writeToString,writeUBJson
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package utils

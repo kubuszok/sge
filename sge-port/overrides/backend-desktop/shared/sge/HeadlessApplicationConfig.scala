@@ -15,10 +15,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 41
+ * Covenant-baseline-loc: 40
  * Covenant-baseline-methods: HeadlessApplicationConfig
  * Covenant-source-reference: backends/gdx-backend-headless/src/com/badlogic/gdx/backends/headless/HeadlessApplicationConfiguration.java
- * Covenant-verified: 2026-06-17
+ * Covenant-verified: 2026-09-22
  *
  * upstream-commit: caf7e6fe10f923ca15bee8ec7ff4911c4fc691cd
  */

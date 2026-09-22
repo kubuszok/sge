@@ -25,10 +25,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 386
- * Covenant-baseline-methods: G3dModelLoader,VERSION_HI,VERSION_LO,blendWeightCount,json,jsonNode,loadModelData,model,parseAnimations,parseAttributes,parseColor,parseMaterials,parseMeshes,parseModel,parseNodes,parseNodesRecursively,parseTextureUsage,parseType,tempQ,unit,vertexAttributes
+ * Covenant-baseline-loc: 401
+ * Covenant-baseline-methods: G3dModelLoader,VERSION_HI,VERSION_LO,blendWeightCount,json,jsonNode,loadModelData,model,parseAnimations,parseAttributes,parseColor,parseMaterials,parseMeshes,parseModel,parseNodes,parseNodesRecursively,parseTextureUsage,parseType,tempQ,this,unit,vertexAttributes
  * Covenant-source-reference: com/badlogic/gdx/graphics/g3d/loader/G3dModelLoader.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  *
  * upstream-commit: 34cc595deb4ac09ee476c6b1aba1b805f4dc81a7
  */

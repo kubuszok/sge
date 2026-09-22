@@ -13,10 +13,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 350
+ * Covenant-baseline-loc: 359
  * Covenant-baseline-methods: ETC1,ETC1Data,ETC1_RGB8_OES,PKM_HEADER_SIZE,apply,arr,buffer,checkNPOT,close,compArr,compSize,compressedData,dataOffset,decArr,decodeImage,decodedSize,dup,encodeImage,encodeImagePKM,etc1,extractBytes,formatHeader,getCompressedDataSize,getHeightPKM,getPixelSize,getWidthPKM,hasPKMHeader,height,imgArr,imgSize,in,isValidPKM,loadCompressedData,pixelSize,pixmap,pkmArr,putBytes,result,toString,width,write
  * Covenant-source-reference: com/badlogic/gdx/graphics/glutils/ETC1.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  *
  * upstream-commit: 5bf1a7587d009c9d24b370c932fdd7cde6e4beb9
  */

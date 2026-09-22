@@ -13,7 +13,7 @@
  * Covenant-baseline-loc: 742
  * Covenant-baseline-methods: SkinStyleReader,copyFrom,create,lookup,register,registry,resolveColor,resolveFloat,resolveNullableColor,resolveNullableDrawable,resolveNullableFont,resolveStyle,setField,withColor,withDrawable,withFont,withStyle
  * Covenant-source-reference: com/badlogic/gdx/scenes/scene2d/ui/Skin.java
- * Covenant-verified: 2026-06-13
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package scenes

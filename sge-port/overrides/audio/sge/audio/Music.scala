@@ -18,10 +18,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 106
+ * Covenant-baseline-loc: 116
  * Covenant-baseline-methods: Music,duration,looping,looping_,onComplete,pause,play,playing,position,position_,setPan,stop,volume,volume_
  * Covenant-source-reference: com/badlogic/gdx/audio/Music.java
- * Covenant-verified: 2026-07-17
+ * Covenant-verified: 2026-09-22
  *
  * upstream-commit: 79cf00af53b7f38667291fbacf544d3074a811bd
  */

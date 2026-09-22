@@ -14,10 +14,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 113
+ * Covenant-baseline-loc: 134
  * Covenant-baseline-methods: InputProcessor,keyDown,keyTyped,keyUp,mouseMoved,scrolled,touchCancelled,touchDown,touchDragged,touchUp
  * Covenant-source-reference: com/badlogic/gdx/InputProcessor.java
- * Covenant-verified: 2026-04-19
+ * Covenant-verified: 2026-09-22
  *
  * upstream-commit: 9de4191d4db23192cc7ef5cd3ea0d68a42924ff6
  */

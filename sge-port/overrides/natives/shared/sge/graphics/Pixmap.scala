@@ -19,10 +19,10 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 537
- * Covenant-baseline-methods: Blending,DownloadPixmapResponseListener,Filter,Format,Pixmap,_blending,_filter,blending,close,color,createFromFrameBuffer,disposed,downloadComplete,downloadFailed,downloadFromUrl,drawCircle,drawLine,drawPixel,drawPixmap,drawRectangle,dst,fill,fillCircle,fillRectangle,fillTriangle,filter,format,fromGdx2DPixmapFormat,gLFormat,gLInternalFormat,getPixel,glType,height,isDisposed,pixels,pixels_,pixmap,setBlending,setColor,setFilter,this,toGdx2DPixmapFormat,toGlFormat,toGlType,width
+ * Covenant-baseline-loc: 553
+ * Covenant-baseline-methods: Blending,DownloadPixmapResponseListener,Filter,Format,Pixmap,_blending,_filter,blending,cancelled,client,close,color,createFromFrameBuffer,disposed,downloadComplete,downloadFailed,downloadFromUrl,drawCircle,drawLine,drawPixel,drawPixmap,drawRectangle,dst,failed,fill,fillCircle,fillRectangle,fillTriangle,filter,format,fromGdx2DPixmapFormat,gLFormat,gLInternalFormat,getPixel,glType,handleHttpResponse,height,isDisposed,pixels,pixels_,pixmap,request,run,setBlending,setColor,setFilter,this,toGdx2DPixmapFormat,toGlFormat,toGlType,width
  * Covenant-source-reference: com/badlogic/gdx/graphics/Pixmap.java
- * Covenant-verified: 2026-06-12
+ * Covenant-verified: 2026-09-22
  *
  * upstream-commit: e0b877c2b9800c96f548b8dcc2c129b2e1e7cd9c
  */

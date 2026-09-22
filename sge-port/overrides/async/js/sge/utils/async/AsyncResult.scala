@@ -11,6 +11,13 @@
  *   Idiom: split packages
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 25
+ * Covenant-baseline-methods: AsyncResult,done,get
+ * Covenant-source-reference: backends/gdx-backends-gwt/src/com/badlogic/gdx/backends/gwt/emu/com/badlogic/gdx/utils/async/AsyncResult.java
+ * Covenant-verified: 2026-09-22
  */
 package sge.utils.async
 

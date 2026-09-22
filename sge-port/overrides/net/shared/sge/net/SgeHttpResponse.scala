@@ -13,7 +13,7 @@
  * Covenant-baseline-loc: 56
  * Covenant-baseline-methods: SgeHttpResponse,bodyBytes,bodyString,getHeader,headers,result,resultAsStream,resultAsString,status
  * Covenant-source-reference: SGE-original
- * Covenant-verified: 2026-06-12
+ * Covenant-verified: 2026-09-22
  */
 package sge
 package net
