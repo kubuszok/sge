@@ -58,7 +58,10 @@ The engine names no library. **How libGDX is ported is sge's own policy, in `sge
   engine artifact;
 - `sge-port/overrides/<step>/` — the hand-written files the policy injects by path. They are inputs
   of the generation, not sources of any module: a copy that also exists under `sge/src/main/`
-  wins in the build.
+  wins in the build. They are covenanted and scanned like every ported file (`sge-port/overrides` is
+  a `.rescale/scan-targets.txt` root; a by-design refusal there is a `skip-policy` entry AND a
+  covenant-gate baseline row). The policy sources are not: they have no Java original, and the
+  shortcut scanner reads the body templates they hold as code.
 The lls base's policy is lls's own: the `lls-port` artifact, at the version of the lls dependency
 (`Versions.lls`).
 

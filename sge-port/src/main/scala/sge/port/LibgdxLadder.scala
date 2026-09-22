@@ -1578,8 +1578,8 @@ object LibgdxLadder {
             "com.badlogic.gdx.utils.BinaryHeap#contains" ->
               "{ if (node == null) { throw new java.lang.IllegalArgumentException(\"node cannot be null.\") }; var i = 0; if (identity) { while (i < this.size) { if (this.nodes(i) eq node) { return true }; i += 1 } } else { while (i < this.size) { if (this.nodes(i).equals(node.asInstanceOf[java.lang.Object])) { return true }; i += 1 } }; return false }",
             // ctor-funnel bug: ResourceData(T) skips field init — use no-arg ctor + set resource. The document
-            // is sge's `ResourceData.toJson` written through jsoniter (`LegacyJson` is the reflective stub
-            // the reflection step refuses at run time on every row); `ParticleEffectLoader#getDependencies`
+            // is sge's `ResourceData.toJson` written through jsoniter (`LegacyJson`, the reflection step's
+            // stand-in for the reflective `Json`, refuses at run time on every row); `ParticleEffectLoader#getDependencies`
             // (json step) reads the same document back.
             "com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader#save" ->
               """{
@@ -2167,7 +2167,7 @@ object LibgdxLadder {
           surface = StepOrder.filter(steps).flatMap(stepsFor(steps)(_)) :+
             balticporter.transform.PortMapTransform.forBases("lls"),
           packageRenames = Map("com.badlogic.gdx" -> "sge"),
-          // java's reflective `Json` (dropped by the reflection step, a refusing stub injected) keeps the name
+          // java's reflective `Json` (dropped by the reflection step, a refusing stand-in injected) keeps the name
           // `LegacyJson`: `Json` is the Kindlings JSON AST sge's Skin and Tiled loaders read (json step).
           typeRenames = Map(
             "com.badlogic.gdx.scenes.scene2d.ui.List" -> "SgeList",
