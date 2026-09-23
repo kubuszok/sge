@@ -62,18 +62,15 @@ object BalticPorterGen {
       val llsReportRoot = runLlsPort(sgeRoot, classpathDir, libgdxSrc, commit, expected, log)
 
       // Step 2: Run the sge-core port as a dependent of the lls port.
-      // The derive mechanism reads the FULL hand-ported sge source
-      // (one pinned commit, `HandPortReference`) to learn the reference's naming conventions (field names, property shapes,
-      // parenless methods, opaque type seeds). Without this, BeanPropertyTransform falls back to
-      // generic naming (active$field instead of _active), NullaryArityTransform doesn't derive
-      // parenless, and opaque Key/Button/Pixels seeds are empty.
-      // The reference is extracted from that commit into target/parity-reference because the
-      // hand-ported files are gone from the current tree.
+      // The derive mechanism reads its spelling policy from a committed TSV file
+      // (`sge-port/derived-policy.tsv`) rather than deriving it from a reference tree at build time.
+      // The parity reference is still extracted for `fromReference` member splicing.
       // Platform rows: sge hand-writes its backend layers (sge/src/main/scala{jvm,js,native,desktop}); the
       // files the PORT owns per row (`async`: java's executor on JVM/Native, libGDX's GWT emulation on JS)
       // land in src_managed/<row>/scala, which build.sbt attaches to that row only (`platformSources`).
-      val parityRef = extractParityReference(sgeRoot, log)
-      val manifest  = sge.port.LibgdxLadder.universal(overrides, upstreamResources = sgeRoot.resolve("original-src/libgdx/gdx/res"), parityRoots = parityRef).copy(baseReports = List(llsReportRoot))
+      val frozenPolicy = sgeRoot.resolve("sge-port/derived-policy.tsv")
+      val parityRef    = extractParityReference(sgeRoot, log)
+      val manifest     = sge.port.LibgdxLadder.universal(overrides, upstreamResources = sgeRoot.resolve("original-src/libgdx/gdx/res"), frozenDerivedPolicy = Some(frozenPolicy), parityRoots = parityRef).copy(baseReports = List(llsReportRoot))
 
       // Collect the files to port: all .java under gdx/src minus the lls set.
       val files = Files
@@ -301,16 +298,12 @@ object BalticPorterGen {
   private val HandPortReference      = "ec6647df8dc9e4600794c81624922e994cecea72"
   private val HandPortReferenceFiles = 549L
 
-  /** Extract sge's hand-written core (as of [[HandPortReference]]) into target/parity-reference, so the derive mechanism can read the reference's naming conventions: the current tree no longer holds
-    * those files.
+  /** Extract sge's hand-written core (as of [[HandPortReference]]) into target/parity-reference, so the `fromReference` member splicing can read the source. The derived-policy derivation is now
+    * handled by the frozen TSV file.
     */
   private def extractParityReference(sgeRoot: Path, log: sbt.util.Logger): List[Path] = {
     val refDir = sgeRoot.resolve("target/parity-reference")
     val marker = refDir.resolve(".extracted-marker")
-    // The hand-written core is read from ONE fixed commit: the last one on master that still holds
-    // it. A branch name is not a reference — once the generated core was merged, `master` itself
-    // stopped containing the hand port, the derived policy came out empty-ish and master's own CI
-    // failed to compile (run 35427945953) while the pull request's run had passed.
     val ref = HandPortReference
     if (!Files.exists(marker) || Files.readString(marker).trim != ref) {
       log.info(s"[Baltic Porter] Extracting parity reference from sge's hand-written core at $ref")
@@ -330,9 +323,6 @@ object BalticPorterGen {
       val gitExit = gitProc.waitFor()
       tarProc.waitFor()
       val count = Files.walk(refDir).filter(p => p.toString.endsWith(".scala")).count()
-      // An empty reference derives NOTHING (no opaque seeds, no property shapes) and the port then
-      // fails to compile against sge's hand files with hundreds of type mismatches that name no
-      // cause (release run 35313268095: a shallow checkout has neither `master` nor `origin/master`).
       if (gitExit != 0 || count < HandPortReferenceFiles)
         sys.error(
           s"[Baltic Porter] no parity reference: `git archive $ref sge/src/main/...` exited $gitExit and extracted $count file(s), expected at least $HandPortReferenceFiles. " +

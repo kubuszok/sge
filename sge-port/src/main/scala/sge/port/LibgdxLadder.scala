@@ -2141,10 +2141,10 @@ object LibgdxLadder {
     "visibility"
   )
 
-  /** The manifest of sge core: a dependent of the lls port. `overrides` is `sge-port/overrides`, `upstreamResources` libGDX's `gdx/res`, `parityRoots` the hand-written sge sources the derive step
-    * reads its spellings from (compared against nothing).
+  /** The manifest of sge core: a dependent of the lls port. `overrides` is `sge-port/overrides`, `upstreamResources` libGDX's `gdx/res`, `frozenDerivedPolicy` a committed TSV file the derive step
+    * reads its spellings from (replacing the old parity-reference extraction from git history), `parityRoots` the reference tree for `fromReference` member splicing (empty when not available).
     */
-  def universal(overrides: Path, upstreamResources: Path, parityRoots: List[Path], steps: Set[String] = DefaultSteps): PortManifest = {
+  def universal(overrides: Path, upstreamResources: Path, frozenDerivedPolicy: Option[Path], parityRoots: List[Path] = Nil, steps: Set[String] = DefaultSteps): PortManifest = {
     val unknown = steps -- Steps.keySet
     require(unknown.isEmpty, s"unknown ladder steps: ${unknown.mkString(",")}; known: ${Steps.keySet.toList.sorted.mkString(",")}")
     // the base is lls's own policy (the published `lls-port`); this manifest adds core's
@@ -2201,8 +2201,10 @@ object LibgdxLadder {
           dependencies = List(
             balticporter.catalog.ArtifactDep("com.badlogicgames.gdx", "gdx-jnigen-loader", "2.5.2", balticporter.catalog.CrossKind.Java)
           ),
-          // the derive step's reference: spellings are derived from it, nothing is compared against it
-          parity = if steps("derive") then Some(balticporter.core.ParityRef(roots = parityRoots, compare = false)) else None
+          // the derive step reads its spellings from a committed TSV file; the parity
+          // reference is kept only for fromReference member splicing (no surface comparison)
+          parity = if parityRoots.nonEmpty then Some(balticporter.core.ParityRef(roots = parityRoots, compare = false)) else None,
+          frozenDerivedPolicy = if steps("derive") then frozenDerivedPolicy else None
         )
       )
   }
