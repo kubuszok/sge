@@ -1,21 +1,24 @@
 package sge.utils
 
+/*
+ * Injected by sge's port policy; no upstream source.
+ *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
  * Covenant-baseline-loc: 145
  * Covenant-baseline-methods: Pools,existing,free,freeAll,get,getOrNull,i,n,obtain,p,pool,probe,registerDefaults,set,typePools
  * Covenant-source-reference: injected (no upstream)
  * Covenant-verified: 2026-09-23
+ */
 /** INJECTED SCALA (Substitutions.inject) — the portable replacement for libGDX's `Pools`. */
 object Pools {
 
-  private final val typePools: lowlevel.util.ObjectMap[java.lang.Class[?], Pool[?]] =
+  final private val typePools: lowlevel.util.ObjectMap[java.lang.Class[?], Pool[?]] =
     lowlevel.util.ObjectMap[java.lang.Class[?], Pool[?]]()
 
-  /** The upstream `static { … }` block, ported by hand: every type libGDX itself pools is
-    * pre-registered with its constructor as the factory. This is what makes the `Class`-keyed
-    * lookups above resolve WITHOUT ever needing to construct from a `Class` — the reflective
-    * fallback existed only because these registrations were not exhaustive for user types. */
+  /** The upstream `static { … }` block, ported by hand: every type libGDX itself pools is pre-registered with its constructor as the factory. This is what makes the `Class`-keyed lookups above
+    * resolve WITHOUT ever needing to construct from a `Class` — the reflective fallback existed only because these registrations were not exhaustive for user types.
+    */
   def registerDefaults()(using sge.Sge): Unit = {
     Pools.set(() => lowlevel.util.DynamicArray[java.lang.Object]())
     Pools.set(() => new sge.scenes.scene2d.utils.ChangeListener.ChangeEvent())
@@ -61,13 +64,13 @@ object Pools {
   def set[T <: java.lang.Object](`type`: java.lang.Class[T], pool: Pool[T]): Unit =
     Pools.typePools.put(`type`, pool)
 
-  /** Registers a factory-backed pool, keyed by the class of an instance the factory produces.
-    * `Pools.set(() => new MyClass, 50)`. */
+  /** Registers a factory-backed pool, keyed by the class of an instance the factory produces. `Pools.set(() => new MyClass, 50)`.
+    */
   def set[T <: java.lang.Object](factory: () => T, max: Int): Unit = {
     val probe = factory()
     Pools.set(
       probe.asInstanceOf[java.lang.Object].getClass().asInstanceOf[java.lang.Class[T]],
-      new DefaultPool[T](() => factory(), 4, max),
+      new DefaultPool[T](() => factory(), 4, max)
     )
   }
 
@@ -80,9 +83,9 @@ object Pools {
     if (p.isEmpty) null else p.get.asInstanceOf[Pool[T]]
   }
 
-  /** The registered pool for `type`. Unlike the Java original this does NOT create one on a miss —
-    * a pool cannot construct `T` from a `Class` without reflection. Use the `factory` overload (or
-    * `set`) to register one. */
+  /** The registered pool for `type`. Unlike the Java original this does NOT create one on a miss — a pool cannot construct `T` from a `Class` without reflection. Use the `factory` overload (or `set`)
+    * to register one.
+    */
   def get[T <: java.lang.Object](`type`: java.lang.Class[T]): Pool[T] = {
     val pool = Pools.getOrNull(`type`)
     if (pool == null) {
@@ -95,9 +98,9 @@ object Pools {
     pool
   }
 
-  /** The registered pool for `type`, creating a factory-backed one on a miss. This is the direct
-    * replacement for the Java `get(type, max)` reflective fallback: same shape, but the caller
-    * supplies the construction. */
+  /** The registered pool for `type`, creating a factory-backed one on a miss. This is the direct replacement for the Java `get(type, max)` reflective fallback: same shape, but the caller supplies the
+    * construction.
+    */
   def get[T <: java.lang.Object](`type`: java.lang.Class[T], factory: () => T, max: Int): Pool[T] = {
     val existing: Pool[T] = Pools.getOrNull(`type`)
     if (existing != null) { existing }
@@ -117,8 +120,8 @@ object Pools {
   /** Obtains an object from the pool for `type`, registering a factory-backed pool on a miss. */
   def obtain[T <: java.lang.Object](`type`: java.lang.Class[T], factory: () => T): T = Pools.get(`type`, factory).obtain()
 
-  /** Frees an object to the pool registered for its runtime class. `getClass` is supported on every
-    * target — only INSTANTIATION from a `Class` is not — so the lookup side is unchanged. */
+  /** Frees an object to the pool registered for its runtime class. `getClass` is supported on every target — only INSTANTIATION from a `Class` is not — so the lookup side is unchanged.
+    */
   def free(`object`: java.lang.Object): Unit = {
     if (`object` == null) { throw new java.lang.IllegalArgumentException("object cannot be null.") }
     val pool = Pools.typePools.get(`object`.getClass())
@@ -130,12 +133,14 @@ object Pools {
   def freeAll(objects: lowlevel.util.DynamicArray[?]): Unit = Pools.freeAll(objects, false)
 
   /** Frees the specified objects.
-    * @param samePool if true the pool is looked up once and reused for every object. */
+    * @param samePool
+    *   if true the pool is looked up once and reused for every object.
+    */
   def freeAll(objects: lowlevel.util.DynamicArray[?], samePool: Boolean): Unit = {
     if (objects == null) { throw new java.lang.IllegalArgumentException("objects cannot be null.") }
     var pool: lowlevel.Nullable[Pool[?]] = lowlevel.Nullable.empty
-    var i             = 0
-    val n             = objects.size
+    var i = 0
+    val n = objects.size
     while (i < n) {
       val obj = objects(i).asInstanceOf[java.lang.Object]
       if (obj != null) {

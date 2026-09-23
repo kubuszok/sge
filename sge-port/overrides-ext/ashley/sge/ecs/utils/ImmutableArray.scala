@@ -14,25 +14,24 @@
  * Covenant-verified: 2026-09-23
  */
 
-/** Injected replacement: `Array<T>` retargets to `DynamicArray`, and three methods dispatch on a
-  * non-literal boolean identity flag `BoolDispatch` cannot handle statically, plus a nested
-  * `Array.ArrayIterable` reference the retarget removes. Drop-in parity with
-  * sge's hand port (`Iterable[A]`, parenless `iterator`): both a `DynamicArray[A]` constructor
-  * (what emitted ashley code passes) and an `ArrayBuffer[A]` one (sge's own tests) are provided. */
+/** Injected replacement: `Array<T>` retargets to `DynamicArray`, and three methods dispatch on a non-literal boolean identity flag `BoolDispatch` cannot handle statically, plus a nested
+  * `Array.ArrayIterable` reference the retarget removes. Drop-in parity with sge's hand port (`Iterable[A]`, parenless `iterator`): both a `DynamicArray[A]` constructor (what emitted ashley code
+  * passes) and an `ArrayBuffer[A]` one (sge's own tests) are provided.
+  */
 package sge.ecs.utils
 
 import scala.collection.mutable.ArrayBuffer
 import lowlevel.util.DynamicArray
 import lowlevel.Nullable
 
-/** Read-only wrapper around a mutable collection. This is a live view -- changes to the backing
-  * data are visible through this wrapper.
+/** Read-only wrapper around a mutable collection. This is a live view -- changes to the backing data are visible through this wrapper.
   *
-  * @author David Saltares (original implementation)
+  * @author
+  *   David Saltares (original implementation)
   */
 final class ImmutableArray[A] private (
-    private val dynArray: DynamicArray[A],
-    private val bufArray: ArrayBuffer[A]
+  private val dynArray: DynamicArray[A],
+  private val bufArray: ArrayBuffer[A]
 ) extends Iterable[A] {
 
   /** Constructor for the emitted ashley code, which uses DynamicArray (via retarget). */
@@ -54,8 +53,8 @@ final class ImmutableArray[A] private (
 
   def apply(index: Int): A = if (useDyn) dynArray(index) else bufArray(index)
 
-  /** Alias for [[apply]] -- the mechanically ported code calls `get(i)` because that is what the
-    * java source declares. */
+  /** Alias for [[apply]] -- the mechanically ported code calls `get(i)` because that is what the java source declares.
+    */
   def get(index: Int): A = apply(index)
 
   def contains(value: A, identity: Boolean): Boolean =
@@ -65,10 +64,9 @@ final class ImmutableArray[A] private (
       bufArray.contains(value)
     }
 
-  /** 1-arg overload for sge parity: the hand port's ImmutableArray delegates to Iterable.contains
-    * which takes one argument. Forwards to the emitted 2-arg form (the faithful translation of
-    * `ImmutableArray.contains(T, boolean)`) with `identity=false`, java's default. `@targetName`
-    * avoids a JVM-level clash with `Iterable.contains[A1 >: A](elem: A1)`, which erases the same. */
+  /** 1-arg overload for sge parity: the hand port's ImmutableArray delegates to Iterable.contains which takes one argument. Forwards to the emitted 2-arg form (the faithful translation of
+    * `ImmutableArray.contains(T, boolean)`) with `identity=false`, java's default. `@targetName` avoids a JVM-level clash with `Iterable.contains[A1 >: A](elem: A1)`, which erases the same.
+    */
   @scala.annotation.targetName("containsValue")
   def contains(value: A): Boolean = contains(value, false)
 

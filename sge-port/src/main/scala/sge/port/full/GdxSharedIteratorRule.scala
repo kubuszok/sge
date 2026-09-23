@@ -94,8 +94,7 @@ final class GdxSharedIteratorRule extends Phase {
       case i: Tree.Ident  => Some(i.sym)
       case s: Tree.Select => Some(s.sym)
       case _ => scala.None
-    }
-    ).flatMap(program.symbolOf).map(_.fullName)
+    }).flatMap(program.symbolOf).map(_.fullName)
 
   /** a for-each INSIDE `fe`'s body over the same receiver. */
   private def nestedOver(program: Program, fe: Tree.ForEach, receiver: String)(using Program): Option[Tree.ForEach] =

@@ -12,27 +12,24 @@
  * Covenant-verified: 2026-09-23
  */
 
-/** INJECTED (`Substitutions.dropTypes` + `inject`): java's `GdxAI` sniffs `Gdx.app`/`Gdx.files` at
-  * class init to pick two of its three services; the port threads that context through
-  * `(using sge.Sge)`, unavailable to a static initialiser, so it installs java's own NEGATIVE
-  * branch (`NullLogger`, `StandaloneFileSystem` — upstream's own out-of-libGDX path) instead, with
-  * the libGDX-backed pair still emitted and settable via `setLogger`/`setFileSystem`. */
+/** INJECTED (`Substitutions.dropTypes` + `inject`): java's `GdxAI` sniffs `Gdx.app`/`Gdx.files` at class init to pick two of its three services; the port threads that context through
+  * `(using sge.Sge)`, unavailable to a static initialiser, so it installs java's own NEGATIVE branch (`NullLogger`, `StandaloneFileSystem` — upstream's own out-of-libGDX path) instead, with the
+  * libGDX-backed pair still emitted and settable via `setLogger`/`setFileSystem`.
+  */
 package sge.ai
 
-/** Environment class holding references to the [[Timepiece]], [[Logger]] and [[FileSystem]]
-  * instances. The references are held in static fields which allows static access to all sub
-  * systems. */
+/** Environment class holding references to the [[Timepiece]], [[Logger]] and [[FileSystem]] instances. The references are held in static fields which allows static access to all sub systems.
+  */
 object GdxAI {
   private var timepiece: sge.ai.Timepiece = new sge.ai.DefaultTimepiece()
 
-  /** `NullLogger` rather than java's `Gdx.app == null ? … : new GdxLogger()` — see the file header.
-    * Install the libGDX-backed one with `GdxAI.setLogger(new sge.ai.GdxLogger())`. */
+  /** `NullLogger` rather than java's `Gdx.app == null ? … : new GdxLogger()` — see the file header. Install the libGDX-backed one with `GdxAI.setLogger(new sge.ai.GdxLogger())`.
+    */
   private var logger: sge.ai.Logger = new sge.ai.NullLogger()
 
-  /** THE ONE SERVICE WITH NO DEFAULT THIS PORT CAN BUILD: both `FileSystem` implementations need
-    * a `(using sge.Sge)` context this `object`'s initialiser has no caller or clause to supply, so
-    * [[getFileSystem]] REFUSES rather than answering — louder than java, never quieter (CLAUDE.md
-    * §1) — naming `setFileSystem` as the fix; both implementations are emitted and installable. */
+  /** THE ONE SERVICE WITH NO DEFAULT THIS PORT CAN BUILD: both `FileSystem` implementations need a `(using sge.Sge)` context this `object`'s initialiser has no caller or clause to supply, so
+    * [[getFileSystem]] REFUSES rather than answering — louder than java, never quieter (CLAUDE.md §1) — naming `setFileSystem` as the fix; both implementations are emitted and installable.
+    */
   private var fileSystem: sge.ai.FileSystem = null
 
   /** Returns the timepiece service. */
@@ -50,13 +47,15 @@ object GdxAI {
   /** Returns the filesystem service. */
   def getFileSystem(): sge.ai.FileSystem =
     if GdxAI.fileSystem != null then GdxAI.fileSystem
-    else throw new sge.utils.GdxRuntimeException(
-      "GdxAI has no FileSystem: this port cannot build one at class initialisation, because every " +
-      "FileHandle it would hand out takes the application context this port threads through " +
-      "`(using sge.Sge)` and a static initialiser has no clause. Call " +
-      "`sge.ai.GdxAI.setFileSystem(new sge.ai.StandaloneFileSystem())` — or `new sge.ai.GdxFileSystem()` " +
-      "— from a scope that has one. Upstream documents the same act for every platform its own " +
-      "`Gdx.files == null` sniff cannot serve.")
+    else
+      throw new sge.utils.GdxRuntimeException(
+        "GdxAI has no FileSystem: this port cannot build one at class initialisation, because every " +
+          "FileHandle it would hand out takes the application context this port threads through " +
+          "`(using sge.Sge)` and a static initialiser has no clause. Call " +
+          "`sge.ai.GdxAI.setFileSystem(new sge.ai.StandaloneFileSystem())` — or `new sge.ai.GdxFileSystem()` " +
+          "— from a scope that has one. Upstream documents the same act for every platform its own " +
+          "`Gdx.files == null` sniff cannot serve."
+      )
 
   /** Sets the filesystem service. */
   def setFileSystem(fileSystem: sge.ai.FileSystem): scala.Unit = GdxAI.fileSystem = fileSystem

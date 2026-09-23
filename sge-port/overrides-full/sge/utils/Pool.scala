@@ -31,8 +31,11 @@ import lowlevel.MkArray
 import lowlevel.util.DynamicArray
 
 /** A pool of objects that can be reused to avoid allocation.
-  * @see PoolManager
-  * @author Nathan Sweet */
+  * @see
+  *   PoolManager
+  * @author
+  *   Nathan Sweet
+  */
 trait Pool[A] {
 
   /** The maximum number of objects that will be pooled. */
@@ -51,13 +54,12 @@ trait Pool[A] {
 
   protected def newObject(): A
 
-  def obtain(): A = {
+  def obtain(): A =
     lock.synchronized {
       if (freeObjects.isEmpty) newObject() else freeObjects.pop()
     }
-  }
 
-  def free(obj: A): Unit = {
+  def free(obj: A): Unit =
     lock.synchronized {
       if (freeObjects.size < max) {
         freeObjects.add(obj)
@@ -66,26 +68,23 @@ trait Pool[A] {
       } else
         discard(obj)
     }
-  }
 
-  def fill(size: Int): Unit = {
+  def fill(size: Int): Unit =
     lock.synchronized {
       for (_ <- 0 until size)
         if (freeObjects.size < max) freeObjects.add(newObject())
       peak = peak max freeObjects.size
     }
-  }
 
   protected def reset(obj: A): Unit = obj match {
     case obj: Pool.Poolable => obj.reset()
     case _ => ()
   }
 
-  protected def discard(obj: A): Unit = {
+  protected def discard(obj: A): Unit =
     reset(obj)
-  }
 
-  def freeAll(objects: DynamicArray[? <: A]): Unit = {
+  def freeAll(objects: DynamicArray[? <: A]): Unit =
     lock.synchronized {
       objects.foreach { obj =>
         if (obj.asInstanceOf[AnyRef] ne null) {
@@ -100,26 +99,25 @@ trait Pool[A] {
       }
       peak = peak max freeObjects.size
     }
-  }
 
-  def clear(): Unit = {
+  def clear(): Unit =
     lock.synchronized {
       freeObjects.foreach(discard)
       freeObjects.clear()
     }
-  }
 
   /** The number of objects available to be obtained. */
-  def getFree: Int = {
+  def getFree: Int =
     lock.synchronized {
       freeObjects.size
     }
-  }
 }
 
 object Pool {
+
   /** Objects implementing this interface will have [[Pool#reset]] called when passed to [[Pool#free]]. */
   trait Poolable {
+
     /** Resets the object for reuse. */
     def reset(): Unit
   }

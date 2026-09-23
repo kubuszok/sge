@@ -12,6 +12,7 @@
 package sge.ecs
 
 extension (f: sge.ecs.Family.type) {
+
   /** Varargs overload of `Family.all` for sge drop-in parity. */
   def all(componentTypes: java.lang.Class[? <: sge.ecs.Component]*): sge.ecs.Family.Builder =
     f.all(componentTypes.toArray)
@@ -26,6 +27,7 @@ extension (f: sge.ecs.Family.type) {
 }
 
 extension (b: sge.ecs.Family.Builder) {
+
   /** Varargs overload of `Builder.all` for sge drop-in parity. */
   def all(componentTypes: java.lang.Class[? <: sge.ecs.Component]*): sge.ecs.Family.Builder =
     b.all(componentTypes.toArray)
@@ -40,6 +42,7 @@ extension (b: sge.ecs.Family.Builder) {
 }
 
 extension (ct: sge.ecs.ComponentType.type) {
+
   /** Varargs overload of `ComponentType.getBitsFor` for sge drop-in parity. */
   def getBitsFor(componentTypes: java.lang.Class[? <: sge.ecs.Component]*): scala.collection.mutable.BitSet =
     ct.getBitsFor(componentTypes.toArray)

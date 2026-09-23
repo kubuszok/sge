@@ -22,8 +22,8 @@
  */
 package sge.graphics
 
-/** Opaque type for GL uniform locations, preventing accidental mixing with
-  * attribute locations or raw indices. */
+/** Opaque type for GL uniform locations, preventing accidental mixing with attribute locations or raw indices.
+  */
 opaque type UniformLocation = Int
 object UniformLocation {
 
@@ -31,17 +31,17 @@ object UniformLocation {
 
   val notFound: UniformLocation = -1
 
-  /** Array coercions for O3 — the phase emits calls to these for `int[]` <-> `Array[UniformLocation]`
-    * conversions. Inside the companion object, `UniformLocation` and `Int` are the same type, so
-    * these are identity functions with no cast — correct on JVM, JS and Native. */
-  def wrapArray(v: Array[Int]): Array[UniformLocation] = v
-  def unwrapArray(v: Array[UniformLocation]): Array[Int] = v
+  /** Array coercions for O3 — the phase emits calls to these for `int[]` <-> `Array[UniformLocation]` conversions. Inside the companion object, `UniformLocation` and `Int` are the same type, so these
+    * are identity functions with no cast — correct on JVM, JS and Native.
+    */
+  def wrapArray(v:   Array[Int]):             Array[UniformLocation] = v
+  def unwrapArray(v: Array[UniformLocation]): Array[Int]             = v
 
   extension (l: UniformLocation) {
-    inline def toInt: Int = l
-    inline def +(offset: Int): UniformLocation = l + offset
-    inline def -(other: UniformLocation): Int = l - other
-    inline def >=(rhs: Int): Boolean = l >= rhs
-    inline def <(rhs: Int): Boolean = l < rhs
+    inline def toInt:                      Int             = l
+    inline def +(offset: Int):             UniformLocation = l + offset
+    inline def -(other:  UniformLocation): Int             = l - other
+    inline def >=(rhs:   Int):             Boolean         = l >= rhs
+    inline def <(rhs:    Int):             Boolean         = l < rhs
   }
 }

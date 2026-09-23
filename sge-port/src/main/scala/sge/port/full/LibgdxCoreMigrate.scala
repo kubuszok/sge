@@ -8,8 +8,8 @@ import balticporter.transform.{ ClassTableTransform, CollectionsTransform, Mutab
 import java.nio.file.{ Files, Path }
 import scala.jdk.CollectionConverters.*
 
-/** libGDX core's full-port policy: the manifest, transform args and provenance for porting `gdx/src` through the TIR.
-  * Engine mechanics live in [[balticporter.runner.PortRun]] — what's here is POLICY ONLY.
+/** libGDX core's full-port policy: the manifest, transform args and provenance for porting `gdx/src` through the TIR. Engine mechanics live in [[balticporter.runner.PortRun]] — what's here is POLICY
+  * ONLY.
   */
 object LibgdxCoreMigrate {
 
@@ -37,10 +37,10 @@ object LibgdxCoreMigrate {
       // The BASE manifest. `libgdx-test` is a dependent of exactly this value, so the two runs
       // cannot disagree about the shared surface by construction, and `ManifestAgreement` verifies
       // it anyway on every run (a consumer is free to write the dependent's policy out longhand).
-      manifest = Some({
+      manifest = Some {
         val overrides = repoRoot.resolve("sge-port/overrides-full")
         if raw then LibgdxPolicy.core(repoRoot, overrides).withoutSurface else LibgdxPolicy.core(repoRoot, overrides)
-      }),
+      },
       provenance = Some(
         Provenance(
           upstreamName = "libGDX",

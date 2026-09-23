@@ -29,7 +29,8 @@ class ComponentClassFactory extends java.lang.ClassLoader(classOf[ComponentClass
     * @param name
     *   name of the class to create
     * @return
-    *   created class */
+    *   created class
+    */
   @java.lang.SuppressWarnings(scala.Array[java.lang.String]("unchecked"))
   def createComponentType(name: java.lang.String): java.lang.Class[? <: sge.ecs.Component] = {
     val cw:            org.mockito.asm.ClassWriter = new org.mockito.asm.ClassWriter(org.mockito.asm.ClassWriter.COMPUTE_FRAMES)
