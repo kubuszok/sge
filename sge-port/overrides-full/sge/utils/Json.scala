@@ -5,6 +5,12 @@ import sge.utils.JsonWriter.OutputType
 
 import java.io.{InputStream, Reader, StringWriter, Writer}
 
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 279
+ * Covenant-baseline-methods: Json,ReadOnlySerializer,Serializable,Serializer,addClassTag,buffer,classToSerializer,classToTag,codec,copyFields,defaultSerializer,enumNames,fromJson,getClass,getIgnoreUnknownFields,getReader,getSerializer,getTag,getWriter,ignoreDeprecated,ignoreUnknownField,ignoreUnknownFields,jw,outputType,prettyPrint,quoteLongValues,read,readDeprecated,readField,readFields,readValue,reader,setDefaultSerializer,setDeprecated,setElementType,setEnumNames,setIgnoreDeprecated,setIgnoreUnknownFields,setOutputType,setQuoteLongValues,setReadDeprecated,setReader,setSerializer,setSortFields,setTypeName,setUsePrototypes,setWriter,sortFields,tagToClass,this,toJson,typeName,usePrototypes,write,writeArrayEnd,writeArrayStart,writeField,writeFields,writeObjectEnd,writeObjectStart,writeType,writeValue,writer
+ * Covenant-source-reference: injected (no upstream)
+ * Covenant-verified: 2026-09-23
 /** INJECTED SCALA (Substitutions.inject) — substitution seam for libGDX's `Json`. */
 class Json {
 

@@ -3,6 +3,13 @@
  * Original source: com/badlogic/gdx/ai/GdxAI.java
  * Original authors: davebaol
  * Licensed under the Apache License, Version 2.0
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 56
+ * Covenant-baseline-methods: GdxAI,fileSystem,getFileSystem,getLogger,getTimepiece,logger,setFileSystem,setLogger,setTimepiece,timepiece
+ * Covenant-source-reference: com/badlogic/gdx/ai/GdxAI.java
+ * Covenant-verified: 2026-09-23
  */
 
 /** INJECTED (`Substitutions.dropTypes` + `inject`): java's `GdxAI` sniffs `Gdx.app`/`Gdx.files` at

@@ -1,5 +1,11 @@
 package sge.utils
 
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 145
+ * Covenant-baseline-methods: Pools,existing,free,freeAll,get,getOrNull,i,n,obtain,p,pool,probe,registerDefaults,set,typePools
+ * Covenant-source-reference: injected (no upstream)
+ * Covenant-verified: 2026-09-23
 /** INJECTED SCALA (Substitutions.inject) — the portable replacement for libGDX's `Pools`. */
 object Pools {
 

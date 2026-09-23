@@ -6,24 +6,7 @@
 # requires 'covenant-baseline-approved: <reason>' in every baseline-editing commit message (ISS-700)
 # regenerate: .rescale/scripts/covenant-gate.sh --generate
 sge-build/src/main/scala/sge/sbt/SgeExtension.scala	missing-header	1
-sge-port/overrides-ext/ashley-test/sge/ecs/ComponentClassFactory.scala	missing-header	1
-sge-port/overrides-ext/ashley/sge/ecs/ComponentPool.scala	missing-header	1
-sge-port/overrides-ext/ashley/sge/ecs/FamilyVarargs.scala	missing-header	1
-sge-port/overrides-ext/ashley/sge/ecs/utils/ImmutableArray.scala	missing-header	1
-sge-port/overrides-ext/gdxai/sge/ai/GdxAI.scala	missing-header	1
-sge-port/overrides-ext/gdxai/sge/ai/btree/utils/TaskField.scala	missing-header	1
-sge-port/overrides-ext/gdxai/sge/ai/btree/utils/TaskRegistry.scala	missing-header	1
-sge-port/overrides-ext/gltf/sge/gltf/data/geometry/GLTFMorphTarget.scala	missing-header	1
-sge-port/overrides-full/sge/Sge.scala	missing-header	1
-sge-port/overrides-full/sge/graphics/UniformLocation.scala	missing-header	1
-sge-port/overrides-full/sge/graphics/g3d/particles/AssetTypeRegistry.scala	missing-header	1
-sge-port/overrides-full/sge/utils/Align.scala	missing-header	1
-sge-port/overrides-full/sge/utils/Json.scala	missing-header	1
-sge-port/overrides-full/sge/utils/Os.scala	missing-header	1
-sge-port/overrides-full/sge/utils/Pool.scala	missing-header	1
-sge-port/overrides-full/sge/utils/Pools.scala	missing-header	1
-sge-port/overrides-full/sge/utils/SharedLibraryLoader.scala	missing-header	1
-sge-port/overrides-full/sge/utils/reflect/ReflectionException.scala	missing-header	1
+sge-port/overrides-ext/ashley/sge/ecs/utils/ImmutableArray.scala	shortcut-drift	1
 sge-extension/ai/src/main/scala/sge/ai/btree/TaskCloneException.scala	shortcut-drift	1
 sge-extension/ai/src/main/scala/sge/ai/btree/decorator/Include.scala	shortcut-drift	3
 sge-extension/ai/src/main/scala/sge/ai/btree/utils/BehaviorTreeReader.scala	shortcut-drift	1
@@ -142,6 +125,8 @@ sge-jvm-platform/api/src/main/scala/sge/platform/android/SoundOps.scala	missing-
 sge-jvm-platform/api/src/main/scala/sge/platform/android/TouchInputOps.scala	missing-header	1
 sge-jvm-platform/api/src/main/scala/sge/platform/android/VisibilityListenerOps.scala	missing-header	1
 sge-jvm-platform/api/src/main/scala/sge/platform/package.scala	missing-header	1
+sge-port/overrides-full/sge/utils/Json.scala	shortcut-drift	1
+sge-port/overrides-full/sge/utils/reflect/ReflectionException.scala	shortcut-drift	2
 sge-port/overrides/async/threaded/sge/utils/async/AsyncResult.scala	shortcut-drift	1
 sge-port/overrides/net/shared/sge/net/SgeHttpClient.scala	shortcut-drift	1
 sge-port/overrides/reflection/sge/utils/LegacyJson.scala	shortcut-drift	1

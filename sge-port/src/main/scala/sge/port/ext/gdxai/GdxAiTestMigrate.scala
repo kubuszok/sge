@@ -11,9 +11,9 @@ import scala.jdk.CollectionConverters.*
   * ZERO `@Test`, an LWJGL demo application. `ai-test-measure` censuses the two trees apart, since every wrong answer this library produced came from conflating them. A dependent OF a dependent (both
   * RESOLUTION ROOTS), manifest [[GdxAiPolicy.test]] extended.
   */
-object GdxAiTestMigrate:
+object GdxAiTestMigrate {
 
-  def main(args: Array[String]): Unit =
+  def main(args: Array[String]): Unit = {
     val repoRoot = Path.of(sys.props.getOrElse("balticporter.root", ".")).toAbsolutePath.normalize
     val upstream = repoRoot.resolve("original-src/gdx-ai").normalize
     val testRoot = upstream.resolve("gdx-ai/tests").normalize
@@ -62,11 +62,13 @@ object GdxAiTestMigrate:
       determinism = Determinism.fromArgs(args.toSeq),
       nextStep = "just ai-test-measure"
     ).execute()
+  }
+}
 
 /** gdx-ai's suite dependencies, at the versions its own build declares. Cached like every other corpus suite's; RECORDED beside the cache so a coordinate-set mismatch is fatal rather than silent
   * (`ClasspathCache`).
   */
-object GdxAiTestClasspath:
+object GdxAiTestClasspath {
 
   /** `gdx-ai/build.gradle`'s own version, not aligned with Ashley's 4.13.2 -- guessing one cost `AshleyTestMigrate` twelve errors on a Mockito mismatch once.
     */
@@ -74,3 +76,4 @@ object GdxAiTestClasspath:
 
   def resolve(repoRoot: Path): List[Path] =
     ClasspathCache.entries(repoRoot.resolve("out/gdx-ai-test-classpath.txt"), "gdx-ai-test", Coordinates)
+}

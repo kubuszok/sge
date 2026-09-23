@@ -3,6 +3,13 @@
  * Original source: com/badlogic/gdx/ai/btree/utils/BehaviorTreeParser.java (the reflective half)
  * Original authors: davebaol
  * Licensed under the Apache License, Version 2.0
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 254
+ * Covenant-baseline-methods: Attr,Meta,TaskRegistry,a,asBoolean,asDistribution,asEnum,asString,attribute,attributes,attrs,both,c,constrain,constraints,factories,fieldOf,found,max,metaOf,min,newTask,out,register,registerBuiltins
+ * Covenant-source-reference: com/badlogic/gdx/ai/btree/utils/BehaviorTreeParser.java (the reflective half)
+ * Covenant-verified: 2026-09-23
  */
 
 /** Injected — the reflection-free stand-in for what `DefaultBehaviorTreeReader` asked the JVM at

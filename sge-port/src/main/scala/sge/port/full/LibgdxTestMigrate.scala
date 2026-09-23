@@ -10,9 +10,9 @@ import scala.jdk.CollectionConverters.*
   * assertions. `gdx/src` is a RESOLUTION root only, ported separately by [[LibgdxCoreMigrate]]; re-emitting it here would fork the output. The pipeline arrives from `LibgdxPolicy.core`'s manifest
   * (adds only `TestFrameworkTransform`), never restated.
   */
-object LibgdxTestMigrate:
+object LibgdxTestMigrate {
 
-  def main(args: Array[String]): Unit =
+  def main(args: Array[String]): Unit = {
     val repoRoot = Path.of(sys.props.getOrElse("sge.root", ".")).toAbsolutePath.normalize
     val srcRoot  = repoRoot.resolve("original-src/libgdx/gdx/src").normalize
     val testRoot = repoRoot.resolve("original-src/libgdx/gdx/test").normalize
@@ -66,3 +66,5 @@ object LibgdxTestMigrate:
       determinism = Determinism.fromArgs(args.toSeq),
       nextStep = "just gdx-test-measure"
     ).execute()
+  }
+}

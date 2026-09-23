@@ -8,15 +8,17 @@ import java.nio.file.Path
   * a scope edit to `sge-visui` — independent maven coordinates). Reference hand port never ported USL at all: a hand-written CHARACTER SCANNER and a ZERO-AUTHORING ORACLE (upstream ships both `.usl`
   * fixtures and expected `.json`).
   */
-object UslMigrate:
+object UslMigrate {
 
   def main(args: Array[String]): Unit =
     PortConfig.load(UslPort.conf("main.conf"), args.toSeq).execute()
+}
 
 /** Where this port's configuration lives, for the `main` that names it. */
-object UslPort:
+object UslPort {
 
   def repoRoot: Path =
     Path.of(sys.props.getOrElse("balticporter.root", ".")).toAbsolutePath.normalize
 
   def conf(name: String): Path = repoRoot.resolve("balticporter/corpus/ports/visui-usl").resolve(name)
+}

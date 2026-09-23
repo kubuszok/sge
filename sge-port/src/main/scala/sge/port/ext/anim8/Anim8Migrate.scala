@@ -12,9 +12,9 @@ import scala.jdk.CollectionConverters.*
   * enormous constant data and bulk bit-pattern arithmetic. A DEPENDENT port: `gdx/src` a RESOLUTION root, policy [[LibgdxPolicy.core]] EXTENDED. No upstream suite; evidence is the hand-written suite
   * in `ported/sge-anim8/src/test/scala`.
   */
-object Anim8Migrate:
+object Anim8Migrate {
 
-  def main(args: Array[String]): Unit =
+  def main(args: Array[String]): Unit = {
     val repoRoot = Path.of(sys.props.getOrElse("balticporter.root", ".")).toAbsolutePath.normalize
     val base     = repoRoot.resolve("original-src/anim8-gdx/src/main/java").normalize
     val gdxSrc   = repoRoot.resolve("original-src/libgdx/gdx/src").normalize
@@ -52,11 +52,13 @@ object Anim8Migrate:
       determinism = Determinism.fromArgs(args.toSeq),
       nextStep = "just anim8-measure"
     ).execute()
+  }
+}
 
 /** anim8-gdx's per-library policy -- a DEPENDENT of libGDX core's. `dropTypes`/`dropMethods`/ `packageRenames`/signature-affecting phases are INHERITED, not restated; `inject` is NOT inherited
   * (exactly one module ships each replacement file).
   */
-object Anim8Policy:
+object Anim8Policy {
 
   def core(repoRoot: Path): PortManifest =
     LibgdxPolicy
@@ -90,3 +92,4 @@ object Anim8Policy:
           parity = Some(ParityRef(roots = List(repoRoot.resolve("sge-extension/anim8/src/main/scala").normalize)))
         )
       )
+}

@@ -70,7 +70,9 @@ vis-ui, vis-ui-usl, screens, anim8, jbump, noise4j, simple-graphs) live under
 `sge-port/src/main/scala/sge/port/{full,ext}`, moved verbatim from the engine on 2026-09-23. They
 extend the older full-port core policy, not the ladder, and are the extensions' base for when
 extension generation is wired (rebase on the ladder then). Their override files are in
-`sge-port/overrides-full/` and `sge-port/overrides-ext/<lib>/`.
+`sge-port/overrides-full/` and `sge-port/overrides-ext/<lib>/`. The port configurations under
+`sge-port/ports/` still carry the engine checkout's paths and are adjusted when the extensions
+are rebased on the ladder.
 
 Requirements:
 - `original-src/libgdx` submodule checked out (upstream Java sources)

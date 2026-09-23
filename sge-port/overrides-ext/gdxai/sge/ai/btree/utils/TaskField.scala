@@ -3,6 +3,13 @@
  * Original source: com/badlogic/gdx/ai/btree/utils/BehaviorTreeParser.java (the reflective half)
  * Original authors: davebaol
  * Licensed under the Apache License, Version 2.0
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 37
+ * Covenant-baseline-methods: TaskField,cast,getName,getTypeName,set
+ * Covenant-source-reference: com/badlogic/gdx/ai/btree/utils/BehaviorTreeParser.java (the reflective half)
+ * Covenant-verified: 2026-09-23
  */
 
 /** INJECTED — the REDIRECT TARGET for `com.badlogic.gdx.utils.reflect.Field`

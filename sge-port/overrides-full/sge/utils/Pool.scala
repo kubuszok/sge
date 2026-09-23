@@ -17,6 +17,13 @@
  * - Thread-safety lock RETAINED (sge ISS-603, ISS-797)
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 119
+ * Covenant-baseline-methods: Pool,Poolable,clear,discard,fill,free,freeAll,freeObjects,getFree,initialCapacity,lock,max,newObject,obtain,peak,reset
+ * Covenant-source-reference: com/badlogic/gdx/utils/Pool.java
+ * Covenant-verified: 2026-09-23
  */
 package sge.utils
 

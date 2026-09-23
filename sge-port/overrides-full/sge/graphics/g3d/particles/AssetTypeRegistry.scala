@@ -6,6 +6,13 @@ import scala.collection.mutable
 
 /** INJECTED SCALA (Substitutions.inject) — the portable replacement for the ONE runtime class
   * lookup libGDX core performed: `ResourceData.AssetData` persists an asset's type as its class
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 33
+ * Covenant-baseline-methods: AssetTypeRegistry,byName,classFor,register,registered
+ * Covenant-source-reference: injected (no upstream)
+ * Covenant-verified: 2026-09-23
   * NAME and, on read-back, turned that string into a `Class` again. */
 object AssetTypeRegistry {
 

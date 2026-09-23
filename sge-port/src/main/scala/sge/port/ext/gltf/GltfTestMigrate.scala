@@ -10,13 +10,13 @@ import java.nio.file.{ Files, Path }
   * (eight, on `Attribute.compareTo`); the other six are LWJGL demos with `Test` in the name. [[testFiles]] names the real file; `gltf-measure` re-derives the count from the whole tree rather than
   * trusting this comment. A DEPENDENT of a DEPENDENT (via [[GltfMigrate]]).
   */
-object GltfTestMigrate:
+object GltfTestMigrate {
 
   /** The one file in `gltf/test` that is a suite. See the class comment for the other six. */
   val testFiles: List[String] =
     List("net/mgsx/gltf/scene3d/attributes/AttributesCompareTest.java")
 
-  def main(args: Array[String]): Unit =
+  def main(args: Array[String]): Unit = {
     val repoRoot = Path.of(sys.props.getOrElse("balticporter.root", ".")).toAbsolutePath.normalize
     val gltfSrc  = repoRoot.resolve("original-src/gdx-gltf/gltf/src").normalize
     val testRoot = repoRoot.resolve("original-src/gdx-gltf/gltf/test").normalize
@@ -24,9 +24,10 @@ object GltfTestMigrate:
 
     // Not a glob: six of seven files are backend-driven demos no resolution root can supply.
     val missing = testFiles.filterNot(f => Files.exists(testRoot.resolve(f)))
-    if missing.nonEmpty then
+    if missing.nonEmpty then {
       System.err.println(s"[gltf-test] named test file(s) not found under $testRoot: ${missing.mkString(", ")}")
       sys.exit(1)
+    }
 
     PortRun(
       label = "sge-gltf-test",
@@ -51,14 +52,17 @@ object GltfTestMigrate:
       determinism = Determinism.fromArgs(args.toSeq),
       nextStep = "just gltf-measure"
     ).execute()
+  }
+}
 
 /** gdx-gltf's TEST-scope dependency, for shadow-class resolution only. JUnit 4.12, the version `build.gradle` declares (`AshleyClasspath`'s read-the-declaration rule). Needed at FRONTEND time only;
   * `TestFrameworkTransform` converts the JUnit surface, so nothing from this jar reaches the emitted Scala.
   */
-object GltfClasspath:
+object GltfClasspath {
 
   /** the version `gdx-gltf/build.gradle` declares. */
   val Coordinates: List[String] = List("junit:junit:4.12")
 
   def resolve(repoRoot: Path): List[Path] =
     ClasspathCache.entries(repoRoot.resolve("out/gltf-test-classpath.txt"), "gltf-test", Coordinates)
+}

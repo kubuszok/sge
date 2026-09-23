@@ -2,6 +2,12 @@ package sge
 
 import scala.annotation.implicitNotFound
 
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 28
+ * Covenant-baseline-methods: Sge,apply
+ * Covenant-source-reference: injected (no upstream)
+ * Covenant-verified: 2026-09-23
 /** INJECTED SCALA (`Substitutions.inject`) — the CONTEXT TYPE the globals policy threads. */
 @implicitNotFound(
   "No given `sge.Sge` is in scope. `Sge` is this application's context — application, graphics, " +

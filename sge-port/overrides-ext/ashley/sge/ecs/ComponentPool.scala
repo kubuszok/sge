@@ -1,5 +1,11 @@
 package sge.ecs
 
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 36
+ * Covenant-baseline-methods: ComponentPool,clear,free,getFree,obtain,pooled
+ * Covenant-source-reference: injected (no upstream)
+ * Covenant-verified: 2026-09-23
 /** A component pool that builds instances from a FACTORY instead of reflectively. */
 final class ComponentPool[T](componentType: Class[T], initialSize: Int, maxSize: Int) {
 

@@ -11,9 +11,9 @@ import scala.jdk.CollectionConverters.*
 /** Migrate **VisUI**'s `ui/` module (162 files — a scene2d widget toolkit) through the TIR. A dependent port: `gdx/src` is a resolution root, and the policy is [[LibgdxPolicy.core]] extended, not
   * restated. Scope is `ui/` only; `usl/` is a named follow-up. No test source set this wave — behavioural evidence is differential against the reference hand port's 72-case suite.
   */
-object VisUiMigrate:
+object VisUiMigrate {
 
-  def main(args: Array[String]): Unit =
+  def main(args: Array[String]): Unit = {
     val repoRoot = Path.of(sys.props.getOrElse("balticporter.root", ".")).toAbsolutePath.normalize
     val upstream = repoRoot.resolve("original-src/vis-ui").normalize
     val base     = upstream.resolve("ui/src/main/java").normalize
@@ -58,11 +58,13 @@ object VisUiMigrate:
       determinism = Determinism.fromArgs(args.toSeq),
       nextStep = "just visui-measure"
     ).execute()
+  }
+}
 
 /** VisUI's per-library policy -- a dependent of libGDX core's, deliberately almost empty. `dropTypes`/`dropMethods`/`packageRenames`/every signature-affecting phase are inherited, not restated;
   * `inject` is NOT inherited (exactly one module ships each replacement file). This wave adds a namespace claim, ONE rename and the base-surface residue check, nothing else.
   */
-object VisUiPolicy:
+object VisUiPolicy {
 
   def core(repoRoot: Path): PortManifest =
     LibgdxPolicy
@@ -217,3 +219,4 @@ object VisUiPolicy:
           parity = Some(ParityRef(roots = List(repoRoot.resolve("sge-extension/visui/src/main/scala").normalize)))
         )
       )
+}

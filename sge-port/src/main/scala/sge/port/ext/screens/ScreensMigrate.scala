@@ -14,9 +14,9 @@ import scala.jdk.CollectionConverters.*
   * [[LibgdxPolicy.core]] EXTENDED), with a SECOND dependency, guacamole, which RESOLVES via [[ScreensClasspath]] but cannot be EMITTED — re-pointed at hand-written Scala this port ships
   * ([[TypeRedirectTransform]]). Scope: `src/main/java` only.
   */
-object ScreensMigrate:
+object ScreensMigrate {
 
-  def main(args: Array[String]): Unit =
+  def main(args: Array[String]): Unit = {
     val repoRoot = ScreensPort.repoRoot
     val base     = ScreensPort.upstream(repoRoot).resolve("src/main/java")
     val gdxSrc   = repoRoot.resolve("original-src/libgdx/gdx/src").normalize
@@ -48,9 +48,11 @@ object ScreensMigrate:
       determinism = Determinism.fromArgs(args.toSeq),
       nextStep = "just screens-measure"
     ).execute()
+  }
+}
 
 /** Paths and file selection shared by the two source sets of this port. */
-object ScreensPort:
+object ScreensPort {
 
   def repoRoot: Path =
     Path.of(sys.props.getOrElse("balticporter.root", ".")).toAbsolutePath.normalize
@@ -68,11 +70,12 @@ object ScreensPort:
       .filterNot(f => f.endsWith("package-info.java") || f.endsWith("module-info.java"))
       .toList
       .sorted
+}
 
 /** libgdx-screenmanager's per-library policy -- a DEPENDENT of libGDX core's. `dropTypes`/`dropMethods`/`packageRenames`/signature-affecting phases are INHERITED, not restated; `inject` is NOT
   * inherited (exactly one module ships each replacement file).
   */
-object ScreensPolicy:
+object ScreensPolicy {
 
   def core(repoRoot: Path): PortManifest =
     LibgdxPolicy
@@ -140,11 +143,12 @@ object ScreensPolicy:
       "de.damios.guacamole.annotations.Beta" -> "sge.screen.guacamole.Beta"
     )
   )
+}
 
 /** libgdx-screenmanager's COMPILE-scope dependency, for shadow-class resolution only. libGDX itself arrives as a SOURCE resolution root instead (excluded here rather than resolved twice); what's left
   * is guacamole and the jspecify annotation jar both use. guacamole is jitpack-only, so the repository is named explicitly; a resolve failure is FATAL.
   */
-object ScreensClasspath:
+object ScreensClasspath {
 
   def cache(repoRoot: Path): Path = repoRoot.resolve("out/screens-classpath.txt")
 
@@ -171,3 +175,4 @@ object ScreensClasspath:
     */
   def ensure(repoRoot: Path): String =
     Files.readString(ClasspathCache.ensure(cache(repoRoot), "screens", coordinates, resolverArgs)).trim
+}

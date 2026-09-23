@@ -13,9 +13,9 @@ import scala.jdk.CollectionConverters.*
   * compile dependency of its own (`regexodus`, see [[TextraTypistClasspath]]): `gdx/src` a resolution root, policy [[LibgdxPolicy.core]] extended. No test source set (upstream declares zero `@Test`);
   * evidence is a differential probe.
   */
-object TextraTypistMigrate:
+object TextraTypistMigrate {
 
-  def main(args: Array[String]): Unit =
+  def main(args: Array[String]): Unit = {
     val repoRoot = Path.of(sys.props.getOrElse("balticporter.root", ".")).toAbsolutePath.normalize
     val upstream = repoRoot.resolve("original-src/textratypist").normalize
     val base     = upstream.resolve("src/main/java").normalize
@@ -60,11 +60,13 @@ object TextraTypistMigrate:
       determinism = Determinism.fromArgs(args.toSeq),
       nextStep = "just textra-measure"
     ).execute()
+  }
+}
 
 /** The ONE third-party jar this port's frontend needs, resolved once and cached. `com.github.tommyettinger:regexodus` is a pure-java regex engine (no `java.util.regex` on GWT); it arrives as a
   * CLASSPATH entry via [[ClasspathCache]]. Version read off upstream's `gradle.properties` `regexodusVersion` rather than guessed.
   */
-object TextraTypistClasspath:
+object TextraTypistClasspath {
 
   val Coordinates: List[String] = List("com.github.tommyettinger:regexodus:0.1.21")
 
@@ -72,11 +74,12 @@ object TextraTypistClasspath:
 
   def entries(repoRoot: Path): List[Path] =
     ClasspathCache.entries(cache(repoRoot), "textratypist", Coordinates)
+}
 
 /** TextraTypist's per-library policy -- a dependent of libGDX core's, deliberately almost empty. `dropTypes`/`dropMethods`/`packageRenames`/every signature-affecting phase are inherited, not
   * restated; `inject` is NOT inherited. This wave adds a namespace claim, a rename, one build coordinate and the base-surface residue check, nothing else.
   */
-object TextraTypistPolicy:
+object TextraTypistPolicy {
 
   def core(repoRoot: Path): PortManifest =
     LibgdxPolicy
@@ -171,3 +174,4 @@ object TextraTypistPolicy:
         )
       )
     )
+}

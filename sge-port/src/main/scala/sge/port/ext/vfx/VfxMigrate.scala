@@ -12,9 +12,9 @@ import scala.jdk.CollectionConverters.*
   * (`FrameBuffer`/`Mesh`/`ShaderProgram`/`GL20`), testing the base-inheritance agreement. A DEPENDENT port: `gdx/src` a RESOLUTION root, [[LibgdxPolicy.core]] EXTENDED. Scope:
   * `core/src`+`effects/src` into ONE sbt module. No upstream suite; evidence is the hand-written suite under `ported/sge-vfx`.
   */
-object VfxMigrate:
+object VfxMigrate {
 
-  def main(args: Array[String]): Unit =
+  def main(args: Array[String]): Unit = {
     val repoRoot = Path.of(sys.props.getOrElse("balticporter.root", ".")).toAbsolutePath.normalize
     // The COMMON root of the two library modules -- Spoon takes each file as its own
     // input resource, so an ancestor root (not a package root) is fine.
@@ -58,11 +58,13 @@ object VfxMigrate:
       determinism = Determinism.fromArgs(args.toSeq),
       nextStep = "just vfx-measure"
     ).execute()
+  }
+}
 
 /** gdx-vfx's per-library policy -- a DEPENDENT of libGDX core's. `dropTypes`/`dropMethods`/ `packageRenames`/signature-affecting phases are INHERITED, not restated; `inject` is NOT inherited (exactly
   * one module ships each replacement file).
   */
-object VfxPolicy:
+object VfxPolicy {
 
   def core(repoRoot: Path): PortManifest =
     LibgdxPolicy
@@ -201,3 +203,4 @@ object VfxPolicy:
           parity = Some(ParityRef(roots = List(repoRoot.resolve("sge-extension/vfx/src/main/scala").normalize)))
         )
       )
+}

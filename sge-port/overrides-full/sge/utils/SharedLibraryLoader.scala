@@ -5,6 +5,13 @@ import java.nio.file.Files
 /** INJECTED (Substitutions.inject): a self-contained stand-in for libGDX's `SharedLibraryLoader`,
   * which sge removed in favour of a dedicated extraction library the ported corpus still
   * references (`UIUtils.os`, `GdxNativesLoader.load`). Swap point: route [[load]] to that library
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 45
+ * Covenant-baseline-methods: SharedLibraryLoader,is64Bit,isAndroid,isIos,isLinux,isMac,isWindows,load,mapped,n,os
+ * Covenant-source-reference: injected (no upstream)
+ * Covenant-verified: 2026-09-23
   * and add it as a dependency instead — the substitution seam, nothing else in the port changes. */
 object SharedLibraryLoader {
   /** The platform the JVM is running on, derived from `os.name`. */

@@ -7,7 +7,7 @@ import java.nio.file.Path
 /** The lls jar every port that retargets to `lowlevel.util.*` needs on its frontend classpath, so `FrontendConfig.internTypes` can read `isFinal` and parents from the class file. ONE definition;
   * every migrator calls `entries`.
   */
-object LlsClasspath:
+object LlsClasspath {
 
   val Coordinates: List[String] = List("com.kubuszok:lls_3:0.3.0")
 
@@ -25,3 +25,4 @@ object LlsClasspath:
 
   def entries(repoRoot: Path): List[Path] =
     ClasspathCache.entries(cache(repoRoot), "lls", Coordinates, ExcludeArgs)
+}

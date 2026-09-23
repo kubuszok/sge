@@ -12,9 +12,9 @@ import scala.jdk.CollectionConverters.*
   * difficulty is INHERITANCE DEPTH: 135 types stacked on libGDX's 3D pipeline, every parent EMITTED Scala this run never sees. A DEPENDENT port: `gdx/src` a RESOLUTION root, [[LibgdxPolicy.core]]
   * EXTENDED. Scope: `gltf/src` plus one real test file (see [[GltfTestMigrate]]).
   */
-object GltfMigrate:
+object GltfMigrate {
 
-  def main(args: Array[String]): Unit =
+  def main(args: Array[String]): Unit = {
     val repoRoot = Path.of(sys.props.getOrElse("balticporter.root", ".")).toAbsolutePath.normalize
     val base     = repoRoot.resolve("original-src/gdx-gltf/gltf/src").normalize
     val gdxSrc   = repoRoot.resolve("original-src/libgdx/gdx/src").normalize
@@ -52,11 +52,13 @@ object GltfMigrate:
       determinism = Determinism.fromArgs(args.toSeq),
       nextStep = "just gltf-measure"
     ).execute()
+  }
+}
 
 /** gdx-gltf's per-library policy -- a DEPENDENT of libGDX core's. `dropTypes`/`dropMethods`/ `packageRenames`/signature-affecting phases are INHERITED, not restated; `inject` is NOT inherited
   * (exactly one module ships each replacement file).
   */
-object GltfPolicy:
+object GltfPolicy {
 
   def core(repoRoot: Path): PortManifest =
     LibgdxPolicy
@@ -169,3 +171,4 @@ object GltfPolicy:
       surface = List(new balticporter.transform.TestFrameworkTransform())
     )
   )
+}

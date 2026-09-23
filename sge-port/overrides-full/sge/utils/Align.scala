@@ -11,6 +11,13 @@
  *   Every ported declaration java typed `int align` becomes `sge.utils.Align`.
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 64
+ * Covenant-baseline-methods: Align,apply,bottom,bottomLeft,bottomRight,center,isBottom,isCenter,isCenterHorizontal,isCenterVertical,isLeft,isRight,isTop,left,right,show,toInt,top,topLeft,topRight,unary_
+ * Covenant-source-reference: com/badlogic/gdx/utils/Align.java
+ * Covenant-verified: 2026-09-23
  */
 package sge.utils
 

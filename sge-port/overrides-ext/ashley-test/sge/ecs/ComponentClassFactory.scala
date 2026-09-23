@@ -10,6 +10,13 @@
  * Ported from: ashley/tests/com/badlogic/ashley/core/ComponentClassFactory.java
  * Original license: Apache-2.0 (see Ashley upstream)
  * upstream-commit: ashley@d63d542228cd8c62cc2f7adf20055b0ac59a547e (last change to ashley/tests; origin https://github.com/libgdx/ashley.git)
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 69
+ * Covenant-baseline-methods: ComponentClassFactory,b,con,createComponentType,cw,interfacePath
+ * Covenant-source-reference: com/badlogic/ashley/core/ComponentClassFactory.java
+ * Covenant-verified: 2026-09-23
  */
 
 /* porter: renamed-package reason=configured phase=package-rename key="com.badlogic.ashley.core -> sge.ecs" from=com.badlogic.ashley.core.ComponentClassFactory to=sge.ecs.ComponentClassFactory */

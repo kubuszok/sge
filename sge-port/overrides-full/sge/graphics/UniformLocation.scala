@@ -12,6 +12,13 @@
  *   `sge.graphics.UniformLocation`.
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 40
+ * Covenant-baseline-methods: UniformLocation,apply,notFound,toInt,unwrapArray,wrapArray
+ * Covenant-source-reference: no upstream java class — this type is new in the port.
+ * Covenant-verified: 2026-09-23
  */
 package sge.graphics
 

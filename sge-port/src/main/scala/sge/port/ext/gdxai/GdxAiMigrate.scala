@@ -12,9 +12,9 @@ import scala.jdk.CollectionConverters.*
   * `gdx/src` a resolution root only, [[LibgdxPolicy.core]] extended. Scope excludes `com/badlogic/gdx/emu/` (GWT super-source collision). Reflective behaviour-tree parser kept via five
   * `MethodBodyTransform` bodies.
   */
-object GdxAiMigrate:
+object GdxAiMigrate {
 
-  def main(args: Array[String]): Unit =
+  def main(args: Array[String]): Unit = {
     val repoRoot = Path.of(sys.props.getOrElse("balticporter.root", ".")).toAbsolutePath.normalize
     val upstream = repoRoot.resolve("original-src/gdx-ai").normalize
     val base     = upstream.resolve("gdx-ai/src").normalize
@@ -61,11 +61,13 @@ object GdxAiMigrate:
       determinism = Determinism.fromArgs(args.toSeq),
       nextStep = "just ai-measure"
     ).execute()
+  }
+}
 
 /** gdx-ai's per-library policy -- a dependent of libGDX core's, deliberately almost empty. `dropTypes`/`dropMethods`/`packageRenames`/every signature-affecting phase are inherited, not restated.
   * `inject` is NOT inherited: a drop is shared-API policy, but exactly one module ships each replacement file. Milestone 1 adds a namespace CLAIM and the base-surface residue check, nothing else.
   */
-object GdxAiPolicy:
+object GdxAiPolicy {
 
   def core(repoRoot: Path): PortManifest =
     LibgdxPolicy
@@ -314,3 +316,4 @@ object GdxAiPolicy:
       surface = List(new balticporter.transform.TestFrameworkTransform())
     )
   )
+}

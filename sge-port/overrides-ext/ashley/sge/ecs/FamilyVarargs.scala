@@ -1,6 +1,13 @@
 /*
  * Varargs bridge for the ecs drop-in gate: the engine emits java's `Class<? extends Component>...`
  * as `Array[Class[? <: Component]]`, and sge's hand-written tests call these with individual
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 39
+ * Covenant-baseline-methods: all,exclude,getBitsFor,one
+ * Covenant-source-reference: injected (no upstream)
+ * Covenant-verified: 2026-09-23
  * arguments (`Family.all(classOf[A], classOf[B])`), which is varargs syntax. */
 package sge.ecs
 

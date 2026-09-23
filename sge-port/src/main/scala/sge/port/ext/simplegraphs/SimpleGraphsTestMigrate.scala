@@ -9,16 +9,18 @@ import java.nio.file.{ Files, Path }
   * evidence this port can have. Exercises `Comparator` ordering, `java.util.stream` chain collapse, a colliding `hashCode`, and the collection surface a re-parented class covers. A DEPENDENT of
   * [[SimpleGraphsMigrate]] via `base = "main.conf"`.
   */
-object SimpleGraphsTestMigrate:
+object SimpleGraphsTestMigrate {
 
-  def main(args: Array[String]): Unit =
+  def main(args: Array[String]): Unit = {
     SimpleGraphsClasspath.ensure(SimpleGraphsPort.repoRoot)
     PortConfig.load(SimpleGraphsPort.conf("test.conf"), args.toSeq).execute()
+  }
+}
 
 /** simple-graphs' TEST-scope dependency, for shadow-class resolution only — JUnit 4 (`build.gradle` declares exactly `junit:junit:4.12`). `TestFrameworkTransform` converts the JUnit surface to MUnit,
   * so the jar is a frontend input only. Written to a FILE rather than inlined, since a config naming a COMMAND is the strings-that-are-secretly-code the transform SPI exists to keep out.
   */
-object SimpleGraphsClasspath:
+object SimpleGraphsClasspath {
 
   def cache(repoRoot: Path): Path = repoRoot.resolve("out/simplegraphs-test-classpath.txt")
 
@@ -30,3 +32,4 @@ object SimpleGraphsClasspath:
     */
   def ensure(repoRoot: Path): Path =
     ClasspathCache.ensure(cache(repoRoot), "simple-graphs-test", Coordinates)
+}

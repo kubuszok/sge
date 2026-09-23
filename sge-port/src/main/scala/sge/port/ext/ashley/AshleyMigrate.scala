@@ -12,9 +12,9 @@ import scala.jdk.CollectionConverters.*
   * exercising `ManifestAgreement` outside libGDX's own source sets. Imports three types the base drops (reflection classes); the hand port SOLVED this with a factory-registry approach. Scope:
   * `ashley/src` plus `ashley/tests` (ported by [[AshleyTestMigrate]]).
   */
-object AshleyMigrate:
+object AshleyMigrate {
 
-  def main(args: Array[String]): Unit =
+  def main(args: Array[String]): Unit = {
     val repoRoot = Path.of(sys.props.getOrElse("balticporter.root", ".")).toAbsolutePath.normalize
     val base     = repoRoot.resolve("original-src/ashley/ashley/src").normalize
     val gdxSrc   = repoRoot.resolve("original-src/libgdx/gdx/src").normalize
@@ -54,11 +54,13 @@ object AshleyMigrate:
       determinism = Determinism.fromArgs(args.toSeq),
       nextStep = "just ashley-measure"
     ).execute()
+  }
+}
 
 /** Ashley's per-library policy -- a DEPENDENT of libGDX core's. The base's `dropTypes`/ `dropMethods`/`packageRenames`/signature-affecting phases are INHERITED, not restated. `inject` is NOT
   * inherited: exactly one module ships each replacement file.
   */
-object AshleyPolicy:
+object AshleyPolicy {
 
   def core(repoRoot: Path): PortManifest =
     LibgdxPolicy
@@ -263,3 +265,4 @@ object AshleyPolicy:
       )
     )
   )
+}

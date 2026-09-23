@@ -11,9 +11,9 @@ import scala.jdk.CollectionConverters.*
 /** libGDX core's full-port policy: the manifest, transform args and provenance for porting `gdx/src` through the TIR.
   * Engine mechanics live in [[balticporter.runner.PortRun]] — what's here is POLICY ONLY.
   */
-object LibgdxCoreMigrate:
+object LibgdxCoreMigrate {
 
-  def main(args: Array[String]): Unit =
+  def main(args: Array[String]): Unit = {
     val raw      = args.contains("--raw")
     val repoRoot = Path.of(sys.props.getOrElse("sge.root", ".")).toAbsolutePath.normalize
     val base     = repoRoot.resolve("original-src/libgdx/gdx/src").normalize
@@ -57,10 +57,12 @@ object LibgdxCoreMigrate:
       determinism = Determinism.fromArgs(args.toSeq),
       nextStep = "sbt sge/compile"
     ).execute()
+  }
+}
 
 /** libGDX's per-library policy, in one place because two source sets share it. This is the WHICH, not the mechanism.
   */
-object LibgdxPolicy:
+object LibgdxPolicy {
 
   /** `Class#getResource` answers a `java.net.URL`, which Scala Native's javalib lacks (its linker: `Unknown type java.net.URL`, from `FileHandle.exists`); the twin `getResourceAsStream` it has.
     * libGDX's only use of the URL is an existence probe (`!= null`), so the probe is respelled and the stream closed — sge's hand port's own spelling. ONE value for the full port and the ladder;
@@ -80,7 +82,7 @@ object LibgdxPolicy:
   /** libGDX core's policy AS A VALUE — imported and extended by every dependent module. Shared-surface policy only: drop/rename tables and the phases that reshape signatures a dependent compiles
     * against. `governs` is the namespace claim; the test suite lives inside it too, so substitution agreement works from unit origins, not a prefix.
     */
-  def core(repoRoot: Path, overrides: Path = Path.of("sge-port/overrides-full")): PortManifest =
+  def core(repoRoot: Path, overrides: Path = Path.of("sge-port/overrides-full")): PortManifest = {
     val s = substitutions(overrides)
     PortManifest(
       name = "sge",
@@ -138,6 +140,7 @@ object LibgdxPolicy:
         "sge.utils.OrderedSet#orderedItems"
       )
     )
+  }
 
   /** Boundary rows this port has read and accepted — each leaves its refusal lane and moves to `remediation(resolved)`. On `core`, not a dependent: these are facts about libGDX core's own
     * declarations.
@@ -381,7 +384,7 @@ object LibgdxPolicy:
   def bitsRetarget: Map[String, String] =
     Map("com.badlogic.gdx.utils.Bits" -> "scala.collection.mutable.BitSet")
 
-  def bitsRetargetRewrites: Map[String, Map[(String, Int), balticporter.transform.CollectionsTransform.RetargetRewrite]] =
+  def bitsRetargetRewrites: Map[String, Map[(String, Int), balticporter.transform.CollectionsTransform.RetargetRewrite]] = {
     import balticporter.transform.CollectionsTransform.RetargetRewrite.*
     Map(
       "com.badlogic.gdx.utils.Bits" -> Map(
@@ -419,6 +422,7 @@ object LibgdxPolicy:
         ("empty", 0) -> Chain(List("isEmpty"))
       )
     )
+  }
 
   /** `ObjectMap`/`ObjectSet` retargetted to their lls equivalents (sge type-mappings.md). Same member API (verified via `javap`); lls's ctor is PRIVATE so `new` routes through the companion's
     * transparent inline `apply`. Inner types (Entry/Keys/Values/Entries) are NOT in lls -- references to them are counted on `collection-retarget`.
@@ -515,7 +519,7 @@ object LibgdxPolicy:
 
   /** TYPE ARGUMENT MAPPING for arity-changing retargets: how to fill the target type's type arguments from the source's when arities differ, e.g. `IntMap<V>` (1 param) -> `ObjectMap[K,V]` (2 params).
     */
-  def libCollectionRetargetTypeArgs: Map[String, List[balticporter.transform.CollectionsTransform.RetargetArg]] =
+  def libCollectionRetargetTypeArgs: Map[String, List[balticporter.transform.CollectionsTransform.RetargetArg]] = {
     import balticporter.transform.CollectionsTransform.RetargetArg.*
     Map(
       "com.badlogic.gdx.utils.IntMap" -> List(FixedType("scala.Int"), SourceArg(0)),
@@ -566,11 +570,12 @@ object LibgdxPolicy:
       "com.badlogic.gdx.utils.ObjectSet$ObjectSetIterator" -> List(SourceArg(0)),
       "com.badlogic.gdx.utils.OrderedSet$OrderedSetIterator" -> List(SourceArg(0))
     )
+  }
 
   // MkArray evidence at a type-variable element: sge's own `createRef` cast (subplan 1b)
   private val mkArrayRef = Some("lowlevel.MkArray[$T0] = lowlevel.MkArray.anyRef[AnyRef].asInstanceOf[lowlevel.MkArray[$T0]]")
 
-  def libCollectionConstructRewrites: Map[String, Map[(String, Int), balticporter.transform.CollectionsTransform.RetargetRewrite]] =
+  def libCollectionConstructRewrites: Map[String, Map[(String, Int), balticporter.transform.CollectionsTransform.RetargetRewrite]] = {
     import balticporter.transform.CollectionsTransform.RetargetRewrite.*
     Map(
       "com.badlogic.gdx.utils.ObjectMap" -> Map(
@@ -1340,11 +1345,12 @@ object LibgdxPolicy:
         ("toString", 1) -> Template("$recv.mkString($0)")
       )
     )
+  }
 
   /** DESCRIPTOR-KEYED retarget rewrites — for arity-1 constructors where `(name, arity)` is ambiguous. `Array` has four surviving arity-1 constructors: `(int)` capacity, `(ArraySupplier)` factory,
     * `(Array)` copy, `(T[])` from-array. A map from an over-approximate key to a single value is a choice nobody made.
     */
-  def libCollectionConstructRewritesByDesc: Map[String, Map[(String, Descriptor), balticporter.transform.CollectionsTransform.RetargetRewrite]] =
+  def libCollectionConstructRewritesByDesc: Map[String, Map[(String, Descriptor), balticporter.transform.CollectionsTransform.RetargetRewrite]] = {
     import balticporter.transform.CollectionsTransform.RetargetRewrite.*
     val intDesc      = Descriptor(List(Param.Prim("int")))
     val arrayDesc    = Descriptor(List(Param.Named("Array")))
@@ -1519,6 +1525,7 @@ object LibgdxPolicy:
           Template("{ val bpSrc = $0; val bpS = $Target.apply[$T0](bpSrc.size); bpSrc.foreach(bpX => bpS.add(bpX)); bpS }")
       )
     )
+  }
 
   /** `com.badlogic.gdx.utils.Disposable` -> `java.lang.AutoCloseable`, `dispose` -> `close` — the JDK's own type under a different name. `memberRenames` renames the whole PRE-REDIRECT override
     * component (66 declarations) so unrelated `void dispose()` members elsewhere keep their name. Paired `dropTypes` entry is required. Shared surface, lives in [[core]]; `MergeablePolicy` folds
@@ -1541,7 +1548,7 @@ object LibgdxPolicy:
   /** Which pairs collapse to a plain `var`/`val` instead of a `def` pair — `def-pair` is the default for everything not named here. The phase refuses a mismatch rather than picking (a counted
     * `idiom(refused)` row). Declared even for PERMANENT refusals so the run's denominator stays honest. `MapLayer#opacity` deliberately absent: its getter is computed, never a stored value.
     */
-  def beanPropertyTargets: Map[String, balticporter.transform.BeanPropertyTransform.Target] =
+  def beanPropertyTargets: Map[String, balticporter.transform.BeanPropertyTransform.Target] = {
     import balticporter.transform.BeanPropertyTransform.Target
     Map(
       // -- `var`: a get/set pair, where a public `var` is exactly the surface java published
@@ -1642,6 +1649,7 @@ object LibgdxPolicy:
       "com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable#align" -> Target.Val,
       "com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable#scale" -> Target.Val
     )
+  }
 
   /** the harvested pairs. The key is the emitted property in the upstream namespace (the package rename runs last); the value names the accessors explicitly, because a hand port's names are not
     * always bean-derivable (`getDragActor` -> `currentDragActor`) and a never-fired report needs them as data.
@@ -2349,3 +2357,4 @@ object LibgdxPolicy:
     "com.badlogic.gdx.scenes.scene2d.actions.TemporalAction",
     "com.badlogic.gdx.utils.Pools"
   )
+}

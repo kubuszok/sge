@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 128
+ * Covenant-baseline-methods: ImmutableArray,apply,bufArray,contains,dynArray,emptyBacking,equals,first,get,hashCode,indexOf,iterator,lastIndexOf,peek,random,size,sz,this,toArray,toString,useDyn
+ * Covenant-source-reference: com/badlogic/ashley/utils/ImmutableArray.java
+ * Covenant-verified: 2026-09-23
  */
 
 /** Injected replacement: `Array<T>` retargets to `DynamicArray`, and three methods dispatch on a

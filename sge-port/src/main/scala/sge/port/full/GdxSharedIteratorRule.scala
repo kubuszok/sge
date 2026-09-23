@@ -6,7 +6,7 @@ import balticporter.tir.*
   * same collection silently terminates the outer loop early — a libGDX allocation invariant, not a Java/Scala fact. Enters the pipeline as an ordinary `Phase` element of `PortRun(phases = …)`.
   * REPORTS rather than rewrites (deferred).
   */
-final class GdxSharedIteratorRule extends Phase:
+final class GdxSharedIteratorRule extends Phase {
 
   def name: String = "gdx-shared-iterator"
 
@@ -28,11 +28,12 @@ final class GdxSharedIteratorRule extends Phase:
     "com.badlogic.gdx.utils.Queue"
   )
 
-  final case class Finding(collection: String, receiver: String, outer: Origin, inner: Origin):
+  final case class Finding(collection: String, receiver: String, outer: Origin, inner: Origin) {
     def render: String =
       s"nested iteration over the same $collection — the cached iterator is reset by the inner " +
         s"loop and the outer loop ends early  (outer ${outer.javaPath}:${outer.line}, inner " +
         s"${inner.javaPath}:${inner.line})"
+  }
 
   private val found = collection.mutable.ListBuffer.empty[Finding]
 
@@ -41,31 +42,36 @@ final class GdxSharedIteratorRule extends Phase:
   /** Full-control entry point: a whole-program analysis, then the program returned UNCHANGED. Uses `StandardTraversal.scanTerm` rather than a private recursion (a walk that misses a node kind reports
     * zero hazards from a program that has them).
     */
-  override def run(program: Program): Program =
+  override def run(program: Program): Program = {
     given Program = program
     found.clear()
-    val outerScan = new Phase:
+    val outerScan = new Phase {
       def name:                                           String = "gdx-shared-iterator/outer"
-      override def transformTerm(t: Term)(using Program): Term   =
-        t match
+      override def transformTerm(t: Term)(using Program): Term   = {
+        t match {
           case fe: Tree.ForEach =>
-            for
+            for {
               coll <- collectionOf(program, fe)
               recv <- receiverOf(program, fe)
               inner <- nestedOver(program, fe, recv)
+            }
             do found += Finding(coll, recv, fe.origin, inner.origin)
           case _ => ()
+        }
         t
+      }
+    }
     program.units.foreach(u => StandardTraversal.mapClassDef(outerScan, u))
 
     val fs = findings
     println(s"[gdx-shared-iterator] ${fs.size} nested-iteration hazard(s) over a cached libGDX iterator")
-    if fs.nonEmpty then
+    if fs.nonEmpty then {
       println(
         "  [library-specific rule: rewrite the INNER loop to `new Array.ArrayIterator<>(a)`. " +
           "The engine cannot know this — it is libGDX's allocation strategy, not a Java/Scala fact.]"
       )
       fs.foreach(f => println("  " + f.render))
+    }
     // Registered even when empty, so `counts.tsv` can tell "found nothing" from "never ran".
     CheckReport.record(
       name,
@@ -74,6 +80,7 @@ final class GdxSharedIteratorRule extends Phase:
       }
     )
     program
+  }
 
   /** the libGDX collection FQN this loop iterates, if it is one with a cached iterator. */
   private def collectionOf(program: Program, fe: Tree.ForEach): Option[String] =
@@ -83,23 +90,27 @@ final class GdxSharedIteratorRule extends Phase:
     * and treating a call result as the same receiver would manufacture hazards that do not exist.
     */
   private def receiverOf(program: Program, fe: Tree.ForEach): Option[String] =
-    (fe.iterable match
+    (fe.iterable match {
       case i: Tree.Ident  => Some(i.sym)
       case s: Tree.Select => Some(s.sym)
       case _ => scala.None
+    }
     ).flatMap(program.symbolOf).map(_.fullName)
 
   /** a for-each INSIDE `fe`'s body over the same receiver. */
   private def nestedOver(program: Program, fe: Tree.ForEach, receiver: String)(using Program): Option[Tree.ForEach] =
     StandardTraversal
       .scanTerm(fe.body, List.empty[Tree.ForEach]) { (acc, t) =>
-        t match
+        t match {
           case inner: Tree.ForEach if receiverOf(program, inner).contains(receiver) => inner :: acc
           case _ => acc
+        }
       }
       .lastOption
 
-  private def headSymbol(t: TypeRepr): Option[SymId] = t match
+  private def headSymbol(t: TypeRepr): Option[SymId] = t match {
     case TypeRepr.TypeRef(_, s)      => Some(s)
     case TypeRepr.AppliedType(tc, _) => headSymbol(tc)
     case _                           => scala.None
+  }
+}

@@ -10,8 +10,8 @@ addSbtPlugin("com.kubuszok" % "sbt-kubuszok" % "0.2.3")
 // multiarch-scala (Platform, NativeProviderPlugin, ZigCross, JvmPackaging)
 addSbtPlugin("com.kubuszok" % "sbt-multiarch-scala" % "0.4.0")
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
-// lls-port was published against one engine snapshot, sge pins another; both are the same API at
-// different commit hashes, so evicting freely is safe.
+// sge pins the engine directly while lls-port carries lls's own engine pin; two hash versions
+// are not comparable under early-semver, and sge's pin decides.
 ThisBuild / libraryDependencySchemes += "com.kubuszok" %% "balticporter-engine" % VersionScheme.Always
 // jsdom DOM environment for Scala.js unit tests of browser components (ISS-672/ISS-536):
 // the default Node.js Scala.js env has no document/window, so DOM-touching tests (e.g.
