@@ -92,7 +92,7 @@ trait Pool[A] {
   /** Returns an object from this pool. The object may be new (from [[newObject]]) or reused (previously [[free]]). */
   def obtain(): A =
     lock.synchronized {
-      if (freeObjects.isEmpty()) newObject() else freeObjects.pop()
+      if (freeObjects.isEmpty) newObject() else freeObjects.pop()
     }
 
   /** Puts the specified object in the pool, making it eligible to be returned by {@link #obtain()} . If the pool already contains {@link #max} free objects, the specified object is
@@ -475,7 +475,7 @@ object Pool {
         }
         i += 4
       }
-      if (!found && result.isEmpty()) break(false)
+      if (!found && result.isEmpty) break(false)
       result.clear()
       result.add(finalNearValue)
       result.add(finalNearX)

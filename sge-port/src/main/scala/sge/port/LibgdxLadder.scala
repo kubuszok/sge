@@ -1084,6 +1084,7 @@ object LibgdxLadder {
             val RT = balticporter.transform.CollectionsTransform.RetargetRewrite
             val common: Map[(String, Int), balticporter.transform.CollectionsTransform.RetargetRewrite] = Map(
               ("empty", 0) -> RT.Rename("isEmpty"),
+              ("isEmpty", 0) -> RT.Template("$recv.isEmpty"),
               ("first", 0) -> RT.Template("$recv.head"),
               ("incr", 2) -> RT.Template("{ val $i = $0; $recv($i) = ($recv($i) + $1).asInstanceOf[$T0] }"),
               ("incr", 1) -> RT.Template(

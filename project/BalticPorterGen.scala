@@ -129,12 +129,6 @@ object BalticPorterGen {
           log.warn(s"[Baltic Porter] Port completed with findings (files written): ${e.getMessage}")
       }
 
-      // Post-process: fix API name mismatches between generated code and sge's types.
-      // The engine's bean-property and nullary-arity transforms rename members in declarations
-      // but not in all call sites within method bodies (an engine limitation). These replacements
-      // patch the generated bodies until the engine covers them.
-      postProcess(outDir, log)
-
       Files.createDirectories(marker.getParent)
       Files.writeString(marker, expected)
     } else {
@@ -382,65 +376,4 @@ object BalticPorterGen {
       stream.close()
   }
 
-  /** Fix API name mismatches in generated code.
-    *
-    * The engine's BeanPropertyTransform and NullaryArityTransform rename DECLARATIONS but some call sites in method bodies still reference the old names. These text-level replacements patch the
-    * generated Scala until the engine's body-rewrite coverage is complete. Each replacement is documented with its cause.
-    */
-  private def postProcess(outDir: Path, log: sbt.util.Logger): Unit = {
-    if (!Files.isDirectory(outDir)) return
-    // word-boundary-safe patterns: the replacement text is always shorter or equal, so
-    // repeated application is idempotent.
-    val replacements: List[(String, String, String)] = List(
-      // first→head: BeanPropertyTransform renames declarations but not call sites in bodies.
-      // The post-process regex replaces .first()→.head and .first→.head, skipping files that
-      // DEFINE their own `first` member (Selection.scala) to avoid renaming unrelated methods.
-      ("\\.first\\(\\)", ".head", "first()→head (BeanPropertyTransform+NullaryArityTransform)"),
-      ("\\.first\\b", ".head", "first→head (BeanPropertyTransform)"),
-      // NullaryArityTransform removed parens from isEmpty, head.
-      // exists() is NOT parenless on FileHandle — its NullaryArityTransform scope doesn't cover it.
-      ("\\.isEmpty\\(\\)", ".isEmpty", "isEmpty() parenless (NullaryArityTransform)"),
-      ("\\.head\\(\\)", ".head", "head() parenless (NullaryArityTransform)"),
-      ("\\.orderedItems\\(\\)", ".orderedItems", "orderedItems() parenless (NullaryArityTransform)"),
-      // BeanPropertyTransform renamed scheduled→isScheduled
-      ("\\.scheduled\\b", ".isScheduled", "scheduled→isScheduled (BeanPropertyTransform)")
-      // isDirectory→directory and multiLine→isMultiLine are NOT safe as global replacements:
-      // they also hit java.io.File.isDirectory() and other unrelated types. Fix those in
-      // hand-written files only.
-    )
-    var count  = 0
-    val stream = Files.walk(outDir)
-    try
-      stream.forEach { p =>
-        if (p.toString.endsWith(".scala")) {
-          var content = Files.readString(p)
-          var changed = false
-          for ((pattern, replacement, _) <- replacements) {
-            // SortedIntList has `var first` — a linked-list FIELD, not a DynamicArray call.
-            // Skip the entire file; the field and its accesses should keep the name `first`.
-            val skip = pattern.contains("first") && content.contains("var first:")
-            if (!skip) {
-              val updated = content.replaceAll(pattern, replacement)
-              if (updated != content) { content = updated; changed = true }
-            }
-          }
-          // Restore references the first→head replacement wrongly renamed:
-          // 1. Selection defines `def first: Nullable[T]` — its definition must stay `first`
-          // 2. Calls like `selection$field.head` should be `selection$field.first` because
-          //    Selection's method is `first`, not `head`
-          if (content.contains("def head:") && !content.contains("def first:")) {
-            content = content.replace("def head:", "def first:")
-            changed = true
-          }
-          // selection$field.head → selection$field.first (Selection's own method)
-          if (content.contains("selection$field.head")) {
-            content = content.replace("selection$field.head", "selection$field.first")
-            changed = true
-          }
-          if (changed) { Files.writeString(p, content); count += 1 }
-        }
-      }
-    finally stream.close()
-    if (count > 0) log.info(s"[Baltic Porter] Post-processed $count files (API name fixes)")
-  }
 }

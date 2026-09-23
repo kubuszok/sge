@@ -88,7 +88,7 @@ class Timer(using sge.Sge) {
       }
     }
 
-  def isEmpty: Boolean = synchronized(tasks.isEmpty())
+  def isEmpty: Boolean = synchronized(tasks.isEmpty)
 
   private[Timer] def update(thread: TimerThread, timeMillis: Long, waitMillis: Long): Long = synchronized {
     var currentWaitMillis = waitMillis
@@ -242,7 +242,7 @@ object Timer {
 
     def addPostedTask(task: Task): Unit =
       postedTasks.synchronized {
-        if (postedTasks.isEmpty()) sge.Sge().application.postRunnable(runPostedTasksRunnable)
+        if (postedTasks.isEmpty) sge.Sge().application.postRunnable(runPostedTasksRunnable)
         postedTasks.add(task)
       }
 
