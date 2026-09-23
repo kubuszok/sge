@@ -65,6 +65,13 @@ The engine names no library. **How libGDX is ported is sge's own policy, in `sge
 The lls base's policy is lls's own: the `lls-port` artifact, at the version of the lls dependency
 (`Versions.lls`).
 
+The full-port core policy and the nine extension policies (ashley, gdx-ai, gltf, textra, vfx,
+vis-ui, vis-ui-usl, screens, anim8, jbump, noise4j, simple-graphs) live under
+`sge-port/src/main/scala/sge/port/{full,ext}`, moved verbatim from the engine on 2026-09-23. They
+extend the older full-port core policy, not the ladder, and are the extensions' base for when
+extension generation is wired (rebase on the ladder then). Their override files are in
+`sge-port/overrides-full/` and `sge-port/overrides-ext/<lib>/`.
+
 Requirements:
 - `original-src/libgdx` submodule checked out (upstream Java sources)
 - the `balticporter-engine` snapshot pinned in `project/plugins.sbt` (`lls-port` follows `Versions.lls`)

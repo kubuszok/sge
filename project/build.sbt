@@ -8,5 +8,6 @@ Compile / unmanagedSourceDirectories +=
 // (project/BalticPorterGen.scala) calls it directly and a policy change needs no new engine artifact.
 Compile / unmanagedSourceDirectories +=
   baseDirectory.value / ".." / "sge-port" / "src" / "main" / "scala"
-// braces, as in every sge module
-scalacOptions += "-no-indent"
+// braces, as in every sge module — relaxed while the full-port and extension policies (moved
+// verbatim from the engine) still use significant indentation.
+// scalacOptions += "-no-indent"

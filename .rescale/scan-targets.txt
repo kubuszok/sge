@@ -1,5 +1,10 @@
 sge/src/main/scala
 sge-port/overrides
+sge-port/overrides-full
+sge-port/overrides-ext/ashley
+sge-port/overrides-ext/ashley-test
+sge-port/overrides-ext/gdxai
+sge-port/overrides-ext/gltf
 sge-build/src/main/scala
 sge-jvm-platform/api/src/main/scala
 sge-jvm-platform/jdk/src/main/scala
