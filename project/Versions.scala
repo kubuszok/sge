@@ -42,6 +42,6 @@ object Versions {
   // copies them next to the linked exe — without them the binary linked but
   // exited 0xC0000135 STATUS_DLL_NOT_FOUND. Earlier 0.1.2-30-g14bab58 carried
   // the Windows sge_audio.dll/glfw3.dll + macos-x86_64 real dylibs + ANGLE fix.
-  val nativeComponents = "0.1.2-33-gcf10406-SNAPSHOT"
+  val nativeComponents = "0.1.2-33-g1b34501-SNAPSHOT"
   val curlProvider     = multiarch
 }
