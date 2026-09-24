@@ -3,8 +3,7 @@ package sge.port
 import balticporter.transform.AddMembersTransform.MemberSpec
 import balticporter.tir.Reason
 
-/** Members spliced from the hand-written sge port into the generated port.
-  * Committed as inline text so the reference tree extraction is no longer needed at build time.
+/** Members spliced from the hand-written sge port into the generated port. Committed as inline text so the reference tree extraction is no longer needed at build time.
   */
 object AddedMembers {
 
@@ -20,22 +19,42 @@ object AddedMembers {
 
   val all: Map[String, List[MemberSpec]] = Map(
     "com.badlogic.gdx.assets.loaders.CubemapLoader$CubemapParameter" -> List(
-      spec("genMipMaps", """import sge.*
+      spec(
+        "genMipMaps",
+        """import sge.*
 import sge.assets.*
-var genMipMaps: Boolean = false""", "com.badlogic.gdx.assets.loaders.CubemapLoader$CubemapParameter", "var", false)
+var genMipMaps: Boolean = false""",
+        "com.badlogic.gdx.assets.loaders.CubemapLoader$CubemapParameter",
+        "var",
+        false
+      )
     ),
     "com.badlogic.gdx.assets.loaders.FileHandleResolver" -> List(
-      spec("Prefix", """import sge.*
+      spec(
+        "Prefix",
+        """import sge.*
 import sge.assets.*
 import sge.files.FileHandle
 class Prefix(var baseResolver: FileHandleResolver, var prefix: String) extends FileHandleResolver {
     override def resolve(fileName: String): FileHandle =
       baseResolver.resolve(prefix + fileName)
-  }""", "com.badlogic.gdx.assets.loaders.FileHandleResolver", "class", true),
-      spec("Resolution", """import sge.*
+  }""",
+        "com.badlogic.gdx.assets.loaders.FileHandleResolver",
+        "class",
+        true
+      ),
+      spec(
+        "Resolution",
+        """import sge.*
 import sge.assets.*
-final case class Resolution(portraitWidth: Int, portraitHeight: Int, folder: String)""", "com.badlogic.gdx.assets.loaders.FileHandleResolver", "class", true),
-      spec("ForResolution", """import sge.*
+final case class Resolution(portraitWidth: Int, portraitHeight: Int, folder: String)""",
+        "com.badlogic.gdx.assets.loaders.FileHandleResolver",
+        "class",
+        true
+      ),
+      spec(
+        "ForResolution",
+        """import sge.*
 import sge.assets.*
 import sge.files.FileHandle
 import sge.files.FileType
@@ -67,8 +86,14 @@ class ForResolution(protected val baseResolver: FileHandleResolver, protected va
         .getOrElse("")
       parentString + suffix + "/" + originalHandle.name
     }
-  }""", "com.badlogic.gdx.assets.loaders.FileHandleResolver", "class", true),
-      spec("ForResolution", """import sge.*
+  }""",
+        "com.badlogic.gdx.assets.loaders.FileHandleResolver",
+        "class",
+        true
+      ),
+      spec(
+        "ForResolution",
+        """import sge.*
 import sge.assets.*
 object ForResolution {
     def choose(descriptors: Resolution*)(using Sge): Resolution = {
@@ -106,32 +131,56 @@ object ForResolution {
       }
       best
     }
-  }""", "com.badlogic.gdx.assets.loaders.FileHandleResolver", "object", true)
+  }""",
+        "com.badlogic.gdx.assets.loaders.FileHandleResolver",
+        "object",
+        true
+      )
     ),
     "com.badlogic.gdx.graphics.g2d.Animation$PlayMode" -> List(
-      spec("isLooping", """import sge.*
+      spec(
+        "isLooping",
+        """import sge.*
 import sge.graphics.*
 def isLooping: Boolean = this match {
       case NORMAL | REVERSED => false
       case _                 => true
-    }""", "com.badlogic.gdx.graphics.g2d.Animation$PlayMode", "def", false),
-      spec("isReversed", """import sge.*
+    }""",
+        "com.badlogic.gdx.graphics.g2d.Animation$PlayMode",
+        "def",
+        false
+      ),
+      spec(
+        "isReversed",
+        """import sge.*
 import sge.graphics.*
 def isReversed: Boolean = this match {
       case REVERSED | LOOP_REVERSED => true
       case _                        => false
-    }""", "com.badlogic.gdx.graphics.g2d.Animation$PlayMode", "def", false)
+    }""",
+        "com.badlogic.gdx.graphics.g2d.Animation$PlayMode",
+        "def",
+        false
+      )
     ),
     "com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy" -> List(
-      spec("setCamera", """import sge.*
+      spec(
+        "setCamera",
+        """import sge.*
 import sge.graphics.*
 import sge.graphics.g3d.*
 import sge.graphics.Camera
 def setCamera(camera: Camera): Unit =
-    this.camera = camera""", "com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy", "def", false)
+    this.camera = camera""",
+        "com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy",
+        "def",
+        false
+      )
     ),
     "com.badlogic.gdx.graphics.g3d.particles.ResourceData" -> List(
-      spec("toJson", """import sge.*
+      spec(
+        "toJson",
+        """import sge.*
 import sge.graphics.*
 import sge.graphics.g3d.*
 import sge.utils.Json
@@ -170,14 +219,26 @@ def toJson: Json = {
     fields += "resource" -> resourceJson
 
     Json.obj(fields.result()*)
-  }""", "com.badlogic.gdx.graphics.g3d.particles.ResourceData", "def", false),
-      spec("resourceJson", """import sge.*
+  }""",
+        "com.badlogic.gdx.graphics.g3d.particles.ResourceData",
+        "def",
+        false
+      ),
+      spec(
+        "resourceJson",
+        """import sge.*
 import sge.graphics.*
 import sge.graphics.g3d.*
 import sge.utils.Json
 import lowlevel.Nullable
-var resourceJson: Nullable[Json] = Nullable.empty""", "com.badlogic.gdx.graphics.g3d.particles.ResourceData", "var", false),
-      spec("SaveValueCodec", """import sge.*
+var resourceJson: Nullable[Json] = Nullable.empty""",
+        "com.badlogic.gdx.graphics.g3d.particles.ResourceData",
+        "var",
+        false
+      ),
+      spec(
+        "SaveValueCodec",
+        """import sge.*
 import sge.graphics.*
 import sge.graphics.g3d.*
 import sge.utils.Json
@@ -185,8 +246,14 @@ trait SaveValueCodec {
     def encode(value: AnyRef): Json
 
     def decode(json: Json): AnyRef
-  }""", "com.badlogic.gdx.graphics.g3d.particles.ResourceData", "trait", true),
-      spec("saveValueToJson", """import sge.*
+  }""",
+        "com.badlogic.gdx.graphics.g3d.particles.ResourceData",
+        "trait",
+        true
+      ),
+      spec(
+        "saveValueToJson",
+        """import sge.*
 import sge.graphics.*
 import sge.graphics.g3d.*
 import lowlevel.util.DynamicArray
@@ -224,8 +291,14 @@ private[particles] def saveValueToJson(value: AnyRef): Json =
               "No SaveData codec registered for value of type: " + other.getClass.getName
             )
         }
-    }""", "com.badlogic.gdx.graphics.g3d.particles.ResourceData", "def", true),
-      spec("saveValueFromJson", """import sge.*
+    }""",
+        "com.badlogic.gdx.graphics.g3d.particles.ResourceData",
+        "def",
+        true
+      ),
+      spec(
+        "saveValueFromJson",
+        """import sge.*
 import sge.graphics.*
 import sge.graphics.g3d.*
 import lowlevel.util.DynamicArray
@@ -373,20 +446,38 @@ private[particles] def saveValueFromJson(json: Json): AnyRef =
         // (which always tags objects) and not reconstructible without a known
         // target type. Fail loudly rather than corrupt.
         throw SgeError.InvalidInput("Untagged JSON object cannot be restored as a SaveData value")
-    }""", "com.badlogic.gdx.graphics.g3d.particles.ResourceData", "def", true),
-      spec("resolveClassName", """import sge.*
+    }""",
+        "com.badlogic.gdx.graphics.g3d.particles.ResourceData",
+        "def",
+        true
+      ),
+      spec(
+        "resolveClassName",
+        """import sge.*
 import sge.graphics.*
 import sge.graphics.g3d.*
 import sge.utils.SgeError
 private[particles] def resolveClassName(className: String): Class[?] =
-    classNameMap.getOrElse(className, throw SgeError.InvalidInput("Unknown particle resource class: " + className))""", "com.badlogic.gdx.graphics.g3d.particles.ResourceData", "def", true),
-      spec("taggedValue", """import sge.*
+    classNameMap.getOrElse(className, throw SgeError.InvalidInput("Unknown particle resource class: " + className))""",
+        "com.badlogic.gdx.graphics.g3d.particles.ResourceData",
+        "def",
+        true
+      ),
+      spec(
+        "taggedValue",
+        """import sge.*
 import sge.graphics.*
 import sge.graphics.g3d.*
 import sge.utils.Json
 private def taggedValue(tag: String, encoded: Json): Json =
-    Json.obj("class" -> Json.fromString(tag), "value" -> encoded)""", "com.badlogic.gdx.graphics.g3d.particles.ResourceData", "def", true),
-      spec("normalizeSaveValueTag", """import sge.*
+    Json.obj("class" -> Json.fromString(tag), "value" -> encoded)""",
+        "com.badlogic.gdx.graphics.g3d.particles.ResourceData",
+        "def",
+        true
+      ),
+      spec(
+        "normalizeSaveValueTag",
+        """import sge.*
 import sge.graphics.*
 import sge.graphics.g3d.*
 private def normalizeSaveValueTag(tag: String): String =
@@ -401,8 +492,14 @@ private def normalizeSaveValueTag(tag: String): String =
       case "java.lang.Byte"      => "Byte"
       case "java.lang.Character" => "Character"
       case other                 => other
-    }""", "com.badlogic.gdx.graphics.g3d.particles.ResourceData", "def", true),
-      spec("classNameMap", """import sge.*
+    }""",
+        "com.badlogic.gdx.graphics.g3d.particles.ResourceData",
+        "def",
+        true
+      ),
+      spec(
+        "classNameMap",
+        """import sge.*
 import sge.graphics.*
 import sge.graphics.g3d.*
 private val classNameMap: Map[String, Class[?]] = Map(
@@ -417,25 +514,49 @@ private val classNameMap: Map[String, Class[?]] = Map(
     "com.badlogic.gdx.graphics.g3d.Model" -> classOf[sge.graphics.g3d.Model],
     "com.badlogic.gdx.graphics.g2d.TextureAtlas" -> classOf[sge.graphics.g2d.TextureAtlas],
     "com.badlogic.gdx.graphics.g3d.particles.ParticleController" -> classOf[sge.graphics.g3d.particles.ParticleController]
-  )""", "com.badlogic.gdx.graphics.g3d.particles.ResourceData", "val", true),
-      spec("valueCodecs", """import sge.*
+  )""",
+        "com.badlogic.gdx.graphics.g3d.particles.ResourceData",
+        "val",
+        true
+      ),
+      spec(
+        "valueCodecs",
+        """import sge.*
 import sge.graphics.*
 import sge.graphics.g3d.*
 private val valueCodecs: scala.collection.mutable.Map[String, SaveValueCodec] =
-    scala.collection.mutable.Map.empty""", "com.badlogic.gdx.graphics.g3d.particles.ResourceData", "val", true),
-      spec("registerValueCodec", """import sge.*
+    scala.collection.mutable.Map.empty""",
+        "com.badlogic.gdx.graphics.g3d.particles.ResourceData",
+        "val",
+        true
+      ),
+      spec(
+        "registerValueCodec",
+        """import sge.*
 import sge.graphics.*
 import sge.graphics.g3d.*
 private[particles] def registerValueCodec(clazz: Class[?], codec: SaveValueCodec): Unit =
-    registerValueCodec(clazz.getName, codec)""", "com.badlogic.gdx.graphics.g3d.particles.ResourceData", "def", true),
-      spec("registerValueCodec", """import sge.*
+    registerValueCodec(clazz.getName, codec)""",
+        "com.badlogic.gdx.graphics.g3d.particles.ResourceData",
+        "def",
+        true
+      ),
+      spec(
+        "registerValueCodec",
+        """import sge.*
 import sge.graphics.*
 import sge.graphics.g3d.*
 private[particles] def registerValueCodec(className: String, codec: SaveValueCodec): Unit =
     valueCodecs.synchronized {
       valueCodecs.update(className, codec)
-    }""", "com.badlogic.gdx.graphics.g3d.particles.ResourceData", "def", true),
-      spec("assetDataFromJson", """import sge.*
+    }""",
+        "com.badlogic.gdx.graphics.g3d.particles.ResourceData",
+        "def",
+        true
+      ),
+      spec(
+        "assetDataFromJson",
+        """import sge.*
 import sge.graphics.*
 import sge.graphics.g3d.*
 import sge.utils.Json
@@ -463,8 +584,14 @@ private[particles] def assetDataFromJson(json: Json): AssetData[?] = json match 
         throw SgeError.InvalidInput("AssetData missing filename or type")
       AssetData(filename, resolveClassName(typeName))
     case _ => throw SgeError.InvalidInput("Expected JSON object for AssetData")
-  }""", "com.badlogic.gdx.graphics.g3d.particles.ResourceData", "def", true),
-      spec("saveDataFromJson", """import sge.*
+  }""",
+        "com.badlogic.gdx.graphics.g3d.particles.ResourceData",
+        "def",
+        true
+      ),
+      spec(
+        "saveDataFromJson",
+        """import sge.*
 import sge.graphics.*
 import sge.graphics.g3d.*
 import sge.utils.Json
@@ -502,8 +629,14 @@ private[particles] def saveDataFromJson(json: Json, parent: ResourceData[?]): Sa
       case _ => ()
     }
     saveData
-  }""", "com.badlogic.gdx.graphics.g3d.particles.ResourceData", "def", true),
-      spec("saveDataToJson", """import sge.*
+  }""",
+        "com.badlogic.gdx.graphics.g3d.particles.ResourceData",
+        "def",
+        true
+      ),
+      spec(
+        "saveDataToJson",
+        """import sge.*
 import sge.graphics.*
 import sge.graphics.g3d.*
 import sge.utils.Json
@@ -524,43 +657,84 @@ private[particles] def saveDataToJson(sd: SaveData): Json = {
     fields += "indices" -> Json.arr(indices.result()*)
 
     Json.obj(fields.result()*)
-  }""", "com.badlogic.gdx.graphics.g3d.particles.ResourceData", "def", true)
+  }""",
+        "com.badlogic.gdx.graphics.g3d.particles.ResourceData",
+        "def",
+        true
+      )
     ),
     "com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch" -> List(
-      spec("ensureCodecRegistered", """def ensureCodecRegistered(): Unit = ()""", "com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch", "def", true)
+      spec(
+        "ensureCodecRegistered",
+        """def ensureCodecRegistered(): Unit = ()""",
+        "com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch",
+        "def",
+        true
+      )
     ),
     "com.badlogic.gdx.graphics.g3d.particles.influencers.ModelInfluencer" -> List(
-      spec("_modelFilenames", """import sge.*
+      spec(
+        "_modelFilenames",
+        """import sge.*
 import sge.graphics.*
 import sge.graphics.g3d.*
 import sge.graphics.g3d.particles.*
-var _modelFilenames: Array[String] = Array.empty""", "com.badlogic.gdx.graphics.g3d.particles.influencers.ModelInfluencer", "var", false)
+var _modelFilenames: Array[String] = Array.empty""",
+        "com.badlogic.gdx.graphics.g3d.particles.influencers.ModelInfluencer",
+        "var",
+        false
+      )
     ),
     "com.badlogic.gdx.graphics.g3d.particles.influencers.ParticleControllerInfluencer" -> List(
-      spec("_effectReferences", """import sge.*
+      spec(
+        "_effectReferences",
+        """import sge.*
 import sge.graphics.*
 import sge.graphics.g3d.*
 import sge.graphics.g3d.particles.*
 import sge.graphics.g3d.particles.EffectReference
-var _effectReferences: Array[EffectReference] = Array.empty""", "com.badlogic.gdx.graphics.g3d.particles.influencers.ParticleControllerInfluencer", "var", false)
+var _effectReferences: Array[EffectReference] = Array.empty""",
+        "com.badlogic.gdx.graphics.g3d.particles.influencers.ParticleControllerInfluencer",
+        "var",
+        false
+      )
     ),
     "com.badlogic.gdx.maps.MapProperties" -> List(
-      spec("getAs", """import sge.*
+      spec(
+        "getAs",
+        """import sge.*
 import lowlevel.Nullable
 def getAs[T](key: String)(using tag: scala.reflect.ClassTag[T]): Nullable[T] =
-    get(key).map(_.asInstanceOf[T])""", "com.badlogic.gdx.maps.MapProperties", "def", false),
-      spec("getAs", """import sge.*
+    get(key).map(_.asInstanceOf[T])""",
+        "com.badlogic.gdx.maps.MapProperties",
+        "def",
+        false
+      ),
+      spec(
+        "getAs",
+        """import sge.*
 def getAs[T](key: String, defaultValue: T)(using tag: scala.reflect.ClassTag[T]): T = {
     val obj = get(key)
     obj.map(_.asInstanceOf[T]).getOrElse(defaultValue)
-  }""", "com.badlogic.gdx.maps.MapProperties", "def", false)
+  }""",
+        "com.badlogic.gdx.maps.MapProperties",
+        "def",
+        false
+      )
     ),
     "com.badlogic.gdx.math.Vector" -> List(
-      spec("copy", """import sge.*
-def copy: T""", "com.badlogic.gdx.math.Vector", "def", false)
+      spec("copy",
+           """import sge.*
+def copy: T""",
+           "com.badlogic.gdx.math.Vector",
+           "def",
+           false
+      )
     ),
     "com.badlogic.gdx.math.Vector2" -> List(
-      spec("*", """import sge.*
+      spec(
+        "*",
+        """import sge.*
 @annotation.targetName("times")
   def *(mat: Matrix3): this.type = {
     val newX = this.x * mat.values(0) + this.y * mat.values(3) + mat.values(6)
@@ -568,56 +742,147 @@ def copy: T""", "com.badlogic.gdx.math.Vector", "def", false)
     x = newX
     y = newY
     this
-  }""", "com.badlogic.gdx.math.Vector2", "def", false),
-      spec("copy", """import sge.*
-override def copy: Vector2 = Vector2(x, y)""", "com.badlogic.gdx.math.Vector2", "def", false),
-      spec("cross", """import sge.*
-infix def cross(v: Vector2): Float = x * v.y - y * v.x""", "com.badlogic.gdx.math.Vector2", "def", false),
-      spec("cross", """import sge.*
-infix def cross(x: Float, y: Float): Float = this.x * y - this.y * x""", "com.badlogic.gdx.math.Vector2", "def", false)
+  }""",
+        "com.badlogic.gdx.math.Vector2",
+        "def",
+        false
+      ),
+      spec("copy",
+           """import sge.*
+override def copy: Vector2 = Vector2(x, y)""",
+           "com.badlogic.gdx.math.Vector2",
+           "def",
+           false
+      ),
+      spec(
+        "cross",
+        """import sge.*
+infix def cross(v: Vector2): Float = x * v.y - y * v.x""",
+        "com.badlogic.gdx.math.Vector2",
+        "def",
+        false
+      ),
+      spec(
+        "cross",
+        """import sge.*
+infix def cross(x: Float, y: Float): Float = this.x * y - this.y * x""",
+        "com.badlogic.gdx.math.Vector2",
+        "def",
+        false
+      )
     ),
     "com.badlogic.gdx.math.Vector3" -> List(
-      spec("copy", """import sge.*
-override def copy: Vector3 = Vector3(x, y, z)""", "com.badlogic.gdx.math.Vector3", "def", false)
+      spec("copy",
+           """import sge.*
+override def copy: Vector3 = Vector3(x, y, z)""",
+           "com.badlogic.gdx.math.Vector3",
+           "def",
+           false
+      )
     ),
     "com.badlogic.gdx.math.Vector4" -> List(
-      spec("copy", """import sge.*
-override def copy: Vector4 = Vector4(x, y, z, w)""", "com.badlogic.gdx.math.Vector4", "def", false)
+      spec(
+        "copy",
+        """import sge.*
+override def copy: Vector4 = Vector4(x, y, z, w)""",
+        "com.badlogic.gdx.math.Vector4",
+        "def",
+        false
+      )
     ),
     "com.badlogic.gdx.scenes.scene2d.Actor" -> List(
-      spec("x_=", """import sge.*
+      spec(
+        "x_=",
+        """import sge.*
 import sge.scenes.*
-def x_=(value: Float): Unit  = setX(value)""", "com.badlogic.gdx.scenes.scene2d.Actor", "def", false),
-      spec("y_=", """import sge.*
+def x_=(value: Float): Unit  = setX(value)""",
+        "com.badlogic.gdx.scenes.scene2d.Actor",
+        "def",
+        false
+      ),
+      spec(
+        "y_=",
+        """import sge.*
 import sge.scenes.*
-def y_=(value: Float): Unit  = setY(value)""", "com.badlogic.gdx.scenes.scene2d.Actor", "def", false),
-      spec("width_=", """import sge.*
+def y_=(value: Float): Unit  = setY(value)""",
+        "com.badlogic.gdx.scenes.scene2d.Actor",
+        "def",
+        false
+      ),
+      spec(
+        "width_=",
+        """import sge.*
 import sge.scenes.*
-def width_=(value: Float): Unit  = setWidth(value)""", "com.badlogic.gdx.scenes.scene2d.Actor", "def", false),
-      spec("height_=", """import sge.*
+def width_=(value: Float): Unit  = setWidth(value)""",
+        "com.badlogic.gdx.scenes.scene2d.Actor",
+        "def",
+        false
+      ),
+      spec(
+        "height_=",
+        """import sge.*
 import sge.scenes.*
-def height_=(value: Float): Unit  = setHeight(value)""", "com.badlogic.gdx.scenes.scene2d.Actor", "def", false),
-      spec("scaleX_=", """import sge.*
+def height_=(value: Float): Unit  = setHeight(value)""",
+        "com.badlogic.gdx.scenes.scene2d.Actor",
+        "def",
+        false
+      ),
+      spec(
+        "scaleX_=",
+        """import sge.*
 import sge.scenes.*
-def scaleX_=(value: Float): Unit  = setScaleX(value)""", "com.badlogic.gdx.scenes.scene2d.Actor", "def", false),
-      spec("scaleY_=", """import sge.*
+def scaleX_=(value: Float): Unit  = setScaleX(value)""",
+        "com.badlogic.gdx.scenes.scene2d.Actor",
+        "def",
+        false
+      ),
+      spec(
+        "scaleY_=",
+        """import sge.*
 import sge.scenes.*
-def scaleY_=(value: Float): Unit  = setScaleY(value)""", "com.badlogic.gdx.scenes.scene2d.Actor", "def", false),
-      spec("rotation_=", """import sge.*
+def scaleY_=(value: Float): Unit  = setScaleY(value)""",
+        "com.badlogic.gdx.scenes.scene2d.Actor",
+        "def",
+        false
+      ),
+      spec(
+        "rotation_=",
+        """import sge.*
 import sge.scenes.*
-def rotation_=(value: Float): Unit  = setRotation(value)""", "com.badlogic.gdx.scenes.scene2d.Actor", "def", false)
+def rotation_=(value: Float): Unit  = setRotation(value)""",
+        "com.badlogic.gdx.scenes.scene2d.Actor",
+        "def",
+        false
+      )
     ),
     "com.badlogic.gdx.utils.StreamUtils$OptimizedByteArrayOutputStream" -> List(
-      spec("buffer", """import sge.*
+      spec(
+        "buffer",
+        """import sge.*
 def buffer: Array[Byte] =
-      buf""", "com.badlogic.gdx.utils.StreamUtils$OptimizedByteArrayOutputStream", "def", false)
+      buf""",
+        "com.badlogic.gdx.utils.StreamUtils$OptimizedByteArrayOutputStream",
+        "def",
+        false
+      )
     ),
     "com.badlogic.gdx.utils.XmlReader" -> List(
-      spec("Element", """import sge.*
-type Element = XmlElement""", "com.badlogic.gdx.utils.XmlReader", "type", true),
-      spec("Element", """import sge.*
+      spec("Element",
+           """import sge.*
+type Element = XmlElement""",
+           "com.badlogic.gdx.utils.XmlReader",
+           "type",
+           true
+      ),
+      spec(
+        "Element",
+        """import sge.*
 import lowlevel.Nullable
-def Element(name: String, parent: Nullable[XmlElement]): XmlElement = XmlElement(name, parent)""", "com.badlogic.gdx.utils.XmlReader", "def", true)
+def Element(name: String, parent: Nullable[XmlElement]): XmlElement = XmlElement(name, parent)""",
+        "com.badlogic.gdx.utils.XmlReader",
+        "def",
+        true
+      )
     )
   )
 }

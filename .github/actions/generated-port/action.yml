@@ -23,22 +23,20 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Read the pinned hand-port reference
+    - name: Read the policy inputs the generator reads beyond the submodule
       id: reference
       if: inputs.mode == 'generate'
       shell: bash
       run: |
         set -euo pipefail
-        # the ONE commit the generator reads the hand-written core from (project/BalticPorterGen.scala)
-        commit=$(grep -oE 'HandPortReference += +"[0-9a-f]{40}"' project/BalticPorterGen.scala | grep -oE '[0-9a-f]{40}')
-        git cat-file -e "$commit^{commit}"
-        # sge's own porting policy (sge-port/: the policy sources and the files it injects), as the
-        # tree git records for it — a change to any file under it generates a new tree
+        # sge's own porting policy (sge-port/: the ladder, the frozen derived policy, the added members
+        # and the files it injects), as the tree git records for it — a change to any file under it
+        # generates a new tree. The generator reads no hand-written port from git history any more.
         policy=$(git rev-parse "HEAD:sge-port")
         # the lls base's policy: the lls-port artifact, at the version of the lls dependency
         base=$(grep -oE 'val lls += +"[^"]+' project/Versions.scala | head -1 | sed 's/.*"//')
         test -n "$base"
-        echo "tree=$commit-$policy-$base" >> "$GITHUB_OUTPUT"
+        echo "tree=$policy-$base" >> "$GITHUB_OUTPUT"
 
     - uses: kubuszok/balticporter/.github/actions/generated-port@55be328a2265f34c8d41d30634569229539cf562
       id: port
