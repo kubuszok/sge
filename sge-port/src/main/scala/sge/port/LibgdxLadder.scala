@@ -214,57 +214,9 @@ object LibgdxLadder {
           derive = derive
         )
       ),
-      // sge's own members the suite reaches for, read verbatim off sge's tree by name;
-      // a member whose body wants a type the port lacks comes off this list with its finding
+      // sge's own members the suite reaches for; inline MemberSpecs come first, then the members
+      // committed as inline text in AddedMembers (formerly fromReference, which read sge's hand port)
       "extras" -> List(
-        new balticporter.transform.AddMembersTransform(
-          fromReference = Map(
-            "com.badlogic.gdx.graphics.g2d.Animation$PlayMode" -> List("isLooping", "isReversed"),
-            // the vector operators (`+`, `-`), `Vector3.rotateAround*`/`cross` and `Ray.endPoint` return `this.type` off
-            // sge's own float overloads: the fluent shape. A general rewrite of `return this` methods to
-            // `this.type` was refused — most would gain no precision from it, and it would constrain every
-            // dependent's overrides — so these members are added individually instead.
-            "com.badlogic.gdx.math.Vector" -> List("copy"),
-            "com.badlogic.gdx.math.Vector2" -> List("*", "copy", "cross"),
-            "com.badlogic.gdx.math.Vector3" -> List("copy"),
-            "com.badlogic.gdx.math.Vector4" -> List("copy"),
-            // (`OctreeNode.isLeaf` no longer spliced: master's `private[math] def isLeaf` now derives as `KeepName`, so java's own `isLeaf()` stays)
-            // `Table.isClip`/`tableAlign` (sge's private `_clip`, its `Align` opaque), `Timer.disposeThread`
-            // (sge's thread holder), `FileHandleResolver.Prefix`/`ForResolution` (sge's 2-arg `FileHandle`)
-            // lean on sge-only internals: each stays a suite residue until its family lands
-            "com.badlogic.gdx.assets.loaders.FileHandleResolver" -> List("Prefix", "Resolution", "ForResolution"),
-            "com.badlogic.gdx.utils.StreamUtils$OptimizedByteArrayOutputStream" -> List("buffer"),
-            // (`Table.isClip`/`Actor.isDebug` read sge's PRIVATE `_clip`/`_debug`: a private member is not
-            // surface, so the field-name derivation never sees it — 4 suite sites stay)
-            "com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy" -> List("setCamera"),
-            "com.badlogic.gdx.assets.loaders.CubemapLoader$CubemapParameter" -> List("genMipMaps"),
-            "com.badlogic.gdx.graphics.g3d.particles.ResourceData" -> List(
-              "toJson",
-              "resourceJson",
-              "SaveValueCodec",
-              "saveValueToJson",
-              "saveValueFromJson",
-              "resolveClassName",
-              "taggedValue",
-              "normalizeSaveValueTag",
-              "classNameMap",
-              "valueCodecs",
-              "registerValueCodec",
-              "assetDataFromJson",
-              "saveDataFromJson",
-              "saveDataToJson"
-            ),
-            "com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch" -> List("ensureCodecRegistered"),
-            "com.badlogic.gdx.graphics.g3d.particles.influencers.ModelInfluencer" -> List("_modelFilenames"),
-            "com.badlogic.gdx.graphics.g3d.particles.influencers.ParticleControllerInfluencer" -> List("_effectReferences"),
-            // `getAs[T: ClassTag]` over the port's `get(key): Nullable[Object]`
-            "com.badlogic.gdx.maps.MapProperties" -> List("getAs"),
-            // sge keeps `XmlReader.Element` as an alias of the promoted `XmlElement` (the demos use it)
-            "com.badlogic.gdx.utils.XmlReader" -> List("Element"),
-            // sge keeps java's setters AND spells each as a property setter (`x_=` = `setX(value)`)
-            "com.badlogic.gdx.scenes.scene2d.Actor" -> List("x_=", "y_=", "width_=", "height_=", "scaleX_=", "scaleY_=", "rotation_=")
-          )
-        ),
         // sge's ResourceData.encodeResourceJson: java writes the polymorphic resource with a `class` tag
         // (ResourceData.java:216); the injected ParticleEffectCodecs (step `json`) emit the controller graph
         new balticporter.transform.AddMembersTransform(
@@ -858,7 +810,9 @@ object LibgdxLadder {
               )
             )
           )
-        )
+        ),
+        // the reference port's own members, committed as inline text (formerly fromReference)
+        new balticporter.transform.AddMembersTransform(members = AddedMembers.all)
       ),
       // (`Actor.top`/`right` collide with the fluent `top()`/`right()` of `Table`/`Container`/`HorizontalGroup`:
       // 6 errors — sge respelled those; 2 suite sites stay)
@@ -2142,9 +2096,9 @@ object LibgdxLadder {
   )
 
   /** The manifest of sge core: a dependent of the lls port. `overrides` is `sge-port/overrides`, `upstreamResources` libGDX's `gdx/res`, `frozenDerivedPolicy` a committed TSV file the derive step
-    * reads its spellings from (replacing the old parity-reference extraction from git history), `parityRoots` the reference tree for `fromReference` member splicing (empty when not available).
+    * reads its spellings from.
     */
-  def universal(overrides: Path, upstreamResources: Path, frozenDerivedPolicy: Option[Path], parityRoots: List[Path] = Nil, steps: Set[String] = DefaultSteps): PortManifest = {
+  def universal(overrides: Path, upstreamResources: Path, frozenDerivedPolicy: Option[Path], steps: Set[String] = DefaultSteps): PortManifest = {
     val unknown = steps -- Steps.keySet
     require(unknown.isEmpty, s"unknown ladder steps: ${unknown.mkString(",")}; known: ${Steps.keySet.toList.sorted.mkString(",")}")
     // the base is lls's own policy (the published `lls-port`); this manifest adds core's
@@ -2201,9 +2155,7 @@ object LibgdxLadder {
           dependencies = List(
             balticporter.catalog.ArtifactDep("com.badlogicgames.gdx", "gdx-jnigen-loader", "2.5.2", balticporter.catalog.CrossKind.Java)
           ),
-          // the derive step reads its spellings from a committed TSV file; the parity
-          // reference is kept only for fromReference member splicing (no surface comparison)
-          parity = if parityRoots.nonEmpty then Some(balticporter.core.ParityRef(roots = parityRoots, compare = false)) else None,
+          // the derive step reads its spellings from a committed TSV file; no reference tree needed
           frozenDerivedPolicy = if steps("derive") then frozenDerivedPolicy else None
         )
       )

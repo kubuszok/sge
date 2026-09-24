@@ -54,8 +54,9 @@ build time. Output goes to `target/balticporter-sge/src_managed/main/scala`.
 
 The engine names no library. **How libGDX is ported is sge's own policy, in `sge-port/`**:
 - `sge-port/src/main/scala/sge/port/` — the policy (`LibgdxLadder`: the steps, drops, renames and
-  phases), compiled into the meta-build by `project/build.sbt`, so a policy change needs no new
-  engine artifact;
+  phases; `AddedMembers`: the hand-port members spliced into generated classes as committed inline
+  text; `derived-policy.tsv`: the frozen naming-convention derivation), compiled into the meta-build
+  by `project/build.sbt`, so a policy change needs no new engine artifact;
 - `sge-port/overrides/<step>/` — the hand-written files the policy injects by path. They are inputs
   of the generation, not sources of any module: a copy that also exists under `sge/src/main/`
   wins in the build. They are covenanted and scanned like every ported file (`sge-port/overrides` is
@@ -63,7 +64,7 @@ The engine names no library. **How libGDX is ported is sge's own policy, in `sge
   covenant-gate baseline row). The policy sources are not: they have no Java original, and the
   shortcut scanner reads the body templates they hold as code.
 The lls base's policy is lls's own: the `lls-port` artifact, at the version of the lls dependency
-(`Versions.lls`).
+(`Versions.lls`). No hand-port extraction from git history is needed at build time.
 
 The full-port core policy and the nine extension policies (ashley, gdx-ai, gltf, textra, vfx,
 vis-ui, vis-ui-usl, screens, anim8, jbump, noise4j, simple-graphs) live under

@@ -63,19 +63,17 @@ object BalticPorterGen {
 
       // Step 2: Run the sge-core port as a dependent of the lls port.
       // The derive mechanism reads its spelling policy from a committed TSV file
-      // (`sge-port/derived-policy.tsv`) rather than deriving it from a reference tree at build time.
-      // The parity reference is still extracted for `fromReference` member splicing.
+      // (`sge-port/derived-policy.tsv`). The spliced members (formerly fromReference) are committed
+      // as inline text in AddedMembers.scala, so no reference tree extraction is needed.
       // Platform rows: sge hand-writes its backend layers (sge/src/main/scala{jvm,js,native,desktop}); the
       // files the PORT owns per row (`async`: java's executor on JVM/Native, libGDX's GWT emulation on JS)
       // land in src_managed/<row>/scala, which build.sbt attaches to that row only (`platformSources`).
       val frozenPolicy = sgeRoot.resolve("sge-port/derived-policy.tsv")
-      val parityRef    = extractParityReference(sgeRoot, log)
       val manifest     = sge.port.LibgdxLadder
         .universal(
           overrides,
           upstreamResources = sgeRoot.resolve("original-src/libgdx/gdx/res"),
-          frozenDerivedPolicy = Some(frozenPolicy),
-          parityRoots = parityRef
+          frozenDerivedPolicy = Some(frozenPolicy)
         )
         .copy(baseReports = List(llsReportRoot))
 
@@ -299,46 +297,6 @@ object BalticPorterGen {
     }
 
     reportRoot
-  }
-
-  /** The last commit on master that holds the hand-written core (2026-09-05), and how many Scala files it has under `sge/src/main/scala` alone. */
-  private val HandPortReference      = "ec6647df8dc9e4600794c81624922e994cecea72"
-  private val HandPortReferenceFiles = 549L
-
-  /** Extract sge's hand-written core (as of [[HandPortReference]]) into target/parity-reference, so the `fromReference` member splicing can read the source. The derived-policy derivation is now
-    * handled by the frozen TSV file.
-    */
-  private def extractParityReference(sgeRoot: Path, log: sbt.util.Logger): List[Path] = {
-    val refDir = sgeRoot.resolve("target/parity-reference")
-    val marker = refDir.resolve(".extracted-marker")
-    val ref    = HandPortReference
-    if (!Files.exists(marker) || Files.readString(marker).trim != ref) {
-      log.info(s"[Baltic Porter] Extracting parity reference from sge's hand-written core at $ref")
-      if (Files.exists(refDir)) {
-        Files.walk(refDir).sorted(java.util.Comparator.reverseOrder()).forEach(Files.delete)
-      }
-      Files.createDirectories(refDir)
-      val pb = new ProcessBuilder("git", "archive", ref, "sge/src/main/scala", "sge/src/main/scalajvm", "sge/src/main/scaladesktop")
-      pb.directory(sgeRoot.toFile)
-      pb.redirectErrorStream(true)
-      val tarPb = new ProcessBuilder("tar", "-x", "-C", refDir.toString, "--strip-components=3")
-      tarPb.directory(sgeRoot.toFile)
-      val gitProc = pb.start()
-      val tarProc = tarPb.start()
-      gitProc.getInputStream.transferTo(tarProc.getOutputStream)
-      tarProc.getOutputStream.close()
-      val gitExit = gitProc.waitFor()
-      tarProc.waitFor()
-      val count = Files.walk(refDir).filter(p => p.toString.endsWith(".scala")).count()
-      if (gitExit != 0 || count < HandPortReferenceFiles)
-        sys.error(
-          s"[Baltic Porter] no parity reference: `git archive $ref sge/src/main/...` exited $gitExit and extracted $count file(s), expected at least $HandPortReferenceFiles. " +
-            "The checkout needs that commit (actions/checkout `fetch-depth: 0`)."
-        )
-      Files.writeString(marker, ref)
-      log.info(s"[Baltic Porter] Extracted $count reference files to $refDir")
-    }
-    List("scala", "scalajvm", "scaladesktop").map(d => refDir.resolve(d)).filter(Files.isDirectory(_))
   }
 
   private def collectScalaFiles(dir: Path, excludeDuplicatesOf: Option[Path] = None): Seq[File] = {
