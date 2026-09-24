@@ -70,7 +70,14 @@ object BalticPorterGen {
       // land in src_managed/<row>/scala, which build.sbt attaches to that row only (`platformSources`).
       val frozenPolicy = sgeRoot.resolve("sge-port/derived-policy.tsv")
       val parityRef    = extractParityReference(sgeRoot, log)
-      val manifest     = sge.port.LibgdxLadder.universal(overrides, upstreamResources = sgeRoot.resolve("original-src/libgdx/gdx/res"), frozenDerivedPolicy = Some(frozenPolicy), parityRoots = parityRef).copy(baseReports = List(llsReportRoot))
+      val manifest     = sge.port.LibgdxLadder
+        .universal(
+          overrides,
+          upstreamResources = sgeRoot.resolve("original-src/libgdx/gdx/res"),
+          frozenDerivedPolicy = Some(frozenPolicy),
+          parityRoots = parityRef
+        )
+        .copy(baseReports = List(llsReportRoot))
 
       // Collect the files to port: all .java under gdx/src minus the lls set.
       val files = Files
@@ -304,7 +311,7 @@ object BalticPorterGen {
   private def extractParityReference(sgeRoot: Path, log: sbt.util.Logger): List[Path] = {
     val refDir = sgeRoot.resolve("target/parity-reference")
     val marker = refDir.resolve(".extracted-marker")
-    val ref = HandPortReference
+    val ref    = HandPortReference
     if (!Files.exists(marker) || Files.readString(marker).trim != ref) {
       log.info(s"[Baltic Porter] Extracting parity reference from sge's hand-written core at $ref")
       if (Files.exists(refDir)) {
