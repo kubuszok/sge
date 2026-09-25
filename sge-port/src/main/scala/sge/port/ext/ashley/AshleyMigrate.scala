@@ -184,54 +184,22 @@ object AshleyPolicy {
                 "com.badlogic.ashley.utils.Bag#get"
               )
           ),
-          // 3.2g: hand-port-added members (ecs drop-in parity) -- sge's factory-registry API
-          // replacing the reflective ClassReflection.newInstance the base drops. Justified by
-          // divergence-investigator verdict (sge commit 80b3fc64, ISS-723).
-          new balticporter.transform.AddMembersTransform(
-            Map(
-              "com.badlogic.ashley.core.Engine" -> List(
-                balticporter.transform.AddMembersTransform.MemberSpec(
-                  name = "componentFactories",
-                  arity = 0,
-                  source = "protected val componentFactories: scala.collection.mutable.HashMap[Class[?], () => ?] = scala.collection.mutable.HashMap.empty",
-                  reason = balticporter.tir.Reason.Configured("add-members", "com.badlogic.ashley.core.Engine#componentFactories"),
-                  why = Some("sge factory registry (sge commit 80b3fc64, ISS-723): replaces reflective ClassReflection.newInstance the base drops")
-                ),
-                balticporter.transform.AddMembersTransform.MemberSpec(
-                  name = "registerComponentFactory",
-                  arity = 2,
-                  // BOTH tables on purpose: `componentFactories` is the PROTECTED surface sge declares
-                  // and a subclass may read, and `ComponentFactories` (minted by `registry` below) is
-                  // where `createComponent` and `ComponentPool` look the key up. Registering in one
-                  // only would leave the other answering "not registered".
-                  source =
-                    "def registerComponentFactory[T <: sge.ecs.Component](componentClass: Class[T], factory: () => T): Unit = { componentFactories.put(componentClass, factory); sge.ecs.ComponentFactories.register(componentClass, factory) }",
-                  reason = balticporter.tir.Reason.Configured("add-members", "com.badlogic.ashley.core.Engine#registerComponentFactory"),
-                  why = Some("sge factory registry (sge commit 80b3fc64, ISS-723): cross-platform component creation, required on Scala.js/Native")
-                )
-              )
-            )
-          ),
-          // Ashley's one reflective instantiation site (`Engine#createComponent`): the registry is
-          // MINTED, not injected. `miss = JvmReflect` is DECLARED and its
-          // non-JVM cost COUNTED (`registry(jvm-only-miss)`): the suite instantiates component
-          // classes nothing registers. `handles` names the exception whose thrower this retires.
-          new balticporter.transform.RegistryTransform(
+          // Ashley builds components reflectively (`ClassReflection.newInstance`, `ReflectionPool`).
+          // User ruling 2026-09-25: a compile-time type class instead, on every platform — the
+          // `Class` parameter stays (callers read as java wrote them) beside a `ComponentFactory[T]`
+          // clause, whose instance sge derives by macro (sge-extension/ecs/src/main/scala).
+          new balticporter.transform.TypeClassParamsTransform(
             List(
-              balticporter.transform.RegistryTransform.Registry(
-                callee = "com.badlogic.gdx.utils.reflect.ClassReflection#newInstance",
-                placement = balticporter.transform.RegistryTransform.Placement.Object(
-                  "com.badlogic.ashley.core.ComponentFactories",
-                  balticporter.transform.RegistryTransform.Spelling("factories", "register", "create")
+              balticporter.transform.TypeClassParamsTransform.Rule(
+                members = Set(
+                  "com.badlogic.ashley.core.Engine#createComponent",
+                  "com.badlogic.ashley.core.PooledEngine#createComponent",
+                  "com.badlogic.ashley.core.PooledEngine$ComponentPools#obtain"
                 ),
-                scope = balticporter.tir.RuleScope.Only(Set("com.badlogic.ashley")),
-                handles = Set("com.badlogic.gdx.utils.reflect.ReflectionException"),
-                // Delegate: the minted ComponentFactories.create calls the named method on
-                // miss instead of inlining JVM reflection. Each platform row provides the
-                // implementation: JVM reflects with getConstructor (public constructor only),
-                // JS/Native return null (no reflection). The method takes Class[T] and returns T.
-                miss = balticporter.transform.RegistryTransform.Miss.Delegate("sge.ecs.EnginePlatform.createComponentOrNull"),
-                bound = Some("sge.ecs.Component")
+                typeClass = "sge.ecs.ComponentFactory",
+                instantiators = Set("com.badlogic.gdx.utils.reflect.ClassReflection#newInstance"),
+                spelling = balticporter.transform.TypeClassParamsTransform.Spelling.KeepParameter,
+                handles = Set("com.badlogic.gdx.utils.reflect.ReflectionException")
               )
             )
           ),
@@ -269,35 +237,12 @@ object AshleyPolicy {
       dropTypes = Set("com.badlogic.ashley.core.ComponentClassFactory"),
       dropMethods = Set(
         // EngineTests.createPrivateComponent: java's `private static class ComponentC` has a
-        // PRIVATE default constructor (JVM: ComponentC() is private). The engine translates
-        // java's `private` class to Scala's `private[EngineTests]`, which emits a PUBLIC
-        // constructor in JVM bytecode. EnginePlatform uses getConstructor() (public only),
-        // faithfully following java's ClassReflection.newInstance rule, but the Scala-encoded
-        // class has a public constructor so reflection succeeds where java's would fail.
-        // The test cannot be faithfully reproduced: Scala 3 cannot encode a truly-private
-        // constructor on a class that other members of the same compilation unit reference.
-        // Dropped from the generated suite; the hand-written EngineTestComponentE test
-        // (in EngineSuite) covers the same contract with a top-level class.
-        "com.badlogic.ashley.core.EngineTests#createPrivateComponent",
-        // EngineTests.createNewComponent and PooledEngineTests.createNewComponent: both test
-        // reflective component creation (Engine.createComponent(ComponentD.class) / ComponentA.class).
-        // On Scala.js and Native, EnginePlatform.createComponentOrNull returns null (no runtime
-        // reflection), so these tests fail on two of three platforms. JVM reflective creation
-        // is covered by the hand-written EngineCreateComponentReflectionRedSuite (scalajvm/)
-        // and PooledEngineSuite's reflective-fallback test. Factory-based creation is covered
-        // cross-platform by EngineSuite and PooledEngineSuite.
-        "com.badlogic.ashley.core.EngineTests#createNewComponent",
-        "com.badlogic.ashley.core.PooledEngineTests#createNewComponent",
-        // PooledEngineTests: the following tests create components via PooledEngine.createComponent
-        // without registering factories. On JS/Native (no reflection), createComponent returns
-        // null and the tests NPE. The hand-written PooledEngineSuite registers factories via
-        // newPooledEngine() and covers the same behaviours cross-platform. The remaining
-        // generated tests (recycleEntity, removeEntityTwice) do not call createComponent.
-        "com.badlogic.ashley.core.PooledEngineTests#entityRemovalListenerOrder",
-        "com.badlogic.ashley.core.PooledEngineTests#resetEntityCorrectly",
-        "com.badlogic.ashley.core.PooledEngineTests#recycleComponent",
-        "com.badlogic.ashley.core.PooledEngineTests#addSameComponentShouldResetAndReturnOldComponentToPool",
-        "com.badlogic.ashley.core.PooledEngineTests#removeComponentReturnsItToThePoolExactlyOnce"
+        // PRIVATE default constructor, so java's reflective createComponent answers null. The
+        // engine translates the class to Scala's `private[EngineTests]`, whose constructor is not
+        // private, so a ComponentFactory is derived and the call builds one: java's null answer
+        // cannot be reproduced. The hand-written EngineSuite asserts that an unconstructible
+        // component type does not compile, which is the type class's form of the same contract.
+        "com.badlogic.ashley.core.EngineTests#createPrivateComponent"
       ),
       inject = List(sgeRoot.resolve("sge-port/overrides-ext/ashley-test")),
       surface = List(

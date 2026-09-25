@@ -111,9 +111,6 @@ object BalticPorterEcsGen {
           )
           .execute()
         log.info(s"[Baltic Porter] Generated ${result.written} ecs files to $outDir")
-      } catch {
-        case e: RuntimeException if e.getMessage != null && e.getMessage.contains("fatal finding") =>
-          log.warn(s"[Baltic Porter] ECS port completed with findings (files written): ${e.getMessage}")
       } finally
         System.clearProperty("balticporter.reportDir")
 
@@ -222,9 +219,6 @@ object BalticPorterEcsGen {
           )
           .execute()
         log.info(s"[Baltic Porter] Generated ${result.written} ecs test files to $outDir")
-      } catch {
-        case e: RuntimeException if e.getMessage != null && e.getMessage.contains("fatal finding") =>
-          log.warn(s"[Baltic Porter] ECS test port completed with findings (files written): ${e.getMessage}")
       } finally
         System.clearProperty("balticporter.reportDir")
 

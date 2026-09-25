@@ -10,20 +10,16 @@ package sge.ecs
  * Covenant-source-reference: injected (no upstream)
  * Covenant-verified: 2026-09-23
  */
-/** A component pool that builds instances from a FACTORY instead of reflectively. */
-final class ComponentPool[T](componentType: Class[T], initialSize: Int, maxSize: Int) {
+/** A component pool that builds instances from a [[ComponentFactory]] instead of reflectively. */
+final class ComponentPool[T](componentType: Class[T], initialSize: Int, maxSize: Int)(using factory: ComponentFactory[T]) {
 
   private val free = new java.util.ArrayDeque[T](math.max(initialSize, 1))
 
-  /** A pooled instance if one is free, else a new one. Never null for a registered type. */
+  /** A pooled instance if one is free, else a new one. */
   def obtain(): T = {
     val pooled = free.pollLast()
     if (pooled != null) pooled
-    else
-      // the cast is where the unbounded parameter is paid for: every runtime use IS a Component
-      // (this pool is only ever built from `PooledEngine.ComponentPools`), but the static bound
-      // cannot say so without breaking the call site.
-      ComponentFactories.create(componentType.asInstanceOf[Class[? <: Component]]).asInstanceOf[T]
+    else factory.create()
   }
 
   def free(obj: T): Unit =

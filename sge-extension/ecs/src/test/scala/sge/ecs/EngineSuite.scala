@@ -539,19 +539,17 @@ class EngineSuite extends munit.FunSuite {
     assertEquals(entity.getComponents.size, 0)
   }
 
-  test("createComponent returns empty for an unregistered, non-reflectable component (ISS-723 c12)") {
-    val engine = new Engine
-    // No visible no-arg constructor: the JVM reflective fallback fails (Engine.java:67-73 catch ->
-    // null); JS/Native have no runtime reflection. Both platforms resolve to the empty/null-equivalent.
-    val component = engine.createComponent(classOf[EngineTestComponentE])
-    assert(component.isEmpty)
+  test("createComponent does not compile for a component with no no-arg constructor (ISS-723 c12)") {
+    // No visible no-arg constructor: no ComponentFactory can be derived, so the call is a compile
+    // error on every platform where java's reflective fallback answered null at run time.
+    assert(compileErrors("new Engine().createComponent(classOf[EngineTestComponentE])").nonEmpty)
   }
 
-  test("createComponent uses a registered factory ahead of the platform fallback (ISS-723 c12)") {
-    val engine = new Engine
-    val marker = new EngineTestComponentD
-    engine.registerComponentFactory(classOf[EngineTestComponentD], () => marker)
-    val component = engine.createComponent(classOf[EngineTestComponentD])
+  test("createComponent uses a supplied factory ahead of the derived one (ISS-723 c12)") {
+    val engine                                   = new Engine
+    val marker                                   = new EngineTestComponentD
+    given ComponentFactory[EngineTestComponentD] = ComponentFactory(() => marker)
+    val component                                = engine.createComponent(classOf[EngineTestComponentD])
     assert(component.isDefined)
     // Identity proves the registered factory produced it, not a reflectively-created instance.
     assertEquals(component.get, marker)
@@ -559,8 +557,7 @@ class EngineSuite extends munit.FunSuite {
 
   test("createComponent works via PooledEngine with factory") {
     val engine = new PooledEngine
-    engine.registerComponentFactory(classOf[EngineTestComponentD], () => new EngineTestComponentD)
-    val comp = engine.createComponent(classOf[EngineTestComponentD])
+    val comp   = engine.createComponent(classOf[EngineTestComponentD])
     assert(comp.isDefined)
   }
 

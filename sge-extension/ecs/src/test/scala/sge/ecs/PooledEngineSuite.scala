@@ -40,10 +40,6 @@ class PooledEngineSuite extends munit.FunSuite {
     componentPoolMaxSize:     Int = 100
   ): PooledEngine = {
     val e = new PooledEngine(entityPoolInitialSize, entityPoolMaxSize, componentPoolInitialSize, componentPoolMaxSize)
-    e.registerComponentFactory(classOf[PooledPositionComponent], () => new PooledPositionComponent)
-    e.registerComponentFactory(classOf[PooledComponentA], () => new PooledComponentA)
-    e.registerComponentFactory(classOf[PoolableComponent], () => new PoolableComponent)
-    e.registerComponentFactory(classOf[PooledComponentSpy], () => new PooledComponentSpy)
     e
   }
 
@@ -294,19 +290,9 @@ class PooledEngineSuite extends munit.FunSuite {
     assert(!(newComponent1 eq newComponent2))
   }
 
-  test("createComponent throws IllegalArgumentException for an unregistered component type (ISS-723 c12)") {
-    // A bare PooledEngine has no registered factories, so it cannot build a pool for the type. Its
-    // createComponent MUST fail loudly (PooledEngine createPool None-branch) rather than silently
-    // fall back to reflection/empty — the pooled contract diverges from the base Engine here, and
-    // the message must guide the caller to register a factory. Cross-platform: the throw predates
-    // any reflection, so it holds on JVM/JS/Native alike.
-    val engine = new PooledEngine()
-    val ex     = intercept[IllegalArgumentException] {
-      engine.createComponent(classOf[PooledComponentA])
-    }
-    assert(
-      ex.getMessage.contains("registerComponentFactory"),
-      "expected the message to guide factory registration, got: " + ex.getMessage
-    )
+  test("createComponent does not compile for a component type it cannot construct (ISS-723 c12)") {
+    // A PooledEngine cannot build a pool for a type with no no-arg constructor: no ComponentFactory
+    // is derived for it, so the call fails loudly at compile time, on JVM/JS/Native alike.
+    assert(compileErrors("new PooledEngine().createComponent(classOf[EngineTestComponentE])").nonEmpty)
   }
 }
