@@ -1353,6 +1353,18 @@ object LibgdxLadder {
       // sge's helper API the demos use: the `gl` alias, `rendering { … }` around `begin`/`end`,
       // class-tag `load` and a `Nullable` `get` on the asset manager.
       "helpers" -> List(
+        // `TextFormatter`'s `java.text.MessageFormat`, which Scala.js and Scala Native do not ship: each
+        // row's `TextFormatterPlatform` answers the constructor, the real one on the JVM and none on JS
+        // and Native, where libGDX's GWT emulation ignores `useMessageFormat` and always formats simply
+        new balticporter.transform.CallSiteSubstitutionTransform(
+          Map(
+            "java.text.MessageFormat#<init>(String,Locale)" ->
+              "sge.utils.TextFormatterPlatform.messageFormat({arg0}, {arg1}).getOrElse(null)"
+          )
+        ),
+        new balticporter.transform.TypeRedirectTransform(
+          redirects = Map("java.text.MessageFormat" -> "sge.utils.TextFormatterPlatform.MessageFormat")
+        ),
         new balticporter.transform.AddMembersTransform(
           Map(
             "com.badlogic.gdx.Graphics" -> List(
@@ -1920,7 +1932,7 @@ object LibgdxLadder {
 
   /** per step, the TYPES it removes (each replaced by an injection or made dead by the step). */
   val stepTypeDrops: Map[String, Set[String]] = Map(
-    "helpers" -> Set("com.badlogic.gdx.utils.TextFormatter", "com.badlogic.gdx.utils.Timer"),
+    "helpers" -> Set("com.badlogic.gdx.utils.Timer"),
     "json" -> Set("com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader", "com.badlogic.gdx.scenes.scene2d.ui.Skin"),
     // java's JNI-backed classes: sge's shared files (natives step) stand at the same names;
     // `GdxNativesLoader` has no reader and no sge counterpart

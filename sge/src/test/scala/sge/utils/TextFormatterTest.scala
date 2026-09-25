@@ -70,7 +70,9 @@ class TextFormatterTest extends munit.FunSuite {
     }
   }
 
-  test("null argument renders as null") {
-    assertEquals(fmt.format("{0}", null), "null")
+  test("null argument array throws NullPointerException, as java does") {
+    intercept[NullPointerException] {
+      fmt.format("{0}", null)
+    }
   }
 }
