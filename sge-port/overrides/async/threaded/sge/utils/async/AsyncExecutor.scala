@@ -45,7 +45,7 @@ class AsyncExecutor(maxConcurrent$p: scala.Int, name$p: java.lang.String) extend
     */
   def submit[T <: java.lang.Object](task: sge.utils.async.AsyncTask[T]): sge.utils.async.AsyncResult[T] = {
     if (this.executor.isShutdown()) {
-      throw new sge.utils.GdxRuntimeException("Cannot run tasks on an executor that has been shutdown (disposed)")
+      throw sge.utils.SgeError.InvalidInput("Cannot run tasks on an executor that has been shutdown (disposed)")
     }
     new sge.utils.async.AsyncResult[T](this.executor.submit((() => task.call()): java.util.concurrent.Callable[T]))
   }
@@ -58,7 +58,7 @@ class AsyncExecutor(maxConcurrent$p: scala.Int, name$p: java.lang.String) extend
       this.executor.awaitTermination(java.lang.Long.MAX_VALUE, java.util.concurrent.TimeUnit.SECONDS)
     } catch {
       case e: java.lang.InterruptedException =>
-        throw new sge.utils.GdxRuntimeException("Couldn't shutdown loading thread", e)
+        throw sge.utils.SgeError.InvalidInput("Couldn't shutdown loading thread", scala.Option(e))
     }
   }
 }

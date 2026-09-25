@@ -260,20 +260,22 @@ object LibgdxLadder {
                 Some("factory with original param names — the funnel renamed them to $p"),
                 true
               ),
+              // sge's non-throwing lookup beside java's throwing one (renamed `apply` by the renames step):
+              // java's own `get(fileName, type, required)` with `required = false`
               balticporter.transform.AddMembersTransform.MemberSpec(
-                "apply",
-                1,
-                "def apply[T <: java.lang.Object](fileName: java.lang.String, tpe: java.lang.Class[T]): T = get[T](fileName, tpe).getOrElse(throw new java.lang.IllegalArgumentException(\"Asset not loaded: \" + fileName))",
-                balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.assets.AssetManager#apply(String,Class)"),
-                Some("sge's throwing apply — delegates to the port's Nullable-returning get"),
+                "get",
+                2,
+                "def get[T <: java.lang.Object](fileName: java.lang.String, tpe: java.lang.Class[T]): lowlevel.Nullable[T] = get[T](fileName, tpe, false)",
+                balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.assets.AssetManager#get(String,Class)"),
+                Some("sge's get answers an empty Nullable for an asset that is not loaded; apply throws"),
                 false
               ),
               balticporter.transform.AddMembersTransform.MemberSpec(
                 "apply",
                 1,
-                "def apply[T <: java.lang.Object](assetDescriptor: sge.assets.AssetDescriptor[T]): T = get[T](assetDescriptor).getOrElse(throw new java.lang.IllegalArgumentException(\"Asset not loaded: \" + assetDescriptor.fileName))",
+                "def apply[T <: java.lang.Object](assetDescriptor: sge.assets.AssetDescriptor[T]): T = get[T](assetDescriptor).getOrElse(throw sge.utils.SgeError.InvalidInput(\"Asset not loaded: \" + assetDescriptor.fileName))",
                 balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.assets.AssetManager#apply(AssetDescriptor)"),
-                Some("sge's throwing apply — delegates to the port's Nullable-returning get"),
+                Some("sge's throwing apply — delegates to the Nullable-returning get"),
                 false
               ),
               // sge spells AssetManager.errorListener as a property; java only has setErrorListener
@@ -886,6 +888,19 @@ object LibgdxLadder {
           )
         )
       ),
+      // sge's `SgeError` (hand-written, `sge.utils`) replaces libGDX's two runtime exceptions: every
+      // constructor call becomes a variant (`LibgdxExceptions`), and a `catch` of `SerializationException`
+      // re-points at the variant those calls now build, so it still catches exactly what java's did.
+      // sge's `AssetManager.get` answers empty where java's threw; core's own callers keep java's throw.
+      "exceptions" -> List(
+        new balticporter.transform.CallSiteSubstitutionTransform(LibgdxExceptions.Calls),
+        new balticporter.transform.MethodBodyTransform(LibgdxExceptions.AssetManagerGetBodies),
+        // no redirect of `GdxRuntimeException`: core names it only at constructor calls (its catches are
+        // in the dropped `Skin`), and the base already redirects it for its own types
+        new balticporter.transform.TypeRedirectTransform(
+          redirects = Map("com.badlogic.gdx.utils.SerializationException" -> "sge.utils.SgeError.SerializationError")
+        )
+      ),
       // the async executor per platform row (java's own on JVM/Native, libGDX's GWT emulation on JS): no phase, a drop and platform injections only.
       "async" -> Nil,
       // WebGL refuses vertex arrays from client memory, and java's `DecalBatch.initialize` falls back to
@@ -1141,7 +1156,11 @@ object LibgdxLadder {
             "com.badlogic.gdx.math.Vector#dst" -> "distance",
             "com.badlogic.gdx.math.Vector#dst2" -> "distanceSq",
             "com.badlogic.gdx.math.Vector#scl" -> "scale",
-            "com.badlogic.gdx.math.Vector#nor" -> "normalize"
+            "com.badlogic.gdx.math.Vector#nor" -> "normalize",
+            // sge's `AssetManager`: java's throwing lookup by name and type is `apply` (core's callers keep
+            // java's throw), and `get` is the lookup answering an empty `Nullable` (the extras step adds it).
+            // One overload only: a second onto `apply` is refused as a name already taken.
+            "com.badlogic.gdx.assets.AssetManager#get(String,Class)" -> "apply"
           )
         ),
         // (the classes' own overloads — `dst(x, y)`, static `len(x, y)` — keep java's names: a second
@@ -1911,6 +1930,8 @@ object LibgdxLadder {
       "com.badlogic.gdx.graphics.Pixmap"
     ),
     "pool" -> Set("com.badlogic.gdx.utils.Pool", "com.badlogic.gdx.utils.DefaultPool"),
+    // sge's hand-written `SgeError` stands for both (the exceptions step re-points every use)
+    "exceptions" -> Set("com.badlogic.gdx.utils.GdxRuntimeException", "com.badlogic.gdx.utils.SerializationException"),
     // java's constants class; sge's own `opaque type Align` (injected) stands at the same name
     "align" -> Set("com.badlogic.gdx.utils.Align"),
     // java.util.concurrent.{ExecutorService, Future} and `Thread.yield` have no Scala.js javalib: the
@@ -2017,6 +2038,7 @@ object LibgdxLadder {
 
   val StepOrder: List[String] = List(
     "logging",
+    "exceptions",
     "witness",
     "collections",
     "nullability",
@@ -2060,6 +2082,7 @@ object LibgdxLadder {
     "net",
     "renames",
     "logging",
+    "exceptions",
     "context",
     "seconds",
     "pool",

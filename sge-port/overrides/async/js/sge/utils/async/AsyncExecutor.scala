@@ -36,7 +36,7 @@ class AsyncExecutor(maxConcurrent$p: scala.Int, name$p: java.lang.String) extend
       try task.call()
       catch {
         case t: java.lang.Throwable =>
-          throw new sge.utils.GdxRuntimeException("Could not submit AsyncTask: " + t.getMessage(), t)
+          throw sge.utils.SgeError.InvalidInput("Could not submit AsyncTask: " + t.getMessage(), scala.Option(t))
       }
     new sge.utils.async.AsyncResult[T](result)
   }

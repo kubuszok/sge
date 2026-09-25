@@ -1526,7 +1526,6 @@ NullableMember	com.badlogic.gdx.assets.AssetLoadingTask#depsFuture:field	Nullabl
 NullableMember	com.badlogic.gdx.assets.AssetLoadingTask#loadFuture:field	Nullable[Future[Unit]]	
 NullableMember	com.badlogic.gdx.assets.AssetManager#get(AssetDescriptor)	Nullable[$0]	
 NullableMember	com.badlogic.gdx.assets.AssetManager#get(String)	Nullable[$0]	
-NullableMember	com.badlogic.gdx.assets.AssetManager#get(String,Class)	Nullable[$0]	
 NullableMember	com.badlogic.gdx.assets.AssetManager#get(String,boolean)	Nullable[$0]	
 NullableMember	com.badlogic.gdx.assets.AssetManager#getAssetFileName	Nullable[String]	
 NullableMember	com.badlogic.gdx.assets.AssetManager#getAssetType	Nullable[Class[?]]	

@@ -28,7 +28,7 @@ class AsyncResult[T <: java.lang.Object] private[async] (private val future: jav
   def done: scala.Boolean = this.future.isDone()
 
   /** @return waits if necessary for the computation to complete and then returns the result
-    * @throws sge.utils.GdxRuntimeException
+    * @throws sge.utils.SgeError.InvalidInput
     *   if there was an error
     */
   def get(): T = {
@@ -38,7 +38,8 @@ class AsyncResult[T <: java.lang.Object] private[async] (private val future: jav
       case _: java.lang.InterruptedException =>
         null.asInstanceOf[T]
       case ex: java.util.concurrent.ExecutionException =>
-        throw new sge.utils.GdxRuntimeException(ex.getCause())
+        val cause = ex.getCause()
+        throw sge.utils.SgeError.InvalidInput(if (cause == null) null else cause.toString, scala.Option(cause))
     }
   }
 }
