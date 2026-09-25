@@ -26,7 +26,7 @@ package files
 import java.io.{ ByteArrayInputStream, File, InputStream }
 import java.nio.charset.StandardCharsets
 import munit.FunSuite
-import sge.utils.GdxRuntimeException
+import sge.utils.SgeError
 import lowlevel.Nullable
 
 class DesktopFileHandleReadIss865Suite extends FunSuite {
@@ -91,7 +91,7 @@ class DesktopFileHandleReadIss865Suite extends FunSuite {
 
   test("ISS-865 Native: readString on an absent absolute file throws FileReadError") {
     val file = new File(Nullable(System.getProperty("java.io.tmpdir")).getOrElse("."), s"sge-iss865-absent-${System.nanoTime()}.bin")
-    intercept[GdxRuntimeException] {
+    intercept[SgeError.FileReadError] {
       DesktopFileHandle(file, FileType.Absolute, ext).readString()
     }
   }
