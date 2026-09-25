@@ -1221,7 +1221,11 @@ object LibgdxLadder {
               )
             )
           )
-        )
+        ),
+        // sge's listener defaults are a trait a listener mixes in (`new ApplicationListener with
+        // ApplicationListenerDefaults { … }`): java's `ApplicationAdapter`, whose constructor takes
+        // nothing, as a trait under sge's name (`typeRenames`)
+        new balticporter.transform.ClassToTraitTransform(specs = Map("com.badlogic.gdx.ApplicationAdapter" -> Nil))
       ),
       // `Seconds`: a frame delta is not a bare `Float` (sge's opaque type, injected from sge's own
       // file). Seeded at the two producers on `Graphics`; the phase propagates along pure moves
@@ -2150,7 +2154,7 @@ object LibgdxLadder {
             "com.badlogic.gdx.utils.Json" -> "LegacyJson",
             // sge's `XmlElement`: java's `XmlReader.Element` promoted and renamed
             "com.badlogic.gdx.utils.XmlReader$Element" -> "XmlElement"
-          ),
+          ) ++ (if steps("context") then Map("com.badlogic.gdx.ApplicationAdapter" -> "ApplicationListenerDefaults") else Map.empty),
           // sge's `sge.files.FileType`: java's nested `Files.FileType` promoted to top level and nested under `files`
           flattenNestedTypes = Set(
             "com.badlogic.gdx.Files$FileType",
