@@ -4,7 +4,7 @@ description: >
   input set and shared between jobs and workflows through the Actions cache — see the action this
   wraps. `generate` needs a full-history checkout (the generator derives sge's spellings from the
   hand-written core at ONE pinned commit, which is part of the key) and the Scala toolchain; `restore` needs
-  neither, and no submodule. sge's own porting policy (sge-port/) is part of the key too.
+  neither, and no submodule. sge's own porting policy (sge-port/) and the replacements it reads from sge/src/main/scala are part of the key too.
   The `uses:` line below is the ONE place the shared action's version is pinned.
 
 inputs:
@@ -33,10 +33,13 @@ runs:
         # and the files it injects), as the tree git records for it — a change to any file under it
         # generates a new tree. The generator reads no hand-written port from git history any more.
         policy=$(git rev-parse "HEAD:sge-port")
+        # the replacements the port reads from sge's own tree (providedSources): their surface decides
+        # how the generated code calls them
+        provided=$(git rev-parse "HEAD:sge/src/main/scala")
         # the lls base's policy: the lls-port artifact, at the version of the lls dependency
         base=$(grep -oE 'val lls += +"[^"]+' project/Versions.scala | head -1 | sed 's/.*"//')
         test -n "$base"
-        echo "tree=$policy-$base" >> "$GITHUB_OUTPUT"
+        echo "tree=$policy-$provided-$base" >> "$GITHUB_OUTPUT"
 
     - uses: kubuszok/balticporter/.github/actions/generated-port@55be328a2265f34c8d41d30634569229539cf562
       id: port

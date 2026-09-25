@@ -57,9 +57,13 @@ The engine names no library. **How libGDX is ported is sge's own policy, in `sge
   phases; `AddedMembers`: the hand-port members spliced into generated classes as committed inline
   text; `derived-policy.tsv`: the frozen naming-convention derivation), compiled into the meta-build
   by `project/build.sbt`, so a policy change needs no new engine artifact;
-- `sge-port/overrides/<step>/` — the hand-written files the policy injects by path. They are inputs
-  of the generation, not sources of any module: a copy that also exists under `sge/src/main/`
-  wins in the build. They are covenanted and scanned like every ported file (`sge-port/overrides` is
+- `sge/src/main/scala/` — also read by the port (`providedSources`): a dropped libGDX type whose
+  replacement sge compiles itself (`Pool`, `Pixmap`, `Net`, `Skin`, the platform ops, …) is read
+  there for its surface and never copied, so each replacement has ONE home. Never copy such a file
+  into `sge-port/overrides/`;
+- `sge-port/overrides/<step>/` — the hand-written files the policy injects by path, only those sge's
+  own tree does not hold (16: the per-row async executor, `Align`, the `Sge` context, `Timer`,
+  `TextFormatter`, the reflection-free stand-ins). They are covenanted and scanned like every ported file (`sge-port/overrides` is
   a `.rescale/scan-targets.txt` root; a by-design refusal there is a `skip-policy` entry AND a
   covenant-gate baseline row). The policy sources are not: they have no Java original, and the
   shortcut scanner reads the body templates they hold as code.
@@ -81,7 +85,8 @@ Requirements:
 - JDK 25 for the sbt server (the generated code depends on the JDK major) and `cs` on the PATH
 
 The generated tree is reused while `target/balticporter-sge/.generated-marker` matches the engine
-and lls-port pins, the libGDX commit, the generator source, a hash of `sge-port/**` and the JDK major. CI
+and lls-port pins, the libGDX commit, the generator source, hashes of `sge-port/**` and
+`sge/src/main/scala/**` and the JDK major. CI
 generates it once (the `generate` job) and every other job restores it — those jobs have no submodule.
 
 Rules:

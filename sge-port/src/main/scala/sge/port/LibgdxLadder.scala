@@ -5,7 +5,9 @@ import lowlevel.port.LlsPolicy
 
 import java.nio.file.Path
 
-/** How sge ports libGDX core: a dependent of the lls port, built from named steps. Each step contributes phases, drops and the hand-written files it injects from `sge-port/overrides/<name>`. */
+/** How sge ports libGDX core: a dependent of the lls port, built from named steps. Each step contributes phases, drops and the hand-written files it injects from `sge-port/overrides/<name>`, or reads
+  * from sge's own tree where sge compiles the replacement itself.
+  */
 object LibgdxLadder {
 
   /** Core's declarations that allocate an array at their own type parameter, or construct a `DynamicArray` at it, so they take the `MkArray` clause (the "witness" step); the null-as-empty tables
@@ -1970,26 +1972,15 @@ object LibgdxLadder {
     )
   ).withDefaultValue(Set.empty)
 
-  /** Per step, the hand-written files it injects (the shared row), under `overrides` — sge's `sge-port/overrides`. */
+  /** Per step, the hand-written files it injects (the shared row), under `overrides` — sge's `sge-port/overrides`. Only files sge's own tree does not compile: a replacement that lives in
+    * `sge/src/main/scala` is read from there (`providedSources`), never copied.
+    */
   def stepInjects(overrides: Path): Map[String, List[Path]] = Map(
     "helpers" -> List(overrides.resolve("helpers")),
     // the reflection-free `Json`, `ReflectionException` and the asset-type registry
     "reflection" -> List(overrides.resolve("reflection")),
-    "net" -> List(overrides.resolve("net/shared")),
-    "mathunits" -> List(overrides.resolve("math")),
     "context" -> List(overrides.resolve("context")),
-    "seconds" -> List(overrides.resolve("seconds")),
-    "pool" -> List(overrides.resolve("pool")),
-    "pixels" -> List(overrides.resolve("pixels")),
     "align" -> List(overrides.resolve("align")),
-    "worldunits" -> List(overrides.resolve("worldunits")),
-    "audio" -> List(overrides.resolve("audio")),
-    "time" -> List(overrides.resolve("time")),
-    "glenum" -> List(overrides.resolve("glenum")),
-    // the backend steps' shared files only: sge hand-writes its platform layers (`sge/src/main/scala{jvm,js,native,desktop}`)
-    "backend-jvm" -> List(overrides.resolve("backend-jvm/shared")),
-    "natives" -> List(overrides.resolve("natives/shared")),
-    "backend-desktop" -> List(overrides.resolve("backend-desktop/shared")),
     "json" -> List(overrides.resolve("json"))
   ).withDefaultValue(Nil)
 
@@ -2095,10 +2086,16 @@ object LibgdxLadder {
     "visibility"
   )
 
-  /** The manifest of sge core: a dependent of the lls port. `overrides` is `sge-port/overrides`, `upstreamResources` libGDX's `gdx/res`, `frozenDerivedPolicy` a committed TSV file the derive step
-    * reads its spellings from.
+  /** The manifest of sge core: a dependent of the lls port. `overrides` is `sge-port/overrides`, `provided` sge's own compiled tree (`sge/src/main/scala`) whose replacements the port reads and never
+    * copies, `upstreamResources` libGDX's `gdx/res`, `frozenDerivedPolicy` a committed TSV file the derive step reads its spellings from.
     */
-  def universal(overrides: Path, upstreamResources: Path, frozenDerivedPolicy: Option[Path], steps: Set[String] = DefaultSteps): PortManifest = {
+  def universal(
+    overrides:           Path,
+    provided:            List[Path],
+    upstreamResources:   Path,
+    frozenDerivedPolicy: Option[Path],
+    steps:               Set[String] = DefaultSteps
+  ): PortManifest = {
     val unknown = steps -- Steps.keySet
     require(unknown.isEmpty, s"unknown ladder steps: ${unknown.mkString(",")}; known: ${Steps.keySet.toList.sorted.mkString(",")}")
     // the base is lls's own policy (the published `lls-port`); this manifest adds core's
@@ -2117,6 +2114,7 @@ object LibgdxLadder {
             Set("com.badlogic.gdx.graphics.g2d.BitmapFont$BitmapFontData"),
           inject = StepOrder.filter(steps).flatMap(stepInjects(overrides)),
           platformDirs = StepOrder.filter(steps).flatMap(stepPlatformInjects(overrides)(_).toList).groupMapReduce(_._1)(_._2)(_ ++ _),
+          providedSources = provided,
           // a dependent follows the base's published member spellings (`first()` -> `first`): the
           // port-map follow reads what lls published, never re-derives it.
           surface = StepOrder.filter(steps).flatMap(stepsFor(steps)(_)) :+

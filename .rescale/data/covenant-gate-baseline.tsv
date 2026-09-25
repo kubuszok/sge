@@ -127,7 +127,6 @@ sge-jvm-platform/api/src/main/scala/sge/platform/android/VisibilityListenerOps.s
 sge-jvm-platform/api/src/main/scala/sge/platform/package.scala	missing-header	1
 sge-port/overrides-full/sge/utils/Json.scala	shortcut-drift	1
 sge-port/overrides/async/threaded/sge/utils/async/AsyncResult.scala	shortcut-drift	1
-sge-port/overrides/net/shared/sge/net/SgeHttpClient.scala	shortcut-drift	1
 sge-port/overrides/reflection/sge/utils/LegacyJson.scala	shortcut-drift	1
 sge/src/main/scala/sge/Net.scala	shortcut-drift	1
 sge/src/main/scala/sge/graphics/g3d/particles/ParticleEffectCodecs.scala	shortcut-drift	1
