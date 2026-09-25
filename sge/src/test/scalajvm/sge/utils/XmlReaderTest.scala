@@ -7,39 +7,14 @@ package sge
 package utils
 
 import lowlevel.Nullable
-import sge.utils.GdxRuntimeException
 
-import lowlevel.Nullable
-import sge.utils.GdxRuntimeException
 import java.io.{ ByteArrayInputStream, StringReader }
-import sge.utils.GdxRuntimeException
 
 class XmlReaderTest extends munit.FunSuite {
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   private val reader = XmlReader()
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   // ---- Parsing ----
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("parse simple element") {
     val elem = reader.parse("<root/>")
@@ -48,30 +23,11 @@ class XmlReaderTest extends munit.FunSuite {
     assert(elem.text.isEmpty)
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("parse element with text") {
     val elem = reader.parse("<msg>Hello</msg>")
     assertEquals(elem.name, "msg")
     assertEquals(elem.text.getOrElse(fail("expected text")), "Hello")
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("parse element with attributes") {
     val elem = reader.parse("""<item id="42" name="sword"/>""")
@@ -80,17 +36,6 @@ class XmlReaderTest extends munit.FunSuite {
     assertEquals(elem.getAttribute("id"), "42")
     assertEquals(elem.getAttribute("name"), "sword")
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("parse element with children") {
     val xml =
@@ -104,18 +49,6 @@ class XmlReaderTest extends munit.FunSuite {
     assertEquals(elem.getChild(1).name, "child2")
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("parse nested elements") {
     val xml = "<a><b><c/></b></a>"
     val a   = reader.parse(xml)
@@ -124,39 +57,12 @@ class XmlReaderTest extends munit.FunSuite {
     assertEquals(a.getChild(0).getChild(0).name, "c")
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("parse from Reader") {
     val xml  = "<test>content</test>"
     val elem = reader.parse(new StringReader(xml))
     assertEquals(elem.name, "test")
     assertEquals(elem.text.getOrElse(fail("expected text")), "content")
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("parse from InputStream") {
     val xml    = "<test>content</test>"
@@ -166,85 +72,19 @@ class XmlReaderTest extends munit.FunSuite {
     assertEquals(elem.text.getOrElse(fail("expected text")), "content")
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   // ---- Attribute access ----
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("getAttribute throws for missing attribute") {
     val elem = reader.parse("<item/>")
-    intercept[GdxRuntimeException] {
+    intercept[SgeError.InvalidInput] {
       elem.getAttribute("missing")
     }
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("getAttribute with default returns default for missing") {
     val elem = reader.parse("<item/>")
     assertEquals(elem.getAttribute("missing", Nullable("default")).getOrElse(fail("expected non-empty")), "default")
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("hasAttribute") {
     val elem = reader.parse("""<item id="1"/>""")
@@ -252,250 +92,43 @@ class XmlReaderTest extends munit.FunSuite {
     assert(!elem.hasAttribute("name"))
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("setAttribute adds new attribute") {
     val elem = reader.parse("<item/>")
     elem.setAttribute("color", "red")
     assertEquals(elem.getAttribute("color"), "red")
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("getFloatAttribute") {
     val elem = reader.parse("""<item x="1.5"/>""")
     assertEquals(elem.getFloatAttribute("x"), 1.5f)
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("getFloatAttribute with default") {
     val elem = reader.parse("<item/>")
     assertEquals(elem.getFloatAttribute("x", 2.0f), 2.0f)
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("getIntAttribute") {
     val elem = reader.parse("""<item count="10"/>""")
     assertEquals(elem.getIntAttribute("count"), 10)
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("getIntAttribute with default") {
     val elem = reader.parse("<item/>")
     assertEquals(elem.getIntAttribute("count", 5), 5)
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("getBooleanAttribute") {
     val elem = reader.parse("""<item visible="true"/>""")
     assertEquals(elem.getBooleanAttribute("visible"), true)
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("getBooleanAttribute with default") {
     val elem = reader.parse("<item/>")
     assertEquals(elem.getBooleanAttribute("visible", false), false)
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   // ---- Child access ----
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("getChildByName returns first matching child") {
     val xml  = "<root><a/><b/><a/></root>"
@@ -505,103 +138,16 @@ class XmlReaderTest extends munit.FunSuite {
     assertEquals(a.getOrElse(fail("expected child")).name, "a")
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("getChildByName returns empty for non-existing") {
     val root = reader.parse("<root><a/></root>")
     assert(root.getChildByName("missing").isEmpty)
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("hasChild") {
     val root = reader.parse("<root><a/></root>")
     assert(root.hasChild("a"))
     assert(!root.hasChild("b"))
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("getChildByNameRecursive finds nested child") {
     val xml  = "<root><a><b><target/></b></a></root>"
@@ -611,75 +157,12 @@ class XmlReaderTest extends munit.FunSuite {
     assertEquals(t.getOrElse(fail("expected child")).name, "target")
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("hasChildRecursive") {
     val xml  = "<root><a><b/></a></root>"
     val root = reader.parse(xml)
     assert(root.hasChildRecursive("b"))
     assert(!root.hasChildRecursive("missing"))
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("getChildrenByName returns all matching children") {
     val xml      = "<root><a/><b/><a/><c/><a/></root>"
@@ -688,39 +171,6 @@ class XmlReaderTest extends munit.FunSuite {
     assertEquals(children.size, 3)
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("getChildrenByNameRecursively returns all matching at any depth") {
     val xml      = "<root><a/><b><a/></b><a/></root>"
     val root     = reader.parse(xml)
@@ -728,76 +178,7 @@ class XmlReaderTest extends munit.FunSuite {
     assertEquals(children.size, 3)
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   // ---- Child manipulation ----
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("addChild increases child count and sets parent") {
     val root  = reader.parse("<root/>")
@@ -807,85 +188,12 @@ class XmlReaderTest extends munit.FunSuite {
     assert(child.parent.isDefined)
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("removeChild by index") {
     val root = reader.parse("<root><a/><b/></root>")
     root.removeChild(0)
     assertEquals(root.childCount, 1)
     assertEquals(root.getChild(0).name, "b")
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("removeChild by reference") {
     val root  = reader.parse("<root><a/><b/></root>")
@@ -895,44 +203,6 @@ class XmlReaderTest extends munit.FunSuite {
     assertEquals(root.getChild(0).name, "b")
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("remove removes self from parent") {
     val root  = reader.parse("<root><a/><b/></root>")
     val child = root.getChild(0)
@@ -940,45 +210,6 @@ class XmlReaderTest extends munit.FunSuite {
     assertEquals(root.childCount, 1)
     assert(child.parent.isEmpty)
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("replaceChild replaces existing child") {
     val root        = reader.parse("<root><old/></root>")
@@ -990,187 +221,21 @@ class XmlReaderTest extends munit.FunSuite {
     assert(oldChild.parent.isEmpty)
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("replaceChild throws for non-existing child") {
     val root        = reader.parse("<root><a/></root>")
     val notAChild   = XmlElement("notachild", Nullable.empty)
     val replacement = XmlElement("new", Nullable.empty)
-    intercept[GdxRuntimeException] {
+    intercept[SgeError.InvalidInput] {
       root.replaceChild(notAChild, replacement)
     }
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   // ---- get (attribute or child text) ----
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("get returns attribute value if present") {
     val elem = reader.parse("""<item name="sword"/>""")
     assertEquals(elem.get("name"), "sword")
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("get falls back to child text") {
     val xml  = "<item><name>sword</name></item>"
@@ -1178,534 +243,49 @@ class XmlReaderTest extends munit.FunSuite {
     assertEquals(elem.get("name"), "sword")
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("get throws for missing attribute and child") {
     val elem = reader.parse("<item/>")
-    intercept[GdxRuntimeException] {
+    intercept[SgeError.InvalidInput] {
       elem.get("missing")
     }
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("get with default returns default for missing") {
     val elem = reader.parse("<item/>")
     assertEquals(elem.get("missing", Nullable("def")).getOrElse(fail("expected non-empty")), "def")
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("getInt from attribute") {
     val elem = reader.parse("""<item count="5"/>""")
     assertEquals(elem.getInt("count"), 5)
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("getInt with default") {
     val elem = reader.parse("<item/>")
     assertEquals(elem.getInt("count", 10), 10)
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("getFloat from attribute") {
     val elem = reader.parse("""<item x="3.14"/>""")
     assertEqualsFloat(elem.getFloat("x"), 3.14f, 0.001f)
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("getFloat with default") {
     val elem = reader.parse("<item/>")
     assertEquals(elem.getFloat("x", 1.0f), 1.0f)
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("getBoolean from attribute") {
     val elem = reader.parse("""<item active="true"/>""")
     assertEquals(elem.getBoolean("active"), true)
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("getBoolean with default") {
     val elem = reader.parse("<item/>")
     assertEquals(elem.getBoolean("active", false), false)
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   // ---- toString ----
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("toString for self-closing element") {
     val elem = reader.parse("<item/>")
@@ -1713,60 +293,6 @@ class XmlReaderTest extends munit.FunSuite {
     assert(str.contains("<item"), s"Expected '<item' in: $str")
     assert(str.contains("/>"), s"Expected '/>' in: $str")
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("toString for element with children") {
     val xml  = "<root><child/></root>"
@@ -1777,123 +303,12 @@ class XmlReaderTest extends munit.FunSuite {
     assert(str.contains("<child"), s"Expected '<child' in: $str")
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("toString for element with text") {
     val elem = reader.parse("<msg>Hello</msg>")
     val str  = elem.toString
     assert(str.contains("Hello"), s"Expected 'Hello' in: $str")
     assert(str.contains("</msg>"), s"Expected '</msg>' in: $str")
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("toString for element with attributes") {
     val elem = reader.parse("""<item id="1" name="test"/>""")
@@ -1902,253 +317,19 @@ class XmlReaderTest extends munit.FunSuite {
     assert(str.contains("name=\"test\""), s"Expected attribute in: $str")
   }
 
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   // ---- Edge cases ----
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("getChild throws for element with no children") {
     val elem = reader.parse("<item/>")
-    intercept[GdxRuntimeException] {
+    intercept[SgeError.InvalidInput] {
       elem.getChild(0)
     }
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("childCount is 0 for leaf element") {
     val elem = reader.parse("<leaf/>")
     assertEquals(elem.childCount, 0)
   }
-
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import java.io.{ ByteArrayInputStream, StringReader }
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("parent is set for child elements") {
     val root  = reader.parse("<root><child/></root>")

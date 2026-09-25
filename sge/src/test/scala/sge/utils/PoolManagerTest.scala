@@ -2,8 +2,6 @@
 package sge
 package utils
 
-import sge.utils.GdxRuntimeException
-
 /** Tests for PoolManager: type-keyed pool registry, obtain/free lifecycle, and Poolable reset integration. */
 class PoolManagerTest extends munit.FunSuite {
 
@@ -75,14 +73,14 @@ class PoolManagerTest extends munit.FunSuite {
   test("duplicate addPool throws") {
     val pm = PoolManager()
     pm.addPool[Tracker](() => Tracker())
-    intercept[GdxRuntimeException] {
+    intercept[SgeError.InvalidInput] {
       pm.addPool[Tracker](() => Tracker())
     }
   }
 
   test("obtain for unregistered type throws") {
     val pm = PoolManager()
-    intercept[GdxRuntimeException] {
+    intercept[SgeError.InvalidInput] {
       pm.obtain[Tracker]
     }
   }

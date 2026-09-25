@@ -5,7 +5,9 @@ package assets
 import munit.FunSuite
 import sge.assets.loaders._
 import sge.files.{ FileHandle, FileType }
-import sge.utils.GdxRuntimeException
+import sge.graphics.g2d.TextureAtlas
+import sge.utils.SgeError
+import lowlevel.Nullable
 
 /** Behavioral tests for the core asset loaders.
   *
@@ -15,28 +17,7 @@ import sge.utils.GdxRuntimeException
   */
 class AssetLoaderSmokeTest extends FunSuite {
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   given Sge = SgeTestFixture.testSge()
-
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   /** Resolver that returns a FileHandle wrapping the filename (no real I/O). */
   private val stubResolver: FileHandleResolver = new FileHandleResolver {
@@ -44,65 +25,11 @@ class AssetLoaderSmokeTest extends FunSuite {
       FileHandle(new java.io.File(fileName), FileType.Absolute)
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   private def handle(name: String): FileHandle = stubResolver.resolve(name)
-
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   private def bareManager: AssetManager = AssetManager(stubResolver, defaultLoaders = false)
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   // ─── FileHandleResolver dispatch ────────────────────────────────────
-
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   /** Records which [[Files]] method a resolver delegated to, so resolver→Files dispatch is observable. */
   final private class RecordingFiles extends Files {
@@ -125,160 +52,27 @@ class AssetLoaderSmokeTest extends FunSuite {
     def isLocalStorageAvailable:                                   Boolean    = false
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("built-in resolvers delegate resolve() to the matching Files method with the given name") {
     val files = new RecordingFiles
     val sgeWithFiles: Sge = SgeTestFixture.testSge(files = files)
-
-    import munit.FunSuite
-    import sge.utils.GdxRuntimeException
-    import sge.assets.loaders._
-    import sge.files.{ FileHandle, FileType }
-    import sge.graphics.g2d.TextureAtlas
-    import sge.utils.SgeError
-    import lowlevel.Nullable
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
 
     FileHandleResolver.Internal(using sgeWithFiles).resolve("a.png")
     assertEquals(files.lastMethod, "internal")
     assertEquals(files.lastPath, "a.png")
 
-    import munit.FunSuite
-    import sge.utils.GdxRuntimeException
-    import sge.assets.loaders._
-    import sge.files.{ FileHandle, FileType }
-    import sge.graphics.g2d.TextureAtlas
-    import sge.utils.SgeError
-    import lowlevel.Nullable
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-
     FileHandleResolver.External(using sgeWithFiles).resolve("b.png")
     assertEquals(files.lastMethod, "external")
-
-    import munit.FunSuite
-    import sge.utils.GdxRuntimeException
-    import sge.assets.loaders._
-    import sge.files.{ FileHandle, FileType }
-    import sge.graphics.g2d.TextureAtlas
-    import sge.utils.SgeError
-    import lowlevel.Nullable
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
 
     FileHandleResolver.Classpath(using sgeWithFiles).resolve("c.png")
     assertEquals(files.lastMethod, "classpath")
 
-    import munit.FunSuite
-    import sge.utils.GdxRuntimeException
-    import sge.assets.loaders._
-    import sge.files.{ FileHandle, FileType }
-    import sge.graphics.g2d.TextureAtlas
-    import sge.utils.SgeError
-    import lowlevel.Nullable
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-
     FileHandleResolver.Absolute(using sgeWithFiles).resolve("d.png")
     assertEquals(files.lastMethod, "absolute")
-
-    import munit.FunSuite
-    import sge.utils.GdxRuntimeException
-    import sge.assets.loaders._
-    import sge.files.{ FileHandle, FileType }
-    import sge.graphics.g2d.TextureAtlas
-    import sge.utils.SgeError
-    import lowlevel.Nullable
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
-    import sge.utils.GdxRuntimeException
 
     FileHandleResolver.Local(using sgeWithFiles).resolve("e.png")
     assertEquals(files.lastMethod, "local")
     assertEquals(files.lastPath, "e.png")
   }
-
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("Prefix resolver prepends the prefix before delegating to the base resolver") {
     val prefix = FileHandleResolver.Prefix(stubResolver, "assets/")
@@ -287,29 +81,6 @@ class AssetLoaderSmokeTest extends FunSuite {
     assertEquals(FileHandleResolver.Prefix(stubResolver, "ui-").resolve("skin.json").path, "ui-skin.json")
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("Resolution captures width, height and folder") {
     val res = FileHandleResolver.Resolution(1920, 1080, "1920x1080")
     assertEquals(res.portraitWidth, 1920)
@@ -317,56 +88,7 @@ class AssetLoaderSmokeTest extends FunSuite {
     assertEquals(res.folder, "1920x1080")
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   // ─── getDependencies: SkinLoader ────────────────────────────────────
-
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("SkinLoader.getDependencies defaults to the sibling .atlas of the skin file") {
     val loader = SkinLoader(stubResolver)
@@ -375,32 +97,6 @@ class AssetLoaderSmokeTest extends FunSuite {
     assertEquals(deps(0).fileName, "ui.atlas")
     assert(deps(0).`type` == classOf[TextureAtlas])
   }
-
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("SkinLoader.getDependencies honors an explicit textureAtlasPath") {
     val loader = SkinLoader(stubResolver)
@@ -411,33 +107,6 @@ class AssetLoaderSmokeTest extends FunSuite {
     assert(deps(0).`type` == classOf[TextureAtlas])
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("SkinLoader.getDependencies with a null parameter falls back to the default .atlas") {
     // AssetManager passes a null parameter when none is supplied; the loader must treat it as absent.
     val loader = SkinLoader(stubResolver)
@@ -446,64 +115,7 @@ class AssetLoaderSmokeTest extends FunSuite {
     assertEquals(deps(0).fileName, "hud/ui.atlas")
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   // ─── getDependencies: ParticleEffectLoader ──────────────────────────
-
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("ParticleEffectLoader.getDependencies is empty without an atlas file") {
     val loader = ParticleEffectLoader(stubResolver)
@@ -511,36 +123,6 @@ class AssetLoaderSmokeTest extends FunSuite {
     // A null parameter is likewise dependency-free.
     assertEquals(loader.getDependencies("fx.p", handle("fx.p"), null).size, 0)
   }
-
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("ParticleEffectLoader.getDependencies declares the atlas file as a TextureAtlas dependency") {
     val loader = ParticleEffectLoader(stubResolver)
@@ -552,37 +134,6 @@ class AssetLoaderSmokeTest extends FunSuite {
     assert(deps(0).`type` == classOf[TextureAtlas])
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("ParticleEffectLoader.getDependencies with only an images dir declares no dependency") {
     val loader = ParticleEffectLoader(stubResolver)
     val param  = ParticleEffectLoader.ParticleEffectParameter()
@@ -590,72 +141,7 @@ class AssetLoaderSmokeTest extends FunSuite {
     assertEquals(loader.getDependencies("fx.p", handle("fx.p"), param).size, 0)
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   // ─── getDependencies: loaders with no dependencies ──────────────────
-
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("dependency-free loaders declare an empty dependency list") {
     assertEquals(
@@ -673,331 +159,44 @@ class AssetLoaderSmokeTest extends FunSuite {
     assertEquals(PixmapLoader(stubResolver).getDependencies("p.png", handle("p.png"), PixmapLoader.PixmapParameter()).size, 0)
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   // ─── Error paths: loadSync/load without the preceding phase ──────────
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
-  test("SoundLoader.loadSync returns null when loadAsync has not run".ignore) {
-    SoundLoader(stubResolver).loadSync(bareManager, "s.ogg", handle("s.ogg"), SoundLoader.SoundParameter())
+  test("SoundLoader.loadSync fails when loadAsync has not run") {
+    val e = intercept[SgeError.SerializationError] {
+      SoundLoader(stubResolver).loadSync(bareManager, "s.ogg", handle("s.ogg"), SoundLoader.SoundParameter())
+    }
+    assert(e.getMessage.contains("Sound not loaded"), e.getMessage)
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
-  test("MusicLoader.loadSync returns null when loadAsync has not run".ignore) {
-    MusicLoader(stubResolver).loadSync(bareManager, "m.ogg", handle("m.ogg"), MusicLoader.MusicParameter())
+  test("MusicLoader.loadSync fails when loadAsync has not run") {
+    val e = intercept[SgeError.SerializationError] {
+      MusicLoader(stubResolver).loadSync(bareManager, "m.ogg", handle("m.ogg"), MusicLoader.MusicParameter())
+    }
+    assert(e.getMessage.contains("Music not loaded"), e.getMessage)
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
-  test("PixmapLoader.loadSync returns null when loadAsync has not run".ignore) {
-    PixmapLoader(stubResolver).loadSync(bareManager, "p.png", handle("p.png"), PixmapLoader.PixmapParameter())
+  test("PixmapLoader.loadSync fails when loadAsync has not run") {
+    val e = intercept[SgeError.SerializationError] {
+      PixmapLoader(stubResolver).loadSync(bareManager, "p.png", handle("p.png"), PixmapLoader.PixmapParameter())
+    }
+    assert(e.getMessage.contains("Pixmap not loaded"), e.getMessage)
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
-  test("I18NBundleLoader.loadSync returns null when loadAsync has not run".ignore) {
-    I18NBundleLoader(stubResolver).loadSync(bareManager, "i18n/msg", handle("i18n/msg"), I18NBundleLoader.I18NBundleParameter())
+  test("I18NBundleLoader.loadSync fails when loadAsync has not run") {
+    val e = intercept[SgeError.SerializationError] {
+      I18NBundleLoader(stubResolver).loadSync(bareManager, "i18n/msg", handle("i18n/msg"), I18NBundleLoader.I18NBundleParameter())
+    }
+    assert(e.getMessage.contains("I18NBundle not loaded"), e.getMessage)
   }
-
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("TextureAtlasLoader.load fails when getDependencies has not parsed the atlas data") {
-    intercept[Exception] {
+    val e = intercept[SgeError.SerializationError] {
       TextureAtlasLoader(stubResolver).load(bareManager, "a.atlas", handle("a.atlas"), TextureAtlasLoader.TextureAtlasParameter())
     }
+    assert(e.getMessage.contains("TextureAtlasData not loaded"), e.getMessage)
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   // ─── ISS-830 (Also-clause): guard paths for the remaining loaders ────
-
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("ShaderProgramLoader accepts the (resolver, vertexSuffix, fragmentSuffix) convenience ctor [coverage]") {
     // Re-adds the ShaderProgramLoader(resolver, ".vs", ".fs") construction pin
@@ -1015,102 +214,17 @@ class AssetLoaderSmokeTest extends FunSuite {
     )
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("SkinLoader.loadSync fails when the atlas dependency has not been loaded [coverage]") {
     // SkinLoader.loadSync looks the sibling .atlas up in the AssetManager
     // (SkinLoader.scala:73). Without the dependency phase the manager holds no
     // such asset, so the lookup throws before any GL work (newSkin / skin.load)
     // is reached — a headless-feasible guard contract.
-    val e = intercept[GdxRuntimeException] {
+    val e = intercept[SgeError.InvalidInput] {
       SkinLoader(stubResolver).loadSync(bareManager, "ui.json", handle("ui.json"), SkinLoader.SkinParameter())
     }
     assert(e.getMessage.contains("Asset not loaded"), e.getMessage)
     assert(e.getMessage.contains("ui.atlas"), e.getMessage)
   }
-
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("BitmapFontLoader.loadSync fails when getDependencies has not parsed the font data [coverage]") {
     // In this port BitmapFontData is populated by getDependencies (loadAsync is a
@@ -1119,151 +233,17 @@ class AssetLoaderSmokeTest extends FunSuite {
     // GraphicsError("BitmapFontData not loaded") (BitmapFontLoader.scala:93)
     // before touching the manager or any GL. (Assembling the actual font is
     // GL-bound, out of scope.)
-    intercept[Exception] {
+    val e = intercept[SgeError.GraphicsError] {
       BitmapFontLoader(stubResolver).loadSync(bareManager, "font.fnt", handle("font.fnt"), BitmapFontLoader.BitmapFontParameter())
     }
+    assert(e.getMessage.contains("BitmapFontData not loaded"), e.getMessage)
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   // ─── Parameter defaults ─────────────────────────────────────────────
-
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("AssetLoaderParameters defaults to an empty loaded-callback") {
     assert(AssetLoaderParameters[String]().loadedCallback.isEmpty)
   }
-
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("BitmapFontParameter defaults") {
     val p = BitmapFontLoader.BitmapFontParameter()
@@ -1273,53 +253,6 @@ class AssetLoaderSmokeTest extends FunSuite {
     assert(p.atlasName.isEmpty)
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("TextureParameter defaults") {
     val p = TextureLoader.TextureParameter()
     assertEquals(p.genMipMaps, false)
@@ -1328,107 +261,10 @@ class AssetLoaderSmokeTest extends FunSuite {
     assert(p.textureData.isEmpty)
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("TextureAtlasParameter flip defaults false and is honored when set") {
     assertEquals(TextureAtlasLoader.TextureAtlasParameter().flip, false)
     assertEquals(TextureAtlasLoader.TextureAtlasParameter(flip = true).flip, true)
   }
-
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("CubemapParameter defaults") {
     val p = CubemapLoader.CubemapParameter()
@@ -1438,112 +274,11 @@ class AssetLoaderSmokeTest extends FunSuite {
     assert(p.cubemapData.isEmpty)
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("SkinParameter defaults empty and carries an atlas path when set") {
     assert(SkinLoader.SkinParameter().textureAtlasPath.isEmpty)
     assert(SkinLoader.SkinParameter().resources.isEmpty)
     assertEquals(SkinLoader.SkinParameter(textureAtlasPath = Nullable("ui.atlas")).textureAtlasPath.getOrElse(""), "ui.atlas")
   }
-
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("ShaderProgramParameter defaults") {
     val p = ShaderProgramLoader.ShaderProgramParameter()
@@ -1553,58 +288,6 @@ class AssetLoaderSmokeTest extends FunSuite {
     assert(p.prependVertexCode.isEmpty)
     assert(p.prependFragmentCode.isEmpty)
   }
-
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("I18NBundleParameter defaults empty and carries a locale when set") {
     val p = I18NBundleLoader.I18NBundleParameter()
@@ -1616,59 +299,6 @@ class AssetLoaderSmokeTest extends FunSuite {
     )
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("ParticleEffectParameter defaults") {
     val p = ParticleEffectLoader.ParticleEffectParameter()
     assert(p.atlasFile.isEmpty)
@@ -1676,178 +306,13 @@ class AssetLoaderSmokeTest extends FunSuite {
     assert(p.imagesDir.isEmpty)
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   test("ModelParameters supplies a defaulted texture parameter") {
     val p = ModelLoader.ModelParameters()
     assertEquals(p.textureParameter.genMipMaps, false)
     assert(p.textureParameter.format.isEmpty)
   }
 
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-
   // ─── resolve() on all loaders ───────────────────────────────────────
-
-  import munit.FunSuite
-  import sge.utils.GdxRuntimeException
-  import sge.assets.loaders._
-  import sge.files.{ FileHandle, FileType }
-  import sge.graphics.g2d.TextureAtlas
-  import sge.utils.SgeError
-  import lowlevel.Nullable
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
-  import sge.utils.GdxRuntimeException
 
   test("every loader resolves a file name through its resolver") {
     val loaders: List[AssetLoader[?, ?]] = List(

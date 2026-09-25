@@ -241,7 +241,7 @@ class IndexBufferObjectIss561Suite extends munit.FunSuite {
     given Sge = makeSge(gl)
     val ibo   = new IndexBufferObject(true, 8)
     ibo.close()
-    intercept[sge.utils.GdxRuntimeException](ibo.bind())
+    intercept[sge.utils.SgeError.GraphicsError](ibo.bind())
   }
 
   // --- invalidate: fresh glGenBuffer + dirty; next bind re-uploads -------------
