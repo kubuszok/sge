@@ -82,7 +82,14 @@ object SgeBrowserPlatform extends AutoPlugin {
     val sgeJsOutputDir  = SgePackaging.sgeJsOutputDir
   }
 
-  override def projectSettings: Seq[Setting[_]] = SgePackaging.browserSettings ++ Seq(
+  /** Link semantics every sge Scala.js project shares (sge's own modules and games alike): a null dereference throws java's `NullPointerException`, as on the JVM and Native, where Scala.js's
+    * default treats it as undefined behaviour.
+    */
+  val linkerSemantics: Seq[Setting[_]] = Seq(
+    scalaJSLinkerConfig ~= (_.withSemantics(_.withNullPointers(org.scalajs.linker.interface.CheckedBehavior.Compliant)))
+  )
+
+  override def projectSettings: Seq[Setting[_]] = SgePackaging.browserSettings ++ linkerSemantics ++ Seq(
     libraryDependencies += "com.kubuszok" % s"sge_sjs1_${scalaBinaryVersion.value}" % SgePlugin.sgeVersion,
     libraryDependencies ++= SgeExtension.jsDeps(
       SgePlugin.autoImport.sgeExtensions.value,

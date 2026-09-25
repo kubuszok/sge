@@ -177,6 +177,8 @@ def commonSettings(
     Test / fork := true,
     Test / javaOptions ++= (javaOptions).value
   )),
+  // the link semantics sge's games get from the browser plugin: java's NullPointerException on JS too
+  MatrixAction.ForPlatforms(VirtualAxis.js).Configure(_.settings(SgeBrowserPlatform.linkerSemantics *)),
   MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
     Compile / unmanagedSourceDirectories ++= {
       val desktopDir = (ThisBuild / baseDirectory).value / projectDir / "src" / "main" / "scaladesktop"
