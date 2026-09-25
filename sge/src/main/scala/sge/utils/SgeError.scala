@@ -7,7 +7,7 @@
  * Migration notes:
  *   Merged with: `SerializationException.java` -> `SgeError.SerializationError`
  *   Renames: `GdxRuntimeException` -> `SgeError` enum; `SerializationException` -> `SgeError.SerializationError`
- *   Convention: Scala 3 `enum` extending `Exception`; typed error variants instead of generic runtime exception; `cause` uses `Option[Throwable]`
+ *   Convention: Scala 3 `enum` extending `RuntimeException` (java's `catch (RuntimeException)` still catches it); typed error variants instead of generic runtime exception; `cause` uses `Option[Throwable]`
  *   Idiom: split packages
  *   Audited: 2026-03-03
  *
@@ -34,7 +34,7 @@ package utils
   * @note
   *   LibGDX: replaces `com.badlogic.gdx.utils.GdxRuntimeException`, merged with `com.badlogic.gdx.utils.SerializationException` (now [[SerializationError]]).
   */
-enum SgeError(message: String, cause: Option[Throwable]) extends Exception(message, cause.orNull) {
+enum SgeError(message: String, cause: Option[Throwable]) extends RuntimeException(message, cause.orNull) {
   case FileReadError(file: files.FileHandle, message: String, cause: Option[Throwable] = None) extends SgeError(message, cause)
   case FileWriteError(file: files.FileHandle, message: String, cause: Option[Throwable] = None) extends SgeError(message, cause)
   case MathError(message: String, cause: Option[Throwable] = None) extends SgeError(message, cause)
