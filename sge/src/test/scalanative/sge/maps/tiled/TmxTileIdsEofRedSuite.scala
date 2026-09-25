@@ -109,13 +109,13 @@ class TmxTileIdsEofRedSuite extends munit.FunSuite {
             " (2 fresh bytes | 2 stale bytes of the previous tile's buffer) — " +
             "Java throws 'Error Reading TMX Layer Data: Premature end of tile data'"
         )
-      case Failure(e: IllegalArgumentException) =>
+      case Failure(e: sge.utils.SgeError.InvalidInput) =>
         assert(
           e.getMessage.contains("Premature end of tile data"),
           s"expected the premature-EOF message, got: ${e.getMessage}"
         )
       case Failure(e) =>
-        fail(s"expected IllegalArgumentException('... Premature end of tile data'), got ${e.getClass.getName}: ${e.getMessage}")
+        fail(s"expected SgeError.InvalidInput('... Premature end of tile data'), got ${e.getClass.getName}: ${e.getMessage}")
     }
 
   test("ISS-506: gzip data decompressing to 62 of 64 bytes must throw 'Premature end of tile data'") {

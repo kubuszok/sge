@@ -161,39 +161,32 @@ class AssetLoaderSmokeTest extends FunSuite {
 
   // ─── Error paths: loadSync/load without the preceding phase ──────────
 
-  test("SoundLoader.loadSync fails when loadAsync has not run") {
-    val e = intercept[SgeError.SerializationError] {
-      SoundLoader(stubResolver).loadSync(bareManager, "s.ogg", handle("s.ogg"), SoundLoader.SoundParameter())
-    }
-    assert(e.getMessage.contains("Sound not loaded"), e.getMessage)
+  // java's loadSync hands back the field loadAsync would have filled: null, an empty Nullable here
+  test("SoundLoader.loadSync returns empty when loadAsync has not run") {
+    val sound = SoundLoader(stubResolver).loadSync(bareManager, "s.ogg", handle("s.ogg"), SoundLoader.SoundParameter())
+    assert(Nullable(sound).isEmpty)
   }
 
-  test("MusicLoader.loadSync fails when loadAsync has not run") {
-    val e = intercept[SgeError.SerializationError] {
-      MusicLoader(stubResolver).loadSync(bareManager, "m.ogg", handle("m.ogg"), MusicLoader.MusicParameter())
-    }
-    assert(e.getMessage.contains("Music not loaded"), e.getMessage)
+  test("MusicLoader.loadSync returns empty when loadAsync has not run") {
+    val music = MusicLoader(stubResolver).loadSync(bareManager, "m.ogg", handle("m.ogg"), MusicLoader.MusicParameter())
+    assert(Nullable(music).isEmpty)
   }
 
-  test("PixmapLoader.loadSync fails when loadAsync has not run") {
-    val e = intercept[SgeError.SerializationError] {
-      PixmapLoader(stubResolver).loadSync(bareManager, "p.png", handle("p.png"), PixmapLoader.PixmapParameter())
-    }
-    assert(e.getMessage.contains("Pixmap not loaded"), e.getMessage)
+  test("PixmapLoader.loadSync returns empty when loadAsync has not run") {
+    val pixmap = PixmapLoader(stubResolver).loadSync(bareManager, "p.png", handle("p.png"), PixmapLoader.PixmapParameter())
+    assert(Nullable(pixmap).isEmpty)
   }
 
-  test("I18NBundleLoader.loadSync fails when loadAsync has not run") {
-    val e = intercept[SgeError.SerializationError] {
-      I18NBundleLoader(stubResolver).loadSync(bareManager, "i18n/msg", handle("i18n/msg"), I18NBundleLoader.I18NBundleParameter())
-    }
-    assert(e.getMessage.contains("I18NBundle not loaded"), e.getMessage)
+  test("I18NBundleLoader.loadSync returns empty when loadAsync has not run") {
+    val bundle = I18NBundleLoader(stubResolver).loadSync(bareManager, "i18n/msg", handle("i18n/msg"), I18NBundleLoader.I18NBundleParameter())
+    assert(Nullable(bundle).isEmpty)
   }
 
   test("TextureAtlasLoader.load fails when getDependencies has not parsed the atlas data") {
-    val e = intercept[SgeError.SerializationError] {
+    // java dereferences the unparsed atlas data; which exception it raises is not part of the contract
+    intercept[Exception] {
       TextureAtlasLoader(stubResolver).load(bareManager, "a.atlas", handle("a.atlas"), TextureAtlasLoader.TextureAtlasParameter())
     }
-    assert(e.getMessage.contains("TextureAtlasData not loaded"), e.getMessage)
   }
 
   // ─── ISS-830 (Also-clause): guard paths for the remaining loaders ────
@@ -229,14 +222,13 @@ class AssetLoaderSmokeTest extends FunSuite {
   test("BitmapFontLoader.loadSync fails when getDependencies has not parsed the font data [coverage]") {
     // In this port BitmapFontData is populated by getDependencies (loadAsync is a
     // no-op, BitmapFontLoader.scala:75). Calling loadSync first leaves `data`
-    // empty, so the default (non-atlas) branch throws
-    // GraphicsError("BitmapFontData not loaded") (BitmapFontLoader.scala:93)
+    // empty, so the default (non-atlas) branch dereferences the missing data and
+    // throws — java's own failure, whose exception type is not part of the contract —
     // before touching the manager or any GL. (Assembling the actual font is
     // GL-bound, out of scope.)
-    val e = intercept[SgeError.GraphicsError] {
+    intercept[Exception] {
       BitmapFontLoader(stubResolver).loadSync(bareManager, "font.fnt", handle("font.fnt"), BitmapFontLoader.BitmapFontParameter())
     }
-    assert(e.getMessage.contains("BitmapFontData not loaded"), e.getMessage)
   }
 
   // ─── Parameter defaults ─────────────────────────────────────────────
