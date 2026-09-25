@@ -111,10 +111,10 @@ def dropClean(cmd: String): String = cmd.stripPrefix("clean ; ")
 lazy val sgeCommandAliases: Seq[Def.Setting[State => State]] =
   // generatePort: run the Baltic Porter generation (shared tree, every platform row, resources) and
   // nothing else — what the CI `generate` job runs before publishing target/balticporter-sge.
-  addCommandAlias("generatePort", "sge/Compile/managedSources ; sge/Compile/managedResources") ++
+  addCommandAlias("generatePort", "sge/Compile/managedSources ; sge/Compile/managedResources ; sge-ecs/Compile/managedSources ; sge-ecs/Test/managedSources") ++
   // verifyLocal: the gate before a push — every platform's tests, then record the verified commit
   // (target/local-verification; the push hook of the balticporter Claude Code plugin reads it).
-  addCommandAlias("verifyLocal", "ci-jvm-3 ; test-js-3 ; test-native-3 ; markVerified") ++
+  addCommandAlias("verifyLocal", "scalafmtCheckAll ; scalafmtSbtCheck ; ci-jvm-3 ; test-js-3 ; test-native-3 ; markVerified") ++
   sgeAliasCombinations.flatMap { case (platform, scalaBin) =>
     addCommandAlias(sgeAliasName("ci", platform, scalaBin), dropClean(dropCoverage(testFullify(al.ci(platform, scalaBin))))) ++
       addCommandAlias(sgeAliasName("test", platform, scalaBin), testFullify(al.test(platform, scalaBin))) ++
@@ -644,7 +644,27 @@ val `sge-controllers` = (projectMatrix in file("sge-extension/controllers"))
 
 val `sge-ecs` = (projectMatrix in file("sge-extension/ecs"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(Versions.scala3))
-  .someVariations(Versions.scalas, Versions.platforms)((commonSettings("sge-extension/ecs") ++ dev.only1VersionInIDE) *)
+  .someVariations(Versions.scalas, Versions.platforms)((commonSettings("sge-extension/ecs") ++ dev.only1VersionInIDE ++ Seq(
+    // Ashley's upstream tests use org.mockito.asm (ComponentClassFactory) and org.mockito.Mockito
+    // (EntityListenerTests); version 1.10.19 is ashley's own build.gradle pin (JVM only).
+    MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(
+      libraryDependencies += "org.mockito" % "mockito-core" % "1.10.19" % Test
+    )),
+    // JS/Native: exclude only the 3 Mockito/asm-dependent generated tests (ISS-889).
+    // No Mockito artifact for JS/Native. All hand-written suites and all other generated
+    // suites run on every platform (no regression from master).
+    MatrixAction.ForPlatforms(VirtualAxis.js, VirtualAxis.native).Configure(_.settings(
+      Test / sources := {
+        (Test / sources).value.filterNot { f =>
+          val name = f.getName
+          // EntityListenerTests: Mockito.mock; ComponentClassFactory: org.mockito.asm;
+          // EntityTests: references ComponentClassFactory
+          name == "EntityListenerTests.scala" || name == "ComponentClassFactory.scala" ||
+            name == "EntityTests.scala"
+        }
+      }
+    ))
+  )) *)
   .settings(publishSettings)
   .settings(mimaSettings)
   .settings(name := "sge-extension-ecs")
@@ -658,6 +678,26 @@ val `sge-ecs` = (projectMatrix in file("sge-extension/ecs"))
   // remedy sge-extension-visui uses for its VisUI._skin global. JS/Native are
   // single-threaded and unaffected.
   .settings(Test / parallelExecution := false)
+  .settings(
+    // Baltic Porter: generate sge-ecs Scala sources from Ashley Java originals.
+    // Runs after sge-core generation (cached), output to target/balticporter-sge-ecs/.
+    Compile / sourceGenerators += Def.task {
+      BalticPorterEcsGen.generate((ThisBuild / baseDirectory).value, streams.value.log)
+    }.taskValue,
+    Compile / managedSourceDirectories += (ThisBuild / baseDirectory).value / "target" / "balticporter-sge-ecs" / "src_managed" / "main" / "scala",
+    // Port Ashley's JUnit tests (converted to MUnit by TestFrameworkTransform).
+    Test / sourceGenerators += Def.task {
+      BalticPorterEcsGen.generateTests((ThisBuild / baseDirectory).value, streams.value.log)
+    }.taskValue,
+    Test / managedSourceDirectories += (ThisBuild / baseDirectory).value / "target" / "balticporter-sge-ecs" / "src_managed" / "test" / "scala",
+    // Ashley's upstream EntityListenerTests uses Mockito 1.10.19 (JDK 8 era) which needs
+    // --add-opens for ClassLoader.defineClass on JDK 9+.
+    Test / javaOptions += "--add-opens=java.base/java.lang=ALL-UNNAMED",
+    // Suppress warnings from generated code
+    scalacOptions += "-Wconf:src=target/balticporter-sge-ecs/.*:s",
+    Test / scalacOptions += "-Wconf:msg=unused import:s",
+    Test / scalacOptions += "-Wconf:msg=unused local definition:s"
+  )
   .dependsOn(sge)
 
 val `sge-freetype` = (projectMatrix in file("sge-extension/freetype"))

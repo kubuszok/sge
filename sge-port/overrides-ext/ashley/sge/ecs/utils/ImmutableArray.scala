@@ -8,15 +8,15 @@
  *
  * Covenant: full-port
  * Covenant-baseline-spec-pass: 0
- * Covenant-baseline-loc: 128
+ * Covenant-baseline-loc: 132
  * Covenant-baseline-methods: ImmutableArray,apply,bufArray,contains,dynArray,emptyBacking,equals,first,get,hashCode,indexOf,iterator,lastIndexOf,peek,random,size,sz,this,toArray,toString,useDyn
  * Covenant-source-reference: com/badlogic/ashley/utils/ImmutableArray.java
  * Covenant-verified: 2026-09-23
  */
 
-/** Injected replacement: `Array<T>` retargets to `DynamicArray`, and three methods dispatch on a non-literal boolean identity flag `BoolDispatch` cannot handle statically, plus a nested
-  * `Array.ArrayIterable` reference the retarget removes. Drop-in parity with sge's hand port (`Iterable[A]`, parenless `iterator`): both a `DynamicArray[A]` constructor (what emitted ashley code
-  * passes) and an `ArrayBuffer[A]` one (sge's own tests) are provided.
+/** Injected replacement for Ashley's `ImmutableArray`: `Array<T>` retargets to `DynamicArray`, and three methods dispatch on a non-literal boolean identity flag `BoolDispatch` cannot handle
+  * statically, plus a nested `Array.ArrayIterable` reference the retarget removes. `size`, `iterator`, `first`, `peek` and `toArray` are parenless, as sge's API spells them. Both a `DynamicArray[A]`
+  * constructor (what emitted ashley code passes) and an `ArrayBuffer[A]` one (sge's own tests) are provided.
   */
 package sge.ecs.utils
 
@@ -32,7 +32,7 @@ import lowlevel.Nullable
 final class ImmutableArray[A] private (
   private val dynArray: DynamicArray[A],
   private val bufArray: ArrayBuffer[A]
-) extends Iterable[A] {
+) {
 
   /** Constructor for the emitted ashley code, which uses DynamicArray (via retarget). */
   def this(array: DynamicArray[A]) = this(array, null)
@@ -49,7 +49,13 @@ final class ImmutableArray[A] private (
 
   private inline def useDyn: Boolean = dynArray != null
 
-  override def size: Int = if (useDyn) dynArray.size else bufArray.size
+  def size: Int = if (useDyn) dynArray.size else bufArray.size
+
+  /** Enables `for (x <- immutableArray)` — java's `for (T x : array)` translates to this. */
+  def foreach[U](f: A => U): Unit = {
+    val it = iterator
+    while (it.hasNext) f(it.next())
+  }
 
   def apply(index: Int): A = if (useDyn) dynArray(index) else bufArray(index)
 
@@ -65,9 +71,8 @@ final class ImmutableArray[A] private (
     }
 
   /** 1-arg overload for sge parity: the hand port's ImmutableArray delegates to Iterable.contains which takes one argument. Forwards to the emitted 2-arg form (the faithful translation of
-    * `ImmutableArray.contains(T, boolean)`) with `identity=false`, java's default. `@targetName` avoids a JVM-level clash with `Iterable.contains[A1 >: A](elem: A1)`, which erases the same.
+    * `ImmutableArray.contains(T, boolean)`) with `identity=false`, java's default.
     */
-  @scala.annotation.targetName("containsValue")
   def contains(value: A): Boolean = contains(value, false)
 
   def indexOf(value: A, identity: Boolean): Int =
@@ -96,13 +101,13 @@ final class ImmutableArray[A] private (
     else Nullable(apply(lowlevel.math.MathUtils.random(sz - 1)))
   }
 
-  def peek: A = if (useDyn) dynArray.peek else bufArray.last
+  def peek: A = if (useDyn) dynArray.peek() else bufArray.last
 
-  def first: A = if (useDyn) dynArray.first else bufArray.head
+  def first: A = if (useDyn) dynArray.head else bufArray.head
 
-  /** Returns a shallow copy of the backing data as a Scala Array[Any]. */
+  /** A shallow copy of the backing data as a Scala Array[Any]. */
   def toArray: Array[Any] =
-    if (useDyn) dynArray.toArray.asInstanceOf[Array[Any]]
+    if (useDyn) dynArray.toArray().asInstanceOf[Array[Any]]
     else bufArray.toArray[Any]
 
   override def hashCode(): Int =
@@ -116,8 +121,15 @@ final class ImmutableArray[A] private (
     case _ => false
   }
 
-  override def iterator: Iterator[A] =
-    if (useDyn) dynArray.iterator else bufArray.iterator
+  /** A Scala Iterator adapter over the backing data. */
+  def iterator: Iterator[A] =
+    if (useDyn) {
+      val ji = dynArray.iterator()
+      new Iterator[A] {
+        def hasNext: Boolean = ji.hasNext()
+        def next():  A       = ji.next()
+      }
+    } else bufArray.iterator
 
   override def toString(): String =
     if (useDyn) dynArray.toString() else bufArray.mkString("[", ", ", "]")

@@ -1,0 +1,28 @@
+#family	upstream	reference	target
+Parenless	com.badlogic.ashley.core.Engine#getEntities	def getEntities: ImmutableArray[Entity]
+Parenless	com.badlogic.ashley.core.Engine#getSystems	def getSystems: ImmutableArray[EntitySystem]
+Parenless	com.badlogic.ashley.core.Entity#getComponents	def getComponents: ImmutableArray[Component]
+Parenless	com.badlogic.ashley.core.Entity#getComponentBits	def getComponentBits: Bits
+Parenless	com.badlogic.ashley.core.Entity#isScheduledForRemoval	def isScheduledForRemoval: Boolean
+Parenless	com.badlogic.ashley.core.Entity#isRemoving	def isRemoving: Boolean
+Parenless	com.badlogic.ashley.core.EntitySystem#checkProcessing	def checkProcessing: Boolean
+Parenless	com.badlogic.ashley.core.EntityManager#getEntities	def getEntities: ImmutableArray[Entity]
+Parenless	com.badlogic.ashley.core.EntityManager#hasPendingOperations	def hasPendingOperations: Boolean
+Parenless	com.badlogic.ashley.core.SystemManager#getSystems	def getSystems: ImmutableArray[EntitySystem]
+Parenless	com.badlogic.ashley.core.FamilyManager#notifying	def notifying: Boolean
+Parenless	com.badlogic.ashley.core.ComponentOperationHandler#hasOperationsToProcess	def hasOperationsToProcess: Boolean
+Parenless	com.badlogic.ashley.utils.Bag#size	def size: Int
+Parenless	com.badlogic.ashley.utils.Bag#getCapacity	def getCapacity: Int
+Parenless	com.badlogic.ashley.utils.Bag#isEmpty	def isEmpty: Boolean
+Parenless	com.badlogic.ashley.utils.ImmutableArray#size	def size: Int
+Parenless	com.badlogic.ashley.systems.IteratingSystem#getEntities	def getEntities: ImmutableArray[Entity]
+Parenless	com.badlogic.ashley.systems.IteratingSystem#getFamily	def getFamily: Family
+Parenless	com.badlogic.ashley.systems.SortedIteratingSystem#getEntities	def getEntities: ImmutableArray[Entity]
+Parenless	com.badlogic.ashley.systems.SortedIteratingSystem#getFamily	def getFamily: Family
+Parenless	com.badlogic.ashley.systems.IntervalSystem#getInterval	def getInterval: Float
+Parenless	com.badlogic.ashley.systems.IntervalIteratingSystem#getEntities	def getEntities: ImmutableArray[Entity]
+Parenless	com.badlogic.ashley.systems.IntervalIteratingSystem#getFamily	def getFamily: Family
+KeepParens	com.badlogic.ashley.core.Engine#createEntity	def createEntity(): Entity
+KeepParens	com.badlogic.ashley.core.Engine#removeAllEntities	def removeAllEntities(): Unit
+FieldName	com.badlogic.ashley.core.ComponentType#getIndex	index
+Property	com.badlogic.ashley.core.ComponentType#getIndex	def index: Int

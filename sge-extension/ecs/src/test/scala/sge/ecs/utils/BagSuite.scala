@@ -10,9 +10,9 @@ class BagSuite extends munit.FunSuite {
     bag.add("b")
     bag.add("c")
     assertEquals(bag.size, 3)
-    assertEquals(bag.get(0), "a")
-    assertEquals(bag.get(1), "b")
-    assertEquals(bag.get(2), "c")
+    assertEquals(bag.get(0), lowlevel.Nullable("a"))
+    assertEquals(bag.get(1), lowlevel.Nullable("b"))
+    assertEquals(bag.get(2), lowlevel.Nullable("c"))
   }
 
   test("set specific index") {
@@ -24,13 +24,13 @@ class BagSuite extends munit.FunSuite {
 
     bag.set(1, "d")
     assertEquals(bag.size, 3)
-    assertEquals(bag.get(1), "d")
+    assertEquals(bag.get(1), lowlevel.Nullable("d"))
   }
 
   test("set beyond capacity auto-grows") {
     val bag = new Bag[String](4)
     bag.set(10, "x")
-    assertEquals(bag.get(10), "x")
+    assertEquals(bag.get(10), lowlevel.Nullable("x"))
     assert(bag.size >= 11)
     assert(bag.getCapacity > 10)
   }
@@ -45,8 +45,8 @@ class BagSuite extends munit.FunSuite {
     assertEquals(removed, "a")
     assertEquals(bag.size, 2)
     // Last element "c" was swapped into index 0
-    assertEquals(bag.get(0), "c")
-    assertEquals(bag.get(1), "b")
+    assertEquals(bag.get(0), lowlevel.Nullable("c"))
+    assertEquals(bag.get(1), lowlevel.Nullable("b"))
   }
 
   test("remove by reference") {
@@ -97,8 +97,8 @@ class BagSuite extends munit.FunSuite {
 
   test("get out of bounds returns null") {
     val bag = new Bag[String](4)
-    assertEquals(bag.get(0), null)
-    assertEquals(bag.get(100), null) // beyond capacity
+    assertEquals(bag.get(0), lowlevel.Nullable.empty[String])
+    assertEquals(bag.get(100), lowlevel.Nullable.empty[String]) // beyond capacity
   }
 
   test("isEmpty") {
@@ -122,7 +122,7 @@ class BagSuite extends munit.FunSuite {
     bag.add("b")
     bag.add("c") // should trigger grow
     assertEquals(bag.size, 3)
-    assertEquals(bag.get(2), "c")
+    assertEquals(bag.get(2), lowlevel.Nullable("c"))
     assert(bag.getCapacity > 2)
   }
 }

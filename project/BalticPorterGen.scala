@@ -96,34 +96,41 @@ object BalticPorterGen {
         .toList
         .sorted
 
-      val result = balticporter.runner
-        .PortRun(
-          label = "sge-core",
-          portRoot = portRoot,
-          sourceSet = balticporter.runner.SourceSet.Main,
-          frontend = balticporter.core.FrontendConfig(
-            libgdxSrc,
-            files,
-            sge.port.JnigenClasspath.entries(classpathDir),
-            resolutionRoots = List(libgdxSrc)
-          ),
-          phases = Nil,
-          manifest = Some(manifest),
-          provenance = Some(
-            balticporter.core.Provenance(
-              upstreamName = "libGDX",
-              upstreamCommit = commit,
-              originalLicense = "Apache-2.0",
-              sourcePathPrefix = "gdx/src",
-              sourceRoot = libgdxSrc.toString
-            )
-          ),
-          runtimeMode = balticporter.core.RuntimeMode.Vendored,
-          determinism = balticporter.runner.Determinism.Emission,
-          nextStep = ""
-        )
-        .execute()
-      log.info(s"[Baltic Porter] Generated ${result.written} files to $outDir")
+      // Reports under the shared report root, where dependent ports (sge-ecs) find this port map;
+      // set, run, cleared in finally, as for the lls port below.
+      System.setProperty("balticporter.reportDir", llsReportRoot.resolve("sge-l0").toAbsolutePath.normalize.toString)
+      try {
+        val result = balticporter.runner
+          .PortRun(
+            // the manifest's name: dependents find the port map by the module= field it writes
+            label = "sge-l0",
+            portRoot = portRoot,
+            sourceSet = balticporter.runner.SourceSet.Main,
+            frontend = balticporter.core.FrontendConfig(
+              libgdxSrc,
+              files,
+              sge.port.JnigenClasspath.entries(classpathDir),
+              resolutionRoots = List(libgdxSrc)
+            ),
+            phases = Nil,
+            manifest = Some(manifest),
+            provenance = Some(
+              balticporter.core.Provenance(
+                upstreamName = "libGDX",
+                upstreamCommit = commit,
+                originalLicense = "Apache-2.0",
+                sourcePathPrefix = "gdx/src",
+                sourceRoot = libgdxSrc.toString
+              )
+            ),
+            runtimeMode = balticporter.core.RuntimeMode.Vendored,
+            determinism = balticporter.runner.Determinism.Emission,
+            nextStep = ""
+          )
+          .execute()
+        log.info(s"[Baltic Porter] Generated ${result.written} files to $outDir")
+      } finally
+        System.clearProperty("balticporter.reportDir")
 
       Files.createDirectories(marker.getParent)
       Files.writeString(marker, expected)
@@ -193,6 +200,12 @@ object BalticPorterGen {
     }
     digest.digest().take(8).map(b => f"$b%02x").mkString
   }
+
+  /** The root directory under which every port's reports (port-map.tsv, findings.tsv) are written: `target/balticporter-reports`. Extensions use this as `baseReports` to discover the core's and lls's
+    * published port maps.
+    */
+  def reportRoot(buildBase: File): Path =
+    buildBase.toPath.toAbsolutePath.normalize.resolve("target/balticporter-reports")
 
   /** The generated files of ONE platform row (`jvm`/`js`/`native`, sbt-projectmatrix's names): `src_managed/<row>/scala`, which only that row compiles. Generates first (cached, synchronized), so a
     * row's generator may run before or after the shared one.

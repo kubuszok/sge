@@ -2,8 +2,7 @@ name: Generated port
 description: >
   The Baltic Porter output (target/balticporter-sge) for this commit, generated ONCE per distinct
   input set and shared between jobs and workflows through the Actions cache — see the action this
-  wraps. `generate` needs a full-history checkout (the generator derives sge's spellings from the
-  hand-written core at ONE pinned commit, which is part of the key) and the Scala toolchain; `restore` needs
+  wraps. `generate` needs a full-history checkout and the Scala toolchain; `restore` needs
   neither, and no submodule. sge's own porting policy (sge-port/) and the replacements it reads from sge/src/main/scala are part of the key too.
   The `uses:` line below is the ONE place the shared action's version is pinned.
 
@@ -39,7 +38,16 @@ runs:
         # the lls base's policy: the lls-port artifact, at the version of the lls dependency
         base=$(grep -oE 'val lls += +"[^"]+' project/Versions.scala | head -1 | sed 's/.*"//')
         test -n "$base"
-        echo "tree=$policy-$provided-$base" >> "$GITHUB_OUTPUT"
+        # the ashley submodule commit (sge-ecs depends on it)
+        ashley=$(git ls-tree HEAD original-src/ashley | awk '{print $3}')
+        test -n "$ashley"
+        echo "tree=$policy-$provided-$base-$ashley" >> "$GITHUB_OUTPUT"
+
+    # Init the ashley submodule alongside libgdx (sge-ecs generation needs it)
+    - name: Checkout the ashley submodule
+      if: inputs.mode == 'generate'
+      shell: bash
+      run: git submodule update --init --depth=1 original-src/ashley
 
     - uses: kubuszok/balticporter/.github/actions/generated-port@55be328a2265f34c8d41d30634569229539cf562
       id: port
@@ -49,3 +57,29 @@ runs:
         path: target/balticporter-sge
         submodule: original-src/libgdx
         key-extra: ${{ steps.reference.outputs.tree }}
+
+    # The ecs tree and reports are generated alongside the core tree by `sbt generatePort`.
+    # In `restore` mode the ecs cache must be present (the `generate` job saved it).
+    # In `generate` mode with a cache HIT, sbt did not run — restore the ecs cache too.
+    # In `generate` mode with a cache MISS, sbt ran and produced the ecs tree — save it.
+    - name: Restore the ecs generated tree
+      id: ecs-restore
+      if: inputs.mode == 'restore' || inputs.mode == 'generate'
+      uses: actions/cache/restore@v4
+      with:
+        path: |
+          target/balticporter-sge-ecs
+          target/balticporter-reports
+        key: ${{ steps.port.outputs.key }}-ecs
+        fail-on-cache-miss: ${{ inputs.mode == 'restore' }}
+        enableCrossOsArchive: true
+
+    - name: Save the ecs generated tree
+      if: inputs.mode == 'generate' && steps.ecs-restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: |
+          target/balticporter-sge-ecs
+          target/balticporter-reports
+        key: ${{ steps.port.outputs.key }}-ecs
+        enableCrossOsArchive: true

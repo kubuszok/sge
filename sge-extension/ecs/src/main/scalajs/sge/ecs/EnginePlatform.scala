@@ -26,4 +26,8 @@ private[ecs] object EnginePlatform {
 
   def createComponentReflectively[T <: Component](componentType: Class[T]): Nullable[T] =
     Nullable.empty[T] // Engine.java:70-72 — no JS reflection; unregistered resolves to null-equivalent
+
+  /** Delegate target for RegistryTransform.Miss.Delegate: takes Class[T], returns T (null on failure). */
+  def createComponentOrNull[T <: Component](componentType: Class[T]): T =
+    null.asInstanceOf[T] // no JS reflection
 }

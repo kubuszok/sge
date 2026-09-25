@@ -24,10 +24,8 @@ final class ComponentPool[T](componentType: Class[T], initialSize: Int, maxSize:
       // (this pool is only ever built from `PooledEngine.ComponentPools`), but the static bound
       // cannot say so without breaking the call site.
       ComponentFactories.create(componentType.asInstanceOf[Class[? <: Component]]).asInstanceOf[T]
-
-    /** Return an instance to the pool, resetting it first when it is `Poolable` — upstream's contract, and the reason a pooled component does not carry state across uses.
-      */
   }
+
   def free(obj: T): Unit =
     if (obj != null) {
       obj match {
@@ -39,7 +37,7 @@ final class ComponentPool[T](componentType: Class[T], initialSize: Int, maxSize:
     }
   def clear(): Unit = free.clear()
 
-  /** how many instances are currently pooled — upstream's `Pool.getFree`. */
+  /** how many instances are currently pooled -- upstream's `Pool.getFree`. */
   def getFree: Int = free.size
 
 }

@@ -45,7 +45,6 @@ sge-extension/colorful/src/main/scala/sge/colorful/oklab/TextureArrayColorfulBat
 sge-extension/colorful/src/main/scala/sge/colorful/rgb/ColorfulBatch.scala	shortcut-drift	2
 sge-extension/colorful/src/main/scala/sge/colorful/rgb/TextureArrayColorfulBatch.scala	shortcut-drift	2
 sge-extension/colorful/src/main/scala/sge/colorful/ycwcm/ColorfulBatch.scala	shortcut-drift	1
-sge-extension/ecs/src/main/scala/sge/ecs/Engine.scala	shortcut-drift	1
 sge-extension/gltf/src/main/scala/sge/gltf/data/GLTFCodecs.scala	shortcut-drift	64
 sge-extension/gltf/src/main/scala/sge/gltf/data/extensions/KHRLightsPunctual.scala	shortcut-drift	1
 sge-extension/gltf/src/main/scala/sge/gltf/exporters/GLTFCameraExporter.scala	shortcut-drift	5

@@ -38,4 +38,13 @@ private[ecs] object EnginePlatform {
       // ashley Class.newInstance propagates a constructor's own exception unwrapped; do not swallow it
       case e: InvocationTargetException => throw e.getCause
     }
+
+  /** Delegate target for RegistryTransform.Miss.Delegate: takes Class[T], returns T (null on failure). Called by the minted ComponentFactories.create on registry miss.
+    */
+  def createComponentOrNull[T <: Component](componentType: Class[T]): T =
+    try componentType.getConstructor().newInstance()
+    catch {
+      case _: NoSuchMethodException | _: InstantiationException | _: IllegalAccessException => null.asInstanceOf[T]
+      case e: InvocationTargetException => throw e.getCause
+    }
 }
