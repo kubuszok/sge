@@ -1988,8 +1988,8 @@ object LibgdxLadder {
       "com.badlogic.gdx.utils.reflect.ArrayReflection",
       "com.badlogic.gdx.utils.reflect.ClassReflection",
       "com.badlogic.gdx.utils.reflect.Constructor",
-      "com.badlogic.gdx.utils.reflect.Method",
-      "com.badlogic.gdx.utils.reflect.ReflectionException"
+      "com.badlogic.gdx.utils.reflect.Method"
+      // `ReflectionException` is kept: a plain `Exception` subclass, ported from java like any other
     )
   ).withDefaultValue(Set.empty)
 
@@ -1998,7 +1998,7 @@ object LibgdxLadder {
     */
   def stepInjects(overrides: Path): Map[String, List[Path]] = Map(
     "helpers" -> List(overrides.resolve("helpers")),
-    // the reflection-free `Json`, `ReflectionException` and the asset-type registry
+    // the reflection-free `Json` and the asset-type registry
     "reflection" -> List(overrides.resolve("reflection")),
     "context" -> List(overrides.resolve("context")),
     "align" -> List(overrides.resolve("align")),
