@@ -11,7 +11,8 @@ addSbtPlugin("com.kubuszok" % "sbt-kubuszok" % "0.2.3")
 addSbtPlugin("com.kubuszok" % "sbt-multiarch-scala" % "0.4.0")
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 // sge pins the engine directly while lls-port carries lls's own engine pin; two hash versions
-// are not comparable under early-semver, and sge's pin decides.
+// are not comparable under early-semver, and eviction alone picks whichever compares HIGHER,
+// which can silently be lls-port's — so the `dependencyOverrides` below the pin makes sge's decide.
 ThisBuild / libraryDependencySchemes += "com.kubuszok" %% "balticporter-engine" % VersionScheme.Always
 // jsdom DOM environment for Scala.js unit tests of browser components (ISS-672/ISS-536):
 // the default Node.js Scala.js env has no document/window, so DOM-touching tests (e.g.
@@ -27,7 +28,8 @@ libraryDependencies += ("org.scala-js" % "scalajs-env-jsdom-nodejs_2.13" % "1.1.
 // Baltic Porter: Java->Scala 3 porting engine, runs as a sourceGenerator. The engine names no library:
 // how libGDX is ported is sge's own policy (sge-port/, compiled into this meta-build by project/build.sbt).
 resolvers += "Central Portal Snapshots" at "https://central.sonatype.com/repository/maven-snapshots"
-libraryDependencies += "com.kubuszok" %% "balticporter-engine" % "e0fbb74a5741682f279938ebfd7b2ad2a8aa0229-SNAPSHOT"
+libraryDependencies += "com.kubuszok" %% "balticporter-engine" % "3ad98e43247f9e65eb0002f6c3821f44f76d0b93-SNAPSHOT"
+dependencyOverrides += "com.kubuszok" %% "balticporter-engine" % "3ad98e43247f9e65eb0002f6c3821f44f76d0b93-SNAPSHOT"
 // sge's port is a dependent of the lls port: the base's policy is lls's own, published as lls-port at the
 // version of the lls dependency itself (`Versions.lls`, read as text: this file cannot see the meta-build's sources).
 libraryDependencies += "com.kubuszok" %% "lls-port" % {
