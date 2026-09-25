@@ -3,8 +3,8 @@ package sge.port
 import balticporter.tir.RuleScope
 import balticporter.transform.CallSiteSubstitutionTransform.Entry
 
-/** sge's `SgeError` in place of libGDX's `GdxRuntimeException` and `SerializationException`: every constructor call becomes an `SgeError` variant carrying java's message and cause. The variant
-  * is sge's API (its tests and callers match on it), so a member where sge's hand port chose a variant gets that one; everywhere else a `GdxRuntimeException` is `InvalidInput` and a
+/** sge's `SgeError` in place of libGDX's `GdxRuntimeException` and `SerializationException`: every constructor call becomes an `SgeError` variant carrying java's message and cause. The variant is
+  * sge's API (its tests and callers match on it), so a member where sge's hand port chose a variant gets that one; everywhere else a `GdxRuntimeException` is `InvalidInput` and a
   * `SerializationException` `SerializationError`. A member whose hand port threw a JDK exception instead keeps java's type, mapped to the default.
   */
 object LibgdxExceptions {
@@ -17,11 +17,11 @@ object LibgdxExceptions {
   private def template(exception: String, overload: String, variant: String): String = {
     val v = s"sge.utils.SgeError.$variant"
     overload match {
-      case "(String)"           => s"$v({arg0})"
-      case "(String,Throwable)" => s"$v({arg0}, scala.Option({arg1}))"
+      case "(String)"                        => s"$v({arg0})"
+      case "(String,Throwable)"              => s"$v({arg0}, scala.Option({arg1}))"
       case "(Throwable)" if exception == Ser => s"""$v("", scala.Option({arg0}))"""
-      case "(Throwable)"        => s"{{ val bpCause: java.lang.Throwable = {arg0}; $v(if (bpCause == null) null else bpCause.toString, scala.Option(bpCause)) }}"
-      case other                => sys.error(s"no SgeError template for the constructor overload $other")
+      case "(Throwable)"                     => s"{{ val bpCause: java.lang.Throwable = {arg0}; $v(if (bpCause == null) null else bpCause.toString, scala.Option(bpCause)) }}"
+      case other                             => sys.error(s"no SgeError template for the constructor overload $other")
     }
   }
 
@@ -32,8 +32,8 @@ object LibgdxExceptions {
     Overloads.map(o => Entry(s"$Gdx#<init>$o", template(Gdx, o, "InvalidInput"))) ++
       Overloads.map(o => Entry(s"$Ser#<init>$o", template(Ser, o, "SerializationError")))
 
-  /** Per variant, the `GdxRuntimeException` constructions sge's hand port gave that variant: the enclosing member and the constructor overload called there. `JsonReader` is not here although the
-    * hand port threw `InvalidInput`: java's tiled-map loaders catch its `SerializationException`, and a different variant would escape that catch.
+  /** Per variant, the `GdxRuntimeException` constructions sge's hand port gave that variant: the enclosing member and the constructor overload called there. `JsonReader` is not here although the hand
+    * port threw `InvalidInput`: java's tiled-map loaders catch its `SerializationException`, and a different variant would escape that catch.
     */
   val HandPortVariants: Map[String, List[(String, String)]] = Map(
     "GraphicsError" -> List(
@@ -117,8 +117,8 @@ object LibgdxExceptions {
     )
   )
 
-  /** Per variant, the `FileHandle` members whose `GdxRuntimeException` sge's hand port made a file error naming the handle itself (`FileReadError` also where it writes, as the hand port has it).
-    * The loaders that named a file handle they hold in a local keep the default: a template can name the enclosing instance, not a local.
+  /** Per variant, the `FileHandle` members whose `GdxRuntimeException` sge's hand port made a file error naming the handle itself (`FileReadError` also where it writes, as the hand port has it). The
+    * loaders that named a file handle they hold in a local keep the default: a template can name the enclosing instance, not a local.
     */
   val HandPortFileVariants: Map[String, List[(String, String)]] = Map(
     "FileReadError" -> List(
@@ -163,7 +163,11 @@ object LibgdxExceptions {
       sites.map((member, overload) => Entry(s"$Gdx#<init>$overload", template(Gdx, overload, variant), RuleScope.Only(Set(member))))
     } ++ HandPortFileVariants.toList.sortBy(_._1).flatMap { (variant, sites) =>
       sites.map((member, overload) =>
-        Entry(s"$Gdx#<init>$overload", fileTemplate(overload, variant), RuleScope.Only(Set(s"com.badlogic.gdx.files.FileHandle#$member")))
+        Entry(
+          s"$Gdx#<init>$overload",
+          fileTemplate(overload, variant),
+          RuleScope.Only(Set(s"com.badlogic.gdx.files.FileHandle#$member"))
+        )
       )
     }
 
@@ -177,8 +181,8 @@ object LibgdxExceptions {
     s"$AssetManager#get(AssetDescriptor)" -> "this.get[T](assetDescriptor.fileName, assetDescriptor.`type`, false)"
   )
 
-  /** core's own callers of those two keep java's throw: the `required = true` lookup java's bodies delegated to. The one call by name alone reads a texture, which the template states because a
-    * lookup by name alone takes its type from the call site.
+  /** core's own callers of those two keep java's throw: the `required = true` lookup java's bodies delegated to. The one call by name alone reads a texture, which the template states because a lookup
+    * by name alone takes its type from the call site.
     */
   val AssetManagerRequiredCalls: List[Entry] = List(
     Entry(
