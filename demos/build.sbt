@@ -93,9 +93,12 @@ val shared = (projectMatrix in file("shared"))
     name           := "sge-demos-shared",
     organization   := "com.kubuszok",
     publish / skip := true,
-    // the same lls sge itself depends on (project/Versions.scala `lls`): a second spelling here is an
-    // eviction error under early-semver ("0.3.0-…-SNAPSHOT is selected over 0.3.0", CI run 35115474743)
-    libraryDependencies += "com.kubuszok" %% "lls" % "0.3.0-50-ged7e53f-SNAPSHOT"
+    // the same lls sge itself depends on, read from sge's project/Versions.scala: a second spelling
+    // here went stale on an lls bump and is an eviction error under early-semver
+    libraryDependencies += "com.kubuszok" %% "lls" % {
+      val versions = IO.read((ThisBuild / baseDirectory).value.getParentFile / "project" / "Versions.scala")
+      """val lls\s*=\s*"([^"]+)"""".r.findFirstMatchIn(versions).map(_.group(1)).getOrElse(sys.error("project/Versions.scala states no lls version"))
+    }
   )
   .jvmPlatform(desktopSources("shared"))
   .jsPlatform()
