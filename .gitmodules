@@ -40,3 +40,6 @@
 [submodule "original-src/gdx-controllers"]
 	path = original-src/gdx-controllers
 	url = https://github.com/libgdx/gdx-controllers.git
+[submodule "original-src/guacamole"]
+	path = original-src/guacamole
+	url = https://github.com/crykn/guacamole.git

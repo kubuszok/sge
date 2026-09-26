@@ -971,6 +971,8 @@ val `sge-screens` = (projectMatrix in file("sge-extension/screens"))
   .settings(publishSettings)
   .settings(mimaSettings)
   .settings(name := "sge-extension-screens")
+  // guacamole, screenmanager's second dependency, generated into this module
+  .settings(balticPorterExtSettings(BalticPorterExtGen.Guacamole) *)
   .dependsOn(sge)
 
 val `sge-textra` = (projectMatrix in file("sge-extension/textra"))

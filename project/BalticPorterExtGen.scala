@@ -41,7 +41,13 @@ object BalticPorterExtGen {
     classpath:     Ctx => List[Path] = _ => Nil,
     testClasspath: Ctx => List[Path] = _ => Nil,
     // a base port that retypes onto the support types ships them itself; a dependent reads core's
-    runtimeMode: balticporter.core.RuntimeMode = balticporter.core.RuntimeMode.Dependency
+    runtimeMode: balticporter.core.RuntimeMode = balticporter.core.RuntimeMode.Dependency,
+    // the main set's java files, relative to `mainDir` (an upstream with several source roots names them here)
+    include: String => Boolean = _ => true,
+    // other extensions this one depends on: generated first, so their port maps are published
+    bases: List[Ext] = Nil,
+    // java source roots it resolves against beyond libGDX's (a base extension's upstream tree)
+    resolutionRoots: Ctx => List[Path] = _ => Nil
   ) {
     def module: String = s"sge-$id"
   }
@@ -55,6 +61,21 @@ object BalticPorterExtGen {
     dependent = false,
     main = ctx => sge.port.ext.noise4j.Noise4jPolicy.core(ctx.sgeRoot),
     policy = rel => rel.startsWith("src/main/scala/sge/port/ext/noise4j/") || rel == "noise-derived-policy.tsv"
+  )
+
+  // guacamole's `core` and `gdx` modules (the GWT and desktop modules are platform backends sge does not
+  // take): screenmanager's second dependency, a dependent of sge-core since its `gdx` module reads libGDX
+  val Guacamole: Ext = Ext(
+    id = "guacamole",
+    upstreamName = "guacamole",
+    license = "Apache-2.0",
+    submodule = "original-src/guacamole",
+    mainDir = ".",
+    dependent = true,
+    main = ctx => sge.port.ext.guacamole.GuacamolePolicy.core(ctx.core, List(ctx.reportRoot)),
+    policy = rel => rel.startsWith("src/main/scala/sge/port/ext/guacamole/"),
+    classpath = ctx => sge.port.ext.guacamole.GuacamolePolicy.classpath(ctx.sgeRoot),
+    include = f => f.startsWith("core/src/main/java/") || f.startsWith("gdx/src/main/java/")
   )
 
   val Anim8: Ext = Ext(
@@ -84,7 +105,6 @@ object BalticPorterExtGen {
     testClasspath = ctx => sge.port.ext.simplegraphs.SimpleGraphsPolicy.testClasspath(ctx.sgeRoot)
   )
 
-  // not wired into sge-jbump yet: the generated World does not compile (ISS-903)
   val Jbump: Ext = Ext(
     id = "jbump",
     upstreamName = "jbump",
@@ -130,6 +150,7 @@ object BalticPorterExtGen {
     if (!cached) {
       // a dependent reads sge-core's published port map, so sge-core is generated first (cached)
       if (ext.dependent) BalticPorterGen.generate(buildBase, log)
+      ext.bases.foreach(b => run(b, buildBase, log, testRun = false))
       val reportRoot = BalticPorterGen.reportRoot(buildBase)
       val ctx        = Ctx(sgeRoot, reportRoot)
       val manifest   = (if (testRun) ext.test.get else ext.main) (ctx)
@@ -143,11 +164,12 @@ object BalticPorterExtGen {
         .filter(p => p.toString.endsWith(".java"))
         .map(p => srcRoot.relativize(p).toString.replace('\\', '/'))
         .filterNot(f => f.endsWith("package-info.java") || f.endsWith("module-info.java"))
+        .filter(f => testRun || ext.include(f))
         .toList
         .sorted
 
       val libgdxSrc   = sgeRoot.resolve("original-src/libgdx/gdx/src")
-      val resolutions = (if (testRun) List(mainRoot) else Nil) ++ (if (ext.dependent) List(libgdxSrc) else Nil)
+      val resolutions = (if (testRun) List(mainRoot) else Nil) ++ (if (ext.dependent) List(libgdxSrc) else Nil) ++ ext.resolutionRoots(ctx)
       val classpath   = (if (testRun) ext.testClasspath(ctx) else Nil) ++ ext.classpath(ctx) ++
         (if (ext.dependent) sge.port.JnigenClasspath.entries(sgeRoot.resolve("target/balticporter-classpath")) else Nil)
 
@@ -214,6 +236,12 @@ object BalticPorterExtGen {
       )
     val source    = Files.readString(sgeRoot.resolve("project/BalticPorterExtGen.scala")).replace("\r", "")
     val generator = java.security.MessageDigest.getInstance("SHA-256").digest(source.getBytes("UTF-8")).take(8).map(b => f"$b%02x").mkString
-    s"${BalticPorterGen.fingerprint(sgeRoot)} ${ext.id}=$upstream ext-generator=$generator ${ext.id}-policy=${BalticPorterGen.extensionPolicyHash(sgeRoot, ext.policy)}"
+    s"${BalticPorterGen.fingerprint(sgeRoot)} ${extensionInputs(ext, sgeRoot, upstream, generator)}"
+  }
+
+  /** One extension's own inputs, then each base extension's (a base's tree is an input of its dependents). */
+  private def extensionInputs(ext: Ext, sgeRoot: Path, upstream: String, generator: String): String = {
+    val own = s"${ext.id}=$upstream ext-generator=$generator ${ext.id}-policy=${BalticPorterGen.extensionPolicyHash(sgeRoot, ext.policy)}"
+    (own :: ext.bases.map(b => fingerprint(b, sgeRoot).split(' ').dropWhile(!_.startsWith(s"${b.id}=")).mkString(" "))).mkString(" ")
   }
 }
