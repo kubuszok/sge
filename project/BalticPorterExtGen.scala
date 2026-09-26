@@ -57,6 +57,18 @@ object BalticPorterExtGen {
     policy = rel => rel.startsWith("src/main/scala/sge/port/ext/noise4j/") || rel == "noise-derived-policy.tsv"
   )
 
+  // not wired into sge-jbump yet: the generated World does not compile (ISS-903)
+  val Jbump: Ext = Ext(
+    id = "jbump",
+    upstreamName = "jbump",
+    license = "Apache-2.0",
+    submodule = "original-src/jbump",
+    mainDir = "jbump/src",
+    dependent = false,
+    main = ctx => sge.port.ext.jbump.JbumpPolicy.core(ctx.sgeRoot),
+    policy = rel => rel.startsWith("src/main/scala/sge/port/ext/jbump/") || rel.startsWith("overrides-ext/jbump/") || rel == "jbump-derived-policy.tsv"
+  )
+
   /** Generate the extension's main sources. Returns the generated files. */
   def generate(ext: Ext, buildBase: File, log: sbt.util.Logger): Seq[File] =
     BalticPorterGen.synchronized(run(ext, buildBase, log, testRun = false))

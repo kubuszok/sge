@@ -1,0 +1,39 @@
+#family	upstream	reference	target
+KeepName	com.dongbat.jbump.Collisions#isEmpty	def isEmpty	
+KeepName	com.dongbat.jbump.World#getCells	def getCells	
+KeepName	com.dongbat.jbump.World#getCellsTouchedByRay	def getCellsTouchedByRay	
+KeepName	com.dongbat.jbump.World#getCellsTouchedBySegment	def getCellsTouchedBySegment	
+KeepName	com.dongbat.jbump.World#getItems	def getItems	
+KeepName	com.dongbat.jbump.World#getRect	def getRect	
+KeepName	com.dongbat.jbump.World#getRects	def getRects	
+KeepParens	com.dongbat.jbump.IntPoint#hashCode	def hashCode(): Int	
+KeepParens	com.dongbat.jbump.Item#hashCode	def hashCode(): Int	
+KeepParens	com.dongbat.jbump.Point#hashCode	def hashCode(): Int	
+NullableMember	com.dongbat.jbump.Collision#item:field	Nullable[Item[?]]	
+NullableMember	com.dongbat.jbump.Collision#other:field	Nullable[Item[?]]	
+NullableMember	com.dongbat.jbump.Collision#type:field	Nullable[Response]	
+NullableMember	com.dongbat.jbump.CollisionFilter#filter	Nullable[Response]	
+NullableMember	com.dongbat.jbump.CollisionFilter#filter#item	Nullable[Item[?]]	
+NullableMember	com.dongbat.jbump.CollisionFilter#filter#other	Nullable[Item[?]]	
+NullableMember	com.dongbat.jbump.Collisions#add(boolean,float,float,float,int,int,float,float,float,float,float,float,float,float,float,float,Item,Item,Response)#item	Nullable[Item[?]]	
+NullableMember	com.dongbat.jbump.Collisions#add(boolean,float,float,float,int,int,float,float,float,float,float,float,float,float,float,float,Item,Item,Response)#other	Nullable[Item[?]]	
+NullableMember	com.dongbat.jbump.Collisions#add(boolean,float,float,float,int,int,float,float,float,float,float,float,float,float,float,float,Item,Item,Response)#type	Nullable[Response]	
+NullableMember	com.dongbat.jbump.Collisions#get	Nullable[Collision]	
+NullableMember	com.dongbat.jbump.Item#<init>(E)#userData	Nullable[$0]	
+NullableMember	com.dongbat.jbump.Item#userData:field	Nullable[$0]	
+NullableMember	com.dongbat.jbump.RectHelper#rect_detectCollision	Nullable[Collision]	
+NullableMember	com.dongbat.jbump.World#project(Item,float,float,float,float,float,float,CollisionFilter,Collisions)#item	Nullable[Item[?]]	
+NullableMember	com.dongbat.jbump.World#project(Item,float,float,float,float,float,float,Collisions)#item	Nullable[Item[?]]	
+Parenless	com.dongbat.jbump.Collisions#isEmpty	def isEmpty: Boolean	
+Parenless	com.dongbat.jbump.Collisions#size	def size: Int	
+Parenless	com.dongbat.jbump.IntPoint#toString	def toString: String	
+Parenless	com.dongbat.jbump.Point#toString	def toString: String	
+Parenless	com.dongbat.jbump.World#countCells	def countCells: Int	
+Parenless	com.dongbat.jbump.World#countItems	def countItems: Int	
+Parenless	com.dongbat.jbump.World#getCells	def getCells: Iterable[Cell]	
+Parenless	com.dongbat.jbump.World#getItems	def getItems: collection.Set[Item[?]]	
+Parenless	com.dongbat.jbump.World#getRects	def getRects: Iterable[Rect]	
+Property	com.dongbat.jbump.World#getCellSize	var cellSize	cellSize
+Property	com.dongbat.jbump.World#isTileMode	var tileMode	tileMode
+PropertySetter	com.dongbat.jbump.World#setTileMode	var tileMode	tileMode
+Protected	com.dongbat.jbump.Item#identityHash:field	protected identityHash	

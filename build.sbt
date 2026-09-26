@@ -291,7 +291,8 @@ def balticPorterExtSettings(ext: BalticPorterExtGen.Ext): Seq[Setting[?]] = Seq(
     BalticPorterExtGen.generateTests(ext, (ThisBuild / baseDirectory).value, streams.value.log)
   }.taskValue,
   Test / managedSourceDirectories += (ThisBuild / baseDirectory).value / "target" / s"balticporter-${ext.module}" / "src_managed" / "test" / "scala",
-  scalacOptions += s"-Wconf:src=target/balticporter-${ext.module}/.*:s"
+  // uncached: sbt 2 keys a cached task by its code, and every extension shares this line
+  scalacOptions += Def.uncached(s"-Wconf:src=target/balticporter-${ext.module}/.*:s")
 )
 
 // Scala.js has no classpath: multiarch embeds ONE directory (`Compile / resourceDirectory`), so the port's
