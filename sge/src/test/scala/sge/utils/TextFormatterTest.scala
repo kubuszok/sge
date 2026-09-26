@@ -72,7 +72,7 @@ class TextFormatterTest extends munit.FunSuite {
 
   test("null argument array throws NullPointerException, as java does") {
     intercept[NullPointerException] {
-      fmt.format("{0}", null)
+      fmt.format("{0}", (null: Array[Object])*)
     }
   }
 }
