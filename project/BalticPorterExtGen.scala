@@ -69,6 +69,22 @@ object BalticPorterExtGen {
     policy = rel => rel.startsWith("src/main/scala/sge/port/ext/anim8/") || rel.startsWith("overrides-ext/anim8/") || rel == "anim8-derived-policy.tsv"
   )
 
+  // not wired into sge-graphs yet: the generated sources do not compile (ISS-906); wired, sge-graphs
+  // must depend on sge, whose tree ships the java-collection support types the port extends
+  val Graphs: Ext = Ext(
+    id = "graphs",
+    upstreamName = "simple-graphs",
+    license = "MIT",
+    submodule = "original-src/simple-graphs",
+    mainDir = "src/main/java",
+    dependent = false,
+    main = ctx => sge.port.ext.simplegraphs.SimpleGraphsPolicy.core(ctx.sgeRoot),
+    policy = rel => rel.startsWith("src/main/scala/sge/port/ext/simplegraphs/") || rel.startsWith("overrides-ext/graphs") || rel == "graphs-derived-policy.tsv",
+    testDir = Some("src/test/java"),
+    test = Some(ctx => sge.port.ext.simplegraphs.SimpleGraphsPolicy.test(ctx.sgeRoot, List(ctx.reportRoot))),
+    testClasspath = ctx => sge.port.ext.simplegraphs.SimpleGraphsPolicy.testClasspath(ctx.sgeRoot)
+  )
+
   // not wired into sge-jbump yet: the generated World does not compile (ISS-903)
   val Jbump: Ext = Ext(
     id = "jbump",

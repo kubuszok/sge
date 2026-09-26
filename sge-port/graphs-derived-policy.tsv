@@ -1,0 +1,194 @@
+#family	upstream	reference	target
+KeepName	space.earlygrey.simplegraphs.BinaryHeap#isEmpty	def isEmpty	
+KeepName	space.earlygrey.simplegraphs.BinaryHeap#setValue	def setValue	
+KeepName	space.earlygrey.simplegraphs.DirectedGraph#getInDegree	def getInDegree	
+KeepName	space.earlygrey.simplegraphs.DirectedGraph#getInEdges	def getInEdges	
+KeepName	space.earlygrey.simplegraphs.DirectedGraph#getOutDegree	def getOutDegree	
+KeepName	space.earlygrey.simplegraphs.Graph#getEdge(Node,Node)	def getEdge	
+KeepName	space.earlygrey.simplegraphs.Graph#getEdge(V,V)	def getEdge	
+KeepName	space.earlygrey.simplegraphs.Graph#getEdges(V)	def getEdges	
+KeepName	space.earlygrey.simplegraphs.Graph#getNode	def getNode	
+KeepName	space.earlygrey.simplegraphs.Graph#getNodes	def getNodes	
+KeepName	space.earlygrey.simplegraphs.Graph#isConnected	def isConnected	
+KeepName	space.earlygrey.simplegraphs.Graph#isDirected	def isDirected	
+KeepName	space.earlygrey.simplegraphs.Graph#setDefaultEdgeWeight(WeightFunction)	def setDefaultEdgeWeight	
+KeepName	space.earlygrey.simplegraphs.Graph#setDefaultEdgeWeight(float)	def setDefaultEdgeWeight	
+KeepName	space.earlygrey.simplegraphs.Node#getEdge	def getEdge	
+KeepName	space.earlygrey.simplegraphs.NodeMap#getIndex(int,int)	def getIndex	
+KeepName	space.earlygrey.simplegraphs.Path#setFixed	def setFixed	
+KeepName	space.earlygrey.simplegraphs.UndirectedGraph#getDegree	def getDegree	
+KeepName	space.earlygrey.simplegraphs.UndirectedGraph#isDirected	def isDirected	
+KeepName	space.earlygrey.simplegraphs.algorithms.AStarSearch#getEnd	def getEnd	
+KeepName	space.earlygrey.simplegraphs.algorithms.AStarSearch#getPath	def getPath	
+KeepName	space.earlygrey.simplegraphs.algorithms.AStarSearch#isFinished	def isFinished	
+KeepName	space.earlygrey.simplegraphs.algorithms.Algorithm#isFinished	def isFinished	
+KeepName	space.earlygrey.simplegraphs.algorithms.Algorithms#isConnected	def isConnected	
+KeepName	space.earlygrey.simplegraphs.algorithms.BreadthFirstSearch#isFinished	def isFinished	
+KeepName	space.earlygrey.simplegraphs.algorithms.CycleDetector#isFinished	def isFinished	
+KeepName	space.earlygrey.simplegraphs.algorithms.DepthFirstSearch#isFinished	def isFinished	
+KeepName	space.earlygrey.simplegraphs.algorithms.MinimumWeightSpanningTree#getSpanningTree	def getSpanningTree	
+KeepName	space.earlygrey.simplegraphs.algorithms.MinimumWeightSpanningTree#isFinished	def isFinished	
+KeepName	space.earlygrey.simplegraphs.utils.Heuristic#getEstimate	def getEstimate	
+KeepName	space.earlygrey.simplegraphs.utils.WeightFunction#getWeight	def getWeight	
+KeepParens	space.earlygrey.simplegraphs.BinaryHeap#hashCode	def hashCode(): Int	
+KeepParens	space.earlygrey.simplegraphs.BinaryHeap#pop	def pop(): Node[$0]	
+KeepParens	space.earlygrey.simplegraphs.BinaryHeap#toString	def toString(): String	
+KeepParens	space.earlygrey.simplegraphs.DirectedGraph#createNew	def createNew(): DirectedGraph[$0]	
+KeepParens	space.earlygrey.simplegraphs.DirectedGraph#obtainEdge	def obtainEdge(): Connection[$0]	
+KeepParens	space.earlygrey.simplegraphs.DirectedGraph#topologicalSort	def topologicalSort(): Boolean	
+KeepParens	space.earlygrey.simplegraphs.Graph#createNew	def createNew(): Graph[$0]	
+KeepParens	space.earlygrey.simplegraphs.Graph#numberOfComponents	def numberOfComponents(): Int	
+KeepParens	space.earlygrey.simplegraphs.Graph#obtainEdge	def obtainEdge(): Connection[$0]	
+KeepParens	space.earlygrey.simplegraphs.Node#hashCode	def hashCode(): Int	
+KeepParens	space.earlygrey.simplegraphs.NodeMap#topologicalSort	def topologicalSort(): Boolean	
+KeepParens	space.earlygrey.simplegraphs.UndirectedGraph#createNew	def createNew(): UndirectedGraph[$0]	
+KeepParens	space.earlygrey.simplegraphs.UndirectedGraph#obtainEdge	def obtainEdge(): Connection[$0]	
+KeepParens	space.earlygrey.simplegraphs.algorithms.AStarSearch#update	def update(): Boolean	
+KeepParens	space.earlygrey.simplegraphs.algorithms.Algorithm#update	def update(): Boolean	
+KeepParens	space.earlygrey.simplegraphs.algorithms.Algorithms#containsCycle	def containsCycle(): Boolean	
+KeepParens	space.earlygrey.simplegraphs.algorithms.Algorithms#requestRunID	def requestRunID(): Int	
+KeepParens	space.earlygrey.simplegraphs.algorithms.BreadthFirstSearch#update	def update(): Boolean	
+KeepParens	space.earlygrey.simplegraphs.algorithms.CycleDetector#update	def update(): Boolean	
+KeepParens	space.earlygrey.simplegraphs.algorithms.DepthFirstSearch#update	def update(): Boolean	
+KeepParens	space.earlygrey.simplegraphs.algorithms.MinimumWeightSpanningTree#update	def update(): Boolean	
+KeepParens	space.earlygrey.simplegraphs.algorithms.SearchStep#createPath	def createPath(): Path[$0]	
+KeepParens	space.earlygrey.simplegraphs.algorithms.UndirectedGraphAlgorithms#findMinimumWeightSpanningTree	def findMinimumWeightSpanningTree(): UndirectedGraph[$0]	
+Parenless	space.earlygrey.simplegraphs.BinaryHeap#isEmpty	def isEmpty: Boolean	
+Parenless	space.earlygrey.simplegraphs.BinaryHeap#notEmpty	def notEmpty: Boolean	
+Parenless	space.earlygrey.simplegraphs.BinaryHeap#peek	def peek: Node[$0]	
+Parenless	space.earlygrey.simplegraphs.Connection#getA	def a: $0	
+Parenless	space.earlygrey.simplegraphs.Connection#getB	def b: $0	
+Parenless	space.earlygrey.simplegraphs.Connection#getInternalNodeA	def internalNodeA: Node[$0]	
+Parenless	space.earlygrey.simplegraphs.Connection#getInternalNodeB	def internalNodeB: Node[$0]	
+Parenless	space.earlygrey.simplegraphs.Connection#getWeight	def weight: Float	
+Parenless	space.earlygrey.simplegraphs.Connection#getWeightFunction	def weightFunction: WeightFunction[$0]	
+Parenless	space.earlygrey.simplegraphs.DirectedGraph#algorithms	def algorithms: DirectedGraphAlgorithms[$0]	
+Parenless	space.earlygrey.simplegraphs.Edge#getA	def a: $0	
+Parenless	space.earlygrey.simplegraphs.Edge#getB	def b: $0	
+Parenless	space.earlygrey.simplegraphs.Edge#getInternalNodeA	def internalNodeA: Node[$0]	
+Parenless	space.earlygrey.simplegraphs.Edge#getInternalNodeB	def internalNodeB: Node[$0]	
+Parenless	space.earlygrey.simplegraphs.Edge#getWeight	def weight: Float	
+Parenless	space.earlygrey.simplegraphs.Edge#getWeightFunction	def weightFunction: WeightFunction[$0]	
+Parenless	space.earlygrey.simplegraphs.Graph#algorithms	def algorithms: Algorithms[$0]	
+Parenless	space.earlygrey.simplegraphs.Graph#getDefaultEdgeWeightFunction	def defaultEdgeWeightFunction: WeightFunction[$0]	
+Parenless	space.earlygrey.simplegraphs.Graph#getEdgeCount	def edgeCount: Int	
+Parenless	space.earlygrey.simplegraphs.Graph#getEdges()	def edges: Iterable[Edge[$0]]	
+Parenless	space.earlygrey.simplegraphs.Graph#getNodes	def getNodes: Iterable[Node[$0]]	
+Parenless	space.earlygrey.simplegraphs.Graph#getVertices	def vertices: Iterable[$0]	
+Parenless	space.earlygrey.simplegraphs.Graph#isConnected	def isConnected: Boolean	
+Parenless	space.earlygrey.simplegraphs.Graph#isDirected	def isDirected: Boolean	
+Parenless	space.earlygrey.simplegraphs.Graph#size	def size: Int	
+Parenless	space.earlygrey.simplegraphs.Graph#toString	def toString: String	
+Parenless	space.earlygrey.simplegraphs.Node#getConnections	def connections: InternalArray[Connection[$0]]	
+Parenless	space.earlygrey.simplegraphs.Node#getInDegree	def inDegree: Int	
+Parenless	space.earlygrey.simplegraphs.Node#getOutDegree	def outDegree: Int	
+Parenless	space.earlygrey.simplegraphs.Node#toString	def toString: String	
+Parenless	space.earlygrey.simplegraphs.Path#getFirst	def first: $0	
+Parenless	space.earlygrey.simplegraphs.Path#getLast	def last: $0	
+Parenless	space.earlygrey.simplegraphs.Path#getLength	def length: Float	
+Parenless	space.earlygrey.simplegraphs.UndirectedGraph#algorithms	def algorithms: UndirectedGraphAlgorithms[$0]	
+Parenless	space.earlygrey.simplegraphs.UndirectedGraph#isDirected	def isDirected: Boolean	
+Parenless	space.earlygrey.simplegraphs.algorithms.AStarSearch#getEnd	def getEnd: Node[$0]	
+Parenless	space.earlygrey.simplegraphs.algorithms.AStarSearch#getPath	def getPath: Path[$0]	
+Parenless	space.earlygrey.simplegraphs.algorithms.AStarSearch#isFinished	def isFinished: Boolean	
+Parenless	space.earlygrey.simplegraphs.algorithms.Algorithm#isFinished	def isFinished: Boolean	
+Parenless	space.earlygrey.simplegraphs.algorithms.BreadthFirstSearch#isFinished	def isFinished: Boolean	
+Parenless	space.earlygrey.simplegraphs.algorithms.CycleDetector#containsCycle	def containsCycle: Boolean	
+Parenless	space.earlygrey.simplegraphs.algorithms.CycleDetector#isFinished	def isFinished: Boolean	
+Parenless	space.earlygrey.simplegraphs.algorithms.DepthFirstSearch#isFinished	def isFinished: Boolean	
+Parenless	space.earlygrey.simplegraphs.algorithms.MinimumWeightSpanningTree#getSpanningTree	def getSpanningTree: UndirectedGraph[$0]	
+Parenless	space.earlygrey.simplegraphs.algorithms.MinimumWeightSpanningTree#isFinished	def isFinished: Boolean	
+Parenless	space.earlygrey.simplegraphs.algorithms.SearchStep#count	def count: Int	
+Parenless	space.earlygrey.simplegraphs.algorithms.SearchStep#depth	def depth: Int	
+Parenless	space.earlygrey.simplegraphs.algorithms.SearchStep#distance	def distance: Float	
+Parenless	space.earlygrey.simplegraphs.algorithms.SearchStep#edge	def edge: Edge[$0]	
+Parenless	space.earlygrey.simplegraphs.algorithms.SearchStep#previous	def previous: $0	
+Parenless	space.earlygrey.simplegraphs.algorithms.SearchStep#vertex	def vertex: $0	
+Property	space.earlygrey.simplegraphs.Connection#getA	var a	a
+Property	space.earlygrey.simplegraphs.Connection#getB	var b	b
+Property	space.earlygrey.simplegraphs.Connection#getInternalNodeA	var internalNodeA	internalNodeA
+Property	space.earlygrey.simplegraphs.Connection#getInternalNodeB	var internalNodeB	internalNodeB
+Property	space.earlygrey.simplegraphs.Connection#getNodeA	var nodeA	nodeA
+Property	space.earlygrey.simplegraphs.Connection#getNodeB	var nodeB	nodeB
+Property	space.earlygrey.simplegraphs.Connection#getWeight	var weight	weight
+Property	space.earlygrey.simplegraphs.Connection#getWeightFunction	var weightFunction	weightFunction
+Property	space.earlygrey.simplegraphs.Edge#getA	var a	a
+Property	space.earlygrey.simplegraphs.Edge#getB	var b	b
+Property	space.earlygrey.simplegraphs.Edge#getInternalNodeA	var internalNodeA	internalNodeA
+Property	space.earlygrey.simplegraphs.Edge#getInternalNodeB	var internalNodeB	internalNodeB
+Property	space.earlygrey.simplegraphs.Edge#getWeight	var weight	weight
+Property	space.earlygrey.simplegraphs.Edge#getWeightFunction	var weightFunction	weightFunction
+Property	space.earlygrey.simplegraphs.Graph#getDefaultEdgeWeightFunction	var defaultEdgeWeightFunction	defaultEdgeWeightFunction
+Property	space.earlygrey.simplegraphs.Graph#getEdgeCount	var edgeCount	edgeCount
+Property	space.earlygrey.simplegraphs.Graph#getEdges()	var edges	edges
+Property	space.earlygrey.simplegraphs.Graph#getVertices	var vertices	vertices
+Property	space.earlygrey.simplegraphs.Node#getConnection	var connection	connection
+Property	space.earlygrey.simplegraphs.Node#getConnections	var connections	connections
+Property	space.earlygrey.simplegraphs.Node#getDistance	var distance	distance
+Property	space.earlygrey.simplegraphs.Node#getEstimate	var estimate	estimate
+Property	space.earlygrey.simplegraphs.Node#getInDegree	var inDegree	inDegree
+Property	space.earlygrey.simplegraphs.Node#getInEdges	var inEdges	inEdges
+Property	space.earlygrey.simplegraphs.Node#getIndex	var index	index
+Property	space.earlygrey.simplegraphs.Node#getOutDegree	var outDegree	outDegree
+Property	space.earlygrey.simplegraphs.Node#getOutEdges	var outEdges	outEdges
+Property	space.earlygrey.simplegraphs.Node#getPrev	var prev	prev
+Property	space.earlygrey.simplegraphs.Node#isProcessed	var processed	processed
+Property	space.earlygrey.simplegraphs.Node#isSeen	var seen	seen
+Property	space.earlygrey.simplegraphs.Path#getFirst	var first	first
+Property	space.earlygrey.simplegraphs.Path#getLast	var last	last
+Property	space.earlygrey.simplegraphs.Path#getLength	var length	length
+PropertySetter	space.earlygrey.simplegraphs.Node#setConnection	var connection	connection
+PropertySetter	space.earlygrey.simplegraphs.Node#setDistance	var distance	distance
+PropertySetter	space.earlygrey.simplegraphs.Node#setEstimate	var estimate	estimate
+PropertySetter	space.earlygrey.simplegraphs.Node#setInEdges	var inEdges	inEdges
+PropertySetter	space.earlygrey.simplegraphs.Node#setIndex	var index	index
+PropertySetter	space.earlygrey.simplegraphs.Node#setOutEdges	var outEdges	outEdges
+PropertySetter	space.earlygrey.simplegraphs.Node#setPrev	var prev	prev
+PropertySetter	space.earlygrey.simplegraphs.Node#setProcessed	var processed	processed
+PropertySetter	space.earlygrey.simplegraphs.Node#setSeen	var seen	seen
+PropertySetter	space.earlygrey.simplegraphs.Path#setLength	var length	length
+Protected	space.earlygrey.simplegraphs.algorithms.Algorithm#id:field	protected id	
+Protected	space.earlygrey.simplegraphs.algorithms.Algorithms#graph:field	protected graph	
+Public	space.earlygrey.simplegraphs.Connection#<init>	public <init>	
+Public	space.earlygrey.simplegraphs.Edge#<init>	public <init>	
+Public	space.earlygrey.simplegraphs.Edge#getWeightFunction	public weightFunction	
+Public	space.earlygrey.simplegraphs.Graph#<init>()	public <init>	
+Public	space.earlygrey.simplegraphs.Graph#disconnect(Node)	public disconnect	
+Public	space.earlygrey.simplegraphs.Graph#getEdge(Node,Node)	public getEdge	
+Public	space.earlygrey.simplegraphs.Node#<init>	public <init>	
+Public	space.earlygrey.simplegraphs.Node#addEdge	public addEdge	
+Public	space.earlygrey.simplegraphs.Node#disconnect	public disconnect	
+Public	space.earlygrey.simplegraphs.Node#getEdge	public getEdge	
+Public	space.earlygrey.simplegraphs.Node#heapIndex:field	public heapIndex	
+Public	space.earlygrey.simplegraphs.Node#heapValue:field	public heapValue	
+Public	space.earlygrey.simplegraphs.Node#idHash:field	public idHash	
+Public	space.earlygrey.simplegraphs.Node#mapHash:field	public mapHash	
+Public	space.earlygrey.simplegraphs.Node#neighbours:field	public neighbours	
+Public	space.earlygrey.simplegraphs.Node#nextInBucket:field	public nextInBucket	
+Public	space.earlygrey.simplegraphs.Node#nextInOrder:field	public nextInOrder	
+Public	space.earlygrey.simplegraphs.Node#objectHash:field	public objectHash	
+Public	space.earlygrey.simplegraphs.Node#prevInOrder:field	public prevInOrder	
+Public	space.earlygrey.simplegraphs.Node#removeEdge	public removeEdge	
+Public	space.earlygrey.simplegraphs.NodeMap#clear	public clear	
+Public	space.earlygrey.simplegraphs.NodeMap#contains	public contains	
+Public	space.earlygrey.simplegraphs.NodeMap#get	public get	
+Public	space.earlygrey.simplegraphs.NodeMap#getIndex(int,int)	public getIndex	
+Public	space.earlygrey.simplegraphs.NodeMap#graph:field	public graph	
+Public	space.earlygrey.simplegraphs.NodeMap#hash	public hash	
+Public	space.earlygrey.simplegraphs.NodeMap#head:field	public head	
+Public	space.earlygrey.simplegraphs.NodeMap#insertIntoListAfter	public insertIntoListAfter	
+Public	space.earlygrey.simplegraphs.NodeMap#insertIntoListBefore	public insertIntoListBefore	
+Public	space.earlygrey.simplegraphs.NodeMap#put	public put	
+Public	space.earlygrey.simplegraphs.NodeMap#remove	public remove	
+Public	space.earlygrey.simplegraphs.NodeMap#removeFromList	public removeFromList	
+Public	space.earlygrey.simplegraphs.NodeMap#size:field	public size	
+Public	space.earlygrey.simplegraphs.NodeMap#sort	public sort	
+Public	space.earlygrey.simplegraphs.NodeMap#tail:field	public tail	
+Public	space.earlygrey.simplegraphs.NodeMap#topologicalSort	public topologicalSort	
+Public	space.earlygrey.simplegraphs.algorithms.AStarSearch#<init>	public <init>	
+Public	space.earlygrey.simplegraphs.algorithms.Algorithm#<init>	public <init>	
+Public	space.earlygrey.simplegraphs.algorithms.AlgorithmPath#<init>(Node)	public <init>	
+Public	space.earlygrey.simplegraphs.algorithms.Algorithms#<init>	public <init>	
+Public	space.earlygrey.simplegraphs.algorithms.CycleDetector#<init>	public <init>	
+Public	space.earlygrey.simplegraphs.algorithms.MinimumWeightSpanningTree#<init>	public <init>	
+Public	space.earlygrey.simplegraphs.algorithms.SearchStep#<init>	public <init>	
