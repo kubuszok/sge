@@ -70,13 +70,13 @@ The engine names no library. **How libGDX is ported is sge's own policy, in `sge
 The lls base's policy is lls's own: the `lls-port` artifact, at the version of the lls dependency
 (`Versions.lls`). No hand-port extraction from git history is needed at build time.
 
-Generated extensions: `sge-ecs` (ashley, `project/BalticPorterEcsGen.scala`), `sge-noise` (noise4j) and
-`sge-anim8` (anim8-gdx, a dependent of sge-core) — the last two through `project/BalticPorterExtGen.scala`,
+Generated extensions: `sge-ecs` (ashley, `project/BalticPorterEcsGen.scala`), `sge-noise` (noise4j),
+`sge-jbump` (jbump) and `sge-anim8` (anim8-gdx, a dependent of sge-core) — the last three through `project/BalticPorterExtGen.scala`,
 which ports any extension from its submodule — as a base of its
 own or as a dependent of sge-core — into `target/balticporter-sge-<id>`. An extension's spelling
 policy is frozen in `sge-port/<id>-derived-policy.tsv`, derived from its hand port before that was
-deleted. The jbump and simple-graphs policies are on sge's paths and their frozen policies
-are committed, but they are not wired yet (ISS-903 engine defect, ISS-906 API decision); screens waits
+deleted. The simple-graphs policy is on sge's paths and its frozen policy is committed, but it is
+not wired yet (ISS-906 API decision); screens waits
 on its guacamole dependency (ISS-905). The files only an extension reads (`src/main/scala/sge/port/ext/`,
 `overrides-ext/`, `ports/`, `<id>-derived-policy.tsv`) are outside sge-core's fingerprint and inside
 that extension's. The other extension policies (gdx-ai, gltf, textra, vfx, vis-ui, vis-ui-usl,

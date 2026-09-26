@@ -863,6 +863,7 @@ val `sge-jbump` = (projectMatrix in file("sge-extension/jbump"))
     // so lls must be on this module's classpath.
     libraryDependencies += "com.kubuszok" %% "lls" % Versions.lls
   )
+  .settings(balticPorterExtSettings(BalticPorterExtGen.Jbump) *)
 
 val `sge-noise` = (projectMatrix in file("sge-extension/noise"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(Versions.scala3))
