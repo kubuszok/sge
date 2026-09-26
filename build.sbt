@@ -111,7 +111,7 @@ def dropClean(cmd: String): String = cmd.stripPrefix("clean ; ")
 lazy val sgeCommandAliases: Seq[Def.Setting[State => State]] =
   // generatePort: run the Baltic Porter generation (shared tree, every platform row, resources) and
   // nothing else — what the CI `generate` job runs before publishing target/balticporter-sge.
-  addCommandAlias("generatePort", "sge/Compile/managedSources ; sge/Compile/managedResources ; sge-ecs/Compile/managedSources ; sge-ecs/Test/managedSources") ++
+  addCommandAlias("generatePort", "sge/Compile/managedSources ; sge/Compile/managedResources ; sge-ecs/Compile/managedSources ; sge-ecs/Test/managedSources ; sge-noise/Compile/managedSources") ++
   // verifyLocal: the gate before a push — every platform's tests, then record the verified commit
   // (target/local-verification; the push hook of the balticporter Claude Code plugin reads it).
   addCommandAlias("verifyLocal", "scalafmtCheckAll ; scalafmtSbtCheck ; ci-jvm-3 ; test-js-3 ; test-native-3 ; markVerified") ++
@@ -278,6 +278,20 @@ def balticPorterRowSettings(row: String): Seq[Setting[?]] = Seq(
     BalticPorterGen.platformSources((ThisBuild / baseDirectory).value, row, streams.value.log)
   }.taskValue,
   Compile / managedSourceDirectories += (ThisBuild / baseDirectory).value / "target" / "balticporter-sge" / "src_managed" / row / "scala"
+)
+
+// Baltic Porter: an extension generated from its upstream Java (`BalticPorterExtGen`) — main sources, and
+// the upstream's own tests where it ships any, under target/balticporter-sge-<id>/src_managed.
+def balticPorterExtSettings(ext: BalticPorterExtGen.Ext): Seq[Setting[?]] = Seq(
+  Compile / sourceGenerators += Def.task {
+    BalticPorterExtGen.generate(ext, (ThisBuild / baseDirectory).value, streams.value.log)
+  }.taskValue,
+  Compile / managedSourceDirectories += (ThisBuild / baseDirectory).value / "target" / s"balticporter-${ext.module}" / "src_managed" / "main" / "scala",
+  Test / sourceGenerators += Def.task {
+    BalticPorterExtGen.generateTests(ext, (ThisBuild / baseDirectory).value, streams.value.log)
+  }.taskValue,
+  Test / managedSourceDirectories += (ThisBuild / baseDirectory).value / "target" / s"balticporter-${ext.module}" / "src_managed" / "test" / "scala",
+  scalacOptions += s"-Wconf:src=target/balticporter-${ext.module}/.*:s"
 )
 
 // Scala.js has no classpath: multiarch embeds ONE directory (`Compile / resourceDirectory`), so the port's
@@ -854,6 +868,7 @@ val `sge-noise` = (projectMatrix in file("sge-extension/noise"))
   .settings(publishSettings)
   .settings(mimaSettings)
   .settings(name := "sge-extension-noise")
+  .settings(balticPorterExtSettings(BalticPorterExtGen.Noise) *)
 
 val `sge-physics` = (projectMatrix in file("sge-extension/physics"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(Versions.scala3))

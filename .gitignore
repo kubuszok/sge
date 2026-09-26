@@ -13,6 +13,7 @@ project/*
 !project/RemoteCacheSetup.scala
 !project/BalticPorterGen.scala
 !project/BalticPorterEcsGen.scala
+!project/BalticPorterExtGen.scala
 target/
 .sbt/
 

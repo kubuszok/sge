@@ -250,7 +250,11 @@ object BalticPorterEcsGen {
       )
     val source    = Files.readString(sgeRoot.resolve("project/BalticPorterEcsGen.scala")).replace("\r", "")
     val generator = java.security.MessageDigest.getInstance("SHA-256").digest(source.getBytes("UTF-8")).take(8).map(b => f"$b%02x").mkString
-    s"$coreFingerprint ashley=$ashley ecs-generator=$generator"
+    val policy    = BalticPorterGen.extensionPolicyHash(
+      sgeRoot,
+      rel => rel.startsWith("src/main/scala/sge/port/ext/ashley/") || rel.startsWith("overrides-ext/ashley") || rel == "ecs-derived-policy.tsv"
+    )
+    s"$coreFingerprint ashley=$ashley ecs-generator=$generator ecs-policy=$policy"
   }
 
   private def collectScalaFiles(dir: Path, excludeDuplicatesOf: Option[Path] = None): Seq[File] = {

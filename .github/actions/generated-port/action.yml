@@ -38,16 +38,22 @@ runs:
         # the lls base's policy: the lls-port artifact, at the version of the lls dependency
         base=$(grep -oE 'val lls += +"[^"]+' project/Versions.scala | head -1 | sed 's/.*"//')
         test -n "$base"
-        # the ashley submodule commit (sge-ecs depends on it)
-        ashley=$(git ls-tree HEAD original-src/ashley | awk '{print $3}')
-        test -n "$ashley"
-        echo "tree=$policy-$provided-$base-$ashley" >> "$GITHUB_OUTPUT"
+        # the generated extensions' submodule commits (sge-ecs, sge-noise, …)
+        extensions=""
+        for m in $EXTENSION_SUBMODULES; do
+          c=$(git ls-tree HEAD "$m" | awk '{print $3}')
+          test -n "$c"
+          extensions="$extensions-$c"
+        done
+        echo "tree=$policy-$provided-$base$extensions" >> "$GITHUB_OUTPUT"
+      env:
+        EXTENSION_SUBMODULES: original-src/ashley original-src/noise4j
 
-    # Init the ashley submodule alongside libgdx (sge-ecs generation needs it)
-    - name: Checkout the ashley submodule
+    # Init the generated extensions' submodules alongside libgdx
+    - name: Checkout the extension submodules
       if: inputs.mode == 'generate'
       shell: bash
-      run: git submodule update --init --depth=1 original-src/ashley
+      run: git submodule update --init --depth=1 original-src/ashley original-src/noise4j
 
     - uses: kubuszok/balticporter/.github/actions/generated-port@55be328a2265f34c8d41d30634569229539cf562
       id: port
@@ -62,24 +68,26 @@ runs:
     # In `restore` mode the ecs cache must be present (the `generate` job saved it).
     # In `generate` mode with a cache HIT, sbt did not run — restore the ecs cache too.
     # In `generate` mode with a cache MISS, sbt ran and produced the ecs tree — save it.
-    - name: Restore the ecs generated tree
+    - name: Restore the extensions' generated trees
       id: ecs-restore
       if: inputs.mode == 'restore' || inputs.mode == 'generate'
       uses: actions/cache/restore@v4
       with:
         path: |
           target/balticporter-sge-ecs
+          target/balticporter-sge-noise
           target/balticporter-reports
         key: ${{ steps.port.outputs.key }}-ecs
         fail-on-cache-miss: ${{ inputs.mode == 'restore' }}
         enableCrossOsArchive: true
 
-    - name: Save the ecs generated tree
+    - name: Save the extensions' generated trees
       if: inputs.mode == 'generate' && steps.ecs-restore.outputs.cache-hit != 'true'
       uses: actions/cache/save@v4
       with:
         path: |
           target/balticporter-sge-ecs
+          target/balticporter-sge-noise
           target/balticporter-reports
         key: ${{ steps.port.outputs.key }}-ecs
         enableCrossOsArchive: true

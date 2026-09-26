@@ -149,7 +149,7 @@ object BalticPorterGen {
 
   /** What the generated tree depends on, as one line, readable on a shallow checkout WITHOUT the submodule's files: the engine artifact pinned in `project/plugins.sbt`, the lls-port version
     * (`Versions.lls`), the libGDX commit (the submodule's HEAD when it is initialised, else the commit this checkout records for it), this generator, the policy in `sge-port/` (sources and injected
-    * files; line endings normalised, so every OS agrees), the replacements the port reads from sge's own tree ([[ProvidedSources]]) and the JDK feature version.
+    * files, minus what only an extension reads; line endings normalised, so every OS agrees), the replacements the port reads from sge's own tree ([[ProvidedSources]]) and the JDK feature version.
     */
   def fingerprint(sgeRoot: Path): String = {
     def git(dir: Path, args: String*): Option[String] = {
@@ -175,13 +175,22 @@ object BalticPorterGen {
     val source    = Files.readString(sgeRoot.resolve("project/BalticPorterGen.scala")).replace("\r", "")
     val generator = java.security.MessageDigest.getInstance("SHA-256").digest(source.getBytes("UTF-8")).take(8).map(b => f"$b%02x").mkString
     // the JDK the generator runs on decides what a member overrides (`CharSequence.getChars` exists from 25 on)
-    s"engine=$pin base=$base libgdx=$libgdx generator=$generator policy=${policyHash(sgeRoot.resolve("sge-port"))} provided=${policyHash(sgeRoot.resolve(ProvidedSources))} jdk=${java.lang.Runtime.version().feature()}"
+    s"engine=$pin base=$base libgdx=$libgdx generator=$generator policy=${policyHash(sgeRoot.resolve("sge-port"), rel => !isExtensionPolicy(rel))} provided=${policyHash(sgeRoot.resolve(ProvidedSources))} jdk=${java.lang.Runtime.version().feature()}"
   }
 
-  /** One hash over every file under a directory (`sge-port/`: the policy's Scala and the files it injects; sge's own tree the port reads): each file's slash-separated relative path and its text
-    * without carriage returns, in path order.
+  /** A file under `sge-port/` that only an extension's port reads (its policy sources, injected files and frozen derived policy), so editing it regenerates that extension and never sge-core. */
+  def isExtensionPolicy(rel: String): Boolean =
+    rel.startsWith("src/main/scala/sge/port/ext/") || rel.startsWith("overrides-ext/") || rel.startsWith("ports/") ||
+      (rel.endsWith("-derived-policy.tsv") && !rel.contains("/"))
+
+  /** One hash over the `sge-port/` files an extension's port reads (`owns`, over slash-separated paths relative to `sge-port/`). */
+  def extensionPolicyHash(sgeRoot: Path, owns: String => Boolean): String =
+    policyHash(sgeRoot.resolve("sge-port"), owns)
+
+  /** One hash over the files under a directory that `include` selects (`sge-port/`: the policy's Scala and the files it injects; sge's own tree the port reads): each file's slash-separated relative
+    * path and its text without carriage returns, in path order.
     */
-  private def policyHash(policyRoot: Path): String = {
+  private def policyHash(policyRoot: Path, include: String => Boolean = _ => true): String = {
     if (!Files.isDirectory(policyRoot)) sys.error(s"[Baltic Porter] no porting policy: $policyRoot is not a directory")
     val digest = java.security.MessageDigest.getInstance("SHA-256")
     val stream = Files.walk(policyRoot)
@@ -193,6 +202,7 @@ object BalticPorterGen {
           // a dot file (`.DS_Store`) is the operating system's, not the policy's
           .filter(p => Files.isRegularFile(p) && !p.getFileName.toString.startsWith("."))
           .map(p => policyRoot.relativize(p).toString.replace('\\', '/') -> p)
+          .filter { case (rel, _) => include(rel) }
           .toList
           .sortBy(_._1)
       finally stream.close()

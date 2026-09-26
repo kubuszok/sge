@@ -1,0 +1,134 @@
+#family	upstream	reference	target
+KeepName	com.github.czyzby.noise4j.map.Grid#getArray	def getArray	
+KeepName	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#getInstance	def getInstance	
+KeepName	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#getTemporaryGrid	def getTemporaryGrid	
+KeepName	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#isAlive	def isAlive	
+KeepName	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#setAlive	def setAlive	
+KeepName	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#setDead	def setDead	
+KeepName	com.github.czyzby.noise4j.map.generator.noise.NoiseGenerator#getInstance	def getInstance	
+KeepName	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#getRandomRoom	def getRandomRoom	
+KeepName	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#getRoomTypes	def getRoomTypes	
+KeepName	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator$Room#isBorder	def isBorder	
+KeepName	com.github.czyzby.noise4j.map.generator.room.RoomType#isValid	def isValid	
+KeepName	com.github.czyzby.noise4j.map.generator.room.RoomType$DefaultRoomType#isValid	def isValid	
+KeepName	com.github.czyzby.noise4j.map.generator.room.RoomType$Interceptor#isValid	def isValid	
+KeepName	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#getDestinations	def getDestinations	
+KeepName	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#getInstance	def getInstance	
+KeepName	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#getRegion	def getRegion	
+KeepName	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#isCarveable(Grid,int,int)	def isCarveable	
+KeepName	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#isCarveable(Point,Grid,Direction)	def isCarveable	
+KeepName	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#isCorridor	def isCorridor	
+KeepName	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#isDeadEnd	def isDeadEnd	
+KeepName	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#isWall	def isWall	
+KeepName	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator$Point#isNeighbor	def isNeighbor	
+KeepName	com.github.czyzby.noise4j.map.generator.util.Generators#getCalculator	def getCalculator	
+KeepName	com.github.czyzby.noise4j.map.generator.util.Generators#getRandom	def getRandom	
+KeepName	com.github.czyzby.noise4j.map.generator.util.Generators#setCalculator	def setCalculator	
+KeepName	com.github.czyzby.noise4j.map.generator.util.Generators#setRandom	def setRandom	
+KeepParens	com.github.czyzby.noise4j.map.Grid#copy	def copy(): Grid	
+KeepParens	com.github.czyzby.noise4j.map.Grid#decrement	def decrement(): Grid	
+KeepParens	com.github.czyzby.noise4j.map.Grid#hashCode	def hashCode(): Int	
+KeepParens	com.github.czyzby.noise4j.map.Grid#increment	def increment(): Grid	
+KeepParens	com.github.czyzby.noise4j.map.Grid#negate	def negate(): Grid	
+KeepParens	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#randomSize()	def randomSize(): Int	
+KeepParens	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator$Point#hashCode	def hashCode(): Int	
+Parenless	com.github.czyzby.noise4j.map.Grid#getArray	def getArray: Array[Float]	
+Parenless	com.github.czyzby.noise4j.map.Grid#toString	def toString: String	
+Parenless	com.github.czyzby.noise4j.map.generator.AbstractGenerator#getMode	def mode: GenerationMode	
+Parenless	com.github.czyzby.noise4j.map.generator.Generator#getMode	def mode: GenerationMode	
+Parenless	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#getTemporaryGrid	def getTemporaryGrid: Grid	
+Parenless	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#getMaxRoomSize	def maxRoomSize: Int	
+Parenless	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#getMinRoomSize	def minRoomSize: Int	
+Parenless	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#getRoomTypes	def getRoomTypes: ArrayList[RoomType]	
+Parenless	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator$Room#toString	def toString: String	
+Parenless	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator$Point#toString	def toString: String	
+Property	com.github.czyzby.noise4j.map.generator.AbstractGenerator#getMode	var mode	mode
+Property	com.github.czyzby.noise4j.map.generator.Generator#getMode	var mode	mode
+Property	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#getAliveChance	var aliveChance	aliveChance
+Property	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#getBirthLimit	var birthLimit	birthLimit
+Property	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#getDeathLimit	var deathLimit	deathLimit
+Property	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#getIterationsAmount	var iterationsAmount	iterationsAmount
+Property	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#getMarker	var marker	marker
+Property	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#getRadius	var radius	radius
+Property	com.github.czyzby.noise4j.map.generator.noise.NoiseGenerator#getModifier	var modifier	modifier
+Property	com.github.czyzby.noise4j.map.generator.noise.NoiseGenerator#getRadius	var radius	radius
+Property	com.github.czyzby.noise4j.map.generator.noise.NoiseGenerator#getSeed	var seed	seed
+Property	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#getMaxRoomSize	var maxRoomSize	maxRoomSize
+Property	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#getMaxRoomsAmount	var maxRoomsAmount	maxRoomsAmount
+Property	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#getMinRoomSize	var minRoomSize	minRoomSize
+Property	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#getTolerance	var tolerance	tolerance
+Property	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator$Room#getHeight	var height	height
+Property	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator$Room#getWidth	var width	width
+Property	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator$Room#getX	var x	x
+Property	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator$Room#getY	var y	y
+Property	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#getCorridorThreshold	var corridorThreshold	corridorThreshold
+Property	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#getDeadEndRemovalIterations	var deadEndRemovalIterations	deadEndRemovalIterations
+Property	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#getFloorThreshold	var floorThreshold	floorThreshold
+Property	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#getRandomConnectorChance	var randomConnectorChance	randomConnectorChance
+Property	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#getRoomGenerationAttempts	var roomGenerationAttempts	roomGenerationAttempts
+Property	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#getWallThreshold	var wallThreshold	wallThreshold
+Property	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#getWindingChance	var windingChance	windingChance
+PropertySetter	com.github.czyzby.noise4j.map.generator.AbstractGenerator#setMode	var mode	mode
+PropertySetter	com.github.czyzby.noise4j.map.generator.Generator#setMode	var mode	mode
+PropertySetter	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#setAliveChance	var aliveChance	aliveChance
+PropertySetter	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#setBirthLimit	var birthLimit	birthLimit
+PropertySetter	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#setDeathLimit	var deathLimit	deathLimit
+PropertySetter	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#setInitiate	var initiate	initiate
+PropertySetter	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#setIterationsAmount	var iterationsAmount	iterationsAmount
+PropertySetter	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#setMarker	var marker	marker
+PropertySetter	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#setRadius	var radius	radius
+PropertySetter	com.github.czyzby.noise4j.map.generator.noise.NoiseGenerator#setAlgorithmProvider	var algorithmProvider	algorithmProvider
+PropertySetter	com.github.czyzby.noise4j.map.generator.noise.NoiseGenerator#setModifier	var modifier	modifier
+PropertySetter	com.github.czyzby.noise4j.map.generator.noise.NoiseGenerator#setRadius	var radius	radius
+PropertySetter	com.github.czyzby.noise4j.map.generator.noise.NoiseGenerator#setSeed	var seed	seed
+PropertySetter	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#setMaxRoomSize	var maxRoomSize	maxRoomSize
+PropertySetter	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#setMaxRoomsAmount	var maxRoomsAmount	maxRoomsAmount
+PropertySetter	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#setMinRoomSize	var minRoomSize	minRoomSize
+PropertySetter	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#setTolerance	var tolerance	tolerance
+PropertySetter	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#setCorridorThreshold	var corridorThreshold	corridorThreshold
+PropertySetter	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#setDeadEndRemovalIterations	var deadEndRemovalIterations	deadEndRemovalIterations
+PropertySetter	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#setFloorThreshold	var floorThreshold	floorThreshold
+PropertySetter	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#setRandomConnectorChance	var randomConnectorChance	randomConnectorChance
+PropertySetter	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#setRoomGenerationAttempts	var roomGenerationAttempts	roomGenerationAttempts
+PropertySetter	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#setWallThreshold	var wallThreshold	wallThreshold
+PropertySetter	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#setWindingChance	var windingChance	windingChance
+Protected	com.github.czyzby.noise4j.map.Grid#iterate	protected iterate	
+Protected	com.github.czyzby.noise4j.map.Grid#validateGrid	protected validateGrid	
+Protected	com.github.czyzby.noise4j.map.generator.AbstractGenerator#modifyCell	protected modifyCell	
+Protected	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#countLivingNeighbors	protected countLivingNeighbors	
+Protected	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#getTemporaryGrid	protected getTemporaryGrid	
+Protected	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#isAlive	protected isAlive	
+Protected	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#setAlive	protected setAlive	
+Protected	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#setDead	protected setDead	
+Protected	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#shouldBeBorn	protected shouldBeBorn	
+Protected	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#shouldDie	protected shouldDie	
+Protected	com.github.czyzby.noise4j.map.generator.cellular.CellularAutomataGenerator#spawnLivingCells	protected spawnLivingCells	
+Protected	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#carveRoom	protected carveRoom	
+Protected	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#getRandomRoom	protected getRandomRoom	
+Protected	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#normalizePosition	protected normalizePosition	
+Protected	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#normalizeSize	protected normalizeSize	
+Protected	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#randomSize()	protected randomSize	
+Protected	com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#randomSize(int)	protected randomSize	
+Protected	com.github.czyzby.noise4j.map.generator.room.RoomType$Interceptor#value:field	protected value	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#addConnector	protected addConnector	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#carveConnector	protected carveConnector	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#carveCorridor	protected carveCorridor	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#carveMaze	protected carveMaze	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#findConnectors	protected findConnectors	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#getDestinations	protected getDestinations	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#getRegion	protected getRegion	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#isCarveable(Grid,int,int)	protected isCarveable	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#isCarveable(Point,Grid,Direction)	protected isCarveable	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#isCorridor	protected isCorridor	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#isDeadEnd	protected isDeadEnd	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#isWall	protected isWall	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#joinRegions	protected joinRegions	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#nextRegion	protected nextRegion	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#normalizePosition	protected normalizePosition	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#normalizeSize	protected normalizeSize	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#overlapsAny	protected overlapsAny	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#removeDeadEnds	protected removeDeadEnds	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#reset	protected reset	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#spawnCorridors	protected spawnCorridors	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#spawnRooms	protected spawnRooms	
+Protected	com.github.czyzby.noise4j.map.generator.room.dungeon.DungeonGenerator#validateRoomSizes	protected validateRoomSizes	
