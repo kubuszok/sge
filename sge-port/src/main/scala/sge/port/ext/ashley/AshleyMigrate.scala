@@ -136,14 +136,8 @@ object AshleyPolicy {
               "com.badlogic.ashley.systems.IntervalSystem#updateInterval"
             )
           ),
-          // SystemManager.removeAllSystems calls `this.systems.first()` but the base renamed
-          // `Array.first` to `head` via BeanPropertyTransform; the engine does not rewrite the
-          // call site in a different class's body (the same gap core's postProcess has for
-          // .first()->.head). MethodBodyTransform replaces the whole body.
           new balticporter.transform.MethodBodyTransform(
             Map(
-              "com.badlogic.ashley.core.SystemManager#removeAllSystems" ->
-                "{ while (this.systems.size > 0) { this.removeSystem(this.systems.head) } }",
               // User ruling 2026-09-25: a read past capacity answers an EMPTY Nullable where java
               // throws; the nullability phase below wraps the result, so null here is `empty`.
               "com.badlogic.ashley.utils.Bag#get" ->
