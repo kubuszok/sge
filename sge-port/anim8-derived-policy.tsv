@@ -1,0 +1,158 @@
+#family	upstream	reference	target
+FieldName	com.github.tommyettinger.anim8.AnimatedGif#clearPalette:field	var _clearPalette	_clearPalette
+FieldName	com.github.tommyettinger.anim8.AnimatedGif#ditherStrength:field	var _ditherStrength	_ditherStrength
+FieldName	com.github.tommyettinger.anim8.PNG8#ditherStrength:field	var _ditherStrength	_ditherStrength
+KeepName	com.github.tommyettinger.anim8.AnimatedGif#getImagePixels	def getImagePixels	
+KeepName	com.github.tommyettinger.anim8.AnimatedGif#isFastAnalysis	def isFastAnalysis	
+KeepName	com.github.tommyettinger.anim8.AnimatedGif#isFlipY	def isFlipY	
+KeepName	com.github.tommyettinger.anim8.AnimatedGif#setFrameRate	def setFrameRate	
+KeepName	com.github.tommyettinger.anim8.AnimatedGif#setPosition	def setPosition	
+KeepName	com.github.tommyettinger.anim8.AnimatedGif#setSize	def setSize	
+KeepName	com.github.tommyettinger.anim8.AnimatedPNG#setCompression	def setCompression	
+KeepName	com.github.tommyettinger.anim8.AnimatedPNG#setFlipY	def setFlipY	
+KeepName	com.github.tommyettinger.anim8.FastPNG#setCompression	def setCompression	
+KeepName	com.github.tommyettinger.anim8.FastPNG#setFlipY	def setFlipY	
+KeepName	com.github.tommyettinger.anim8.PNG8#setCompression	def setCompression	
+KeepName	com.github.tommyettinger.anim8.PNG8#setFlipY	def setFlipY	
+KeepName	com.github.tommyettinger.anim8.PaletteReducer#getDitherStrength	def getDitherStrength	
+KeepName	com.github.tommyettinger.anim8.PaletteReducer#getPopulationBias	def getPopulationBias	
+KeepName	com.github.tommyettinger.anim8.PaletteReducer#setDefaultPalette	def setDefaultPalette	
+KeepName	com.github.tommyettinger.anim8.PaletteReducer#setDitherStrength	def setDitherStrength	
+KeepParens	com.github.tommyettinger.anim8.AnimatedGif#finish	def finish(): Boolean	
+KeepParens	com.github.tommyettinger.anim8.PaletteReducer#hueShift()	def hueShift(): PaletteReducer	
+NullableMember	com.github.tommyettinger.anim8.AnimatedGif#colorTab:field	Array[Byte] | Null	
+NullableMember	com.github.tommyettinger.anim8.AnimatedGif#getPalette	PaletteReducer | Null	
+NullableMember	com.github.tommyettinger.anim8.AnimatedGif#image:field	Pixmap | Null	
+NullableMember	com.github.tommyettinger.anim8.AnimatedGif#indexedPixels:field	Array[Byte] | Null	
+NullableMember	com.github.tommyettinger.anim8.AnimatedGif#out:field	OutputStream | Null	
+NullableMember	com.github.tommyettinger.anim8.AnimatedGif#setPalette#palette	PaletteReducer | Null	
+NullableMember	com.github.tommyettinger.anim8.Dithered#getPalette	PaletteReducer | Null	
+NullableMember	com.github.tommyettinger.anim8.Dithered#setPalette#palette	PaletteReducer | Null	
+NullableMember	com.github.tommyettinger.anim8.PNG8#getPalette	PaletteReducer | Null	
+NullableMember	com.github.tommyettinger.anim8.PNG8#setPalette#palette	PaletteReducer | Null	
+NullableMember	com.github.tommyettinger.anim8.PNG8#writePreciseSection(OutputStream,Pixmap,int[],int,int,int,int)#exactPalette	Array[Int] | Null	
+NullableMember	com.github.tommyettinger.anim8.PNG8#writePrecisely(FileHandle,Pixmap,int[],boolean,int)#exactPalette	Array[Int] | Null	
+NullableMember	com.github.tommyettinger.anim8.PNG8#writePrecisely(OutputStream,Pixmap,int[],boolean,int)#exactPalette	Array[Int] | Null	
+NullableMember	com.github.tommyettinger.anim8.PaletteReducer#curErrorBlueFloats:field	Array[Float] | Null	
+NullableMember	com.github.tommyettinger.anim8.PaletteReducer#curErrorGreenFloats:field	Array[Float] | Null	
+NullableMember	com.github.tommyettinger.anim8.PaletteReducer#curErrorRedFloats:field	Array[Float] | Null	
+NullableMember	com.github.tommyettinger.anim8.PaletteReducer#nextErrorBlueFloats:field	Array[Float] | Null	
+NullableMember	com.github.tommyettinger.anim8.PaletteReducer#nextErrorGreenFloats:field	Array[Float] | Null	
+NullableMember	com.github.tommyettinger.anim8.PaletteReducer#nextErrorRedFloats:field	Array[Float] | Null	
+NullableMember	com.github.tommyettinger.anim8.PaletteReducer#writeBigPalette#filename	FileHandle | Null	
+Parenless	com.github.tommyettinger.anim8.AnimatedGif#getDitherAlgorithm	def ditherAlgorithm: DitherAlgorithm	
+Parenless	com.github.tommyettinger.anim8.AnimatedGif#getDitherStrength	def ditherStrength: Float	
+Parenless	com.github.tommyettinger.anim8.AnimatedGif#getPalette	def palette: PaletteReducer | Null	
+Parenless	com.github.tommyettinger.anim8.AnimatedGif#isFastAnalysis	def isFastAnalysis: Boolean	
+Parenless	com.github.tommyettinger.anim8.AnimatedGif#isFlipY	def isFlipY: Boolean	
+Parenless	com.github.tommyettinger.anim8.Dithered#getDitherAlgorithm	def ditherAlgorithm: DitherAlgorithm	
+Parenless	com.github.tommyettinger.anim8.Dithered#getPalette	def palette: PaletteReducer | Null	
+Parenless	com.github.tommyettinger.anim8.Dithered$DitherAlgorithm#toString	def toString: String	
+Parenless	com.github.tommyettinger.anim8.PNG8#getDitherAlgorithm	def ditherAlgorithm: DitherAlgorithm	
+Parenless	com.github.tommyettinger.anim8.PNG8#getDitherStrength	def ditherStrength: Float	
+Parenless	com.github.tommyettinger.anim8.PNG8#getPalette	def palette: PaletteReducer | Null	
+Parenless	com.github.tommyettinger.anim8.PaletteReducer#getDitherStrength	def getDitherStrength: Float	
+Parenless	com.github.tommyettinger.anim8.PaletteReducer#getPopulationBias	def getPopulationBias: Float	
+Property	com.github.tommyettinger.anim8.AnimatedGif#getDitherAlgorithm	var ditherAlgorithm	ditherAlgorithm
+Property	com.github.tommyettinger.anim8.AnimatedGif#getDitherStrength	var ditherStrength	ditherStrength
+Property	com.github.tommyettinger.anim8.AnimatedGif#getPalette	var palette	palette
+Property	com.github.tommyettinger.anim8.Dithered#getDitherAlgorithm	var ditherAlgorithm	ditherAlgorithm
+Property	com.github.tommyettinger.anim8.Dithered#getPalette	var palette	palette
+Property	com.github.tommyettinger.anim8.PNG8#getDitherAlgorithm	var ditherAlgorithm	ditherAlgorithm
+Property	com.github.tommyettinger.anim8.PNG8#getDitherStrength	var ditherStrength	ditherStrength
+Property	com.github.tommyettinger.anim8.PNG8#getPalette	var palette	palette
+PropertySetter	com.github.tommyettinger.anim8.AnimatedGif#setDitherAlgorithm	var ditherAlgorithm	ditherAlgorithm
+PropertySetter	com.github.tommyettinger.anim8.AnimatedGif#setDitherStrength	var ditherStrength	ditherStrength
+PropertySetter	com.github.tommyettinger.anim8.AnimatedGif#setPalette	var palette	palette
+PropertySetter	com.github.tommyettinger.anim8.Dithered#setDitherAlgorithm	var ditherAlgorithm	ditherAlgorithm
+PropertySetter	com.github.tommyettinger.anim8.Dithered#setPalette	var palette	palette
+PropertySetter	com.github.tommyettinger.anim8.PNG8#setDitherAlgorithm	var ditherAlgorithm	ditherAlgorithm
+PropertySetter	com.github.tommyettinger.anim8.PNG8#setDitherStrength	var ditherStrength	ditherStrength
+PropertySetter	com.github.tommyettinger.anim8.PNG8#setPalette	var palette	palette
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeAdditive	protected analyzeAdditive	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeBanter	protected analyzeBanter	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeBlue	protected analyzeBlue	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeBlunt	protected analyzeBlunt	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeBurkes	protected analyzeBurkes	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeChaotic	protected analyzeChaotic	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeDiffusion	protected analyzeDiffusion	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeDodgy	protected analyzeDodgy	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeGourd	protected analyzeGourd	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeGradient	protected analyzeGradient	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeLoaf	protected analyzeLoaf	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeMarten	protected analyzeMarten	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeNeue	protected analyzeNeue	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeNone	protected analyzeNone	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeOceanic	protected analyzeOceanic	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeOverboard	protected analyzeOverboard	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzePattern	protected analyzePattern	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzePixels	protected analyzePixels	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeRoberts	protected analyzeRoberts	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeScatter	protected analyzeScatter	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeSeaside	protected analyzeSeaside	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeWoven	protected analyzeWoven	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#analyzeWren	protected analyzeWren	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#clearPalette:field	protected clearPalette	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#closeStream:field	protected closeStream	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#colorDepth:field	protected colorDepth	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#colorTab:field	protected colorTab	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#delay:field	protected delay	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#dispose:field	protected dispose	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#ditherStrength:field	protected ditherStrength	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#firstFrame:field	protected firstFrame	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#flipY:field	protected flipY	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#getImagePixels	protected getImagePixels	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#height:field	protected height	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#image:field	protected image	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#indexedPixels:field	protected indexedPixels	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#out:field	protected out	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#palSize:field	protected palSize	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#repeat:field	protected repeat	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#seq:field	protected seq	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#sizeSet:field	protected sizeSet	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#started:field	protected started	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#transIndex:field	protected transIndex	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#usedEntry:field	protected usedEntry	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#width:field	protected width	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#writeGraphicCtrlExt	protected writeGraphicCtrlExt	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#writeImageDesc	protected writeImageDesc	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#writeLSD	protected writeLSD	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#writeNetscapeExt	protected writeNetscapeExt	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#writePalette	protected writePalette	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#writePixels	protected writePixels	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#writeShort	protected writeShort	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#writeString	protected writeString	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#x:field	protected x	
+Protected	com.github.tommyettinger.anim8.AnimatedGif#y:field	protected y	
+Protected	com.github.tommyettinger.anim8.PNG8#ditherStrength:field	protected ditherStrength	
+Public	com.github.tommyettinger.anim8.ChunkBuffer#<init>(int)	public <init>	
+Public	com.github.tommyettinger.anim8.ChunkBuffer#buffer:field	public buffer	
+Public	com.github.tommyettinger.anim8.ChunkBuffer#crc:field	public crc	
+Public	com.github.tommyettinger.anim8.ConstantData#ENCODED_SNUGGLY:field	public ENCODED_SNUGGLY	
+Public	com.github.tommyettinger.anim8.ConstantData#TRI_BLUE_NOISE:field	public TRI_BLUE_NOISE	
+Public	com.github.tommyettinger.anim8.ConstantData#TRI_BLUE_NOISE_B:field	public TRI_BLUE_NOISE_B	
+Public	com.github.tommyettinger.anim8.ConstantData#TRI_BLUE_NOISE_C:field	public TRI_BLUE_NOISE_C	
+Public	com.github.tommyettinger.anim8.ConstantData#TRI_BLUE_NOISE_MULTIPLIERS:field	public TRI_BLUE_NOISE_MULTIPLIERS	
+Public	com.github.tommyettinger.anim8.ConstantData#TRI_BLUE_NOISE_MULTIPLIERS_B:field	public TRI_BLUE_NOISE_MULTIPLIERS_B	
+Public	com.github.tommyettinger.anim8.ConstantData#TRI_BLUE_NOISE_MULTIPLIERS_C:field	public TRI_BLUE_NOISE_MULTIPLIERS_C	
+Public	com.github.tommyettinger.anim8.LZWEncoder#<init>	public <init>	
+Public	com.github.tommyettinger.anim8.LZWEncoder#encode	public encode	
+Public	com.github.tommyettinger.anim8.PNG8#readChunks	public readChunks	
+Public	com.github.tommyettinger.anim8.PNG8#writeChunks	public writeChunks	
+Public	com.github.tommyettinger.anim8.PaletteReducer#bigPaletteLoaded:field	public bigPaletteLoaded	
+Public	com.github.tommyettinger.anim8.PaletteReducer#bigPaletteMapping:field	public bigPaletteMapping	
+Public	com.github.tommyettinger.anim8.PaletteReducer#candidates:field	public candidates	
+Public	com.github.tommyettinger.anim8.PaletteReducer#compareSwap	public compareSwap	
+Public	com.github.tommyettinger.anim8.PaletteReducer#curErrorBlueFloats:field	public curErrorBlueFloats	
+Public	com.github.tommyettinger.anim8.PaletteReducer#curErrorGreenFloats:field	public curErrorGreenFloats	
+Public	com.github.tommyettinger.anim8.PaletteReducer#curErrorRedFloats:field	public curErrorRedFloats	
+Public	com.github.tommyettinger.anim8.PaletteReducer#hueComparator:field	public hueComparator	
+Public	com.github.tommyettinger.anim8.PaletteReducer#lightnessComparator:field	public lightnessComparator	
+Public	com.github.tommyettinger.anim8.PaletteReducer#nextErrorBlueFloats:field	public nextErrorBlueFloats	
+Public	com.github.tommyettinger.anim8.PaletteReducer#nextErrorGreenFloats:field	public nextErrorGreenFloats	
+Public	com.github.tommyettinger.anim8.PaletteReducer#nextErrorRedFloats:field	public nextErrorRedFloats	
+Public	com.github.tommyettinger.anim8.PaletteReducer#populationBias:field	public populationBias	
+Public	com.github.tommyettinger.anim8.PaletteReducer#sort16	public sort16	
+Public	com.github.tommyettinger.anim8.PaletteReducer#sort8	public sort8	
+Public	com.github.tommyettinger.anim8.PaletteReducer#thresholdMatrix16:field	public thresholdMatrix16	
+Public	com.github.tommyettinger.anim8.PaletteReducer#thresholdMatrix64:field	public thresholdMatrix64	

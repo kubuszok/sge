@@ -57,6 +57,18 @@ object BalticPorterExtGen {
     policy = rel => rel.startsWith("src/main/scala/sge/port/ext/noise4j/") || rel == "noise-derived-policy.tsv"
   )
 
+  // not wired into sge-anim8 yet: the generated sources do not compile against sge-core (ISS-904)
+  val Anim8: Ext = Ext(
+    id = "anim8",
+    upstreamName = "anim8-gdx",
+    license = "Apache-2.0",
+    submodule = "original-src/anim8-gdx",
+    mainDir = "src/main/java",
+    dependent = true,
+    main = ctx => sge.port.ext.anim8.Anim8Policy.core(ctx.core, ctx.sgeRoot, List(ctx.reportRoot)),
+    policy = rel => rel.startsWith("src/main/scala/sge/port/ext/anim8/") || rel.startsWith("overrides-ext/anim8/") || rel == "anim8-derived-policy.tsv"
+  )
+
   // not wired into sge-jbump yet: the generated World does not compile (ISS-903)
   val Jbump: Ext = Ext(
     id = "jbump",
