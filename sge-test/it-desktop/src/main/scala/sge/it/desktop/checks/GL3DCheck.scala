@@ -79,7 +79,10 @@ object GL3DCheck {
         shader.setUniformMatrix("u_projTrans", matrix)
 
         // Create mesh with position + color
-        val mesh = new sge.graphics.Mesh(true, 3, 0)(
+        val mesh = new sge.graphics.Mesh(
+          true,
+          3,
+          0,
           VertexAttribute.Position(),
           VertexAttribute.ColorPacked()
         )

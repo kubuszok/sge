@@ -31,21 +31,6 @@ object Noise4jPolicy {
           scope = balticporter.tir.RuleScope.Only(Set("com.github.czyzby.noise4j")),
           derive = true
         ),
-        // java's `addRoomTypes(RoomType...)` is emitted taking an array; sge's API takes the room types
-        // as repeated arguments, as a java caller passes them
-        new balticporter.transform.AddMembersTransform(
-          Map(
-            "com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator" -> List(
-              balticporter.transform.AddMembersTransform.MemberSpec(
-                name = "addRoomTypes",
-                arity = 1,
-                source = "def addRoomTypes(roomTypes: sge.noise.generator.room.RoomType*): scala.Unit = addRoomTypes(roomTypes.toArray)",
-                reason = balticporter.tir.Reason.Configured("add-members", "com.github.czyzby.noise4j.map.generator.room.AbstractRoomGenerator#addRoomTypes"),
-                why = Some("java's varargs parameter as Scala repeated arguments, beside the array form the port emits")
-              )
-            )
-          )
-        ),
         new balticporter.transform.NullaryArityTransform(
           scope = balticporter.tir.RuleScope.Only(Set("com.github.czyzby.noise4j")),
           derive = true

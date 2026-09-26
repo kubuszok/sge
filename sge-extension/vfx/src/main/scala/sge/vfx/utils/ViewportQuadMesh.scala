@@ -35,7 +35,7 @@ class ViewportQuadMesh(attributes: VertexAttribute*)(using Sge) extends AutoClos
       )
     } else attributes
 
-    val m = Mesh(true, 4, 0)(attrs*)
+    val m = Mesh(true, 4, 0, attrs*)
     m.setVertices(ViewportQuadMesh.verts)
     m
   }

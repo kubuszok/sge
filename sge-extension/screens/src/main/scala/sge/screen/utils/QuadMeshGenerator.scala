@@ -41,8 +41,7 @@ object QuadMeshGenerator {
     val mesh = Mesh(
       true,
       4,
-      6
-    )(
+      6,
       VertexAttribute(VertexAttributes.Usage.Position, 2, "a_position"),
       VertexAttribute(VertexAttributes.Usage.TextureCoordinates, 2, "a_texCoord0")
     )

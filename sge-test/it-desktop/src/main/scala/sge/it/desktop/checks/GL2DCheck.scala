@@ -64,7 +64,10 @@ object GL2DCheck {
         }
 
         // Create mesh with position + color, render a triangle
-        val mesh = new sge.graphics.Mesh(true, 3, 0)(
+        val mesh = new sge.graphics.Mesh(
+          true,
+          3,
+          0,
           VertexAttribute.Position(),
           VertexAttribute.ColorPacked()
         )

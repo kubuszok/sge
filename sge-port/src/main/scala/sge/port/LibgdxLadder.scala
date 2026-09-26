@@ -620,37 +620,15 @@ object LibgdxLadder {
                 false
               )
             ),
-            // sge's ParticleController takes varargs; port takes Array
-            "com.badlogic.gdx.graphics.g3d.particles.ParticleController" -> List(
-              balticporter.transform.AddMembersTransform.MemberSpec(
-                "this",
-                1,
-                "def this(name: java.lang.String, emitter: sge.graphics.g3d.particles.emitters.Emitter, renderer: sge.graphics.g3d.particles.renderers.ParticleControllerRenderer[?, ?], influencers: sge.graphics.g3d.particles.influencers.Influencer*)(using sge.Sge) = this(name, emitter, renderer, influencers.toArray)",
-                balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.graphics.g3d.particles.ParticleController#this(varargs)"),
-                Some("sge's varargs ctor — delegates to Array ctor"),
-                false
-              )
-            ),
-            // sge's ParticleEffect takes varargs; port takes Array
-            "com.badlogic.gdx.graphics.g3d.particles.ParticleEffect" -> List(
-              balticporter.transform.AddMembersTransform.MemberSpec(
-                "this",
-                1,
-                "def this(emitters: sge.graphics.g3d.particles.ParticleController*)(using sge.Sge) = { this(); for (e <- emitters) this.controllers.add(e) }",
-                balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.graphics.g3d.particles.ParticleEffect#this(varargs)"),
-                Some("sge's varargs ctor — delegates to no-arg then adds"),
-                false
-              )
-            ),
-            // sge's ModelInstance takes Nullable[Seq[String]]; port takes Array[String]. An ABSENT id
-            // list is java's `null` (ModelInstance.java:153: copy EVERY root node); an empty array is
+            // sge's ModelInstance takes Nullable[Seq[String]]; port takes String*. An ABSENT id
+            // list is java's `null` (ModelInstance.java:153: copy EVERY root node); an empty sequence is
             // java's `new String[0]` (copy the nodes named by zero ids: none) — the two are not the
             // same value, so the bridge hands `null` to the (Model, Matrix4, String...) ctor
             "com.badlogic.gdx.graphics.g3d.ModelInstance" -> List(
               balticporter.transform.AddMembersTransform.MemberSpec(
                 "this",
                 1,
-                "def this(model: sge.graphics.g3d.Model, rootNodeIds: lowlevel.Nullable[scala.collection.immutable.Seq[java.lang.String]]) = this(model, lowlevel.Nullable.empty, rootNodeIds.map(s => { val a = new scala.Array[java.lang.String](s.size); s.copyToArray(a); a }).getOrElse(null))",
+                "def this(model: sge.graphics.g3d.Model, rootNodeIds: lowlevel.Nullable[scala.collection.immutable.Seq[java.lang.String]]) = this(model, lowlevel.Nullable.empty, rootNodeIds.getOrElse(null.asInstanceOf[scala.collection.immutable.Seq[java.lang.String]])*)",
                 balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.graphics.g3d.ModelInstance#this(Model,Nullable[Seq])"),
                 Some("sge takes Nullable[Seq[String]]; port takes String*"),
                 false
@@ -658,42 +636,16 @@ object LibgdxLadder {
             )
           )
         ),
-        // Table.add varargs
         new balticporter.transform.AddMembersTransform(
           Map(
-            "com.badlogic.gdx.scenes.scene2d.ui.Table" -> List(
-              balticporter.transform.AddMembersTransform.MemberSpec(
-                "add",
-                1,
-                "def add(actors: sge.scenes.scene2d.Actor*): sge.scenes.scene2d.ui.Table = { for (a <- actors) add(lowlevel.Nullable(a)); this }",
-                balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.scenes.scene2d.ui.Table#add(Actor*)"),
-                Some("sge's varargs add: `table.add(a1, a2, a3)`"),
-                false
-              ),
-              // sge's Table.stack takes Actor*; port takes Array[Actor]
-              balticporter.transform.AddMembersTransform.MemberSpec(
-                "stack",
-                1,
-                "def stack(actors: sge.scenes.scene2d.Actor*): sge.scenes.scene2d.ui.Cell[sge.scenes.scene2d.ui.Stack] = stack(actors.toArray)",
-                balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.scenes.scene2d.ui.Table#stack(Actor*)"),
-                Some("sge's varargs stack"),
-                false
-              )
-              // sge's Table.padTop takes Value only (not Float overload too); Preferences.put takes immutable Map
-              // — deep API shape differences, not fixable with an extra member
-            )
-          )
-        ),
-        // VertexAttributes and Mesh varargs: sge takes T*; port takes Array[T]
-        new balticporter.transform.AddMembersTransform(
-          Map(
+            // sge's companion factory over java's `VertexAttributes(VertexAttribute...)` constructor
             "com.badlogic.gdx.graphics.VertexAttributes" -> List(
               balticporter.transform.AddMembersTransform.MemberSpec(
                 "apply",
                 1,
-                "def apply(attributes: sge.graphics.VertexAttribute*): sge.graphics.VertexAttributes = new sge.graphics.VertexAttributes(attributes.toArray)",
+                "def apply(attributes: sge.graphics.VertexAttribute*): sge.graphics.VertexAttributes = new sge.graphics.VertexAttributes(attributes*)",
                 balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.graphics.VertexAttributes#apply"),
-                Some("sge's varargs ctor — port takes Array"),
+                Some("sge's companion factory: `VertexAttributes(a1, a2)`"),
                 true
               )
             ),
@@ -747,69 +699,6 @@ object LibgdxLadder {
                 "def getAll(resultSet: scala.collection.mutable.Set[T]): scala.collection.mutable.Set[T] = { val os = new lowlevel.util.ObjectSet[T](); getAll(os); val it = os.iterator(); while (it.hasNext()) resultSet.add(it.next()); resultSet }",
                 balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.math.Octree#getAll(Set)"),
                 Some("sge uses mutable.Set; port uses ObjectSet — bridge"),
-                false
-              )
-            )
-          )
-        ),
-        // varargs constructors: java's `T...` emits `Array[T]`; sge writes `T*`
-        new balticporter.transform.AddMembersTransform(
-          Map(
-            "com.badlogic.gdx.graphics.g2d.Animation" -> List(
-              balticporter.transform.AddMembersTransform.MemberSpec(
-                "this",
-                1,
-                "def this(frameDuration: scala.Float, keyFrames: T*)(using mk: lowlevel.MkArray[T]) = {\n    this(frameDuration, mk.create(0))\n    val da = lowlevel.util.DynamicArray[T](true, keyFrames.size)\n    for (k <- keyFrames) da.add(k)\n    this.setKeyFrames(mk.copyOf(da.items.asInstanceOf[scala.Array[T]], da.size))\n  }",
-                balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.graphics.g2d.Animation#<init>(T*)"),
-                Some("sge's varargs ctor: `Animation[String](0.1f, \"a\", \"b\", \"c\")`"),
-                false
-              )
-            ),
-            "com.badlogic.gdx.InputMultiplexer" -> List(
-              balticporter.transform.AddMembersTransform.MemberSpec(
-                "this",
-                1,
-                "def this(processors: sge.InputProcessor*) = {\n    this()\n    for (p <- processors) this.processors.add(p)\n  }",
-                balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.InputMultiplexer#<init>(InputProcessor*)"),
-                Some("sge's varargs ctor: `InputMultiplexer(p1, p2)`"),
-                false
-              )
-            ),
-            "com.badlogic.gdx.graphics.glutils.VertexBufferObject" -> List(
-              balticporter.transform.AddMembersTransform.MemberSpec(
-                "this",
-                1,
-                "def this(isStatic: scala.Boolean, numVertices: scala.Int, attributes: sge.graphics.VertexAttribute*)(using sge.Sge) =\n    this(isStatic, numVertices, new sge.graphics.VertexAttributes(attributes.toArray))",
-                balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.graphics.glutils.VertexBufferObject#<init>(VertexAttribute*)"),
-                Some("sge's varargs ctor: `VertexBufferObject(true, 4, positionAttr())`"),
-                false
-              )
-            ),
-            "com.badlogic.gdx.scenes.scene2d.actions.Actions" -> List(
-              balticporter.transform.AddMembersTransform.MemberSpec(
-                "sequence",
-                1,
-                "def sequence(actions: sge.scenes.scene2d.Action*): sge.scenes.scene2d.actions.SequenceAction = {\n    val action = new sge.scenes.scene2d.actions.SequenceAction()\n    for (a <- actions) action.addAction(a)\n    action\n  }",
-                balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.scenes.scene2d.actions.Actions#sequence(Action*)"),
-                Some("sge's varargs sequence: `Actions.sequence(moves*)`"),
-                true
-              ),
-              balticporter.transform.AddMembersTransform.MemberSpec(
-                "parallel",
-                1,
-                "def parallel(actions: sge.scenes.scene2d.Action*): sge.scenes.scene2d.actions.ParallelAction = {\n    val action = new sge.scenes.scene2d.actions.ParallelAction()\n    for (a <- actions) action.addAction(a)\n    action\n  }",
-                balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.scenes.scene2d.actions.Actions#parallel(Action*)"),
-                Some("sge's varargs parallel: `Actions.parallel(actions*)`"),
-                true
-              )
-            ),
-            "com.badlogic.gdx.graphics.glutils.VertexArray" -> List(
-              balticporter.transform.AddMembersTransform.MemberSpec(
-                "this",
-                1,
-                "def this(numVertices: scala.Int, attributes: sge.graphics.VertexAttribute*) =\n    this(numVertices, new sge.graphics.VertexAttributes(attributes.toArray))",
-                balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.graphics.glutils.VertexArray#<init>(VertexAttribute*)"),
-                Some("sge's varargs ctor: `VertexArray(4, positionAttr())`"),
                 false
               )
             )
@@ -926,7 +815,7 @@ object LibgdxLadder {
                 |  val vertexDataType: sge.graphics.Mesh.VertexDataType =
                 |    if (!scala.Predef.summon[sge.Sge].graphics.gl30.isEmpty) sge.graphics.Mesh.VertexDataType.VertexBufferObjectWithVAO
                 |    else sge.graphics.Mesh.VertexDataType.VertexBufferObject
-                |  this.mesh = new sge.graphics.Mesh(vertexDataType, false, size * 4, size * 6, scala.Array[sge.graphics.VertexAttribute](new sge.graphics.VertexAttribute(sge.graphics.VertexAttributes.Usage.Position, 3, sge.graphics.glutils.ShaderProgram.POSITION_ATTRIBUTE), new sge.graphics.VertexAttribute(sge.graphics.VertexAttributes.Usage.ColorPacked, 4, sge.graphics.glutils.ShaderProgram.COLOR_ATTRIBUTE), new sge.graphics.VertexAttribute(sge.graphics.VertexAttributes.Usage.TextureCoordinates, 2, sge.graphics.glutils.ShaderProgram.TEXCOORD_ATTRIBUTE + "0")))
+                |  this.mesh = new sge.graphics.Mesh(vertexDataType, false, size * 4, size * 6, new sge.graphics.VertexAttribute(sge.graphics.VertexAttributes.Usage.Position, 3, sge.graphics.glutils.ShaderProgram.POSITION_ATTRIBUTE), new sge.graphics.VertexAttribute(sge.graphics.VertexAttributes.Usage.ColorPacked, 4, sge.graphics.glutils.ShaderProgram.COLOR_ATTRIBUTE), new sge.graphics.VertexAttribute(sge.graphics.VertexAttributes.Usage.TextureCoordinates, 2, sge.graphics.glutils.ShaderProgram.TEXCOORD_ATTRIBUTE + "0"))
                 |  val indices: scala.Array[scala.Short] = new scala.Array[scala.Short](size * 6)
                 |  var v: scala.Int = 0
                 |  var i: scala.Int = 0
@@ -1414,66 +1303,6 @@ object LibgdxLadder {
                 "def this(map: sge.maps.tiled.TiledMap, unitScale: scala.Float, batch: sge.graphics.g2d.Batch, ownsBatch: scala.Boolean)(using sge.Sge) = { this(map, unitScale, batch); this.ownsBatch = ownsBatch }",
                 balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer#<init>"),
                 Some("sge's four-argument constructor: the batch-ownership flag made explicit"),
-                false
-              )
-            ),
-            // java's `T...` is emitted `Array[T]`; sge spells these four as repeated parameters and the
-            // demos call them so — one overload each, until the varargs mechanism lands.
-            "com.badlogic.gdx.graphics.g3d.Material" -> List(
-              balticporter.transform.AddMembersTransform.MemberSpec(
-                "this",
-                1,
-                "def this(attributes: sge.graphics.g3d.Attribute*) = this(attributes.toArray)",
-                balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.graphics.g3d.Material#<init>"),
-                Some("sge's repeated-parameter spelling of java's `T...` (the port emits `Array[T]`)"),
-                false
-              ),
-              balticporter.transform.AddMembersTransform.MemberSpec(
-                "this",
-                2,
-                "def this(id: java.lang.String, attributes: sge.graphics.g3d.Attribute*) = this(id, attributes.toArray)",
-                balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.graphics.g3d.Material#<init>"),
-                Some("sge's repeated-parameter spelling of java's `T...` (the port emits `Array[T]`)"),
-                false
-              )
-            ),
-            "com.badlogic.gdx.graphics.Mesh" -> List(
-              balticporter.transform.AddMembersTransform.MemberSpec(
-                "this",
-                3,
-                "def this(isStatic: scala.Boolean, maxVertices: scala.Int, maxIndices: scala.Int)(attributes: sge.graphics.VertexAttribute*)(using sge.Sge) = this(isStatic, maxVertices, maxIndices, attributes.toArray)",
-                balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.graphics.Mesh#<init>"),
-                Some("sge's repeated-parameter spelling of java's `T...` (the port emits `Array[T]`)"),
-                false
-              )
-            ),
-            "com.badlogic.gdx.math.Bezier" -> List(
-              // a secondary constructor cannot unify the class's F-bounded `T` with its own inside a
-              // self-invocation (scalac 3.8), so the repeated-points constructor is the companion's `apply`
-              balticporter.transform.AddMembersTransform.MemberSpec(
-                "apply",
-                1,
-                "def apply[T <: sge.math.Vector[T]](points: T*)(using lowlevel.MkArray[T]): sge.math.Bezier[T] = { val b = new sge.math.Bezier[T](); b.set(points*); b }",
-                balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.math.Bezier#apply"),
-                Some("sge's repeated-parameter constructor, as the companion's `apply`"),
-                true
-              ),
-              balticporter.transform.AddMembersTransform.MemberSpec(
-                "set",
-                1,
-                "def set(points: T*): Bezier[?] = { val d = new lowlevel.util.DynamicArray[T](); points.foreach(p => d.add(p)); set(d, 0, points.size) }",
-                balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.math.Bezier#set"),
-                Some("sge's repeated-parameter spelling of java's `T...` (the port emits `Array[T]`)"),
-                false
-              )
-            ),
-            "com.badlogic.gdx.utils.TextFormatter" -> List(
-              balticporter.transform.AddMembersTransform.MemberSpec(
-                "format",
-                2,
-                "def format(pattern: java.lang.String, args: java.lang.Object*): java.lang.String = format(pattern, args.toArray)",
-                balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.utils.TextFormatter#format"),
-                Some("sge's repeated-parameter spelling of java's `T...` (the port emits `Array[T]`)"),
                 false
               )
             ),
