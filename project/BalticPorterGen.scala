@@ -152,6 +152,7 @@ object BalticPorterGen {
     * files, minus what only an extension reads; line endings normalised, so every OS agrees), the replacements the port reads from sge's own tree ([[ProvidedSources]]) and the JDK feature version.
     */
   def fingerprint(sgeRoot: Path): String = {
+    requireCompiledPolicyCurrent(sgeRoot)
     def git(dir: Path, args: String*): Option[String] = {
       val pb = new ProcessBuilder(("git" +: args)*)
       pb.directory(dir.toFile)
@@ -176,6 +177,18 @@ object BalticPorterGen {
     val generator = java.security.MessageDigest.getInstance("SHA-256").digest(source.getBytes("UTF-8")).take(8).map(b => f"$b%02x").mkString
     // the JDK the generator runs on decides what a member overrides (`CharSequence.getChars` exists from 25 on)
     s"engine=$pin base=$base libgdx=$libgdx generator=$generator policy=${policyHash(sgeRoot.resolve("sge-port"), rel => !isExtensionPolicy(rel))} provided=${policyHash(sgeRoot.resolve(ProvidedSources))} jdk=${java.lang.Runtime.version().feature()}"
+  }
+
+  /** Refuses to go on when the policy sources on disk are not the ones this server compiled: the fingerprint hashes the sources, the port runs the loaded classes, so without this a marker would
+    * record a policy that never ran.
+    */
+  private def requireCompiledPolicyCurrent(sgeRoot: Path): Unit = {
+    val onDisk = policyHash(sgeRoot.resolve("sge-port/src/main/scala"))
+    if (onDisk != sge.port.CompiledPolicy.sourceHash)
+      sys.error(
+        s"[Baltic Porter] sge-port's policy sources changed since this sbt server compiled them (compiled ${sge.port.CompiledPolicy.sourceHash}, on disk $onDisk): " +
+          "generating now would run the old policy under the new policy's fingerprint. Run `reload` first."
+      )
   }
 
   /** A file under `sge-port/` that only an extension's port reads (its policy sources, injected files and frozen derived policy), so editing it regenerates that extension and never sge-core. */

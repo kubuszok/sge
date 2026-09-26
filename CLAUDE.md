@@ -90,7 +90,9 @@ Requirements:
 
 The generated tree is reused while `target/balticporter-sge/.generated-marker` matches the engine
 and lls-port pins, the libGDX commit, the generator source, hashes of `sge-port/**` (minus the extension-only files) and
-`sge/src/main/scala/**` and the JDK major. CI
+`sge/src/main/scala/**` and the JDK major. The policy Scala runs from the classes the server compiled at load,
+so after editing `sge-port/src/main/scala` the generator refuses until `reload` (it compares the loaded
+`sge.port.CompiledPolicy.sourceHash` with the sources on disk). CI
 generates it once (the `generate` job) and every other job restores it — those jobs have no submodule.
 
 Rules:
