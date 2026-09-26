@@ -725,7 +725,7 @@ def getAs[T](key: String, defaultValue: T)(using tag: scala.reflect.ClassTag[T])
     "com.badlogic.gdx.math.Vector" -> List(
       spec("copy",
            """import sge.*
-def copy: T""",
+def copy: T = cpy()""",
            "com.badlogic.gdx.math.Vector",
            "def",
            false
