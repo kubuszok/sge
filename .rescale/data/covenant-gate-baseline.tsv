@@ -26,12 +26,6 @@ sge-extension/ai/src/main/scala/sge/ai/steer/limiters/LinearAccelerationLimiter.
 sge-extension/ai/src/main/scala/sge/ai/steer/limiters/LinearLimiter.scala	shortcut-drift	1
 sge-extension/ai/src/main/scala/sge/ai/steer/limiters/LinearSpeedLimiter.scala	shortcut-drift	1
 sge-extension/ai/src/main/scala/sge/ai/steer/limiters/NullLimiter.scala	shortcut-drift	31
-sge-extension/anim8/src/main/scala/sge/anim8/AnimatedGif.scala	shortcut-drift	3
-sge-extension/anim8/src/main/scala/sge/anim8/AnimatedPNG.scala	shortcut-drift	1
-sge-extension/anim8/src/main/scala/sge/anim8/FastGif.scala	shortcut-drift	1
-sge-extension/anim8/src/main/scala/sge/anim8/LZWEncoder.scala	shortcut-drift	1
-sge-extension/anim8/src/main/scala/sge/anim8/OtherMath.scala	shortcut-drift	8
-sge-extension/anim8/src/main/scala/sge/anim8/PNG8.scala	shortcut-drift	4
 sge-extension/colorful/src/main/scala/sge/colorful/TrigTools.scala	shortcut-drift	24
 sge-extension/colorful/src/main/scala/sge/colorful/cielab/ColorTools.scala	shortcut-drift	1
 sge-extension/colorful/src/main/scala/sge/colorful/cielab/ColorfulBatch.scala	shortcut-drift	2

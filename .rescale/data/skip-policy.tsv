@@ -20,8 +20,6 @@ sge-extension/visui/src/main/scala/sge/visui/widget/VisSplitPane.scala	shortcuts
 sge-extension/visui/src/main/scala/sge/visui/widget/file/FileUtils.scala	shortcuts	Catches UnsupportedOperationException from Desktop platform API for unsupported OSs	2026-04-08	dev
 sge-extension/visui/src/main/scala/sge/visui/util/adapter/AbstractListAdapter.scala	shortcuts	Abstract methods throw if not overridden by subclass with non-DISABLED selection mode	2026-04-08	dev
 sge-extension/visui/src/main/scala/sge/visui/building/utilities/CellWidget.scala	shortcuts	of(null) builder helper, @nowarn Java interop	2026-04-08	dev
-sge-extension/anim8/src/main/scala/sge/anim8/AnimatedPNG.scala	shortcuts	Doc comment 'minimal allocation' is a feature description, not a TODO	2026-04-08	dev
-sge-extension/anim8/src/main/scala/sge/anim8/FastGif.scala	shortcuts	Doc comment 'fastAnalysis enabled' is a feature description	2026-04-08	dev
 sge-extension/screens/src/main/scala/sge/screen/transition/ScreenTransition.scala	shortcuts	Doc comment about screen lifecycle ('not yet hidden' is a state, not a TODO)	2026-04-08	dev
 sge-extension/screens/src/main/scala/sge/screen/ScreenManager.scala	shortcuts	Doc comment about screen lifecycle ('not yet hidden' is a state, not a TODO)	2026-04-08	dev
 sge-extension/screens/src/main/scala/sge/screen/ManagedScreen.scala	shortcuts	Doc comment about screen lifecycle ('not yet hidden' is a state, not a TODO)	2026-04-08	dev
@@ -41,16 +39,12 @@ sge-extension/ai/src/main/scala/sge/ai/pfa/indexed/IndexedAStarPathFinder.scala	
 sge-extension/ai/src/main/scala/sge/ai/btree/utils/BehaviorTreeReader.scala	shortcuts	var done = false: pre-boundary refactor pattern, working parser	2026-04-08	dev
 sge-extension/textra/src/main/scala/sge/textra/utils/LZBCompression.scala	shortcuts	var done = false: pre-boundary refactor pattern, working LZB decoder	2026-04-08	dev
 sge-extension/textra/src/main/scala/sge/textra/BitmapFontSupport.scala	shortcuts	var done = false: pre-boundary refactor pattern	2026-04-08	dev
-sge-extension/anim8/src/main/scala/sge/anim8/LZWEncoder.scala	shortcuts	var done = false: pre-boundary refactor pattern, working LZW encoder	2026-04-08	dev
-sge-extension/anim8/src/main/scala/sge/anim8/AnimatedGif.scala	shortcuts	doc comments describing the GIF encoder buffer/flush API; one TODO for individual dither algorithms is partial-port debt tracked separately	2026-04-08	dev
-sge-extension/anim8/src/main/scala/sge/anim8/PNG8.scala	shortcuts	doc comments + null-cast for delayed init; one TODO for individual dither algorithms is partial-port debt tracked separately	2026-04-08	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/scene/SceneManager.scala	shortcuts	var result null-cast pattern for unique-light filter; line 321 TODO tracked as partial-port debt	2026-04-08	dev
 sge-extension/tools/src/main/scala/sge/tools/texturepacker/TexturePacker.scala	shortcuts	this(null,settings) Java interop ctor; 'output file does not yet exist' is staleness check	2026-04-08	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/utils/MaterialConverter.scala	shortcuts	'Conversion approximation' describes the algorithm being implemented (Blender FBX export plugin)	2026-04-08	dev
 sge-extension/controllers/src/main/scalanative/sge/controllers/GlfwControllerNative.scala	shortcuts	Doc comment about replacing the JVM stub at static-init time	2026-04-08	dev
 sge-extension/textra/src/main/scala/sge/textra/utils/ColorUtils.scala	shortcuts	Doc comments from original Java source: 'placeholder' describes the color value 256 used by ColorLookup for 'no color found', not a TODO	2026-04-11	dev
 sge-extension/textra/src/main/scala/sge/textra/TextraLabel.scala	shortcuts	Catches UnsupportedOperationException|ClassCastException for TransformDrawable fallback, faithful port of Java original	2026-04-11	dev
-sge-extension/anim8/src/main/scala/sge/anim8/PaletteReducer.scala	shortcuts	Faithful port of Java validation: sortInts throws UnsupportedOperationException for invalid range, matching FastUtil original; null-cast for lazily-initialized bigPaletteMapping	2026-04-18	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/utils/IBLBuilder.scala	shortcuts	Pre-existing XXX patch markers from original gdx-gltf port — light direction fix comments	2026-04-18	dev
 sge-extension/textra/src/main/scala/sge/textra/LzmaUtils.scala	shortcuts	LZMA SDK algorithm port: null-casts at Java stream/array interop boundaries, flag-break-var for loop control in compression algorithm	2026-04-19	dev
 sge/src/main/scala/sge/Graphics.scala	shortcuts	Doc comment 'best-effort attempt' describes vSync behavior, not a TODO	2026-04-19	dev
@@ -159,12 +153,6 @@ sge/src/main/scala/sge/utils/Nullable.scala	verify	null-cast: Nullable.orNull is
 sge/src/main/scala/sge/platform/Gdx2dOps.scala	verify	stub-comment@5,6: header describes platform implementation status (JS/Native stubs), not that this trait is a stub	2026-04-19	dev
 sge/src/main/scala/sge/platform/WindowingOps.scala	verify	minimal-comment@20: 'starts minimal and grows' describes API evolution; pending-comment@79: 'pending events' describes GLFW event polling semantics	2026-04-19	dev
 sge-extension/colorful/src/main/scala/sge/colorful/TrigTools.scala	shortcuts	False positive: TrigTools is a trigonometric approximation library; 'approximation' in Scaladoc is the domain, not stub markers	2026-04-19	dev
-sge-extension/anim8/src/main/scala/sge/anim8/AnimatedPNG.scala	shortcuts	False positive: 'minimal allocation' in Scaladoc, not stub code	2026-04-19	dev
-sge-extension/anim8/src/main/scala/sge/anim8/AnimatedGif.scala	shortcuts	False positive: 'minimal' in Scaladoc, 'deferred' describes frame timing, 'pending' describes data flush	2026-04-19	dev
-sge-extension/anim8/src/main/scala/sge/anim8/FastGif.scala	shortcuts	False positive: 'minimal' in Scaladoc describes allocation, not stub code	2026-04-19	dev
-sge-extension/anim8/src/main/scala/sge/anim8/LZWEncoder.scala	shortcuts	flag-break-var pattern for LZW encoding loop; already addressed in prior cleanup	2026-04-19	dev
-sge-extension/anim8/src/main/scala/sge/anim8/OtherMath.scala	shortcuts	False positive: OtherMath is a math approximation library; 'approximation' in Scaladoc is the domain	2026-04-19	dev
-sge-extension/anim8/src/main/scala/sge/anim8/PNG8.scala	shortcuts	False positives: 'minimal' in Scaladoc; null-cast for Java array interop with @nowarn; 'for now' comment describes delegation pattern	2026-04-19	dev
 sge/src/main/scala/sge/scenes/scene2d/utils/TiledDrawable.scala	verify	Line 76 UnsupportedOperationException is original LibGDX design: TiledDrawable.draw with transform params is not supported	2026-04-19	dev
 sge-extension/freetype/src/main/scala/sge/platform/FreetypeOps.scala	shortcuts	stub-comment in platform ops trait header	2026-04-19	dev
 sge-extension/gltf/src/main/scala/sge/gltf/exporters/GLTFExporterJson.scala	shortcuts	minimal-comment in JSON serialization code	2026-04-19	dev
@@ -198,7 +186,6 @@ sge-extension/screens/src/main/scala/sge/screen/ManagedScreen.scala	shortcuts	no
 sge-extension/tools/src/main/scala/sge/tools/texturepacker/MaxRectsPacker.scala	shortcuts	minimal-comment in packing algorithm	2026-04-19	dev
 sge-extension/gltf/src/main/scala/sge/gltf/data/GLTFCodecs.scala	shortcuts	jsoniter codec Java interop boundary: every nullValue override is a null.asInstanceOf at the Java codec contract	2026-04-08	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/model/NodePartPlus.scala	shortcuts	userData getOrElse(null) Java interop boundary	2026-04-08	dev
-sge-extension/anim8/src/main/scala/sge/anim8/OtherMath.scala	shortcuts	Math approximation library: 'approximation' describes the algorithm being implemented (cube root, atan2, probit), not a TODO	2026-04-08	dev
 sge-extension/colorful/src/main/scala/sge/colorful/TrigTools.scala	shortcuts	Math approximation library: 'approximation' describes the algorithm being implemented	2026-04-08	dev
 sge-extension/colorful/src/main/scala/sge/colorful/oklab/ColorTools.scala	shortcuts	Math approximation library: cube-root approximation algorithm	2026-04-08	dev
 sge/src/main/scala/sge/utils/ComparableTimSort.scala	shortcuts	pending-comment: 'pending runs' is algorithmic terminology in TimSort, not a TODO marker; flag-break-var: done/breakOuter/gallopContinue flags control complex nested merge loops with multiple exit points — boundary/break already used at outer level	2026-04-19	dev
@@ -254,12 +241,6 @@ sge-extension/ai/src/main/scala/sge/ai/steer/limiters/LinearAccelerationLimiter.
 sge-extension/ai/src/main/scala/sge/ai/steer/limiters/LinearLimiter.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
 sge-extension/ai/src/main/scala/sge/ai/steer/limiters/AngularLimiter.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
 sge-extension/ai/src/main/scala/sge/ai/steer/SteerableAdapter.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
-sge-extension/anim8/src/main/scala/sge/anim8/LZWEncoder.scala	shortcuts	flag-break-var: Scala 3 boundary/break replacement pattern	2026-04-29	dev
-sge-extension/anim8/src/main/scala/sge/anim8/AnimatedPNG.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
-sge-extension/anim8/src/main/scala/sge/anim8/PNG8.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
-sge-extension/anim8/src/main/scala/sge/anim8/FastGif.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
-sge-extension/anim8/src/main/scala/sge/anim8/AnimatedGif.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
-sge-extension/anim8/src/main/scala/sge/anim8/OtherMath.scala	shortcuts	approximation-comment: Math approximation from original Java source	2026-04-29	dev
 sge-extension/colorful/src/main/scala/sge/colorful/cielab/ColorTools.scala	shortcuts	approximation-comment: Math approximation from original Java source	2026-04-29	dev
 sge-extension/colorful/src/main/scala/sge/colorful/cielab/ColorfulBatch.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
 sge-extension/colorful/src/main/scala/sge/colorful/ipt/ColorfulBatch.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
