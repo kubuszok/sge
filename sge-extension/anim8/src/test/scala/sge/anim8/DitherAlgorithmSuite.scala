@@ -3,8 +3,8 @@ package anim8
 
 class DitherAlgorithmSuite extends munit.FunSuite {
 
-  test("all 22 algorithms exist") {
-    assertEquals(DitherAlgorithm.values.length, 22)
+  test("all 24 algorithms exist") {
+    assertEquals(DitherAlgorithm.values.length, 24)
   }
 
   test("DitherAlgorithm.ALL contains all values") {

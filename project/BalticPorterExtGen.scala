@@ -57,7 +57,6 @@ object BalticPorterExtGen {
     policy = rel => rel.startsWith("src/main/scala/sge/port/ext/noise4j/") || rel == "noise-derived-policy.tsv"
   )
 
-  // not wired into sge-anim8 yet: the generated sources do not compile against sge-core (ISS-904)
   val Anim8: Ext = Ext(
     id = "anim8",
     upstreamName = "anim8-gdx",

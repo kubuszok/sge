@@ -633,6 +633,7 @@ val `sge-anim8` = (projectMatrix in file("sge-extension/anim8"))
   .settings(publishSettings)
   .settings(mimaSettings)
   .settings(name := "sge-extension-anim8")
+  .settings(balticPorterExtSettings(BalticPorterExtGen.Anim8) *)
   .dependsOn(sge)
 
 val `sge-colorful` = (projectMatrix in file("sge-extension/colorful"))

@@ -32,7 +32,7 @@ object Anim8Policy {
           // LAST, deliberately: reads what the BASE actually emitted
           balticporter.transform.PortMapTransform.forBasesIn(reportRoots, "sge-l0")
         ),
-        // derived from the hand port while it exists (sge-extension/anim8 is not generated yet, ISS-904)
+        // derived from the hand port this generation replaced, while it existed
         frozenDerivedPolicy = Some(sgeRoot.resolve("sge-port/anim8-derived-policy.tsv"))
       )
     )
