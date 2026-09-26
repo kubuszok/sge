@@ -292,15 +292,64 @@ object LibgdxPolicy {
     "com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable#align" -> "getAlign"
   )
 
-  /** libGDX's `Align` constants as sge's opaque `Align` (the injected `Align.scala`); with the derive step on, the seeds come from the hand-written reference and the field hints are dropped. */
+  /** sge's additions to `Align`'s companion: bit operators and `isCenter` on the opaque type, and its array and pretty-printing type-class instances. */
+  val AlignAddedMembers: List[balticporter.transform.AddMembersTransform.MemberSpec] = {
+    def added(name: String, arity: Int, source: String, why: String) =
+      balticporter.transform.AddMembersTransform.MemberSpec(
+        name,
+        arity,
+        source,
+        balticporter.tir.Reason.Configured("add-members", s"com.badlogic.gdx.utils.Align#$name"),
+        Some(why),
+        static = true
+      )
+    List(
+      added(
+        "|",
+        1,
+        "extension (a: sge.utils.Align) def |(b: sge.utils.Align): sge.utils.Align = Align(Align.toInt(a) | Align.toInt(b))",
+        "sge's union of alignment flags"
+      ),
+      added(
+        "&",
+        1,
+        "extension (a: sge.utils.Align) def &(b: sge.utils.Align): sge.utils.Align = Align(Align.toInt(a) & Align.toInt(b))",
+        "sge's intersection of alignment flags"
+      ),
+      added(
+        "unary_~",
+        0,
+        "extension (a: sge.utils.Align) def unary_~ : sge.utils.Align = Align(~Align.toInt(a))",
+        "sge's complement of alignment flags"
+      ),
+      added(
+        "isCenter",
+        0,
+        "extension (a: sge.utils.Align) def isCenter: scala.Boolean = a.isCenterVertical && a.isCenterHorizontal",
+        "sge's centred-on-both-axes test"
+      ),
+      added(
+        "mkArrayOfInts",
+        0,
+        "given lowlevel.MkArray.OfInts[sge.utils.Align] = lowlevel.MkArray.ofIntAs[sge.utils.Align]",
+        "sge's array support for the opaque type"
+      ),
+      added(
+        "fastShowPretty",
+        0,
+        "given hearth.kindlings.fastshowpretty.FastShowPretty[sge.utils.Align] with { def render(sb: scala.collection.mutable.StringBuilder, config: hearth.kindlings.fastshowpretty.RenderConfig, level: scala.Int)(value: sge.utils.Align): scala.collection.mutable.StringBuilder = sb.append(value.show) }",
+        "sge's pretty-printing instance, rendering java's `toString(int)` (sge's `show`)"
+      )
+    )
+  }
+
+  /** libGDX's `Align` constants class re-emitted at its own name as sge's `opaque type Align = Int` (its statics on an `int` become extensions); with the derive step on, the seeds come from the
+    * hand-written reference and the field hints are dropped.
+    */
   val AlignSpec: balticporter.tir.OpaqueSpec =
     balticporter.tir.OpaqueSpec(
       fqn = "com.badlogic.gdx.utils.Align",
-      target = balticporter.tir.OpaqueSpec.Target.Existing(
-        typeFqn = "sge.utils.Align",
-        wrapName = "apply",
-        unwrapName = "toInt"
-      ),
+      target = balticporter.tir.OpaqueSpec.Target.OwnClass(wrapName = "apply", unwrapName = "toInt"),
       hints = Set(
         // 13 fields typed `int align` / `int alignment` / `int columnAlign` / `int rowAlign` /
         // `int labelAlign` / `int lineAlign` across the scene2d UI types. Each is a seed; the

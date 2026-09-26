@@ -872,7 +872,15 @@ object LibgdxLadder {
       ),
       // sge's `Align` opaque over java's `int` alignment bitmasks — the full port's spec, seeded here from
       // the reference (`GlyphLayout.setText`'s `halign`, `BitmapFont.draw`'s, every scene2d field; ISS-770)
-      "align" -> List(opaque(LibgdxPolicy.AlignSpec)),
+      // java's `Align` constants class as sge's `opaque type Align` at its own name. `toString(int)` is renamed
+      // to sge's `show` first, so it becomes an extension like the other statics (an extension named `toString`
+      // would be shadowed by the Int's own). sge's operators, `isCenter` and its two type-class instances are
+      // added to the companion.
+      "align" -> List(
+        new balticporter.transform.MemberRenameTransform(renames = Map("com.badlogic.gdx.utils.Align#toString" -> "show")),
+        opaque(LibgdxPolicy.AlignSpec),
+        new balticporter.transform.AddMembersTransform(Map("com.badlogic.gdx.utils.Align" -> LibgdxPolicy.AlignAddedMembers))
+      ),
       // java's `Gdx.app.log/error/debug(tag, msg[, t])` become sge's context-free `Log`: a class that only
       // logs then takes no context (sge commented the particle
       // values' call out — a skip; the port keeps java's call). Placed before the context step.
@@ -1966,8 +1974,6 @@ object LibgdxLadder {
     "pool" -> Set("com.badlogic.gdx.utils.Pool", "com.badlogic.gdx.utils.DefaultPool"),
     // sge's hand-written `SgeError` stands for both (the exceptions step re-points every use)
     "exceptions" -> Set("com.badlogic.gdx.utils.GdxRuntimeException", "com.badlogic.gdx.utils.SerializationException"),
-    // java's constants class; sge's own `opaque type Align` (injected) stands at the same name
-    "align" -> Set("com.badlogic.gdx.utils.Align"),
     // DataBuffer reads FilterOutputStream.out which Scala.js javalib doesn't expose; nobody
     // references it; sge rewrote it entirely
     "extras" -> Set(
@@ -2025,7 +2031,6 @@ object LibgdxLadder {
     // the reflection-free `Json`
     "reflection" -> List(overrides.resolve("reflection")),
     "context" -> List(overrides.resolve("context")),
-    "align" -> List(overrides.resolve("align")),
     "json" -> List(overrides.resolve("json"))
   ).withDefaultValue(Nil)
 
