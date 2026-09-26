@@ -901,7 +901,7 @@ object LibgdxLadder {
           redirects = Map("com.badlogic.gdx.utils.SerializationException" -> "sge.utils.SgeError.SerializationError")
         )
       ),
-      // the async executor per platform row (java's own on JVM/Native, libGDX's GWT emulation on JS): no phase, a drop and platform injections only.
+      // the async executor per platform row (java's own on JVM/Native, libGDX's GWT emulation on JS): no phase, row sources only.
       "async" -> Nil,
       // WebGL refuses vertex arrays from client memory, and java's `DecalBatch.initialize` falls back to
       // `VertexDataType.VertexArray` without GL30 (sge browser IT, Viewer3D: "Vertex arrays from client memory
@@ -1950,16 +1950,6 @@ object LibgdxLadder {
     "exceptions" -> Set("com.badlogic.gdx.utils.GdxRuntimeException", "com.badlogic.gdx.utils.SerializationException"),
     // java's constants class; sge's own `opaque type Align` (injected) stands at the same name
     "align" -> Set("com.badlogic.gdx.utils.Align"),
-    // java.util.concurrent.{ExecutorService, Future} and `Thread.yield` have no Scala.js javalib: the
-    // three types are PLATFORM ROWS (`stepPlatformInjects`) — java's own on JVM/Native, libGDX's GWT
-    // emulation on JS (the browser regression app was the first entry point to reach them, CI run
-    // 35115474743: "Referring to non-existent class java.util.concurrent.Future", then
-    // "non-existent method static java.lang.Thread.yield()" from `AssetManager.finishLoading`)
-    "async" -> Set(
-      "com.badlogic.gdx.utils.async.AsyncExecutor",
-      "com.badlogic.gdx.utils.async.AsyncResult",
-      "com.badlogic.gdx.utils.async.ThreadUtils"
-    ),
     // DataBuffer reads FilterOutputStream.out which Scala.js javalib doesn't expose; nobody
     // references it; sge rewrote it entirely
     "extras" -> Set(
@@ -2021,14 +2011,24 @@ object LibgdxLadder {
     "json" -> List(overrides.resolve("json"))
   ).withDefaultValue(Nil)
 
-  /** Per step, the files that differ per platform row (`PortManifest.platformDirs`): they land in `src_managed/<row>/scala`, which only that row compiles. */
-  def stepPlatformInjects(overrides: Path): Map[String, Map[String, List[Path]]] = Map(
-    // the async executor and its result: java's own (java.util.concurrent) on the threaded rows,
-    // libGDX's GWT emulation (a task runs inside `submit`) on JS — see `stepTypeDrops("async")`
+  /** Per step, the upstream java a platform row translates in place of the main set's (`PortManifest.rowSources`), under `gwtEmulation` — libGDX's GWT backend emulation tree.
+    */
+  def stepRowSources(gwtEmulation: Path): Map[String, Map[String, List[balticporter.core.RowSource]]] = Map(
+    // java.util.concurrent.{ExecutorService, Future} and `Thread.yield` have no Scala.js javalib: the JS
+    // row takes libGDX's own GWT emulation of the three async types (a task runs inside `submit`, `yield`
+    // does nothing); JVM and Native keep java's (CI run 35115474743: "Referring to non-existent class
+    // java.util.concurrent.Future", then "non-existent method static java.lang.Thread.yield()")
     "async" -> Map(
-      "jvm" -> List(overrides.resolve("async/threaded")),
-      "native" -> List(overrides.resolve("async/threaded")),
-      "js" -> List(overrides.resolve("async/js"))
+      "js" -> List(
+        balticporter.core.RowSource(
+          gwtEmulation,
+          List(
+            "com/badlogic/gdx/utils/async/AsyncExecutor.java",
+            "com/badlogic/gdx/utils/async/AsyncResult.java",
+            "com/badlogic/gdx/utils/async/ThreadUtils.java"
+          )
+        )
+      )
     )
   ).withDefaultValue(Map.empty)
 
@@ -2126,14 +2126,16 @@ object LibgdxLadder {
   )
 
   /** The manifest of sge core: a dependent of the lls port. `overrides` is `sge-port/overrides`, `provided` sge's own compiled tree (`sge/src/main/scala`) whose replacements the port reads and never
-    * copies, `upstreamResources` libGDX's `gdx/res`, `frozenDerivedPolicy` a committed TSV file the derive step reads its spellings from.
+    * copies, `upstreamResources` libGDX's `gdx/res`, `frozenDerivedPolicy` a committed TSV file the derive step reads its spellings from, `gwtEmulation` libGDX's GWT emulation tree the JS row reads
+    * its own java from (none: no row sources).
     */
   def universal(
     overrides:           Path,
     provided:            List[Path],
     upstreamResources:   Path,
     frozenDerivedPolicy: Option[Path],
-    steps:               Set[String] = DefaultSteps
+    steps:               Set[String] = DefaultSteps,
+    gwtEmulation:        Option[Path] = None
   ): PortManifest = {
     val unknown = steps -- Steps.keySet
     require(unknown.isEmpty, s"unknown ladder steps: ${unknown.mkString(",")}; known: ${Steps.keySet.toList.sorted.mkString(",")}")
@@ -2152,7 +2154,7 @@ object LibgdxLadder {
             // members it reads ship public — the split declared, as sge's own tree has it
             Set("com.badlogic.gdx.graphics.g2d.BitmapFont$BitmapFontData"),
           inject = StepOrder.filter(steps).flatMap(stepInjects(overrides)),
-          platformDirs = StepOrder.filter(steps).flatMap(stepPlatformInjects(overrides)(_).toList).groupMapReduce(_._1)(_._2)(_ ++ _),
+          rowSources = gwtEmulation.toList.flatMap(emu => StepOrder.filter(steps).flatMap(stepRowSources(emu)(_).toList)).groupMapReduce(_._1)(_._2)(_ ++ _),
           providedSources = provided,
           // a dependent follows the base's published member spellings (`first()` -> `first`): the
           // port-map follow reads what lls published, never re-derives it.

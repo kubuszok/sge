@@ -62,7 +62,7 @@ The engine names no library. **How libGDX is ported is sge's own policy, in `sge
   there for its surface and never copied, so each replacement has ONE home. Never copy such a file
   into `sge-port/overrides/`;
 - `sge-port/overrides/<step>/` — the hand-written files the policy injects by path, only those sge's
-  own tree does not hold (13: the per-row async executor, `Align`, the `Sge` context, `Timer`,
+  own tree does not hold (7: `Align`, the `Sge` context, `Timer`,
   the reflection-free stand-ins; each one's reason is an ISS-894..901 row, or ISS-871). They are covenanted and scanned like every ported file (`sge-port/overrides` is
   a `.rescale/scan-targets.txt` root; a by-design refusal there is a `skip-policy` entry AND a
   covenant-gate baseline row). The policy sources are not: they have no Java original, and the

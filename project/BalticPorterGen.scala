@@ -18,6 +18,9 @@ object BalticPorterGen {
   /** sge's own compiled tree: the replacements for the types the policy drops that sge compiles itself, read by the port for their surface and never copied. */
   val ProvidedSources = "sge/src/main/scala"
 
+  /** libGDX's GWT backend emulation tree: the java a platform row translates in place of core's (`rowSources`). */
+  val GwtEmulation = "original-src/libgdx/backends/gdx-backends-gwt/src/com/badlogic/gdx/backends/gwt/emu"
+
   /** Generate sge-core Scala sources from libGDX Java originals. Returns the list of generated files (shared + all platform rows). Caches by upstream commit.
     */
   // sbt evaluates the JVM/JS/Native rows' managedSources in parallel; the port writes one shared
@@ -69,15 +72,16 @@ object BalticPorterGen {
       // (`sge-port/derived-policy.tsv`). The spliced members (formerly fromReference) are committed
       // as inline text in AddedMembers.scala, so no reference tree extraction is needed.
       // Platform rows: sge hand-writes its backend layers (sge/src/main/scala{jvm,js,native,desktop}); the
-      // files the PORT owns per row (`async`: java's executor on JVM/Native, libGDX's GWT emulation on JS)
-      // land in src_managed/<row>/scala, which build.sbt attaches to that row only (`platformSources`).
+      // types the PORT translates per row (`async`: java's executor on JVM/Native, libGDX's GWT emulation of
+      // it on JS, `rowSources`) land in src_managed/<row>/scala, which build.sbt attaches to that row only.
       val frozenPolicy = sgeRoot.resolve("sge-port/derived-policy.tsv")
       val manifest     = sge.port.LibgdxLadder
         .universal(
           overrides,
           provided = List(sgeRoot.resolve(ProvidedSources)),
           upstreamResources = sgeRoot.resolve("original-src/libgdx/gdx/res"),
-          frozenDerivedPolicy = Some(frozenPolicy)
+          frozenDerivedPolicy = Some(frozenPolicy),
+          gwtEmulation = Some(sgeRoot.resolve(GwtEmulation))
         )
         .copy(baseReports = List(llsReportRoot))
 
