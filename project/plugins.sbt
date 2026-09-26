@@ -28,8 +28,8 @@ libraryDependencies += ("org.scala-js" % "scalajs-env-jsdom-nodejs_2.13" % "1.1.
 // Baltic Porter: Java->Scala 3 porting engine, runs as a sourceGenerator. The engine names no library:
 // how libGDX is ported is sge's own policy (sge-port/, compiled into this meta-build by project/build.sbt).
 resolvers += "Central Portal Snapshots" at "https://central.sonatype.com/repository/maven-snapshots"
-libraryDependencies += "com.kubuszok" %% "balticporter-engine" % "ca78e90e01668f0a6a37ef65b427f54ca45b4a7f-SNAPSHOT"
-dependencyOverrides += "com.kubuszok" %% "balticporter-engine" % "ca78e90e01668f0a6a37ef65b427f54ca45b4a7f-SNAPSHOT"
+libraryDependencies += "com.kubuszok" %% "balticporter-engine" % "da3d2de96e054d3bef61b14d5336e21ec6616d3e-SNAPSHOT"
+dependencyOverrides += "com.kubuszok" %% "balticporter-engine" % "da3d2de96e054d3bef61b14d5336e21ec6616d3e-SNAPSHOT"
 // sge's port is a dependent of the lls port: the base's policy is lls's own, published as lls-port at the
 // version of the lls dependency itself (`Versions.lls`, read as text: this file cannot see the meta-build's sources).
 libraryDependencies += "com.kubuszok" %% "lls-port" % {
