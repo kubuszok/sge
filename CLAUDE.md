@@ -70,14 +70,18 @@ The engine names no library. **How libGDX is ported is sge's own policy, in `sge
 The lls base's policy is lls's own: the `lls-port` artifact, at the version of the lls dependency
 (`Versions.lls`). No hand-port extraction from git history is needed at build time.
 
-The full-port core policy and the nine extension policies (ashley, gdx-ai, gltf, textra, vfx,
-vis-ui, vis-ui-usl, screens, anim8, jbump, noise4j, simple-graphs) live under
-`sge-port/src/main/scala/sge/port/{full,ext}`, moved verbatim from the engine on 2026-09-23. They
-extend the older full-port core policy, not the ladder, and are the extensions' base for when
-extension generation is wired (rebase on the ladder then). Their override files are in
-`sge-port/overrides-full/` and `sge-port/overrides-ext/<lib>/`. The port configurations under
-`sge-port/ports/` still carry the engine checkout's paths and are adjusted when the extensions
-are rebased on the ladder.
+Generated extensions: `sge-ecs` (ashley, `project/BalticPorterEcsGen.scala`) and `sge-noise` (noise4j,
+`project/BalticPorterExtGen.scala`, which ports any extension from its submodule — as a base of its
+own or as a dependent of sge-core — into `target/balticporter-sge-<id>`). An extension's spelling
+policy is frozen in `sge-port/<id>-derived-policy.tsv`, derived from its hand port before that was
+deleted. The jbump, anim8 and simple-graphs policies are on sge's paths and their frozen policies
+are committed, but they are not wired yet (engine defects, ISS-903, ISS-904, ISS-906); screens waits
+on its guacamole dependency (ISS-905). The files only an extension reads (`src/main/scala/sge/port/ext/`,
+`overrides-ext/`, `ports/`, `<id>-derived-policy.tsv`) are outside sge-core's fingerprint and inside
+that extension's. The other extension policies (gdx-ai, gltf, textra, vfx, vis-ui, vis-ui-usl,
+screens) still extend the older full-port core policy under `sge-port/src/main/scala/sge/port/{full,ext}`,
+with override files in `sge-port/overrides-full/` and `sge-port/overrides-ext/<lib>/`; the port
+configurations left under `sge-port/ports/` still carry the engine checkout's paths.
 
 Requirements:
 - `original-src/libgdx` submodule checked out (upstream Java sources)
@@ -85,7 +89,7 @@ Requirements:
 - JDK 25 for the sbt server (the generated code depends on the JDK major) and `cs` on the PATH
 
 The generated tree is reused while `target/balticporter-sge/.generated-marker` matches the engine
-and lls-port pins, the libGDX commit, the generator source, hashes of `sge-port/**` and
+and lls-port pins, the libGDX commit, the generator source, hashes of `sge-port/**` (minus the extension-only files) and
 `sge/src/main/scala/**` and the JDK major. CI
 generates it once (the `generate` job) and every other job restores it — those jobs have no submodule.
 
