@@ -1088,7 +1088,7 @@ object LibgdxLadder {
       // types must declare themselves (`LibgdxEnrich`).
       "enrich" -> List(LibgdxEnrich.transform(w = true, n = sel("nullability"))),
       // no runtime reflection: the reflective `Json` and the `reflect` package go (types below), the
-      // one class lookup by name becomes a table (`AssetTypeRegistry`, injected), and `ClassReflection`'s
+      // one class lookup by name becomes a table (`AssetTypeRegistry`, minted by class-table), and `ClassReflection`'s
       // statics are `java.lang.Class`'s own — the full port's policy, lifted (`LibgdxPolicy`).
       // the classpath probe respelled for Scala Native — the full port's own value (`LibgdxPolicy.ClasspathProbeCalls`)
       "net" -> List(new balticporter.transform.CallSiteSubstitutionTransform(LibgdxPolicy.ClasspathProbeCalls)),
@@ -1894,10 +1894,28 @@ object LibgdxLadder {
         )
       ),
       "reflection" -> List(
+        // the one class lookup by name libGDX core performs (`ResourceData` reads an asset type back from
+        // its name) goes to a table minted from the types core itself stores; an unknown name throws
+        // `ReflectionException("Class not found: …")`, as java's `ClassReflection.forName` does
         new balticporter.transform.ClassTableTransform(
           Map(
             "com.badlogic.gdx.utils.reflect.ClassReflection#forName" ->
               "com.badlogic.gdx.graphics.g3d.particles.AssetTypeRegistry#classFor"
+          ),
+          balticporter.tir.RuleScope.everywhere,
+          List(
+            balticporter.transform.ClassTableTransform.Table(
+              placement = "com.badlogic.gdx.graphics.g3d.particles.AssetTypeRegistry",
+              seeds = List(
+                "com.badlogic.gdx.graphics.Texture",
+                "com.badlogic.gdx.graphics.g2d.TextureAtlas",
+                "com.badlogic.gdx.graphics.g3d.Model",
+                "com.badlogic.gdx.graphics.g3d.particles.ParticleEffect"
+              ),
+              missing = Some(
+                balticporter.transform.ClassTableTransform.Missing("sge.utils.reflect.ReflectionException", notFound = "Class not found: ")
+              )
+            )
           )
         ),
         new balticporter.transform.StaticForwarderTransform(
@@ -2004,7 +2022,7 @@ object LibgdxLadder {
     */
   def stepInjects(overrides: Path): Map[String, List[Path]] = Map(
     "helpers" -> List(overrides.resolve("helpers")),
-    // the reflection-free `Json` and the asset-type registry
+    // the reflection-free `Json`
     "reflection" -> List(overrides.resolve("reflection")),
     "context" -> List(overrides.resolve("context")),
     "align" -> List(overrides.resolve("align")),
