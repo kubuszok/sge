@@ -76,8 +76,9 @@ which ports any extension from its submodule — as a base of its
 own or as a dependent of sge-core — into `target/balticporter-sge-<id>`. An extension's spelling
 policy is frozen in `sge-port/<id>-derived-policy.tsv`, derived from its hand port before that was
 deleted. The simple-graphs policy is on sge's paths and its frozen policy is committed, but it is
-not wired yet (ISS-906 API decision); screens waits
-on its guacamole dependency (ISS-905). The files only an extension reads (`src/main/scala/sge/port/ext/`,
+not wired yet (ISS-906 API decision). guacamole (`original-src/guacamole`, screenmanager's second
+dependency) is generated into `sge-screens` as a dependent of sge-core (`sge.guacamole`; the four types it
+drops by design are ISS-908); screenmanager itself is not generated yet (ISS-905). The files only an extension reads (`src/main/scala/sge/port/ext/`,
 `overrides-ext/`, `ports/`, `<id>-derived-policy.tsv`) are outside sge-core's fingerprint and inside
 that extension's. The other extension policies (gdx-ai, gltf, textra, vfx, vis-ui, vis-ui-usl,
 screens) still extend the older full-port core policy under `sge-port/src/main/scala/sge/port/{full,ext}`,
