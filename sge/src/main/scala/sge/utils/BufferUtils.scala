@@ -759,10 +759,9 @@ object BufferUtils {
   def disposeUnsafeByteBuffer(buffer: ByteBuffer): Unit = {
     val size = buffer.capacity()
     unsafeBuffers.synchronized {
-      val index = unsafeBuffers.indexOf(buffer)
-      if (index < 0)
+      // by reference, as java's removeValue(buffer, true): ByteBuffer.equals compares contents
+      if (!unsafeBuffers.removeValueByRef(buffer))
         throw new IllegalArgumentException("buffer not allocated with newUnsafeByteBuffer or already disposed")
-      unsafeBuffers.removeIndex(index)
     }
     allocatedUnsafe -= size
     PlatformOps.buffer.freeMemory(buffer)
@@ -770,7 +769,7 @@ object BufferUtils {
 
   def isUnsafeByteBuffer(buffer: ByteBuffer): Boolean =
     unsafeBuffers.synchronized {
-      unsafeBuffers.contains(buffer)
+      unsafeBuffers.containsByRef(buffer)
     }
 
   /** Allocates a new direct ByteBuffer from native heap memory using the native byte order. Needs to be disposed with {@link #disposeUnsafeByteBuffer(ByteBuffer)} .
