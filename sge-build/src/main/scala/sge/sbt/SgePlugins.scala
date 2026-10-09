@@ -153,7 +153,10 @@ object SgeDesktopNativePlatform extends AutoPlugin {
         SgePackaging.sgeNativeBinary := Def.uncached {
           val conv = fileConverter.value
           conv.toPath((Compile / nativeLink).value).toFile
-        }
+        },
+        // NativeProviderPlugin.projectSettings above re-assigns nativeConfig, dropping the embedding
+        // SgeNativeProviderPlugin set, so resources (sge's shaders among them) never reached the binary
+        nativeConfig ~= SgeNativeProviderPlugin.embedResources
       )
 }
 

@@ -21,26 +21,28 @@ object SgeNativeProviderPlugin extends AutoPlugin {
   override def trigger  = allRequirements
   override def requires = NativeProviderPlugin
 
+  /** Embeds the asset resources (and sge's own `.glsl` shaders, read through `FileType.Classpath`) into the binary. Applied with `~=` after every `nativeConfig :=`, since a later `:=` drops it. */
+  val embedResources: scala.scalanative.build.NativeConfig => scala.scalanative.build.NativeConfig =
+    _.withEmbedResources(true).withResourceIncludePatterns(
+      Seq(
+        "**.png",
+        "**.jpg",
+        "**.wav",
+        "**.ogg",
+        "**.mp3",
+        "**.txt",
+        "**.json",
+        "**.xml",
+        "**.g3dj",
+        "**.g3db",
+        "**.atlas",
+        "**.fnt",
+        "**.tmx",
+        "**.glsl"
+      )
+    )
+
   override def projectSettings: Seq[Setting[_]] = Seq(
-    nativeConfig :=
-      nativeConfig.value
-        .withEmbedResources(true)
-        .withResourceIncludePatterns(
-          Seq(
-            "**.png",
-            "**.jpg",
-            "**.wav",
-            "**.ogg",
-            "**.mp3",
-            "**.txt",
-            "**.json",
-            "**.xml",
-            "**.g3dj",
-            "**.g3db",
-            "**.atlas",
-            "**.fnt",
-            "**.tmx"
-          )
-        )
+    nativeConfig ~= embedResources
   )
 }
