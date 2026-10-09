@@ -366,6 +366,16 @@ val sge: sbt.ProjectMatrix = (projectMatrix in file("sge"))
           val conv = fileConverter.value
           (Test / fullClasspath).value.filterNot(e => conv.toPath(e.data).getFileName.toString == "android.jar")
         },
+        // libGDX's Timer thread is process-global, so the suites that touch it cannot overlap: each
+        // runs in a forked JVM of its own (JUnit ran libGDX's test classes one at a time).
+        Test / testGrouping := Def.uncached {
+          val timerSuites = Set("sge.input.GestureDetectorTest", "sge.utils.TimerWakeupRedSuite")
+          (Test / testGrouping).value.flatMap { group =>
+            val (timer, rest) = group.tests.partition(t => timerSuites(t.name))
+            (if (rest.isEmpty) Nil else Seq(Tests.Group(group.name, rest, group.runPolicy))) ++
+              timer.map(t => Tests.Group(t.name, Seq(t), group.runPolicy))
+          }
+        },
         Compile / unmanagedSourceDirectories ++= {
           if (hasAndroidSdk)
             Seq((ThisBuild / baseDirectory).value / "sge" / "src" / "main" / "scala-android-host")
