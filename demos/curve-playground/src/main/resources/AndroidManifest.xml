@@ -8,7 +8,7 @@
         android:label="SGE Curves"
         android:hardwareAccelerated="true">
         <activity
-            android:name="sge.demos.curves.AndroidMain"
+            android:name="demos.curves.AndroidMain"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="true">
             <intent-filter>

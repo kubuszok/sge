@@ -8,7 +8,7 @@
         android:label="SGE Space Shooter"
         android:hardwareAccelerated="true">
         <activity
-            android:name="sge.demos.spaceshooter.AndroidMain"
+            android:name="demos.spaceshooter.AndroidMain"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="true">
             <intent-filter>

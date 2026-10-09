@@ -9,7 +9,7 @@
         android:label="SGE Net Chat"
         android:hardwareAccelerated="true">
         <activity
-            android:name="sge.demos.netchat.AndroidMain"
+            android:name="demos.netchat.AndroidMain"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="true">
             <intent-filter>

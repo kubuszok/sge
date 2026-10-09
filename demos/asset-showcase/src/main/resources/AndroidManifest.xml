@@ -8,7 +8,7 @@
         android:label="SGE Asset Showcase"
         android:hardwareAccelerated="true">
         <activity
-            android:name="sge.demos.assets.AndroidMain"
+            android:name="demos.assets.AndroidMain"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="true">
             <intent-filter>

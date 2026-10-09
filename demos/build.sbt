@@ -84,6 +84,29 @@ val desktopMainClass: Seq[Setting[_]] = Seq(
   }
 )
 
+// ── Android (the JVM row builds the APK) ────────────────────────────
+// `androidSign` (d8 → aapt2 → apksigner) on each demo's JVM row, the way the root build's
+// android smoke app gets it. Only when an Android SDK is installed: the `scala-android` sources
+// extend `sge.SgeActivity` and need the SDK's android.jar. That jar is a compile-time stub and
+// multiarch detects Android by `Class.forName("android.app.Activity")`, so it is kept off the
+// desktop runtime classpath.
+lazy val androidSdkCacheDir: File = new File("./sge-deps/android-sdk")
+lazy val hasAndroidSdk: Boolean = _root_.multiarch.sbt.AndroidSdk
+  .findSdkRoot(androidSdkCacheDir)
+  .exists(r => _root_.multiarch.sbt.AndroidSdk.androidJar(r).exists())
+
+def androidSettings(dir: String): Seq[Setting[_]] =
+  if (!hasAndroidSdk) Seq.empty
+  else
+    _root_.multiarch.sbt.AndroidBuild.taskSettings ++ Seq(
+      _root_.multiarch.sbt.AndroidBuild.androidSdkCacheDir := (ThisBuild / baseDirectory).value / "sge-deps" / "android-sdk",
+      Compile / unmanagedSourceDirectories += (ThisBuild / baseDirectory).value / dir / "src" / "main" / "scala-android",
+      Runtime / fullClasspath := Def.uncached {
+        val conv = fileConverter.value
+        (Runtime / fullClasspath).value.filterNot(e => conv.toPath(e.data).getFileName.toString == "android.jar")
+      }
+    )
+
 // ── Shared demo framework ───────────────────────────────────────────
 
 val shared = (projectMatrix in file("shared"))
@@ -100,7 +123,7 @@ val shared = (projectMatrix in file("shared"))
       """val lls\s*=\s*"([^"]+)"""".r.findFirstMatchIn(versions).map(_.group(1)).getOrElse(sys.error("project/Versions.scala states no lls version"))
     }
   )
-  .jvmPlatform(desktopSources("shared"))
+  .jvmPlatform(desktopSources("shared") ++ androidSettings("shared"))
   .jsPlatform()
   .nativePlatform(scalaVersions = Seq(SgePlugin.scalaVersion), settings = desktopSources("shared"))
 
@@ -173,7 +196,7 @@ def demo(dir: String, sbtName: String, pkg: String, title: String,
       JvmPackaging.releaseAppName := title,
       sgeExtensions := extensions)
     .dependsOn(shared)
-    .jvmPlatform(demoDistSettings ++ desktopSources(dir) ++ desktopMainClass)
+    .jvmPlatform(demoDistSettings ++ desktopSources(dir) ++ desktopMainClass ++ androidSettings(dir))
     .jsPlatform(browserEmbeddedResources(pkg))
     // The desktop main (scaladesktop) is shared by the JVM and Native desktop
     // axes. Under sbt 2.0 the scaladesktop dir must be wired explicitly on BOTH
@@ -215,7 +238,7 @@ val assetShowcase = (projectMatrix in file("asset-showcase"))
   )
   .settings(AssetGenerator.settings)
   .dependsOn(shared)
-  .jvmPlatform(demoDistSettings ++ desktopSources("asset-showcase") ++ desktopMainClass)
+  .jvmPlatform(demoDistSettings ++ desktopSources("asset-showcase") ++ desktopMainClass ++ androidSettings("asset-showcase"))
   .jsPlatform(browserEmbeddedResources("assets"))
   .nativePlatform(
     scalaVersions = Seq(SgePlugin.scalaVersion),

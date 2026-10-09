@@ -8,7 +8,7 @@
         android:label="SGE Particles"
         android:hardwareAccelerated="true">
         <activity
-            android:name="sge.demos.particles.AndroidMain"
+            android:name="demos.particles.AndroidMain"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="true">
             <intent-filter>
