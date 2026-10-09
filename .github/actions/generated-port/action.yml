@@ -47,13 +47,13 @@ runs:
         done
         echo "tree=$policy-$provided-$base$extensions" >> "$GITHUB_OUTPUT"
       env:
-        EXTENSION_SUBMODULES: original-src/ashley original-src/noise4j
+        EXTENSION_SUBMODULES: original-src/ashley original-src/noise4j original-src/anim8-gdx original-src/jbump original-src/guacamole
 
     # Init the generated extensions' submodules alongside libgdx
     - name: Checkout the extension submodules
       if: inputs.mode == 'generate'
       shell: bash
-      run: git submodule update --init --depth=1 original-src/ashley original-src/noise4j
+      run: git submodule update --init --depth=1 original-src/ashley original-src/noise4j original-src/anim8-gdx original-src/jbump original-src/guacamole
 
     - uses: kubuszok/balticporter/.github/actions/generated-port@55be328a2265f34c8d41d30634569229539cf562
       id: port
@@ -76,6 +76,9 @@ runs:
         path: |
           target/balticporter-sge-ecs
           target/balticporter-sge-noise
+          target/balticporter-sge-anim8
+          target/balticporter-sge-jbump
+          target/balticporter-sge-guacamole
           target/balticporter-reports
         key: ${{ steps.port.outputs.key }}-ecs
         fail-on-cache-miss: ${{ inputs.mode == 'restore' }}
@@ -88,6 +91,9 @@ runs:
         path: |
           target/balticporter-sge-ecs
           target/balticporter-sge-noise
+          target/balticporter-sge-anim8
+          target/balticporter-sge-jbump
+          target/balticporter-sge-guacamole
           target/balticporter-reports
         key: ${{ steps.port.outputs.key }}-ecs
         enableCrossOsArchive: true
