@@ -84,33 +84,46 @@ val desktopMainClass: Seq[Setting[_]] = Seq(
   }
 )
 
-// ── Android (the JVM row builds the APK) ────────────────────────────
-// `androidSign` (d8 → aapt2 → apksigner) on each demo's JVM row, the way the root build's
-// android smoke app gets it. Only when an Android SDK is installed: the `scala-android` sources
-// extend `sge.SgeActivity` and need the SDK's android.jar. That jar is a compile-time stub and
-// multiarch detects Android by `Class.forName("android.app.Activity")`, so it is kept off the
-// desktop runtime classpath.
+// ── Android ─────────────────────────────────────────────────────────
+// Each demo's APK is its own project, `<id>Android`, on top of the demo's JVM row: the Android
+// sources (`scala-android`, extending `sge.SgeActivity`), the SDK's stub android.jar and the
+// Android-only libraries never reach the desktop JVM row, whose `run` and release package would
+// otherwise carry them (multiarch detects Android by `Class.forName("android.app.Activity")`).
+// The tasks exist only where an Android SDK is installed.
 lazy val androidSdkCacheDir: File = new File("./sge-deps/android-sdk")
 lazy val hasAndroidSdk: Boolean = _root_.multiarch.sbt.AndroidSdk
   .findSdkRoot(androidSdkCacheDir)
   .exists(r => _root_.multiarch.sbt.AndroidSdk.androidJar(r).exists())
 
-def androidSettings(dir: String): Seq[Setting[_]] =
-  if (!hasAndroidSdk) Seq.empty
-  else
-    _root_.multiarch.sbt.AndroidBuild.taskSettings ++ Seq(
-      _root_.multiarch.sbt.AndroidBuild.androidSdkCacheDir := (ThisBuild / baseDirectory).value / "sge-deps" / "android-sdk",
-      Compile / unmanagedSourceDirectories += (ThisBuild / baseDirectory).value / dir / "src" / "main" / "scala-android",
-      // sge's own native libraries for Android (libsge_native_ops, libsge_audio); androidPackage moves
-      // a dependency's native/android-*/*.so into the APK's lib/<abi>/. Same version sge pins.
-      libraryDependencies += "com.kubuszok" % "pnm-provider-sge-android" % {
-        val versions = IO.read((ThisBuild / baseDirectory).value.getParentFile / "project" / "Versions.scala")
-        """val nativeComponents\s*=\s*"([^"]+)"""".r.findFirstMatchIn(versions).map(_.group(1)).getOrElse(sys.error("project/Versions.scala states no nativeComponents version"))
-      },
-      Runtime / fullClasspath := Def.uncached {
-        val conv = fileConverter.value
-        (Runtime / fullClasspath).value.filterNot(e => conv.toPath(e.data).getFileName.toString == "android.jar")
-      }
+def androidApp(id: String, dir: String, sbtName: String, jvmRow: Project): Project =
+  Project(s"${id}Android", file(s"$dir/android"))
+    .dependsOn(jvmRow)
+    .settings(
+      name           := s"$sbtName-android",
+      organization   := "com.kubuszok",
+      publish / skip := true,
+      scalaVersion   := SgePlugin.scalaVersion,
+      Compile / resourceDirectory := (ThisBuild / baseDirectory).value / dir / "src" / "main" / "resources",
+      // The demo's generated resources (asset-showcase's textures and sounds) are APK assets too,
+      // where an Internal FileHandle reads them on Android.
+      Compile / managedResourceDirectories ++= (jvmRow / Compile / managedResourceDirectories).value
+    )
+    .settings(
+      if (!hasAndroidSdk) Seq.empty
+      else
+        _root_.multiarch.sbt.AndroidBuild.taskSettings ++ Seq(
+          _root_.multiarch.sbt.AndroidBuild.androidSdkCacheDir := (ThisBuild / baseDirectory).value / "sge-deps" / "android-sdk",
+          Compile / unmanagedSourceDirectories ++= Seq(
+            (ThisBuild / baseDirectory).value / "shared" / "src" / "main" / "scala-android",
+            (ThisBuild / baseDirectory).value / dir / "src" / "main" / "scala-android"
+          ),
+          // sge's own native libraries for Android (libsge_native_ops, libsge_audio); androidPackage
+          // moves a dependency's native/android-*/*.so into the APK's lib/<abi>/. Same version sge pins.
+          libraryDependencies += "com.kubuszok" % "pnm-provider-sge-android" % {
+            val versions = IO.read((ThisBuild / baseDirectory).value.getParentFile / "project" / "Versions.scala")
+            """val nativeComponents\s*=\s*"([^"]+)"""".r.findFirstMatchIn(versions).map(_.group(1)).getOrElse(sys.error("project/Versions.scala states no nativeComponents version"))
+          }
+        )
     )
 
 // ── Shared demo framework ───────────────────────────────────────────
@@ -129,7 +142,7 @@ val shared = (projectMatrix in file("shared"))
       """val lls\s*=\s*"([^"]+)"""".r.findFirstMatchIn(versions).map(_.group(1)).getOrElse(sys.error("project/Versions.scala states no lls version"))
     }
   )
-  .jvmPlatform(desktopSources("shared") ++ androidSettings("shared"))
+  .jvmPlatform(desktopSources("shared"))
   .jsPlatform()
   .nativePlatform(scalaVersions = Seq(SgePlugin.scalaVersion), settings = desktopSources("shared"))
 
@@ -202,7 +215,7 @@ def demo(dir: String, sbtName: String, pkg: String, title: String,
       JvmPackaging.releaseAppName := title,
       sgeExtensions := extensions)
     .dependsOn(shared)
-    .jvmPlatform(demoDistSettings ++ desktopSources(dir) ++ desktopMainClass ++ androidSettings(dir))
+    .jvmPlatform(demoDistSettings ++ desktopSources(dir) ++ desktopMainClass)
     .jsPlatform(browserEmbeddedResources(pkg))
     // The desktop main (scaladesktop) is shared by the JVM and Native desktop
     // axes. Under sbt 2.0 the scaladesktop dir must be wired explicitly on BOTH
@@ -231,7 +244,7 @@ val viewportGallery  = demo("viewport-gallery",  "sge-demo-viewports",    "viewp
 // Game/Screen demo: built directly on SGE's public Game/Screen API (not the
 // DemoScene abstraction the other demos use). JVM/JS/Native only — Android
 // Game-launch is blocked by ISS-554 (no library Game-launcher Activity yet).
-val gameScreens      = demo("game-screens",      "sge-demo-gamescreens",  "gamescreens",  "SGE Game/Screen")(projectMatrix in file("game-screens"))
+val gameScreens      = demo("game-screens",      "sge-demo-gamescreens",  "gamescreens",  "SGE Game-Screen")(projectMatrix in file("game-screens"))
 
 // Asset Showcase: procedural PNG textures and WAV audio generated at compile time
 // (see project/AssetGenerator.scala).
@@ -244,13 +257,26 @@ val assetShowcase = (projectMatrix in file("asset-showcase"))
   )
   .settings(AssetGenerator.settings)
   .dependsOn(shared)
-  .jvmPlatform(demoDistSettings ++ desktopSources("asset-showcase") ++ desktopMainClass ++ androidSettings("asset-showcase"))
+  .jvmPlatform(demoDistSettings ++ desktopSources("asset-showcase") ++ desktopMainClass)
   .jsPlatform(browserEmbeddedResources("assets"))
   .nativePlatform(
     scalaVersions = Seq(SgePlugin.scalaVersion),
     settings = desktopSources("asset-showcase") ++ desktopMainClass
   )
   .withCrossNative
+
+// The APK of every demo that has a `scala-android` launcher (game-screens has none, ISS-554).
+lazy val pongAndroid            = androidApp("pong", "pong", "sge-demo-pong", pong.jvm(SgePlugin.scalaVersion))
+lazy val spaceShooterAndroid    = androidApp("spaceShooter", "space-shooter", "sge-demo-spaceshooter", spaceShooter.jvm(SgePlugin.scalaVersion))
+lazy val tileWorldAndroid       = androidApp("tileWorld", "tile-world", "sge-demo-tileworld", tileWorld.jvm(SgePlugin.scalaVersion))
+lazy val hexTacticsAndroid      = androidApp("hexTactics", "hex-tactics", "sge-demo-hextactics", hexTactics.jvm(SgePlugin.scalaVersion))
+lazy val curvePlaygroundAndroid = androidApp("curvePlayground", "curve-playground", "sge-demo-curves", curvePlayground.jvm(SgePlugin.scalaVersion))
+lazy val shaderLabAndroid       = androidApp("shaderLab", "shader-lab", "sge-demo-shaders", shaderLab.jvm(SgePlugin.scalaVersion))
+lazy val viewer3dAndroid        = androidApp("viewer3d", "viewer-3d", "sge-demo-viewer3d", viewer3d.jvm(SgePlugin.scalaVersion))
+lazy val particleShowAndroid    = androidApp("particleShow", "particle-show", "sge-demo-particles", particleShow.jvm(SgePlugin.scalaVersion))
+lazy val netChatAndroid         = androidApp("netChat", "net-chat", "sge-demo-netchat", netChat.jvm(SgePlugin.scalaVersion))
+lazy val viewportGalleryAndroid = androidApp("viewportGallery", "viewport-gallery", "sge-demo-viewports", viewportGallery.jvm(SgePlugin.scalaVersion))
+lazy val assetShowcaseAndroid   = androidApp("assetShowcase", "asset-showcase", "sge-demo-assets", assetShowcase.jvm(SgePlugin.scalaVersion))
 
 // ── Release aliases ─────────────────────────────────────────────────
 // Each demo's js/native project IDs are always `${jvm}JS` / `${jvm}Native`.
@@ -260,7 +286,7 @@ def releaseAlias(name: String, jvm: String): Seq[Setting[_]] =
     s"$jvm/releaseAll; ${jvm}JS/sgePackageBrowser; ${jvm}Native/sgePackageNative")
 
 def androidAlias(name: String, jvm: String): Seq[Setting[_]] =
-  addCommandAlias(s"android${name}", s"$jvm/androidSign")
+  addCommandAlias(s"android${name}", s"${jvm}Android/androidSign")
 
 val demoAliases: Seq[(String, String)] = Seq(
   "Pong"         -> "pong",
