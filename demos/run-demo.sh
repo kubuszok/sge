@@ -141,17 +141,21 @@ platforms="jvm"
 [ $want_browser = 0 ] || platforms="$platforms js"
 [ $want_native = 0 ] || platforms="$platforms native"
 
-publish_cmds=""
+# The version is fixed when the sbt server loads the build, and a load may change it, so when any
+# platform needs publishing, every requested platform is published together under one version.
+stale=$rebuild
+all_cmds=""
 for p in $platforms; do
   case "$p" in
     jvm)    artifact=sge_3;           task=sge/publishM2 ;;
     js)     artifact=sge_sjs1_3;      task=sgeJS/publishM2 ;;
     native) artifact=sge_native0.5_3; task=sgeNative/publishM2 ;;
   esac
-  if [ $rebuild = 1 ] || ! published "$m2/$artifact" "$state/sge-$p.published"; then
-    publish_cmds="$publish_cmds $task ;"
-  fi
+  published "$m2/$artifact" "$state/sge-$p.published" || stale=1
+  all_cmds="$all_cmds $task ;"
 done
+publish_cmds=""
+[ $stale = 0 ] || publish_cmds="$all_cmds"
 
 republished=0
 if [ -n "$publish_cmds" ]; then
