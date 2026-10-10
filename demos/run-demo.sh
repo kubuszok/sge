@@ -18,7 +18,7 @@ all three targets.
   -h, --help  show this help
 
 Environment:
-  SGE_DEMO_AVD    the AVD to boot (default: the first one `emulator -list-avds` lists)
+  SGE_DEMO_AVD    the AVD to boot (default: the first listed AVD whose system image is installed)
   SGE_DEMO_OPEN   set to 0 to print the browser URL without opening a browser
   ANDROID_HOME    the Android SDK (default: ~/Library/Android/sdk when it exists)
 
@@ -97,9 +97,18 @@ if [ $want_android = 1 ]; then
   else
     emulator="$ANDROID_HOME/emulator/emulator"
     [ -x "$emulator" ] || die "the Android emulator is not installed: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager emulator"
-    avd="${SGE_DEMO_AVD:-$("$emulator" -list-avds | head -n 1)}"
-    [ -n "$avd" ] || die "no AVD exists: create one with $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd"
-    sysdir=$(sed -n -E 's/^image\.sysdir\.1 *= *(.*)/\1/p' "$HOME/.android/avd/$avd.avd/config.ini" 2>/dev/null | sed 's:/*$::')
+    # The system image an AVD boots, relative to the SDK.
+    avd_image() { sed -n -E 's/^image\.sysdir\.1 *= *(.*)/\1/p' "$HOME/.android/avd/$1.avd/config.ini" 2>/dev/null | sed 's:/*$::'; }
+    avds=$("$emulator" -list-avds 2>/dev/null)
+    [ -n "$avds" ] || die "no AVD exists: create one with $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd"
+    avd="${SGE_DEMO_AVD:-}"
+    if [ -z "$avd" ]; then # the first AVD whose system image is installed
+      for a in $avds; do
+        if [ -d "$ANDROID_HOME/$(avd_image "$a")" ]; then avd="$a"; break; fi
+      done
+      [ -n "$avd" ] || avd=$(printf '%s\n' "$avds" | head -n 1)
+    fi
+    sysdir=$(avd_image "$avd")
     if [ -n "$sysdir" ] && [ ! -d "$ANDROID_HOME/$sysdir" ]; then
       die "the system image of AVD '$avd' is not installed: $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager '$(printf '%s' "$sysdir" | tr '/' ';')'"
     fi
@@ -224,7 +233,9 @@ run_android() {
   sleep 3
   if [ -z "$("$adb" shell pidof "$package" 2>/dev/null | tr -d '\r')" ]; then
     "$adb" logcat -d -b crash >&2 2>/dev/null || true
-    die "$package exited right after launch (crash log above)"
+    printf 'run-demo: %s exited right after launch (crash log above)\n' "$package" >&2
+    failed=1
+    return 0
   fi
   say "$package is running on $("$adb" get-serialno 2>/dev/null)"
 }
@@ -254,9 +265,11 @@ run_native() {
   [ -n "$exe" ] || die "no executable in $dir"
   say "running $exe (close the window to continue)"
   (cd "$dir" && DYLD_LIBRARY_PATH="$dir/lib${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}" LD_LIBRARY_PATH="$dir/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" "$exe") \
-    || say "the native executable exited with status $?"
+    || { say "the native executable exited with status $?"; failed=1; }
 }
 
+# A demo that crashes on one target does not stop the others; the exit status still says so.
+failed=0
 [ $want_android = 0 ] || run_android
 [ $want_browser = 0 ] || run_browser
 [ $want_native = 0 ]  || run_native
@@ -265,3 +278,4 @@ if [ -n "$server_pid" ]; then
   say "press Ctrl-C to stop the web server"
   wait "$server_pid" || true
 fi
+exit $failed
