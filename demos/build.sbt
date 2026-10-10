@@ -101,6 +101,12 @@ def androidSettings(dir: String): Seq[Setting[_]] =
     _root_.multiarch.sbt.AndroidBuild.taskSettings ++ Seq(
       _root_.multiarch.sbt.AndroidBuild.androidSdkCacheDir := (ThisBuild / baseDirectory).value / "sge-deps" / "android-sdk",
       Compile / unmanagedSourceDirectories += (ThisBuild / baseDirectory).value / dir / "src" / "main" / "scala-android",
+      // sge's own native libraries for Android (libsge_native_ops, libsge_audio); androidPackage moves
+      // a dependency's native/android-*/*.so into the APK's lib/<abi>/. Same version sge pins.
+      libraryDependencies += "com.kubuszok" % "pnm-provider-sge-android" % {
+        val versions = IO.read((ThisBuild / baseDirectory).value.getParentFile / "project" / "Versions.scala")
+        """val nativeComponents\s*=\s*"([^"]+)"""".r.findFirstMatchIn(versions).map(_.group(1)).getOrElse(sys.error("project/Versions.scala states no nativeComponents version"))
+      },
       Runtime / fullClasspath := Def.uncached {
         val conv = fileConverter.value
         (Runtime / fullClasspath).value.filterNot(e => conv.toPath(e.data).getFileName.toString == "android.jar")

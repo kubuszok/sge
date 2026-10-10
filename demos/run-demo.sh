@@ -225,7 +225,17 @@ run_android() {
     done
   fi
   say "installing $apk"
-  "$adb" install -r "$apk" >/dev/null || die "adb install failed"
+  # The debug keystore is generated under target/, so a clean build signs with a new key and the
+  # device refuses it as an update: uninstall the old copy and install again.
+  if ! installed=$("$adb" install -r "$apk" 2>&1); then
+    case "$installed" in
+      *INSTALL_FAILED_UPDATE_INCOMPATIBLE*)
+        say "the installed $package was signed with another key; reinstalling it"
+        "$adb" uninstall "$package" >/dev/null 2>&1 || true
+        installed=$("$adb" install "$apk" 2>&1) || die "adb install failed: $installed" ;;
+      *) die "adb install failed: $installed" ;;
+    esac
+  fi
   "$adb" logcat -c 2>/dev/null || true
   say "launching $package/$activity"
   started=$("$adb" shell am start -W -n "$package/$activity" 2>&1) || die "adb could not start $package/$activity"
