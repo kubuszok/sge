@@ -20,7 +20,12 @@ object LibgdxLadder {
     "com.badlogic.gdx.graphics.g2d.Animation" -> List(0),
     "com.badlogic.gdx.graphics.g3d.particles.ParallelArray$ObjectChannel" -> List(0),
     "com.badlogic.gdx.math.Octree" -> List(0),
-    "com.badlogic.gdx.graphics.g3d.particles.batches.BufferedParticleBatch" -> List(0)
+    "com.badlogic.gdx.graphics.g3d.particles.batches.BufferedParticleBatch" -> List(0),
+    // a vararg at a BOUNDED element (`T <: Vector[T]`, `T <: Button`): a scala caller's plain
+    // elements reach the body as `Object[]` and the read-back cast to the bound's array throws; the
+    // witness builds the array at the caller's type
+    "com.badlogic.gdx.math.Bezier" -> List(0),
+    "com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup" -> List(0)
   )
 
   /** The step fragments, cumulative; each merges with the base's instance of the same phase at the base's position.
