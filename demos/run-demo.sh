@@ -1,26 +1,28 @@
 #!/bin/sh
-# Build and run one demo in the browser, on an Android emulator and as a Scala Native executable.
-# sge and the sge-build plugin are published locally only when the checkout changed since the last
-# publish (markers under target/demo-runner/). Run ./demos/run-demo.sh --help for the options.
+# Build and run one demo in the browser, on Android, on the desktop JVM and as a Scala Native
+# executable. sge and the sge-build plugin are published locally only when the checkout changed
+# since the last publish (markers under target/demo-runner/). See --help for the options.
 set -eu
 
 usage() {
   cat <<'EOF'
-Usage: ./demos/run-demo.sh <demo> [--browser] [--android] [--native] [--rebuild]
+Usage: ./demos/run-demo.sh <demo> [--browser] [--android] [--jvm] [--native] [--rebuild]
 
 Builds <demo> (a directory under demos/, e.g. viewer-3d) and runs it. With no target flag it runs
-all three targets.
+all four targets.
 
   --browser   package for the browser, serve it on a free local port and open the default browser
   --android   build the APK, boot an emulator if no device is connected, install and launch it
+  --jvm       build the desktop JVM release distribution for this machine and run it
   --native    link the Scala Native executable and run it
   --rebuild   republish sge and the sge-build plugin even if this commit is already published
   -h, --help  show this help
 
 Environment:
-  SGE_DEMO_AVD    the AVD to boot (default: the first listed AVD whose system image is installed)
-  SGE_DEMO_OPEN   set to 0 to print the browser URL without opening a browser
-  ANDROID_HOME    the Android SDK (default: ~/Library/Android/sdk when it exists)
+  SGE_DEMO_AVD          the AVD to boot (default: the first listed AVD whose system image is installed)
+  SGE_DEMO_OPEN         set to 0 to print the browser URL without opening a browser
+  SGE_DEMO_RUN_SECONDS  run the JVM and Native builds for this many seconds instead of until closed
+  ANDROID_HOME          the Android SDK (default: ~/Library/Android/sdk when it exists)
 
 The build needs JDK 25 (JAVA_HOME or java on the PATH). Ctrl-C stops the web server.
 EOF
@@ -28,13 +30,15 @@ EOF
 
 say()  { printf '==> %s\n' "$*"; }
 die()  { printf 'run-demo: %s\n' "$*" >&2; exit 1; }
+fail() { printf 'run-demo: %s\n' "$*" >&2; failed=1; } # one target failed; the others still run
 
-demo=""; want_browser=0; want_android=0; want_native=0; rebuild=0
+demo=""; want_browser=0; want_android=0; want_jvm=0; want_native=0; rebuild=0
 for arg in "$@"; do
   case "$arg" in
     -h|--help) usage; exit 0 ;;
     --browser) want_browser=1 ;;
     --android) want_android=1 ;;
+    --jvm)     want_jvm=1 ;;
     --native)  want_native=1 ;;
     --rebuild) rebuild=1 ;;
     -*) die "unknown option '$arg' (see --help)" ;;
@@ -42,9 +46,19 @@ for arg in "$@"; do
   esac
 done
 [ -n "$demo" ] || { usage >&2; exit 1; }
-if [ $want_browser = 0 ] && [ $want_android = 0 ] && [ $want_native = 0 ]; then
-  want_browser=1; want_android=1; want_native=1
+if [ $want_browser = 0 ] && [ $want_android = 0 ] && [ $want_jvm = 0 ] && [ $want_native = 0 ]; then
+  want_browser=1; want_android=1; want_jvm=1; want_native=1
 fi
+
+# This machine's platform classifier, as the JVM release names it.
+case "$(uname -s)-$(uname -m)" in
+  Darwin-arm64)               host_platform=macos-aarch64 ;;
+  Darwin-x86_64)              host_platform=macos-x86_64 ;;
+  Linux-aarch64|Linux-arm64)  host_platform=linux-aarch64 ;;
+  Linux-x86_64)               host_platform=linux-x86_64 ;;
+  *)                          host_platform="" ;;
+esac
+[ $want_jvm = 0 ] || [ -n "$host_platform" ] || die "no JVM release platform for $(uname -s) $(uname -m)"
 
 root=$(cd "$(dirname "$0")/.." && pwd)
 demos="$root/demos"
@@ -60,6 +74,10 @@ project=$(sed -n -E "s/^val ([A-Za-z0-9]+) *= *(demo\(\"$demo\"|\(projectMatrix 
 sbt_name=$(sed -n -E "s/^val $project *= *demo\(\"$demo\", *\"([^\"]+)\".*/\1/p" "$demos/build.sbt")
 [ -n "$sbt_name" ] || sbt_name=$(sed -n "/^val $project *=/,/^val /p" "$demos/build.sbt" | sed -n -E 's/.*name *:= *"([^"]+)".*/\1/p' | head -n 1)
 [ -n "$sbt_name" ] || die "demos/build.sbt gives project $project no name"
+if [ $want_android = 1 ] && [ ! -d "$demos/$demo/src/main/scala-android" ]; then
+  say "$demo has no Android launcher (no src/main/scala-android); skipping Android"
+  want_android=0
+fi
 
 # ── Toolchain ────────────────────────────────────────────────────────
 command -v sbt >/dev/null 2>&1 || die "sbt is not on the PATH"
@@ -143,16 +161,24 @@ platforms="jvm"
 
 # The version is fixed when the sbt server loads the build, and a load may change it, so when any
 # platform needs publishing, every requested platform is published together under one version.
+# The sge extensions the demo declares (`extensions = Set(sge.sbt.SgeExtension.Noise)`) are
+# published too, through the build's publishLocal-<row>-3 alias (core and every extension).
+extensions=$(sed -n "/^val $project *=/,/^val /p" "$demos/build.sbt" | sed -n -E 's/.*SgeExtension\.([A-Za-z0-9]+).*/\1/p' | tr 'A-Z' 'a-z' | sort -u)
+ivy="$HOME/.ivy2/local/com.kubuszok"
 stale=$rebuild
 all_cmds=""
 for p in $platforms; do
   case "$p" in
-    jvm)    artifact=sge_3;           task=sge/publishM2 ;;
-    js)     artifact=sge_sjs1_3;      task=sgeJS/publishM2 ;;
-    native) artifact=sge_native0.5_3; task=sgeNative/publishM2 ;;
+    jvm)    suffix=_3;           task=sge/publishM2 ;;
+    js)     suffix=_sjs1_3;      task=sgeJS/publishM2 ;;
+    native) suffix=_native0.5_3; task=sgeNative/publishM2 ;;
   esac
-  published "$m2/$artifact" "$state/sge-$p.published" || stale=1
+  published "$m2/sge$suffix" "$state/sge-$p.published" || stale=1
+  for e in $extensions; do
+    published "$ivy/sge-extension-$e$suffix" "$state/sge-$p.published" || stale=1
+  done
   all_cmds="$all_cmds $task ;"
+  [ -z "$extensions" ] || all_cmds="$all_cmds publishLocal-$p-3 ;"
 done
 publish_cmds=""
 [ $stale = 0 ] || publish_cmds="$all_cmds"
@@ -190,13 +216,15 @@ build_cmds=""
 [ $republished = 0 ] || build_cmds="reload ;"
 [ $want_browser = 0 ] || build_cmds="$build_cmds ${project}JS/sgePackageBrowser ;"
 [ $want_native = 0 ]  || build_cmds="$build_cmds ${project}Native/sgePackageNative ;"
-[ $want_android = 0 ] || build_cmds="$build_cmds ${project}/androidSign ;"
+[ $want_jvm = 0 ]     || build_cmds="$build_cmds ${project}/releasePlatform $host_platform ;"
+[ $want_android = 0 ] || build_cmds="$build_cmds ${project}Android/androidSign ;"
 say "building $demo ($project): $build_cmds"
 (cd "$demos" && sbt --client "${build_cmds% ;}") || die "building $demo failed (see the sbt output above)"
 
-# The newest match among the demo's build outputs (demos/target/out/<platform>/<scala>/<name>/).
-newest() { # <find predicates...>
-  find "$demos/target/out" -path "*/$sbt_name/*" "$@" -print 2>/dev/null | while IFS= read -r f; do
+# The newest match among a project's build outputs (demos/target/out/<platform>/<scala>/<name>/).
+newest() { # <project name> <find predicates...>
+  name=$1; shift
+  find "$demos/target/out" -path "*/$name/*" "$@" -print 2>/dev/null | while IFS= read -r f; do
     printf '%s %s\n' "$(stat -f '%m' "$f" 2>/dev/null || stat -c '%Y' "$f")" "$f"
   done | sort -rn | head -n 1 | cut -d' ' -f2-
 }
@@ -210,8 +238,8 @@ trap 'exit 130' INT TERM
 
 # ── Android ─────────────────────────────────────────────────────────
 run_android() {
-  apk=$(newest -name app-debug.apk -type f)
-  [ -n "$apk" ] || die "the build produced no app-debug.apk under demos/$demo/target"
+  apk=$(newest "$sbt_name-android" -name app-debug.apk -type f)
+  [ -n "$apk" ] || die "the build produced no app-debug.apk under demos/target/out"
   aapt2=$(ls -d "$ANDROID_HOME"/build-tools/*/aapt2 2>/dev/null | sort -V | tail -n 1)
   [ -n "$aapt2" ] || die "aapt2 is missing from $ANDROID_HOME/build-tools"
   badging=$("$aapt2" dump badging "$apk")
@@ -257,8 +285,8 @@ run_android() {
 # ── Browser ─────────────────────────────────────────────────────────
 run_browser() {
   command -v python3 >/dev/null 2>&1 || die "python3 is needed to serve the browser package"
-  site=$(newest -type d -path '*/sge-browser/*' -prune)
-  [ -n "$site" ] && [ -f "$site/index.html" ] || die "the build produced no browser package under demos/$demo/target"
+  site=$(newest "$sbt_name" -type d -path '*/sge-browser/*' -prune)
+  [ -n "$site" ] && [ -f "$site/index.html" ] || die "the build produced no browser package under demos/target/out"
   port=$(python3 -c 'import socket; s = socket.socket(); s.bind(("127.0.0.1", 0)); print(s.getsockname()[1])')
   python3 -m http.server "$port" --bind 127.0.0.1 --directory "$site" >"$state/http.log" 2>&1 &
   server_pid=$!
@@ -271,21 +299,56 @@ run_browser() {
   fi
 }
 
+# Runs a desktop executable in the foreground until its window closes, or for
+# $SGE_DEMO_RUN_SECONDS seconds when that is set (then it is stopped; exiting earlier is a failure).
+run_app() { # <label> <executable>
+  label=$1; exe=$2
+  if [ -z "${SGE_DEMO_RUN_SECONDS:-}" ]; then
+    say "running $label: $exe (close the window to continue)"
+    "$exe" || { say "$label exited with status $?"; failed=1; }
+    return 0
+  fi
+  say "running $label for $SGE_DEMO_RUN_SECONDS s: $exe"
+  "$exe" &
+  app_pid=$!
+  ran=0
+  while [ $ran -lt "$SGE_DEMO_RUN_SECONDS" ] && kill -0 $app_pid 2>/dev/null; do sleep 1; ran=$((ran + 1)); done
+  if kill -0 $app_pid 2>/dev/null; then
+    kill $app_pid 2>/dev/null; wait $app_pid 2>/dev/null || true
+    say "$label ran $SGE_DEMO_RUN_SECONDS s without exiting"
+  else
+    wait $app_pid && status=0 || status=$?
+    printf 'run-demo: %s exited after %s s with status %s\n' "$label" "$ran" "$status" >&2
+    failed=1
+  fi
+}
+
+# ── JVM (the release distribution for this host) ────────────────────
+run_jvm() {
+  # release-dist/ holds <App>-<platform>/ (an .app bundle on macOS) beside the cached runtime-<platform>/.
+  if [ "$(uname -s)" = Darwin ]; then
+    exe=$(newest "$sbt_name" -type f -perm -u+x -path "*/release-dist/*-$host_platform/*.app/Contents/MacOS/*" ! -path '*/Contents/MacOS/*/*')
+  else
+    exe=$(newest "$sbt_name" -type f -perm -u+x -path "*/release-dist/*-$host_platform/*" ! -path "*/release-dist/runtime-*" ! -path "*/release-dist/*-$host_platform/*/*")
+  fi
+  [ -n "$exe" ] || { fail "the build produced no JVM launcher for $host_platform under demos/target/out"; return 0; }
+  run_app "the JVM build" "$exe"
+}
+
 # ── Native ──────────────────────────────────────────────────────────
 run_native() {
-  dir=$(newest -type d -path '*/sge-native/*' -prune)
-  [ -n "$dir" ] || die "the build produced no native package under demos/$demo/target"
+  dir=$(newest "$sbt_name" -type d -path '*/sge-native/*' -prune)
+  [ -n "$dir" ] || { fail "the build produced no native package under demos/target/out"; return 0; }
   exe=$(find "$dir" -maxdepth 1 -type f -perm -u+x | head -n 1)
-  [ -n "$exe" ] || die "no executable in $dir"
-  say "running $exe (close the window to continue)"
-  (cd "$dir" && DYLD_LIBRARY_PATH="$dir/lib${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}" LD_LIBRARY_PATH="$dir/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" "$exe") \
-    || { say "the native executable exited with status $?"; failed=1; }
+  [ -n "$exe" ] || { fail "no executable in $dir"; return 0; }
+  run_app "the native executable" "$exe"
 }
 
 # A demo that crashes on one target does not stop the others; the exit status still says so.
 failed=0
 [ $want_android = 0 ] || run_android
 [ $want_browser = 0 ] || run_browser
+[ $want_jvm = 0 ]     || run_jvm
 [ $want_native = 0 ]  || run_native
 
 if [ -n "$server_pid" ]; then

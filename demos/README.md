@@ -8,11 +8,11 @@ available on JVM).
 ## Running
 
 From the repository root, one command publishes sge locally (only when the checkout changed since
-the last publish), builds the demo and runs it in the browser, on an Android emulator and as a
-Scala Native executable:
+the last publish), builds the demo and runs it in the browser, on an Android emulator or device,
+on the desktop JVM (the release distribution for this machine) and as a Scala Native executable:
 
 ```bash
-./demos/run-demo.sh viewer-3d                     # all three targets
+./demos/run-demo.sh viewer-3d                     # all four targets
 ./demos/run-demo.sh viewer-3d --browser --native  # a subset; --help lists the options
 ```
 
