@@ -73,7 +73,9 @@ if [ "$(uname -s)" = Darwin ] && [ "$(uname -m)" = arm64 ]; then
 fi
 export SGE_REMOTE_CACHE="${SGE_REMOTE_CACHE:-0}"
 
-if [ $want_android = 1 ] && [ -z "${ANDROID_HOME:-}" ]; then
+# Always, not only for --android: sge's JVM artifact carries its Android activity only when the
+# server that publishes it sees an SDK.
+if [ -z "${ANDROID_HOME:-}" ]; then
   if [ -n "${ANDROID_SDK_ROOT:-}" ]; then ANDROID_HOME="$ANDROID_SDK_ROOT"
   elif [ -d "$HOME/Library/Android/sdk" ]; then ANDROID_HOME="$HOME/Library/Android/sdk"
   elif [ -d "$demos/sge-deps/android-sdk" ]; then ANDROID_HOME="$demos/sge-deps/android-sdk"
@@ -118,7 +120,7 @@ fingerprint() {
   } | shasum | cut -d' ' -f1
 }
 
-sge_fp=$(fingerprint . ':(exclude)demos' ':(exclude)sge-build' ':(exclude)ported')
+sge_fp=$( { printf 'android-sdk=%s\n' "${ANDROID_HOME:-none}"; fingerprint . ':(exclude)demos' ':(exclude)sge-build'; } | shasum | cut -d' ' -f1)
 version=$(cat "$demos/.sge-version" 2>/dev/null || true)
 
 published() { # <artifact dir> <marker>
