@@ -94,8 +94,16 @@ object ScreensPolicy {
           new balticporter.transform.AddMembersTransform(
             Map(
               "de.eskalon.commons.screen.ScreenManager" -> List(
-                hook("clearScreen", 1, "protected def clearScreen(screen: sge.screen.ManagedScreen): scala.Unit = screen.clearColor.foreach(c => sge.utils.ScreenUtils.clear(c, true))"),
-                hook("clearTransition", 1, "protected def clearTransition(trans: T): scala.Unit = trans.clearColor.foreach(c => sge.utils.ScreenUtils.clear(c, true))"),
+                hook(
+                  "clearScreen",
+                  1,
+                  "protected def clearScreen(screen: sge.screen.ManagedScreen): scala.Unit = screen.clearColor.foreach(c => sge.utils.ScreenUtils.clear(c, true))"
+                ),
+                hook(
+                  "clearTransition",
+                  1,
+                  "protected def clearTransition(trans: T): scala.Unit = trans.clearColor.foreach(c => sge.utils.ScreenUtils.clear(c, true))"
+                ),
                 hook(
                   "renderLastScreenToTexture",
                   1,

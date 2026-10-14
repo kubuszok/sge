@@ -13,8 +13,8 @@ object VfxPolicy {
 
   def include(f: String): Boolean = f.startsWith("core/src/") || f.startsWith("effects/src/")
 
-  private val WitnessSubjects: Map[String, List[Int]] = Map("com.crashinvaders.vfx.utils.PrioritizedArray" -> List(0))
-  def core(coreManifest: PortManifest, sgeRoot: Path, reportRoots: List[Path], reference: Option[Path] = None): PortManifest =
+  private val WitnessSubjects:                                                                                  Map[String, List[Int]] = Map("com.crashinvaders.vfx.utils.PrioritizedArray" -> List(0))
+  def core(coreManifest: PortManifest, sgeRoot: Path, reportRoots: List[Path], reference: Option[Path] = None): PortManifest           =
     coreManifest.extendedBy(
       PortManifest(
         name = "sge-vfx",
