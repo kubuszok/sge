@@ -87,12 +87,13 @@ private[sge] object FreetypeOpsNative extends FreetypeOps {
     FreetypeC.sge_ft_init_freetype().toLong
 
   override def doneFreeType(library: Long): Unit = {
-    FreetypeC.sge_ft_done_freetype(library)
     // FT_Done_FreeType destroys every face of this library; drop any font
     // buffers whose faces were not individually disposed (mirrors libGDX
-    // Library.dispose freeing all fontData, FreeType.java:72-74).
+    // Library.dispose freeing all fontData, FreeType.java:72-74). The entries
+    // are claimed before the native free, which makes the face addresses reusable.
     val faces = libraryFaces.remove(library)
     if (faces != null) faces.forEach { f => faceData.remove(f); () }
+    FreetypeC.sge_ft_done_freetype(library)
   }
 
   override def newMemoryFace(library: Long, data: Array[Byte], dataSize: Int, faceIndex: Int): Long = {
@@ -107,10 +108,13 @@ private[sge] object FreetypeOpsNative extends FreetypeOps {
   }
 
   override def doneFace(face: Long): Unit = {
-    FreetypeC.sge_ft_done_face(face)
-    // Release this face's font buffer now that the face is gone.
+    // Claim the entries BEFORE the native free: once FT_Done_Face returns, the
+    // allocator may hand the same address to a face another thread is creating,
+    // whose buffer would be dropped here. The buffer itself is released once
+    // the face is gone.
     faceData.remove(face)
     libraryFaces.forEach((_, faces) => faces.remove(face))
+    FreetypeC.sge_ft_done_face(face)
   }
 
   override def selectSize(face: Long, strikeIndex: Int): Boolean =
