@@ -116,6 +116,27 @@ object BalticPorterExtGen {
     policy = rel => rel.startsWith("src/main/scala/sge/port/ext/jbump/") || rel.startsWith("overrides-ext/jbump/") || rel == "jbump-derived-policy.tsv"
   )
 
+  /** the hand port an extension's spelling policy is derived from, read only until that policy is frozen in `sge-port/<id>-derived-policy.tsv` */
+  private def reference(ctx: Ctx, id: String, handDir: String): Option[Path] =
+    if (Files.exists(ctx.sgeRoot.resolve(s"sge-port/$id-derived-policy.tsv"))) None
+    else Some(ctx.sgeRoot.resolve(handDir)).filter(p => Files.isDirectory(p))
+
+  private def extPolicy(id: String, pkg: String): String => Boolean =
+    rel => rel.startsWith(s"src/main/scala/sge/port/ext/$pkg/") || rel == s"$id-derived-policy.tsv"
+
+  // gdx-vfx's `core` and `effects` modules (`gwt` is GWT's emulation), a dependent of sge-core
+  val Vfx: Ext = Ext(
+    id = "vfx",
+    upstreamName = "gdx-vfx",
+    license = "Apache-2.0",
+    submodule = "original-src/gdx-vfx",
+    mainDir = "gdx-vfx",
+    dependent = true,
+    main = ctx => sge.port.ext.vfx.VfxPolicy.core(ctx.core, ctx.sgeRoot, List(ctx.reportRoot), reference(ctx, "vfx", "sge-extension/vfx/src/main/scala")),
+    policy = extPolicy("vfx", "vfx"),
+    include = sge.port.ext.vfx.VfxPolicy.include
+  )
+
   /** Generate the extension's main sources. Returns the generated files. */
   def generate(ext: Ext, buildBase: File, log: sbt.util.Logger): Seq[File] =
     BalticPorterGen.synchronized(run(ext, buildBase, log, testRun = false))

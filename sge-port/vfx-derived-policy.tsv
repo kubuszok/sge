@@ -1,0 +1,338 @@
+#family	upstream	reference	target
+FieldName	com.crashinvaders.vfx.framebuffer.VfxPingPongWrapper#capturing:field	var _capturing	_capturing
+KeepName	com.crashinvaders.vfx.VfxManager#getPingPongWrapper	def getPingPongWrapper	
+KeepName	com.crashinvaders.vfx.VfxManager#setEffectPriority	def setEffectPriority	
+KeepName	com.crashinvaders.vfx.VfxManager#setEffectTextureParams	def setEffectTextureParams	
+KeepName	com.crashinvaders.vfx.effects.GaussianBlurEffect#setType	def setType	
+KeepName	com.crashinvaders.vfx.effects.LensFlareEffect#setColor(Color)	def setColor	
+KeepName	com.crashinvaders.vfx.effects.LensFlareEffect#setColor(float,float,float)	def setColor	
+KeepName	com.crashinvaders.vfx.effects.LensFlareEffect#setLightPosition(float,float)	def setLightPosition	
+KeepName	com.crashinvaders.vfx.effects.RadialBlurEffect#setOrigin(float,float)	def setOrigin	
+KeepName	com.crashinvaders.vfx.effects.RadialBlurEffect#setOrigin(int)	def setOrigin	
+KeepName	com.crashinvaders.vfx.effects.ShaderVfxEffect#setUniform(String,Color)	def setUniform	
+KeepName	com.crashinvaders.vfx.effects.ShaderVfxEffect#setUniform(String,Matrix3)	def setUniform	
+KeepName	com.crashinvaders.vfx.effects.ShaderVfxEffect#setUniform(String,Matrix4)	def setUniform	
+KeepName	com.crashinvaders.vfx.effects.ShaderVfxEffect#setUniform(String,Vector2)	def setUniform	
+KeepName	com.crashinvaders.vfx.effects.ShaderVfxEffect#setUniform(String,Vector3)	def setUniform	
+KeepName	com.crashinvaders.vfx.effects.ShaderVfxEffect#setUniform(String,float)	def setUniform	
+KeepName	com.crashinvaders.vfx.effects.ShaderVfxEffect#setUniform(String,int)	def setUniform	
+KeepName	com.crashinvaders.vfx.effects.ShaderVfxEffect#setUniform(String,int,float[],int,int)	def setUniform	
+KeepName	com.crashinvaders.vfx.effects.VignettingEffect#setCenter	def setCenter	
+KeepName	com.crashinvaders.vfx.effects.VignettingEffect#setCoords	def setCoords	
+KeepName	com.crashinvaders.vfx.effects.ZoomEffect#setOrigin(float,float)	def setOrigin	
+KeepName	com.crashinvaders.vfx.effects.ZoomEffect#setOrigin(int)	def setOrigin	
+KeepName	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#getBoundFboHandle	def getBoundFboHandle	
+KeepName	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#getFbo	def getFbo	
+KeepName	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#getViewport	def getViewport	
+KeepName	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#isDrawing	def isDrawing	
+KeepName	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$BatchRendererAdapter#getProjection	def getProjection	
+KeepName	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$BatchRendererAdapter#getTransform	def getTransform	
+KeepName	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$BatchRendererAdapter#setProjection	def setProjection	
+KeepName	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$BatchRendererAdapter#setTransform	def setTransform	
+KeepName	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$RendererAdapter#getProjection	def getProjection	
+KeepName	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$RendererAdapter#getTransform	def getTransform	
+KeepName	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$RendererAdapter#setProjection	def setProjection	
+KeepName	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$RendererAdapter#setTransform	def setTransform	
+KeepName	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$ShapeRendererAdapter#getProjection	def getProjection	
+KeepName	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$ShapeRendererAdapter#getTransform	def getTransform	
+KeepName	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$ShapeRendererAdapter#setProjection	def setProjection	
+KeepName	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$ShapeRendererAdapter#setTransform	def setTransform	
+KeepName	com.crashinvaders.vfx.framebuffer.VfxFrameBufferPool#setTextureParams	def setTextureParams	
+KeepName	com.crashinvaders.vfx.framebuffer.VfxFrameBufferQueue#setTextureParams	def setTextureParams	
+KeepName	com.crashinvaders.vfx.framebuffer.VfxFrameBufferRenderer#getMesh	def getMesh	
+KeepName	com.crashinvaders.vfx.framebuffer.VfxPingPongWrapper#isInitialized	def isInitialized	
+KeepName	com.crashinvaders.vfx.gl.VfxGLUtils#getBoundFboHandle	def getBoundFboHandle	
+KeepName	com.crashinvaders.vfx.gl.VfxGLUtils#getViewport	def getViewport	
+KeepName	com.crashinvaders.vfx.gl.VfxGLUtils#isGLEnabled	def isGLEnabled	
+KeepName	com.crashinvaders.vfx.utils.PrioritizedArray#setPriority	def setPriority	
+KeepName	com.crashinvaders.vfx.utils.ViewportQuadMesh#getMesh	def getMesh	
+KeepParens	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#getBoundFboHandle	def getBoundFboHandle(): Int	
+KeepParens	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#getViewport	def getViewport(): VfxGlViewport	
+KeepParens	com.crashinvaders.vfx.framebuffer.VfxFrameBufferPool#createBuffer	def createBuffer(): VfxFrameBuffer	
+KeepParens	com.crashinvaders.vfx.framebuffer.VfxFrameBufferPool#obtain	def obtain(): VfxFrameBuffer	
+KeepParens	com.crashinvaders.vfx.framebuffer.VfxFrameBufferQueue#changeToNext	def changeToNext(): VfxFrameBuffer	
+KeepParens	com.crashinvaders.vfx.utils.PrioritizedArray#toString()	def toString(): String	
+NullableMember	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#getFbo	Nullable[FrameBuffer]	
+NullableMember	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#getTexture	Nullable[Texture]	
+NullableMember	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$BatchRendererAdapter#getBatch	Nullable[Batch]	
+NullableMember	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$ShapeRendererAdapter#getShapeRenderer	Nullable[ShapeRenderer]	
+NullableMember	com.crashinvaders.vfx.framebuffer.VfxPingPongWrapper#bufDst:field	Nullable[VfxFrameBuffer]	
+NullableMember	com.crashinvaders.vfx.framebuffer.VfxPingPongWrapper#bufSrc:field	Nullable[VfxFrameBuffer]	
+NullableMember	com.crashinvaders.vfx.framebuffer.VfxPingPongWrapper#bufferPool:field	Nullable[VfxFrameBufferPool]	
+OpaqueSlot	com.crashinvaders.vfx.effects.BloomEffect#enableBlending#dfactor	BlendFactor	sge.graphics.BlendFactor
+OpaqueSlot	com.crashinvaders.vfx.effects.BloomEffect#enableBlending#sfactor	BlendFactor	sge.graphics.BlendFactor
+OpaqueSlot	com.crashinvaders.vfx.effects.BloomEffect#getBlendingDestFactor	BlendFactor	sge.graphics.BlendFactor
+OpaqueSlot	com.crashinvaders.vfx.effects.BloomEffect#getBlendingSourceFactor	BlendFactor	sge.graphics.BlendFactor
+OpaqueSlot	com.crashinvaders.vfx.effects.RadialBlurEffect#setOrigin(int)#align	Align	sge.utils.Align
+OpaqueSlot	com.crashinvaders.vfx.effects.ZoomEffect#setOrigin(int)#align	Align	sge.utils.Align
+Parenless	com.crashinvaders.vfx.VfxManager#anyEnabledEffects	def anyEnabledEffects: Boolean	
+Parenless	com.crashinvaders.vfx.VfxManager#getHeight	def height: Int	
+Parenless	com.crashinvaders.vfx.VfxManager#getPingPongWrapper	def getPingPongWrapper: VfxPingPongWrapper	
+Parenless	com.crashinvaders.vfx.VfxManager#getPixelFormat	def pixelFormat: Pixmap.Format	
+Parenless	com.crashinvaders.vfx.VfxManager#getRenderContext	def renderContext: VfxRenderContext	
+Parenless	com.crashinvaders.vfx.VfxManager#getResultBuffer	def resultBuffer: VfxFrameBuffer	
+Parenless	com.crashinvaders.vfx.VfxManager#getWidth	def width: Int	
+Parenless	com.crashinvaders.vfx.VfxManager#isApplyingEffects	def applyingEffects: Boolean	
+Parenless	com.crashinvaders.vfx.VfxManager#isBlendingEnabled	def blendingEnabled: Boolean	
+Parenless	com.crashinvaders.vfx.VfxManager#isCapturing	def capturing: Boolean	
+Parenless	com.crashinvaders.vfx.VfxManager#isDisabled	def disabled: Boolean	
+Parenless	com.crashinvaders.vfx.VfxRenderContext#getBufferHeight	def bufferHeight: Int	
+Parenless	com.crashinvaders.vfx.VfxRenderContext#getBufferWidth	def bufferWidth: Int	
+Parenless	com.crashinvaders.vfx.VfxRenderContext#getViewportMesh	def viewportMesh: ViewportQuadMesh	
+Parenless	com.crashinvaders.vfx.effects.BloomEffect#getBaseIntensity	def baseIntensity: Float	
+Parenless	com.crashinvaders.vfx.effects.BloomEffect#getBaseSaturation	def baseSaturation: Float	
+Parenless	com.crashinvaders.vfx.effects.BloomEffect#getBlendingDestFactor	def blendingDestFactor: BlendFactor	
+Parenless	com.crashinvaders.vfx.effects.BloomEffect#getBlendingSourceFactor	def blendingSourceFactor: BlendFactor	
+Parenless	com.crashinvaders.vfx.effects.BloomEffect#getBloomIntensity	def bloomIntensity: Float	
+Parenless	com.crashinvaders.vfx.effects.BloomEffect#getBloomSaturation	def bloomSaturation: Float	
+Parenless	com.crashinvaders.vfx.effects.BloomEffect#getBlurAmount	def blurAmount: Float	
+Parenless	com.crashinvaders.vfx.effects.BloomEffect#getBlurPasses	def blurPasses: Int	
+Parenless	com.crashinvaders.vfx.effects.BloomEffect#getBlurType	def blurType: BlurType	
+Parenless	com.crashinvaders.vfx.effects.BloomEffect#isBlendingEnabled	def blendingEnabled: Boolean	
+Parenless	com.crashinvaders.vfx.effects.ChromaticAberrationEffect#getMaxDistortion	def maxDistortion: Float	
+Parenless	com.crashinvaders.vfx.effects.CrtEffect#getSizeSource	def sizeSource: CrtEffect.SizeSource	
+Parenless	com.crashinvaders.vfx.effects.FilmGrainEffect#getNoiseAmount	def noiseAmount: Float	
+Parenless	com.crashinvaders.vfx.effects.FilmGrainEffect#getSeed	def seed: Float	
+Parenless	com.crashinvaders.vfx.effects.GaussianBlurEffect#getAmount	def amount: Float	
+Parenless	com.crashinvaders.vfx.effects.GaussianBlurEffect#getPasses	def passes: Int	
+Parenless	com.crashinvaders.vfx.effects.LensFlareEffect#getColor	def color: Vector3	
+Parenless	com.crashinvaders.vfx.effects.LensFlareEffect#getIntensity	def intensity: Float	
+Parenless	com.crashinvaders.vfx.effects.LensFlareEffect#getLightPosition	def lightPosition: Vector2	
+Parenless	com.crashinvaders.vfx.effects.LevelsEffect#getBrightness	def brightness: Float	
+Parenless	com.crashinvaders.vfx.effects.LevelsEffect#getContrast	def contrast: Float	
+Parenless	com.crashinvaders.vfx.effects.LevelsEffect#getGamma	def gamma: Float	
+Parenless	com.crashinvaders.vfx.effects.LevelsEffect#getHue	def hue: Float	
+Parenless	com.crashinvaders.vfx.effects.LevelsEffect#getSaturation	def saturation: Float	
+Parenless	com.crashinvaders.vfx.effects.OldTvEffect#getTime	def time: Float	
+Parenless	com.crashinvaders.vfx.effects.RadialBlurEffect#getOriginX	def originX: Float	
+Parenless	com.crashinvaders.vfx.effects.RadialBlurEffect#getOriginY	def originY: Float	
+Parenless	com.crashinvaders.vfx.effects.RadialBlurEffect#getStrength	def strength: Float	
+Parenless	com.crashinvaders.vfx.effects.RadialBlurEffect#getZoom	def zoom: Float	
+Parenless	com.crashinvaders.vfx.effects.RadialDistortionEffect#getDistortion	def distortion: Float	
+Parenless	com.crashinvaders.vfx.effects.RadialDistortionEffect#getZoom	def zoom: Float	
+Parenless	com.crashinvaders.vfx.effects.VignettingEffect#getCenterX	def centerX: Float	
+Parenless	com.crashinvaders.vfx.effects.VignettingEffect#getCenterY	def centerY: Float	
+Parenless	com.crashinvaders.vfx.effects.VignettingEffect#getIntensity	def intensity: Float	
+Parenless	com.crashinvaders.vfx.effects.VignettingEffect#getSaturation	def saturation: Float	
+Parenless	com.crashinvaders.vfx.effects.VignettingEffect#getSaturationMul	def saturationMul: Float	
+Parenless	com.crashinvaders.vfx.effects.VignettingEffect#getVignetteX	def vignetteX: Float	
+Parenless	com.crashinvaders.vfx.effects.VignettingEffect#getVignetteY	def vignetteY: Float	
+Parenless	com.crashinvaders.vfx.effects.WaterDistortionEffect#getAmount	def amount: Float	
+Parenless	com.crashinvaders.vfx.effects.WaterDistortionEffect#getSpeed	def speed: Float	
+Parenless	com.crashinvaders.vfx.effects.WaterDistortionEffect#getTime	def time: Float	
+Parenless	com.crashinvaders.vfx.effects.ZoomEffect#getOriginX	def originX: Float	
+Parenless	com.crashinvaders.vfx.effects.ZoomEffect#getOriginY	def originY: Float	
+Parenless	com.crashinvaders.vfx.effects.ZoomEffect#getZoom	def zoom: Float	
+Parenless	com.crashinvaders.vfx.effects.util.CombineEffect#getSource1Intensity	def source1Intensity: Float	
+Parenless	com.crashinvaders.vfx.effects.util.CombineEffect#getSource1Saturation	def source1Saturation: Float	
+Parenless	com.crashinvaders.vfx.effects.util.CombineEffect#getSource2Intensity	def source2Intensity: Float	
+Parenless	com.crashinvaders.vfx.effects.util.CombineEffect#getSource2Saturation	def source2Saturation: Float	
+Parenless	com.crashinvaders.vfx.effects.util.GammaThresholdEffect#getGamma	def gamma: Float	
+Parenless	com.crashinvaders.vfx.effects.util.MixEffect#getMixFactor	def mixFactor: Float	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#getFbo	def getFbo: Nullable[FrameBuffer]	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#getProjectionMatrix	def projectionMatrix: Matrix4	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#getTexture	def texture: Nullable[Texture]	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#getTransformMatrix	def transformMatrix: Matrix4	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#isDrawing	def isDrawing: Boolean	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#isInitialized	def initialized: Boolean	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$BatchRendererAdapter#getBatch	def batch: Nullable[Batch]	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$BatchRendererAdapter#getProjection	def getProjection: Matrix4	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$BatchRendererAdapter#getTransform	def getTransform: Matrix4	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$RendererAdapter#getProjection	def getProjection: Matrix4	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$RendererAdapter#getTransform	def getTransform: Matrix4	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$ShapeRendererAdapter#getProjection	def getProjection: Matrix4	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$ShapeRendererAdapter#getShapeRenderer	def shapeRenderer: Nullable[ShapeRenderer]	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$ShapeRendererAdapter#getTransform	def getTransform: Matrix4	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxFrameBufferPool#getFreeCount	def freeCount: Int	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxFrameBufferQueue#getCurrent	def current: VfxFrameBuffer	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxFrameBufferRenderer#getMesh	def getMesh: ViewportQuadMesh	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxPingPongWrapper#getDstBuffer	def dstBuffer: VfxFrameBuffer	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxPingPongWrapper#getDstTexture	def dstTexture: Texture	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxPingPongWrapper#getSrcBuffer	def srcBuffer: VfxFrameBuffer	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxPingPongWrapper#getSrcTexture	def srcTexture: Texture	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxPingPongWrapper#isCapturing	def capturing: Boolean	
+Parenless	com.crashinvaders.vfx.framebuffer.VfxPingPongWrapper#isInitialized	def isInitialized: Boolean	
+Parenless	com.crashinvaders.vfx.gl.DefaultVfxGlExtension#getBoundFboHandle	def boundFboHandle: Int	
+Parenless	com.crashinvaders.vfx.gl.VfxGlExtension#getBoundFboHandle	def boundFboHandle: Int	
+Parenless	com.crashinvaders.vfx.gl.VfxGlViewport#toString	def toString: String	
+Parenless	com.crashinvaders.vfx.utils.PrioritizedArray#iterator	def iterator: Iterator[$0]	
+Parenless	com.crashinvaders.vfx.utils.PrioritizedArray#size	def size: Int	
+Parenless	com.crashinvaders.vfx.utils.ViewportQuadMesh#getMesh	def getMesh: Mesh	
+Property	com.crashinvaders.vfx.VfxManager#getHeight	var height	height
+Property	com.crashinvaders.vfx.VfxManager#getPixelFormat	var pixelFormat	pixelFormat
+Property	com.crashinvaders.vfx.VfxManager#getRenderContext	var renderContext	renderContext
+Property	com.crashinvaders.vfx.VfxManager#getResultBuffer	var resultBuffer	resultBuffer
+Property	com.crashinvaders.vfx.VfxManager#getWidth	var width	width
+Property	com.crashinvaders.vfx.VfxManager#isApplyingEffects	var applyingEffects	applyingEffects
+Property	com.crashinvaders.vfx.VfxManager#isBlendingEnabled	var blendingEnabled	blendingEnabled
+Property	com.crashinvaders.vfx.VfxManager#isCapturing	var capturing	capturing
+Property	com.crashinvaders.vfx.VfxManager#isDisabled	var disabled	disabled
+Property	com.crashinvaders.vfx.VfxRenderContext#getBufferHeight	var bufferHeight	bufferHeight
+Property	com.crashinvaders.vfx.VfxRenderContext#getBufferPool	var bufferPool	bufferPool
+Property	com.crashinvaders.vfx.VfxRenderContext#getBufferRenderer	var bufferRenderer	bufferRenderer
+Property	com.crashinvaders.vfx.VfxRenderContext#getBufferWidth	var bufferWidth	bufferWidth
+Property	com.crashinvaders.vfx.VfxRenderContext#getPixelFormat	var pixelFormat	pixelFormat
+Property	com.crashinvaders.vfx.VfxRenderContext#getViewportMesh	var viewportMesh	viewportMesh
+Property	com.crashinvaders.vfx.effects.AbstractVfxEffect#isDisabled	var disabled	disabled
+Property	com.crashinvaders.vfx.effects.BloomEffect#getBaseIntensity	var baseIntensity	baseIntensity
+Property	com.crashinvaders.vfx.effects.BloomEffect#getBaseSaturation	var baseSaturation	baseSaturation
+Property	com.crashinvaders.vfx.effects.BloomEffect#getBlendingDestFactor	var blendingDestFactor	blendingDestFactor
+Property	com.crashinvaders.vfx.effects.BloomEffect#getBlendingSourceFactor	var blendingSourceFactor	blendingSourceFactor
+Property	com.crashinvaders.vfx.effects.BloomEffect#getBloomIntensity	var bloomIntensity	bloomIntensity
+Property	com.crashinvaders.vfx.effects.BloomEffect#getBloomSaturation	var bloomSaturation	bloomSaturation
+Property	com.crashinvaders.vfx.effects.BloomEffect#getBlurAmount	var blurAmount	blurAmount
+Property	com.crashinvaders.vfx.effects.BloomEffect#getBlurPasses	var blurPasses	blurPasses
+Property	com.crashinvaders.vfx.effects.BloomEffect#getBlurType	var blurType	blurType
+Property	com.crashinvaders.vfx.effects.BloomEffect#isBlendingEnabled	var blendingEnabled	blendingEnabled
+Property	com.crashinvaders.vfx.effects.ChromaticAberrationEffect#getMaxDistortion	var maxDistortion	maxDistortion
+Property	com.crashinvaders.vfx.effects.CrtEffect#getSizeSource	var sizeSource	sizeSource
+Property	com.crashinvaders.vfx.effects.FilmGrainEffect#getNoiseAmount	var noiseAmount	noiseAmount
+Property	com.crashinvaders.vfx.effects.FilmGrainEffect#getSeed	var seed	seed
+Property	com.crashinvaders.vfx.effects.GaussianBlurEffect#getAmount	var amount	amount
+Property	com.crashinvaders.vfx.effects.GaussianBlurEffect#getPasses	var passes	passes
+Property	com.crashinvaders.vfx.effects.GaussianBlurEffect$Convolve2DEffect#getLength	var length	length
+Property	com.crashinvaders.vfx.effects.GaussianBlurEffect$Convolve2DEffect#getOffsetsHor	var offsetsHor	offsetsHor
+Property	com.crashinvaders.vfx.effects.GaussianBlurEffect$Convolve2DEffect#getOffsetsVert	var offsetsVert	offsetsVert
+Property	com.crashinvaders.vfx.effects.GaussianBlurEffect$Convolve2DEffect#getRadius	var radius	radius
+Property	com.crashinvaders.vfx.effects.GaussianBlurEffect$Convolve2DEffect#getWeights	var weights	weights
+Property	com.crashinvaders.vfx.effects.LensFlareEffect#getColor	var color	color
+Property	com.crashinvaders.vfx.effects.LensFlareEffect#getIntensity	var intensity	intensity
+Property	com.crashinvaders.vfx.effects.LensFlareEffect#getLightPosition	var lightPosition	lightPosition
+Property	com.crashinvaders.vfx.effects.LevelsEffect#getBrightness	var brightness	brightness
+Property	com.crashinvaders.vfx.effects.LevelsEffect#getContrast	var contrast	contrast
+Property	com.crashinvaders.vfx.effects.LevelsEffect#getGamma	var gamma	gamma
+Property	com.crashinvaders.vfx.effects.LevelsEffect#getHue	var hue	hue
+Property	com.crashinvaders.vfx.effects.LevelsEffect#getSaturation	var saturation	saturation
+Property	com.crashinvaders.vfx.effects.MultipassEffectWrapper#getPasses	var passes	passes
+Property	com.crashinvaders.vfx.effects.OldTvEffect#getTime	var time	time
+Property	com.crashinvaders.vfx.effects.RadialBlurEffect#getOriginX	var originX	originX
+Property	com.crashinvaders.vfx.effects.RadialBlurEffect#getOriginY	var originY	originY
+Property	com.crashinvaders.vfx.effects.RadialBlurEffect#getStrength	var strength	strength
+Property	com.crashinvaders.vfx.effects.RadialBlurEffect#getZoom	var zoom	zoom
+Property	com.crashinvaders.vfx.effects.RadialDistortionEffect#getDistortion	var distortion	distortion
+Property	com.crashinvaders.vfx.effects.RadialDistortionEffect#getZoom	var zoom	zoom
+Property	com.crashinvaders.vfx.effects.ShaderVfxEffect#getProgram	var program	program
+Property	com.crashinvaders.vfx.effects.VfxEffect#isDisabled	var disabled	disabled
+Property	com.crashinvaders.vfx.effects.VignettingEffect#getCenterX	var centerX	centerX
+Property	com.crashinvaders.vfx.effects.VignettingEffect#getCenterY	var centerY	centerY
+Property	com.crashinvaders.vfx.effects.VignettingEffect#getIntensity	var intensity	intensity
+Property	com.crashinvaders.vfx.effects.VignettingEffect#getSaturation	var saturation	saturation
+Property	com.crashinvaders.vfx.effects.VignettingEffect#getSaturationMul	var saturationMul	saturationMul
+Property	com.crashinvaders.vfx.effects.VignettingEffect#getVignetteX	var vignetteX	vignetteX
+Property	com.crashinvaders.vfx.effects.VignettingEffect#getVignetteY	var vignetteY	vignetteY
+Property	com.crashinvaders.vfx.effects.VignettingEffect#isSaturationControlEnabled	var saturationControlEnabled	saturationControlEnabled
+Property	com.crashinvaders.vfx.effects.WaterDistortionEffect#getAmount	var amount	amount
+Property	com.crashinvaders.vfx.effects.WaterDistortionEffect#getSpeed	var speed	speed
+Property	com.crashinvaders.vfx.effects.WaterDistortionEffect#getTime	var time	time
+Property	com.crashinvaders.vfx.effects.ZoomEffect#getOriginX	var originX	originX
+Property	com.crashinvaders.vfx.effects.ZoomEffect#getOriginY	var originY	originY
+Property	com.crashinvaders.vfx.effects.ZoomEffect#getZoom	var zoom	zoom
+Property	com.crashinvaders.vfx.effects.util.CombineEffect#getSource1Intensity	var source1Intensity	source1Intensity
+Property	com.crashinvaders.vfx.effects.util.CombineEffect#getSource1Saturation	var source1Saturation	source1Saturation
+Property	com.crashinvaders.vfx.effects.util.CombineEffect#getSource2Intensity	var source2Intensity	source2Intensity
+Property	com.crashinvaders.vfx.effects.util.CombineEffect#getSource2Saturation	var source2Saturation	source2Saturation
+Property	com.crashinvaders.vfx.effects.util.GammaThresholdEffect#getGamma	var gamma	gamma
+Property	com.crashinvaders.vfx.effects.util.MixEffect#getMixFactor	var mixFactor	mixFactor
+Property	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#getBufferNesting	var bufferNesting	bufferNesting
+Property	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#getPixelFormat	var pixelFormat	pixelFormat
+Property	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#getProjectionMatrix	var projectionMatrix	projectionMatrix
+Property	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#getTexture	var texture	texture
+Property	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#getTransformMatrix	var transformMatrix	transformMatrix
+Property	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#isInitialized	var initialized	initialized
+Property	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$BatchRendererAdapter#getBatch	var batch	batch
+Property	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$ShapeRendererAdapter#getShapeRenderer	var shapeRenderer	shapeRenderer
+Property	com.crashinvaders.vfx.framebuffer.VfxFrameBufferPool#getFreeCount	var freeCount	freeCount
+Property	com.crashinvaders.vfx.framebuffer.VfxFrameBufferQueue#getCurrent	var current	current
+Property	com.crashinvaders.vfx.framebuffer.VfxPingPongWrapper#getDstBuffer	var dstBuffer	dstBuffer
+Property	com.crashinvaders.vfx.framebuffer.VfxPingPongWrapper#getDstTexture	var dstTexture	dstTexture
+Property	com.crashinvaders.vfx.framebuffer.VfxPingPongWrapper#getSrcBuffer	var srcBuffer	srcBuffer
+Property	com.crashinvaders.vfx.framebuffer.VfxPingPongWrapper#getSrcTexture	var srcTexture	srcTexture
+Property	com.crashinvaders.vfx.framebuffer.VfxPingPongWrapper#isCapturing	var capturing	capturing
+Property	com.crashinvaders.vfx.gl.DefaultVfxGlExtension#getBoundFboHandle	var boundFboHandle	boundFboHandle
+Property	com.crashinvaders.vfx.gl.VfxGlExtension#getBoundFboHandle	var boundFboHandle	boundFboHandle
+PropertySetter	com.crashinvaders.vfx.VfxManager#setBlendingEnabled	var blendingEnabled	blendingEnabled
+PropertySetter	com.crashinvaders.vfx.VfxManager#setDisabled	var disabled	disabled
+PropertySetter	com.crashinvaders.vfx.effects.AbstractVfxEffect#setDisabled	var disabled	disabled
+PropertySetter	com.crashinvaders.vfx.effects.BloomEffect#setBaseIntensity	var baseIntensity	baseIntensity
+PropertySetter	com.crashinvaders.vfx.effects.BloomEffect#setBaseSaturation	var baseSaturation	baseSaturation
+PropertySetter	com.crashinvaders.vfx.effects.BloomEffect#setBloomIntensity	var bloomIntensity	bloomIntensity
+PropertySetter	com.crashinvaders.vfx.effects.BloomEffect#setBloomSaturation	var bloomSaturation	bloomSaturation
+PropertySetter	com.crashinvaders.vfx.effects.BloomEffect#setBlurAmount	var blurAmount	blurAmount
+PropertySetter	com.crashinvaders.vfx.effects.BloomEffect#setBlurPasses	var blurPasses	blurPasses
+PropertySetter	com.crashinvaders.vfx.effects.BloomEffect#setBlurType	var blurType	blurType
+PropertySetter	com.crashinvaders.vfx.effects.ChromaticAberrationEffect#setMaxDistortion	var maxDistortion	maxDistortion
+PropertySetter	com.crashinvaders.vfx.effects.CrtEffect#setSizeSource	var sizeSource	sizeSource
+PropertySetter	com.crashinvaders.vfx.effects.FilmGrainEffect#setNoiseAmount	var noiseAmount	noiseAmount
+PropertySetter	com.crashinvaders.vfx.effects.FilmGrainEffect#setSeed	var seed	seed
+PropertySetter	com.crashinvaders.vfx.effects.FxaaEffect#setReduceMin	var reduceMin	reduceMin
+PropertySetter	com.crashinvaders.vfx.effects.FxaaEffect#setReduceMul	var reduceMul	reduceMul
+PropertySetter	com.crashinvaders.vfx.effects.FxaaEffect#setSpanMax	var spanMax	spanMax
+PropertySetter	com.crashinvaders.vfx.effects.GaussianBlurEffect#setAmount	var amount	amount
+PropertySetter	com.crashinvaders.vfx.effects.GaussianBlurEffect#setPasses	var passes	passes
+PropertySetter	com.crashinvaders.vfx.effects.LensFlareEffect#setIntensity	var intensity	intensity
+PropertySetter	com.crashinvaders.vfx.effects.LevelsEffect#setBrightness	var brightness	brightness
+PropertySetter	com.crashinvaders.vfx.effects.LevelsEffect#setContrast	var contrast	contrast
+PropertySetter	com.crashinvaders.vfx.effects.LevelsEffect#setGamma	var gamma	gamma
+PropertySetter	com.crashinvaders.vfx.effects.LevelsEffect#setHue	var hue	hue
+PropertySetter	com.crashinvaders.vfx.effects.LevelsEffect#setSaturation	var saturation	saturation
+PropertySetter	com.crashinvaders.vfx.effects.MultipassEffectWrapper#setPasses	var passes	passes
+PropertySetter	com.crashinvaders.vfx.effects.OldTvEffect#setTime	var time	time
+PropertySetter	com.crashinvaders.vfx.effects.RadialBlurEffect#setStrength	var strength	strength
+PropertySetter	com.crashinvaders.vfx.effects.RadialBlurEffect#setZoom	var zoom	zoom
+PropertySetter	com.crashinvaders.vfx.effects.RadialDistortionEffect#setDistortion	var distortion	distortion
+PropertySetter	com.crashinvaders.vfx.effects.RadialDistortionEffect#setZoom	var zoom	zoom
+PropertySetter	com.crashinvaders.vfx.effects.VfxEffect#setDisabled	var disabled	disabled
+PropertySetter	com.crashinvaders.vfx.effects.VignettingEffect#setIntensity	var intensity	intensity
+PropertySetter	com.crashinvaders.vfx.effects.VignettingEffect#setSaturation	var saturation	saturation
+PropertySetter	com.crashinvaders.vfx.effects.VignettingEffect#setSaturationMul	var saturationMul	saturationMul
+PropertySetter	com.crashinvaders.vfx.effects.VignettingEffect#setVignetteX	var vignetteX	vignetteX
+PropertySetter	com.crashinvaders.vfx.effects.VignettingEffect#setVignetteY	var vignetteY	vignetteY
+PropertySetter	com.crashinvaders.vfx.effects.WaterDistortionEffect#setAmount	var amount	amount
+PropertySetter	com.crashinvaders.vfx.effects.WaterDistortionEffect#setSpeed	var speed	speed
+PropertySetter	com.crashinvaders.vfx.effects.WaterDistortionEffect#setTime	var time	time
+PropertySetter	com.crashinvaders.vfx.effects.ZoomEffect#setZoom	var zoom	zoom
+PropertySetter	com.crashinvaders.vfx.effects.util.CombineEffect#setSource1Intensity	var source1Intensity	source1Intensity
+PropertySetter	com.crashinvaders.vfx.effects.util.CombineEffect#setSource1Saturation	var source1Saturation	source1Saturation
+PropertySetter	com.crashinvaders.vfx.effects.util.CombineEffect#setSource2Intensity	var source2Intensity	source2Intensity
+PropertySetter	com.crashinvaders.vfx.effects.util.CombineEffect#setSource2Saturation	var source2Saturation	source2Saturation
+PropertySetter	com.crashinvaders.vfx.effects.util.GammaThresholdEffect#setGamma	var gamma	gamma
+PropertySetter	com.crashinvaders.vfx.effects.util.MixEffect#setMixFactor	var mixFactor	mixFactor
+PropertySetter	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#setProjectionMatrix	var projectionMatrix	projectionMatrix
+PropertySetter	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#setTransformMatrix	var transformMatrix	transformMatrix
+Protected	com.crashinvaders.vfx.effects.CompositeVfxEffect#managedEffects:field	protected managedEffects	
+Protected	com.crashinvaders.vfx.effects.CompositeVfxEffect#register	protected register	
+Protected	com.crashinvaders.vfx.effects.CompositeVfxEffect#unregister	protected unregister	
+Protected	com.crashinvaders.vfx.effects.ShaderVfxEffect#program:field	protected program	
+Protected	com.crashinvaders.vfx.effects.ShaderVfxEffect#renderShader	protected renderShader	
+Protected	com.crashinvaders.vfx.effects.ShaderVfxEffect#setUniform(String,Color)	protected setUniform	
+Protected	com.crashinvaders.vfx.effects.ShaderVfxEffect#setUniform(String,Matrix3)	protected setUniform	
+Protected	com.crashinvaders.vfx.effects.ShaderVfxEffect#setUniform(String,Matrix4)	protected setUniform	
+Protected	com.crashinvaders.vfx.effects.ShaderVfxEffect#setUniform(String,Vector2)	protected setUniform	
+Protected	com.crashinvaders.vfx.effects.ShaderVfxEffect#setUniform(String,Vector3)	protected setUniform	
+Protected	com.crashinvaders.vfx.effects.ShaderVfxEffect#setUniform(String,float)	protected setUniform	
+Protected	com.crashinvaders.vfx.effects.ShaderVfxEffect#setUniform(String,int)	protected setUniform	
+Protected	com.crashinvaders.vfx.effects.ShaderVfxEffect#setUniform(String,int,float[],int,int)	protected setUniform	
+Protected	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#getBoundFboHandle	protected getBoundFboHandle	
+Protected	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer#getViewport	protected getViewport	
+Protected	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$BatchRendererAdapter#getProjection	protected getProjection	
+Protected	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$BatchRendererAdapter#getTransform	protected getTransform	
+Protected	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$BatchRendererAdapter#setProjection	protected setProjection	
+Protected	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$BatchRendererAdapter#setTransform	protected setTransform	
+Protected	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$RendererAdapter#getProjection	protected getProjection	
+Protected	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$RendererAdapter#getTransform	protected getTransform	
+Protected	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$RendererAdapter#setProjection	protected setProjection	
+Protected	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$RendererAdapter#setTransform	protected setTransform	
+Protected	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$ShapeRendererAdapter#getProjection	protected getProjection	
+Protected	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$ShapeRendererAdapter#getTransform	protected getTransform	
+Protected	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$ShapeRendererAdapter#setProjection	protected setProjection	
+Protected	com.crashinvaders.vfx.framebuffer.VfxFrameBuffer$ShapeRendererAdapter#setTransform	protected setTransform	
+Protected	com.crashinvaders.vfx.framebuffer.VfxFrameBufferPool#cleanupInvalid	protected cleanupInvalid	
+Protected	com.crashinvaders.vfx.framebuffer.VfxFrameBufferPool#createBuffer	protected createBuffer	
+Protected	com.crashinvaders.vfx.framebuffer.VfxFrameBufferPool#freeBuffers:field	protected freeBuffers	
+Protected	com.crashinvaders.vfx.framebuffer.VfxFrameBufferPool#managedBuffers:field	protected managedBuffers	
+Protected	com.crashinvaders.vfx.framebuffer.VfxFrameBufferPool#resetBuffer	protected resetBuffer	
+Protected	com.crashinvaders.vfx.framebuffer.VfxFrameBufferPool#validateBuffer	protected validateBuffer	
+Protected	com.crashinvaders.vfx.framebuffer.VfxPingPongWrapper#bufDst:field	protected bufDst	
+Protected	com.crashinvaders.vfx.framebuffer.VfxPingPongWrapper#bufSrc:field	protected bufSrc	
+Protected	com.crashinvaders.vfx.framebuffer.VfxPingPongWrapper#bufferPool:field	protected bufferPool	
+Protected	com.crashinvaders.vfx.framebuffer.VfxPingPongWrapper#capturing:field	protected capturing	
