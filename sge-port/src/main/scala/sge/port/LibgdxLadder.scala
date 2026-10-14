@@ -34,6 +34,12 @@ object LibgdxLadder {
   private def glPath(sel: Set[String], n: String): String =
     if sel("properties") then s"graphics.gl$n" else s"graphics.getGL$n()"
 
+  /** The body of a `begin(); body; end()` helper. A throwable from `body` stays the one that propagates: `end()` still runs and anything it throws is attached as suppressed, never put in its place
+    * (an `end()` after a failed `begin` throws too). A `boundary.Break` is a jump, not a failure: `end()` runs and the jump continues.
+    */
+  private def beginEnd(begin: String): String =
+    s"{ $begin; val result = try body catch { case b: scala.util.boundary.Break[?] => end(); throw b; case t: Throwable => try end() catch { case s: Throwable => if (s ne t) t.addSuppressed(s) }; throw t }; end(); result }"
+
   /** sge's remaining GL enums (all in the injected `GLEnum.scala`): one opaque per family, seeded at every GL parameter sge types with it, GL20 through GL32 (sge's ANGLE bindings implement that
     * surface). A `def`: a phase instance carries binding state.
     */
@@ -1283,7 +1289,7 @@ object LibgdxLadder {
               balticporter.transform.AddMembersTransform.MemberSpec(
                 "rendering",
                 1,
-                "inline def rendering[A](inline body: => A): A = {{ begin(); try body finally end() }}",
+                "inline def rendering[A](inline body: => A): A = " + beginEnd("begin()"),
                 balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.graphics.g2d.Batch#rendering"),
                 Some("sge's `rendering {{ … }}` around `begin()`/`end()`"),
                 false
@@ -1293,7 +1299,7 @@ object LibgdxLadder {
               balticporter.transform.AddMembersTransform.MemberSpec(
                 "rendering",
                 2,
-                "inline def rendering[A](cam: sge.graphics.Camera)(inline body: => A): A = {{ begin(cam); try body finally end() }}",
+                "inline def rendering[A](cam: sge.graphics.Camera)(inline body: => A): A = " + beginEnd("begin(cam)"),
                 balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.graphics.g3d.ModelBatch#rendering"),
                 Some("sge's `rendering(camera) {{ … }}` around `begin(cam)`/`end()`"),
                 false
@@ -1718,7 +1724,7 @@ object LibgdxLadder {
               balticporter.transform.AddMembersTransform.MemberSpec(
                 "drawing",
                 2,
-                "inline def drawing[A](shapeType: ShapeRenderer.ShapeType)(inline body: => A): A = { begin(shapeType); try body finally end() }",
+                "inline def drawing[A](shapeType: ShapeRenderer.ShapeType)(inline body: => A): A = " + beginEnd("begin(shapeType)"),
                 balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.graphics.glutils.ShapeRenderer#drawing"),
                 Some("sge's `drawing(type) { … }` around `begin`/`end`, `end` guaranteed"),
                 false
@@ -1726,7 +1732,7 @@ object LibgdxLadder {
               balticporter.transform.AddMembersTransform.MemberSpec(
                 "drawing",
                 1,
-                "inline def drawing[A](inline body: => A): A = { begin(); try body finally end() }",
+                "inline def drawing[A](inline body: => A): A = " + beginEnd("begin()"),
                 balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.graphics.glutils.ShapeRenderer#drawing"),
                 Some("sge's `drawing { … }` around `begin()`/`end` (auto shape type)"),
                 false
