@@ -29,7 +29,6 @@ sge-extension/ecs/src/main/scala/sge/ecs/ComponentOperationHandler.scala	shortcu
 sge-extension/ecs/src/main/scala/sge/ecs/FamilyManager.scala	shortcuts	ECS deferred listener registration via bitmask tracking — 'deferred' describes the design	2026-04-08	dev
 sge-extension/ecs/src/main/scala/sge/ecs/Engine.scala	shortcuts	Throws if pooled entity is reused after free; null-cast for cleanup-on-removal handler	2026-04-08	dev
 sge-extension/jbump/src/main/scala/sge/jbump/World.scala	shortcuts	filter() Java interop: getOrElse(null.asInstanceOf[Item[?]])	2026-04-08	dev
-sge-extension/tools/src/main/scala/sge/tools/texturepacker/MaxRectsPacker.scala	shortcuts	'minimal page size' is the algorithm goal, not a TODO	2026-04-08	dev
 sge-extension/anim8/src/test/scala/sge/anim8/ChunkBufferSuite.scala	shortcuts	Test fixture catch-Throwable for negative test case	2026-04-08	dev
 sge-extension/ai/src/main/scala/sge/ai/fma/BoundedSlotAssignmentStrategy.scala	shortcuts	Doc comment 'more general' describes the abstract base class behavior, not a port TODO	2026-04-08	dev
 sge-extension/ai/src/main/scala/sge/ai/pfa/indexed/IndexedAStarPathFinder.scala	shortcuts	var done = false: pre-boundary refactor pattern, working A* search	2026-04-08	dev
@@ -37,7 +36,6 @@ sge-extension/ai/src/main/scala/sge/ai/btree/utils/BehaviorTreeReader.scala	shor
 sge-extension/textra/src/main/scala/sge/textra/utils/LZBCompression.scala	shortcuts	var done = false: pre-boundary refactor pattern, working LZB decoder	2026-04-08	dev
 sge-extension/textra/src/main/scala/sge/textra/BitmapFontSupport.scala	shortcuts	var done = false: pre-boundary refactor pattern	2026-04-08	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/scene/SceneManager.scala	shortcuts	var result null-cast pattern for unique-light filter; line 321 TODO tracked as partial-port debt	2026-04-08	dev
-sge-extension/tools/src/main/scala/sge/tools/texturepacker/TexturePacker.scala	shortcuts	this(null,settings) Java interop ctor; 'output file does not yet exist' is staleness check	2026-04-08	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/utils/MaterialConverter.scala	shortcuts	'Conversion approximation' describes the algorithm being implemented (Blender FBX export plugin)	2026-04-08	dev
 sge-extension/controllers/src/main/scalanative/sge/controllers/GlfwControllerNative.scala	shortcuts	Doc comment about replacing the JVM stub at static-init time	2026-04-08	dev
 sge-extension/textra/src/main/scala/sge/textra/utils/ColorUtils.scala	shortcuts	Doc comments from original Java source: 'placeholder' describes the color value 256 used by ColorLookup for 'no color found', not a TODO	2026-04-11	dev
@@ -177,7 +175,6 @@ sge-extension/graphs/src/main/scala/sge/graphs/UndirectedGraph.scala	shortcuts	n
 sge-extension/graphs/src/main/scala/sge/graphs/DirectedGraph.scala	shortcuts	null-cast for generic default value	2026-04-19	dev
 sge-extension/graphs/src/main/scala/sge/graphs/Node.scala	shortcuts	null-cast for generic array initialization in graph node	2026-04-19	dev
 sge-extension/jbump/src/main/scala/sge/jbump/World.scala	shortcuts	null-cast for collision detection internal state	2026-04-19	dev
-sge-extension/tools/src/main/scala/sge/tools/texturepacker/MaxRectsPacker.scala	shortcuts	minimal-comment in packing algorithm	2026-04-19	dev
 sge-extension/gltf/src/main/scala/sge/gltf/data/GLTFCodecs.scala	shortcuts	jsoniter codec Java interop boundary: every nullValue override is a null.asInstanceOf at the Java codec contract	2026-04-08	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/model/NodePartPlus.scala	shortcuts	userData getOrElse(null) Java interop boundary	2026-04-08	dev
 sge-extension/colorful/src/main/scala/sge/colorful/TrigTools.scala	shortcuts	Math approximation library: 'approximation' describes the algorithm being implemented	2026-04-08	dev
@@ -193,7 +190,6 @@ sge-extension/gltf/src/main/scala/sge/gltf/scene3d/model/NodePartPlus.scala	shor
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/shaders/PBRDepthShaderProvider.scala	shortcuts	null-cast at Java interop boundary for shader config	2026-04-19	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/scene/CascadeShadowMap.scala	shortcuts	null-cast at Java interop boundary	2026-04-19	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/lights/DirectionalShadowLight.scala	shortcuts	null-cast at Java interop boundary for shadow map	2026-04-19	dev
-sge-extension/tools/src/main/scala/sge/tools/texturepacker/TexturePacker.scala	shortcuts	this-null-arg at Java interop boundary for Settings init	2026-04-19	dev
 sge/src/main/scala/sge/scenes/scene2d/ui/SplitPane.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
 sge/src/main/scala/sge/scenes/scene2d/ui/Container.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
 sge/src/main/scala/sge/scenes/scene2d/ui/ScrollPane.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
@@ -281,8 +277,6 @@ sge-extension/textra/src/main/scala/sge/textra/TextraLabel.scala	shortcuts	unsup
 sge-extension/textra/src/main/scala/sge/textra/TypingLabel.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
 sge-extension/textra/src/main/scala/sge/textra/LzmaUtils.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
 sge-extension/textra/src/main/scala/sge/textra/Font.scala	shortcuts	get-or-else-null: Null boundary utility for Java interop	2026-04-29	dev
-sge-extension/tools/src/main/scala/sge/tools/texturepacker/MaxRectsPacker.scala	shortcuts	minimal-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
-sge-extension/tools/src/main/scala/sge/tools/texturepacker/TexturePacker.scala	shortcuts	this-null-arg: Java interop null constructor argument	2026-04-29	dev
 sge-extension/visui/src/main/scala/sge/visui/widget/file/FileUtils.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
 sge-extension/visui/src/main/scala/sge/visui/widget/VisSplitPane.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
 sge-extension/visui/src/main/scala/sge/visui/widget/MultiSplitPane.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev

@@ -75,8 +75,6 @@ sge-extension/textra/src/main/scala/sge/textra/TextraLabel.scala	shortcut-drift	
 sge-extension/textra/src/main/scala/sge/textra/TypingLabel.scala	shortcut-drift	1
 sge-extension/textra/src/main/scala/sge/textra/utils/ColorUtils.scala	shortcut-drift	3
 sge-extension/textra/src/main/scala/sge/textra/utils/LZBCompression.scala	shortcut-drift	1
-sge-extension/tools/src/main/scala/sge/tools/texturepacker/MaxRectsPacker.scala	shortcut-drift	1
-sge-extension/tools/src/main/scala/sge/tools/texturepacker/TexturePacker.scala	shortcut-drift	2
 sge-extension/visui/src/main/scala/sge/visui/VisUISkinReaders.scala	missing-header	1
 sge-extension/visui/src/main/scala/sge/visui/building/utilities/CellWidget.scala	shortcut-drift	1
 sge-extension/visui/src/main/scala/sge/visui/util/adapter/AbstractListAdapter.scala	shortcut-drift	2

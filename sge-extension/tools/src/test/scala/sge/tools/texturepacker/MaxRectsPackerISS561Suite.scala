@@ -41,7 +41,7 @@ package texturepacker
 
 import sge.tools.texturepacker.TexturePacker.*
 
-import scala.collection.mutable.ArrayBuffer
+import lowlevel.util.DynamicArray
 
 class MaxRectsPackerISS561Suite extends munit.FunSuite {
 
@@ -85,11 +85,14 @@ class MaxRectsPackerISS561Suite extends munit.FunSuite {
     r
   }
 
-  private def buf(rs: Rect*): ArrayBuffer[Rect] = ArrayBuffer.from(rs)
+  private def buf(rs: Rect*): DynamicArray[Rect] = DynamicArray.from(rs.toArray)
+
+  /** The elements of a packer array, in order. */
+  private def elems[A](d: DynamicArray[A]): List[A] = List.tabulate(d.size)(d(_))
 
   /** All placed rects across all pages. */
-  private def allPlaced(pages: ArrayBuffer[Page]): ArrayBuffer[Rect] =
-    pages.flatMap(_.outputRects)
+  private def allPlaced(pages: DynamicArray[Page]): List[Rect] =
+    elems(pages).flatMap(p => elems(p.outputRects))
 
   /** True if two placed rects overlap (open intersection of their areas). */
   private def overlaps(a: Rect, b: Rect): Boolean =
@@ -97,7 +100,7 @@ class MaxRectsPackerISS561Suite extends munit.FunSuite {
       a.y < b.y + b.height && b.y < a.y + a.height
 
   /** Asserts: no two rects on the same page overlap. */
-  private def assertNoOverlap(pages: ArrayBuffer[Page]): Unit =
+  private def assertNoOverlap(pages: DynamicArray[Page]): Unit =
     pages.foreach { page =>
       val rs = page.outputRects
       var i  = 0
@@ -116,7 +119,7 @@ class MaxRectsPackerISS561Suite extends munit.FunSuite {
 
   /** Asserts every placed rect is within its page bounds (page.width/height is the tight bbox = max(x+width)/max(y+height), so this is x>=0, y>=0 plus x+width<=page.width, y+height<=page.height).
     */
-  private def assertInBounds(pages: ArrayBuffer[Page]): Unit =
+  private def assertInBounds(pages: DynamicArray[Page]): Unit =
     pages.foreach { page =>
       page.outputRects.foreach { r =>
         assert(r.x >= 0 && r.y >= 0, s"rect $r has negative origin")
@@ -160,7 +163,7 @@ class MaxRectsPackerISS561Suite extends munit.FunSuite {
     val page = pages(0)
     assertEquals(page.outputRects.size, 2)
 
-    val byX = page.outputRects.sortBy(_.x).toList
+    val byX = elems(page.outputRects).sortBy(_.x)
     assertEquals(byX.map(r => (r.x, r.y)), List((0, 0), (50, 0)), "the right-side free split must place the second rect exactly at x=50,y=0")
     assertEquals(page.width, 100)
     assertEquals(page.height, 100)
@@ -185,7 +188,7 @@ class MaxRectsPackerISS561Suite extends munit.FunSuite {
 
     assertEquals(pages.size, 1, "all three rects must fit on a single 100x200 page")
     val page   = pages(0)
-    val byName = page.outputRects.map(r => r.name.get -> ((r.x, r.y))).toMap
+    val byName = elems(page.outputRects).map(r => r.name.get -> ((r.x, r.y))).toMap
     assertEquals(byName("big"), (0, 0))
     assertEquals(byName("wide"), (0, 100))
     assertEquals(byName("small"), (0, 140), "the bottom-side free split (below 'wide') must be available for 'small' at y=140")
@@ -295,7 +298,7 @@ class MaxRectsPackerISS561Suite extends munit.FunSuite {
 
     assertEquals(pages.size, 1, "two 50-wide (40+10 pad) rects fit side-by-side in width 100")
     val page = pages(0)
-    val byX  = page.outputRects.sortBy(_.x).toList
+    val byX  = elems(page.outputRects).sortBy(_.x)
     assertEquals(byX.map(_.x), List(0, 50), "right-side split offset must use the padded width 50, not the raw 40")
     byX.foreach(r => assertEquals(r.width, 50, "each rect is 40 + paddingX 10 wide"))
     // Non-overlap is padding-independent; in-bounds vs Page.width is skipped
