@@ -214,6 +214,8 @@ object BalticPorterExtGen {
     main = ctx => sge.port.ext.regexodus.RegExodusPolicy.core(ctx.sgeRoot),
     policy = extPolicy("regexodus", "regexodus"),
     include = sge.port.ext.regexodus.RegExodusPolicy.include,
+    // the test run resolves against the main tree, GWT emulation included
+    resolutionExcludes = List("regexodus/emu"),
     testDir = Some("src/test/java"),
     test = Some(ctx => sge.port.ext.regexodus.RegExodusPolicy.test(ctx.sgeRoot, List(ctx.reportRoot))),
     testClasspath = ctx => sge.port.ext.regexodus.RegExodusPolicy.testClasspath(ctx.sgeRoot)
