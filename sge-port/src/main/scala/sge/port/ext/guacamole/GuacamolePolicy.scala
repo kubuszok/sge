@@ -48,7 +48,7 @@ object GuacamolePolicy {
   /** the frontend classpath guacamole's java resolves against beyond libGDX (a source root): its annotation jar and formic. */
   def classpath(sgeRoot: Path): List[Path] =
     balticporter.runner.ClasspathCache.entries(
-      sgeRoot.resolve("out/guacamole-classpath.txt"),
+      sge.port.ClasspathCacheDir.file(sgeRoot, "guacamole-classpath.txt"),
       "guacamole",
       List("org.jspecify:jspecify:0.3.0", "com.github.tommyettinger:formic:0.1.4")
     )

@@ -60,7 +60,7 @@ object BalticPorterGen {
 
       // The hand-written files the policy injects by path, and where the resolved frontend classpaths are cached.
       val overrides    = sgeRoot.resolve("sge-port/overrides")
-      val classpathDir = sgeRoot.resolve("target/balticporter-classpath")
+      val classpathDir = sge.port.ClasspathCacheDir(sgeRoot)
 
       // Step 1: Run the lls port first so its port-map.tsv is fresh and discoverable.
       // sge-core is a DEPENDENT of lls; it needs the base's published port map to answer

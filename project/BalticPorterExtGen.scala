@@ -171,7 +171,7 @@ object BalticPorterExtGen {
       val libgdxSrc   = sgeRoot.resolve("original-src/libgdx/gdx/src")
       val resolutions = (if (testRun) List(mainRoot) else Nil) ++ (if (ext.dependent) List(libgdxSrc) else Nil) ++ ext.resolutionRoots(ctx)
       val classpath   = (if (testRun) ext.testClasspath(ctx) else Nil) ++ ext.classpath(ctx) ++
-        (if (ext.dependent) sge.port.JnigenClasspath.entries(sgeRoot.resolve("target/balticporter-classpath")) else Nil)
+        (if (ext.dependent) sge.port.JnigenClasspath.entries(sge.port.ClasspathCacheDir(sgeRoot)) else Nil)
 
       System.setProperty("balticporter.reportDir", reportRoot.resolve(label).toAbsolutePath.normalize.toString)
       try {

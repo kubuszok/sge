@@ -21,7 +21,7 @@ object LlsClasspath {
     "org.scala-lang:scala-library"
   )
 
-  def cache(repoRoot: Path): Path = repoRoot.resolve("out/lls-classpath.txt")
+  def cache(repoRoot: Path): Path = sge.port.ClasspathCacheDir.file(repoRoot, "lls-classpath.txt")
 
   def entries(repoRoot: Path): List[Path] =
     ClasspathCache.entries(cache(repoRoot), "lls", Coordinates, ExcludeArgs)

@@ -64,5 +64,5 @@ object GltfClasspath {
   val Coordinates: List[String] = List("junit:junit:4.12")
 
   def resolve(repoRoot: Path): List[Path] =
-    ClasspathCache.entries(repoRoot.resolve("out/gltf-test-classpath.txt"), "gltf-test", Coordinates)
+    ClasspathCache.entries(sge.port.ClasspathCacheDir.file(repoRoot, "gltf-test-classpath.txt"), "gltf-test", Coordinates)
 }
