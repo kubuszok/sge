@@ -170,13 +170,22 @@ object SgePackaging {
     */
   val sgeNativeBinary = taskKey[File]("Scala Native linked executable")
 
+  /** Where the shared libraries the executable loads at run time are found (ANGLE's libEGL/libGLESv2 among them). [[SgeDesktopNativePlatform]] adds the directory the native providers are extracted
+    * into, which is also the one the linker recorded.
+    */
+  val sgeNativeLibDirs = taskKey[Seq[File]]("Directories whose shared libraries (.dylib/.so/.dll) the native package ships next to the executable")
+
   private val NativeLibExts = Set(".so", ".dylib", ".dll")
+
+  private def isSharedLib(name: String): Boolean =
+    NativeLibExts.exists(name.endsWith) || name.matches(""".*\.so(\.\d+)+""")
 
   private val packageNativeTask: Def.Initialize[Task[File]] = Def.task {
     val log     = streams.value.log
     val appName = JvmPackaging.releaseAppName.value
     val binary  = sgeNativeBinary.value
     val outDir  = target.value / "sge-native" / appName
+    val libDirs = sgeNativeLibDirs.value
 
     IO.delete(outDir)
     IO.createDirectory(outDir)
@@ -188,19 +197,22 @@ object SgePackaging {
     IO.copyFile(binary, dest)
     dest.setExecutable(true)
 
-    // Ad-hoc sign the native binary on macOS so Gatekeeper doesn't block it
-    if (hostIsMac) codesignAdHoc(dest, log)
-
-    // Copy native shared libraries (if any)
-    val nativeDir     = outDir / "lib"
+    // The shared libraries go next to the executable: its only library search path is its own directory.
+    val nativeDir     = outDir
     var hasNativeLibs = false
     for {
-      dir <- JvmPackaging.releaseNativeLibDirs.value if dir.exists()
-      file <- IO.listFiles(dir) if NativeLibExts.exists(file.getName.endsWith)
+      dir <- libDirs if dir.exists()
+      file <- IO.listFiles(dir) if file.isFile && isSharedLib(file.getName)
     } {
-      if (!hasNativeLibs) { IO.createDirectory(nativeDir); hasNativeLibs = true }
+      hasNativeLibs = true
       IO.copyFile(file, nativeDir / file.getName)
     }
+    if (!hasNativeLibs) log.warn(s"[sge] Native package ships no shared libraries (searched: ${libDirs.mkString(", ")})")
+
+    relocatableRpath(dest, log)
+
+    // Ad-hoc sign the native binary on macOS so Gatekeeper doesn't block it (after the rpath edit, which invalidates a signature)
+    if (hostIsMac) codesignAdHoc(dest, log)
 
     // Create archive
     val platform = Platform.host
@@ -217,10 +229,85 @@ object SgePackaging {
   /** Scala Native packaging settings. Apply to Native platform projects. Requires the caller to wire `sgeNativeBinary` to `Compile / nativeLink`.
     */
   lazy val nativeSettings: Seq[Setting[_]] = Seq(
+    sgeNativeLibDirs := Def.uncached(JvmPackaging.releaseNativeLibDirs.value),
     sgePackageNative := Def.uncached(packageNativeTask.value)
   )
 
   // ── Helpers ────────────────────────────────────────────────────────
+
+  /** Leaves `@executable_path` (macOS) or `$ORIGIN` (Linux) as the executable's only library search path. The linker also recorded the build machine's absolute library directory, which would make the
+    * package load libraries from (or only run on) the machine that built it. Windows has no rpath: a DLL next to the executable is found.
+    */
+  private def relocatableRpath(exe: File, log: sbt.util.Logger): Unit =
+    if (hostIsMac) {
+      val rpaths = machORpaths(exe)
+      rpaths.filterNot(_ == "@executable_path").foreach(p => runTool(Seq("install_name_tool", "-delete_rpath", p, exe.getAbsolutePath)))
+      if (!rpaths.contains("@executable_path")) runTool(Seq("install_name_tool", "-add_rpath", "@executable_path", exe.getAbsolutePath))
+      log.info(s"[sge] rpath of ${exe.getName}: ${machORpaths(exe).mkString(", ")}")
+    } else if (sys.props("os.name").toLowerCase.contains("linux")) {
+      val rewritten = rewriteElfRunpath(exe)
+      if (rewritten == 0) log.warn(s"[sge] No rpath/runpath found in ${exe.getName}; left unchanged")
+      else log.info(s"[sge] rpath of ${exe.getName}: $$ORIGIN")
+    }
+
+  /** The `LC_RPATH` entries of a Mach-O file, in order, read with `otool -l`. */
+  private def machORpaths(file: File): List[String] = {
+    val lines = runTool(Seq("otool", "-l", file.getAbsolutePath)).linesIterator.map(_.trim).toList
+    lines
+      .sliding(3)
+      .collect {
+        case List("cmd LC_RPATH", _, path) if path.startsWith("path ") =>
+          path.stripPrefix("path ").replaceAll("""\s+\(offset \d+\)$""", "")
+      }
+      .toList
+  }
+
+  /** Rewrites, in place, every ELF `DT_RPATH`/`DT_RUNPATH` string to `$ORIGIN`: a string of `:`-separated entries that are absolute paths or `$ORIGIN`. The new value is shorter than the old one and
+    * is padded with NULs, so no offset in the file moves. Returns how many strings were rewritten.
+    */
+  private def rewriteElfRunpath(file: File): Int = {
+    val bytes  = java.nio.file.Files.readAllBytes(file.toPath)
+    val origin = "$ORIGIN".getBytes("US-ASCII")
+    def isRunpath(s: String): Boolean =
+      s.contains("$ORIGIN") && s.split(':').forall(e => e.startsWith("/") || e.startsWith("$ORIGIN")) && s.split(':').exists(_.startsWith("/"))
+    var count = 0
+    var i     = indexOf(bytes, origin, 0)
+    while (i >= 0) {
+      var start = i
+      while (start > 0 && bytes(start - 1) != 0) start -= 1
+      var end = i
+      while (end < bytes.length && bytes(end) != 0) end += 1
+      val s = new String(bytes, start, end - start, "US-ASCII")
+      if (isRunpath(s)) {
+        java.util.Arrays.fill(bytes, start, end, 0.toByte)
+        System.arraycopy(origin, 0, bytes, start, origin.length)
+        count += 1
+      }
+      i = indexOf(bytes, origin, end)
+    }
+    if (count > 0) java.nio.file.Files.write(file.toPath, bytes)
+    count
+  }
+
+  private def indexOf(haystack: Array[Byte], needle: Array[Byte], from: Int): Int = {
+    var i     = from
+    var found = -1
+    while (found < 0 && i <= haystack.length - needle.length) {
+      var j = 0
+      while (j < needle.length && haystack(i + j) == needle(j)) j += 1
+      if (j == needle.length) found = i else i += 1
+    }
+    found
+  }
+
+  /** Runs a command and returns its output; throws with that output when it exits non-zero. */
+  private def runTool(cmd: Seq[String]): String = {
+    val proc   = new ProcessBuilder(cmd: _*).redirectErrorStream(true).start()
+    val output = new String(proc.getInputStream.readAllBytes())
+    val exit   = proc.waitFor()
+    if (exit != 0) throw new RuntimeException(s"${cmd.mkString(" ")} failed (exit $exit): $output")
+    output
+  }
 
   /** Ad-hoc sign a file with `codesign --force --sign -`. Only meaningful on macOS. Non-fatal: logs a warning on failure instead of throwing.
     */

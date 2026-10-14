@@ -1,0 +1,8 @@
+# Scripted test for the sge-build NATIVE packaging task (sgePackageNative).
+# A C stub replaces the Scala Native link (see build.sbt), so the real copy, rpath and archive
+# logic runs without the Scala Native toolchain. checkNativePackage asserts:
+#   - libEGL / libGLESv2 sit next to the executable, in the folder and in the archive
+#   - a static archive from the same directory is not shipped
+#   - the executable's only rpath is @executable_path (macOS) / $ORIGIN (Linux), it no longer
+#     names the build machine's library directory, and it still runs
+> checkNativePackage
