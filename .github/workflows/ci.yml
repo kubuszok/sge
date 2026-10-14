@@ -197,7 +197,7 @@ jobs:
 
       - name: Run sge-build scripted tests
         working-directory: sge-build
-        run: sbt 'scripted packaging/browser packaging/browser-rapier2d packaging/asset-manifest packaging/android'
+        run: sbt 'scripted packaging/browser packaging/browser-rapier2d packaging/asset-manifest packaging/android packaging/native'
 
   # ─── Generate (Baltic Porter) ───────────────────────────────────────
   #

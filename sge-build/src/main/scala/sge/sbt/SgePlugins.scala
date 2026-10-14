@@ -148,6 +148,8 @@ object SgeDesktopNativePlatform extends AutoPlugin {
           libraryDependencies.value.filterNot(m => m.organization == "com.kubuszok" && jvmArtifactNames(m.name))
         },
         NativeExtractSettings.nativeLibSourceDir := SgePlugin.autoImport.sgeNativeLibLocalDir.value,
+        // the package ships the libraries the executable was linked against: the providers' extraction directory
+        SgePackaging.sgeNativeLibDirs := Def.uncached(JvmPackaging.releaseNativeLibDirs.value :+ NativeExtractSettings.nativeLibExtract.value),
         // sbt 2.0: nativeLink yields a HashedVirtualFileRef; materialize it to a
         // real File through the build's FileConverter.
         SgePackaging.sgeNativeBinary := Def.uncached {
