@@ -176,16 +176,19 @@ private[sge] class FreetypeOpsPanama(val p: PanamaProvider) extends FreetypeOps 
     hInitFreeType.invoke().asInstanceOf[Long]
 
   override def doneFreeType(library: Long): Unit = {
-    hDoneFreeType.invoke(library)
     // FT_Done_FreeType destroys every face of this library; free any font
     // buffers whose faces were not individually disposed (mirrors libGDX
-    // Library.dispose freeing all fontData, FreeType.java:72-74).
-    val faces = libraryFaces.remove(library)
+    // Library.dispose freeing all fontData, FreeType.java:72-74). The entries
+    // are claimed before the native free, which makes the face addresses reusable.
+    val arenas = new java.util.ArrayList[p.Arena]()
+    val faces  = libraryFaces.remove(library)
     if (faces != null)
       faces.forEach { f =>
         val arena = faceArenas.remove(f)
-        if (arena != null) arena.arenaClose()
+        if (arena != null) arenas.add(arena)
       }
+    hDoneFreeType.invoke(library)
+    arenas.forEach(_.arenaClose())
   }
 
   override def newMemoryFace(library: Long, data: Array[Byte], dataSize: Int, faceIndex: Int): Long = {
@@ -206,11 +209,14 @@ private[sge] class FreetypeOpsPanama(val p: PanamaProvider) extends FreetypeOps 
   }
 
   override def doneFace(face: Long): Unit = {
+    // Claim the entries BEFORE the native free: once FT_Done_Face returns, the
+    // allocator may hand the same address to a face another thread is creating,
+    // and its arena (confined to that thread) would be removed and closed here.
+    val arena = faceArenas.remove(face)
+    libraryFaces.forEach((_, faces) => faces.remove(face))
     hDoneFace.invoke(face)
     // Release this face's font buffer now that the face is gone.
-    val arena = faceArenas.remove(face)
     if (arena != null) arena.arenaClose()
-    libraryFaces.forEach((_, faces) => faces.remove(face))
   }
 
   override def selectSize(face: Long, strikeIndex: Int): Boolean =
