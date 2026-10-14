@@ -1,0 +1,100 @@
+#family	upstream	reference	target
+KeepName	com.badlogic.gdx.tools.texturepacker.MaxRectsPacker$MaxRects#getResult	def getResult	
+KeepName	com.badlogic.gdx.tools.texturepacker.TexturePacker#isModified(String,String,String,Settings)	def isModified	
+KeepName	com.badlogic.gdx.tools.texturepacker.TexturePacker#setPacker	def setPacker	
+KeepName	com.badlogic.gdx.tools.texturepacker.TexturePacker#setProgressListener	def setProgressListener	
+KeepName	com.badlogic.gdx.tools.texturepacker.TexturePacker#setRootDir	def setRootDir	
+KeepName	com.badlogic.gdx.tools.texturepacker.TexturePacker$ProgressListener#isCancelled	def isCancelled	
+KeepName	com.badlogic.gdx.tools.texturepacker.TexturePacker$Rect#getAtlasName	def getAtlasName	
+KeepName	com.badlogic.gdx.tools.texturepacker.TexturePacker$Rect#getImage	def getImage	
+KeepName	com.badlogic.gdx.tools.texturepacker.TexturePacker$Settings#getScaledPackFileName	def getScaledPackFileName	
+KeepName	com.badlogic.gdx.tools.texturepacker.TextureUnpacker#setQuiet	def setQuiet	
+KeepParens	com.badlogic.gdx.tools.texturepacker.MaxRectsPacker$BinarySearch#reset	def reset(): Int	
+KeepParens	com.badlogic.gdx.tools.texturepacker.MaxRectsPacker$MaxRects#getResult	def getResult(): Page	
+KeepParens	com.badlogic.gdx.tools.texturepacker.TexturePacker$ProgressListener#isCancelled	def isCancelled(): Boolean	
+NullableMember	com.badlogic.gdx.tools.FileProcessor#inputFilter:field	Nullable[FilenameFilter]	
+NullableMember	com.badlogic.gdx.tools.FileProcessor#outputSuffix:field	Nullable[String]	
+NullableMember	com.badlogic.gdx.tools.FileProcessor#process(String,String)#outputRoot	Nullable[String]	
+NullableMember	com.badlogic.gdx.tools.FileProcessor$Entry#inputFile:field	Nullable[File]	
+NullableMember	com.badlogic.gdx.tools.FileProcessor$Entry#outputDir:field	Nullable[File]	
+NullableMember	com.badlogic.gdx.tools.FileProcessor$Entry#outputFile:field	Nullable[File]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.ImageProcessor#addImage(BufferedImage,String)	Nullable[Rect]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.ImageProcessor#addImage(File,String)	Nullable[Rect]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.ImageProcessor#addImage(File,String)#rootPath	Nullable[String]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.ImageProcessor#processImage	Nullable[Rect]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.ImageProcessor#stripWhitespace	Nullable[Rect]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.MaxRectsPacker$MaxRects#insert	Nullable[Rect]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.TexturePacker#getRootPath	Nullable[String]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.TexturePacker#process(Settings,String,String,String,ProgressListener)#progress	Nullable[ProgressListener]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.TexturePacker#rootPath:field	Nullable[String]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.TexturePacker$Alias#pads:field	Nullable[Array[Int]]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.TexturePacker$Alias#splits:field	Nullable[Array[Int]]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.TexturePacker$InputImage#file:field	Nullable[File]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.TexturePacker$InputImage#image:field	Nullable[BufferedImage]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.TexturePacker$InputImage#name:field	Nullable[String]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.TexturePacker$InputImage#rootPath:field	Nullable[String]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.TexturePacker$Page#imageName:field	Nullable[String]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.TexturePacker$Rect#name:field	Nullable[String]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.TexturePacker$Rect#pads:field	Nullable[Array[Int]]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.TexturePacker$Rect#splits:field	Nullable[Array[Int]]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.TexturePackerFileProcessor#<init>(Settings,String,ProgressListener)#progress	Nullable[ProgressListener]	
+NullableMember	com.badlogic.gdx.tools.texturepacker.TexturePackerFileProcessor#progress:field	Nullable[ProgressListener]	
+Parenless	com.badlogic.gdx.tools.FileProcessor$Entry#toString	def toString: String	
+Parenless	com.badlogic.gdx.tools.texturepacker.ImageProcessor#getImages	def images: ArrayBuffer[Rect]	
+Parenless	com.badlogic.gdx.tools.texturepacker.TexturePacker$ProgressListener#getMessage	def message: String	
+Parenless	com.badlogic.gdx.tools.texturepacker.TexturePacker$Rect#toString	def toString: String	
+Property	com.badlogic.gdx.tools.texturepacker.ImageProcessor#getImages	var images	images
+Property	com.badlogic.gdx.tools.texturepacker.ImageProcessor#getScale	var scale	scale
+Property	com.badlogic.gdx.tools.texturepacker.ImageProcessor#getSettings	var settings	settings
+Property	com.badlogic.gdx.tools.texturepacker.TexturePacker#getRootPath	var rootPath	rootPath
+Property	com.badlogic.gdx.tools.texturepacker.TexturePacker$ProgressListener#getCount	var count	count
+Property	com.badlogic.gdx.tools.texturepacker.TexturePacker$ProgressListener#getMessage	var message	message
+Property	com.badlogic.gdx.tools.texturepacker.TexturePacker$ProgressListener#getTotal	var total	total
+PropertySetter	com.badlogic.gdx.tools.texturepacker.ImageProcessor#setResampling	var resampling	resampling
+PropertySetter	com.badlogic.gdx.tools.texturepacker.ImageProcessor#setScale	var scale	scale
+PropertySetter	com.badlogic.gdx.tools.texturepacker.TexturePacker$ProgressListener#setCount	var count	count
+PropertySetter	com.badlogic.gdx.tools.texturepacker.TexturePacker$ProgressListener#setMessage	var message	message
+PropertySetter	com.badlogic.gdx.tools.texturepacker.TexturePacker$ProgressListener#setTotal	var total	total
+Protected	com.badlogic.gdx.tools.FileProcessor#addProcessedFile	protected addProcessedFile	
+Protected	com.badlogic.gdx.tools.FileProcessor#processDir	protected processDir	
+Protected	com.badlogic.gdx.tools.FileProcessor#processFile	protected processFile	
+Protected	com.badlogic.gdx.tools.texturepacker.ImageProcessor#stripWhitespace	protected stripWhitespace	
+Protected	com.badlogic.gdx.tools.texturepacker.TexturePacker#newImageProcessor	protected newImageProcessor	
+Protected	com.badlogic.gdx.tools.texturepacker.TexturePackerFileProcessor#deleteOutput	protected deleteOutput	
+Protected	com.badlogic.gdx.tools.texturepacker.TexturePackerFileProcessor#newSettings	protected newSettings	
+Protected	com.badlogic.gdx.tools.texturepacker.TexturePackerFileProcessor#newTexturePacker	protected newTexturePacker	
+Protected	com.badlogic.gdx.tools.texturepacker.TexturePackerFileProcessor#pack	protected pack	
+Protected	com.badlogic.gdx.tools.texturepacker.TexturePackerFileProcessor#processDir	protected processDir	
+Public	com.badlogic.gdx.tools.FileProcessor#comparator:field	public comparator	
+Public	com.badlogic.gdx.tools.FileProcessor#flattenOutput:field	public flattenOutput	
+Public	com.badlogic.gdx.tools.FileProcessor#inputFilter:field	public inputFilter	
+Public	com.badlogic.gdx.tools.FileProcessor#inputRegex:field	public inputRegex	
+Public	com.badlogic.gdx.tools.FileProcessor#outputFiles:field	public outputFiles	
+Public	com.badlogic.gdx.tools.FileProcessor#outputSuffix:field	public outputSuffix	
+Public	com.badlogic.gdx.tools.FileProcessor#recursive:field	public recursive	
+Public	com.badlogic.gdx.tools.texturepacker.ImageProcessor#processImage	public processImage	
+Public	com.badlogic.gdx.tools.texturepacker.MaxRectsPacker#settings:field	public settings	
+Public	com.badlogic.gdx.tools.texturepacker.MaxRectsPacker$BinarySearch#current:field	public current	
+Public	com.badlogic.gdx.tools.texturepacker.MaxRectsPacker$BinarySearch#fuzziness:field	public fuzziness	
+Public	com.badlogic.gdx.tools.texturepacker.MaxRectsPacker$BinarySearch#high:field	public high	
+Public	com.badlogic.gdx.tools.texturepacker.MaxRectsPacker$BinarySearch#low:field	public low	
+Public	com.badlogic.gdx.tools.texturepacker.MaxRectsPacker$BinarySearch#max:field	public max	
+Public	com.badlogic.gdx.tools.texturepacker.MaxRectsPacker$BinarySearch#min:field	public min	
+Public	com.badlogic.gdx.tools.texturepacker.MaxRectsPacker$BinarySearch#mod4:field	public mod4	
+Public	com.badlogic.gdx.tools.texturepacker.MaxRectsPacker$BinarySearch#pot:field	public pot	
+Public	com.badlogic.gdx.tools.texturepacker.TexturePacker#rootPath:field	public rootPath	
+Public	com.badlogic.gdx.tools.texturepacker.TexturePacker$InputImage#<init>	public <init>	
+Public	com.badlogic.gdx.tools.texturepacker.TexturePacker$InputImage#file:field	public file	
+Public	com.badlogic.gdx.tools.texturepacker.TexturePacker$InputImage#image:field	public image	
+Public	com.badlogic.gdx.tools.texturepacker.TexturePacker$InputImage#name:field	public name	
+Public	com.badlogic.gdx.tools.texturepacker.TexturePacker$InputImage#rootPath:field	public rootPath	
+Public	com.badlogic.gdx.tools.texturepacker.TexturePacker$ProgressListener#count:field	public count	
+Public	com.badlogic.gdx.tools.texturepacker.TexturePacker$ProgressListener#total:field	public total	
+Public	com.badlogic.gdx.tools.texturepacker.TexturePacker$Rect#<init>()	public <init>	
+Public	com.badlogic.gdx.tools.texturepacker.TexturePacker$Rect#score1:field	public score1	
+Public	com.badlogic.gdx.tools.texturepacker.TexturePacker$Rect#score2:field	public score2	
+Public	com.badlogic.gdx.tools.texturepacker.TexturePacker$Resampling#value:field	public value	
+Public	com.badlogic.gdx.tools.texturepacker.TexturePackerFileProcessor#countOnly:field	public countOnly	
+Public	com.badlogic.gdx.tools.texturepacker.TexturePackerFileProcessor#ignoreDirs:field	public ignoreDirs	
+Public	com.badlogic.gdx.tools.texturepacker.TexturePackerFileProcessor#merge	public merge	
+Public	com.badlogic.gdx.tools.texturepacker.TexturePackerFileProcessor#packCount:field	public packCount	

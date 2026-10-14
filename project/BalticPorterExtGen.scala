@@ -137,6 +137,19 @@ object BalticPorterExtGen {
     include = sge.port.ext.vfx.VfxPolicy.include
   )
 
+  // the texture packer and its file processor from libGDX's gdx-tools, a dependent of sge-core (JVM only)
+  val Tools: Ext = Ext(
+    id = "tools",
+    upstreamName = "gdx-tools",
+    license = "Apache-2.0",
+    submodule = "original-src/libgdx",
+    mainDir = "extensions/gdx-tools/src",
+    dependent = true,
+    main = ctx => sge.port.ext.tools.ToolsPolicy.core(ctx.core, ctx.sgeRoot, List(ctx.reportRoot), reference(ctx, "tools", "sge-extension/tools/src/main/scala")),
+    policy = extPolicy("tools", "tools"),
+    include = sge.port.ext.tools.ToolsPolicy.include
+  )
+
   // screenmanager reads guacamole (generated first into the same module) and libGDX
   val Screens: Ext = Ext(
     id = "screens",

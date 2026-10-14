@@ -79,8 +79,8 @@ deleted. The simple-graphs policy is on sge's paths and its frozen policy is com
 not wired yet (ISS-906 API decision). guacamole (`original-src/guacamole`, screenmanager's second
 dependency) is generated into `sge-screens` as a dependent of sge-core (`sge.guacamole`; the four types it
 drops by design are ISS-908), and screenmanager beside it as a dependent of sge-core and guacamole
-(`sge.screen`). `sge-tools` stays hand-written until the packer's settings can be read without
-reflective Json (ISS-914). `sge-controllers` and `sge-freetype` stay hand-written by decision
+(`sge.screen`). `sge-tools` (gdx-tools' texture packer, JVM only) is generated as a dependent of
+sge-core, its settings read by a typed reader the policy adds (ISS-914). `sge-controllers` and `sge-freetype` stay hand-written by decision
 (ISS-912, ISS-913). The files only an extension reads (`src/main/scala/sge/port/ext/`,
 `overrides-ext/`, `ports/`, `<id>-derived-policy.tsv`) are outside sge-core's fingerprint and inside
 that extension's. The other extension policies (gdx-ai, gltf, textra, vis-ui, vis-ui-usl)
