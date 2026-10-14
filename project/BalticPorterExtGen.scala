@@ -145,8 +145,7 @@ object BalticPorterExtGen {
     submodule = "original-src/libgdx-screenmanager",
     mainDir = "src/main/java",
     dependent = true,
-    main = ctx =>
-      sge.port.ext.screens.ScreensPolicy.core(Guacamole.main(ctx), ctx.sgeRoot, List(ctx.reportRoot), reference(ctx, "screens", "sge-extension/screens/src/main/scala")),
+    main = ctx => sge.port.ext.screens.ScreensPolicy.core(Guacamole.main(ctx), ctx.sgeRoot, List(ctx.reportRoot), reference(ctx, "screens", "sge-extension/screens/src/main/scala")),
     policy = rel => extPolicy("screens", "screens")(rel) || Guacamole.policy(rel),
     classpath = ctx => sge.port.ext.guacamole.GuacamolePolicy.classpath(ctx.sgeRoot),
     bases = List(Guacamole),
