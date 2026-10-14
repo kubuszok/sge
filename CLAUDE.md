@@ -71,7 +71,7 @@ The lls base's policy is lls's own: the `lls-port` artifact, at the version of t
 (`Versions.lls`). No hand-port extraction from git history is needed at build time.
 
 Generated extensions: `sge-ecs` (ashley, `project/BalticPorterEcsGen.scala`), `sge-noise` (noise4j),
-`sge-jbump` (jbump) and `sge-anim8` (anim8-gdx, a dependent of sge-core) — the last three through `project/BalticPorterExtGen.scala`,
+`sge-jbump` (jbump), `sge-anim8` (anim8-gdx) and `sge-vfx` (gdx-vfx; the last two dependents of sge-core) — all but ecs through `project/BalticPorterExtGen.scala`,
 which ports any extension from its submodule — as a base of its
 own or as a dependent of sge-core — into `target/balticporter-sge-<id>`. An extension's spelling
 policy is frozen in `sge-port/<id>-derived-policy.tsv`, derived from its hand port before that was
@@ -80,7 +80,7 @@ not wired yet (ISS-906 API decision). guacamole (`original-src/guacamole`, scree
 dependency) is generated into `sge-screens` as a dependent of sge-core (`sge.guacamole`; the four types it
 drops by design are ISS-908); screenmanager itself is not generated yet (ISS-905). The files only an extension reads (`src/main/scala/sge/port/ext/`,
 `overrides-ext/`, `ports/`, `<id>-derived-policy.tsv`) are outside sge-core's fingerprint and inside
-that extension's. The other extension policies (gdx-ai, gltf, textra, vfx, vis-ui, vis-ui-usl,
+that extension's. The other extension policies (gdx-ai, gltf, textra, vis-ui, vis-ui-usl,
 screens) still extend the older full-port core policy under `sge-port/src/main/scala/sge/port/{full,ext}`,
 with override files in `sge-port/overrides-full/` and `sge-port/overrides-ext/<lib>/`; the port
 configurations left under `sge-port/ports/` still carry the engine checkout's paths.
