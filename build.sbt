@@ -295,6 +295,22 @@ def balticPorterExtSettings(ext: BalticPorterExtGen.Ext): Seq[Setting[?]] = Seq(
   scalacOptions += Def.uncached(s"-Wconf:src=target/balticporter-${ext.module}/.*:s")
 )
 
+// Baltic Porter: an extension's GENERATED main sources compiled alone, beside its hand port, while its policy is
+// brought up — JVM only, not aggregated, not published (`sge-<id>-gen/compile`). Every compile is a real one
+// (the nonce: sbt 2 replays a cached failure without its diagnostics), and every diagnostic is printed.
+def balticPorterGenProjectSettings(ext: BalticPorterExtGen.Ext): Seq[Setting[?]] = Seq(
+  Compile / sourceGenerators += Def.task {
+    BalticPorterExtGen.generate(ext, (ThisBuild / baseDirectory).value, streams.value.log)
+  }.taskValue,
+  Compile / managedSourceDirectories += (ThisBuild / baseDirectory).value / "target" / s"balticporter-${ext.module}" / "src_managed" / "main" / "scala",
+  Compile / unmanagedSourceDirectories := Nil,
+  Test / unmanagedSourceDirectories := Nil,
+  maxErrors := 100000,
+  publish / skip := true,
+  scalacOptions += Def.uncached(s"-Wconf:src=target/balticporter-${ext.module}/.*:s"),
+  scalacOptions += Def.uncached(s"-Xmacro-settings:balticporter.nonce=${System.nanoTime}")
+)
+
 // Scala.js has no classpath: multiarch embeds ONE directory (`Compile / resourceDirectory`), so the port's
 // own resources (libGDX's default shaders and font, under target/balticporter-sge/.../resources) get a
 // second self-registering object, generated AFTER the port ran. BrowserApplication references it (DCE).
@@ -1096,6 +1112,20 @@ val `sge-visui` = (projectMatrix in file("sge-extension/visui"))
   .settings(mimaSettings)
   .settings(name := "sge-extension-visui")
   .dependsOn(sge)
+
+// Baltic Porter: the generated colorful, ai, gltf, textra and visui trees, each compiled alone (see balticPorterGenProjectSettings)
+def balticPorterGenProject(pm: ProjectMatrix, ext: BalticPorterExtGen.Ext): ProjectMatrix =
+  pm.defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(Versions.scala3))
+    .someVariations(Versions.scalas, List(VirtualAxis.jvm))((commonSettings(s"sge-extension/${ext.id}/generated") ++ Seq(jvmPlatformApiClasspath)) *)
+    .settings(balticPorterGenProjectSettings(ext) *)
+    .dependsOn(sge)
+
+val `sge-colorful-gen` = balticPorterGenProject(projectMatrix in file("sge-extension/colorful/generated"), BalticPorterExtGen.Colorful)
+val `sge-ai-gen`       = balticPorterGenProject(projectMatrix in file("sge-extension/ai/generated"), BalticPorterExtGen.Ai)
+val `sge-gltf-gen`     = balticPorterGenProject(projectMatrix in file("sge-extension/gltf/generated"), BalticPorterExtGen.Gltf)
+val `sge-textra-gen`   = balticPorterGenProject(projectMatrix in file("sge-extension/textra/generated"), BalticPorterExtGen.Textra)
+  .settings(libraryDependencies += "com.github.tommyettinger" % "regexodus" % "0.1.21")
+val `sge-visui-gen`    = balticPorterGenProject(projectMatrix in file("sge-extension/visui/generated"), BalticPorterExtGen.Visui)
 
 // ── Android smoke test APK ────────────────────────────────────────────
 //
