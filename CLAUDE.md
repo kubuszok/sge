@@ -78,10 +78,13 @@ policy is frozen in `sge-port/<id>-derived-policy.tsv`, derived from its hand po
 deleted. The simple-graphs policy is on sge's paths and its frozen policy is committed, but it is
 not wired yet (ISS-906 API decision). guacamole (`original-src/guacamole`, screenmanager's second
 dependency) is generated into `sge-screens` as a dependent of sge-core (`sge.guacamole`; the four types it
-drops by design are ISS-908); screenmanager itself is not generated yet (ISS-905). The files only an extension reads (`src/main/scala/sge/port/ext/`,
+drops by design are ISS-908), and screenmanager beside it as a dependent of sge-core and guacamole
+(`sge.screen`). `sge-tools` stays hand-written until the packer's settings can be read without
+reflective Json (ISS-914). `sge-controllers` and `sge-freetype` stay hand-written by decision
+(ISS-912, ISS-913). The files only an extension reads (`src/main/scala/sge/port/ext/`,
 `overrides-ext/`, `ports/`, `<id>-derived-policy.tsv`) are outside sge-core's fingerprint and inside
-that extension's. The other extension policies (gdx-ai, gltf, textra, vis-ui, vis-ui-usl,
-screens) still extend the older full-port core policy under `sge-port/src/main/scala/sge/port/{full,ext}`,
+that extension's. The other extension policies (gdx-ai, gltf, textra, vis-ui, vis-ui-usl)
+still extend the older full-port core policy under `sge-port/src/main/scala/sge/port/{full,ext}`,
 with override files in `sge-port/overrides-full/` and `sge-port/overrides-ext/<lib>/`; the port
 configurations left under `sge-port/ports/` still carry the engine checkout's paths.
 
