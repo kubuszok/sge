@@ -1,0 +1,62 @@
+package sge.port.ext.textra
+
+import balticporter.core.{ ParityRef, PortManifest }
+
+import java.nio.file.Path
+
+/** TextraTypist's policy (`src/main/java`, 92 types: the `Font`/`Layout` text engine, the typing labels and their effects, the `FWSkin` font-aware skin) — a DEPENDENT of sge-core: it extends scene2d
+  * and libGDX's font types, so libGDX's policy is inherited from the core manifest and never restated.
+  */
+object TextraPolicy {
+
+  private val Textra = balticporter.tir.RuleScope.Only(Set("com.github.tommyettinger.textra"))
+
+  /** RegExodus, TextraTypist's regex engine (`regexodus` 0.1.21, upstream's `gradle.properties`): the frontend resolves against it and the module compiles against it. */
+  val RegExodus: balticporter.catalog.ArtifactDep = balticporter.catalog.ArtifactDep("com.github.tommyettinger", "regexodus", "0.1.21", balticporter.catalog.CrossKind.Java)
+
+  def core(coreManifest: PortManifest, sgeRoot: Path, reportRoots: List[Path], reference: Option[Path] = None): PortManifest =
+    coreManifest.extendedBy(
+      PortManifest(
+        name = "sge-textra",
+        governs = Set("com.github.tommyettinger.textra"),
+        packageRenames = Map("com.github.tommyettinger.textra" -> "sge.textra"),
+        dependencies = List(RegExodus),
+        surface = List(
+          // TextraTypist's `java.util` lists and maps are sge's `scala.collection.mutable` ones, as in the hand port
+          new balticporter.transform.CollectionsTransform(scope = Textra),
+          new balticporter.transform.MutableParamsTransform,
+          // libGDX's `FloatArray#mul`, which lls's `DynamicArray` does not carry: java's own loop at the call
+          new balticporter.transform.CallSiteSubstitutionTransform(
+            List(
+              balticporter.transform.CallSiteSubstitutionTransform.Entry(
+                "com.badlogic.gdx.utils.FloatArray#mul(int,float)",
+                "{{ val bpA = {recv}; val bpI = {arg0}; if (bpI >= bpA.size) throw new java.lang.IndexOutOfBoundsException(\"index can't be >= size: \" + bpI + \" >= \" + bpA.size); bpA(bpI) = bpA(bpI) * {arg1} }}",
+                Textra
+              )
+            )
+          ),
+          // `TypingListBox` constructs its parent's element array, so it takes the parent's witness
+          new balticporter.transform.GlobalsToImplicitsTransform(
+            requiredGivens = balticporter.transform.ElementWitnessTransform.constructorGivens(
+              Map("com.github.tommyettinger.textra.TypingListBox" -> List(0)),
+              lowlevel.port.LlsPolicy.Witness
+            )
+          ),
+          new balticporter.transform.BeanPropertyTransform(scope = Textra, derive = true),
+          new balticporter.transform.NullaryArityTransform(scope = Textra, derive = true),
+          new balticporter.transform.NullabilityTransform(scope = Textra, deriveMembers = true),
+          // LAST, deliberately: reads what the BASE actually emitted
+          balticporter.transform.PortMapTransform.forBasesIn(reportRoots, "sge-l0")
+        ),
+        parity = reference.map(r => ParityRef(roots = List(r))),
+        frozenDerivedPolicy = Some(sgeRoot.resolve("sge-port/textra-derived-policy.tsv")).filter(p => java.nio.file.Files.exists(p))
+      )
+    )
+
+  def classpath(sgeRoot: Path): List[Path] =
+    balticporter.runner.ClasspathCache.entries(
+      sge.port.ClasspathCacheDir.file(sgeRoot, "textra-classpath.txt"),
+      "textratypist",
+      List(s"${RegExodus.org}:${RegExodus.name}:${RegExodus.rev}")
+    )
+}
