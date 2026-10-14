@@ -165,6 +165,65 @@ object BalticPorterExtGen {
     resolutionRoots = ctx => List("core/src/main/java", "gdx/src/main/java").map(d => ctx.sgeRoot.resolve("original-src/guacamole").resolve(d))
   )
 
+  // the extensions below are generated into a `sge-<id>-gen` project beside their hand ports until the generated tree compiles
+  val Colorful: Ext = Ext(
+    id = "colorful",
+    upstreamName = "colorful-gdx",
+    license = "Apache-2.0",
+    submodule = "original-src/colorful-gdx",
+    mainDir = "colorful/src/main/java",
+    dependent = true,
+    main = ctx => sge.port.ext.colorful.ColorfulPolicy.core(ctx.core, ctx.sgeRoot, List(ctx.reportRoot), reference(ctx, "colorful", "sge-extension/colorful/src/main/scala")),
+    policy = extPolicy("colorful", "colorful")
+  )
+
+  // gdx-ai's `gdx-ai/src` minus `com/badlogic/gdx/emu`, GWT's emulation of JDK types
+  val Ai: Ext = Ext(
+    id = "ai",
+    upstreamName = "gdx-ai",
+    license = "Apache-2.0",
+    submodule = "original-src/gdx-ai",
+    mainDir = "gdx-ai/src",
+    dependent = true,
+    main = ctx => sge.port.ext.gdxai.GdxAiPolicy.core(ctx.core, ctx.sgeRoot, List(ctx.reportRoot), reference(ctx, "ai", "sge-extension/ai/src/main/scala")),
+    policy = rel => extPolicy("ai", "gdxai")(rel) || rel.startsWith("overrides-ext/gdxai/"),
+    include = sge.port.ext.gdxai.GdxAiPolicy.include
+  )
+
+  val Gltf: Ext = Ext(
+    id = "gltf",
+    upstreamName = "gdx-gltf",
+    license = "Apache-2.0",
+    submodule = "original-src/gdx-gltf",
+    mainDir = "gltf/src",
+    dependent = true,
+    main = ctx => sge.port.ext.gltf.GltfPolicy.core(ctx.core, ctx.sgeRoot, List(ctx.reportRoot), reference(ctx, "gltf", "sge-extension/gltf/src/main/scala")),
+    policy = extPolicy("gltf", "gltf")
+  )
+
+  val Textra: Ext = Ext(
+    id = "textra",
+    upstreamName = "textratypist",
+    license = "Apache-2.0",
+    submodule = "original-src/textratypist",
+    mainDir = "src/main/java",
+    dependent = true,
+    main = ctx => sge.port.ext.textra.TextraPolicy.core(ctx.core, ctx.sgeRoot, List(ctx.reportRoot), reference(ctx, "textra", "sge-extension/textra/src/main/scala")),
+    policy = extPolicy("textra", "textra"),
+    classpath = ctx => sge.port.ext.textra.TextraPolicy.classpath(ctx.sgeRoot)
+  )
+
+  val Visui: Ext = Ext(
+    id = "visui",
+    upstreamName = "vis-ui",
+    license = "Apache-2.0",
+    submodule = "original-src/vis-ui",
+    mainDir = "ui/src/main/java",
+    dependent = true,
+    main = ctx => sge.port.ext.visui.VisUiPolicy.core(ctx.core, ctx.sgeRoot, List(ctx.reportRoot), reference(ctx, "visui", "sge-extension/visui/src/main/scala")),
+    policy = extPolicy("visui", "visui")
+  )
+
   /** Generate the extension's main sources. Returns the generated files. */
   def generate(ext: Ext, buildBase: File, log: sbt.util.Logger): Seq[File] =
     BalticPorterGen.synchronized(run(ext, buildBase, log, testRun = false))
