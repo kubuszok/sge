@@ -48,7 +48,7 @@ object GdxAI {
   def getFileSystem(): sge.ai.FileSystem =
     if GdxAI.fileSystem != null then GdxAI.fileSystem
     else
-      throw new sge.utils.GdxRuntimeException(
+      throw sge.utils.SgeError.InvalidInput(
         "GdxAI has no FileSystem: this port cannot build one at class initialisation, because every " +
           "FileHandle it would hand out takes the application context this port threads through " +
           "`(using sge.Sge)` and a static initialiser has no clause. Call " +

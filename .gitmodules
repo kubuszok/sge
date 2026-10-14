@@ -43,3 +43,6 @@
 [submodule "original-src/guacamole"]
 	path = original-src/guacamole
 	url = https://github.com/crykn/guacamole.git
+[submodule "original-src/regexodus"]
+	path = original-src/regexodus
+	url = https://github.com/tommyettinger/RegExodus.git

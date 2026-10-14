@@ -279,7 +279,7 @@ object TaskRegistry {
       "policy",
       false,
       "Policy",
-      (v, _) => asEnum(v, sge.ai.btree.branch.Parallel.Policy.values(), (p: sge.ai.btree.branch.Parallel.Policy) => p.name()),
+      (v, _) => asEnum(v, sge.ai.btree.branch.Parallel.Policy.values, (p: sge.ai.btree.branch.Parallel.Policy) => p.name()),
       (t, v) => t.asInstanceOf[sge.ai.btree.branch.Parallel[java.lang.Object]].policy = v.asInstanceOf[sge.ai.btree.branch.Parallel.Policy]
     )
     // Parallel: @TaskAttribute public Orchestrator orchestrator;
@@ -289,7 +289,7 @@ object TaskRegistry {
       "orchestrator",
       false,
       "Orchestrator",
-      (v, _) => asEnum(v, sge.ai.btree.branch.Parallel.Orchestrator.values(), (o: sge.ai.btree.branch.Parallel.Orchestrator) => o.name()),
+      (v, _) => asEnum(v, sge.ai.btree.branch.Parallel.Orchestrator.values, (o: sge.ai.btree.branch.Parallel.Orchestrator) => o.name()),
       (t, v) => t.asInstanceOf[sge.ai.btree.branch.Parallel[java.lang.Object]].orchestrator = v.asInstanceOf[sge.ai.btree.branch.Parallel.Orchestrator]
     )
   }
