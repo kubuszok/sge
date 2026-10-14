@@ -1,0 +1,99 @@
+#family	upstream	reference	target
+KeepName	de.eskalon.commons.screen.ScreenManager#isTransitioning	def isTransitioning	
+KeepName	de.eskalon.commons.screen.transition.ScreenTransition#isDone	def isDone	
+KeepName	de.eskalon.commons.screen.transition.TimedTransition#isDone	def isDone	
+KeepParens	de.eskalon.commons.screen.ScreenManager#createFrameBuffer	def createFrameBuffer(): FrameBuffer	
+NullableMember	de.eskalon.commons.screen.ManagedScreen#getClearColor	Nullable[Color]	
+NullableMember	de.eskalon.commons.screen.ScreenManager#currScreen:field	Nullable[ManagedScreen]	
+NullableMember	de.eskalon.commons.screen.ScreenManager#getCurrentScreen	Nullable[$0]	
+NullableMember	de.eskalon.commons.screen.ScreenManager#getLastScreen	Nullable[ManagedScreen]	
+NullableMember	de.eskalon.commons.screen.ScreenManager#lastScreen:field	Nullable[ManagedScreen]	
+NullableMember	de.eskalon.commons.screen.ScreenManager#pushScreen(S,T)#transition	Nullable[$1]	
+NullableMember	de.eskalon.commons.screen.ScreenManager#transition:field	Nullable[$1]	
+NullableMember	de.eskalon.commons.screen.transition.BatchTransition#<init>#interpolation	Nullable[Interpolation]	
+NullableMember	de.eskalon.commons.screen.transition.ScreenTransition#getClearColor	Nullable[Color]	
+NullableMember	de.eskalon.commons.screen.transition.SlidingTransition#<init>#interpolation	Nullable[Interpolation]	
+NullableMember	de.eskalon.commons.screen.transition.TimedTransition#<init>(float,Interpolation)#interpolation	Nullable[Interpolation]	
+NullableMember	de.eskalon.commons.screen.transition.TimedTransition#interpolation:field	Nullable[Interpolation]	
+NullableMember	de.eskalon.commons.screen.transition.impl.BlankTimedTransition#<init>(float,Interpolation)#interpolation	Nullable[Interpolation]	
+NullableMember	de.eskalon.commons.screen.transition.impl.BlendingTransition#<init>(SpriteBatch,float,Interpolation)#interpolation	Nullable[Interpolation]	
+NullableMember	de.eskalon.commons.screen.transition.impl.GLTransitionsShaderTransition#<init>(String,float,Interpolation)#interpolation	Nullable[Interpolation]	
+NullableMember	de.eskalon.commons.screen.transition.impl.HorizontalSlicingTransition#<init>(SpriteBatch,int,float,Interpolation)#interpolation	Nullable[Interpolation]	
+NullableMember	de.eskalon.commons.screen.transition.impl.PushTransition#<init>(SpriteBatch,SlidingDirection,float,Interpolation)#interpolation	Nullable[Interpolation]	
+NullableMember	de.eskalon.commons.screen.transition.impl.ShaderTransition#<init>(String,String,boolean,float,Interpolation)#interpolation	Nullable[Interpolation]	
+NullableMember	de.eskalon.commons.screen.transition.impl.SlidingInTransition#<init>(SpriteBatch,SlidingDirection,float,Interpolation)#interpolation	Nullable[Interpolation]	
+NullableMember	de.eskalon.commons.screen.transition.impl.SlidingOutTransition#<init>(SpriteBatch,SlidingDirection,float,Interpolation)#interpolation	Nullable[Interpolation]	
+NullableMember	de.eskalon.commons.screen.transition.impl.VerticalSlicingTransition#<init>(SpriteBatch,int,float,Interpolation)#interpolation	Nullable[Interpolation]	
+OpaqueSlot	de.eskalon.commons.core.ManagedGame#resize#height	Pixels	sge.Pixels
+OpaqueSlot	de.eskalon.commons.core.ManagedGame#resize#width	Pixels	sge.Pixels
+OpaqueSlot	de.eskalon.commons.screen.ManagedScreen#render#delta	Seconds	sge.utils.Seconds
+OpaqueSlot	de.eskalon.commons.screen.ManagedScreen#resize#height	Pixels	sge.Pixels
+OpaqueSlot	de.eskalon.commons.screen.ManagedScreen#resize#width	Pixels	sge.Pixels
+OpaqueSlot	de.eskalon.commons.screen.ScreenManager#currentHeight	Pixels	sge.Pixels
+OpaqueSlot	de.eskalon.commons.screen.ScreenManager#currentWidth	Pixels	sge.Pixels
+OpaqueSlot	de.eskalon.commons.screen.ScreenManager#initialize#screenHeight	Pixels	sge.Pixels
+OpaqueSlot	de.eskalon.commons.screen.ScreenManager#initialize#screenWidth	Pixels	sge.Pixels
+OpaqueSlot	de.eskalon.commons.screen.ScreenManager#render#delta	Seconds	sge.utils.Seconds
+OpaqueSlot	de.eskalon.commons.screen.ScreenManager#resize#height	Pixels	sge.Pixels
+OpaqueSlot	de.eskalon.commons.screen.ScreenManager#resize#width	Pixels	sge.Pixels
+OpaqueSlot	de.eskalon.commons.screen.transition.BatchTransition#render(float,TextureRegion,TextureRegion)#delta	Seconds	sge.utils.Seconds
+OpaqueSlot	de.eskalon.commons.screen.transition.BatchTransition#render(float,TextureRegion,TextureRegion,float)#delta	Seconds	sge.utils.Seconds
+OpaqueSlot	de.eskalon.commons.screen.transition.BatchTransition#resize#height	Pixels	sge.Pixels
+OpaqueSlot	de.eskalon.commons.screen.transition.BatchTransition#resize#width	Pixels	sge.Pixels
+OpaqueSlot	de.eskalon.commons.screen.transition.ScreenTransition#render#delta	Seconds	sge.utils.Seconds
+OpaqueSlot	de.eskalon.commons.screen.transition.ScreenTransition#resize#height	Pixels	sge.Pixels
+OpaqueSlot	de.eskalon.commons.screen.transition.ScreenTransition#resize#width	Pixels	sge.Pixels
+OpaqueSlot	de.eskalon.commons.screen.transition.SlidingTransition#render#delta	Seconds	sge.utils.Seconds
+OpaqueSlot	de.eskalon.commons.screen.transition.TimedTransition#render(float,TextureRegion,TextureRegion)#delta	Seconds	sge.utils.Seconds
+OpaqueSlot	de.eskalon.commons.screen.transition.TimedTransition#render(float,TextureRegion,TextureRegion,float)#delta	Seconds	sge.utils.Seconds
+OpaqueSlot	de.eskalon.commons.screen.transition.impl.BlankTimedTransition#render#delta	Seconds	sge.utils.Seconds
+OpaqueSlot	de.eskalon.commons.screen.transition.impl.BlankTimedTransition#resize#height	Pixels	sge.Pixels
+OpaqueSlot	de.eskalon.commons.screen.transition.impl.BlankTimedTransition#resize#width	Pixels	sge.Pixels
+OpaqueSlot	de.eskalon.commons.screen.transition.impl.BlendingTransition#render#delta	Seconds	sge.utils.Seconds
+OpaqueSlot	de.eskalon.commons.screen.transition.impl.HorizontalSlicingTransition#render#delta	Seconds	sge.utils.Seconds
+OpaqueSlot	de.eskalon.commons.screen.transition.impl.PushTransition#render#delta	Seconds	sge.utils.Seconds
+OpaqueSlot	de.eskalon.commons.screen.transition.impl.ShaderTransition#render#delta	Seconds	sge.utils.Seconds
+OpaqueSlot	de.eskalon.commons.screen.transition.impl.ShaderTransition#resize#height	Pixels	sge.Pixels
+OpaqueSlot	de.eskalon.commons.screen.transition.impl.ShaderTransition#resize#width	Pixels	sge.Pixels
+OpaqueSlot	de.eskalon.commons.screen.transition.impl.VerticalSlicingTransition#render#delta	Seconds	sge.utils.Seconds
+OpaqueSlot	de.eskalon.commons.utils.ScreenFboUtils#screenToTexture#delta	Seconds	sge.utils.Seconds
+Parenless	de.eskalon.commons.screen.ManagedScreen#getClearColor	def clearColor: Nullable[Color]	
+Parenless	de.eskalon.commons.screen.ManagedScreen#getInputProcessors	def inputProcessors: ArrayBuffer[InputProcessor]	
+Parenless	de.eskalon.commons.screen.ScreenManager#getCurrentScreen	def currentScreen: Nullable[$0]	
+Parenless	de.eskalon.commons.screen.ScreenManager#isTransitioning	def isTransitioning: Boolean	
+Parenless	de.eskalon.commons.screen.transition.ScreenTransition#getClearColor	def clearColor: Nullable[Color]	
+Parenless	de.eskalon.commons.screen.transition.ScreenTransition#isDone	def isDone: Boolean	
+Parenless	de.eskalon.commons.screen.transition.TimedTransition#isDone	def isDone: Boolean	
+Parenless	de.eskalon.commons.screen.transition.impl.ShaderTransition#getProgram	def getProgram: ShaderProgram	
+Property	de.eskalon.commons.core.ManagedGame#getInputMultiplexer	var inputMultiplexer	inputMultiplexer
+Property	de.eskalon.commons.core.ManagedGame#getScreenManager	var screenManager	screenManager
+Property	de.eskalon.commons.screen.ManagedScreen#getClearColor	var clearColor	clearColor
+Property	de.eskalon.commons.screen.ManagedScreen#getInputProcessors	var inputProcessors	inputProcessors
+Property	de.eskalon.commons.screen.ScreenManager#getCurrentScreen	var currentScreen	currentScreen
+Property	de.eskalon.commons.screen.ScreenManager#getLastScreen	var lastScreen	lastScreen
+Property	de.eskalon.commons.screen.transition.ScreenTransition#getClearColor	var clearColor	clearColor
+Protected	de.eskalon.commons.core.ManagedGame#screenManager:field	protected screenManager	
+Protected	de.eskalon.commons.screen.ManagedScreen#addInputProcessor	protected addInputProcessor	
+Protected	de.eskalon.commons.screen.ScreenManager#createFrameBuffer	protected createFrameBuffer	
+Protected	de.eskalon.commons.screen.ScreenManager#currScreen:field	protected currScreen	
+Protected	de.eskalon.commons.screen.ScreenManager#currentHeight:field	protected currentHeight	
+Protected	de.eskalon.commons.screen.ScreenManager#currentWidth:field	protected currentWidth	
+Protected	de.eskalon.commons.screen.ScreenManager#finalizeScreen	protected finalizeScreen	
+Protected	de.eskalon.commons.screen.ScreenManager#finalizeTransition	protected finalizeTransition	
+Protected	de.eskalon.commons.screen.ScreenManager#hasDepth:field	protected hasDepth	
+Protected	de.eskalon.commons.screen.ScreenManager#initBuffers	protected initBuffers	
+Protected	de.eskalon.commons.screen.ScreenManager#initializeScreen	protected initializeScreen	
+Protected	de.eskalon.commons.screen.ScreenManager#initializeTransition	protected initializeTransition	
+Protected	de.eskalon.commons.screen.ScreenManager#lastScreen:field	protected lastScreen	
+Protected	de.eskalon.commons.screen.ScreenManager#transition:field	protected transition	
+Protected	de.eskalon.commons.screen.ScreenManager#transitionQueue:field	protected transitionQueue	
+Protected	de.eskalon.commons.screen.transition.BatchTransition#batch:field	protected batch	
+Protected	de.eskalon.commons.screen.transition.BatchTransition#height:field	protected height	
+Protected	de.eskalon.commons.screen.transition.BatchTransition#viewport:field	protected viewport	
+Protected	de.eskalon.commons.screen.transition.BatchTransition#width:field	protected width	
+Protected	de.eskalon.commons.screen.transition.TimedTransition#duration:field	protected duration	
+Protected	de.eskalon.commons.screen.transition.TimedTransition#interpolation:field	protected interpolation	
+Protected	de.eskalon.commons.screen.transition.TimedTransition#timePassed:field	protected timePassed	
+Protected	de.eskalon.commons.screen.transition.impl.ShaderTransition#program:field	protected program	
+Protected	de.eskalon.commons.screen.transition.impl.ShaderTransition#viewport:field	protected viewport	
+Public	de.eskalon.commons.screen.BlankScreen#<init>	public <init>	

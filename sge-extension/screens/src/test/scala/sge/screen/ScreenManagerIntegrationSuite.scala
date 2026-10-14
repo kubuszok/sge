@@ -85,13 +85,13 @@ class ScreenManagerIntegrationSuite extends munit.FunSuite {
     val sm = createTestScreenManager()
 
     // Screen manager not initialized
-    intercept[IllegalArgumentException](sm.render(Seconds(1f)))
-    intercept[IllegalArgumentException](sm.pause())
-    intercept[IllegalArgumentException](sm.resume())
-    intercept[IllegalArgumentException](sm.resize(Pixels(5), Pixels(5)))
+    intercept[IllegalStateException](sm.render(Seconds(1f)))
+    intercept[IllegalStateException](sm.pause())
+    intercept[IllegalStateException](sm.resume())
+    intercept[IllegalStateException](sm.resize(Pixels(5), Pixels(5)))
 
     // Push null screen
-    intercept[IllegalArgumentException] {
+    intercept[NullPointerException] {
       sm.pushScreen(null.asInstanceOf[ManagedScreen], Nullable.empty) // scalastyle:ignore null
     }
   }
@@ -99,7 +99,7 @@ class ScreenManagerIntegrationSuite extends munit.FunSuite {
   /** Tests whether pause(), resume() and resize() are called on the right screens. */
   test("testApplicationListenerEvents") {
     val sm = createTestScreenManager()
-    sm.initialize(InputMultiplexer(), Pixels(5), Pixels(5), false)
+    sm.initialize(sge.screen.utils.BasicInputMultiplexer(), Pixels(5), Pixels(5), false)
 
     var resizeCount = 0
     var pauseState  = 0
@@ -202,7 +202,7 @@ class ScreenManagerIntegrationSuite extends munit.FunSuite {
   /** Tests the functionality of the close() method. */
   test("testDispose") {
     val sm = createTestScreenManager()
-    sm.initialize(InputMultiplexer(), Pixels(5), Pixels(5), false)
+    sm.initialize(sge.screen.utils.BasicInputMultiplexer(), Pixels(5), Pixels(5), false)
 
     var disposeCount = 0
 
@@ -243,7 +243,7 @@ class ScreenManagerIntegrationSuite extends munit.FunSuite {
   /** Tests whether the screens are shown and hidden correctly while a transition is rendering as well as whether the input handlers are unregistered while transitioning.
     */
   test("testScreenLifecycleWhileTransition") {
-    val mult = InputMultiplexer()
+    val mult = sge.screen.utils.BasicInputMultiplexer()
     val sm   = createTestScreenManager()
     sm.initialize(mult, Pixels(5), Pixels(5), false)
 
@@ -391,7 +391,7 @@ class ScreenManagerIntegrationSuite extends munit.FunSuite {
 
   /** Tests that pushing the same screen twice in succession is ignored. */
   test("testIdenticalDoublePush") {
-    val mult = InputMultiplexer()
+    val mult = sge.screen.utils.BasicInputMultiplexer()
     val sm   = createTestScreenManager()
     sm.initialize(mult, Pixels(5), Pixels(5), false)
 
@@ -422,7 +422,7 @@ class ScreenManagerIntegrationSuite extends munit.FunSuite {
   /** Tests whether a screen's input processor is removed from the game, even though it was deleted from the screen's list of processors beforehand.
     */
   test("testRemovingProcessor") {
-    val mult = InputMultiplexer()
+    val mult = sge.screen.utils.BasicInputMultiplexer()
     val sm   = createTestScreenManager()
     sm.initialize(mult, Pixels(5), Pixels(5), false)
 
@@ -435,7 +435,7 @@ class ScreenManagerIntegrationSuite extends munit.FunSuite {
       override def render(delta: Seconds): Unit =
         if (!doneOnce) {
           doneOnce = true
-          this.inputProcessors.remove(0)
+          this.inputProcessors.removeIndex(0)
         }
     }
 

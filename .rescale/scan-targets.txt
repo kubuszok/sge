@@ -19,7 +19,6 @@ sge-extension/graphs/src/main/scala
 sge-extension/jbump/src/main/scala
 sge-extension/noise/src/main/scala
 sge-extension/physics/src/main/scala
-sge-extension/screens/src/main/scala
 sge-extension/textra/src/main/scala
 sge-extension/tools/src/main/scala
 sge-extension/visui/src/main/scala

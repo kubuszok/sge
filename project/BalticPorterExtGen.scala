@@ -137,6 +137,22 @@ object BalticPorterExtGen {
     include = sge.port.ext.vfx.VfxPolicy.include
   )
 
+  // screenmanager reads guacamole (generated first into the same module) and libGDX
+  val Screens: Ext = Ext(
+    id = "screens",
+    upstreamName = "libgdx-screenmanager",
+    license = "Apache-2.0",
+    submodule = "original-src/libgdx-screenmanager",
+    mainDir = "src/main/java",
+    dependent = true,
+    main = ctx =>
+      sge.port.ext.screens.ScreensPolicy.core(Guacamole.main(ctx), ctx.sgeRoot, List(ctx.reportRoot), reference(ctx, "screens", "sge-extension/screens/src/main/scala")),
+    policy = rel => extPolicy("screens", "screens")(rel) || Guacamole.policy(rel),
+    classpath = ctx => sge.port.ext.guacamole.GuacamolePolicy.classpath(ctx.sgeRoot),
+    bases = List(Guacamole),
+    resolutionRoots = ctx => List("core/src/main/java", "gdx/src/main/java").map(d => ctx.sgeRoot.resolve("original-src/guacamole").resolve(d))
+  )
+
   /** Generate the extension's main sources. Returns the generated files. */
   def generate(ext: Ext, buildBase: File, log: sbt.util.Logger): Seq[File] =
     BalticPorterGen.synchronized(run(ext, buildBase, log, testRun = false))
