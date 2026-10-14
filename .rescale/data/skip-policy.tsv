@@ -20,9 +20,6 @@ sge-extension/visui/src/main/scala/sge/visui/widget/VisSplitPane.scala	shortcuts
 sge-extension/visui/src/main/scala/sge/visui/widget/file/FileUtils.scala	shortcuts	Catches UnsupportedOperationException from Desktop platform API for unsupported OSs	2026-04-08	dev
 sge-extension/visui/src/main/scala/sge/visui/util/adapter/AbstractListAdapter.scala	shortcuts	Abstract methods throw if not overridden by subclass with non-DISABLED selection mode	2026-04-08	dev
 sge-extension/visui/src/main/scala/sge/visui/building/utilities/CellWidget.scala	shortcuts	of(null) builder helper, @nowarn Java interop	2026-04-08	dev
-sge-extension/screens/src/main/scala/sge/screen/transition/ScreenTransition.scala	shortcuts	Doc comment about screen lifecycle ('not yet hidden' is a state, not a TODO)	2026-04-08	dev
-sge-extension/screens/src/main/scala/sge/screen/ScreenManager.scala	shortcuts	Doc comment about screen lifecycle ('not yet hidden' is a state, not a TODO)	2026-04-08	dev
-sge-extension/screens/src/main/scala/sge/screen/ManagedScreen.scala	shortcuts	Doc comment about screen lifecycle ('not yet hidden' is a state, not a TODO)	2026-04-08	dev
 sge-extension/screens/src/test/scala/sge/screen/ScreenManagerSuite.scala	shortcuts	Test fixtures intentionally minimal	2026-04-08	dev
 sge-extension/ai/src/test/scala/sge/ai/msg/MessageDispatcherSuite.scala	shortcuts	Test asserts message has 'Not yet delivered' state	2026-04-08	dev
 sge-extension/ai/src/main/scala/sge/ai/msg/MessageDispatcher.scala	shortcuts	'pending message' is the queue concept being implemented, not a TODO	2026-04-08	dev
@@ -180,9 +177,6 @@ sge-extension/graphs/src/main/scala/sge/graphs/UndirectedGraph.scala	shortcuts	n
 sge-extension/graphs/src/main/scala/sge/graphs/DirectedGraph.scala	shortcuts	null-cast for generic default value	2026-04-19	dev
 sge-extension/graphs/src/main/scala/sge/graphs/Node.scala	shortcuts	null-cast for generic array initialization in graph node	2026-04-19	dev
 sge-extension/jbump/src/main/scala/sge/jbump/World.scala	shortcuts	null-cast for collision detection internal state	2026-04-19	dev
-sge-extension/screens/src/main/scala/sge/screen/transition/ScreenTransition.scala	shortcuts	not-yet-comment for planned transition feature	2026-04-19	dev
-sge-extension/screens/src/main/scala/sge/screen/ScreenManager.scala	shortcuts	not-yet-comment for planned screen management feature	2026-04-19	dev
-sge-extension/screens/src/main/scala/sge/screen/ManagedScreen.scala	shortcuts	not-yet-comment for planned managed screen feature	2026-04-19	dev
 sge-extension/tools/src/main/scala/sge/tools/texturepacker/MaxRectsPacker.scala	shortcuts	minimal-comment in packing algorithm	2026-04-19	dev
 sge-extension/gltf/src/main/scala/sge/gltf/data/GLTFCodecs.scala	shortcuts	jsoniter codec Java interop boundary: every nullValue override is a null.asInstanceOf at the Java codec contract	2026-04-08	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/model/NodePartPlus.scala	shortcuts	userData getOrElse(null) Java interop boundary	2026-04-08	dev
@@ -280,9 +274,6 @@ sge-extension/graphs/src/main/scala/sge/graphs/UndirectedGraph.scala	shortcuts	n
 sge-extension/graphs/src/main/scala/sge/graphs/DirectedGraph.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
 sge-extension/graphs/src/main/scala/sge/graphs/Node.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
 sge-extension/jbump/src/main/scala/sge/jbump/World.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
-sge-extension/screens/src/main/scala/sge/screen/transition/ScreenTransition.scala	shortcuts	not-yet-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
-sge-extension/screens/src/main/scala/sge/screen/ScreenManager.scala	shortcuts	not-yet-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
-sge-extension/screens/src/main/scala/sge/screen/ManagedScreen.scala	shortcuts	not-yet-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
 sge-extension/textra/src/main/scala/sge/textra/BitmapFontSupport.scala	shortcuts	not-yet-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
 sge-extension/textra/src/main/scala/sge/textra/utils/LZBCompression.scala	shortcuts	flag-break-var: Scala 3 boundary/break replacement pattern	2026-04-29	dev
 sge-extension/textra/src/main/scala/sge/textra/utils/ColorUtils.scala	shortcuts	placeholder-comment: Documentation pattern, not a code shortcut	2026-04-29	dev

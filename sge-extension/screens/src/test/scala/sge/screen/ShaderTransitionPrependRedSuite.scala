@@ -39,10 +39,11 @@
  *                              guard; this is the existing, correct path and
  *                              passes today).
  *
- * Headless fixture: glCreateShader returns 0, so ShaderProgram's loadShader
- * short-circuits to compiledSuccessfully = false and skips
- * fetchAttributes/fetchUniforms — construction completes without a real GL
- * context while still populating vertexShaderSource/fragmentShaderSource. The
+ * Headless fixture: the no-op GL reports every shader compiled and every
+ * program linked, with no active attributes or uniforms, so ShaderProgram
+ * construction succeeds and passes java's compile check (ShaderProgramFactory
+ * throws on an uncompiled program) without a real GL context, while still
+ * populating vertexShaderSource/fragmentShaderSource. The
  * sge core test fixture (sge/src/test/.../NoopGL20.scala) is NOT on this
  * module's test classpath (sge-screens.dependsOn(sge) is Compile-only), so the
  * minimal no-op GL20 is replicated here, matching the sibling precedent in
@@ -206,8 +207,8 @@ private object StubApplication extends Application {
   def logLevel_=(logLevel:                   Int):                                           Unit                        = ()
 }
 
-/** No-op GL20 — minimal replica of sge/src/test/scala/sge/NoopGL20.scala (not on this module's test classpath; see suite header). glCreateShader returns 0 so ShaderProgram construction completes
-  * without a real GL context while still populating vertexShaderSource/fragmentShaderSource.
+/** No-op GL20 — minimal replica of sge/src/test/scala/sge/NoopGL20.scala (not on this module's test classpath; see suite header). Shaders compile and programs link, so ShaderProgram construction
+  * succeeds without a real GL context while still populating vertexShaderSource/fragmentShaderSource.
   */
 private object ShaderTransitionNoopGL20 extends GL20 {
 
@@ -323,9 +324,9 @@ private object ShaderTransitionNoopGL20 extends GL20 {
 
   def glCompileShader(shader: Int): Unit = {}
 
-  def glCreateProgram(): Int = 0
+  def glCreateProgram(): Int = 1
 
-  def glCreateShader(`type`: ShaderType): Int = 0
+  def glCreateShader(`type`: ShaderType): Int = 1
 
   def glDeleteBuffer(buffer: Int): Unit = {}
 
@@ -385,13 +386,15 @@ private object ShaderTransitionNoopGL20 extends GL20 {
 
   def glGetFramebufferAttachmentParameteriv(target: Int, attachment: Int, pname: Int, params: IntBuffer): Unit = {}
 
-  def glGetProgramiv(program: Int, pname: Int, params: IntBuffer): Unit = {}
+  // a successful link; no active attributes or uniforms
+  def glGetProgramiv(program: Int, pname: Int, params: IntBuffer): Unit = params.put(0, if (pname == GL20.GL_LINK_STATUS) 1 else 0)
 
   def glGetProgramInfoLog(program: Int): String = ""
 
   def glGetRenderbufferParameteriv(target: Int, pname: Int, params: IntBuffer): Unit = {}
 
-  def glGetShaderiv(shader: Int, pname: Int, params: IntBuffer): Unit = {}
+  // a successful compile
+  def glGetShaderiv(shader: Int, pname: Int, params: IntBuffer): Unit = params.put(0, if (pname == GL20.GL_COMPILE_STATUS) 1 else 0)
 
   def glGetShaderInfoLog(shader: Int): String = ""
 
