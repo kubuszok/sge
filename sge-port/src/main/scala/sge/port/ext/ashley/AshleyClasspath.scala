@@ -13,5 +13,5 @@ object AshleyClasspath {
   val Coordinates: List[String] = List("junit:junit:4.13.2", "org.mockito:mockito-core:1.10.19")
 
   def resolve(repoRoot: Path): List[Path] =
-    ClasspathCache.entries(repoRoot.resolve("out/ashley-test-classpath.txt"), "ashley-test", Coordinates)
+    ClasspathCache.entries(sge.port.ClasspathCacheDir.file(repoRoot, "ashley-test-classpath.txt"), "ashley-test", Coordinates)
 }

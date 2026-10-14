@@ -22,7 +22,7 @@ object UslTestMigrate {
   */
 object UslTestClasspath {
 
-  def cache(repoRoot: Path): Path = repoRoot.resolve("out/usl-test-classpath.txt")
+  def cache(repoRoot: Path): Path = sge.port.ClasspathCacheDir.file(repoRoot, "usl-test-classpath.txt")
 
   /** the version `usl/build.gradle` + the root `build.gradle`'s `junitVersion` declare. */
   val Coordinates: List[String] = List("junit:junit:4.13.2")

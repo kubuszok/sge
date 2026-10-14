@@ -150,7 +150,7 @@ object ScreensPolicy {
   */
 object ScreensClasspath {
 
-  def cache(repoRoot: Path): Path = repoRoot.resolve("out/screens-classpath.txt")
+  def cache(repoRoot: Path): Path = sge.port.ClasspathCacheDir.file(repoRoot, "screens-classpath.txt")
 
   private val coordinates = List(
     "com.github.crykn.guacamole:gdx:v0.3.6",

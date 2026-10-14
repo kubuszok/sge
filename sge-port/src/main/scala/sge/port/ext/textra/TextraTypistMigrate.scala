@@ -70,7 +70,7 @@ object TextraTypistClasspath {
 
   val Coordinates: List[String] = List("com.github.tommyettinger:regexodus:0.1.21")
 
-  def cache(repoRoot: Path): Path = repoRoot.resolve("out/textra-classpath.txt")
+  def cache(repoRoot: Path): Path = sge.port.ClasspathCacheDir.file(repoRoot, "textra-classpath.txt")
 
   def entries(repoRoot: Path): List[Path] =
     ClasspathCache.entries(cache(repoRoot), "textratypist", Coordinates)

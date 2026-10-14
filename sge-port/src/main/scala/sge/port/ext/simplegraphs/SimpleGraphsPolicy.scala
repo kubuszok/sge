@@ -65,5 +65,5 @@ object SimpleGraphsPolicy {
 
   /** the test-scope classpath the frontend resolves the suite against: JUnit 4.12, simple-graphs' own `build.gradle` pin. */
   def testClasspath(sgeRoot: Path): List[Path] =
-    ClasspathCache.entries(sgeRoot.resolve("out/simplegraphs-test-classpath.txt"), "simple-graphs-test", List("junit:junit:4.12"))
+    ClasspathCache.entries(sge.port.ClasspathCacheDir.file(sgeRoot, "simplegraphs-test-classpath.txt"), "simple-graphs-test", List("junit:junit:4.12"))
 }

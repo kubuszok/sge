@@ -75,7 +75,7 @@ object BalticPorterEcsGen {
         .sorted
 
       // The classpath for resolving ashley's references to libGDX types.
-      val classpathDir = sgeRoot.resolve("target/balticporter-classpath")
+      val classpathDir = sge.port.ClasspathCacheDir(sgeRoot)
 
       // Reports under the shared report root, where this run finds its bases' port maps and the test port finds this one's.
       System.setProperty("balticporter.reportDir", reportRoot.resolve("sge-ecs").toAbsolutePath.normalize.toString)
@@ -187,7 +187,7 @@ object BalticPorterEcsGen {
 
       // Resolve test-scope dependencies (JUnit 4, Mockito).
       val testClasspath = sge.port.ext.ashley.AshleyClasspath.resolve(sgeRoot)
-      val classpathDir  = sgeRoot.resolve("target/balticporter-classpath")
+      val classpathDir  = sge.port.ClasspathCacheDir(sgeRoot)
 
       System.setProperty("balticporter.reportDir", reportRoot.resolve("sge-ecs-test").toAbsolutePath.normalize.toString)
       try {
