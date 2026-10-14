@@ -1123,8 +1123,16 @@ def balticPorterGenProject(pm: ProjectMatrix, ext: BalticPorterExtGen.Ext): Proj
 val `sge-colorful-gen` = balticPorterGenProject(projectMatrix in file("sge-extension/colorful/generated"), BalticPorterExtGen.Colorful)
 val `sge-ai-gen`       = balticPorterGenProject(projectMatrix in file("sge-extension/ai/generated"), BalticPorterExtGen.Ai)
 val `sge-gltf-gen`     = balticPorterGenProject(projectMatrix in file("sge-extension/gltf/generated"), BalticPorterExtGen.Gltf)
-val `sge-textra-gen`   = balticPorterGenProject(projectMatrix in file("sge-extension/textra/generated"), BalticPorterExtGen.Textra)
-  .settings(libraryDependencies += "com.github.tommyettinger" % "regexodus" % "0.1.21")
+// RegExodus, TextraTypist's regex engine, with its upstream JUnit suite
+val `sge-regexodus-gen` = balticPorterGenProject(projectMatrix in file("sge-extension/regexodus/generated"), BalticPorterExtGen.Regexodus)
+  .settings(
+    Test / sourceGenerators += Def.task {
+      BalticPorterExtGen.generateTests(BalticPorterExtGen.Regexodus, (ThisBuild / baseDirectory).value, streams.value.log)
+    }.taskValue,
+    Test / managedSourceDirectories += (ThisBuild / baseDirectory).value / "target" / "balticporter-sge-regexodus" / "src_managed" / "test" / "scala"
+  )
+val `sge-textra-gen` = balticPorterGenProject(projectMatrix in file("sge-extension/textra/generated"), BalticPorterExtGen.Textra)
+  .dependsOn(`sge-regexodus-gen`)
 val `sge-visui-gen`    = balticPorterGenProject(projectMatrix in file("sge-extension/visui/generated"), BalticPorterExtGen.Visui)
 
 // ── Android smoke test APK ────────────────────────────────────────────

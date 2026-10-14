@@ -47,7 +47,9 @@ object BalticPorterExtGen {
     // other extensions this one depends on: generated first, so their port maps are published
     bases: List[Ext] = Nil,
     // java source roots it resolves against beyond libGDX's (a base extension's upstream tree)
-    resolutionRoots: Ctx => List[Path] = _ => Nil
+    resolutionRoots: Ctx => List[Path] = _ => Nil,
+    // paths under those roots never parsed (a GWT super-source tree redeclaring the library's own or the JDK's classes)
+    resolutionExcludes: List[String] = Nil
   ) {
     def module: String = s"sge-$id"
   }
@@ -201,6 +203,23 @@ object BalticPorterExtGen {
     policy = extPolicy("gltf", "gltf")
   )
 
+  // RegExodus 0.1.21 (`src/main/java` minus GWT's `regexodus/emu`), TextraTypist's regex engine: a base port of its own
+  val Regexodus: Ext = Ext(
+    id = "regexodus",
+    upstreamName = "RegExodus",
+    license = "BSD-3-Clause",
+    submodule = "original-src/regexodus",
+    mainDir = "src/main/java",
+    dependent = false,
+    main = ctx => sge.port.ext.regexodus.RegExodusPolicy.core(ctx.sgeRoot),
+    policy = extPolicy("regexodus", "regexodus"),
+    include = sge.port.ext.regexodus.RegExodusPolicy.include,
+    testDir = Some("src/test/java"),
+    test = Some(ctx => sge.port.ext.regexodus.RegExodusPolicy.test(ctx.sgeRoot, List(ctx.reportRoot))),
+    testClasspath = ctx => sge.port.ext.regexodus.RegExodusPolicy.testClasspath(ctx.sgeRoot)
+  )
+
+  // a dependent of sge-core AND of the RegExodus port
   val Textra: Ext = Ext(
     id = "textra",
     upstreamName = "textratypist",
@@ -208,9 +227,19 @@ object BalticPorterExtGen {
     submodule = "original-src/textratypist",
     mainDir = "src/main/java",
     dependent = true,
-    main = ctx => sge.port.ext.textra.TextraPolicy.core(ctx.core, ctx.sgeRoot, List(ctx.reportRoot), reference(ctx, "textra", "sge-extension/textra/src/main/scala")),
+    main = ctx =>
+      sge.port.ext.textra.TextraPolicy.core(
+        sge.port.ext.regexodus.RegExodusPolicy.core(ctx.sgeRoot).copy(baseReports = List(ctx.reportRoot)),
+        ctx.core,
+        ctx.sgeRoot,
+        List(ctx.reportRoot),
+        reference(ctx, "textra", "sge-extension/textra/src/main/scala")
+      ),
     policy = extPolicy("textra", "textra"),
-    classpath = ctx => sge.port.ext.textra.TextraPolicy.classpath(ctx.sgeRoot)
+    bases = List(Regexodus),
+    // RegExodus' source, so its references follow the port's renames; its GWT emulation of `java.util.regex` is not parsed
+    resolutionRoots = ctx => List(ctx.sgeRoot.resolve("original-src/regexodus/src/main/java")),
+    resolutionExcludes = List("regexodus/emu")
   )
 
   val Visui: Ext = Ext(
@@ -288,7 +317,7 @@ object BalticPorterExtGen {
             label = label,
             portRoot = portRoot,
             sourceSet = if (testRun) balticporter.runner.SourceSet.Test else balticporter.runner.SourceSet.Main,
-            frontend = balticporter.core.FrontendConfig(srcRoot, files, classpath, resolutionRoots = resolutions),
+            frontend = balticporter.core.FrontendConfig(srcRoot, files, classpath, resolutionRoots = resolutions, resolutionExcludes = ext.resolutionExcludes),
             phases = Nil,
             manifest = Some(manifest),
             provenance = Some(
