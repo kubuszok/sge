@@ -10,7 +10,6 @@ sge-jvm-platform/api/src/main/scala
 sge-jvm-platform/jdk/src/main/scala
 sge-jvm-platform/android/src/main/scala
 sge-extension/ai/src/main/scala
-sge-extension/colorful/src/main/scala
 sge-extension/controllers/src/main/scala
 sge-extension/ecs/src/main/scala
 sge-extension/freetype/src/main/scala

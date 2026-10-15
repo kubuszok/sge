@@ -1,0 +1,771 @@
+#family	upstream	reference	target
+FieldName	com.github.tommyettinger.colorful.cielab.ColorfulBatch#tweak:field	var _tweak	_tweak
+FieldName	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#tweak:field	var _tweak	_tweak
+FieldName	com.github.tommyettinger.colorful.ipt.ColorfulBatch#tweak:field	var _tweak	_tweak
+FieldName	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#tweak:field	var _tweak	_tweak
+FieldName	com.github.tommyettinger.colorful.oklab.ColorfulBatch#tweak:field	var _tweak	_tweak
+FieldName	com.github.tommyettinger.colorful.rgb.ColorfulBatch#tweak:field	var _tweak	_tweak
+FieldName	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#tweak:field	var _tweak	_tweak
+KeepName	com.github.tommyettinger.colorful.FloatColors#setAlpha	def setAlpha	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulBatch#setBlendFunction	def setBlendFunction	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulBatch#setBlendFunctionSeparate	def setBlendFunctionSeparate	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulBatch#setColor(float,float,float,float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulBatch#setIntColor(int)	def setIntColor	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulBatch#setIntColor(int,int,int,int)	def setIntColor	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulBatch#setIntTweak(int)	def setIntTweak	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulBatch#setIntTweak(int,int,int,int)	def setIntTweak	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulBatch#setTweak(float,float,float,float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulBatch#setTweakedColor(float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulBatch#setTweakedColor(float,float,float,float,float,float,float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setAlpha	def setAlpha	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setBounds	def setBounds	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setCenter	def setCenter	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setCenterX	def setCenterX	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setCenterY	def setCenterY	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setColor(Color)	def setColor	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setColor(float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setColor(float,float,float,float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setOrigin	def setOrigin	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setOriginBasedPosition	def setOriginBasedPosition	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setOriginCenter	def setOriginCenter	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setPackedColor	def setPackedColor	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setPosition	def setPosition	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setRegion	def setRegion	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setScale(float)	def setScale	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setScale(float,float)	def setScale	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setSize	def setSize	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setTweak(float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setTweak(float,float,float,float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setTweakedColor(float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setTweakedColor(float,float,float,float,float,float,float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#setBlendFunction	def setBlendFunction	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#setBlendFunctionSeparate	def setBlendFunctionSeparate	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#setColor(float,float,float,float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#setIntColor(int)	def setIntColor	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#setIntColor(int,int,int,int)	def setIntColor	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#setIntTweak(int)	def setIntTweak	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#setIntTweak(int,int,int,int)	def setIntTweak	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#setTweak(float,float,float,float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#setTweakedColor(float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#setTweakedColor(float,float,float,float,float,float,float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setAlpha	def setAlpha	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setBounds	def setBounds	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setCenter	def setCenter	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setCenterX	def setCenterX	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setCenterY	def setCenterY	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setColor(Color)	def setColor	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setColor(float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setColor(float,float,float,float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setOrigin	def setOrigin	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setOriginBasedPosition	def setOriginBasedPosition	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setOriginCenter	def setOriginCenter	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setPackedColor	def setPackedColor	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setPosition	def setPosition	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setRegion	def setRegion	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setScale(float)	def setScale	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setScale(float,float)	def setScale	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setSize	def setSize	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setTweak(float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setTweak(float,float,float,float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setTweakedColor(float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setTweakedColor(float,float,float,float,float,float,float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulBatch#setBlendFunction	def setBlendFunction	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulBatch#setBlendFunctionSeparate	def setBlendFunctionSeparate	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulBatch#setColor(float,float,float,float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulBatch#setIntColor(int)	def setIntColor	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulBatch#setIntColor(int,int,int,int)	def setIntColor	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulBatch#setIntTweak(int)	def setIntTweak	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulBatch#setIntTweak(int,int,int,int)	def setIntTweak	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulBatch#setTweak(float,float,float,float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulBatch#setTweakedColor(float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulBatch#setTweakedColor(float,float,float,float,float,float,float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setAlpha	def setAlpha	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setBounds	def setBounds	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setCenter	def setCenter	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setCenterX	def setCenterX	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setCenterY	def setCenterY	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setColor(Color)	def setColor	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setColor(float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setColor(float,float,float,float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setOrigin	def setOrigin	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setOriginBasedPosition	def setOriginBasedPosition	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setOriginCenter	def setOriginCenter	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setPackedColor	def setPackedColor	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setPosition	def setPosition	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setRegion	def setRegion	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setScale(float)	def setScale	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setScale(float,float)	def setScale	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setSize	def setSize	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setTweak(float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setTweak(float,float,float,float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setTweakedColor(float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setTweakedColor(float,float,float,float,float,float,float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#setBlendFunction	def setBlendFunction	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#setBlendFunctionSeparate	def setBlendFunctionSeparate	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#setColor(float,float,float,float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#setIntColor(int)	def setIntColor	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#setIntColor(int,int,int,int)	def setIntColor	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#setIntTweak(int)	def setIntTweak	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#setIntTweak(int,int,int,int)	def setIntTweak	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#setTweak(float,float,float,float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#setTweakedColor(float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#setTweakedColor(float,float,float,float,float,float,float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setAlpha	def setAlpha	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setBounds	def setBounds	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setCenter	def setCenter	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setCenterX	def setCenterX	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setCenterY	def setCenterY	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setColor(Color)	def setColor	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setColor(float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setColor(float,float,float,float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setOrigin	def setOrigin	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setOriginBasedPosition	def setOriginBasedPosition	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setOriginCenter	def setOriginCenter	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setPackedColor	def setPackedColor	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setPosition	def setPosition	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setRegion	def setRegion	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setScale(float)	def setScale	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setScale(float,float)	def setScale	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setSize	def setSize	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setTweak(float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setTweak(float,float,float,float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setTweakedColor(float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setTweakedColor(float,float,float,float,float,float,float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorTools#getRawGamutValue	def getRawGamutValue	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulBatch#setBlendFunction	def setBlendFunction	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulBatch#setBlendFunctionSeparate	def setBlendFunctionSeparate	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulBatch#setColor(float,float,float,float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulBatch#setIntColor(int)	def setIntColor	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulBatch#setIntColor(int,int,int,int)	def setIntColor	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulBatch#setIntTweak(int)	def setIntTweak	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulBatch#setIntTweak(int,int,int,int)	def setIntTweak	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulBatch#setTweak(float,float,float,float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulBatch#setTweakedColor(float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulBatch#setTweakedColor(float,float,float,float,float,float,float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setAlpha	def setAlpha	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setBounds	def setBounds	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setCenter	def setCenter	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setCenterX	def setCenterX	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setCenterY	def setCenterY	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setColor(Color)	def setColor	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setColor(float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setColor(float,float,float,float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setOrigin	def setOrigin	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setOriginBasedPosition	def setOriginBasedPosition	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setOriginCenter	def setOriginCenter	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setPackedColor	def setPackedColor	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setPosition	def setPosition	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setRegion	def setRegion	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setScale(float)	def setScale	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setScale(float,float)	def setScale	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setSize	def setSize	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setTweak(float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setTweak(float,float,float,float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setTweakedColor(float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setTweakedColor(float,float,float,float,float,float,float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#getMaxTextureUnits	def getMaxTextureUnits	
+KeepName	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#setBlendFunction	def setBlendFunction	
+KeepName	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#setBlendFunctionSeparate	def setBlendFunctionSeparate	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulBatch#setBlendFunction	def setBlendFunction	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulBatch#setBlendFunctionSeparate	def setBlendFunctionSeparate	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulBatch#setColor(float,float,float,float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulBatch#setIntColor(int)	def setIntColor	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulBatch#setIntColor(int,int,int,int)	def setIntColor	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulBatch#setIntTweak(int)	def setIntTweak	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulBatch#setIntTweak(int,int,int,int)	def setIntTweak	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulBatch#setTweak(float,float,float,float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulBatch#setTweakedColor(float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulBatch#setTweakedColor(float,float,float,float,float,float,float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setAlpha	def setAlpha	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setBounds	def setBounds	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setCenter	def setCenter	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setCenterX	def setCenterX	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setCenterY	def setCenterY	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setColor(Color)	def setColor	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setColor(float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setColor(float,float,float,float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setOrigin	def setOrigin	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setOriginBasedPosition	def setOriginBasedPosition	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setOriginCenter	def setOriginCenter	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setPackedColor	def setPackedColor	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setPosition	def setPosition	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setRegion	def setRegion	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setScale(float)	def setScale	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setScale(float,float)	def setScale	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setSize	def setSize	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setTweak(float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setTweak(float,float,float,float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setTweakedColor(float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setTweakedColor(float,float,float,float,float,float,float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#getMaxTextureUnits	def getMaxTextureUnits	
+KeepName	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#setBlendFunction	def setBlendFunction	
+KeepName	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#setBlendFunctionSeparate	def setBlendFunctionSeparate	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#setBlendFunction	def setBlendFunction	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#setBlendFunctionSeparate	def setBlendFunctionSeparate	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#setColor(float,float,float,float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#setIntColor(int)	def setIntColor	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#setIntColor(int,int,int,int)	def setIntColor	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#setIntTweak(int)	def setIntTweak	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#setIntTweak(int,int,int,int)	def setIntTweak	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#setTweak(float,float,float,float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#setTweakedColor(float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#setTweakedColor(float,float,float,float,float,float,float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setAlpha	def setAlpha	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setBounds	def setBounds	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setCenter	def setCenter	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setCenterX	def setCenterX	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setCenterY	def setCenterY	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setColor(Color)	def setColor	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setColor(float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setColor(float,float,float,float)	def setColor	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setOrigin	def setOrigin	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setOriginBasedPosition	def setOriginBasedPosition	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setOriginCenter	def setOriginCenter	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setPackedColor	def setPackedColor	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setPosition	def setPosition	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setRegion	def setRegion	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setScale(float)	def setScale	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setScale(float,float)	def setScale	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setSize	def setSize	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setTweak(float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setTweak(float,float,float,float)	def setTweak	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setTweakedColor(float,float)	def setTweakedColor	
+KeepName	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setTweakedColor(float,float,float,float,float,float,float,float)	def setTweakedColor	
+NullableMember	com.github.tommyettinger.colorful.cielab.ColorfulBatch#<init>(int,ShaderProgram)#defaultShader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.colorful.cielab.ColorfulBatch#lastTexture:field	Nullable[Texture]	
+NullableMember	com.github.tommyettinger.colorful.cielab.ColorfulBatch#setShader#shader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#<init>(int,ShaderProgram)#defaultShader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#lastTexture:field	Nullable[Texture]	
+NullableMember	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#setShader#shader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.colorful.ipt.ColorfulBatch#<init>(int,ShaderProgram)#defaultShader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.colorful.ipt.ColorfulBatch#lastTexture:field	Nullable[Texture]	
+NullableMember	com.github.tommyettinger.colorful.ipt.ColorfulBatch#setShader#shader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#<init>(int,ShaderProgram)#defaultShader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#lastTexture:field	Nullable[Texture]	
+NullableMember	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#setShader#shader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.colorful.oklab.ColorfulBatch#<init>(int,ShaderProgram)#defaultShader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.colorful.oklab.ColorfulBatch#lastTexture:field	Nullable[Texture]	
+NullableMember	com.github.tommyettinger.colorful.oklab.ColorfulBatch#setShader#shader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#<init>(int,ShaderProgram)#defaultShader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#setShader#shader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.colorful.rgb.ColorfulBatch#<init>(int,ShaderProgram)#defaultShader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.colorful.rgb.ColorfulBatch#lastTexture:field	Nullable[Texture]	
+NullableMember	com.github.tommyettinger.colorful.rgb.ColorfulBatch#setShader#shader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#<init>(int,ShaderProgram)#defaultShader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#setShader#shader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#<init>(int,ShaderProgram)#defaultShader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#lastTexture:field	Nullable[Texture]	
+NullableMember	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#setShader#shader	Nullable[ShaderProgram]	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulBatch#getBlendDstFunc	def blendDstFunc: Int	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulBatch#getBlendDstFuncAlpha	def blendDstFuncAlpha: Int	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulBatch#getBlendSrcFunc	def blendSrcFunc: Int	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulBatch#getBlendSrcFuncAlpha	def blendSrcFuncAlpha: Int	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulBatch#getColor	def color: Color	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulBatch#getPackedColor	def packedColor: Float	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulBatch#getProjectionMatrix	def projectionMatrix: Matrix4	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulBatch#getShader	def shader: ShaderProgram	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulBatch#getTransformMatrix	def transformMatrix: Matrix4	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulBatch#getTweak	def tweak: Float	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulBatch#isBlendingEnabled	def blendingEnabled: Boolean	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getBoundingRectangle	def boundingRectangle: Rectangle	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getColor	def color: Float	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getColorTweak	def colorTweak: Float	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getHeight	def height: Float	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getOriginX	def originX: Float	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getOriginY	def originY: Float	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getRotation	def rotation: Float	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getScaleX	def scaleX: Float	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getScaleY	def scaleY: Float	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getVertices	def vertices: Array[Float]	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getWidth	def width: Float	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getX	def x: Float	
+Parenless	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getY	def y: Float	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#getBlendDstFunc	def blendDstFunc: Int	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#getBlendDstFuncAlpha	def blendDstFuncAlpha: Int	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#getBlendSrcFunc	def blendSrcFunc: Int	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#getBlendSrcFuncAlpha	def blendSrcFuncAlpha: Int	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#getColor	def color: Color	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#getPackedColor	def packedColor: Float	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#getProjectionMatrix	def projectionMatrix: Matrix4	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#getShader	def shader: ShaderProgram	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#getTransformMatrix	def transformMatrix: Matrix4	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#getTweak	def tweak: Float	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#isBlendingEnabled	def blendingEnabled: Boolean	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getBoundingRectangle	def boundingRectangle: Rectangle	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getColor	def color: Float	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getColorTweak	def colorTweak: Float	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getHeight	def height: Float	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getOriginX	def originX: Float	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getOriginY	def originY: Float	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getRotation	def rotation: Float	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getScaleX	def scaleX: Float	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getScaleY	def scaleY: Float	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getVertices	def vertices: Array[Float]	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getWidth	def width: Float	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getX	def x: Float	
+Parenless	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getY	def y: Float	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulBatch#getBlendDstFunc	def blendDstFunc: Int	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulBatch#getBlendDstFuncAlpha	def blendDstFuncAlpha: Int	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulBatch#getBlendSrcFunc	def blendSrcFunc: Int	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulBatch#getBlendSrcFuncAlpha	def blendSrcFuncAlpha: Int	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulBatch#getColor	def color: Color	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulBatch#getPackedColor	def packedColor: Float	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulBatch#getProjectionMatrix	def projectionMatrix: Matrix4	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulBatch#getShader	def shader: ShaderProgram	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulBatch#getTransformMatrix	def transformMatrix: Matrix4	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulBatch#getTweak	def tweak: Float	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulBatch#isBlendingEnabled	def blendingEnabled: Boolean	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getBoundingRectangle	def boundingRectangle: Rectangle	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getColor	def color: Float	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getColorTweak	def colorTweak: Float	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getHeight	def height: Float	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getOriginX	def originX: Float	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getOriginY	def originY: Float	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getRotation	def rotation: Float	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getScaleX	def scaleX: Float	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getScaleY	def scaleY: Float	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getVertices	def vertices: Array[Float]	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getWidth	def width: Float	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getX	def x: Float	
+Parenless	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getY	def y: Float	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#getBlendDstFunc	def blendDstFunc: Int	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#getBlendDstFuncAlpha	def blendDstFuncAlpha: Int	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#getBlendSrcFunc	def blendSrcFunc: Int	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#getBlendSrcFuncAlpha	def blendSrcFuncAlpha: Int	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#getColor	def color: Color	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#getPackedColor	def packedColor: Float	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#getProjectionMatrix	def projectionMatrix: Matrix4	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#getShader	def shader: ShaderProgram	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#getTransformMatrix	def transformMatrix: Matrix4	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#getTweak	def tweak: Float	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#isBlendingEnabled	def blendingEnabled: Boolean	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getBoundingRectangle	def boundingRectangle: Rectangle	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getColor	def color: Float	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getColorTweak	def colorTweak: Float	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getHeight	def height: Float	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getOriginX	def originX: Float	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getOriginY	def originY: Float	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getRotation	def rotation: Float	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getScaleX	def scaleX: Float	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getScaleY	def scaleY: Float	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getVertices	def vertices: Array[Float]	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getWidth	def width: Float	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getX	def x: Float	
+Parenless	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getY	def y: Float	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulBatch#getBlendDstFunc	def blendDstFunc: Int	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulBatch#getBlendDstFuncAlpha	def blendDstFuncAlpha: Int	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulBatch#getBlendSrcFunc	def blendSrcFunc: Int	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulBatch#getBlendSrcFuncAlpha	def blendSrcFuncAlpha: Int	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulBatch#getColor	def color: Color	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulBatch#getPackedColor	def packedColor: Float	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulBatch#getProjectionMatrix	def projectionMatrix: Matrix4	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulBatch#getShader	def shader: ShaderProgram	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulBatch#getTransformMatrix	def transformMatrix: Matrix4	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulBatch#getTweak	def tweak: Float	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulBatch#isBlendingEnabled	def blendingEnabled: Boolean	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getBoundingRectangle	def boundingRectangle: Rectangle	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getColor	def color: Float	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getColorTweak	def colorTweak: Float	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getHeight	def height: Float	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getOriginX	def originX: Float	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getOriginY	def originY: Float	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getRotation	def rotation: Float	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getScaleX	def scaleX: Float	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getScaleY	def scaleY: Float	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getVertices	def vertices: Array[Float]	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getWidth	def width: Float	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getX	def x: Float	
+Parenless	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getY	def y: Float	
+Parenless	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#getShader	def shader: ShaderProgram	
+Parenless	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#getTextureLFUCapacity	def textureLFUCapacity: Int	
+Parenless	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#getTextureLFUSize	def textureLFUSize: Int	
+Parenless	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#getTextureLFUSwaps	def textureLFUSwaps: Int	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulBatch#getBlendDstFunc	def blendDstFunc: Int	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulBatch#getBlendDstFuncAlpha	def blendDstFuncAlpha: Int	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulBatch#getBlendSrcFunc	def blendSrcFunc: Int	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulBatch#getBlendSrcFuncAlpha	def blendSrcFuncAlpha: Int	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulBatch#getColor	def color: Color	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulBatch#getPackedColor	def packedColor: Float	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulBatch#getProjectionMatrix	def projectionMatrix: Matrix4	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulBatch#getShader	def shader: ShaderProgram	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulBatch#getTransformMatrix	def transformMatrix: Matrix4	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulBatch#getTweak	def tweak: Float	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulBatch#isBlendingEnabled	def blendingEnabled: Boolean	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getBoundingRectangle	def boundingRectangle: Rectangle	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getColor	def color: Float	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getColorTweak	def colorTweak: Float	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getHeight	def height: Float	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getOriginX	def originX: Float	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getOriginY	def originY: Float	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getRotation	def rotation: Float	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getScaleX	def scaleX: Float	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getScaleY	def scaleY: Float	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getVertices	def vertices: Array[Float]	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getWidth	def width: Float	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getX	def x: Float	
+Parenless	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getY	def y: Float	
+Parenless	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#getShader	def shader: ShaderProgram	
+Parenless	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#getTextureLFUCapacity	def textureLFUCapacity: Int	
+Parenless	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#getTextureLFUSize	def textureLFUSize: Int	
+Parenless	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#getTextureLFUSwaps	def textureLFUSwaps: Int	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#getBlendDstFunc	def blendDstFunc: Int	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#getBlendDstFuncAlpha	def blendDstFuncAlpha: Int	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#getBlendSrcFunc	def blendSrcFunc: Int	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#getBlendSrcFuncAlpha	def blendSrcFuncAlpha: Int	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#getColor	def color: Color	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#getPackedColor	def packedColor: Float	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#getProjectionMatrix	def projectionMatrix: Matrix4	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#getShader	def shader: ShaderProgram	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#getTransformMatrix	def transformMatrix: Matrix4	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#getTweak	def tweak: Float	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#isBlendingEnabled	def blendingEnabled: Boolean	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getBoundingRectangle	def boundingRectangle: Rectangle	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getColor	def color: Float	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getColorTweak	def colorTweak: Float	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getHeight	def height: Float	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getOriginX	def originX: Float	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getOriginY	def originY: Float	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getRotation	def rotation: Float	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getScaleX	def scaleX: Float	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getScaleY	def scaleY: Float	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getVertices	def vertices: Array[Float]	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getWidth	def width: Float	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getX	def x: Float	
+Parenless	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getY	def y: Float	
+Property	com.github.tommyettinger.colorful.cielab.ColorfulBatch#getBlendDstFunc	var blendDstFunc	blendDstFunc
+Property	com.github.tommyettinger.colorful.cielab.ColorfulBatch#getBlendDstFuncAlpha	var blendDstFuncAlpha	blendDstFuncAlpha
+Property	com.github.tommyettinger.colorful.cielab.ColorfulBatch#getBlendSrcFunc	var blendSrcFunc	blendSrcFunc
+Property	com.github.tommyettinger.colorful.cielab.ColorfulBatch#getBlendSrcFuncAlpha	var blendSrcFuncAlpha	blendSrcFuncAlpha
+Property	com.github.tommyettinger.colorful.cielab.ColorfulBatch#getColor	var color	color
+Property	com.github.tommyettinger.colorful.cielab.ColorfulBatch#getPackedColor	var packedColor	packedColor
+Property	com.github.tommyettinger.colorful.cielab.ColorfulBatch#getProjectionMatrix	var projectionMatrix	projectionMatrix
+Property	com.github.tommyettinger.colorful.cielab.ColorfulBatch#getShader	var shader	shader
+Property	com.github.tommyettinger.colorful.cielab.ColorfulBatch#getTransformMatrix	var transformMatrix	transformMatrix
+Property	com.github.tommyettinger.colorful.cielab.ColorfulBatch#getTweak	var tweak	tweak
+Property	com.github.tommyettinger.colorful.cielab.ColorfulBatch#isBlendingEnabled	var blendingEnabled	blendingEnabled
+Property	com.github.tommyettinger.colorful.cielab.ColorfulBatch#isDrawing	var drawing	drawing
+Property	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getBoundingRectangle	var boundingRectangle	boundingRectangle
+Property	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getColor	var color	color
+Property	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getColorTweak	var colorTweak	colorTweak
+Property	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getHeight	var height	height
+Property	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getOriginX	var originX	originX
+Property	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getOriginY	var originY	originY
+Property	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getRotation	var rotation	rotation
+Property	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getScaleX	var scaleX	scaleX
+Property	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getScaleY	var scaleY	scaleY
+Property	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getVertices	var vertices	vertices
+Property	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getWidth	var width	width
+Property	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getX	var x	x
+Property	com.github.tommyettinger.colorful.cielab.ColorfulSprite#getY	var y	y
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#getBlendDstFunc	var blendDstFunc	blendDstFunc
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#getBlendDstFuncAlpha	var blendDstFuncAlpha	blendDstFuncAlpha
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#getBlendSrcFunc	var blendSrcFunc	blendSrcFunc
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#getBlendSrcFuncAlpha	var blendSrcFuncAlpha	blendSrcFuncAlpha
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#getColor	var color	color
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#getPackedColor	var packedColor	packedColor
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#getProjectionMatrix	var projectionMatrix	projectionMatrix
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#getShader	var shader	shader
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#getTransformMatrix	var transformMatrix	transformMatrix
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#getTweak	var tweak	tweak
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#isBlendingEnabled	var blendingEnabled	blendingEnabled
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#isDrawing	var drawing	drawing
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getBoundingRectangle	var boundingRectangle	boundingRectangle
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getColor	var color	color
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getColorTweak	var colorTweak	colorTweak
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getHeight	var height	height
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getOriginX	var originX	originX
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getOriginY	var originY	originY
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getRotation	var rotation	rotation
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getScaleX	var scaleX	scaleX
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getScaleY	var scaleY	scaleY
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getVertices	var vertices	vertices
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getWidth	var width	width
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getX	var x	x
+Property	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#getY	var y	y
+Property	com.github.tommyettinger.colorful.ipt.ColorfulBatch#getBlendDstFunc	var blendDstFunc	blendDstFunc
+Property	com.github.tommyettinger.colorful.ipt.ColorfulBatch#getBlendDstFuncAlpha	var blendDstFuncAlpha	blendDstFuncAlpha
+Property	com.github.tommyettinger.colorful.ipt.ColorfulBatch#getBlendSrcFunc	var blendSrcFunc	blendSrcFunc
+Property	com.github.tommyettinger.colorful.ipt.ColorfulBatch#getBlendSrcFuncAlpha	var blendSrcFuncAlpha	blendSrcFuncAlpha
+Property	com.github.tommyettinger.colorful.ipt.ColorfulBatch#getColor	var color	color
+Property	com.github.tommyettinger.colorful.ipt.ColorfulBatch#getPackedColor	var packedColor	packedColor
+Property	com.github.tommyettinger.colorful.ipt.ColorfulBatch#getProjectionMatrix	var projectionMatrix	projectionMatrix
+Property	com.github.tommyettinger.colorful.ipt.ColorfulBatch#getShader	var shader	shader
+Property	com.github.tommyettinger.colorful.ipt.ColorfulBatch#getTransformMatrix	var transformMatrix	transformMatrix
+Property	com.github.tommyettinger.colorful.ipt.ColorfulBatch#getTweak	var tweak	tweak
+Property	com.github.tommyettinger.colorful.ipt.ColorfulBatch#isBlendingEnabled	var blendingEnabled	blendingEnabled
+Property	com.github.tommyettinger.colorful.ipt.ColorfulBatch#isDrawing	var drawing	drawing
+Property	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getBoundingRectangle	var boundingRectangle	boundingRectangle
+Property	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getColor	var color	color
+Property	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getColorTweak	var colorTweak	colorTweak
+Property	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getHeight	var height	height
+Property	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getOriginX	var originX	originX
+Property	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getOriginY	var originY	originY
+Property	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getRotation	var rotation	rotation
+Property	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getScaleX	var scaleX	scaleX
+Property	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getScaleY	var scaleY	scaleY
+Property	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getVertices	var vertices	vertices
+Property	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getWidth	var width	width
+Property	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getX	var x	x
+Property	com.github.tommyettinger.colorful.ipt.ColorfulSprite#getY	var y	y
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#getBlendDstFunc	var blendDstFunc	blendDstFunc
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#getBlendDstFuncAlpha	var blendDstFuncAlpha	blendDstFuncAlpha
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#getBlendSrcFunc	var blendSrcFunc	blendSrcFunc
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#getBlendSrcFuncAlpha	var blendSrcFuncAlpha	blendSrcFuncAlpha
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#getColor	var color	color
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#getPackedColor	var packedColor	packedColor
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#getProjectionMatrix	var projectionMatrix	projectionMatrix
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#getShader	var shader	shader
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#getTransformMatrix	var transformMatrix	transformMatrix
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#getTweak	var tweak	tweak
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#isBlendingEnabled	var blendingEnabled	blendingEnabled
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#isDrawing	var drawing	drawing
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getBoundingRectangle	var boundingRectangle	boundingRectangle
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getColor	var color	color
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getColorTweak	var colorTweak	colorTweak
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getHeight	var height	height
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getOriginX	var originX	originX
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getOriginY	var originY	originY
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getRotation	var rotation	rotation
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getScaleX	var scaleX	scaleX
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getScaleY	var scaleY	scaleY
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getVertices	var vertices	vertices
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getWidth	var width	width
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getX	var x	x
+Property	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#getY	var y	y
+Property	com.github.tommyettinger.colorful.oklab.ColorfulBatch#getBlendDstFunc	var blendDstFunc	blendDstFunc
+Property	com.github.tommyettinger.colorful.oklab.ColorfulBatch#getBlendDstFuncAlpha	var blendDstFuncAlpha	blendDstFuncAlpha
+Property	com.github.tommyettinger.colorful.oklab.ColorfulBatch#getBlendSrcFunc	var blendSrcFunc	blendSrcFunc
+Property	com.github.tommyettinger.colorful.oklab.ColorfulBatch#getBlendSrcFuncAlpha	var blendSrcFuncAlpha	blendSrcFuncAlpha
+Property	com.github.tommyettinger.colorful.oklab.ColorfulBatch#getColor	var color	color
+Property	com.github.tommyettinger.colorful.oklab.ColorfulBatch#getPackedColor	var packedColor	packedColor
+Property	com.github.tommyettinger.colorful.oklab.ColorfulBatch#getProjectionMatrix	var projectionMatrix	projectionMatrix
+Property	com.github.tommyettinger.colorful.oklab.ColorfulBatch#getShader	var shader	shader
+Property	com.github.tommyettinger.colorful.oklab.ColorfulBatch#getTransformMatrix	var transformMatrix	transformMatrix
+Property	com.github.tommyettinger.colorful.oklab.ColorfulBatch#getTweak	var tweak	tweak
+Property	com.github.tommyettinger.colorful.oklab.ColorfulBatch#isBlendingEnabled	var blendingEnabled	blendingEnabled
+Property	com.github.tommyettinger.colorful.oklab.ColorfulBatch#isDrawing	var drawing	drawing
+Property	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getBoundingRectangle	var boundingRectangle	boundingRectangle
+Property	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getColor	var color	color
+Property	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getColorTweak	var colorTweak	colorTweak
+Property	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getHeight	var height	height
+Property	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getOriginX	var originX	originX
+Property	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getOriginY	var originY	originY
+Property	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getRotation	var rotation	rotation
+Property	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getScaleX	var scaleX	scaleX
+Property	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getScaleY	var scaleY	scaleY
+Property	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getVertices	var vertices	vertices
+Property	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getWidth	var width	width
+Property	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getX	var x	x
+Property	com.github.tommyettinger.colorful.oklab.ColorfulSprite#getY	var y	y
+Property	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#getShader	var shader	shader
+Property	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#getTextureLFUCapacity	var textureLFUCapacity	textureLFUCapacity
+Property	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#getTextureLFUSize	var textureLFUSize	textureLFUSize
+Property	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#getTextureLFUSwaps	var textureLFUSwaps	textureLFUSwaps
+Property	com.github.tommyettinger.colorful.rgb.ColorfulBatch#getBlendDstFunc	var blendDstFunc	blendDstFunc
+Property	com.github.tommyettinger.colorful.rgb.ColorfulBatch#getBlendDstFuncAlpha	var blendDstFuncAlpha	blendDstFuncAlpha
+Property	com.github.tommyettinger.colorful.rgb.ColorfulBatch#getBlendSrcFunc	var blendSrcFunc	blendSrcFunc
+Property	com.github.tommyettinger.colorful.rgb.ColorfulBatch#getBlendSrcFuncAlpha	var blendSrcFuncAlpha	blendSrcFuncAlpha
+Property	com.github.tommyettinger.colorful.rgb.ColorfulBatch#getColor	var color	color
+Property	com.github.tommyettinger.colorful.rgb.ColorfulBatch#getPackedColor	var packedColor	packedColor
+Property	com.github.tommyettinger.colorful.rgb.ColorfulBatch#getProjectionMatrix	var projectionMatrix	projectionMatrix
+Property	com.github.tommyettinger.colorful.rgb.ColorfulBatch#getShader	var shader	shader
+Property	com.github.tommyettinger.colorful.rgb.ColorfulBatch#getTransformMatrix	var transformMatrix	transformMatrix
+Property	com.github.tommyettinger.colorful.rgb.ColorfulBatch#getTweak	var tweak	tweak
+Property	com.github.tommyettinger.colorful.rgb.ColorfulBatch#isBlendingEnabled	var blendingEnabled	blendingEnabled
+Property	com.github.tommyettinger.colorful.rgb.ColorfulBatch#isDrawing	var drawing	drawing
+Property	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getBoundingRectangle	var boundingRectangle	boundingRectangle
+Property	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getColor	var color	color
+Property	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getColorTweak	var colorTweak	colorTweak
+Property	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getHeight	var height	height
+Property	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getOriginX	var originX	originX
+Property	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getOriginY	var originY	originY
+Property	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getRotation	var rotation	rotation
+Property	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getScaleX	var scaleX	scaleX
+Property	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getScaleY	var scaleY	scaleY
+Property	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getVertices	var vertices	vertices
+Property	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getWidth	var width	width
+Property	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getX	var x	x
+Property	com.github.tommyettinger.colorful.rgb.ColorfulSprite#getY	var y	y
+Property	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#getShader	var shader	shader
+Property	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#getTextureLFUCapacity	var textureLFUCapacity	textureLFUCapacity
+Property	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#getTextureLFUSize	var textureLFUSize	textureLFUSize
+Property	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#getTextureLFUSwaps	var textureLFUSwaps	textureLFUSwaps
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#getBlendDstFunc	var blendDstFunc	blendDstFunc
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#getBlendDstFuncAlpha	var blendDstFuncAlpha	blendDstFuncAlpha
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#getBlendSrcFunc	var blendSrcFunc	blendSrcFunc
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#getBlendSrcFuncAlpha	var blendSrcFuncAlpha	blendSrcFuncAlpha
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#getColor	var color	color
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#getPackedColor	var packedColor	packedColor
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#getProjectionMatrix	var projectionMatrix	projectionMatrix
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#getShader	var shader	shader
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#getTransformMatrix	var transformMatrix	transformMatrix
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#getTweak	var tweak	tweak
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#isBlendingEnabled	var blendingEnabled	blendingEnabled
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#isDrawing	var drawing	drawing
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getBoundingRectangle	var boundingRectangle	boundingRectangle
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getColor	var color	color
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getColorTweak	var colorTweak	colorTweak
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getHeight	var height	height
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getOriginX	var originX	originX
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getOriginY	var originY	originY
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getRotation	var rotation	rotation
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getScaleX	var scaleX	scaleX
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getScaleY	var scaleY	scaleY
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getVertices	var vertices	vertices
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getWidth	var width	width
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getX	var x	x
+Property	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#getY	var y	y
+PropertySetter	com.github.tommyettinger.colorful.cielab.ColorfulBatch#setColor(Color)	var color	color
+PropertySetter	com.github.tommyettinger.colorful.cielab.ColorfulBatch#setColor(float)	var color	color
+PropertySetter	com.github.tommyettinger.colorful.cielab.ColorfulBatch#setPackedColor	var packedColor	packedColor
+PropertySetter	com.github.tommyettinger.colorful.cielab.ColorfulBatch#setProjectionMatrix	var projectionMatrix	projectionMatrix
+PropertySetter	com.github.tommyettinger.colorful.cielab.ColorfulBatch#setShader	var shader	shader
+PropertySetter	com.github.tommyettinger.colorful.cielab.ColorfulBatch#setTransformMatrix	var transformMatrix	transformMatrix
+PropertySetter	com.github.tommyettinger.colorful.cielab.ColorfulBatch#setTweak(float)	var tweak	tweak
+PropertySetter	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setRotation	var rotation	rotation
+PropertySetter	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setU	var u	u
+PropertySetter	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setU2	var u2	u2
+PropertySetter	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setV	var v	v
+PropertySetter	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setV2	var v2	v2
+PropertySetter	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setX	var x	x
+PropertySetter	com.github.tommyettinger.colorful.cielab.ColorfulSprite#setY	var y	y
+PropertySetter	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#setColor(Color)	var color	color
+PropertySetter	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#setColor(float)	var color	color
+PropertySetter	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#setPackedColor	var packedColor	packedColor
+PropertySetter	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#setProjectionMatrix	var projectionMatrix	projectionMatrix
+PropertySetter	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#setShader	var shader	shader
+PropertySetter	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#setTransformMatrix	var transformMatrix	transformMatrix
+PropertySetter	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#setTweak(float)	var tweak	tweak
+PropertySetter	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setRotation	var rotation	rotation
+PropertySetter	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setU	var u	u
+PropertySetter	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setU2	var u2	u2
+PropertySetter	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setV	var v	v
+PropertySetter	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setV2	var v2	v2
+PropertySetter	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setX	var x	x
+PropertySetter	com.github.tommyettinger.colorful.hsluv.ColorfulSprite#setY	var y	y
+PropertySetter	com.github.tommyettinger.colorful.ipt.ColorfulBatch#setColor(Color)	var color	color
+PropertySetter	com.github.tommyettinger.colorful.ipt.ColorfulBatch#setColor(float)	var color	color
+PropertySetter	com.github.tommyettinger.colorful.ipt.ColorfulBatch#setPackedColor	var packedColor	packedColor
+PropertySetter	com.github.tommyettinger.colorful.ipt.ColorfulBatch#setProjectionMatrix	var projectionMatrix	projectionMatrix
+PropertySetter	com.github.tommyettinger.colorful.ipt.ColorfulBatch#setShader	var shader	shader
+PropertySetter	com.github.tommyettinger.colorful.ipt.ColorfulBatch#setTransformMatrix	var transformMatrix	transformMatrix
+PropertySetter	com.github.tommyettinger.colorful.ipt.ColorfulBatch#setTweak(float)	var tweak	tweak
+PropertySetter	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setRotation	var rotation	rotation
+PropertySetter	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setU	var u	u
+PropertySetter	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setU2	var u2	u2
+PropertySetter	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setV	var v	v
+PropertySetter	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setV2	var v2	v2
+PropertySetter	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setX	var x	x
+PropertySetter	com.github.tommyettinger.colorful.ipt.ColorfulSprite#setY	var y	y
+PropertySetter	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#setColor(Color)	var color	color
+PropertySetter	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#setColor(float)	var color	color
+PropertySetter	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#setPackedColor	var packedColor	packedColor
+PropertySetter	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#setProjectionMatrix	var projectionMatrix	projectionMatrix
+PropertySetter	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#setShader	var shader	shader
+PropertySetter	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#setTransformMatrix	var transformMatrix	transformMatrix
+PropertySetter	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#setTweak(float)	var tweak	tweak
+PropertySetter	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setRotation	var rotation	rotation
+PropertySetter	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setU	var u	u
+PropertySetter	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setU2	var u2	u2
+PropertySetter	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setV	var v	v
+PropertySetter	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setV2	var v2	v2
+PropertySetter	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setX	var x	x
+PropertySetter	com.github.tommyettinger.colorful.ipt_hq.ColorfulSprite#setY	var y	y
+PropertySetter	com.github.tommyettinger.colorful.oklab.ColorfulBatch#setColor(Color)	var color	color
+PropertySetter	com.github.tommyettinger.colorful.oklab.ColorfulBatch#setColor(float)	var color	color
+PropertySetter	com.github.tommyettinger.colorful.oklab.ColorfulBatch#setPackedColor	var packedColor	packedColor
+PropertySetter	com.github.tommyettinger.colorful.oklab.ColorfulBatch#setProjectionMatrix	var projectionMatrix	projectionMatrix
+PropertySetter	com.github.tommyettinger.colorful.oklab.ColorfulBatch#setShader	var shader	shader
+PropertySetter	com.github.tommyettinger.colorful.oklab.ColorfulBatch#setTransformMatrix	var transformMatrix	transformMatrix
+PropertySetter	com.github.tommyettinger.colorful.oklab.ColorfulBatch#setTweak(float)	var tweak	tweak
+PropertySetter	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setRotation	var rotation	rotation
+PropertySetter	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setU	var u	u
+PropertySetter	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setU2	var u2	u2
+PropertySetter	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setV	var v	v
+PropertySetter	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setV2	var v2	v2
+PropertySetter	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setX	var x	x
+PropertySetter	com.github.tommyettinger.colorful.oklab.ColorfulSprite#setY	var y	y
+PropertySetter	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#setProjectionMatrix	var projectionMatrix	projectionMatrix
+PropertySetter	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#setShader	var shader	shader
+PropertySetter	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#setTransformMatrix	var transformMatrix	transformMatrix
+PropertySetter	com.github.tommyettinger.colorful.rgb.ColorfulBatch#setColor(Color)	var color	color
+PropertySetter	com.github.tommyettinger.colorful.rgb.ColorfulBatch#setColor(float)	var color	color
+PropertySetter	com.github.tommyettinger.colorful.rgb.ColorfulBatch#setPackedColor	var packedColor	packedColor
+PropertySetter	com.github.tommyettinger.colorful.rgb.ColorfulBatch#setProjectionMatrix	var projectionMatrix	projectionMatrix
+PropertySetter	com.github.tommyettinger.colorful.rgb.ColorfulBatch#setShader	var shader	shader
+PropertySetter	com.github.tommyettinger.colorful.rgb.ColorfulBatch#setTransformMatrix	var transformMatrix	transformMatrix
+PropertySetter	com.github.tommyettinger.colorful.rgb.ColorfulBatch#setTweak(float)	var tweak	tweak
+PropertySetter	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setRotation	var rotation	rotation
+PropertySetter	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setU	var u	u
+PropertySetter	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setU2	var u2	u2
+PropertySetter	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setV	var v	v
+PropertySetter	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setV2	var v2	v2
+PropertySetter	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setX	var x	x
+PropertySetter	com.github.tommyettinger.colorful.rgb.ColorfulSprite#setY	var y	y
+PropertySetter	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#setProjectionMatrix	var projectionMatrix	projectionMatrix
+PropertySetter	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#setShader	var shader	shader
+PropertySetter	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#setTransformMatrix	var transformMatrix	transformMatrix
+PropertySetter	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#setColor(Color)	var color	color
+PropertySetter	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#setColor(float)	var color	color
+PropertySetter	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#setPackedColor	var packedColor	packedColor
+PropertySetter	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#setProjectionMatrix	var projectionMatrix	projectionMatrix
+PropertySetter	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#setShader	var shader	shader
+PropertySetter	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#setTransformMatrix	var transformMatrix	transformMatrix
+PropertySetter	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#setTweak(float)	var tweak	tweak
+PropertySetter	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setRotation	var rotation	rotation
+PropertySetter	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setU	var u	u
+PropertySetter	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setU2	var u2	u2
+PropertySetter	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setV	var v	v
+PropertySetter	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setV2	var v2	v2
+PropertySetter	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setX	var x	x
+PropertySetter	com.github.tommyettinger.colorful.ycwcm.ColorfulSprite#setY	var y	y
+Protected	com.github.tommyettinger.colorful.cielab.ColorfulBatch#setupMatrices	protected setupMatrices	
+Protected	com.github.tommyettinger.colorful.cielab.ColorfulBatch#switchTexture	protected switchTexture	
+Protected	com.github.tommyettinger.colorful.cielab.ColorfulBatch#tweak:field	protected tweak	
+Protected	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#setupMatrices	protected setupMatrices	
+Protected	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#switchTexture	protected switchTexture	
+Protected	com.github.tommyettinger.colorful.hsluv.ColorfulBatch#tweak:field	protected tweak	
+Protected	com.github.tommyettinger.colorful.ipt.ColorfulBatch#setupMatrices	protected setupMatrices	
+Protected	com.github.tommyettinger.colorful.ipt.ColorfulBatch#switchTexture	protected switchTexture	
+Protected	com.github.tommyettinger.colorful.ipt.ColorfulBatch#tweak:field	protected tweak	
+Protected	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#setupMatrices	protected setupMatrices	
+Protected	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#switchTexture	protected switchTexture	
+Protected	com.github.tommyettinger.colorful.ipt_hq.ColorfulBatch#tweak:field	protected tweak	
+Protected	com.github.tommyettinger.colorful.oklab.ColorfulBatch#idx:field	protected idx	
+Protected	com.github.tommyettinger.colorful.oklab.ColorfulBatch#invTexHeight:field	protected invTexHeight	
+Protected	com.github.tommyettinger.colorful.oklab.ColorfulBatch#invTexWidth:field	protected invTexWidth	
+Protected	com.github.tommyettinger.colorful.oklab.ColorfulBatch#lastTexture:field	protected lastTexture	
+Protected	com.github.tommyettinger.colorful.oklab.ColorfulBatch#mesh:field	protected mesh	
+Protected	com.github.tommyettinger.colorful.oklab.ColorfulBatch#setupMatrices	protected setupMatrices	
+Protected	com.github.tommyettinger.colorful.oklab.ColorfulBatch#switchTexture	protected switchTexture	
+Protected	com.github.tommyettinger.colorful.oklab.ColorfulBatch#tweak:field	protected tweak	
+Protected	com.github.tommyettinger.colorful.oklab.ColorfulBatch#vertices:field	protected vertices	
+Protected	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#activateTexture	protected activateTexture	
+Protected	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#currentTextureLFUSize:field	protected currentTextureLFUSize	
+Protected	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#currentTextureLFUSwaps:field	protected currentTextureLFUSwaps	
+Protected	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#flushIfFull	protected flushIfFull	
+Protected	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#textureUnitIndicesBuffer:field	protected textureUnitIndicesBuffer	
+Protected	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#usedTextures:field	protected usedTextures	
+Protected	com.github.tommyettinger.colorful.oklab.TextureArrayColorfulBatch#usedTexturesLFU:field	protected usedTexturesLFU	
+Protected	com.github.tommyettinger.colorful.rgb.ColorfulBatch#idx:field	protected idx	
+Protected	com.github.tommyettinger.colorful.rgb.ColorfulBatch#invTexHeight:field	protected invTexHeight	
+Protected	com.github.tommyettinger.colorful.rgb.ColorfulBatch#invTexWidth:field	protected invTexWidth	
+Protected	com.github.tommyettinger.colorful.rgb.ColorfulBatch#lastTexture:field	protected lastTexture	
+Protected	com.github.tommyettinger.colorful.rgb.ColorfulBatch#mesh:field	protected mesh	
+Protected	com.github.tommyettinger.colorful.rgb.ColorfulBatch#setupMatrices	protected setupMatrices	
+Protected	com.github.tommyettinger.colorful.rgb.ColorfulBatch#switchTexture	protected switchTexture	
+Protected	com.github.tommyettinger.colorful.rgb.ColorfulBatch#tweak:field	protected tweak	
+Protected	com.github.tommyettinger.colorful.rgb.ColorfulBatch#vertices:field	protected vertices	
+Protected	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#activateTexture	protected activateTexture	
+Protected	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#currentTextureLFUSize:field	protected currentTextureLFUSize	
+Protected	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#currentTextureLFUSwaps:field	protected currentTextureLFUSwaps	
+Protected	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#flushIfFull	protected flushIfFull	
+Protected	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#textureUnitIndicesBuffer:field	protected textureUnitIndicesBuffer	
+Protected	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#usedTextures:field	protected usedTextures	
+Protected	com.github.tommyettinger.colorful.rgb.TextureArrayColorfulBatch#usedTexturesLFU:field	protected usedTexturesLFU	
+Protected	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#setupMatrices	protected setupMatrices	
+Protected	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#switchTexture	protected switchTexture	
+Protected	com.github.tommyettinger.colorful.ycwcm.ColorfulBatch#tweak:field	protected tweak	
+Public	com.github.tommyettinger.colorful.oklab.ColorfulBatch#drawing:field	public drawing	
+Public	com.github.tommyettinger.colorful.oklab.Gamut#GAMUT_DATA:field	public GAMUT_DATA	
+Public	com.github.tommyettinger.colorful.rgb.ColorfulBatch#drawing:field	public drawing	

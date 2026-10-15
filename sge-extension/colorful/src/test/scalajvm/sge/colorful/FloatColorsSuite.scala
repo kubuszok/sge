@@ -208,10 +208,11 @@ class FloatColorsSuite extends munit.FunSuite {
 
     var failures   = 0
     var offsetFail = 0
-    for ((_, color) <- Palette.NAMED) {
-      val l = OklabColorTools.channelL(color)
-      val a = OklabColorTools.channelA(color)
-      val b = OklabColorTools.channelB(color)
+    for (entry <- Palette.NAMED) {
+      val color = entry.value
+      val l     = OklabColorTools.channelL(color)
+      val a     = OklabColorTools.channelA(color)
+      val b     = OklabColorTools.channelB(color)
       if (!OklabColorTools.inGamut(l, a, b)) {
         failures += 1
       }
