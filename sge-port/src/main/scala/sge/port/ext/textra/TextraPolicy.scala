@@ -38,6 +38,13 @@ object TextraPolicy {
                   "com.badlogic.gdx.utils.FloatArray#mul(int,float)",
                   "{{ val bpA = {recv}; val bpI = {arg0}; if (bpI >= bpA.size) throw new java.lang.IndexOutOfBoundsException(\"index can't be >= size: \" + bpI + \" >= \" + bpA.size); bpA(bpI) = bpA(bpI) * {arg1} }}",
                   Textra
+                ),
+                // libGDX's `Skin#getAll` hands back its map or null; sge's answers a `Nullable` scala map. Java dereferences the
+                // result at once, so an absent type fails here as java's would, and the entries arrive in an lls `ObjectMap`
+                balticporter.transform.CallSiteSubstitutionTransform.Entry(
+                  "com.badlogic.gdx.scenes.scene2d.ui.Skin#getAll(Class)",
+                  "{{ def bpCopy[V <: AnyRef](m: scala.collection.mutable.Map[java.lang.String, V]): lowlevel.util.ObjectMap[java.lang.String, V] = {{ val o = new lowlevel.util.ObjectMap[java.lang.String, V](); m.foreach((k, v) => o.put(k, lowlevel.Nullable(v))); o }}; bpCopy({recv}.getAll({arg0}).get) }}",
+                  Textra
                 )
               )
             ),
