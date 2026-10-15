@@ -38,14 +38,16 @@ runs:
         # the lls base's policy: the lls-port artifact, at the version of the lls dependency
         base=$(grep -oE 'val lls += +"[^"]+' project/Versions.scala | head -1 | sed 's/.*"//')
         test -n "$base"
-        # the generated extensions' submodule commits (sge-ecs, sge-noise, …)
+        # the generated extensions' submodule commits (sge-ecs, sge-noise, …), as ONE digest: the cache
+        # key is capped at 512 characters, and a full commit per extension outgrew it
         extensions=""
         for m in $EXTENSION_SUBMODULES; do
           c=$(git ls-tree HEAD "$m" | awk '{print $3}')
           test -n "$c"
-          extensions="$extensions-$c"
+          extensions="$extensions$m=$c;"
         done
-        echo "tree=$policy-$provided-$base$extensions" >> "$GITHUB_OUTPUT"
+        extensions=$(printf '%s' "$extensions" | sha256sum | cut -c1-40)
+        echo "tree=$policy-$provided-$base-$extensions" >> "$GITHUB_OUTPUT"
       env:
         EXTENSION_SUBMODULES: original-src/ashley original-src/noise4j original-src/anim8-gdx original-src/jbump original-src/guacamole original-src/gdx-vfx original-src/libgdx-screenmanager
 
