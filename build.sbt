@@ -1121,15 +1121,21 @@ val `sge-visui` = (projectMatrix in file("sge-extension/visui"))
   .dependsOn(sge)
 
 // Baltic Porter: the generated colorful, ai, gltf, textra and visui trees, each compiled alone (see balticPorterGenProjectSettings)
-def balticPorterGenProject(pm: ProjectMatrix, ext: BalticPorterExtGen.Ext, platforms: List[VirtualAxis.PlatformAxis] = List(VirtualAxis.jvm)): ProjectMatrix =
+def balticPorterGenProject(pm: ProjectMatrix, ext: BalticPorterExtGen.Ext, platforms: List[VirtualAxis.PlatformAxis] = List(VirtualAxis.jvm), extra: Seq[MatrixAction.Act] = Nil): ProjectMatrix =
   pm.defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(Versions.scala3))
-    .someVariations(Versions.scalas, platforms)((commonSettings(s"sge-extension/${ext.id}/generated") ++ Seq(jvmPlatformApiClasspath)) *)
+    .someVariations(Versions.scalas, platforms)((commonSettings(s"sge-extension/${ext.id}/generated") ++ Seq(jvmPlatformApiClasspath) ++ extra) *)
     .settings(balticPorterGenProjectSettings(ext) *)
 
 val `sge-ai-gen`       = balticPorterGenProject(projectMatrix in file("sge-extension/ai/generated"), BalticPorterExtGen.Ai).dependsOn(sge)
 val `sge-gltf-gen`     = balticPorterGenProject(projectMatrix in file("sge-extension/gltf/generated"), BalticPorterExtGen.Gltf).dependsOn(sge)
 // RegExodus, TextraTypist's regex engine (a base of its own: no sge), with its upstream JUnit suite on every platform
-val `sge-regexodus-gen` = balticPorterGenProject(projectMatrix in file("sge-extension/regexodus/generated"), BalticPorterExtGen.Regexodus, Versions.platforms)
+val `sge-regexodus-gen` = balticPorterGenProject(
+  projectMatrix in file("sge-extension/regexodus/generated"),
+  BalticPorterExtGen.Regexodus,
+  Versions.platforms,
+  // the suite checks RegExodus against java.util.regex, whose look-behind and Unicode classes Scala.js answers from ES2018 RegExp
+  Seq(MatrixAction.ForPlatforms(VirtualAxis.js).Configure(_.settings(scalaJSLinkerConfig ~= (_.withESFeatures(_.withESVersion(org.scalajs.linker.interface.ESVersion.ES2018))))))
+)
   .settings(
     Test / sourceGenerators += Def.task {
       BalticPorterExtGen.generateTests(BalticPorterExtGen.Regexodus, (ThisBuild / baseDirectory).value, streams.value.log)
