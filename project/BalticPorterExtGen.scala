@@ -241,7 +241,7 @@ object BalticPorterExtGen {
         List(ctx.reportRoot),
         reference(ctx, "textra", "sge-extension/textra/src/main/scala")
       ),
-    policy = extPolicy("textra", "textra"),
+    policy = rel => extPolicy("textra", "textra")(rel) || rel.startsWith("overrides-ext/textra/"),
     bases = List(Regexodus),
     // RegExodus' source, so its references follow the port's renames; its GWT emulation of `java.util.regex` is not parsed
     resolutionRoots = ctx => List(ctx.sgeRoot.resolve("original-src/regexodus/src/main/java")),
