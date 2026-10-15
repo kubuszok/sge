@@ -38,6 +38,11 @@ The following third-party libraries are bundled or vendored in this project:
     License: MIT OR public domain (Unlicense)
     Location: native-components/vendor/ (compiled from vendored source)
 
+  RegExodus 0.1.21 (https://github.com/tommyettinger/RegExodus), a fork of jregex
+    Copyright (c) 2001, Sergey A. Samokhodkin. All rights reserved.
+    License: BSD 3-Clause (full text in THIRD-PARTY-LICENSES)
+    Location: ported to Scala 3 from original-src/regexodus (sge.regexodus)
+
   stb_image (https://github.com/nothings/stb)
     License: MIT OR public domain
     Location: native-components/vendor/ (compiled from vendored source)

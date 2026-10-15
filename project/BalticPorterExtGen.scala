@@ -49,7 +49,9 @@ object BalticPorterExtGen {
     // java source roots it resolves against beyond libGDX's (a base extension's upstream tree)
     resolutionRoots: Ctx => List[Path] = _ => Nil,
     // paths under those roots never parsed (a GWT super-source tree redeclaring the library's own or the JDK's classes)
-    resolutionExcludes: List[String] = Nil
+    resolutionExcludes: List[String] = Nil,
+    // upstream licence files shipped beside the generated sources (a licence whose terms require its notice to travel with the code)
+    notices: Ctx => List[Path] = _ => Nil
   ) {
     def module: String = s"sge-$id"
   }
@@ -216,6 +218,8 @@ object BalticPorterExtGen {
     include = sge.port.ext.regexodus.RegExodusPolicy.include,
     // the test run resolves against the main tree, GWT emulation included
     resolutionExcludes = List("regexodus/emu"),
+    // BSD-3-Clause: redistributions retain jregex's copyright notice, conditions and disclaimer
+    notices = ctx => List(ctx.sgeRoot.resolve("original-src/regexodus/LICENSE")),
     testDir = Some("src/test/java"),
     test = Some(ctx => sge.port.ext.regexodus.RegExodusPolicy.test(ctx.sgeRoot, List(ctx.reportRoot))),
     testClasspath = ctx => sge.port.ext.regexodus.RegExodusPolicy.testClasspath(ctx.sgeRoot)
@@ -328,7 +332,8 @@ object BalticPorterExtGen {
                 upstreamCommit = commit,
                 originalLicense = ext.license,
                 sourcePathPrefix = sgeRoot.resolve(ext.submodule).relativize(srcRoot).toString.replace('\\', '/'),
-                sourceRoot = srcRoot.toString
+                sourceRoot = srcRoot.toString,
+                notices = ext.notices(ctx)
               )
             ),
             runtimeMode = ext.runtimeMode,
