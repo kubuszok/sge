@@ -111,7 +111,7 @@ def dropClean(cmd: String): String = cmd.stripPrefix("clean ; ")
 lazy val sgeCommandAliases: Seq[Def.Setting[State => State]] =
   // generatePort: run the Baltic Porter generation (shared tree, every platform row, resources) and
   // nothing else — what the CI `generate` job runs before publishing target/balticporter-sge.
-  addCommandAlias("generatePort", "sge/Compile/managedSources ; sge/Compile/managedResources ; sge-ecs/Compile/managedSources ; sge-ecs/Test/managedSources ; sge-noise/Compile/managedSources ; sge-anim8/Compile/managedSources ; sge-jbump/Compile/managedSources ; sge-screens/Compile/managedSources ; sge-vfx/Compile/managedSources ; sge-tools/Compile/managedSources") ++
+  addCommandAlias("generatePort", "sge/Compile/managedSources ; sge/Compile/managedResources ; sge-ecs/Compile/managedSources ; sge-ecs/Test/managedSources ; sge-noise/Compile/managedSources ; sge-anim8/Compile/managedSources ; sge-jbump/Compile/managedSources ; sge-screens/Compile/managedSources ; sge-vfx/Compile/managedSources ; sge-tools/Compile/managedSources ; sge-colorful/Compile/managedSources") ++
   // verifyLocal: the gate before a push — every platform's tests, then record the verified commit
   // (target/local-verification; the push hook of the balticporter Claude Code plugin reads it).
   addCommandAlias("verifyLocal", "scalafmtCheckAll ; scalafmtSbtCheck ; ci-jvm-3 ; test-js-3 ; test-native-3 ; markVerified") ++
@@ -668,6 +668,7 @@ val `sge-colorful` = (projectMatrix in file("sge-extension/colorful"))
   .settings(publishSettings)
   .settings(mimaSettings)
   .settings(name := "sge-extension-colorful")
+  .settings(balticPorterExtSettings(BalticPorterExtGen.Colorful) *)
   .dependsOn(sge)
 
 val `sge-controllers` = (projectMatrix in file("sge-extension/controllers"))
@@ -1125,7 +1126,6 @@ def balticPorterGenProject(pm: ProjectMatrix, ext: BalticPorterExtGen.Ext, platf
     .someVariations(Versions.scalas, platforms)((commonSettings(s"sge-extension/${ext.id}/generated") ++ Seq(jvmPlatformApiClasspath)) *)
     .settings(balticPorterGenProjectSettings(ext) *)
 
-val `sge-colorful-gen` = balticPorterGenProject(projectMatrix in file("sge-extension/colorful/generated"), BalticPorterExtGen.Colorful).dependsOn(sge)
 val `sge-ai-gen`       = balticPorterGenProject(projectMatrix in file("sge-extension/ai/generated"), BalticPorterExtGen.Ai).dependsOn(sge)
 val `sge-gltf-gen`     = balticPorterGenProject(projectMatrix in file("sge-extension/gltf/generated"), BalticPorterExtGen.Gltf).dependsOn(sge)
 // RegExodus, TextraTypist's regex engine (a base of its own: no sge), with its upstream JUnit suite on every platform
