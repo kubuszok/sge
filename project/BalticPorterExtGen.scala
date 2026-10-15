@@ -214,7 +214,7 @@ object BalticPorterExtGen {
     mainDir = "src/main/java",
     dependent = false,
     main = ctx => sge.port.ext.regexodus.RegExodusPolicy.core(ctx.sgeRoot),
-    policy = extPolicy("regexodus", "regexodus"),
+    policy = rel => extPolicy("regexodus", "regexodus")(rel) || rel.startsWith("overrides-ext/regexodus-test/"),
     include = sge.port.ext.regexodus.RegExodusPolicy.include,
     // the test run resolves against the main tree, GWT emulation included
     resolutionExcludes = List("regexodus/emu"),

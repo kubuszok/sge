@@ -29,8 +29,10 @@ object RegExodusPolicy {
       .extendedBy(
         PortManifest(
           name = "sge-regexodus-test",
+          // the suites' parent, which runs the tests whose java.util.regex comparison a platform cannot answer on the JVM only
+          inject = List(sgeRoot.resolve("sge-port/overrides-ext/regexodus-test")),
           surface = List(
-            new balticporter.transform.TestFrameworkTransform(),
+            new balticporter.transform.TestFrameworkTransform(suite = "sge.regexodus.RegExodusSuite"),
             // LAST, deliberately: reads what the main port actually emitted
             balticporter.transform.PortMapTransform.forBasesIn(reportRoots, "sge-regexodus")
           )
