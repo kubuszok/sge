@@ -23,6 +23,10 @@ object TextraPolicy {
           name = "sge-textra",
           governs = Set("com.github.tommyettinger.textra"),
           packageRenames = Map("com.github.tommyettinger.textra" -> "sge.textra"),
+          // `FWSkin` re-runs libGDX's reflective `Json` skin loader and writes `Skin`'s atlas; sge's `Skin` reads its JSON with its own
+          // reader and keeps the atlas private, so the hand port's replacement (a second pass after `Skin.load`) stands in its place
+          dropTypes = Set("com.github.tommyettinger.textra.FWSkin"),
+          inject = List(sgeRoot.resolve("sge-port/overrides-ext/textra")),
           surface = List(
             // TextraTypist's `java.util` lists and maps are sge's `scala.collection.mutable` ones, as in the hand port
             new balticporter.transform.CollectionsTransform(scope = Textra),
@@ -34,6 +38,17 @@ object TextraPolicy {
                   "com.badlogic.gdx.utils.FloatArray#mul(int,float)",
                   "{{ val bpA = {recv}; val bpI = {arg0}; if (bpI >= bpA.size) throw new java.lang.IndexOutOfBoundsException(\"index can't be >= size: \" + bpI + \" >= \" + bpA.size); bpA(bpI) = bpA(bpI) * {arg1} }}",
                   Textra
+                )
+              )
+            ),
+            // `LinkEffect` opens its URI through the context, and is built by a lambda in `TypingConfig`'s class initialiser, which
+            // has none: as in the hand port, a `TextraLabel` keeps the context it was built with and the effect reads its label's
+            new balticporter.transform.GlobalsToImplicitsTransform(
+              extensions = List(
+                balticporter.transform.ContextHolderExtension(
+                  holder = "com.badlogic.gdx.Gdx",
+                  retain = Map("com.github.tommyettinger.textra.TextraLabel" -> "sgeContext"),
+                  selfSupplied = Map("com.github.tommyettinger.textra.effects.LinkEffect" -> "this.label.sgeContext")
                 )
               )
             ),
