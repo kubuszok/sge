@@ -67,6 +67,28 @@ object GltfPolicy {
               )
             )
           ),
+          // libGDX's `Array` (lls's `DynamicArray`, a java-shaped iterable) where gdx-gltf's `Iterable` slots are scala's: the live
+          // view; and `SceneRenderableSorter`, a `Comparator`, where `DynamicArray#sort` takes an `Ordering`
+          new balticporter.transform.CollectionsTransform(
+            scope = Gltf,
+            retargetCoercions = Map(
+              ("lowlevel.util.DynamicArray", "scala.collection.Iterable") -> "$0.asScala",
+              ("balticporter.runtime.JavaIterable", "scala.collection.Iterable") -> "$0.asScala",
+              ("net.mgsx.gltf.scene3d.scene.SceneRenderableSorter", "scala.math.Ordering") -> "scala.math.Ordering.comparatorToOrdering($0)"
+            )
+          ),
+          new balticporter.transform.CallSiteSubstitutionTransform(
+            List(
+              // `Array#toArray(Class)`: lls's `DynamicArray` builds its array from its own element witness
+              balticporter.transform.CallSiteSubstitutionTransform.Entry("com.badlogic.gdx.utils.Array#toArray(Class)", "{recv}.toArray()", Gltf),
+              // sge-core's `AssetManager#get(AssetDescriptor)` template, for the one caller whose descriptor is a map entry's `Nullable` value
+              balticporter.transform.CallSiteSubstitutionTransform.Entry(
+                "com.badlogic.gdx.assets.AssetManager#get(AssetDescriptor)",
+                "{{ val bpManager = {recv}; val bpDescriptor = {arg0}.get; bpManager.get(bpDescriptor.fileName, bpDescriptor.`type`, true).orNull }}",
+                balticporter.tir.RuleScope.Only(Set("net.mgsx.gltf.loaders.gltf.GLTFAssetLoader$ManagedTextureResolver#fetch"))
+              )
+            )
+          ),
           new balticporter.transform.BeanPropertyTransform(scope = Gltf, derive = true),
           new balticporter.transform.NullaryArityTransform(scope = Gltf, derive = true),
           new balticporter.transform.NullabilityTransform(scope = Gltf, deriveMembers = true),
