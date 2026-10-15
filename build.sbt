@@ -1114,17 +1114,16 @@ val `sge-visui` = (projectMatrix in file("sge-extension/visui"))
   .dependsOn(sge)
 
 // Baltic Porter: the generated colorful, ai, gltf, textra and visui trees, each compiled alone (see balticPorterGenProjectSettings)
-def balticPorterGenProject(pm: ProjectMatrix, ext: BalticPorterExtGen.Ext): ProjectMatrix =
+def balticPorterGenProject(pm: ProjectMatrix, ext: BalticPorterExtGen.Ext, platforms: List[VirtualAxis.PlatformAxis] = List(VirtualAxis.jvm)): ProjectMatrix =
   pm.defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(Versions.scala3))
-    .someVariations(Versions.scalas, List(VirtualAxis.jvm))((commonSettings(s"sge-extension/${ext.id}/generated") ++ Seq(jvmPlatformApiClasspath)) *)
+    .someVariations(Versions.scalas, platforms)((commonSettings(s"sge-extension/${ext.id}/generated") ++ Seq(jvmPlatformApiClasspath)) *)
     .settings(balticPorterGenProjectSettings(ext) *)
-    .dependsOn(sge)
 
-val `sge-colorful-gen` = balticPorterGenProject(projectMatrix in file("sge-extension/colorful/generated"), BalticPorterExtGen.Colorful)
-val `sge-ai-gen`       = balticPorterGenProject(projectMatrix in file("sge-extension/ai/generated"), BalticPorterExtGen.Ai)
-val `sge-gltf-gen`     = balticPorterGenProject(projectMatrix in file("sge-extension/gltf/generated"), BalticPorterExtGen.Gltf)
-// RegExodus, TextraTypist's regex engine, with its upstream JUnit suite
-val `sge-regexodus-gen` = balticPorterGenProject(projectMatrix in file("sge-extension/regexodus/generated"), BalticPorterExtGen.Regexodus)
+val `sge-colorful-gen` = balticPorterGenProject(projectMatrix in file("sge-extension/colorful/generated"), BalticPorterExtGen.Colorful).dependsOn(sge)
+val `sge-ai-gen`       = balticPorterGenProject(projectMatrix in file("sge-extension/ai/generated"), BalticPorterExtGen.Ai).dependsOn(sge)
+val `sge-gltf-gen`     = balticPorterGenProject(projectMatrix in file("sge-extension/gltf/generated"), BalticPorterExtGen.Gltf).dependsOn(sge)
+// RegExodus, TextraTypist's regex engine (a base of its own: no sge), with its upstream JUnit suite on every platform
+val `sge-regexodus-gen` = balticPorterGenProject(projectMatrix in file("sge-extension/regexodus/generated"), BalticPorterExtGen.Regexodus, Versions.platforms)
   .settings(
     Test / sourceGenerators += Def.task {
       BalticPorterExtGen.generateTests(BalticPorterExtGen.Regexodus, (ThisBuild / baseDirectory).value, streams.value.log)
@@ -1132,8 +1131,8 @@ val `sge-regexodus-gen` = balticPorterGenProject(projectMatrix in file("sge-exte
     Test / managedSourceDirectories += (ThisBuild / baseDirectory).value / "target" / "balticporter-sge-regexodus" / "src_managed" / "test" / "scala"
   )
 val `sge-textra-gen` = balticPorterGenProject(projectMatrix in file("sge-extension/textra/generated"), BalticPorterExtGen.Textra)
-  .dependsOn(`sge-regexodus-gen`)
-val `sge-visui-gen`    = balticPorterGenProject(projectMatrix in file("sge-extension/visui/generated"), BalticPorterExtGen.Visui)
+  .dependsOn(sge, `sge-regexodus-gen`)
+val `sge-visui-gen` = balticPorterGenProject(projectMatrix in file("sge-extension/visui/generated"), BalticPorterExtGen.Visui).dependsOn(sge)
 
 // ── Android smoke test APK ────────────────────────────────────────────
 //
