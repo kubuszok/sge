@@ -77,6 +77,24 @@ object VisUiPolicy {
               lowlevel.port.LlsPolicy.Witness
             )
           ),
+          // `FileHistoryCallback#getStage` is answered in java by `Actor#getStage`, which sge types `Nullable`: as in the hand port, the
+          // callback asks `getHistoryStage` and the file chooser answers it with its stage
+          new balticporter.transform.MemberRenameTransform(
+            renames = Map("com.kotcrab.vis.ui.widget.file.internal.FileHistoryManager$FileHistoryCallback#getStage" -> "getHistoryStage")
+          ),
+          new balticporter.transform.AddMembersTransform(
+            Map(
+              "com.kotcrab.vis.ui.widget.file.FileChooser" -> List(
+                balticporter.transform.AddMembersTransform.MemberSpec(
+                  "historyStage",
+                  0,
+                  "def historyStage: sge.scenes.scene2d.Stage = this.stage.orNull",
+                  balticporter.tir.Reason.Configured("add-members", "com.kotcrab.vis.ui.widget.file.FileChooser#historyStage"),
+                  Some("java's `getStage()`, the callback's answer, under the renamed callback member")
+                )
+              )
+            )
+          ),
           new balticporter.transform.BeanPropertyTransform(scope = VisUi, derive = true),
           new balticporter.transform.NullaryArityTransform(scope = VisUi, derive = true),
           new balticporter.transform.NullabilityTransform(scope = VisUi, deriveMembers = true),
