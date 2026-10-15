@@ -869,6 +869,12 @@ val `sge-gltf` = (projectMatrix in file("sge-extension/gltf"))
       "-Wconf:msg=Unreachable case:s"
     )
   )
+  // AnimationControllerHack's companion holds process-global scratch (tmpT, q1..q4, transforms),
+  // as gdx-gltf's statics do. CubicSplineAnimationRedSuite and SceneAnimationsRedSuite both drive
+  // it, and running the JVM suites concurrently races that scratch (the LINEAR control's evaluated
+  // matrix came out wrong once under load). Run the suites sequentially, the same remedy
+  // sge-extension-ecs, -visui and -vfx use for their own global state. JS/Native are single-threaded.
+  .settings(Test / parallelExecution := false)
   .dependsOn(sge)
 
 val `sge-graphs` = (projectMatrix in file("sge-extension/graphs"))
