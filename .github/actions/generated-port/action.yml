@@ -47,13 +47,13 @@ runs:
         done
         echo "tree=$policy-$provided-$base$extensions" >> "$GITHUB_OUTPUT"
       env:
-        EXTENSION_SUBMODULES: original-src/ashley original-src/noise4j original-src/anim8-gdx original-src/jbump original-src/guacamole
+        EXTENSION_SUBMODULES: original-src/ashley original-src/noise4j original-src/anim8-gdx original-src/jbump original-src/guacamole original-src/gdx-vfx original-src/libgdx-screenmanager
 
     # Init the generated extensions' submodules alongside libgdx
     - name: Checkout the extension submodules
       if: inputs.mode == 'generate'
       shell: bash
-      run: git submodule update --init --depth=1 original-src/ashley original-src/noise4j original-src/anim8-gdx original-src/jbump original-src/guacamole
+      run: git submodule update --init --depth=1 original-src/ashley original-src/noise4j original-src/anim8-gdx original-src/jbump original-src/guacamole original-src/gdx-vfx original-src/libgdx-screenmanager
 
     - uses: kubuszok/balticporter/.github/actions/generated-port@55be328a2265f34c8d41d30634569229539cf562
       id: port
@@ -79,6 +79,9 @@ runs:
           target/balticporter-sge-anim8
           target/balticporter-sge-jbump
           target/balticporter-sge-guacamole
+          target/balticporter-sge-screens
+          target/balticporter-sge-vfx
+          target/balticporter-sge-tools
           target/balticporter-reports
         key: ${{ steps.port.outputs.key }}-ecs
         fail-on-cache-miss: ${{ inputs.mode == 'restore' }}
@@ -94,6 +97,9 @@ runs:
           target/balticporter-sge-anim8
           target/balticporter-sge-jbump
           target/balticporter-sge-guacamole
+          target/balticporter-sge-screens
+          target/balticporter-sge-vfx
+          target/balticporter-sge-tools
           target/balticporter-reports
         key: ${{ steps.port.outputs.key }}-ecs
         enableCrossOsArchive: true
