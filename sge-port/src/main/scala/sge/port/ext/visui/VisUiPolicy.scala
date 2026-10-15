@@ -80,7 +80,13 @@ object VisUiPolicy {
           // `FileHistoryCallback#getStage` is answered in java by `Actor#getStage`, which sge types `Nullable`: as in the hand port, the
           // callback asks `getHistoryStage` and the file chooser answers it with its stage
           new balticporter.transform.MemberRenameTransform(
-            renames = Map("com.kotcrab.vis.ui.widget.file.internal.FileHistoryManager$FileHistoryCallback#getStage" -> "getHistoryStage")
+            renames = Map(
+              "com.kotcrab.vis.ui.widget.file.internal.FileHistoryManager$FileHistoryCallback#getStage" -> "getHistoryStage",
+              // libGDX's `Disposable#dispose` is sge's `close`, and `ColorPicker` is both a `VisWindow` (whose `close()` fades the
+              // window out) and a `Disposable`: the window's member moves, so disposal keeps java's meaning. A decided divergence
+              // from the hand port, which dropped `Disposable` from `ColorPicker` instead
+              "com.kotcrab.vis.ui.widget.VisWindow#close" -> "closeWindow"
+            )
           ),
           new balticporter.transform.AddMembersTransform(
             Map(
