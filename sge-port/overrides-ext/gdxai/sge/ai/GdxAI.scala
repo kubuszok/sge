@@ -32,8 +32,8 @@ object GdxAI {
     */
   private var fileSystem: sge.ai.FileSystem = null
 
-  /** Returns the timepiece service. */
-  def getTimepiece(): sge.ai.Timepiece = GdxAI.timepiece
+  /** Returns the timepiece service: the one the caller's context supplies (the port threads java's global AI clock as `(using Timepiece)`), else the one `setTimepiece` installed. */
+  def getTimepiece()(using timepiece: sge.ai.Timepiece = GdxAI.timepiece): sge.ai.Timepiece = timepiece
 
   /** Sets the timepiece service. */
   def setTimepiece(timepiece: sge.ai.Timepiece): scala.Unit = GdxAI.timepiece = timepiece
