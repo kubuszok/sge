@@ -50,6 +50,22 @@ object GdxAiPolicy {
               )
             )
           ),
+          // the reference's constructor parameter names and underscore fields
+          new balticporter.transform.MemberRenameTransform(derive = true),
+          // the hand port's `Parallel(policy, orchestrator)` with no children, which java spells with an empty `Array`
+          new balticporter.transform.AddMembersTransform(
+            Map(
+              "com.badlogic.gdx.ai.btree.branch.Parallel" -> List(
+                balticporter.transform.AddMembersTransform.MemberSpec(
+                  "this",
+                  2,
+                  "def this(policy: sge.ai.btree.branch.Parallel.Policy, orchestrator: sge.ai.btree.branch.Parallel.Orchestrator) = this(policy, orchestrator, new lowlevel.util.DynamicArray[sge.ai.btree.Task[E]]())",
+                  balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.ai.btree.branch.Parallel#<init>(Policy,Orchestrator)"),
+                  Some("the hand port's policy-and-orchestrator constructor, children empty as java's three-argument one is given")
+                )
+              )
+            )
+          ),
           new balticporter.transform.BeanPropertyTransform(scope = Ai, derive = true),
           new balticporter.transform.NullaryArityTransform(scope = Ai, derive = true),
           new balticporter.transform.NullabilityTransform(scope = Ai, deriveMembers = true),
