@@ -47,7 +47,9 @@ runs:
           extensions="$extensions$m=$c;"
         done
         extensions=$(printf '%s' "$extensions" | sha256sum | cut -c1-40)
-        echo "tree=$policy-$provided-$base-$extensions" >> "$GITHUB_OUTPUT"
+        # the extension generators and the build that wires them: a change to either regenerates
+        generators=$(for f in project/BalticPorterExtGen.scala project/BalticPorterEcsGen.scala build.sbt; do git rev-parse "HEAD:$f"; done | sha256sum | cut -c1-16)
+        echo "tree=$policy-$provided-$base-$extensions-$generators" >> "$GITHUB_OUTPUT"
       env:
         EXTENSION_SUBMODULES: original-src/ashley original-src/noise4j original-src/anim8-gdx original-src/jbump original-src/guacamole original-src/gdx-vfx original-src/libgdx-screenmanager original-src/colorful-gdx original-src/vis-ui original-src/gdx-ai
 
@@ -56,6 +58,16 @@ runs:
       if: inputs.mode == 'generate'
       shell: bash
       run: git submodule update --init --depth=1 original-src/ashley original-src/noise4j original-src/anim8-gdx original-src/jbump original-src/guacamole original-src/gdx-vfx original-src/libgdx-screenmanager original-src/colorful-gdx original-src/vis-ui original-src/gdx-ai
+
+    # The generator runs inside the shared action, which does not retry a download cut off mid-body:
+    # load the meta-build (the engine and the pinned snapshot plugins) here first, through the guard
+    # that does, so the generation itself finds every jar in the cache
+    - name: Fetch the meta-build's dependencies
+      if: inputs.mode == 'generate'
+      uses: ./.github/actions/sbt-guarded
+      with:
+        command: sbt about
+        require: ""
 
     - uses: kubuszok/balticporter/.github/actions/generated-port@55be328a2265f34c8d41d30634569229539cf562
       id: port

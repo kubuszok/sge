@@ -46,6 +46,18 @@ runs:
     # job saves its own 1-2 GB entry, which fills the repository's 10 GB Actions-cache quota within
     # one run and evicts the 12 MB generated-port entry every other job depends on. Resolving from
     # Maven Central on a runner costs far less than those entries do.
+    # The ONE exception: the hand-pinned snapshot jars (the engine, the native providers, 20-35 MB each)
+    # come from Sonatype's snapshot repository, where a download cut off mid-body fails the job. Only
+    # that directory is cached, per OS, keyed on the files that pin the snapshots.
+    - uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/coursier/v1/https/central.sonatype.com/repository/maven-snapshots
+          ~/Library/Caches/Coursier/v1/https/central.sonatype.com/repository/maven-snapshots
+          ~/AppData/Local/Coursier/Cache/v1/https/central.sonatype.com/repository/maven-snapshots
+        key: coursier-snapshots-${{ runner.os }}-${{ hashFiles('project/plugins.sbt', 'project/Versions.scala') }}
+        enableCrossOsArchive: false
+
     - uses: coursier/setup-action@v3.0.2
       with:
         jvm: ${{ inputs.architecture == '' && inputs.jvm || '' }}

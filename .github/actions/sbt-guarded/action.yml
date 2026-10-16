@@ -30,11 +30,27 @@ runs:
         # In bash on Windows `sbt` is the thin client, which cannot start its server there
         # ('Cannot run program "C:/Program Files"'); sbt.bat — what `sbt` means in PowerShell — can.
         if [ "$RUNNER_OS" = "Windows" ]; then GUARDED_COMMAND="${GUARDED_COMMAND/#sbt /sbt.bat }"; fi
-        if [ -n "$GUARDED_SENTINEL" ]; then rm -f "$GUARDED_SENTINEL"; fi
-        set +e
-        bash -c "$GUARDED_COMMAND" 2>&1 | tee "$log"
-        code=${PIPESTATUS[0]}
-        set -e
+        # coursier does not retry a download cut off mid-body ("Premature EOF"); a run that failed on one
+        # before any test ran is retried, the cached error markers cleared first
+        download='Premature EOF|Error fetching artifacts|Error downloading|ResolveException|could not retrieve sbt'
+        attempt=1
+        while true; do
+          if [ -n "$GUARDED_SENTINEL" ]; then rm -f "$GUARDED_SENTINEL"; fi
+          set +e
+          bash -c "$GUARDED_COMMAND" 2>&1 | tee "$log"
+          code=${PIPESTATUS[0]}
+          set -e
+          if [ "$code" -eq 0 ] || [ "$attempt" -ge 3 ] || ! grep -qE "$download" "$log" ||
+             grep -qE 'Test run .* (started|finished)|Passed: Total|Failed: Total' "$log"; then
+            break
+          fi
+          echo "dependency download failed, retrying (attempt $((attempt + 1)) of 3)"
+          for cache in "$HOME/.cache/coursier" "$HOME/Library/Caches/Coursier" "${LOCALAPPDATA:-/nonexistent}/Coursier/Cache"; do
+            if [ -d "$cache" ]; then find "$cache" -name '.*.error' -type f -delete || true; fi
+          done
+          sleep $((attempt * 30))
+          attempt=$((attempt + 1))
+        done
         fail=0
         if [ "$code" -ne 0 ]; then
           echo "::error::the command exited with code $code"

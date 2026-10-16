@@ -363,19 +363,8 @@ jobs:
         with:
           command: sbt ci-jvm-3
 
-      - name: Upload coverage to Codecov
-        if: always()
-        # scoverage does not emit an aggregate report on Scala 3.8.x under sbt 2.0; codecov-action
-        # hard-fails when its explicit `files:` are absent even with fail_ci_if_error false.
-        # Coverage upload is reporting-only — keep it non-fatal until report generation is restored.
-        continue-on-error: true
-        uses: codecov/codecov-action@v7
-        with:
-          files: target/scala-3.8.4/scoverage-report/scoverage.xml
-          flags: ${{ matrix.platform }}
-          fail_ci_if_error: false
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      # No coverage upload: the ci alias strips scoverage (it writes no report on Scala 3.8.x under
+      # sbt 2.0, see build.sbt), so there is no file to send. Restore the upload with the report.
 
   # ─── Scala Native tests (uses provider JARs from Sonatype) ──────────
 
