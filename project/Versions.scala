@@ -18,7 +18,7 @@ object Versions {
   val scribe           = "3.19.0"
   val scalajsDom       = "2.8.1"
   val scalaSaxParser   = "0.1.1"
-  val scalaJavaTime    = "2.7.0"
+  val scalaJavaTime    = "2.8.0"
   val scalaJavaLocales = "1.5.4"
   val sttp             = "4.0.27"
   val xml              = "2.5.0"
