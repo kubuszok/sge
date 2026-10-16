@@ -32,17 +32,6 @@ object VisUiPolicy {
         |    if ((!VisUI.skipGdxVersionCheck) && (!sge.Version.VERSION.equals(VisUI.TARGET_GDX_VERSION))) {
         |      sge.utils.Log.info("VisUI" + ": " + (((((("Warning, using invalid libGDX version.\n" + "You are using libGDX ") + sge.Version.VERSION) + " but you need ") + VisUI.TARGET_GDX_VERSION) + ". This may cause ") + "unexpected problems and runtime exceptions."))
         |    } else ()
-        |  }""".stripMargin,
-    // `Button`'s constructor reaches the override through `setStyle` before this class's field initialisers ran: java's
-    // field is still `null` there and its `containerMenu == null` answers it; the wrapped field is a JVM null then, not
-    // the empty value, so the guard asks both
-    "com.kotcrab.vis.ui.widget.MenuItem#isOver()" ->
-      """{
-        |    if ((this.containerMenu.asInstanceOf[AnyRef] eq null) || this.containerMenu.isEmpty || this.containerMenu.get.getActiveItem.isEmpty) {
-        |      super.isOver
-        |    } else {
-        |      this.containerMenu.get.getActiveItem.get eq this
-        |    }
         |  }""".stripMargin
   )
 
