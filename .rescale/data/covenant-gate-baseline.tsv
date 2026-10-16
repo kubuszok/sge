@@ -7,25 +7,6 @@
 # regenerate: .rescale/scripts/covenant-gate.sh --generate
 sge-build/src/main/scala/sge/sbt/SgeExtension.scala	missing-header	1
 sge-port/overrides-ext/ashley/sge/ecs/utils/ImmutableArray.scala	shortcut-drift	1
-sge-extension/ai/src/main/scala/sge/ai/btree/TaskCloneException.scala	shortcut-drift	1
-sge-extension/ai/src/main/scala/sge/ai/btree/decorator/Include.scala	shortcut-drift	3
-sge-extension/ai/src/main/scala/sge/ai/btree/utils/BehaviorTreeReader.scala	shortcut-drift	1
-sge-extension/ai/src/main/scala/sge/ai/btree/utils/DistributionAdapters.scala	shortcut-drift	1
-sge-extension/ai/src/main/scala/sge/ai/fma/BoundedSlotAssignmentStrategy.scala	shortcut-drift	1
-sge-extension/ai/src/main/scala/sge/ai/fma/Formation.scala	shortcut-drift	1
-sge-extension/ai/src/main/scala/sge/ai/fma/SoftRoleSlotAssignmentStrategy.scala	shortcut-drift	1
-sge-extension/ai/src/main/scala/sge/ai/msg/MessageDispatcher.scala	shortcut-drift	6
-sge-extension/ai/src/main/scala/sge/ai/pfa/HierarchicalPathFinder.scala	shortcut-drift	2
-sge-extension/ai/src/main/scala/sge/ai/pfa/PathFinder.scala	shortcut-drift	1
-sge-extension/ai/src/main/scala/sge/ai/pfa/indexed/IndexedAStarPathFinder.scala	shortcut-drift	2
-sge-extension/ai/src/main/scala/sge/ai/steer/SteerableAdapter.scala	shortcut-drift	4
-sge-extension/ai/src/main/scala/sge/ai/steer/limiters/AngularAccelerationLimiter.scala	shortcut-drift	1
-sge-extension/ai/src/main/scala/sge/ai/steer/limiters/AngularLimiter.scala	shortcut-drift	1
-sge-extension/ai/src/main/scala/sge/ai/steer/limiters/AngularSpeedLimiter.scala	shortcut-drift	1
-sge-extension/ai/src/main/scala/sge/ai/steer/limiters/LinearAccelerationLimiter.scala	shortcut-drift	1
-sge-extension/ai/src/main/scala/sge/ai/steer/limiters/LinearLimiter.scala	shortcut-drift	1
-sge-extension/ai/src/main/scala/sge/ai/steer/limiters/LinearSpeedLimiter.scala	shortcut-drift	1
-sge-extension/ai/src/main/scala/sge/ai/steer/limiters/NullLimiter.scala	shortcut-drift	31
 sge-extension/gltf/src/main/scala/sge/gltf/data/GLTFCodecs.scala	shortcut-drift	64
 sge-extension/gltf/src/main/scala/sge/gltf/data/extensions/KHRLightsPunctual.scala	shortcut-drift	1
 sge-extension/gltf/src/main/scala/sge/gltf/exporters/GLTFCameraExporter.scala	shortcut-drift	5
