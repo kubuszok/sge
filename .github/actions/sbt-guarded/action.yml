@@ -31,7 +31,8 @@ runs:
         # ('Cannot run program "C:/Program Files"'); sbt.bat — what `sbt` means in PowerShell — can.
         if [ "$RUNNER_OS" = "Windows" ]; then GUARDED_COMMAND="${GUARDED_COMMAND/#sbt /sbt.bat }"; fi
         # coursier does not retry a download cut off mid-body ("Premature EOF"); a run that failed on one
-        # before any test ran is retried, the cached error markers cleared first
+        # with no test failing is retried whole, the cached error markers cleared first. A multi-module
+        # run resolves a later module after earlier modules' tests passed, so tests having RUN is no bar.
         download='Premature EOF|Error fetching artifacts|Error downloading|ResolveException|could not retrieve sbt'
         attempt=1
         while true; do
@@ -41,7 +42,7 @@ runs:
           code=${PIPESTATUS[0]}
           set -e
           if [ "$code" -eq 0 ] || [ "$attempt" -ge 3 ] || ! grep -qE "$download" "$log" ||
-             grep -qE 'Test run .* (started|finished)|Passed: Total|Failed: Total' "$log"; then
+             grep -qE '==> X |Failed: Total|Failed tests:' "$log"; then
             break
           fi
           echo "dependency download failed, retrying (attempt $((attempt + 1)) of 3)"
