@@ -1,0 +1,1495 @@
+#family	upstream	reference	target
+KeepName	com.kotcrab.vis.ui.FocusManager#getFocusedWidget	def getFocusedWidget	
+KeepName	com.kotcrab.vis.ui.Locales#getButtonBarBundle	def getButtonBarBundle	
+KeepName	com.kotcrab.vis.ui.Locales#getColorPickerBundle	def getColorPickerBundle	
+KeepName	com.kotcrab.vis.ui.Locales#getCommonBundle	def getCommonBundle	
+KeepName	com.kotcrab.vis.ui.Locales#getDialogsBundle	def getDialogsBundle	
+KeepName	com.kotcrab.vis.ui.Locales#getFileChooserBundle	def getFileChooserBundle	
+KeepName	com.kotcrab.vis.ui.Locales#getTabbedPaneBundle	def getTabbedPaneBundle	
+KeepName	com.kotcrab.vis.ui.Locales#setButtonBarBundle	def setButtonBarBundle	
+KeepName	com.kotcrab.vis.ui.Locales#setColorPickerBundle	def setColorPickerBundle	
+KeepName	com.kotcrab.vis.ui.Locales#setCommonBundle	def setCommonBundle	
+KeepName	com.kotcrab.vis.ui.Locales#setDialogsBundle	def setDialogsBundle	
+KeepName	com.kotcrab.vis.ui.Locales#setFileChooserBundle	def setFileChooserBundle	
+KeepName	com.kotcrab.vis.ui.Locales#setTabbedPaneBundle	def setTabbedPaneBundle	
+KeepName	com.kotcrab.vis.ui.VisUI#getDefaultTitleAlign	def getDefaultTitleAlign	
+KeepName	com.kotcrab.vis.ui.VisUI#getSizes	def getSizes	
+KeepName	com.kotcrab.vis.ui.VisUI#getSkin	def getSkin	
+KeepName	com.kotcrab.vis.ui.VisUI#isLoaded	def isLoaded	
+KeepName	com.kotcrab.vis.ui.VisUI$SkinScale#getSkinFile	def getSkinFile	
+KeepName	com.kotcrab.vis.ui.building.TableBuilder#getDefaultWidgetPadding	def getDefaultWidgetPadding	
+KeepName	com.kotcrab.vis.ui.building.TableBuilder#getGreatestCommonDenominator	def getGreatestCommonDenominator	
+KeepName	com.kotcrab.vis.ui.building.TableBuilder#getLowestCommonMultiple(IntArray)	def getLowestCommonMultiple	
+KeepName	com.kotcrab.vis.ui.building.TableBuilder#getLowestCommonMultiple(int,int)	def getLowestCommonMultiple	
+KeepName	com.kotcrab.vis.ui.building.TableBuilder#getRowSizes	def getRowSizes	
+KeepName	com.kotcrab.vis.ui.building.TableBuilder#getWidget	def getWidget	
+KeepName	com.kotcrab.vis.ui.building.TableBuilder#getWidgets	def getWidgets	
+KeepName	com.kotcrab.vis.ui.building.TableBuilder#setTablePadding	def setTablePadding	
+KeepName	com.kotcrab.vis.ui.building.utilities.Alignment#getByIndex	def getByIndex	
+KeepName	com.kotcrab.vis.ui.building.utilities.Alignment#getByValidIndex	def getByValidIndex	
+KeepName	com.kotcrab.vis.ui.building.utilities.Alignment#isAlignedWithBottom	def isAlignedWithBottom	
+KeepName	com.kotcrab.vis.ui.building.utilities.Alignment#isAlignedWithLeft	def isAlignedWithLeft	
+KeepName	com.kotcrab.vis.ui.building.utilities.Alignment#isAlignedWithRight	def isAlignedWithRight	
+KeepName	com.kotcrab.vis.ui.building.utilities.Alignment#isAlignedWithTop	def isAlignedWithTop	
+KeepName	com.kotcrab.vis.ui.building.utilities.Alignment#isCentered	def isCentered	
+KeepName	com.kotcrab.vis.ui.building.utilities.Alignment#isIndexLast	def isIndexLast	
+KeepName	com.kotcrab.vis.ui.building.utilities.Alignment#isIndexValid	def isIndexValid	
+KeepName	com.kotcrab.vis.ui.building.utilities.CellWidget#getWidget	def getWidget	
+KeepName	com.kotcrab.vis.ui.building.utilities.Nullables#getOrElse	def getOrElse	
+KeepName	com.kotcrab.vis.ui.building.utilities.Nullables#isAnyNotNull	def isAnyNotNull	
+KeepName	com.kotcrab.vis.ui.building.utilities.Nullables#isAnyNull	def isAnyNull	
+KeepName	com.kotcrab.vis.ui.building.utilities.Nullables#isNotNull	def isNotNull	
+KeepName	com.kotcrab.vis.ui.building.utilities.Nullables#isNull	def isNull	
+KeepName	com.kotcrab.vis.ui.building.utilities.Padding#setPadding(Padding,Cell)	def setPadding	
+KeepName	com.kotcrab.vis.ui.building.utilities.Padding#setPadding(Padding,Table)	def setPadding	
+KeepName	com.kotcrab.vis.ui.building.utilities.Padding#setSpacing	def setSpacing	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#getChildren	def getChildren	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#getDraggable	def getDraggable	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#getFloatingGroup	def getFloatingGroup	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#getGridGroup	def getGridGroup	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#getGroup	def getGroup	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#getHorizontalFlowGroup	def getHorizontalFlowGroup	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#getHorizontalGroup	def getHorizontalGroup	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#getVerticalFlowGroup	def getVerticalFlowGroup	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#getVerticalGroup	def getVerticalGroup	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#isFloating	def isFloating	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#isGrid	def isGrid	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#isHorizontal	def isHorizontal	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#isHorizontalFlow	def isHorizontalFlow	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#isVertical	def isVertical	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#isVerticalFlow	def isVerticalFlow	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#setActor	def setActor	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#setBounds	def setBounds	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#setDraggable	def setDraggable	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#setGroup	def setGroup	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#setHeight	def setHeight	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#setListener	def setListener	
+KeepName	com.kotcrab.vis.ui.layout.DragPane#setWidth	def setWidth	
+KeepName	com.kotcrab.vis.ui.layout.DragPane$DefaultDragListener#getActorInDragPane	def getActorInDragPane	
+KeepName	com.kotcrab.vis.ui.layout.DragPane$DefaultDragListener#getDragPane	def getDragPane	
+KeepName	com.kotcrab.vis.ui.layout.DragPane$DefaultDragListener#setPolicy	def setPolicy	
+KeepName	com.kotcrab.vis.ui.layout.FloatingGroup#setPrefHeight	def setPrefHeight	
+KeepName	com.kotcrab.vis.ui.layout.FloatingGroup#setPrefWidth	def setPrefWidth	
+KeepName	com.kotcrab.vis.ui.layout.GridGroup#setItemSize(float)	def setItemSize	
+KeepName	com.kotcrab.vis.ui.layout.GridGroup#setItemSize(float,float)	def setItemSize	
+KeepName	com.kotcrab.vis.ui.util.CursorManager#setDefaultCursor(Cursor)	def setDefaultCursor	
+KeepName	com.kotcrab.vis.ui.util.CursorManager#setDefaultCursor(SystemCursor)	def setDefaultCursor	
+KeepName	com.kotcrab.vis.ui.util.OsUtils#getAndroidApiLevel	def getAndroidApiLevel	
+KeepName	com.kotcrab.vis.ui.util.OsUtils#getShortcutFor	def getShortcutFor	
+KeepName	com.kotcrab.vis.ui.util.OsUtils#isAndroid	def isAndroid	
+KeepName	com.kotcrab.vis.ui.util.OsUtils#isIos	def isIos	
+KeepName	com.kotcrab.vis.ui.util.OsUtils#isMac	def isMac	
+KeepName	com.kotcrab.vis.ui.util.OsUtils#isUnix	def isUnix	
+KeepName	com.kotcrab.vis.ui.util.OsUtils#isWindows	def isWindows	
+KeepName	com.kotcrab.vis.ui.util.TableUtils#setSpacingDefaults	def setSpacingDefaults	
+KeepName	com.kotcrab.vis.ui.util.ToastManager#getAlignment	def getAlignment	
+KeepName	com.kotcrab.vis.ui.util.ToastManager#getMessagePadding	def getMessagePadding	
+KeepName	com.kotcrab.vis.ui.util.ToastManager#getScreenPaddingX	def getScreenPaddingX	
+KeepName	com.kotcrab.vis.ui.util.ToastManager#getScreenPaddingY	def getScreenPaddingY	
+KeepName	com.kotcrab.vis.ui.util.ToastManager#setScreenPadding(int)	def setScreenPadding	
+KeepName	com.kotcrab.vis.ui.util.ToastManager#setScreenPadding(int,int)	def setScreenPadding	
+KeepName	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#getItemsSorter	def getItemsSorter	
+KeepName	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#getSelection	def getSelection	
+KeepName	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#getSelectionManager	def getSelectionManager	
+KeepName	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#getSelectionMode	def getSelectionMode	
+KeepName	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#setItemClickListener	def setItemClickListener	
+KeepName	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#setItemsSorter	def setItemsSorter	
+KeepName	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#setListView	def setListView	
+KeepName	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#setSelectionMode	def setSelectionMode	
+KeepName	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter$ListSelection#getGroupMultiSelectKey	def getGroupMultiSelectKey	
+KeepName	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter$ListSelection#getListener	def getListener	
+KeepName	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter$ListSelection#getMultiSelectKey	def getMultiSelectKey	
+KeepName	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter$ListSelection#getSelection	def getSelection	
+KeepName	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter$ListSelection#isProgrammaticChangeEvents	def isProgrammaticChangeEvents	
+KeepName	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter$ListSelection#setGroupMultiSelectKey	def setGroupMultiSelectKey	
+KeepName	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter$ListSelection#setListener	def setListener	
+KeepName	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter$ListSelection#setMultiSelectKey	def setMultiSelectKey	
+KeepName	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter$ListSelection#setProgrammaticChangeEvents	def setProgrammaticChangeEvents	
+KeepName	com.kotcrab.vis.ui.util.adapter.CachedItemAdapter#getView	def getView	
+KeepName	com.kotcrab.vis.ui.util.adapter.CachedItemAdapter#getViews	def getViews	
+KeepName	com.kotcrab.vis.ui.util.adapter.ItemAdapter#getView	def getView	
+KeepName	com.kotcrab.vis.ui.util.adapter.ListAdapter#setItemClickListener	def setItemClickListener	
+KeepName	com.kotcrab.vis.ui.util.adapter.ListAdapter#setListView	def setListView	
+KeepName	com.kotcrab.vis.ui.util.async.AsyncTask#setMessage	def setMessage	
+KeepName	com.kotcrab.vis.ui.util.async.AsyncTask#setProgressPercent	def setProgressPercent	
+KeepName	com.kotcrab.vis.ui.util.async.AsyncTaskProgressDialog#getStatus	def getStatus	
+KeepName	com.kotcrab.vis.ui.util.async.SteppedAsyncTask#setTotalSteps	def setTotalSteps	
+KeepName	com.kotcrab.vis.ui.util.dialog.Dialogs$DetailsDialog#isCopyDetailsButtonVisible	def isCopyDetailsButtonVisible	
+KeepName	com.kotcrab.vis.ui.util.dialog.Dialogs$DetailsDialog#isDetailsVisible	def isDetailsVisible	
+KeepName	com.kotcrab.vis.ui.util.dialog.Dialogs$DetailsDialog#setCopyDetailsButtonVisible	def setCopyDetailsButtonVisible	
+KeepName	com.kotcrab.vis.ui.util.dialog.Dialogs$DetailsDialog#setDetailsVisible	def setDetailsVisible	
+KeepName	com.kotcrab.vis.ui.util.dialog.Dialogs$DetailsDialog#setWrapDetails	def setWrapDetails	
+KeepName	com.kotcrab.vis.ui.util.dialog.Dialogs$InputDialog#setStage	def setStage	
+KeepName	com.kotcrab.vis.ui.util.dialog.Dialogs$InputDialog#setText(String)	def setText	
+KeepName	com.kotcrab.vis.ui.util.dialog.Dialogs$InputDialog#setText(String,boolean)	def setText	
+KeepName	com.kotcrab.vis.ui.util.dialog.Dialogs$OptionDialog#setCancelButtonText	def setCancelButtonText	
+KeepName	com.kotcrab.vis.ui.util.dialog.Dialogs$OptionDialog#setNoButtonText	def setNoButtonText	
+KeepName	com.kotcrab.vis.ui.util.dialog.Dialogs$OptionDialog#setYesButtonText	def setYesButtonText	
+KeepName	com.kotcrab.vis.ui.util.form.FormInputValidator#getLastResult	def getLastResult	
+KeepName	com.kotcrab.vis.ui.util.form.FormInputValidator#isHideErrorOnEmptyInput	def isHideErrorOnEmptyInput	
+KeepName	com.kotcrab.vis.ui.util.form.FormInputValidator#setHideErrorOnEmptyInput	def setHideErrorOnEmptyInput	
+KeepName	com.kotcrab.vis.ui.util.form.SimpleFormValidator#isTreatDisabledFieldsAsValid	def isTreatDisabledFieldsAsValid	
+KeepName	com.kotcrab.vis.ui.util.form.SimpleFormValidator#setMessageLabel	def setMessageLabel	
+KeepName	com.kotcrab.vis.ui.util.form.SimpleFormValidator#setSuccessMessage	def setSuccessMessage	
+KeepName	com.kotcrab.vis.ui.util.form.SimpleFormValidator#setTreatDisabledFieldsAsValid	def setTreatDisabledFieldsAsValid	
+KeepName	com.kotcrab.vis.ui.widget.ButtonBar#getButton	def getButton	
+KeepName	com.kotcrab.vis.ui.widget.ButtonBar#getTextButton	def getTextButton	
+KeepName	com.kotcrab.vis.ui.widget.ButtonBar#setButton(ButtonType,Button)	def setButton	
+KeepName	com.kotcrab.vis.ui.widget.ButtonBar#setButton(ButtonType,Button,ChangeListener)	def setButton	
+KeepName	com.kotcrab.vis.ui.widget.ButtonBar#setButton(ButtonType,ChangeListener)	def setButton	
+KeepName	com.kotcrab.vis.ui.widget.ButtonBar#setButton(ButtonType,String,ChangeListener)	def setButton	
+KeepName	com.kotcrab.vis.ui.widget.CollapsibleWidget#setCollapsed(boolean,boolean)	def setCollapsed	
+KeepName	com.kotcrab.vis.ui.widget.CollapsibleWidget#setTable	def setTable	
+KeepName	com.kotcrab.vis.ui.widget.Draggable#getFadingTime	def getFadingTime	
+KeepName	com.kotcrab.vis.ui.widget.Draggable#getMovingTime	def getMovingTime	
+KeepName	com.kotcrab.vis.ui.widget.Draggable#getStageCoordinates	def getStageCoordinates	
+KeepName	com.kotcrab.vis.ui.widget.Draggable#isBlockingInput	def isBlockingInput	
+KeepName	com.kotcrab.vis.ui.widget.Draggable#isDisabled	def isDisabled	
+KeepName	com.kotcrab.vis.ui.widget.Draggable#isDragged	def isDragged	
+KeepName	com.kotcrab.vis.ui.widget.Draggable#isInvisibleWhenDragged	def isInvisibleWhenDragged	
+KeepName	com.kotcrab.vis.ui.widget.Draggable#isKeptWithinParent	def isKeptWithinParent	
+KeepName	com.kotcrab.vis.ui.widget.Draggable#isValid	def isValid	
+KeepName	com.kotcrab.vis.ui.widget.Draggable#setBlockInput	def setBlockInput	
+KeepName	com.kotcrab.vis.ui.widget.Draggable#setFadingInterpolation	def setFadingInterpolation	
+KeepName	com.kotcrab.vis.ui.widget.Draggable#setFadingTime	def setFadingTime	
+KeepName	com.kotcrab.vis.ui.widget.Draggable#setInvisibleWhenDragged	def setInvisibleWhenDragged	
+KeepName	com.kotcrab.vis.ui.widget.Draggable#setKeepWithinParent	def setKeepWithinParent	
+KeepName	com.kotcrab.vis.ui.widget.Draggable#setMovingInterpolation	def setMovingInterpolation	
+KeepName	com.kotcrab.vis.ui.widget.Draggable#setMovingTime	def setMovingTime	
+KeepName	com.kotcrab.vis.ui.widget.HorizontalCollapsibleWidget#setCollapsed(boolean,boolean)	def setCollapsed	
+KeepName	com.kotcrab.vis.ui.widget.HorizontalCollapsibleWidget#setTable	def setTable	
+KeepName	com.kotcrab.vis.ui.widget.ListView#getAdapter	def getAdapter	
+KeepName	com.kotcrab.vis.ui.widget.ListView#getClickListener	def getClickListener	
+KeepName	com.kotcrab.vis.ui.widget.ListView#getMainTable	def getMainTable	
+KeepName	com.kotcrab.vis.ui.widget.ListView#getScrollPane	def getScrollPane	
+KeepName	com.kotcrab.vis.ui.widget.ListView#setItemClickListener	def setItemClickListener	
+KeepName	com.kotcrab.vis.ui.widget.Menu#getOpenButton	def getOpenButton	
+KeepName	com.kotcrab.vis.ui.widget.Menu#setMenuBar	def setMenuBar	
+KeepName	com.kotcrab.vis.ui.widget.MenuBar#getCurrentMenu	def getCurrentMenu	
+KeepName	com.kotcrab.vis.ui.widget.MenuBar#getTable	def getTable	
+KeepName	com.kotcrab.vis.ui.widget.MenuBar#setCurrentMenu	def setCurrentMenu	
+KeepName	com.kotcrab.vis.ui.widget.MenuBar#setMenuListener	def setMenuListener	
+KeepName	com.kotcrab.vis.ui.widget.MenuItem#getImage	def getImage	
+KeepName	com.kotcrab.vis.ui.widget.MenuItem#getImageCell	def getImageCell	
+KeepName	com.kotcrab.vis.ui.widget.MenuItem#getLabel	def getLabel	
+KeepName	com.kotcrab.vis.ui.widget.MenuItem#getLabelCell	def getLabelCell	
+KeepName	com.kotcrab.vis.ui.widget.MenuItem#getShortcut	def getShortcut	
+KeepName	com.kotcrab.vis.ui.widget.MenuItem#getShortcutCell	def getShortcutCell	
+KeepName	com.kotcrab.vis.ui.widget.MenuItem#getSubMenuIconCell	def getSubMenuIconCell	
+KeepName	com.kotcrab.vis.ui.widget.MenuItem#getText	def getText	
+KeepName	com.kotcrab.vis.ui.widget.MenuItem#isOver	def isOver	
+KeepName	com.kotcrab.vis.ui.widget.MenuItem#setParent	def setParent	
+KeepName	com.kotcrab.vis.ui.widget.MenuItem#setShortcut(String)	def setShortcut	
+KeepName	com.kotcrab.vis.ui.widget.MenuItem#setShortcut(int)	def setShortcut	
+KeepName	com.kotcrab.vis.ui.widget.MenuItem#setShortcut(int[])	def setShortcut	
+KeepName	com.kotcrab.vis.ui.widget.MenuItem#setStage	def setStage	
+KeepName	com.kotcrab.vis.ui.widget.MenuItem#setStyle	def setStyle	
+KeepName	com.kotcrab.vis.ui.widget.MenuItem#setText	def setText	
+KeepName	com.kotcrab.vis.ui.widget.MultiSplitPane#getStyle	def getStyle	
+KeepName	com.kotcrab.vis.ui.widget.MultiSplitPane#setSplit	def setSplit	
+KeepName	com.kotcrab.vis.ui.widget.MultiSplitPane#setStyle	def setStyle	
+KeepName	com.kotcrab.vis.ui.widget.MultiSplitPane#setWidgets(Actor[])	def setWidgets	
+KeepName	com.kotcrab.vis.ui.widget.MultiSplitPane#setWidgets(Iterable)	def setWidgets	
+KeepName	com.kotcrab.vis.ui.widget.PopupMenu#getActiveItem	def getActiveItem	
+KeepName	com.kotcrab.vis.ui.widget.PopupMenu#getActiveSubMenu	def getActiveSubMenu	
+KeepName	com.kotcrab.vis.ui.widget.PopupMenu#getDefaultInputListener()	def getDefaultInputListener	
+KeepName	com.kotcrab.vis.ui.widget.PopupMenu#getDefaultInputListener(int)	def getDefaultInputListener	
+KeepName	com.kotcrab.vis.ui.widget.PopupMenu#setActiveItem	def setActiveItem	
+KeepName	com.kotcrab.vis.ui.widget.PopupMenu#setActiveSubMenu	def setActiveSubMenu	
+KeepName	com.kotcrab.vis.ui.widget.PopupMenu#setParentMenu	def setParentMenu	
+KeepName	com.kotcrab.vis.ui.widget.PopupMenu#setStage	def setStage	
+KeepName	com.kotcrab.vis.ui.widget.ScrollableTextArea#setCullingArea	def setCullingArea	
+KeepName	com.kotcrab.vis.ui.widget.ScrollableTextArea#setParent	def setParent	
+KeepName	com.kotcrab.vis.ui.widget.ScrollableTextArea#setText	def setText	
+KeepName	com.kotcrab.vis.ui.widget.Tooltip#setPosition	def setPosition	
+KeepName	com.kotcrab.vis.ui.widget.Tooltip#setText	def setText	
+KeepName	com.kotcrab.vis.ui.widget.VisCheckBox#getCheckboxBgImage	def getCheckboxBgImage	
+KeepName	com.kotcrab.vis.ui.widget.VisCheckBox#getCheckboxTickImage	def getCheckboxTickImage	
+KeepName	com.kotcrab.vis.ui.widget.VisCheckBox#getImageStack	def getImageStack	
+KeepName	com.kotcrab.vis.ui.widget.VisCheckBox#setStateInvalid(boolean)	def setStateInvalid	
+KeepName	com.kotcrab.vis.ui.widget.VisCheckBox#setStyle	def setStyle	
+KeepName	com.kotcrab.vis.ui.widget.VisDialog#getButtonsTable	def getButtonsTable	
+KeepName	com.kotcrab.vis.ui.widget.VisDialog#setObject	def setObject	
+KeepName	com.kotcrab.vis.ui.widget.VisDialog#setStage	def setStage	
+KeepName	com.kotcrab.vis.ui.widget.VisImageButton#isGenerateDisabledImage	def isGenerateDisabledImage	
+KeepName	com.kotcrab.vis.ui.widget.VisImageButton#setGenerateDisabledImage	def setGenerateDisabledImage	
+KeepName	com.kotcrab.vis.ui.widget.VisImageButton#setStyle	def setStyle	
+KeepName	com.kotcrab.vis.ui.widget.VisImageTextButton#getText	def getText	
+KeepName	com.kotcrab.vis.ui.widget.VisImageTextButton#isGenerateDisabledImage	def isGenerateDisabledImage	
+KeepName	com.kotcrab.vis.ui.widget.VisImageTextButton#setGenerateDisabledImage	def setGenerateDisabledImage	
+KeepName	com.kotcrab.vis.ui.widget.VisImageTextButton#setStyle	def setStyle	
+KeepName	com.kotcrab.vis.ui.widget.VisImageTextButton#setText	def setText	
+KeepName	com.kotcrab.vis.ui.widget.VisSplitPane#getFirstWidgetBounds	def getFirstWidgetBounds	
+KeepName	com.kotcrab.vis.ui.widget.VisSplitPane#getSecondWidgetBounds	def getSecondWidgetBounds	
+KeepName	com.kotcrab.vis.ui.widget.VisSplitPane#getSplit	def getSplit	
+KeepName	com.kotcrab.vis.ui.widget.VisSplitPane#setFirstWidget	def setFirstWidget	
+KeepName	com.kotcrab.vis.ui.widget.VisSplitPane#setMaxSplitAmount	def setMaxSplitAmount	
+KeepName	com.kotcrab.vis.ui.widget.VisSplitPane#setMinSplitAmount	def setMinSplitAmount	
+KeepName	com.kotcrab.vis.ui.widget.VisSplitPane#setSecondWidget	def setSecondWidget	
+KeepName	com.kotcrab.vis.ui.widget.VisSplitPane#setWidgets	def setWidgets	
+KeepName	com.kotcrab.vis.ui.widget.VisTextArea#getTextY	def getTextY	
+KeepName	com.kotcrab.vis.ui.widget.VisTextArea#setPrefRows	def setPrefRows	
+KeepName	com.kotcrab.vis.ui.widget.VisTextArea#setSelection	def setSelection	
+KeepName	com.kotcrab.vis.ui.widget.VisTextArea$TextAreaListener#setCursorPosition	def setCursorPosition	
+KeepName	com.kotcrab.vis.ui.widget.VisTextField#isEmpty	def isEmpty	
+KeepName	com.kotcrab.vis.ui.widget.VisTextField#isIgnoreEqualsTextChange	def isIgnoreEqualsTextChange	
+KeepName	com.kotcrab.vis.ui.widget.VisTextField#isInputValid	def isInputValid	
+KeepName	com.kotcrab.vis.ui.widget.VisTextField#isReadOnly	def isReadOnly	
+KeepName	com.kotcrab.vis.ui.widget.VisTextField#setCursorAtTextEnd	def setCursorAtTextEnd	
+KeepName	com.kotcrab.vis.ui.widget.VisTextField#setCursorPercentHeight	def setCursorPercentHeight	
+KeepName	com.kotcrab.vis.ui.widget.VisTextField#setEnterKeyFocusTraversal	def setEnterKeyFocusTraversal	
+KeepName	com.kotcrab.vis.ui.widget.VisTextField#setIgnoreEqualsTextChange	def setIgnoreEqualsTextChange	
+KeepName	com.kotcrab.vis.ui.widget.VisTextField#setInputValid	def setInputValid	
+KeepName	com.kotcrab.vis.ui.widget.VisTextField#setReadOnly	def setReadOnly	
+KeepName	com.kotcrab.vis.ui.widget.VisValidatableTextField#getValidators	def getValidators	
+KeepName	com.kotcrab.vis.ui.widget.VisValidatableTextField#isValidationEnabled	def isValidationEnabled	
+KeepName	com.kotcrab.vis.ui.widget.VisValidatableTextField#setRestoreLastValid	def setRestoreLastValid	
+KeepName	com.kotcrab.vis.ui.widget.VisValidatableTextField#setValidationEnabled	def setValidationEnabled	
+KeepName	com.kotcrab.vis.ui.widget.VisWindow#isKeepWithinParent	def isKeepWithinParent	
+KeepName	com.kotcrab.vis.ui.widget.VisWindow#setCenterOnAdd	def setCenterOnAdd	
+KeepName	com.kotcrab.vis.ui.widget.VisWindow#setKeepWithinParent	def setKeepWithinParent	
+KeepName	com.kotcrab.vis.ui.widget.VisWindow#setPosition	def setPosition	
+KeepName	com.kotcrab.vis.ui.widget.VisWindow#setStage	def setStage	
+KeepName	com.kotcrab.vis.ui.widget.color.BasicColorPicker#isDisposed	def isDisposed	
+KeepName	com.kotcrab.vis.ui.widget.color.ColorPicker#getListener	def getListener	
+KeepName	com.kotcrab.vis.ui.widget.color.ColorPicker#getPicker	def getPicker	
+KeepName	com.kotcrab.vis.ui.widget.color.ColorPicker#isDisposed	def isDisposed	
+KeepName	com.kotcrab.vis.ui.widget.color.ColorPicker#setListener	def setListener	
+KeepName	com.kotcrab.vis.ui.widget.color.ColorPicker#setStage	def setStage	
+KeepName	com.kotcrab.vis.ui.widget.color.internal.ChannelBar#getValue	def getValue	
+KeepName	com.kotcrab.vis.ui.widget.color.internal.ChannelBar#setShaderUniforms	def setShaderUniforms	
+KeepName	com.kotcrab.vis.ui.widget.color.internal.ChannelBar#setValue	def setValue	
+KeepName	com.kotcrab.vis.ui.widget.color.internal.ChannelBar$ChannelBarListener#setShaderUniforms	def setShaderUniforms	
+KeepName	com.kotcrab.vis.ui.widget.color.internal.ColorChannelWidget#getBar	def getBar	
+KeepName	com.kotcrab.vis.ui.widget.color.internal.ColorChannelWidget#getValue	def getValue	
+KeepName	com.kotcrab.vis.ui.widget.color.internal.ColorChannelWidget#isInputValid	def isInputValid	
+KeepName	com.kotcrab.vis.ui.widget.color.internal.ColorChannelWidget#setValue	def setValue	
+KeepName	com.kotcrab.vis.ui.widget.color.internal.ColorInputField#getValue	def getValue	
+KeepName	com.kotcrab.vis.ui.widget.color.internal.ColorInputField#setValue	def setValue	
+KeepName	com.kotcrab.vis.ui.widget.color.internal.Palette#getS	def getS	
+KeepName	com.kotcrab.vis.ui.widget.color.internal.Palette#getV	def getV	
+KeepName	com.kotcrab.vis.ui.widget.color.internal.Palette#setPickerHue	def setPickerHue	
+KeepName	com.kotcrab.vis.ui.widget.color.internal.Palette#setShaderUniforms	def setShaderUniforms	
+KeepName	com.kotcrab.vis.ui.widget.color.internal.Palette#setValue	def setValue	
+KeepName	com.kotcrab.vis.ui.widget.color.internal.PickerCommons#getBarShader	def getBarShader	
+KeepName	com.kotcrab.vis.ui.widget.color.internal.ShaderImage#setShaderUniforms	def setShaderUniforms	
+KeepName	com.kotcrab.vis.ui.widget.color.internal.VerticalChannelBar#getValue	def getValue	
+KeepName	com.kotcrab.vis.ui.widget.color.internal.VerticalChannelBar#setValue	def setValue	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#getActiveFileTypeFilterRule	def getActiveFileTypeFilterRule	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#getChooserStyle	def getChooserStyle	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#getCurrentDirectory	def getCurrentDirectory	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#getFileFilter	def getFileFilter	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#getGroupMultiSelectKey	def getGroupMultiSelectKey	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#getIconProvider	def getIconProvider	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#getMode	def getMode	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#getMultiSelectKey	def getMultiSelectKey	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#getSizes	def getSizes	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#getSorting	def getSorting	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#getViewMode	def getViewMode	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#isFavoriteFolderButtonVisible	def isFavoriteFolderButtonVisible	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#isMultiSelectionEnabled	def isMultiSelectionEnabled	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#isSaveLastDirectory	def isSaveLastDirectory	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#isShowSelectionCheckboxes	def isShowSelectionCheckboxes	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#isSortingOrderAscending	def isSortingOrderAscending	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#isViewModeButtonVisible	def isViewModeButtonVisible	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setDefaultPrefsName	def setDefaultPrefsName	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setDirectory(File)	def setDirectory	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setDirectory(FileHandle)	def setDirectory	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setDirectory(FileHandle,HistoryPolicy)	def setDirectory	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setDirectory(String)	def setDirectory	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setFavoriteFolderButtonVisible	def setFavoriteFolderButtonVisible	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setFileDeleter	def setFileDeleter	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setFileTypeFilter	def setFileTypeFilter	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setGroupMultiSelectKey	def setGroupMultiSelectKey	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setIconProvider	def setIconProvider	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setListener	def setListener	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setMode	def setMode	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setMultiSelectKey	def setMultiSelectKey	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setPrefsName	def setPrefsName	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setSelectedFiles	def setSelectedFiles	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setSorting(FileSorting)	def setSorting	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setSorting(FileSorting,boolean)	def setSorting	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setStage	def setStage	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setViewMode	def setViewMode	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setViewModeButtonVisible	def setViewModeButtonVisible	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setVisible	def setVisible	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser#setWatchingFilesEnabled	def setWatchingFilesEnabled	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileFilter#isIgnoreChooserSelectionMode	def isIgnoreChooserSelectionMode	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#getAudioIcon	def getAudioIcon	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#getDefaultIcon	def getDefaultIcon	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#getDirIcon	def getDirIcon	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#getImageIcon	def getImageIcon	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#getPdfIcon	def getPdfIcon	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#getTextIcon	def getTextIcon	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#isThumbnailModesSupported	def isThumbnailModesSupported	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser$FileIconProvider#isThumbnailModesSupported	def isThumbnailModesSupported	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser$FileItem#isDirectory	def isDirectory	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser$FileItem#setIcon	def setIcon	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser$ViewMode#getBundleText	def getBundleText	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser$ViewMode#getGridSize	def getGridSize	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser$ViewMode#isGridMode	def isGridMode	
+KeepName	com.kotcrab.vis.ui.widget.file.FileChooser$ViewMode#isThumbnailMode	def isThumbnailMode	
+KeepName	com.kotcrab.vis.ui.widget.file.FileTypeFilter#getRules	def getRules	
+KeepName	com.kotcrab.vis.ui.widget.file.FileTypeFilter$Rule#getExtensions	def getExtensions	
+KeepName	com.kotcrab.vis.ui.widget.file.FileUtils#isValidFileName	def isValidFileName	
+KeepName	com.kotcrab.vis.ui.widget.file.internal.DriveCheckerService#getInstance	def getInstance	
+KeepName	com.kotcrab.vis.ui.widget.file.internal.FileChooserWinService#getInstance	def getInstance	
+KeepName	com.kotcrab.vis.ui.widget.file.internal.FileChooserWinService$RootNameListener#setRootName	def setRootName	
+KeepName	com.kotcrab.vis.ui.widget.file.internal.FileHistoryManager#getButtonsTable	def getButtonsTable	
+KeepName	com.kotcrab.vis.ui.widget.file.internal.FileHistoryManager#getDefaultClickListener	def getDefaultClickListener	
+KeepName	com.kotcrab.vis.ui.widget.file.internal.FileHistoryManager$FileHistoryCallback#getCurrentDirectory	def getCurrentDirectory	
+KeepName	com.kotcrab.vis.ui.widget.file.internal.FileHistoryManager$FileHistoryCallback#setDirectory	def setDirectory	
+KeepName	com.kotcrab.vis.ui.widget.file.internal.FileListAdapter#getOrderedViews	def getOrderedViews	
+KeepName	com.kotcrab.vis.ui.widget.file.internal.FileListAdapter#getViews	def getViews	
+KeepName	com.kotcrab.vis.ui.widget.file.internal.FilePopupMenu#isAddedToStage	def isAddedToStage	
+KeepName	com.kotcrab.vis.ui.widget.spinner.ArraySpinnerModel#getCurrent	def getCurrent	
+KeepName	com.kotcrab.vis.ui.widget.spinner.ArraySpinnerModel#getCurrentIndex	def getCurrentIndex	
+KeepName	com.kotcrab.vis.ui.widget.spinner.ArraySpinnerModel#getItems	def getItems	
+KeepName	com.kotcrab.vis.ui.widget.spinner.ArraySpinnerModel#setCurrent(T)	def setCurrent	
+KeepName	com.kotcrab.vis.ui.widget.spinner.ArraySpinnerModel#setCurrent(T,boolean)	def setCurrent	
+KeepName	com.kotcrab.vis.ui.widget.spinner.ArraySpinnerModel#setCurrent(int)	def setCurrent	
+KeepName	com.kotcrab.vis.ui.widget.spinner.ArraySpinnerModel#setCurrent(int,boolean)	def setCurrent	
+KeepName	com.kotcrab.vis.ui.widget.spinner.ArraySpinnerModel#setItems	def setItems	
+KeepName	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#setValue(BigDecimal)	def setValue	
+KeepName	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#setValue(BigDecimal,boolean)	def setValue	
+KeepName	com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel#setValue(int)	def setValue	
+KeepName	com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel#setValue(int,boolean)	def setValue	
+KeepName	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#setValue(float)	def setValue	
+KeepName	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#setValue(float,boolean)	def setValue	
+KeepName	com.kotcrab.vis.ui.widget.tabbedpane.Tab#isActiveTab	def isActiveTab	
+KeepName	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane#getTabTitle	def getTabTitle	
+KeepName	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane#getTabs	def getTabs	
+KeepName	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane#getTabsPane	def getTabsPane	
+KeepName	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane#getUIOrderedTabs	def getUIOrderedTabs	
+KeepName	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane#isTabDisabled	def isTabDisabled	
+KeepName	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane$TabbedPaneTable#setPaneCells	def setPaneCells	
+KeepParens	com.kotcrab.vis.ui.Locales$CommonText#format()	def format(): String	
+KeepParens	com.kotcrab.vis.ui.building.TableBuilder#append()	def append(): TableBuilder	
+KeepParens	com.kotcrab.vis.ui.building.TableBuilder#build()	def build(): Table	
+KeepParens	com.kotcrab.vis.ui.building.TableBuilder#row	def row(): TableBuilder	
+KeepParens	com.kotcrab.vis.ui.building.utilities.CellWidget$CellWidgetBuilder#wrap	def wrap(): CellWidget[$0]	
+KeepParens	com.kotcrab.vis.ui.building.utilities.Padding#reverse	def reverse(): Padding	
+KeepParens	com.kotcrab.vis.ui.i18n.BundleText#format()	def format(): String	
+KeepParens	com.kotcrab.vis.ui.util.adapter.ArrayAdapter#pop	def pop(): $0	
+KeepParens	com.kotcrab.vis.ui.util.form.FormInputValidator#hideErrorOnEmptyInput	def hideErrorOnEmptyInput(): FormInputValidator	
+KeepParens	com.kotcrab.vis.ui.widget.ButtonBar#createTable	def createTable(): VisTable	
+KeepParens	com.kotcrab.vis.ui.widget.Draggable$MimicActor#remove	def remove(): Boolean	
+KeepParens	com.kotcrab.vis.ui.widget.HighlightTextArea#createCompatibleScrollPane	def createCompatibleScrollPane(): ScrollPane	
+KeepParens	com.kotcrab.vis.ui.widget.Menu#remove	def remove(): Boolean	
+KeepParens	com.kotcrab.vis.ui.widget.PopupMenu#remove	def remove(): Boolean	
+KeepParens	com.kotcrab.vis.ui.widget.ScrollableTextArea#createCompatibleScrollPane	def createCompatibleScrollPane(): ScrollPane	
+KeepParens	com.kotcrab.vis.ui.widget.ScrollableTextArea#createInputListener	def createInputListener(): InputListener	
+KeepParens	com.kotcrab.vis.ui.widget.Tooltip$Builder#build	def build(): Tooltip	
+KeepParens	com.kotcrab.vis.ui.widget.VisTable#addSeparator()	def addSeparator(): Cell[Separator]	
+KeepParens	com.kotcrab.vis.ui.widget.VisTextArea#createInputListener	def createInputListener(): InputListener	
+KeepParens	com.kotcrab.vis.ui.widget.VisTextArea#newLineAtEnd	def newLineAtEnd(): Boolean	
+KeepParens	com.kotcrab.vis.ui.widget.VisTextField#createInputListener	def createInputListener(): InputListener	
+KeepParens	com.kotcrab.vis.ui.widget.VisWindow#centerWindow	def centerWindow(): Boolean	
+KeepParens	com.kotcrab.vis.ui.widget.VisWindow#fadeIn()	def fadeIn(): VisWindow	
+KeepParens	com.kotcrab.vis.ui.widget.color.internal.ColorPickerText#format()	def format(): String	
+KeepParens	com.kotcrab.vis.ui.widget.file.internal.FileChooserText#format()	def format(): String	
+KeepParens	com.kotcrab.vis.ui.widget.file.internal.PreferencesIO#loadFavorites	def loadFavorites(): DynamicArray[FileHandle]	
+KeepParens	com.kotcrab.vis.ui.widget.file.internal.PreferencesIO#loadLastDirectory	def loadLastDirectory(): Nullable[FileHandle]	
+KeepParens	com.kotcrab.vis.ui.widget.file.internal.PreferencesIO#loadRecentDirectories	def loadRecentDirectories(): DynamicArray[FileHandle]	
+KeepParens	com.kotcrab.vis.ui.widget.spinner.AbstractSpinnerModel#decrement()	def decrement(): Boolean	
+KeepParens	com.kotcrab.vis.ui.widget.spinner.AbstractSpinnerModel#decrementModel	def decrementModel(): Boolean	
+KeepParens	com.kotcrab.vis.ui.widget.spinner.AbstractSpinnerModel#increment()	def increment(): Boolean	
+KeepParens	com.kotcrab.vis.ui.widget.spinner.AbstractSpinnerModel#incrementModel	def incrementModel(): Boolean	
+KeepParens	com.kotcrab.vis.ui.widget.spinner.ArraySpinnerModel#decrementModel	def decrementModel(): Boolean	
+KeepParens	com.kotcrab.vis.ui.widget.spinner.ArraySpinnerModel#incrementModel	def incrementModel(): Boolean	
+KeepParens	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#decrementModel	def decrementModel(): Boolean	
+KeepParens	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#incrementModel	def incrementModel(): Boolean	
+KeepParens	com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel#decrementModel	def decrementModel(): Boolean	
+KeepParens	com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel#incrementModel	def incrementModel(): Boolean	
+KeepParens	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#decrementModel	def decrementModel(): Boolean	
+KeepParens	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#incrementModel	def incrementModel(): Boolean	
+KeepParens	com.kotcrab.vis.ui.widget.spinner.SpinnerModel#decrement()	def decrement(): Boolean	
+KeepParens	com.kotcrab.vis.ui.widget.spinner.SpinnerModel#increment()	def increment(): Boolean	
+KeepParens	com.kotcrab.vis.ui.widget.tabbedpane.Tab#save	def save(): Boolean	
+KeepParens	com.kotcrab.vis.ui.widget.toast.Toast#fadeIn	def fadeIn(): Table	
+NullableMember	com.kotcrab.vis.ui.FocusManager#getFocusedWidget	Nullable[Focusable]	
+NullableMember	com.kotcrab.vis.ui.FocusManager#resetFocus(Stage)#stage	Nullable[Stage]	
+NullableMember	com.kotcrab.vis.ui.FocusManager#resetFocus(Stage,Actor)#stage	Nullable[Stage]	
+NullableMember	com.kotcrab.vis.ui.FocusManager#switchFocus#stage	Nullable[Stage]	
+NullableMember	com.kotcrab.vis.ui.Locales#setButtonBarBundle#buttonBarBundle	Nullable[I18NBundle]	
+NullableMember	com.kotcrab.vis.ui.Locales#setColorPickerBundle#colorPickerBundle	Nullable[I18NBundle]	
+NullableMember	com.kotcrab.vis.ui.Locales#setCommonBundle#commonBundle	Nullable[I18NBundle]	
+NullableMember	com.kotcrab.vis.ui.Locales#setDialogsBundle#dialogsBundle	Nullable[I18NBundle]	
+NullableMember	com.kotcrab.vis.ui.Locales#setFileChooserBundle#fileChooserBundle	Nullable[I18NBundle]	
+NullableMember	com.kotcrab.vis.ui.Locales#setTabbedPaneBundle#tabbedPaneBundle	Nullable[I18NBundle]	
+NullableMember	com.kotcrab.vis.ui.building.utilities.CellWidget#buildCell(Table,Padding)#defaultWidgetPadding	Nullable[Padding]	
+NullableMember	com.kotcrab.vis.ui.building.utilities.CellWidget$CellWidgetBuilder#alignment:field	Nullable[Alignment]	
+NullableMember	com.kotcrab.vis.ui.building.utilities.CellWidget$CellWidgetBuilder#padding:field	Nullable[Padding]	
+NullableMember	com.kotcrab.vis.ui.layout.DragPane#findActor	Nullable[$0]	
+NullableMember	com.kotcrab.vis.ui.layout.DragPane#getDraggable	Nullable[Draggable]	
+NullableMember	com.kotcrab.vis.ui.layout.DragPane#setActor#group	Nullable[WidgetGroup]	
+NullableMember	com.kotcrab.vis.ui.layout.DragPane$DefaultDragListener#accept#dragPane	Nullable[DragPane]	
+NullableMember	com.kotcrab.vis.ui.layout.DragPane$DefaultDragListener#getActorInDragPane	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.layout.DragPane$DefaultDragListener#getDragPane	Nullable[DragPane]	
+NullableMember	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#getItemsSorter	Nullable[Comparator[$0]]	
+NullableMember	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#setItemClickListener#listener	Nullable[ListView.ItemClickListener[$0]]	
+NullableMember	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#view:field	Nullable[ListView[$0]]	
+NullableMember	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#viewListener:field	Nullable[ListView.ListAdapterListener[$0]]	
+NullableMember	com.kotcrab.vis.ui.util.adapter.ListAdapter#setItemClickListener#listener	Nullable[ListView.ItemClickListener[$0]]	
+NullableMember	com.kotcrab.vis.ui.util.dialog.Dialogs#showErrorDialog(Stage,String,String)#details	Nullable[String]	
+NullableMember	com.kotcrab.vis.ui.util.dialog.Dialogs$ConfirmDialog#result#object	Nullable[AnyRef]	
+NullableMember	com.kotcrab.vis.ui.util.dialog.Dialogs$DetailsDialog#<init>#details	Nullable[String]	
+NullableMember	com.kotcrab.vis.ui.util.dialog.Dialogs$DetailsDialog#result#object	Nullable[AnyRef]	
+NullableMember	com.kotcrab.vis.ui.util.dialog.Dialogs$InputDialog#<init>#validator	Nullable[InputValidator]	
+NullableMember	com.kotcrab.vis.ui.util.dialog.Dialogs$InputDialog#setStage#stage	Nullable[Stage]	
+NullableMember	com.kotcrab.vis.ui.util.form.FormValidator#<init>(Disableable,Label,FormValidatorStyle)#messageLabel	Nullable[Label]	
+NullableMember	com.kotcrab.vis.ui.util.form.FormValidator$FileExistsValidator#<init>(File,String)#relativeTo	Nullable[VisTextField | File]	
+NullableMember	com.kotcrab.vis.ui.util.form.FormValidator$FileExistsValidator#<init>(File,String,boolean)#relativeTo	Nullable[VisTextField | File]	
+NullableMember	com.kotcrab.vis.ui.util.form.FormValidator$FileExistsValidator#<init>(VisTextField,String)#relativeTo	Nullable[VisTextField | File]	
+NullableMember	com.kotcrab.vis.ui.util.form.FormValidator$FileExistsValidator#<init>(VisTextField,String,boolean)#relativeTo	Nullable[VisTextField | File]	
+NullableMember	com.kotcrab.vis.ui.util.form.FormValidator$FileExistsValidator#<init>(VisTextField,String,boolean,boolean)#relativeTo	Nullable[VisTextField]	
+NullableMember	com.kotcrab.vis.ui.util.form.FormValidator$FileExistsValidator#relativeTo:field	Nullable[VisTextField]	
+NullableMember	com.kotcrab.vis.ui.util.form.FormValidator$FileExistsValidator#relativeToFile:field	Nullable[File]	
+NullableMember	com.kotcrab.vis.ui.util.form.FormValidator$FileExistsValidator#setRelativeToFile#relativeToFile	Nullable[File]	
+NullableMember	com.kotcrab.vis.ui.util.value.ConstantIfVisibleValue#get#context	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.util.value.PrefHeightIfVisibleValue#get#actor	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.util.value.PrefWidthIfVisibleValue#get#actor	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.util.value.VisValue#get#context	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.util.value.VisValue$ValueGetter#get#context	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.util.value.VisWidgetValue#get#context	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.Draggable#<init>(DragListener)#listener	Nullable[Draggable.DragListener]	
+NullableMember	com.kotcrab.vis.ui.widget.Draggable#getListener	Nullable[Draggable.DragListener]	
+NullableMember	com.kotcrab.vis.ui.widget.Draggable$MimicActor#actor:field	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.Draggable$MimicActor#getActor	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.Draggable$MimicActor#setActor#actor	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.HighlightTextArea#getHighlighter	Nullable[BaseHighlighter]	
+NullableMember	com.kotcrab.vis.ui.widget.LinkLabel#getListener	Nullable[LinkLabel.LinkLabelListener]	
+NullableMember	com.kotcrab.vis.ui.widget.LinkLabel#setListener#listener	Nullable[LinkLabel.LinkLabelListener]	
+NullableMember	com.kotcrab.vis.ui.widget.LinkLabel$LinkLabelStyle#<init>(BitmapFont,Color,Drawable)#fontColor	Nullable[Color]	
+NullableMember	com.kotcrab.vis.ui.widget.LinkLabel$LinkLabelStyle#<init>(BitmapFont,Color,Drawable)#underline	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.LinkLabel$LinkLabelStyle#underline:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.ListView#getClickListener	Nullable[ListView.ItemClickListener[$0]]	
+NullableMember	com.kotcrab.vis.ui.widget.ListView#getFooter	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.ListView#getHeader	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.ListViewStyle#scrollPaneStyle:field	Nullable[ScrollPane.ScrollPaneStyle]	
+NullableMember	com.kotcrab.vis.ui.widget.Menu#buttonDefault:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.Menu#setMenuBar#menuBar	Nullable[MenuBar]	
+NullableMember	com.kotcrab.vis.ui.widget.Menu$MenuStyle#<init>(Drawable,Drawable,VisTextButtonStyle)#border	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.MenuBar#getCurrentMenu	Nullable[Menu]	
+NullableMember	com.kotcrab.vis.ui.widget.MenuBar#setCurrentMenu#newMenu	Nullable[Menu]	
+NullableMember	com.kotcrab.vis.ui.widget.MenuItem#<init>(String,Image,MenuItemStyle)#image	Nullable[Image]	
+NullableMember	com.kotcrab.vis.ui.widget.MenuItem#containerMenu:field	Nullable[PopupMenu]	
+NullableMember	com.kotcrab.vis.ui.widget.MenuItem#getImage	Nullable[Image]	
+NullableMember	com.kotcrab.vis.ui.widget.MenuItem#getLabelCell	Nullable[Cell[Label]]	
+NullableMember	com.kotcrab.vis.ui.widget.MenuItem#getShortcutCell	Nullable[Cell[VisLabel]]	
+NullableMember	com.kotcrab.vis.ui.widget.MenuItem#getSubMenu	Nullable[PopupMenu]	
+NullableMember	com.kotcrab.vis.ui.widget.MenuItem#setParent#parent	Nullable[Group]	
+NullableMember	com.kotcrab.vis.ui.widget.MenuItem#setStage#stage	Nullable[Stage]	
+NullableMember	com.kotcrab.vis.ui.widget.MenuItem#setSubMenu#subMenu	Nullable[PopupMenu]	
+NullableMember	com.kotcrab.vis.ui.widget.MultiSplitPane#hit	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.MultiSplitPane$MultiSplitPaneStyle#<init>(Drawable,Drawable)#handleOver	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.PopupMenu#activeSubMenu:field	Nullable[PopupMenu]	
+NullableMember	com.kotcrab.vis.ui.widget.PopupMenu#add#actor	Nullable[$0]	
+NullableMember	com.kotcrab.vis.ui.widget.PopupMenu#getActiveItem	Nullable[MenuItem]	
+NullableMember	com.kotcrab.vis.ui.widget.PopupMenu#getActiveSubMenu	Nullable[PopupMenu]	
+NullableMember	com.kotcrab.vis.ui.widget.PopupMenu#parentSubMenu:field	Nullable[PopupMenu]	
+NullableMember	com.kotcrab.vis.ui.widget.PopupMenu#setActiveItem#newItem	Nullable[MenuItem]	
+NullableMember	com.kotcrab.vis.ui.widget.PopupMenu#setActiveSubMenu#newSubMenu	Nullable[PopupMenu]	
+NullableMember	com.kotcrab.vis.ui.widget.PopupMenu#setStage#stage	Nullable[Stage]	
+NullableMember	com.kotcrab.vis.ui.widget.PopupMenu$PopupMenuListener#activeItemChanged#newActiveItem	Nullable[MenuItem]	
+NullableMember	com.kotcrab.vis.ui.widget.PopupMenu$PopupMenuStyle#<init>(Drawable,Drawable)#border	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.PopupMenu$PopupMenuStyle#border:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.ScrollableTextArea#setCullingArea#cullingArea	Nullable[Rectangle]	
+NullableMember	com.kotcrab.vis.ui.widget.ScrollableTextArea#setParent#parent	Nullable[Group]	
+NullableMember	com.kotcrab.vis.ui.widget.ScrollableTextArea#setText#str	Nullable[String]	
+NullableMember	com.kotcrab.vis.ui.widget.Tooltip#getContent	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.Tooltip#getTarget	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.VisCheckBox#getCheckboxBgImage	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisCheckBox#getCheckboxTickImage	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisCheckBox$VisCheckBoxStyle#checkBackground:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisCheckBox$VisCheckBoxStyle#checkBackgroundDown:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisCheckBox$VisCheckBoxStyle#checkBackgroundOver:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisCheckBox$VisCheckBoxStyle#errorBorder:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisCheckBox$VisCheckBoxStyle#focusBorder:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisCheckBox$VisCheckBoxStyle#tick:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisCheckBox$VisCheckBoxStyle#tickDisabled:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisDialog#button(Button,Object)#object	Nullable[AnyRef]	
+NullableMember	com.kotcrab.vis.ui.widget.VisDialog#button(String,Object)#object	Nullable[AnyRef]	
+NullableMember	com.kotcrab.vis.ui.widget.VisDialog#button(String,Object,VisTextButtonStyle)#object	Nullable[AnyRef]	
+NullableMember	com.kotcrab.vis.ui.widget.VisDialog#hide(Action)#action	Nullable[Action]	
+NullableMember	com.kotcrab.vis.ui.widget.VisDialog#key#object	Nullable[AnyRef]	
+NullableMember	com.kotcrab.vis.ui.widget.VisDialog#result#object	Nullable[AnyRef]	
+NullableMember	com.kotcrab.vis.ui.widget.VisDialog#setObject#object	Nullable[AnyRef]	
+NullableMember	com.kotcrab.vis.ui.widget.VisDialog#setStage#stage	Nullable[Stage]	
+NullableMember	com.kotcrab.vis.ui.widget.VisDialog#show(Stage,Action)#action	Nullable[Action]	
+NullableMember	com.kotcrab.vis.ui.widget.VisImage#<init>(Drawable,Scaling,int)#drawable	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisImageButton#<init>(Drawable,Drawable,Drawable)#imageChecked	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisImageButton#<init>(Drawable,Drawable,Drawable)#imageDown	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisImageButton#getImageCell	Nullable[Cell[Image]]	
+NullableMember	com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle#focusBorder:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle#imageChecked:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle#imageCheckedOver:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle#imageDisabled:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle#imageDown:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle#imageOver:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisImageButton$VisImageButtonStyle#imageUp:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisImageTextButton#getImageCell	Nullable[Cell[Image]]	
+NullableMember	com.kotcrab.vis.ui.widget.VisImageTextButton#getLabelCell	Nullable[Cell[Label]]	
+NullableMember	com.kotcrab.vis.ui.widget.VisImageTextButton$VisImageTextButtonStyle#imageChecked:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisImageTextButton$VisImageTextButtonStyle#imageCheckedOver:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisImageTextButton$VisImageTextButtonStyle#imageDisabled:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisImageTextButton$VisImageTextButtonStyle#imageDown:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisImageTextButton$VisImageTextButtonStyle#imageOver:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisImageTextButton$VisImageTextButtonStyle#imageUp:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisLabel#<init>(CharSequence,LabelStyle)#text	Nullable[CharSequence]	
+NullableMember	com.kotcrab.vis.ui.widget.VisScrollPane#<init>(Actor)#widget	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.VisScrollPane#<init>(Actor,ScrollPaneStyle)#widget	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.VisScrollPane#<init>(Actor,String)#widget	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.VisSplitPane#<init>(Actor,Actor,boolean)#firstWidget	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.VisSplitPane#<init>(Actor,Actor,boolean)#secondWidget	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.VisSplitPane#<init>(Actor,Actor,boolean,String)#firstWidget	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.VisSplitPane#<init>(Actor,Actor,boolean,String)#secondWidget	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.VisSplitPane#<init>(Actor,Actor,boolean,VisSplitPaneStyle)#firstWidget	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.VisSplitPane#<init>(Actor,Actor,boolean,VisSplitPaneStyle)#secondWidget	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.VisSplitPane#hit	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.VisSplitPane#setFirstWidget#widget	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.VisSplitPane#setSecondWidget#widget	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.VisSplitPane#setWidgets#firstWidget	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.VisSplitPane#setWidgets#secondWidget	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.VisSplitPane$VisSplitPaneStyle#<init>(Drawable,Drawable)#handleOver	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisSplitPane$VisSplitPaneStyle#handleOver:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisTextArea#getTextY#background	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisTextButton$VisTextButtonStyle#focusBorder:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisTextField#<init>(String,VisTextFieldStyle)#text	Nullable[String]	
+NullableMember	com.kotcrab.vis.ui.widget.VisTextField$VisTextFieldStyle#<init>(BitmapFont,Color,Drawable,Drawable,Drawable)#background	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisTextField$VisTextFieldStyle#<init>(BitmapFont,Color,Drawable,Drawable,Drawable)#cursor	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisTextField$VisTextFieldStyle#<init>(BitmapFont,Color,Drawable,Drawable,Drawable)#selection	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisTextField$VisTextFieldStyle#backgroundOver:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisTextField$VisTextFieldStyle#errorBorder:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisTextField$VisTextFieldStyle#focusBorder:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.VisWindow#setStage#stage	Nullable[Stage]	
+NullableMember	com.kotcrab.vis.ui.widget.color.BasicColorPicker#<init>(ColorPickerWidgetStyle,ColorPickerListener)#listener	Nullable[ColorPickerListener]	
+NullableMember	com.kotcrab.vis.ui.widget.color.BasicColorPicker#<init>(ColorPickerWidgetStyle,ColorPickerListener,boolean)#listener	Nullable[ColorPickerListener]	
+NullableMember	com.kotcrab.vis.ui.widget.color.BasicColorPicker#<init>(String,ColorPickerListener)#listener	Nullable[ColorPickerListener]	
+NullableMember	com.kotcrab.vis.ui.widget.color.BasicColorPicker#getListener	Nullable[ColorPickerListener]	
+NullableMember	com.kotcrab.vis.ui.widget.color.BasicColorPicker#listener:field	Nullable[ColorPickerListener]	
+NullableMember	com.kotcrab.vis.ui.widget.color.BasicColorPicker#setListener#listener	Nullable[ColorPickerListener]	
+NullableMember	com.kotcrab.vis.ui.widget.color.ColorPicker#<init>(String,String,ColorPickerListener)#listener	Nullable[ColorPickerListener]	
+NullableMember	com.kotcrab.vis.ui.widget.color.ColorPicker#<init>(String,String,ColorPickerListener)#title	Nullable[String]	
+NullableMember	com.kotcrab.vis.ui.widget.color.ColorPicker#getListener	Nullable[ColorPickerListener]	
+NullableMember	com.kotcrab.vis.ui.widget.color.ColorPicker#setListener#listener	Nullable[ColorPickerListener]	
+NullableMember	com.kotcrab.vis.ui.widget.color.ColorPicker#setStage#stage	Nullable[Stage]	
+NullableMember	com.kotcrab.vis.ui.widget.color.ColorPickerStyle#pickerStyle:field	Nullable[ColorPickerWidgetStyle]	
+NullableMember	com.kotcrab.vis.ui.widget.color.ColorPickerWidgetStyle#barSelector:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.color.ColorPickerWidgetStyle#cross:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.color.ColorPickerWidgetStyle#horizontalSelector:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.color.ColorPickerWidgetStyle#iconArrowRight:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.color.ColorPickerWidgetStyle#verticalSelector:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.color.ExtendedColorPicker#<init>(ColorPickerWidgetStyle,ColorPickerListener)#listener	Nullable[ColorPickerListener]	
+NullableMember	com.kotcrab.vis.ui.widget.color.ExtendedColorPicker#<init>(String,ColorPickerListener)#listener	Nullable[ColorPickerListener]	
+NullableMember	com.kotcrab.vis.ui.widget.color.internal.PickerCommons#hsvShader:field	Nullable[ShaderProgram]	
+NullableMember	com.kotcrab.vis.ui.widget.color.internal.PickerCommons#rgbShader:field	Nullable[ShaderProgram]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooser#setDefaultFileName#text	Nullable[String]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooser#setFileTypeFilter#fileTypeFilter	Nullable[FileTypeFilter]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooser#setStage#stage	Nullable[Stage]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#getAudioIcon	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#getDefaultIcon	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#getDirIcon	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#getImageIcon	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#getPdfIcon	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#getTextIcon	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#provideIcon	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooser$FileIconProvider#provideIcon	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooserStyle#contextMenuSelectedItem:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooserStyle#expandDropdown:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooserStyle#highlight:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooserStyle#iconArrowLeft:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooserStyle#iconArrowRight:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooserStyle#iconDrive:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooserStyle#iconFileAudio:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooserStyle#iconFileImage:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooserStyle#iconFilePdf:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooserStyle#iconFileText:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooserStyle#iconFolder:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooserStyle#iconFolderNew:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooserStyle#iconFolderParent:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooserStyle#iconFolderStar:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooserStyle#iconListSettings:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooserStyle#iconRefresh:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooserStyle#iconStar:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooserStyle#iconStarOutline:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooserStyle#iconTrash:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.file.FileChooserStyle#popupMenuStyle:field	Nullable[PopupMenu.PopupMenuStyle]	
+NullableMember	com.kotcrab.vis.ui.widget.file.internal.FileChooserWinService#getInstance	Nullable[FileChooserWinService]	
+NullableMember	com.kotcrab.vis.ui.widget.file.internal.PreferencesIO#loadLastDirectory	Nullable[FileHandle]	
+NullableMember	com.kotcrab.vis.ui.widget.internal.SplitPaneCursorManager#exit#toActor	Nullable[Actor]	
+NullableMember	com.kotcrab.vis.ui.widget.spinner.AbstractSpinnerModel#spinner:field	Nullable[Spinner]	
+NullableMember	com.kotcrab.vis.ui.widget.spinner.ArraySpinnerModel#getCurrent	Nullable[$0]	
+NullableMember	com.kotcrab.vis.ui.widget.spinner.ArraySpinnerModel#itemToString#item	Nullable[$0]	
+NullableMember	com.kotcrab.vis.ui.widget.tabbedpane.Tab#getPane	Nullable[TabbedPane]	
+NullableMember	com.kotcrab.vis.ui.widget.tabbedpane.Tab#setPane#pane	Nullable[TabbedPane]	
+NullableMember	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane#getActiveTab	Nullable[Tab]	
+NullableMember	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane$TabbedPaneStyle#<init>(Drawable,Drawable,VisTextButtonStyle)#separatorBar	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane$TabbedPaneStyle#<init>(Drawable,Drawable,VisTextButtonStyle,boolean,boolean)#separatorBar	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane$TabbedPaneStyle#separatorBar:field	Nullable[Drawable]	
+NullableMember	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane$TabbedPaneTable#getSeparatorCell	Nullable[Cell[Image]]	
+NullableMember	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane$TabbedPaneTable#setPaneCells#separatorCell	Nullable[Cell[Image]]	
+NullableMember	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPaneAdapter#switchedTab#tab	Nullable[Tab]	
+NullableMember	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPaneListener#switchedTab#tab	Nullable[Tab]	
+NullableMember	com.kotcrab.vis.ui.widget.toast.Toast#getToastManager	Nullable[ToastManager]	
+NullableMember	com.kotcrab.vis.ui.widget.toast.ToastTable#getToast	Nullable[Toast]	
+NullableMember	com.kotcrab.vis.ui.widget.toast.ToastTable#toast:field	Nullable[Toast]	
+OpaqueSlot	com.kotcrab.vis.ui.VisUI#getDefaultTitleAlign	Align	sge.utils.Align
+OpaqueSlot	com.kotcrab.vis.ui.VisUI#setDefaultTitleAlign#defaultTitleAlign	Align	sge.utils.Align
+OpaqueSlot	com.kotcrab.vis.ui.building.utilities.Alignment#alignment	Align	sge.utils.Align
+OpaqueSlot	com.kotcrab.vis.ui.building.utilities.Alignment#getAlignment	Align	sge.utils.Align
+OpaqueSlot	com.kotcrab.vis.ui.util.ToastManager#UNTIL_CLOSED	Seconds	sge.utils.Seconds
+OpaqueSlot	com.kotcrab.vis.ui.util.ToastManager#alignment	Align	sge.utils.Align
+OpaqueSlot	com.kotcrab.vis.ui.util.ToastManager#getAlignment	Align	sge.utils.Align
+OpaqueSlot	com.kotcrab.vis.ui.util.ToastManager#setAlignment#alignment	Align	sge.utils.Align
+OpaqueSlot	com.kotcrab.vis.ui.util.ToastManager#show(String,float)#timeSec	Seconds	sge.utils.Seconds
+OpaqueSlot	com.kotcrab.vis.ui.util.ToastManager#show(Table,float)#timeSec	Seconds	sge.utils.Seconds
+OpaqueSlot	com.kotcrab.vis.ui.util.ToastManager#show(Toast,float)#timeSec	Seconds	sge.utils.Seconds
+OpaqueSlot	com.kotcrab.vis.ui.util.ToastManager#show(ToastTable,float)#timeSec	Seconds	sge.utils.Seconds
+OpaqueSlot	com.kotcrab.vis.ui.widget.Draggable#touchDown#button	sge.Input.Button	sge.Input.Button
+OpaqueSlot	com.kotcrab.vis.ui.widget.Draggable#touchUp#button	sge.Input.Button	sge.Input.Button
+OpaqueSlot	com.kotcrab.vis.ui.widget.MenuItem#setShortcut(int)#keycode	Key	sge.Input.Key
+OpaqueSlot	com.kotcrab.vis.ui.widget.PopupMenu#getDefaultInputListener(int)#mouseButton	sge.Input.Button	sge.Input.Button
+OpaqueSlot	com.kotcrab.vis.ui.widget.ScrollableTextArea$ScrollTextAreaListener#keyDown#keycode	sge.Input.Key	sge.Input.Key
+OpaqueSlot	com.kotcrab.vis.ui.widget.Tooltip#DEFAULT_APPEAR_DELAY_TIME	Seconds	sge.utils.Seconds
+OpaqueSlot	com.kotcrab.vis.ui.widget.Tooltip#DEFAULT_FADE_TIME	Seconds	sge.utils.Seconds
+OpaqueSlot	com.kotcrab.vis.ui.widget.Tooltip#getAppearDelayTime	Seconds	sge.utils.Seconds
+OpaqueSlot	com.kotcrab.vis.ui.widget.Tooltip#getFadeTime	Seconds	sge.utils.Seconds
+OpaqueSlot	com.kotcrab.vis.ui.widget.Tooltip#setAppearDelayTime#appearDelayTime	Seconds	sge.utils.Seconds
+OpaqueSlot	com.kotcrab.vis.ui.widget.Tooltip#setFadeTime#fadeTime	Seconds	sge.utils.Seconds
+OpaqueSlot	com.kotcrab.vis.ui.widget.Tooltip$Builder#<init>(String,int)#textAlign	Align	sge.utils.Align
+OpaqueSlot	com.kotcrab.vis.ui.widget.VisDialog#key#keycode	Key	sge.Input.Key
+OpaqueSlot	com.kotcrab.vis.ui.widget.VisImage#<init>(Drawable,Scaling,int)#align	Align	sge.utils.Align
+OpaqueSlot	com.kotcrab.vis.ui.widget.VisLabel#<init>(CharSequence,int)#alignment	Align	sge.utils.Align
+OpaqueSlot	com.kotcrab.vis.ui.widget.VisTextArea$TextAreaListener#keyDown#keycode	Key	sge.Input.Key
+OpaqueSlot	com.kotcrab.vis.ui.widget.internal.SplitPaneCursorManager#touchDown#button	sge.Input.Button	sge.Input.Button
+ParamName	com.kotcrab.vis.ui.building.TableBuilder#<init>(int,int,Padding)#defaultWidgetPadding	widgetPadding	widgetPadding
+ParamName	com.kotcrab.vis.ui.building.utilities.CellWidget#<init>#cellWidgetBuilder	builder	builder
+ParamName	com.kotcrab.vis.ui.building.utilities.CellWidget$CellWidgetBuilder#<init>(CellWidget)#widget	cw	cw
+ParamName	com.kotcrab.vis.ui.layout.DragPane$DefaultDragListener#<init>(Policy)#policy	_policy	_policy
+ParamName	com.kotcrab.vis.ui.layout.FlowGroup#<init>(boolean)#vertical	_vertical	_vertical
+ParamName	com.kotcrab.vis.ui.layout.FlowGroup#<init>(boolean,float)#spacing	_spacing	_spacing
+ParamName	com.kotcrab.vis.ui.layout.FlowGroup#<init>(boolean,float)#vertical	_vertical	_vertical
+ParamName	com.kotcrab.vis.ui.util.NumberDigitsTextFieldFilter#<init>#acceptNegativeValues	_acceptNegativeValues	_acceptNegativeValues
+ParamName	com.kotcrab.vis.ui.util.Validators$GreaterThanValidator#<init>(float,boolean)#inputCanBeEqual	useEquals	useEquals
+ParamName	com.kotcrab.vis.ui.util.Validators$LesserThanValidator#<init>(float,boolean)#inputCanBeEqual	useEquals	useEquals
+ParamName	com.kotcrab.vis.ui.util.adapter.SimpleListAdapter#<init>(Array,SimpleListAdapterStyle)#style	simpleStyle	simpleStyle
+ParamName	com.kotcrab.vis.ui.util.dialog.Dialogs$OptionDialog#<init>#type	dialogType	dialogType
+ParamName	com.kotcrab.vis.ui.util.form.FormInputValidator#<init>#errorMsg	_errorMsg	_errorMsg
+ParamName	com.kotcrab.vis.ui.util.form.FormValidator$FileExistsValidator#<init>(VisTextField,String)#relativeTo	relativeToSource	relativeToSource
+ParamName	com.kotcrab.vis.ui.util.form.FormValidator$FileExistsValidator#<init>(VisTextField,String,boolean)#relativeTo	relativeToSource	relativeToSource
+ParamName	com.kotcrab.vis.ui.util.form.FormValidator$FileExistsValidator#<init>(VisTextField,String,boolean,boolean)#relativeTo	relativeToField	relativeToField
+ParamName	com.kotcrab.vis.ui.widget.ButtonBar#<init>(Sizes,String)#order	_order	_order
+ParamName	com.kotcrab.vis.ui.widget.Draggable#<init>(DragListener)#listener	_listener	_listener
+ParamName	com.kotcrab.vis.ui.widget.HighlightTextArea#<init>(String,VisTextFieldStyle)#style	visStyle	visStyle
+ParamName	com.kotcrab.vis.ui.widget.LinkLabel#<init>(CharSequence,CharSequence,LinkLabelStyle)#style	linkStyle	linkStyle
+ParamName	com.kotcrab.vis.ui.widget.LinkLabel#<init>(CharSequence,CharSequence,LinkLabelStyle)#url	_url	_url
+ParamName	com.kotcrab.vis.ui.widget.ListView#<init>(ListAdapter,ListViewStyle)#style	listViewStyle	listViewStyle
+ParamName	com.kotcrab.vis.ui.widget.Menu#<init>(String,MenuStyle)#style	menuStyle	menuStyle
+ParamName	com.kotcrab.vis.ui.widget.MenuItem#<init>(String,Drawable,MenuItemStyle)#style	menuItemStyle	menuItemStyle
+ParamName	com.kotcrab.vis.ui.widget.MenuItem#<init>(String,Image,MenuItemStyle)#image	initImage	initImage
+ParamName	com.kotcrab.vis.ui.widget.MenuItem#<init>(String,Image,MenuItemStyle)#style	initStyle	initStyle
+ParamName	com.kotcrab.vis.ui.widget.MultiSplitPane#<init>(boolean,MultiSplitPaneStyle)#style	initStyle	initStyle
+ParamName	com.kotcrab.vis.ui.widget.ScrollableTextArea#<init>(String,VisTextFieldStyle)#style	visStyle	visStyle
+ParamName	com.kotcrab.vis.ui.widget.Separator#<init>(SeparatorStyle)#style	_style	_style
+ParamName	com.kotcrab.vis.ui.widget.VisCheckBox#<init>(String,VisCheckBoxStyle)#style	checkStyle	checkStyle
+ParamName	com.kotcrab.vis.ui.widget.VisImage#<init>(Drawable)#drawable	d	d
+ParamName	com.kotcrab.vis.ui.widget.VisImage#<init>(Drawable,Scaling)#drawable	d	d
+ParamName	com.kotcrab.vis.ui.widget.VisImage#<init>(Drawable,Scaling)#scaling	s	s
+ParamName	com.kotcrab.vis.ui.widget.VisImage#<init>(Drawable,Scaling,int)#align	initialAlign	initialAlign
+ParamName	com.kotcrab.vis.ui.widget.VisImage#<init>(Drawable,Scaling,int)#drawable	initialDrawable	initialDrawable
+ParamName	com.kotcrab.vis.ui.widget.VisImage#<init>(Drawable,Scaling,int)#scaling	initialScaling	initialScaling
+ParamName	com.kotcrab.vis.ui.widget.VisImageButton#<init>(VisImageButtonStyle)#style	buttonStyle	buttonStyle
+ParamName	com.kotcrab.vis.ui.widget.VisImageTextButton#<init>(String,VisImageTextButtonStyle)#style	buttonStyle	buttonStyle
+ParamName	com.kotcrab.vis.ui.widget.VisLabel#<init>(CharSequence,LabelStyle)#style	labelStyle	labelStyle
+ParamName	com.kotcrab.vis.ui.widget.VisList#<init>(ListStyle)#style	listStyle	listStyle
+ParamName	com.kotcrab.vis.ui.widget.VisProgressBar#<init>(float,float,float,boolean,ProgressBarStyle)#style	progressBarStyle	progressBarStyle
+ParamName	com.kotcrab.vis.ui.widget.VisRadioButton#<init>(String,VisCheckBoxStyle)#style	checkStyle	checkStyle
+ParamName	com.kotcrab.vis.ui.widget.VisScrollPane#<init>(Actor,ScrollPaneStyle)#style	scrollPaneStyle	scrollPaneStyle
+ParamName	com.kotcrab.vis.ui.widget.VisScrollPane#<init>(Actor,ScrollPaneStyle)#widget	actor	actor
+ParamName	com.kotcrab.vis.ui.widget.VisSelectBox#<init>(SelectBoxStyle)#style	selectBoxStyle	selectBoxStyle
+ParamName	com.kotcrab.vis.ui.widget.VisSlider#<init>(float,float,float,boolean,SliderStyle)#style	sliderStyle	sliderStyle
+ParamName	com.kotcrab.vis.ui.widget.VisSplitPane#<init>(Actor,Actor,boolean,VisSplitPaneStyle)#style	initStyle	initStyle
+ParamName	com.kotcrab.vis.ui.widget.VisTextField#<init>(String,VisTextFieldStyle)#style	visStyle	visStyle
+ParamName	com.kotcrab.vis.ui.widget.VisTree#<init>(TreeStyle)#style	treeStyle	treeStyle
+ParamName	com.kotcrab.vis.ui.widget.VisWindow#<init>(String,WindowStyle)#style	windowStyle	windowStyle
+ParamName	com.kotcrab.vis.ui.widget.color.BasicColorPicker#<init>(ColorPickerWidgetStyle,ColorPickerListener,boolean)#listener	initListener	initListener
+ParamName	com.kotcrab.vis.ui.widget.color.BasicColorPicker#<init>(ColorPickerWidgetStyle,ColorPickerListener,boolean)#style	initStyle	initStyle
+ParamName	com.kotcrab.vis.ui.widget.color.ColorPicker#<init>(String,String,ColorPickerListener)#listener	initListener	initListener
+ParamName	com.kotcrab.vis.ui.widget.color.ExtendedColorPicker#<init>(ColorPickerWidgetStyle,ColorPickerListener)#listener	initListener	initListener
+ParamName	com.kotcrab.vis.ui.widget.color.ExtendedColorPicker#<init>(ColorPickerWidgetStyle,ColorPickerListener)#style	initStyle	initStyle
+ParamName	com.kotcrab.vis.ui.widget.file.FileTypeFilter#<init>(boolean)#allTypesAllowed	_allTypesAllowed	_allTypesAllowed
+ParamName	com.kotcrab.vis.ui.widget.spinner.AbstractSpinnerModel#<init>#allowRebind	_allowRebind	_allowRebind
+ParamName	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#<init>(BigDecimal,BigDecimal,BigDecimal,BigDecimal,int)#max	_max	_max
+ParamName	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#<init>(BigDecimal,BigDecimal,BigDecimal,BigDecimal,int)#min	_min	_min
+ParamName	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#<init>(BigDecimal,BigDecimal,BigDecimal,BigDecimal,int)#scale	_scale	_scale
+ParamName	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#<init>(BigDecimal,BigDecimal,BigDecimal,BigDecimal,int)#step	_step	_step
+ParamName	com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel#<init>(int,int,int,int)#max	_max	_max
+ParamName	com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel#<init>(int,int,int,int)#min	_min	_min
+ParamName	com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel#<init>(int,int,int,int)#step	_step	_step
+ParamName	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#<init>(float,float,float,float,int)#max	_max	_max
+ParamName	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#<init>(float,float,float,float,int)#min	_min	_min
+ParamName	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#<init>(float,float,float,float,int)#precision	_precision	_precision
+ParamName	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#<init>(float,float,float,float,int)#step	_step	_step
+ParamName	com.kotcrab.vis.ui.widget.spinner.Spinner#<init>(SpinnerStyle,Sizes,String,SpinnerModel)#model	_model	_model
+ParamName	com.kotcrab.vis.ui.widget.toast.Toast#<init>(ToastStyle,Table)#content	contentTable	contentTable
+Parenless	com.kotcrab.vis.ui.FocusManager#getFocusedWidget	def getFocusedWidget: Nullable[Focusable]	
+Parenless	com.kotcrab.vis.ui.Locales#getButtonBarBundle	def getButtonBarBundle: I18NBundle	
+Parenless	com.kotcrab.vis.ui.Locales#getColorPickerBundle	def getColorPickerBundle: I18NBundle	
+Parenless	com.kotcrab.vis.ui.Locales#getCommonBundle	def getCommonBundle: I18NBundle	
+Parenless	com.kotcrab.vis.ui.Locales#getDialogsBundle	def getDialogsBundle: I18NBundle	
+Parenless	com.kotcrab.vis.ui.Locales#getFileChooserBundle	def getFileChooserBundle: I18NBundle	
+Parenless	com.kotcrab.vis.ui.Locales#getTabbedPaneBundle	def getTabbedPaneBundle: I18NBundle	
+Parenless	com.kotcrab.vis.ui.Locales$CommonText#get	def get: String	
+Parenless	com.kotcrab.vis.ui.Locales$CommonText#getName	def name: String	
+Parenless	com.kotcrab.vis.ui.Locales$CommonText#toString	def toString: String	
+Parenless	com.kotcrab.vis.ui.VisUI#getDefaultTitleAlign	def getDefaultTitleAlign: Align	
+Parenless	com.kotcrab.vis.ui.VisUI#getSizes	def getSizes: Sizes	
+Parenless	com.kotcrab.vis.ui.VisUI#getSkin	def getSkin: Skin	
+Parenless	com.kotcrab.vis.ui.VisUI#isLoaded	def isLoaded: Boolean	
+Parenless	com.kotcrab.vis.ui.VisUI$SkinScale#getSizesName	def getSizesName: String	
+Parenless	com.kotcrab.vis.ui.VisUI$SkinScale#getSkinFile	def getSkinFile: FileHandle	
+Parenless	com.kotcrab.vis.ui.building.TableBuilder#getDefaultWidgetPadding	def getDefaultWidgetPadding: Padding	
+Parenless	com.kotcrab.vis.ui.building.TableBuilder#getRowSizes	def getRowSizes: DynamicArray[Int]	
+Parenless	com.kotcrab.vis.ui.building.TableBuilder#getWidgets	def getWidgets: DynamicArray[CellWidget[? <: Actor]]	
+Parenless	com.kotcrab.vis.ui.building.utilities.Alignment#isAlignedWithBottom	def isAlignedWithBottom: Boolean	
+Parenless	com.kotcrab.vis.ui.building.utilities.Alignment#isAlignedWithLeft	def isAlignedWithLeft: Boolean	
+Parenless	com.kotcrab.vis.ui.building.utilities.Alignment#isAlignedWithRight	def isAlignedWithRight: Boolean	
+Parenless	com.kotcrab.vis.ui.building.utilities.Alignment#isAlignedWithTop	def isAlignedWithTop: Boolean	
+Parenless	com.kotcrab.vis.ui.building.utilities.Alignment#isCentered	def isCentered: Boolean	
+Parenless	com.kotcrab.vis.ui.building.utilities.CellWidget#getWidget	def getWidget: $0	
+Parenless	com.kotcrab.vis.ui.i18n.BundleText#get	def get: String	
+Parenless	com.kotcrab.vis.ui.i18n.BundleText#getName	def name: String	
+Parenless	com.kotcrab.vis.ui.layout.DragPane#getChildren	def getChildren: DynamicArray[Actor]	
+Parenless	com.kotcrab.vis.ui.layout.DragPane#getDraggable	def getDraggable: Nullable[Draggable]	
+Parenless	com.kotcrab.vis.ui.layout.DragPane#getFloatingGroup	def getFloatingGroup: FloatingGroup	
+Parenless	com.kotcrab.vis.ui.layout.DragPane#getGridGroup	def getGridGroup: GridGroup	
+Parenless	com.kotcrab.vis.ui.layout.DragPane#getGroup	def getGroup: WidgetGroup	
+Parenless	com.kotcrab.vis.ui.layout.DragPane#getHorizontalFlowGroup	def getHorizontalFlowGroup: FlowGroup	
+Parenless	com.kotcrab.vis.ui.layout.DragPane#getHorizontalGroup	def getHorizontalGroup: HorizontalGroup	
+Parenless	com.kotcrab.vis.ui.layout.DragPane#getVerticalFlowGroup	def getVerticalFlowGroup: FlowGroup	
+Parenless	com.kotcrab.vis.ui.layout.DragPane#getVerticalGroup	def getVerticalGroup: VerticalGroup	
+Parenless	com.kotcrab.vis.ui.layout.DragPane#isFloating	def isFloating: Boolean	
+Parenless	com.kotcrab.vis.ui.layout.DragPane#isGrid	def isGrid: Boolean	
+Parenless	com.kotcrab.vis.ui.layout.DragPane#isHorizontal	def isHorizontal: Boolean	
+Parenless	com.kotcrab.vis.ui.layout.DragPane#isHorizontalFlow	def isHorizontalFlow: Boolean	
+Parenless	com.kotcrab.vis.ui.layout.DragPane#isVertical	def isVertical: Boolean	
+Parenless	com.kotcrab.vis.ui.layout.DragPane#isVerticalFlow	def isVerticalFlow: Boolean	
+Parenless	com.kotcrab.vis.ui.layout.FloatingGroup#getPrefHeight	def prefHeight: Float	
+Parenless	com.kotcrab.vis.ui.layout.FloatingGroup#getPrefWidth	def prefWidth: Float	
+Parenless	com.kotcrab.vis.ui.layout.FloatingGroup#isUseChildrenPreferredSize	def useChildrenPreferredSize: Boolean	
+Parenless	com.kotcrab.vis.ui.layout.FlowGroup#getMinHeight	def minHeight: Float	
+Parenless	com.kotcrab.vis.ui.layout.FlowGroup#getMinWidth	def minWidth: Float	
+Parenless	com.kotcrab.vis.ui.layout.FlowGroup#getPrefHeight	def prefHeight: Float	
+Parenless	com.kotcrab.vis.ui.layout.FlowGroup#getPrefWidth	def prefWidth: Float	
+Parenless	com.kotcrab.vis.ui.layout.FlowGroup#getSpacing	def spacing: Float	
+Parenless	com.kotcrab.vis.ui.layout.FlowGroup#isVertical	def vertical: Boolean	
+Parenless	com.kotcrab.vis.ui.layout.GridGroup#getItemHeight	def itemHeight: Float	
+Parenless	com.kotcrab.vis.ui.layout.GridGroup#getItemWidth	def itemWidth: Float	
+Parenless	com.kotcrab.vis.ui.layout.GridGroup#getPrefHeight	def prefHeight: Float	
+Parenless	com.kotcrab.vis.ui.layout.GridGroup#getPrefWidth	def prefWidth: Float	
+Parenless	com.kotcrab.vis.ui.layout.GridGroup#getSpacing	def spacing: Float	
+Parenless	com.kotcrab.vis.ui.util.BorderOwner#isFocusBorderEnabled	def focusBorderEnabled: Boolean	
+Parenless	com.kotcrab.vis.ui.util.NumberDigitsTextFieldFilter#isAcceptNegativeValues	def acceptNegativeValues: Boolean	
+Parenless	com.kotcrab.vis.ui.util.NumberDigitsTextFieldFilter#isUseFieldCursorPosition	def useFieldCursorPosition: Boolean	
+Parenless	com.kotcrab.vis.ui.util.OsUtils#getAndroidApiLevel	def getAndroidApiLevel: Int	
+Parenless	com.kotcrab.vis.ui.util.OsUtils#isAndroid	def isAndroid: Boolean	
+Parenless	com.kotcrab.vis.ui.util.OsUtils#isIos	def isIos: Boolean	
+Parenless	com.kotcrab.vis.ui.util.OsUtils#isMac	def isMac: Boolean	
+Parenless	com.kotcrab.vis.ui.util.OsUtils#isUnix	def isUnix: Boolean	
+Parenless	com.kotcrab.vis.ui.util.OsUtils#isWindows	def isWindows: Boolean	
+Parenless	com.kotcrab.vis.ui.util.ToastManager#getAlignment	def getAlignment: Align	
+Parenless	com.kotcrab.vis.ui.util.ToastManager#getMessagePadding	def getMessagePadding: Int	
+Parenless	com.kotcrab.vis.ui.util.ToastManager#getScreenPaddingX	def getScreenPaddingX: Int	
+Parenless	com.kotcrab.vis.ui.util.ToastManager#getScreenPaddingY	def getScreenPaddingY: Int	
+Parenless	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#getItemsSorter	def getItemsSorter: Nullable[Comparator[$0]]	
+Parenless	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#getSelection	def getSelection: scala.collection.mutable.ArrayBuffer[$0]	
+Parenless	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#getSelectionManager	def getSelectionManager: AbstractListAdapter.ListSelection[$0, $1]	
+Parenless	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#getSelectionMode	def getSelectionMode: AbstractListAdapter.SelectionMode	
+Parenless	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter$ListSelection#getGroupMultiSelectKey	def getGroupMultiSelectKey: Int	
+Parenless	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter$ListSelection#getListener	def getListener: ListSelectionListener[$0, $1]	
+Parenless	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter$ListSelection#getMultiSelectKey	def getMultiSelectKey: Int	
+Parenless	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter$ListSelection#getSelection	def getSelection: scala.collection.mutable.ArrayBuffer[$0]	
+Parenless	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter$ListSelection#isProgrammaticChangeEvents	def isProgrammaticChangeEvents: Boolean	
+Parenless	com.kotcrab.vis.ui.util.adapter.ArrayAdapter#iterable	def iterable: Iterable[$0]	
+Parenless	com.kotcrab.vis.ui.util.adapter.ArrayAdapter#size	def size: Int	
+Parenless	com.kotcrab.vis.ui.util.adapter.ArrayListAdapter#iterable	def iterable: Iterable[$0]	
+Parenless	com.kotcrab.vis.ui.util.adapter.ArrayListAdapter#size	def size: Int	
+Parenless	com.kotcrab.vis.ui.util.adapter.CachedItemAdapter#getViews	def getViews: mutable.HashMap[$0, $1]	
+Parenless	com.kotcrab.vis.ui.util.adapter.ListAdapter#iterable	def iterable: Iterable[$0]	
+Parenless	com.kotcrab.vis.ui.util.adapter.ListAdapter#size	def size: Int	
+Parenless	com.kotcrab.vis.ui.util.async.AsyncTask#getStatus	def status: Status	
+Parenless	com.kotcrab.vis.ui.util.async.AsyncTaskProgressDialog#getStatus	def getStatus: AsyncTask.Status	
+Parenless	com.kotcrab.vis.ui.util.dialog.Dialogs$DetailsDialog#isCopyDetailsButtonVisible	def isCopyDetailsButtonVisible: Boolean	
+Parenless	com.kotcrab.vis.ui.util.dialog.Dialogs$DetailsDialog#isDetailsVisible	def isDetailsVisible: Boolean	
+Parenless	com.kotcrab.vis.ui.util.form.FormInputValidator#getErrorMsg	def getErrorMsg: String	
+Parenless	com.kotcrab.vis.ui.util.form.FormInputValidator#getLastResult	def getLastResult: Boolean	
+Parenless	com.kotcrab.vis.ui.util.form.FormInputValidator#isHideErrorOnEmptyInput	def isHideErrorOnEmptyInput: Boolean	
+Parenless	com.kotcrab.vis.ui.util.form.SimpleFormValidator#isTreatDisabledFieldsAsValid	def isTreatDisabledFieldsAsValid: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.BusyBar#getPrefHeight	def prefHeight: Float	
+Parenless	com.kotcrab.vis.ui.widget.BusyBar#getPrefWidth	def prefWidth: Float	
+Parenless	com.kotcrab.vis.ui.widget.BusyBar#getSegmentDeltaX	def segmentDeltaX: Float	
+Parenless	com.kotcrab.vis.ui.widget.ButtonBar#getOrder	def order: String	
+Parenless	com.kotcrab.vis.ui.widget.ButtonBar#isIgnoreSpacing	def ignoreSpacing: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.ButtonBar$ButtonType#getText	def text: String	
+Parenless	com.kotcrab.vis.ui.widget.ButtonBar$ButtonType#toString	def toString: String	
+Parenless	com.kotcrab.vis.ui.widget.CollapsibleWidget#getPrefHeight	def prefHeight: Float	
+Parenless	com.kotcrab.vis.ui.widget.CollapsibleWidget#getPrefWidth	def prefWidth: Float	
+Parenless	com.kotcrab.vis.ui.widget.CollapsibleWidget#isCollapsed	def collapsed: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.Draggable#getAlpha	def alpha: Float	
+Parenless	com.kotcrab.vis.ui.widget.Draggable#getDeadzoneRadius	def deadzoneRadius: Float	
+Parenless	com.kotcrab.vis.ui.widget.Draggable#getFadingTime	def getFadingTime: Float	
+Parenless	com.kotcrab.vis.ui.widget.Draggable#getListener	def listener: Nullable[Draggable.DragListener]	
+Parenless	com.kotcrab.vis.ui.widget.Draggable#getMovingTime	def getMovingTime: Float	
+Parenless	com.kotcrab.vis.ui.widget.Draggable#getOffsetX	def offsetX: Float	
+Parenless	com.kotcrab.vis.ui.widget.Draggable#getOffsetY	def offsetY: Float	
+Parenless	com.kotcrab.vis.ui.widget.Draggable#isBlockingInput	def isBlockingInput: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.Draggable#isDragged	def isDragged: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.Draggable#isInvisibleWhenDragged	def isInvisibleWhenDragged: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.Draggable#isKeptWithinParent	def isKeptWithinParent: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.HighlightTextArea#getHighlighter	def highlighter: Nullable[BaseHighlighter]	
+Parenless	com.kotcrab.vis.ui.widget.HighlightTextArea#getPrefHeight	def prefHeight: Float	
+Parenless	com.kotcrab.vis.ui.widget.HighlightTextArea#getPrefWidth	def prefWidth: Float	
+Parenless	com.kotcrab.vis.ui.widget.HorizontalCollapsibleWidget#getPrefHeight	def prefHeight: Float	
+Parenless	com.kotcrab.vis.ui.widget.HorizontalCollapsibleWidget#getPrefWidth	def prefWidth: Float	
+Parenless	com.kotcrab.vis.ui.widget.HorizontalCollapsibleWidget#isCollapsed	def collapsed: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.LinkLabel#getListener	def listener: Nullable[LinkLabel.LinkLabelListener]	
+Parenless	com.kotcrab.vis.ui.widget.LinkLabel#getUrl	def url: CharSequence	
+Parenless	com.kotcrab.vis.ui.widget.ListView#getAdapter	def getAdapter: ListAdapter[$0]	
+Parenless	com.kotcrab.vis.ui.widget.ListView#getClickListener	def getClickListener: Nullable[ListView.ItemClickListener[$0]]	
+Parenless	com.kotcrab.vis.ui.widget.ListView#getFooter	def footer: Nullable[Actor]	
+Parenless	com.kotcrab.vis.ui.widget.ListView#getHeader	def header: Nullable[Actor]	
+Parenless	com.kotcrab.vis.ui.widget.ListView#getMainTable	def getMainTable: ListView.ListViewTable[$0]	
+Parenless	com.kotcrab.vis.ui.widget.ListView#getScrollPane	def getScrollPane: VisScrollPane	
+Parenless	com.kotcrab.vis.ui.widget.ListView#getUpdatePolicy	def updatePolicy: ListView.UpdatePolicy	
+Parenless	com.kotcrab.vis.ui.widget.Menu#getOpenButton	def getOpenButton: TextButton	
+Parenless	com.kotcrab.vis.ui.widget.MenuBar#getCurrentMenu	def getCurrentMenu: Nullable[Menu]	
+Parenless	com.kotcrab.vis.ui.widget.MenuBar#getTable	def getTable: Table	
+Parenless	com.kotcrab.vis.ui.widget.MenuItem#getImage	def getImage: Nullable[Image]	
+Parenless	com.kotcrab.vis.ui.widget.MenuItem#getImageCell	def getImageCell: Cell[Image]	
+Parenless	com.kotcrab.vis.ui.widget.MenuItem#getLabel	def getLabel: Label	
+Parenless	com.kotcrab.vis.ui.widget.MenuItem#getLabelCell	def getLabelCell: Nullable[Cell[Label]]	
+Parenless	com.kotcrab.vis.ui.widget.MenuItem#getShortcut	def getShortcut: String	
+Parenless	com.kotcrab.vis.ui.widget.MenuItem#getShortcutCell	def getShortcutCell: Nullable[Cell[VisLabel]]	
+Parenless	com.kotcrab.vis.ui.widget.MenuItem#getStyle	def style: MenuItem.MenuItemStyle	
+Parenless	com.kotcrab.vis.ui.widget.MenuItem#getSubMenu	def subMenu: Nullable[PopupMenu]	
+Parenless	com.kotcrab.vis.ui.widget.MenuItem#getSubMenuIconCell	def getSubMenuIconCell: Cell[Image]	
+Parenless	com.kotcrab.vis.ui.widget.MenuItem#getText	def getText: String	
+Parenless	com.kotcrab.vis.ui.widget.MenuItem#isGenerateDisabledImage	def generateDisabledImage: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.MenuItem#isOver	def isOver: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.MultiSplitPane#getMinHeight	def minHeight: Float	
+Parenless	com.kotcrab.vis.ui.widget.MultiSplitPane#getMinWidth	def minWidth: Float	
+Parenless	com.kotcrab.vis.ui.widget.MultiSplitPane#getPrefHeight	def prefHeight: Float	
+Parenless	com.kotcrab.vis.ui.widget.MultiSplitPane#getPrefWidth	def prefWidth: Float	
+Parenless	com.kotcrab.vis.ui.widget.MultiSplitPane#getStyle	def getStyle: MultiSplitPane.MultiSplitPaneStyle	
+Parenless	com.kotcrab.vis.ui.widget.PopupMenu#getActiveItem	def getActiveItem: Nullable[MenuItem]	
+Parenless	com.kotcrab.vis.ui.widget.PopupMenu#getActiveSubMenu	def getActiveSubMenu: Nullable[PopupMenu]	
+Parenless	com.kotcrab.vis.ui.widget.PopupMenu#getDefaultInputListener()	def getDefaultInputListener: InputListener	
+Parenless	com.kotcrab.vis.ui.widget.ScrollableTextArea#getPrefHeight	def prefHeight: Float	
+Parenless	com.kotcrab.vis.ui.widget.Separator#getPrefHeight	def prefHeight: Float	
+Parenless	com.kotcrab.vis.ui.widget.Separator#getPrefWidth	def prefWidth: Float	
+Parenless	com.kotcrab.vis.ui.widget.Separator#getStyle	def style: SeparatorStyle	
+Parenless	com.kotcrab.vis.ui.widget.Tooltip#getAppearDelayTime	def appearDelayTime: Seconds	
+Parenless	com.kotcrab.vis.ui.widget.Tooltip#getContent	def content: Nullable[Actor]	
+Parenless	com.kotcrab.vis.ui.widget.Tooltip#getContentCell	def contentCell: Cell[Actor]	
+Parenless	com.kotcrab.vis.ui.widget.Tooltip#getFadeTime	def fadeTime: Seconds	
+Parenless	com.kotcrab.vis.ui.widget.Tooltip#getTarget	def target: Nullable[Actor]	
+Parenless	com.kotcrab.vis.ui.widget.Tooltip#isMouseMoveFadeOut	def mouseMoveFadeOut: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.VisCheckBox#getBackgroundImage	def backgroundImage: Image	
+Parenless	com.kotcrab.vis.ui.widget.VisCheckBox#getCheckboxBgImage	def getCheckboxBgImage: Nullable[Drawable]	
+Parenless	com.kotcrab.vis.ui.widget.VisCheckBox#getCheckboxTickImage	def getCheckboxTickImage: Nullable[Drawable]	
+Parenless	com.kotcrab.vis.ui.widget.VisCheckBox#getImageStack	def getImageStack: Stack	
+Parenless	com.kotcrab.vis.ui.widget.VisCheckBox#getImageStackCell	def imageStackCell: Cell[Stack]	
+Parenless	com.kotcrab.vis.ui.widget.VisCheckBox#isFocusBorderEnabled	def focusBorderEnabled: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.VisDialog#getButtonsTable	def getButtonsTable: Table	
+Parenless	com.kotcrab.vis.ui.widget.VisDialog#getContentTable	def getContentTable: Table	
+Parenless	com.kotcrab.vis.ui.widget.VisImageButton#getImage	def image: Image	
+Parenless	com.kotcrab.vis.ui.widget.VisImageButton#getImageCell	def imageCell: Nullable[Cell[Image]]	
+Parenless	com.kotcrab.vis.ui.widget.VisImageButton#isFocusBorderEnabled	def focusBorderEnabled: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.VisImageButton#isGenerateDisabledImage	def isGenerateDisabledImage: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.VisImageTextButton#getImage	def image: Image	
+Parenless	com.kotcrab.vis.ui.widget.VisImageTextButton#getImageCell	def imageCell: Nullable[Cell[Image]]	
+Parenless	com.kotcrab.vis.ui.widget.VisImageTextButton#getLabel	def label: Label	
+Parenless	com.kotcrab.vis.ui.widget.VisImageTextButton#getLabelCell	def labelCell: Nullable[Cell[Label]]	
+Parenless	com.kotcrab.vis.ui.widget.VisImageTextButton#getOrientation	def orientation: VisImageTextButton.Orientation	
+Parenless	com.kotcrab.vis.ui.widget.VisImageTextButton#getText	def getText: String	
+Parenless	com.kotcrab.vis.ui.widget.VisImageTextButton#isFocusBorderEnabled	def focusBorderEnabled: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.VisImageTextButton#isGenerateDisabledImage	def isGenerateDisabledImage: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.VisImageTextButton#toString	def toString: String	
+Parenless	com.kotcrab.vis.ui.widget.VisSplitPane#getFirstWidgetBounds	def getFirstWidgetBounds: Rectangle	
+Parenless	com.kotcrab.vis.ui.widget.VisSplitPane#getMinHeight	def minHeight: Float	
+Parenless	com.kotcrab.vis.ui.widget.VisSplitPane#getMinWidth	def minWidth: Float	
+Parenless	com.kotcrab.vis.ui.widget.VisSplitPane#getPrefHeight	def prefHeight: Float	
+Parenless	com.kotcrab.vis.ui.widget.VisSplitPane#getPrefWidth	def prefWidth: Float	
+Parenless	com.kotcrab.vis.ui.widget.VisSplitPane#getSecondWidgetBounds	def getSecondWidgetBounds: Rectangle	
+Parenless	com.kotcrab.vis.ui.widget.VisSplitPane#getSplit	def getSplit: Float	
+Parenless	com.kotcrab.vis.ui.widget.VisTextArea#getCursorX	def cursorX: Float	
+Parenless	com.kotcrab.vis.ui.widget.VisTextArea#getCursorY	def cursorY: Float	
+Parenless	com.kotcrab.vis.ui.widget.VisTextArea#getLines	def lines: Int	
+Parenless	com.kotcrab.vis.ui.widget.VisTextArea#getPrefHeight	def prefHeight: Float	
+Parenless	com.kotcrab.vis.ui.widget.VisTextButton#isFocusBorderEnabled	def focusBorderEnabled: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.VisTextField#isEmpty	def isEmpty: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.VisTextField#isFocusBorderEnabled	def focusBorderEnabled: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.VisTextField#isIgnoreEqualsTextChange	def isIgnoreEqualsTextChange: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.VisTextField#isInputValid	def isInputValid: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.VisTextField#isReadOnly	def isReadOnly: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.VisTextField#toString	def toString: String	
+Parenless	com.kotcrab.vis.ui.widget.VisValidatableTextField#getValidators	def getValidators: ArrayBuffer[InputValidator]	
+Parenless	com.kotcrab.vis.ui.widget.VisValidatableTextField#isRestoreLastValid	def restoreLastValid: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.VisValidatableTextField#isValidationEnabled	def isValidationEnabled: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.VisWindow#isKeepWithinParent	def isKeepWithinParent: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.color.BasicColorPicker#getListener	def getListener: Nullable[ColorPickerListener]	
+Parenless	com.kotcrab.vis.ui.widget.color.BasicColorPicker#isAllowAlphaEdit	def allowAlphaEdit: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.color.BasicColorPicker#isDisposed	def isDisposed: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.color.BasicColorPicker#isShowColorPreviews	def showColorPreviews: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.color.BasicColorPicker#isShowHexFields	def showHexFields: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.color.ColorPicker#getListener	def getListener: Nullable[ColorPickerListener]	
+Parenless	com.kotcrab.vis.ui.widget.color.ColorPicker#getPicker	def getPicker: ExtendedColorPicker	
+Parenless	com.kotcrab.vis.ui.widget.color.ColorPicker#isAllowAlphaEdit	def allowAlphaEdit: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.color.ColorPicker#isDisposed	def isDisposed: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.color.ColorPicker#isShowHexFields	def showHexFields: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.color.internal.ChannelBar#getValue	def getValue: Int	
+Parenless	com.kotcrab.vis.ui.widget.color.internal.ColorChannelWidget#getBar	def getBar: ChannelBar	
+Parenless	com.kotcrab.vis.ui.widget.color.internal.ColorChannelWidget#getValue	def getValue: Int	
+Parenless	com.kotcrab.vis.ui.widget.color.internal.ColorChannelWidget#isInputValid	def isInputValid: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.color.internal.ColorInputField#getValue	def getValue: Int	
+Parenless	com.kotcrab.vis.ui.widget.color.internal.ColorPickerText#get	def get: String	
+Parenless	com.kotcrab.vis.ui.widget.color.internal.ColorPickerText#getName	def name: String	
+Parenless	com.kotcrab.vis.ui.widget.color.internal.ColorPickerText#toString	def toString: String	
+Parenless	com.kotcrab.vis.ui.widget.color.internal.Palette#getS	def getS: Int	
+Parenless	com.kotcrab.vis.ui.widget.color.internal.Palette#getV	def getV: Int	
+Parenless	com.kotcrab.vis.ui.widget.color.internal.VerticalChannelBar#getValue	def getValue: Int	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser#getActiveFileTypeFilterRule	def getActiveFileTypeFilterRule: FileTypeFilter.Rule	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser#getChooserStyle	def getChooserStyle: FileChooserStyle	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser#getCurrentDirectory	def getCurrentDirectory: FileHandle	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser#getFileFilter	def getFileFilter: FileFilter	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser#getGroupMultiSelectKey	def getGroupMultiSelectKey: Int	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser#getIconProvider	def getIconProvider: FileIconProvider	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser#getMode	def getMode: Mode	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser#getMultiSelectKey	def getMultiSelectKey: Int	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser#getSelectionMode	def getSelectionMode: SelectionMode	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser#getSizes	def getSizes: Sizes	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser#getSorting	def getSorting: FileSorting	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser#getViewMode	def getViewMode: ViewMode	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser#isFavoriteFolderButtonVisible	def isFavoriteFolderButtonVisible: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser#isMultiSelectionEnabled	def isMultiSelectionEnabled: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser#isSaveLastDirectory	def isSaveLastDirectory: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser#isShowSelectionCheckboxes	def isShowSelectionCheckboxes: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser#isSortingOrderAscending	def isSortingOrderAscending: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser#isViewModeButtonVisible	def isViewModeButtonVisible: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileDeleter#hasTrash	def hasTrash: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileFilter#isIgnoreChooserSelectionMode	def isIgnoreChooserSelectionMode: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#isThumbnailModesSupported	def isThumbnailModesSupported: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser$FileDeleter#hasTrash	def hasTrash: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser$FileIconProvider#isThumbnailModesSupported	def isThumbnailModesSupported: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser$FileItem#getFile	def getFile: FileHandle	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser$FileItem#isDirectory	def isDirectory: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser$ViewMode#getBundleText	def getBundleText: String	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser$ViewMode#isGridMode	def isGridMode: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.file.FileChooser$ViewMode#isThumbnailMode	def isThumbnailMode: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.file.FileTypeFilter#getRules	def getRules: DynamicArray[FileTypeFilter.Rule]	
+Parenless	com.kotcrab.vis.ui.widget.file.FileTypeFilter#isAllTypesAllowed	def allTypesAllowed: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.file.FileTypeFilter$Rule#getDescription	def getDescription: String	
+Parenless	com.kotcrab.vis.ui.widget.file.FileTypeFilter$Rule#getExtensions	def getExtensions: DynamicArray[String]	
+Parenless	com.kotcrab.vis.ui.widget.file.FileTypeFilter$Rule#toString	def toString: String	
+Parenless	com.kotcrab.vis.ui.widget.file.internal.DriveCheckerService#getInstance	def getInstance: DriveCheckerService	
+Parenless	com.kotcrab.vis.ui.widget.file.internal.FileChooserText#get	def get: String	
+Parenless	com.kotcrab.vis.ui.widget.file.internal.FileChooserText#getName	def name: String	
+Parenless	com.kotcrab.vis.ui.widget.file.internal.FileChooserText#toString	def toString: String	
+Parenless	com.kotcrab.vis.ui.widget.file.internal.FileChooserWinService#getInstance	def getInstance: Nullable[FileChooserWinService]	
+Parenless	com.kotcrab.vis.ui.widget.file.internal.FileHistoryManager#getButtonsTable	def getButtonsTable: VisTable	
+Parenless	com.kotcrab.vis.ui.widget.file.internal.FileHistoryManager#getDefaultClickListener	def getDefaultClickListener: ClickListener	
+Parenless	com.kotcrab.vis.ui.widget.file.internal.FileHistoryManager$FileHistoryCallback#getCurrentDirectory	def getCurrentDirectory: FileHandle	
+Parenless	com.kotcrab.vis.ui.widget.file.internal.FileHistoryManager$FileHistoryCallback#getStage	def getHistoryStage: Stage	
+Parenless	com.kotcrab.vis.ui.widget.file.internal.FileListAdapter#getOrderedViews	def getOrderedViews: DynamicArray[FileChooser#FileItem]	
+Parenless	com.kotcrab.vis.ui.widget.file.internal.FileListAdapter#getViews	def getViews: mutable.HashMap[FileHandle, FileChooser#FileItem]	
+Parenless	com.kotcrab.vis.ui.widget.file.internal.FilePopupMenu#isAddedToStage	def isAddedToStage: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.file.internal.IconStack#getMaxHeight	def maxHeight: Float	
+Parenless	com.kotcrab.vis.ui.widget.file.internal.IconStack#getMaxWidth	def maxWidth: Float	
+Parenless	com.kotcrab.vis.ui.widget.file.internal.IconStack#getMinHeight	def minHeight: Float	
+Parenless	com.kotcrab.vis.ui.widget.file.internal.IconStack#getMinWidth	def minWidth: Float	
+Parenless	com.kotcrab.vis.ui.widget.file.internal.IconStack#getPrefHeight	def prefHeight: Float	
+Parenless	com.kotcrab.vis.ui.widget.file.internal.IconStack#getPrefWidth	def prefWidth: Float	
+Parenless	com.kotcrab.vis.ui.widget.spinner.AbstractSpinnerModel#isAllowRebind	def allowRebind: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.spinner.AbstractSpinnerModel#isWrap	def wrap: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.spinner.ArraySpinnerModel#getCurrent	def getCurrent: Nullable[$0]	
+Parenless	com.kotcrab.vis.ui.widget.spinner.ArraySpinnerModel#getCurrentIndex	def getCurrentIndex: Int	
+Parenless	com.kotcrab.vis.ui.widget.spinner.ArraySpinnerModel#getItems	def getItems: ArrayBuffer[$0]	
+Parenless	com.kotcrab.vis.ui.widget.spinner.ArraySpinnerModel#getText	def text: String	
+Parenless	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#getMax	def max: BigDecimal	
+Parenless	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#getMin	def min: BigDecimal	
+Parenless	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#getScale	def scale: Int	
+Parenless	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#getStep	def step: BigDecimal	
+Parenless	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#getText	def text: String	
+Parenless	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#getValue	def value: BigDecimal	
+Parenless	com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel#getMax	def max: Int	
+Parenless	com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel#getMin	def min: Int	
+Parenless	com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel#getStep	def step: Int	
+Parenless	com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel#getText	def text: String	
+Parenless	com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel#getValue	def value: Int	
+Parenless	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#getMax	def max: Float	
+Parenless	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#getMin	def min: Float	
+Parenless	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#getPrecision	def precision: Int	
+Parenless	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#getStep	def step: Float	
+Parenless	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#getText	def text: String	
+Parenless	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#getValue	def value: Float	
+Parenless	com.kotcrab.vis.ui.widget.spinner.Spinner#getMaxLength	def maxLength: Int	
+Parenless	com.kotcrab.vis.ui.widget.spinner.Spinner#getModel	def model: SpinnerModel	
+Parenless	com.kotcrab.vis.ui.widget.spinner.Spinner#getSelectorName	def selectorName: String	
+Parenless	com.kotcrab.vis.ui.widget.spinner.Spinner#getTextField	def textField: VisValidatableTextField	
+Parenless	com.kotcrab.vis.ui.widget.spinner.Spinner#getTextFieldEventPolicy	def textFieldEventPolicy: Spinner.TextFieldEventPolicy	
+Parenless	com.kotcrab.vis.ui.widget.spinner.Spinner#isDisabled	def disabled: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.spinner.Spinner#isProgrammaticChangeEvents	def programmaticChangeEvents: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.spinner.SpinnerModel#getText	def text: String	
+Parenless	com.kotcrab.vis.ui.widget.spinner.SpinnerModel#isWrap	def wrap: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.tabbedpane.Tab#getContentTable	def contentTable: Table	
+Parenless	com.kotcrab.vis.ui.widget.tabbedpane.Tab#getPane	def pane: Nullable[TabbedPane]	
+Parenless	com.kotcrab.vis.ui.widget.tabbedpane.Tab#getTabTitle	def tabTitle: String	
+Parenless	com.kotcrab.vis.ui.widget.tabbedpane.Tab#isActiveTab	def isActiveTab: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.tabbedpane.Tab#isDirty	def dirty: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane#getActiveTab	def activeTab: Nullable[Tab]	
+Parenless	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane#getTable	def table: TabbedPane.TabbedPaneTable	
+Parenless	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane#getTabs	def getTabs: ArrayBuffer[Tab]	
+Parenless	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane#getTabsPane	def getTabsPane: DragPane	
+Parenless	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane#getUIOrderedTabs	def getUIOrderedTabs: ArrayBuffer[Tab]	
+Parenless	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane#isAllowTabDeselect	def allowTabDeselect: Boolean	
+Parenless	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane$TabbedPaneTable#getSeparatorCell	def separatorCell: Nullable[Cell[Image]]	
+Parenless	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane$TabbedPaneTable#getTabsPaneCell	def tabsPaneCell: Cell[DragPane]	
+Parenless	com.kotcrab.vis.ui.widget.toast.Toast#getMainTable	def mainTable: Table	
+Parenless	com.kotcrab.vis.ui.widget.toast.Toast#getToastManager	def toastManager: Nullable[ToastManager]	
+Parenless	com.kotcrab.vis.ui.widget.toast.ToastTable#getToast	def getToast: Nullable[Toast]	
+Property	com.kotcrab.vis.ui.Locales$CommonText#getName	var name	name
+Property	com.kotcrab.vis.ui.building.utilities.Alignment#getAlignment	var alignment	alignment
+Property	com.kotcrab.vis.ui.building.utilities.Padding#getBottom	var bottom	bottom
+Property	com.kotcrab.vis.ui.building.utilities.Padding#getLeft	var left	left
+Property	com.kotcrab.vis.ui.building.utilities.Padding#getRight	var right	right
+Property	com.kotcrab.vis.ui.building.utilities.Padding#getTop	var top	top
+Property	com.kotcrab.vis.ui.i18n.BundleText#getName	var name	name
+Property	com.kotcrab.vis.ui.layout.FloatingGroup#getPrefHeight	var prefHeight	prefHeight
+Property	com.kotcrab.vis.ui.layout.FloatingGroup#getPrefWidth	var prefWidth	prefWidth
+Property	com.kotcrab.vis.ui.layout.FloatingGroup#isUseChildrenPreferredSize	var useChildrenPreferredSize	useChildrenPreferredSize
+Property	com.kotcrab.vis.ui.layout.FlowGroup#getMinHeight	var minHeight	minHeight
+Property	com.kotcrab.vis.ui.layout.FlowGroup#getMinWidth	var minWidth	minWidth
+Property	com.kotcrab.vis.ui.layout.FlowGroup#getPrefHeight	var prefHeight	prefHeight
+Property	com.kotcrab.vis.ui.layout.FlowGroup#getPrefWidth	var prefWidth	prefWidth
+Property	com.kotcrab.vis.ui.layout.FlowGroup#getSpacing	var spacing	spacing
+Property	com.kotcrab.vis.ui.layout.FlowGroup#isVertical	var vertical	vertical
+Property	com.kotcrab.vis.ui.layout.GridGroup#getItemHeight	var itemHeight	itemHeight
+Property	com.kotcrab.vis.ui.layout.GridGroup#getItemWidth	var itemWidth	itemWidth
+Property	com.kotcrab.vis.ui.layout.GridGroup#getPrefHeight	var prefHeight	prefHeight
+Property	com.kotcrab.vis.ui.layout.GridGroup#getPrefWidth	var prefWidth	prefWidth
+Property	com.kotcrab.vis.ui.layout.GridGroup#getSpacing	var spacing	spacing
+Property	com.kotcrab.vis.ui.util.BorderOwner#isFocusBorderEnabled	var focusBorderEnabled	focusBorderEnabled
+Property	com.kotcrab.vis.ui.util.NumberDigitsTextFieldFilter#isAcceptNegativeValues	var acceptNegativeValues	acceptNegativeValues
+Property	com.kotcrab.vis.ui.util.NumberDigitsTextFieldFilter#isUseFieldCursorPosition	var useFieldCursorPosition	useFieldCursorPosition
+Property	com.kotcrab.vis.ui.util.async.AsyncTask#getStatus	var status	status
+Property	com.kotcrab.vis.ui.util.async.AsyncTask#getThreadName	var threadName	threadName
+Property	com.kotcrab.vis.ui.util.async.AsyncTaskProgressDialog#getTask	var task	task
+Property	com.kotcrab.vis.ui.util.form.FormValidator$DirectoryContentValidator#isMustBeEmpty	(var mustBeEmpty)	mustBeEmpty
+Property	com.kotcrab.vis.ui.util.highlight.Highlight#getColor	var color	color
+Property	com.kotcrab.vis.ui.util.highlight.Highlight#getEnd	var end	end
+Property	com.kotcrab.vis.ui.util.highlight.Highlight#getStart	var start	start
+Property	com.kotcrab.vis.ui.widget.BusyBar#getPrefHeight	var prefHeight	prefHeight
+Property	com.kotcrab.vis.ui.widget.BusyBar#getPrefWidth	var prefWidth	prefWidth
+Property	com.kotcrab.vis.ui.widget.BusyBar#getSegmentDeltaX	var segmentDeltaX	segmentDeltaX
+Property	com.kotcrab.vis.ui.widget.BusyBar#getStyle	var style	style
+Property	com.kotcrab.vis.ui.widget.ButtonBar#getOrder	var order	order
+Property	com.kotcrab.vis.ui.widget.ButtonBar#isIgnoreSpacing	var ignoreSpacing	ignoreSpacing
+Property	com.kotcrab.vis.ui.widget.ButtonBar$ButtonType#getId	var id	id
+Property	com.kotcrab.vis.ui.widget.ButtonBar$ButtonType#getText	var text	text
+Property	com.kotcrab.vis.ui.widget.CollapsibleWidget#getPrefHeight	var prefHeight	prefHeight
+Property	com.kotcrab.vis.ui.widget.CollapsibleWidget#getPrefWidth	var prefWidth	prefWidth
+Property	com.kotcrab.vis.ui.widget.CollapsibleWidget#isCollapsed	var collapsed	collapsed
+Property	com.kotcrab.vis.ui.widget.Draggable#getAlpha	var alpha	alpha
+Property	com.kotcrab.vis.ui.widget.Draggable#getDeadzoneRadius	var deadzoneRadius	deadzoneRadius
+Property	com.kotcrab.vis.ui.widget.Draggable#getListener	var listener	listener
+Property	com.kotcrab.vis.ui.widget.Draggable#getOffsetX	var offsetX	offsetX
+Property	com.kotcrab.vis.ui.widget.Draggable#getOffsetY	var offsetY	offsetY
+Property	com.kotcrab.vis.ui.widget.Draggable$MimicActor#getActor	var actor	actor
+Property	com.kotcrab.vis.ui.widget.HighlightTextArea#getHighlighter	var highlighter	highlighter
+Property	com.kotcrab.vis.ui.widget.HighlightTextArea#getPrefHeight	var prefHeight	prefHeight
+Property	com.kotcrab.vis.ui.widget.HighlightTextArea#getPrefWidth	var prefWidth	prefWidth
+Property	com.kotcrab.vis.ui.widget.HorizontalCollapsibleWidget#getPrefHeight	var prefHeight	prefHeight
+Property	com.kotcrab.vis.ui.widget.HorizontalCollapsibleWidget#getPrefWidth	var prefWidth	prefWidth
+Property	com.kotcrab.vis.ui.widget.HorizontalCollapsibleWidget#isCollapsed	var collapsed	collapsed
+Property	com.kotcrab.vis.ui.widget.LinkLabel#getListener	var listener	listener
+Property	com.kotcrab.vis.ui.widget.LinkLabel#getUrl	var url	url
+Property	com.kotcrab.vis.ui.widget.ListView#getFooter	var footer	footer
+Property	com.kotcrab.vis.ui.widget.ListView#getHeader	var header	header
+Property	com.kotcrab.vis.ui.widget.ListView#getUpdatePolicy	var updatePolicy	updatePolicy
+Property	com.kotcrab.vis.ui.widget.ListView$ListViewTable#getListView	var listView	listView
+Property	com.kotcrab.vis.ui.widget.Menu#getTitle	var title	title
+Property	com.kotcrab.vis.ui.widget.MenuItem#getStyle	var style	style
+Property	com.kotcrab.vis.ui.widget.MenuItem#getSubMenu	var subMenu	subMenu
+Property	com.kotcrab.vis.ui.widget.MenuItem#isGenerateDisabledImage	var generateDisabledImage	generateDisabledImage
+Property	com.kotcrab.vis.ui.widget.MultiSplitPane#getMinHeight	var minHeight	minHeight
+Property	com.kotcrab.vis.ui.widget.MultiSplitPane#getMinWidth	var minWidth	minWidth
+Property	com.kotcrab.vis.ui.widget.MultiSplitPane#getPrefHeight	var prefHeight	prefHeight
+Property	com.kotcrab.vis.ui.widget.MultiSplitPane#getPrefWidth	var prefWidth	prefWidth
+Property	com.kotcrab.vis.ui.widget.ScrollableTextArea#getPrefHeight	var prefHeight	prefHeight
+Property	com.kotcrab.vis.ui.widget.Separator#getPrefHeight	var prefHeight	prefHeight
+Property	com.kotcrab.vis.ui.widget.Separator#getPrefWidth	var prefWidth	prefWidth
+Property	com.kotcrab.vis.ui.widget.Separator#getStyle	var style	style
+Property	com.kotcrab.vis.ui.widget.Tooltip#getAppearDelayTime	var appearDelayTime	appearDelayTime
+Property	com.kotcrab.vis.ui.widget.Tooltip#getContent	var content	content
+Property	com.kotcrab.vis.ui.widget.Tooltip#getContentCell	var contentCell	contentCell
+Property	com.kotcrab.vis.ui.widget.Tooltip#getFadeTime	var fadeTime	fadeTime
+Property	com.kotcrab.vis.ui.widget.Tooltip#getTarget	var target	target
+Property	com.kotcrab.vis.ui.widget.Tooltip#isMouseMoveFadeOut	var mouseMoveFadeOut	mouseMoveFadeOut
+Property	com.kotcrab.vis.ui.widget.VisCheckBox#getBackgroundImage	var backgroundImage	backgroundImage
+Property	com.kotcrab.vis.ui.widget.VisCheckBox#getImageStackCell	var imageStackCell	imageStackCell
+Property	com.kotcrab.vis.ui.widget.VisCheckBox#isFocusBorderEnabled	var focusBorderEnabled	focusBorderEnabled
+Property	com.kotcrab.vis.ui.widget.VisImageButton#getImage	var image	image
+Property	com.kotcrab.vis.ui.widget.VisImageButton#getImageCell	var imageCell	imageCell
+Property	com.kotcrab.vis.ui.widget.VisImageButton#isFocusBorderEnabled	var focusBorderEnabled	focusBorderEnabled
+Property	com.kotcrab.vis.ui.widget.VisImageTextButton#getImage	var image	image
+Property	com.kotcrab.vis.ui.widget.VisImageTextButton#getImageCell	var imageCell	imageCell
+Property	com.kotcrab.vis.ui.widget.VisImageTextButton#getLabel	var label	label
+Property	com.kotcrab.vis.ui.widget.VisImageTextButton#getLabelCell	var labelCell	labelCell
+Property	com.kotcrab.vis.ui.widget.VisImageTextButton#getOrientation	var orientation	orientation
+Property	com.kotcrab.vis.ui.widget.VisImageTextButton#isFocusBorderEnabled	var focusBorderEnabled	focusBorderEnabled
+Property	com.kotcrab.vis.ui.widget.VisSplitPane#getMinHeight	var minHeight	minHeight
+Property	com.kotcrab.vis.ui.widget.VisSplitPane#getMinWidth	var minWidth	minWidth
+Property	com.kotcrab.vis.ui.widget.VisSplitPane#getPrefHeight	var prefHeight	prefHeight
+Property	com.kotcrab.vis.ui.widget.VisSplitPane#getPrefWidth	var prefWidth	prefWidth
+Property	com.kotcrab.vis.ui.widget.VisSplitPane#getStyle	var style	style
+Property	com.kotcrab.vis.ui.widget.VisTextArea#getCursorLine	var cursorLine	cursorLine
+Property	com.kotcrab.vis.ui.widget.VisTextArea#getCursorX	var cursorX	cursorX
+Property	com.kotcrab.vis.ui.widget.VisTextArea#getCursorY	var cursorY	cursorY
+Property	com.kotcrab.vis.ui.widget.VisTextArea#getFirstLineShowing	var firstLineShowing	firstLineShowing
+Property	com.kotcrab.vis.ui.widget.VisTextArea#getLines	var lines	lines
+Property	com.kotcrab.vis.ui.widget.VisTextArea#getLinesShowing	var linesShowing	linesShowing
+Property	com.kotcrab.vis.ui.widget.VisTextArea#getPrefHeight	var prefHeight	prefHeight
+Property	com.kotcrab.vis.ui.widget.VisTextButton#isFocusBorderEnabled	var focusBorderEnabled	focusBorderEnabled
+Property	com.kotcrab.vis.ui.widget.VisTextField#isFocusBorderEnabled	var focusBorderEnabled	focusBorderEnabled
+Property	com.kotcrab.vis.ui.widget.VisValidatableTextField#isRestoreLastValid	var restoreLastValid	restoreLastValid
+Property	com.kotcrab.vis.ui.widget.color.BasicColorPicker#isAllowAlphaEdit	var allowAlphaEdit	allowAlphaEdit
+Property	com.kotcrab.vis.ui.widget.color.BasicColorPicker#isShowColorPreviews	var showColorPreviews	showColorPreviews
+Property	com.kotcrab.vis.ui.widget.color.BasicColorPicker#isShowHexFields	var showHexFields	showHexFields
+Property	com.kotcrab.vis.ui.widget.color.ColorPicker#isAllowAlphaEdit	var allowAlphaEdit	allowAlphaEdit
+Property	com.kotcrab.vis.ui.widget.color.ColorPicker#isShowHexFields	var showHexFields	showHexFields
+Property	com.kotcrab.vis.ui.widget.color.internal.ColorPickerText#getName	var name	name
+Property	com.kotcrab.vis.ui.widget.file.FileTypeFilter#isAllTypesAllowed	var allTypesAllowed	allTypesAllowed
+Property	com.kotcrab.vis.ui.widget.file.internal.FileChooserText#getName	var name	name
+Property	com.kotcrab.vis.ui.widget.file.internal.IconStack#getMaxHeight	var maxHeight	maxHeight
+Property	com.kotcrab.vis.ui.widget.file.internal.IconStack#getMaxWidth	var maxWidth	maxWidth
+Property	com.kotcrab.vis.ui.widget.file.internal.IconStack#getMinHeight	var minHeight	minHeight
+Property	com.kotcrab.vis.ui.widget.file.internal.IconStack#getMinWidth	var minWidth	minWidth
+Property	com.kotcrab.vis.ui.widget.file.internal.IconStack#getPrefHeight	var prefHeight	prefHeight
+Property	com.kotcrab.vis.ui.widget.file.internal.IconStack#getPrefWidth	var prefWidth	prefWidth
+Property	com.kotcrab.vis.ui.widget.spinner.AbstractSpinnerModel#isAllowRebind	var allowRebind	allowRebind
+Property	com.kotcrab.vis.ui.widget.spinner.AbstractSpinnerModel#isWrap	var wrap	wrap
+Property	com.kotcrab.vis.ui.widget.spinner.ArraySpinnerModel#getText	var text	text
+Property	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#getMax	var max	max
+Property	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#getMin	var min	min
+Property	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#getScale	var scale	scale
+Property	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#getStep	var step	step
+Property	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#getText	var text	text
+Property	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#getValue	var value	value
+Property	com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel#getMax	var max	max
+Property	com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel#getMin	var min	min
+Property	com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel#getStep	var step	step
+Property	com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel#getText	var text	text
+Property	com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel#getValue	var value	value
+Property	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#getMax	var max	max
+Property	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#getMin	var min	min
+Property	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#getPrecision	var precision	precision
+Property	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#getStep	var step	step
+Property	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#getText	var text	text
+Property	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#getValue	var value	value
+Property	com.kotcrab.vis.ui.widget.spinner.Spinner#getMaxLength	var maxLength	maxLength
+Property	com.kotcrab.vis.ui.widget.spinner.Spinner#getModel	var model	model
+Property	com.kotcrab.vis.ui.widget.spinner.Spinner#getSelectorName	var selectorName	selectorName
+Property	com.kotcrab.vis.ui.widget.spinner.Spinner#getTextField	var textField	textField
+Property	com.kotcrab.vis.ui.widget.spinner.Spinner#getTextFieldEventPolicy	var textFieldEventPolicy	textFieldEventPolicy
+Property	com.kotcrab.vis.ui.widget.spinner.Spinner#isDisabled	var disabled	disabled
+Property	com.kotcrab.vis.ui.widget.spinner.Spinner#isProgrammaticChangeEvents	var programmaticChangeEvents	programmaticChangeEvents
+Property	com.kotcrab.vis.ui.widget.spinner.SpinnerModel#getText	var text	text
+Property	com.kotcrab.vis.ui.widget.spinner.SpinnerModel#isWrap	var wrap	wrap
+Property	com.kotcrab.vis.ui.widget.tabbedpane.Tab#getContentTable	var contentTable	contentTable
+Property	com.kotcrab.vis.ui.widget.tabbedpane.Tab#getPane	var pane	pane
+Property	com.kotcrab.vis.ui.widget.tabbedpane.Tab#getTabTitle	var tabTitle	tabTitle
+Property	com.kotcrab.vis.ui.widget.tabbedpane.Tab#isCloseableByUser	var closeableByUser	closeableByUser
+Property	com.kotcrab.vis.ui.widget.tabbedpane.Tab#isDirty	var dirty	dirty
+Property	com.kotcrab.vis.ui.widget.tabbedpane.Tab#isSavable	var savable	savable
+Property	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane#getActiveTab	var activeTab	activeTab
+Property	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane#getTable	var table	table
+Property	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane#isAllowTabDeselect	var allowTabDeselect	allowTabDeselect
+Property	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane$TabbedPaneTable#getSeparatorCell	var separatorCell	separatorCell
+Property	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane$TabbedPaneTable#getTabbedPane	var tabbedPane	tabbedPane
+Property	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane$TabbedPaneTable#getTabsPaneCell	var tabsPaneCell	tabsPaneCell
+Property	com.kotcrab.vis.ui.widget.toast.Toast#getContentTable	var contentTable	contentTable
+Property	com.kotcrab.vis.ui.widget.toast.Toast#getMainTable	var mainTable	mainTable
+Property	com.kotcrab.vis.ui.widget.toast.Toast#getToastManager	var toastManager	toastManager
+PropertySetter	com.kotcrab.vis.ui.Locales#setLocale	var locale	locale
+PropertySetter	com.kotcrab.vis.ui.layout.FloatingGroup#setUseChildrenPreferredSize	var useChildrenPreferredSize	useChildrenPreferredSize
+PropertySetter	com.kotcrab.vis.ui.layout.FlowGroup#setSpacing	var spacing	spacing
+PropertySetter	com.kotcrab.vis.ui.layout.FlowGroup#setVertical	var vertical	vertical
+PropertySetter	com.kotcrab.vis.ui.layout.GridGroup#setItemHeight	var itemHeight	itemHeight
+PropertySetter	com.kotcrab.vis.ui.layout.GridGroup#setItemWidth	var itemWidth	itemWidth
+PropertySetter	com.kotcrab.vis.ui.layout.GridGroup#setSpacing	var spacing	spacing
+PropertySetter	com.kotcrab.vis.ui.util.BorderOwner#setFocusBorderEnabled	var focusBorderEnabled	focusBorderEnabled
+PropertySetter	com.kotcrab.vis.ui.util.NumberDigitsTextFieldFilter#setAcceptNegativeValues	var acceptNegativeValues	acceptNegativeValues
+PropertySetter	com.kotcrab.vis.ui.util.NumberDigitsTextFieldFilter#setUseFieldCursorPosition	var useFieldCursorPosition	useFieldCursorPosition
+PropertySetter	com.kotcrab.vis.ui.util.Validators$GreaterThanValidator#setGreaterThan	(var greaterThan)	greaterThan
+PropertySetter	com.kotcrab.vis.ui.util.Validators$GreaterThanValidator#setUseEquals	(var useEquals)	useEquals
+PropertySetter	com.kotcrab.vis.ui.util.Validators$LesserThanValidator#setLesserThan	(var lesserThan)	lesserThan
+PropertySetter	com.kotcrab.vis.ui.util.Validators$LesserThanValidator#setUseEquals	(var useEquals)	useEquals
+PropertySetter	com.kotcrab.vis.ui.util.form.FormValidator$DirectoryContentValidator#setMustBeEmpty	(var mustBeEmpty)	mustBeEmpty
+PropertySetter	com.kotcrab.vis.ui.util.form.FormValidator$FileExistsValidator#setErrorIfRelativeEmpty	var errorIfRelativeEmpty	errorIfRelativeEmpty
+PropertySetter	com.kotcrab.vis.ui.util.form.FormValidator$FileExistsValidator#setMustNotExist	(var mustNotExist)	mustNotExist
+PropertySetter	com.kotcrab.vis.ui.util.form.FormValidator$FileExistsValidator#setRelativeToFile	var relativeToFile	relativeToFile
+PropertySetter	com.kotcrab.vis.ui.widget.ButtonBar#setIgnoreSpacing	var ignoreSpacing	ignoreSpacing
+PropertySetter	com.kotcrab.vis.ui.widget.ButtonBar#setOrder	var order	order
+PropertySetter	com.kotcrab.vis.ui.widget.CollapsibleWidget#setCollapseDuration	var collapseDuration	collapseDuration
+PropertySetter	com.kotcrab.vis.ui.widget.CollapsibleWidget#setCollapseInterpolation	var collapseInterpolation	collapseInterpolation
+PropertySetter	com.kotcrab.vis.ui.widget.CollapsibleWidget#setCollapsed(boolean)	var collapsed	collapsed
+PropertySetter	com.kotcrab.vis.ui.widget.Draggable#setAlpha	var alpha	alpha
+PropertySetter	com.kotcrab.vis.ui.widget.Draggable#setDeadzoneRadius	var deadzoneRadius	deadzoneRadius
+PropertySetter	com.kotcrab.vis.ui.widget.Draggable#setListener	var listener	listener
+PropertySetter	com.kotcrab.vis.ui.widget.Draggable$MimicActor#setActor	var actor	actor
+PropertySetter	com.kotcrab.vis.ui.widget.HighlightTextArea#setHighlighter	var highlighter	highlighter
+PropertySetter	com.kotcrab.vis.ui.widget.HorizontalCollapsibleWidget#setCollapsed(boolean)	var collapsed	collapsed
+PropertySetter	com.kotcrab.vis.ui.widget.LinkLabel#setListener	var listener	listener
+PropertySetter	com.kotcrab.vis.ui.widget.LinkLabel#setUrl	var url	url
+PropertySetter	com.kotcrab.vis.ui.widget.ListView#setFooter	var footer	footer
+PropertySetter	com.kotcrab.vis.ui.widget.ListView#setHeader	var header	header
+PropertySetter	com.kotcrab.vis.ui.widget.ListView#setUpdatePolicy	var updatePolicy	updatePolicy
+PropertySetter	com.kotcrab.vis.ui.widget.MenuItem#setGenerateDisabledImage	var generateDisabledImage	generateDisabledImage
+PropertySetter	com.kotcrab.vis.ui.widget.MenuItem#setSubMenu	var subMenu	subMenu
+PropertySetter	com.kotcrab.vis.ui.widget.Tooltip#setAppearDelayTime	var appearDelayTime	appearDelayTime
+PropertySetter	com.kotcrab.vis.ui.widget.Tooltip#setContent	var content	content
+PropertySetter	com.kotcrab.vis.ui.widget.Tooltip#setFadeTime	var fadeTime	fadeTime
+PropertySetter	com.kotcrab.vis.ui.widget.Tooltip#setMouseMoveFadeOut	var mouseMoveFadeOut	mouseMoveFadeOut
+PropertySetter	com.kotcrab.vis.ui.widget.Tooltip#setTarget	var target	target
+PropertySetter	com.kotcrab.vis.ui.widget.VisCheckBox#setFocusBorderEnabled	var focusBorderEnabled	focusBorderEnabled
+PropertySetter	com.kotcrab.vis.ui.widget.VisImageButton#setDisabled	var disabled	disabled
+PropertySetter	com.kotcrab.vis.ui.widget.VisImageButton#setFocusBorderEnabled	var focusBorderEnabled	focusBorderEnabled
+PropertySetter	com.kotcrab.vis.ui.widget.VisImageTextButton#setDisabled	var disabled	disabled
+PropertySetter	com.kotcrab.vis.ui.widget.VisImageTextButton#setFocusBorderEnabled	var focusBorderEnabled	focusBorderEnabled
+PropertySetter	com.kotcrab.vis.ui.widget.VisImageTextButton#setOrientation	var orientation	orientation
+PropertySetter	com.kotcrab.vis.ui.widget.VisSplitPane#setStyle	var style	style
+PropertySetter	com.kotcrab.vis.ui.widget.VisSplitPane#setVertical	(var vertical)	vertical
+PropertySetter	com.kotcrab.vis.ui.widget.VisTextButton#setFocusBorderEnabled	var focusBorderEnabled	focusBorderEnabled
+PropertySetter	com.kotcrab.vis.ui.widget.VisTextField#setDisabled	var disabled	disabled
+PropertySetter	com.kotcrab.vis.ui.widget.VisTextField#setFocusBorderEnabled	var focusBorderEnabled	focusBorderEnabled
+PropertySetter	com.kotcrab.vis.ui.widget.color.BasicColorPicker#setAllowAlphaEdit	var allowAlphaEdit	allowAlphaEdit
+PropertySetter	com.kotcrab.vis.ui.widget.color.BasicColorPicker#setShowColorPreviews	var showColorPreviews	showColorPreviews
+PropertySetter	com.kotcrab.vis.ui.widget.color.BasicColorPicker#setShowHexFields	var showHexFields	showHexFields
+PropertySetter	com.kotcrab.vis.ui.widget.color.ColorPicker#setAllowAlphaEdit	var allowAlphaEdit	allowAlphaEdit
+PropertySetter	com.kotcrab.vis.ui.widget.color.ColorPicker#setCloseAfterPickingFinished	var closeAfterPickingFinished	closeAfterPickingFinished
+PropertySetter	com.kotcrab.vis.ui.widget.color.ColorPicker#setShowHexFields	var showHexFields	showHexFields
+PropertySetter	com.kotcrab.vis.ui.widget.color.ExtendedColorPicker#setAllowAlphaEdit	var allowAlphaEdit	allowAlphaEdit
+PropertySetter	com.kotcrab.vis.ui.widget.color.internal.ChannelBar#setChannelBarListener	var channelBarListener	channelBarListener
+PropertySetter	com.kotcrab.vis.ui.widget.file.FileTypeFilter#setAllTypesAllowed	var allTypesAllowed	allTypesAllowed
+PropertySetter	com.kotcrab.vis.ui.widget.spinner.AbstractSpinnerModel#setAllowRebind	var allowRebind	allowRebind
+PropertySetter	com.kotcrab.vis.ui.widget.spinner.AbstractSpinnerModel#setWrap	var wrap	wrap
+PropertySetter	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#setMax	var max	max
+PropertySetter	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#setMin	var min	min
+PropertySetter	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#setScale(int)	var scale	scale
+PropertySetter	com.kotcrab.vis.ui.widget.spinner.FloatSpinnerModel#setStep	var step	step
+PropertySetter	com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel#setMax	var max	max
+PropertySetter	com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel#setMin	var min	min
+PropertySetter	com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel#setStep	var step	step
+PropertySetter	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#setMax	var max	max
+PropertySetter	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#setMin	var min	min
+PropertySetter	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#setPrecision(int)	var precision	precision
+PropertySetter	com.kotcrab.vis.ui.widget.spinner.SimpleFloatSpinnerModel#setStep	var step	step
+PropertySetter	com.kotcrab.vis.ui.widget.spinner.Spinner#setDisabled	var disabled	disabled
+PropertySetter	com.kotcrab.vis.ui.widget.spinner.Spinner#setMaxLength	var maxLength	maxLength
+PropertySetter	com.kotcrab.vis.ui.widget.spinner.Spinner#setModel	var model	model
+PropertySetter	com.kotcrab.vis.ui.widget.spinner.Spinner#setProgrammaticChangeEvents	var programmaticChangeEvents	programmaticChangeEvents
+PropertySetter	com.kotcrab.vis.ui.widget.spinner.Spinner#setSelectorName	var selectorName	selectorName
+PropertySetter	com.kotcrab.vis.ui.widget.spinner.Spinner#setTextFieldEventPolicy	var textFieldEventPolicy	textFieldEventPolicy
+PropertySetter	com.kotcrab.vis.ui.widget.spinner.SpinnerModel#setWrap	var wrap	wrap
+PropertySetter	com.kotcrab.vis.ui.widget.tabbedpane.Tab#setDirty	var dirty	dirty
+PropertySetter	com.kotcrab.vis.ui.widget.tabbedpane.Tab#setPane	var pane	pane
+PropertySetter	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane#setAllowTabDeselect	var allowTabDeselect	allowTabDeselect
+PropertySetter	com.kotcrab.vis.ui.widget.toast.Toast#setToastManager	var toastManager	toastManager
+Protected	com.kotcrab.vis.ui.building.StandardTableBuilder#fillTable	protected fillTable	
+Protected	com.kotcrab.vis.ui.building.TableBuilder#fillTable	protected fillTable	
+Protected	com.kotcrab.vis.ui.building.TableBuilder#getDefaultWidgetPadding	protected getDefaultWidgetPadding	
+Protected	com.kotcrab.vis.ui.building.TableBuilder#getRowSizes	protected getRowSizes	
+Protected	com.kotcrab.vis.ui.building.TableBuilder#getWidget	protected getWidget	
+Protected	com.kotcrab.vis.ui.building.TableBuilder#getWidgets	protected getWidgets	
+Protected	com.kotcrab.vis.ui.layout.DragPane#accept	protected accept	
+Protected	com.kotcrab.vis.ui.layout.DragPane#doOnAdd	protected doOnAdd	
+Protected	com.kotcrab.vis.ui.layout.DragPane$DefaultDragListener#accept	protected accept	
+Protected	com.kotcrab.vis.ui.layout.DragPane$DefaultDragListener#addActor	protected addActor	
+Protected	com.kotcrab.vis.ui.layout.DragPane$DefaultDragListener#addDirectlyToPane	protected addDirectlyToPane	
+Protected	com.kotcrab.vis.ui.layout.DragPane$DefaultDragListener#addToFloatingGroup	protected addToFloatingGroup	
+Protected	com.kotcrab.vis.ui.layout.DragPane$DefaultDragListener#addToHorizontalGroup	protected addToHorizontalGroup	
+Protected	com.kotcrab.vis.ui.layout.DragPane$DefaultDragListener#addToOtherGroup	protected addToOtherGroup	
+Protected	com.kotcrab.vis.ui.layout.DragPane$DefaultDragListener#addToVerticalGroup	protected addToVerticalGroup	
+Protected	com.kotcrab.vis.ui.layout.DragPane$DefaultDragListener#getActorInDragPane	protected getActorInDragPane	
+Protected	com.kotcrab.vis.ui.layout.DragPane$DefaultDragListener#getDragPane	protected getDragPane	
+Protected	com.kotcrab.vis.ui.layout.FlowGroup#computeSize	protected computeSize	
+Protected	com.kotcrab.vis.ui.layout.FlowGroup#computeSizeHorizontal	protected computeSizeHorizontal	
+Protected	com.kotcrab.vis.ui.layout.FlowGroup#computeSizeIfNeeded	protected computeSizeIfNeeded	
+Protected	com.kotcrab.vis.ui.layout.FlowGroup#computeSizeVertical	protected computeSizeVertical	
+Protected	com.kotcrab.vis.ui.layout.FlowGroup#layoutHorizontal	protected layoutHorizontal	
+Protected	com.kotcrab.vis.ui.layout.FlowGroup#layoutVertical	protected layoutVertical	
+Protected	com.kotcrab.vis.ui.util.ToastManager#alignment:field	protected alignment	
+Protected	com.kotcrab.vis.ui.util.ToastManager#messagePadding:field	protected messagePadding	
+Protected	com.kotcrab.vis.ui.util.ToastManager#root:field	protected root	
+Protected	com.kotcrab.vis.ui.util.ToastManager#screenPaddingX:field	protected screenPaddingX	
+Protected	com.kotcrab.vis.ui.util.ToastManager#screenPaddingY:field	protected screenPaddingY	
+Protected	com.kotcrab.vis.ui.util.ToastManager#timersTasks:field	protected timersTasks	
+Protected	com.kotcrab.vis.ui.util.ToastManager#toasts:field	protected toasts	
+Protected	com.kotcrab.vis.ui.util.ToastManager#updateToastsPositions	protected updateToastsPositions	
+Protected	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#deselectView	protected deselectView	
+Protected	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#itemAdded	protected itemAdded	
+Protected	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#itemRemoved	protected itemRemoved	
+Protected	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#prepareViewBeforeAddingToTable	protected prepareViewBeforeAddingToTable	
+Protected	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#selectView	protected selectView	
+Protected	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#sort	protected sort	
+Protected	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#updateView	protected updateView	
+Protected	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#view:field	protected view	
+Protected	com.kotcrab.vis.ui.util.adapter.AbstractListAdapter#viewListener:field	protected viewListener	
+Protected	com.kotcrab.vis.ui.util.adapter.ArrayAdapter#sort	protected sort	
+Protected	com.kotcrab.vis.ui.util.adapter.ArrayListAdapter#sort	protected sort	
+Protected	com.kotcrab.vis.ui.util.adapter.CachedItemAdapter#createView	protected createView	
+Protected	com.kotcrab.vis.ui.util.adapter.CachedItemAdapter#getViews	protected getViews	
+Protected	com.kotcrab.vis.ui.util.adapter.CachedItemAdapter#updateView	protected updateView	
+Protected	com.kotcrab.vis.ui.util.adapter.SimpleListAdapter#createView	protected createView	
+Protected	com.kotcrab.vis.ui.util.adapter.SimpleListAdapter#deselectView	protected deselectView	
+Protected	com.kotcrab.vis.ui.util.adapter.SimpleListAdapter#selectView	protected selectView	
+Protected	com.kotcrab.vis.ui.util.async.AsyncTask#doInBackground	protected doInBackground	
+Protected	com.kotcrab.vis.ui.util.async.AsyncTask#executeOnGdx	protected executeOnGdx	
+Protected	com.kotcrab.vis.ui.util.async.AsyncTask#failed(Exception)	protected failed	
+Protected	com.kotcrab.vis.ui.util.async.AsyncTask#failed(String)	protected failed	
+Protected	com.kotcrab.vis.ui.util.async.AsyncTask#failed(String,Exception)	protected failed	
+Protected	com.kotcrab.vis.ui.util.async.AsyncTask#setMessage	protected setMessage	
+Protected	com.kotcrab.vis.ui.util.async.AsyncTask#setProgressPercent	protected setProgressPercent	
+Protected	com.kotcrab.vis.ui.util.async.SteppedAsyncTask#nextStep	protected nextStep	
+Protected	com.kotcrab.vis.ui.util.async.SteppedAsyncTask#setTotalSteps	protected setTotalSteps	
+Protected	com.kotcrab.vis.ui.util.form.FormInputValidator#validate	protected validate	
+Protected	com.kotcrab.vis.ui.util.form.FormValidator$DirectoryContentValidator#validate	protected validate	
+Protected	com.kotcrab.vis.ui.util.form.FormValidator$DirectoryValidator#validate	protected validate	
+Protected	com.kotcrab.vis.ui.util.form.ValidatorWrapper#validate	protected validate	
+Protected	com.kotcrab.vis.ui.util.value.VisWidgetValue#getter:field	protected getter	
+Protected	com.kotcrab.vis.ui.widget.BusyBar#getSegmentDeltaX	protected segmentDeltaX	
+Protected	com.kotcrab.vis.ui.widget.Draggable#addMimicHidingAction	protected addMimicHidingAction	
+Protected	com.kotcrab.vis.ui.widget.Draggable#attachMimic	protected attachMimic	
+Protected	com.kotcrab.vis.ui.widget.Draggable#getStageCoordinates	protected getStageCoordinates	
+Protected	com.kotcrab.vis.ui.widget.Draggable#isDisabled	protected isDisabled	
+Protected	com.kotcrab.vis.ui.widget.Draggable#isValid	protected isValid	
+Protected	com.kotcrab.vis.ui.widget.VisCheckBox#getCheckboxBgImage	protected getCheckboxBgImage	
+Protected	com.kotcrab.vis.ui.widget.VisCheckBox#getCheckboxTickImage	protected getCheckboxTickImage	
+Protected	com.kotcrab.vis.ui.widget.VisDialog#ignoreTouchDown:field	protected ignoreTouchDown	
+Protected	com.kotcrab.vis.ui.widget.VisDialog#result	protected result	
+Protected	com.kotcrab.vis.ui.widget.VisWindow#close	protected close	
+Protected	com.kotcrab.vis.ui.widget.color.BasicColorPicker#commons:field	protected commons	
+Protected	com.kotcrab.vis.ui.widget.color.BasicColorPicker#createColorWidgets	protected createColorWidgets	
+Protected	com.kotcrab.vis.ui.widget.color.BasicColorPicker#createUI	protected createUI	
+Protected	com.kotcrab.vis.ui.widget.color.BasicColorPicker#listener:field	protected listener	
+Protected	com.kotcrab.vis.ui.widget.color.BasicColorPicker#palette:field	protected palette	
+Protected	com.kotcrab.vis.ui.widget.color.BasicColorPicker#sizes:field	protected sizes	
+Protected	com.kotcrab.vis.ui.widget.color.BasicColorPicker#style:field	protected style	
+Protected	com.kotcrab.vis.ui.widget.color.BasicColorPicker#updateUI	protected updateUI	
+Protected	com.kotcrab.vis.ui.widget.color.BasicColorPicker#updateValuesFromCurrentColor	protected updateValuesFromCurrentColor	
+Protected	com.kotcrab.vis.ui.widget.color.BasicColorPicker#updateValuesFromHSVFields	protected updateValuesFromHSVFields	
+Protected	com.kotcrab.vis.ui.widget.color.BasicColorPicker#verticalBar:field	protected verticalBar	
+Protected	com.kotcrab.vis.ui.widget.color.BasicColorPicker$PickerChangeListener#updateLinkedWidget	protected updateLinkedWidget	
+Protected	com.kotcrab.vis.ui.widget.color.internal.ChannelBar#style:field	protected style	
+Protected	com.kotcrab.vis.ui.widget.color.internal.ShaderImage#setShaderUniforms	protected setShaderUniforms	
+Protected	com.kotcrab.vis.ui.widget.file.FileChooser#setupDefaultScrollPane	protected setupDefaultScrollPane	
+Protected	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#chooser:field	protected chooser	
+Protected	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#getAudioIcon	protected getAudioIcon	
+Protected	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#getDefaultIcon	protected getDefaultIcon	
+Protected	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#getDirIcon	protected getDirIcon	
+Protected	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#getImageIcon	protected getImageIcon	
+Protected	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#getPdfIcon	protected getPdfIcon	
+Protected	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#getTextIcon	protected getTextIcon	
+Protected	com.kotcrab.vis.ui.widget.file.FileChooser$DefaultFileIconProvider#style:field	protected style	
+Protected	com.kotcrab.vis.ui.widget.file.SingleFileChooserListener#selected(FileHandle)	protected selected	
+Protected	com.kotcrab.vis.ui.widget.file.internal.AbstractSuggestionPopup#createMenuItem	protected createMenuItem	
+Protected	com.kotcrab.vis.ui.widget.file.internal.FileListAdapter#createView	protected createView	
+Protected	com.kotcrab.vis.ui.widget.internal.SplitPaneCursorManager#contains	protected contains	
+Protected	com.kotcrab.vis.ui.widget.internal.SplitPaneCursorManager#handleBoundsContains	protected handleBoundsContains	
+Protected	com.kotcrab.vis.ui.widget.spinner.AbstractSpinnerModel#decrementModel	protected decrementModel	
+Protected	com.kotcrab.vis.ui.widget.spinner.AbstractSpinnerModel#incrementModel	protected incrementModel	
+Protected	com.kotcrab.vis.ui.widget.spinner.AbstractSpinnerModel#setAllowRebind	protected allowRebind_=	
+Protected	com.kotcrab.vis.ui.widget.spinner.AbstractSpinnerModel#spinner:field	protected spinner	
+Protected	com.kotcrab.vis.ui.widget.spinner.ArraySpinnerModel#itemToString	protected itemToString	
+Protected	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane#addTab	protected addTab	
+Protected	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane#getTabTitle	protected getTabTitle	
+Protected	com.kotcrab.vis.ui.widget.tabbedpane.TabbedPane#throwNotBelongingTabException	protected throwNotBelongingTabException	
+Protected	com.kotcrab.vis.ui.widget.toast.Toast#close	protected close	
+Protected	com.kotcrab.vis.ui.widget.toast.Toast#createMainTable	protected createMainTable	
+Protected	com.kotcrab.vis.ui.widget.toast.ToastTable#toast:field	protected toast	
+Public	com.kotcrab.vis.ui.building.CenteredTableBuilder#fillTable	public fillTable	
+Public	com.kotcrab.vis.ui.building.GridTableBuilder#fillTable	public fillTable	
+Public	com.kotcrab.vis.ui.building.OneColumnTableBuilder#fillTable	public fillTable	
+Public	com.kotcrab.vis.ui.building.OneRowTableBuilder#fillTable	public fillTable	
+Public	com.kotcrab.vis.ui.util.dialog.Dialogs$ConfirmDialog#result	public result	
+Public	com.kotcrab.vis.ui.util.dialog.Dialogs$DetailsDialog#result	public result	
+Public	com.kotcrab.vis.ui.util.dialog.Dialogs$InputDialog#close	public close	
+Public	com.kotcrab.vis.ui.util.form.FormValidator$FileExistsValidator#errorIfRelativeEmpty:field	public errorIfRelativeEmpty	
+Public	com.kotcrab.vis.ui.util.form.FormValidator$FileExistsValidator#mustNotExist:field	public mustNotExist	
+Public	com.kotcrab.vis.ui.util.form.FormValidator$FileExistsValidator#relativeTo:field	public relativeTo	
+Public	com.kotcrab.vis.ui.util.form.FormValidator$FileExistsValidator#relativeToFile:field	public relativeToFile	
+Public	com.kotcrab.vis.ui.widget.CollapsibleWidget#childrenChanged	public childrenChanged	
+Public	com.kotcrab.vis.ui.widget.Draggable#addBlocker	public addBlocker	
+Public	com.kotcrab.vis.ui.widget.Draggable#removeBlocker	public removeBlocker	
+Public	com.kotcrab.vis.ui.widget.HighlightTextArea#calculateOffsets	public calculateOffsets	
+Public	com.kotcrab.vis.ui.widget.HighlightTextArea#drawText	public drawText	
+Public	com.kotcrab.vis.ui.widget.HighlightTextArea#updateDisplayText	public updateDisplayText	
+Public	com.kotcrab.vis.ui.widget.HorizontalCollapsibleWidget#childrenChanged	public childrenChanged	
+Public	com.kotcrab.vis.ui.widget.Menu#deselectButton	public deselectButton	
+Public	com.kotcrab.vis.ui.widget.Menu#getOpenButton	public getOpenButton	
+Public	com.kotcrab.vis.ui.widget.Menu#selectButton	public selectButton	
+Public	com.kotcrab.vis.ui.widget.ScrollableTextArea#changeText	public changeText	
+Public	com.kotcrab.vis.ui.widget.ScrollableTextArea#createInputListener	public createInputListener	
+Public	com.kotcrab.vis.ui.widget.ScrollableTextArea#sizeChanged	public sizeChanged	
+Public	com.kotcrab.vis.ui.widget.VisDialog#buttonTable:field	public buttonTable	
+Public	com.kotcrab.vis.ui.widget.VisDialog#cancelHide:field	public cancelHide	
+Public	com.kotcrab.vis.ui.widget.VisDialog#contentTable:field	public contentTable	
+Public	com.kotcrab.vis.ui.widget.VisDialog#values:field	public values	
+Public	com.kotcrab.vis.ui.widget.VisSplitPane#maxAmount:field	public maxAmount	
+Public	com.kotcrab.vis.ui.widget.VisSplitPane#minAmount:field	public minAmount	
+Public	com.kotcrab.vis.ui.widget.VisSplitPane#splitAmount:field	public splitAmount	
+Public	com.kotcrab.vis.ui.widget.VisSplitPane#style:field	public style	
+Public	com.kotcrab.vis.ui.widget.VisSplitPane#vertical:field	public vertical	
+Public	com.kotcrab.vis.ui.widget.VisTextArea#calculateOffsets	public calculateOffsets	
+Public	com.kotcrab.vis.ui.widget.VisTextArea#continueCursor	public continueCursor	
+Public	com.kotcrab.vis.ui.widget.VisTextArea#createInputListener	public createInputListener	
+Public	com.kotcrab.vis.ui.widget.VisTextArea#drawCursor	public drawCursor	
+Public	com.kotcrab.vis.ui.widget.VisTextArea#drawSelection	public drawSelection	
+Public	com.kotcrab.vis.ui.widget.VisTextArea#drawText	public drawText	
+Public	com.kotcrab.vis.ui.widget.VisTextArea#getTextY	public getTextY	
+Public	com.kotcrab.vis.ui.widget.VisTextArea#initialize	public initialize	
+Public	com.kotcrab.vis.ui.widget.VisTextArea#letterUnderCursor	public letterUnderCursor	
+Public	com.kotcrab.vis.ui.widget.VisTextArea#moveCursor	public moveCursor	
+Public	com.kotcrab.vis.ui.widget.VisTextArea#sizeChanged	public sizeChanged	
+Public	com.kotcrab.vis.ui.widget.VisTextArea$TextAreaListener#goEnd	public goEnd	
+Public	com.kotcrab.vis.ui.widget.VisTextArea$TextAreaListener#goHome	public goHome	
+Public	com.kotcrab.vis.ui.widget.VisTextArea$TextAreaListener#setCursorPosition	public setCursorPosition	
+Public	com.kotcrab.vis.ui.widget.VisTextField#changeText	public changeText	
+Public	com.kotcrab.vis.ui.widget.VisTextField#createInputListener	public createInputListener	
+Public	com.kotcrab.vis.ui.widget.VisTextField#drawCursor	public drawCursor	
+Public	com.kotcrab.vis.ui.widget.VisTextField#initialize	public initialize	
+Public	com.kotcrab.vis.ui.widget.VisValidatableTextField#beforeChangeEventFired	public beforeChangeEventFired	
+Public	com.kotcrab.vis.ui.widget.color.BasicColorPicker#<init>(ColorPickerWidgetStyle,ColorPickerListener,boolean)	public <init>	
+Public	com.kotcrab.vis.ui.widget.color.BasicColorPicker#oldColor:field	public oldColor	
+Public	com.kotcrab.vis.ui.widget.color.BasicColorPicker$PickerChangeListener#<init>	public <init>	
+Public	com.kotcrab.vis.ui.widget.color.ColorPicker#close	public close	
+Public	com.kotcrab.vis.ui.widget.color.ExtendedColorPicker#createColorWidgets	public createColorWidgets	
+Public	com.kotcrab.vis.ui.widget.color.ExtendedColorPicker#createUI	public createUI	
+Public	com.kotcrab.vis.ui.widget.color.ExtendedColorPicker#updateValuesFromCurrentColor	public updateValuesFromCurrentColor	
+Public	com.kotcrab.vis.ui.widget.color.ExtendedColorPicker#updateValuesFromHSVFields	public updateValuesFromHSVFields	
+Public	com.kotcrab.vis.ui.widget.color.internal.ChannelBar#setShaderUniforms	public setShaderUniforms	
+Public	com.kotcrab.vis.ui.widget.color.internal.Palette#setShaderUniforms	public setShaderUniforms	
+Public	com.kotcrab.vis.ui.widget.color.internal.PickerCommons#getBarShader	public getBarShader	
+Public	com.kotcrab.vis.ui.widget.color.internal.PickerCommons#gridShader:field	public gridShader	
+Public	com.kotcrab.vis.ui.widget.color.internal.PickerCommons#hsvShader:field	public hsvShader	
+Public	com.kotcrab.vis.ui.widget.color.internal.PickerCommons#paletteShader:field	public paletteShader	
+Public	com.kotcrab.vis.ui.widget.color.internal.PickerCommons#rgbShader:field	public rgbShader	
+Public	com.kotcrab.vis.ui.widget.color.internal.PickerCommons#sizes:field	public sizes	
+Public	com.kotcrab.vis.ui.widget.color.internal.PickerCommons#style:field	public style	
+Public	com.kotcrab.vis.ui.widget.color.internal.PickerCommons#verticalChannelShader:field	public verticalChannelShader	
+Public	com.kotcrab.vis.ui.widget.color.internal.PickerCommons#whiteTexture:field	public whiteTexture	
+Public	com.kotcrab.vis.ui.widget.file.FileChooser#close	public close	
+Public	com.kotcrab.vis.ui.widget.file.internal.AbstractSuggestionPopup#chooser:field	public chooser	
+Public	com.kotcrab.vis.ui.widget.file.internal.DriveCheckerService$ListenerSet#list:field	public list	
+Public	com.kotcrab.vis.ui.widget.file.internal.FileChooserWinService#<init>	public <init>	

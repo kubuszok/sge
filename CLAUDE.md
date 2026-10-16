@@ -71,7 +71,8 @@ The lls base's policy is lls's own: the `lls-port` artifact, at the version of t
 (`Versions.lls`). No hand-port extraction from git history is needed at build time.
 
 Generated extensions: `sge-ecs` (ashley, `project/BalticPorterEcsGen.scala`), `sge-noise` (noise4j),
-`sge-jbump` (jbump), `sge-anim8` (anim8-gdx), `sge-vfx` (gdx-vfx) and `sge-colorful` (colorful-gdx; the last three dependents of sge-core) — all but ecs through `project/BalticPorterExtGen.scala`,
+`sge-jbump` (jbump), `sge-anim8` (anim8-gdx), `sge-vfx` (gdx-vfx), `sge-colorful` (colorful-gdx) and `sge-visui` (vis-ui; the last four dependents of sge-core, visui keeping
+its hand-written skin registry `VisUISkinReaders` beside the generated tree) — all but ecs through `project/BalticPorterExtGen.scala`,
 which ports any extension from its submodule — as a base of its
 own or as a dependent of sge-core — into `target/balticporter-sge-<id>`. An extension's spelling
 policy is frozen in `sge-port/<id>-derived-policy.tsv`, derived from its hand port before that was
