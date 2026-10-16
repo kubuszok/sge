@@ -14,6 +14,38 @@ object VisUiPolicy {
   private val Pools  = "com.badlogic.gdx.utils.Pools"
   private val Shared = "sge.scenes.scene2d.Actor.POOLS"
 
+  /** Bodies java wrote against libGDX facts sge answers differently. Keys are upstream names, bodies the port's final spelling. */
+  private val TextGetters = Set("com.kotcrab.vis.ui.widget.VisImageTextButton#getText", "com.kotcrab.vis.ui.widget.MenuItem#getShortcut")
+
+  private val Bodies: Map[String, String] = Map(
+    // a copy of the label's text, read when asked, as the hand port's `String` getters answer
+    "com.kotcrab.vis.ui.widget.VisImageTextButton#getText()" -> "{\n    this.label$field.text.toString\n  }",
+    "com.kotcrab.vis.ui.widget.MenuItem#getShortcut()" -> "{\n    this.shortcutLabel.text.toString\n  }",
+    // libGDX's Skin resolves VisUI's FQCN-keyed style sections by reflection; sge's Skin reads a closed registry, which
+    // the hand-written `VisUISkinReaders` fills before any skin is parsed (as the hand port's `checkBeforeLoad` did)
+    "com.kotcrab.vis.ui.VisUI#checkBeforeLoad()" ->
+      """{
+        |    sge.visui.VisUISkinReaders.register()
+        |    if (VisUI.skin != null) {
+        |      throw sge.utils.SgeError.InvalidInput("VisUI cannot be loaded twice")
+        |    } else ()
+        |    if ((!VisUI.skipGdxVersionCheck) && (!sge.Version.VERSION.equals(VisUI.TARGET_GDX_VERSION))) {
+        |      sge.utils.Log.info("VisUI" + ": " + (((((("Warning, using invalid libGDX version.\n" + "You are using libGDX ") + sge.Version.VERSION) + " but you need ") + VisUI.TARGET_GDX_VERSION) + ". This may cause ") + "unexpected problems and runtime exceptions."))
+        |    } else ()
+        |  }""".stripMargin,
+    // `Button`'s constructor reaches the override through `setStyle` before this class's field initialisers ran: java's
+    // field is still `null` there and its `containerMenu == null` answers it; the wrapped field is a JVM null then, not
+    // the empty value, so the guard asks both
+    "com.kotcrab.vis.ui.widget.MenuItem#isOver()" ->
+      """{
+        |    if ((this.containerMenu.asInstanceOf[AnyRef] eq null) || this.containerMenu.isEmpty || this.containerMenu.get.getActiveItem.isEmpty) {
+        |      super.isOver
+        |    } else {
+        |      this.containerMenu.get.getActiveItem.get eq this
+        |    }
+        |  }""".stripMargin
+  )
+
   def core(coreManifest: PortManifest, sgeRoot: Path, reportRoots: List[Path], reference: Option[Path] = None): PortManifest =
     coreManifest.extendedBy(
       PortManifest(
@@ -85,8 +117,13 @@ object VisUiPolicy {
               // libGDX's `Disposable#dispose` is sge's `close`, and `ColorPicker` is both a `VisWindow` (whose `close()` fades the
               // window out) and a `Disposable`: the window's member moves, so disposal keeps java's meaning. A decided divergence
               // from the hand port, which dropped `Disposable` from `ColorPicker` instead
-              "com.kotcrab.vis.ui.widget.VisWindow#close" -> "closeWindow"
-            )
+              "com.kotcrab.vis.ui.widget.VisWindow#close" -> "closeWindow",
+              // the field `setUseEquals` writes, under its setter's name as in `GreaterThanValidator` and the hand port (`equals`
+              // is `Any#equals` in scala): the constructor's `useEquals` then fills it as the property itself
+              "com.kotcrab.vis.ui.util.Validators$LesserThanValidator#equals" -> "useEquals"
+            ),
+            // the reference's constructor parameter names and underscore fields
+            derive = true
           ),
           new balticporter.transform.AddMembersTransform(
             Map(
@@ -101,6 +138,12 @@ object VisUiPolicy {
               )
             )
           ),
+          // the two label-text getters answer a `String`, as in the hand port: java's `CharSequence` is the label's live buffer
+          new balticporter.transform.TypeRedirectTransform(
+            redirects = Map("java.lang.CharSequence" -> "java.lang.String"),
+            scopes = Map("java.lang.CharSequence" -> balticporter.tir.RuleScope.Only(TextGetters))
+          ),
+          new balticporter.transform.MethodBodyTransform(Bodies),
           new balticporter.transform.BeanPropertyTransform(scope = VisUi, derive = true),
           new balticporter.transform.NullaryArityTransform(scope = VisUi, derive = true),
           new balticporter.transform.NullabilityTransform(scope = VisUi, deriveMembers = true),

@@ -111,7 +111,7 @@ def dropClean(cmd: String): String = cmd.stripPrefix("clean ; ")
 lazy val sgeCommandAliases: Seq[Def.Setting[State => State]] =
   // generatePort: run the Baltic Porter generation (shared tree, every platform row, resources) and
   // nothing else — what the CI `generate` job runs before publishing target/balticporter-sge.
-  addCommandAlias("generatePort", "sge/Compile/managedSources ; sge/Compile/managedResources ; sge-ecs/Compile/managedSources ; sge-ecs/Test/managedSources ; sge-noise/Compile/managedSources ; sge-anim8/Compile/managedSources ; sge-jbump/Compile/managedSources ; sge-screens/Compile/managedSources ; sge-vfx/Compile/managedSources ; sge-tools/Compile/managedSources ; sge-colorful/Compile/managedSources") ++
+  addCommandAlias("generatePort", "sge/Compile/managedSources ; sge/Compile/managedResources ; sge-ecs/Compile/managedSources ; sge-ecs/Test/managedSources ; sge-noise/Compile/managedSources ; sge-anim8/Compile/managedSources ; sge-jbump/Compile/managedSources ; sge-screens/Compile/managedSources ; sge-vfx/Compile/managedSources ; sge-tools/Compile/managedSources ; sge-colorful/Compile/managedSources ; sge-visui/Compile/managedSources") ++
   // verifyLocal: the gate before a push — every platform's tests, then record the verified commit
   // (target/local-verification; the push hook of the balticporter Claude Code plugin reads it).
   addCommandAlias("verifyLocal", "scalafmtCheckAll ; scalafmtSbtCheck ; ci-jvm-3 ; test-js-3 ; test-native-3 ; markVerified") ++
@@ -1118,9 +1118,10 @@ val `sge-visui` = (projectMatrix in file("sge-extension/visui"))
   .settings(publishSettings)
   .settings(mimaSettings)
   .settings(name := "sge-extension-visui")
+  .settings(balticPorterExtSettings(BalticPorterExtGen.Visui) *)
   .dependsOn(sge)
 
-// Baltic Porter: the generated colorful, ai, gltf, textra and visui trees, each compiled alone (see balticPorterGenProjectSettings)
+// Baltic Porter: the generated ai, gltf and textra trees, each compiled alone (see balticPorterGenProjectSettings)
 def balticPorterGenProject(pm: ProjectMatrix, ext: BalticPorterExtGen.Ext, platforms: List[VirtualAxis.PlatformAxis] = List(VirtualAxis.jvm), extra: Seq[MatrixAction.Act] = Nil): ProjectMatrix =
   pm.defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(Versions.scala3))
     .someVariations(Versions.scalas, platforms)((commonSettings(s"sge-extension/${ext.id}/generated") ++ Seq(jvmPlatformApiClasspath) ++ extra) *)
@@ -1144,7 +1145,6 @@ val `sge-regexodus-gen` = balticPorterGenProject(
   )
 val `sge-textra-gen` = balticPorterGenProject(projectMatrix in file("sge-extension/textra/generated"), BalticPorterExtGen.Textra)
   .dependsOn(sge, `sge-regexodus-gen`)
-val `sge-visui-gen` = balticPorterGenProject(projectMatrix in file("sge-extension/visui/generated"), BalticPorterExtGen.Visui).dependsOn(sge)
 
 // ── Android smoke test APK ────────────────────────────────────────────
 //
