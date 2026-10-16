@@ -111,7 +111,7 @@ def dropClean(cmd: String): String = cmd.stripPrefix("clean ; ")
 lazy val sgeCommandAliases: Seq[Def.Setting[State => State]] =
   // generatePort: run the Baltic Porter generation (shared tree, every platform row, resources) and
   // nothing else — what the CI `generate` job runs before publishing target/balticporter-sge.
-  addCommandAlias("generatePort", "sge/Compile/managedSources ; sge/Compile/managedResources ; sge-ecs/Compile/managedSources ; sge-ecs/Test/managedSources ; sge-noise/Compile/managedSources ; sge-anim8/Compile/managedSources ; sge-jbump/Compile/managedSources ; sge-screens/Compile/managedSources ; sge-vfx/Compile/managedSources ; sge-tools/Compile/managedSources ; sge-colorful/Compile/managedSources ; sge-visui/Compile/managedSources") ++
+  addCommandAlias("generatePort", "sge/Compile/managedSources ; sge/Compile/managedResources ; sge-ecs/Compile/managedSources ; sge-ecs/Test/managedSources ; sge-noise/Compile/managedSources ; sge-anim8/Compile/managedSources ; sge-jbump/Compile/managedSources ; sge-screens/Compile/managedSources ; sge-vfx/Compile/managedSources ; sge-tools/Compile/managedSources ; sge-colorful/Compile/managedSources ; sge-visui/Compile/managedSources ; sge-ai/Compile/managedSources") ++
   // verifyLocal: the gate before a push — every platform's tests, then record the verified commit
   // (target/local-verification; the push hook of the balticporter Claude Code plugin reads it).
   addCommandAlias("verifyLocal", "scalafmtCheckAll ; scalafmtSbtCheck ; ci-jvm-3 ; test-js-3 ; test-native-3 ; markVerified") ++
@@ -651,6 +651,7 @@ val `sge-ai` = (projectMatrix in file("sge-extension/ai"))
   .settings(publishSettings)
   .settings(mimaSettings)
   .settings(name := "sge-extension-ai")
+  .settings(balticPorterExtSettings(BalticPorterExtGen.Ai) *)
   .dependsOn(sge)
 
 val `sge-anim8` = (projectMatrix in file("sge-extension/anim8"))
@@ -1121,13 +1122,12 @@ val `sge-visui` = (projectMatrix in file("sge-extension/visui"))
   .settings(balticPorterExtSettings(BalticPorterExtGen.Visui) *)
   .dependsOn(sge)
 
-// Baltic Porter: the generated ai, gltf and textra trees, each compiled alone (see balticPorterGenProjectSettings)
+// Baltic Porter: the generated gltf and textra trees, each compiled alone (see balticPorterGenProjectSettings)
 def balticPorterGenProject(pm: ProjectMatrix, ext: BalticPorterExtGen.Ext, platforms: List[VirtualAxis.PlatformAxis] = List(VirtualAxis.jvm), extra: Seq[MatrixAction.Act] = Nil): ProjectMatrix =
   pm.defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(Versions.scala3))
     .someVariations(Versions.scalas, platforms)((commonSettings(s"sge-extension/${ext.id}/generated") ++ Seq(jvmPlatformApiClasspath) ++ extra) *)
     .settings(balticPorterGenProjectSettings(ext) *)
 
-val `sge-ai-gen`       = balticPorterGenProject(projectMatrix in file("sge-extension/ai/generated"), BalticPorterExtGen.Ai).dependsOn(sge)
 val `sge-gltf-gen`     = balticPorterGenProject(projectMatrix in file("sge-extension/gltf/generated"), BalticPorterExtGen.Gltf).dependsOn(sge)
 // RegExodus, TextraTypist's regex engine (a base of its own: no sge), with its upstream JUnit suite on every platform
 val `sge-regexodus-gen` = balticPorterGenProject(

@@ -49,13 +49,13 @@ runs:
         extensions=$(printf '%s' "$extensions" | sha256sum | cut -c1-40)
         echo "tree=$policy-$provided-$base-$extensions" >> "$GITHUB_OUTPUT"
       env:
-        EXTENSION_SUBMODULES: original-src/ashley original-src/noise4j original-src/anim8-gdx original-src/jbump original-src/guacamole original-src/gdx-vfx original-src/libgdx-screenmanager original-src/colorful-gdx original-src/vis-ui
+        EXTENSION_SUBMODULES: original-src/ashley original-src/noise4j original-src/anim8-gdx original-src/jbump original-src/guacamole original-src/gdx-vfx original-src/libgdx-screenmanager original-src/colorful-gdx original-src/vis-ui original-src/gdx-ai
 
     # Init the generated extensions' submodules alongside libgdx
     - name: Checkout the extension submodules
       if: inputs.mode == 'generate'
       shell: bash
-      run: git submodule update --init --depth=1 original-src/ashley original-src/noise4j original-src/anim8-gdx original-src/jbump original-src/guacamole original-src/gdx-vfx original-src/libgdx-screenmanager original-src/colorful-gdx original-src/vis-ui
+      run: git submodule update --init --depth=1 original-src/ashley original-src/noise4j original-src/anim8-gdx original-src/jbump original-src/guacamole original-src/gdx-vfx original-src/libgdx-screenmanager original-src/colorful-gdx original-src/vis-ui original-src/gdx-ai
 
     - uses: kubuszok/balticporter/.github/actions/generated-port@55be328a2265f34c8d41d30634569229539cf562
       id: port
@@ -86,6 +86,7 @@ runs:
           target/balticporter-sge-tools
           target/balticporter-sge-colorful
           target/balticporter-sge-visui
+          target/balticporter-sge-ai
           target/balticporter-reports
         key: ${{ steps.port.outputs.key }}-ecs
         fail-on-cache-miss: ${{ inputs.mode == 'restore' }}
@@ -106,6 +107,7 @@ runs:
           target/balticporter-sge-tools
           target/balticporter-sge-colorful
           target/balticporter-sge-visui
+          target/balticporter-sge-ai
           target/balticporter-reports
         key: ${{ steps.port.outputs.key }}-ecs
         enableCrossOsArchive: true
