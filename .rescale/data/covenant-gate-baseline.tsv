@@ -63,11 +63,6 @@ sge-extension/textra/src/main/scala/sge/textra/TypingLabel.scala	shortcut-drift	
 sge-extension/textra/src/main/scala/sge/textra/utils/ColorUtils.scala	shortcut-drift	3
 sge-extension/textra/src/main/scala/sge/textra/utils/LZBCompression.scala	shortcut-drift	1
 sge-extension/visui/src/main/scala/sge/visui/VisUISkinReaders.scala	missing-header	1
-sge-extension/visui/src/main/scala/sge/visui/building/utilities/CellWidget.scala	shortcut-drift	1
-sge-extension/visui/src/main/scala/sge/visui/util/adapter/AbstractListAdapter.scala	shortcut-drift	2
-sge-extension/visui/src/main/scala/sge/visui/widget/MultiSplitPane.scala	shortcut-drift	5
-sge-extension/visui/src/main/scala/sge/visui/widget/VisSplitPane.scala	shortcut-drift	3
-sge-extension/visui/src/main/scala/sge/visui/widget/file/FileUtils.scala	shortcut-drift	2
 sge-jvm-platform/api/src/main/scala/sge/platform/android/AndroidConfigOps.scala	missing-header	1
 sge-jvm-platform/api/src/main/scala/sge/platform/android/AndroidEventListenerOps.scala	missing-header	1
 sge-jvm-platform/api/src/main/scala/sge/platform/android/AndroidLifecycleOps.scala	missing-header	1
@@ -107,4 +102,3 @@ sge/src/main/scala/sge/graphics/g3d/particles/ParticleEffectCodecs.scala	shortcu
 sge/src/main/scala/sge/net/SgeHttpClient.scala	shortcut-drift	10
 sge/src/main/scala/sge/platform/WindowingOps.scala	shortcut-drift	2
 sge/src/main/scala/sge/utils/DynamicArrayOps.scala	missing-header	1
-sge-extension/visui/src/main/scala/sge/visui/widget/VisDialog.scala	methods-removed	1
