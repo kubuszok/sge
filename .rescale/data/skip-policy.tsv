@@ -15,11 +15,6 @@ sge-extension/gltf/src/main/scala/sge/gltf/scene3d/scene/CascadeShadowMap.scala	
 sge-extension/freetype/src/main/scalajs/sge/platform/FreetypePlatform.scala	shortcuts	Scala.js platform stub: FreeType requires native FFI, JS users pre-generate fonts	2026-04-08	dev
 sge-extension/freetype/src/main/scalajs/sge/platform/FreetypeOpsJs.scala	shortcuts	Scala.js stub implementation of FreetypeOps - throws by design on JS	2026-04-08	dev
 sge-extension/freetype/src/main/scala/sge/platform/FreetypeOps.scala	shortcuts	Trait/interface comment mentioning JS stub variant	2026-04-08	dev
-sge-extension/visui/src/main/scala/sge/visui/widget/MultiSplitPane.scala	shortcuts	VisUI by design: parent SplitPane setters are forbidden, must use setWidgets	2026-04-08	dev
-sge-extension/visui/src/main/scala/sge/visui/widget/VisSplitPane.scala	shortcuts	VisUI by design: parent SplitPane setters are forbidden, must use setWidget	2026-04-08	dev
-sge-extension/visui/src/main/scala/sge/visui/widget/file/FileUtils.scala	shortcuts	Catches UnsupportedOperationException from Desktop platform API for unsupported OSs	2026-04-08	dev
-sge-extension/visui/src/main/scala/sge/visui/util/adapter/AbstractListAdapter.scala	shortcuts	Abstract methods throw if not overridden by subclass with non-DISABLED selection mode	2026-04-08	dev
-sge-extension/visui/src/main/scala/sge/visui/building/utilities/CellWidget.scala	shortcuts	of(null) builder helper, @nowarn Java interop	2026-04-08	dev
 sge-extension/screens/src/test/scala/sge/screen/ScreenManagerSuite.scala	shortcuts	Test fixtures intentionally minimal	2026-04-08	dev
 sge-extension/ai/src/test/scala/sge/ai/msg/MessageDispatcherSuite.scala	shortcuts	Test asserts message has 'Not yet delivered' state	2026-04-08	dev
 sge-extension/ai/src/main/scala/sge/ai/msg/MessageDispatcher.scala	shortcuts	'pending message' is the queue concept being implemented, not a TODO	2026-04-08	dev
@@ -277,11 +272,6 @@ sge-extension/textra/src/main/scala/sge/textra/TextraLabel.scala	shortcuts	unsup
 sge-extension/textra/src/main/scala/sge/textra/TypingLabel.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
 sge-extension/textra/src/main/scala/sge/textra/LzmaUtils.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
 sge-extension/textra/src/main/scala/sge/textra/Font.scala	shortcuts	get-or-else-null: Null boundary utility for Java interop	2026-04-29	dev
-sge-extension/visui/src/main/scala/sge/visui/widget/file/FileUtils.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
-sge-extension/visui/src/main/scala/sge/visui/widget/VisSplitPane.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
-sge-extension/visui/src/main/scala/sge/visui/widget/MultiSplitPane.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
-sge-extension/visui/src/main/scala/sge/visui/util/adapter/AbstractListAdapter.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
-sge-extension/visui/src/main/scala/sge/visui/building/utilities/CellWidget.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
 sge-extension/ai/src/main/scala/sge/ai/fma/Formation.scala	shortcuts	TODO from original gdx-ai source, not an SGE gap	2026-04-29	dev
 sge-extension/ai/src/main/scala/sge/ai/fma/SoftRoleSlotAssignmentStrategy.scala	shortcuts	TODO from original gdx-ai source, not an SGE gap	2026-04-29	dev
 sge/src/test/scalajvm/sge/graphics/g2d/SpriteCacheRedSuite.scala	shortcuts	ISS-493 red-suite fixture: dummy TextureData.consumePixmap must throw if ever consumed (Custom-type texture data, never rendered); audited in fix/ISS-493-spritecache	2026-06-10	dev
