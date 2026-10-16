@@ -319,7 +319,9 @@ jobs:
       - uses: ./.github/actions/setup-js
 
       - name: Run Scala.js tests (core + all extensions)
-        run: sbt test-js-3
+        uses: ./.github/actions/sbt-guarded
+        with:
+          command: sbt test-js-3
 
   # ─── JVM tests (uses Panama provider JARs) ──────────────────────────
 
@@ -391,7 +393,9 @@ jobs:
       - uses: ./.github/actions/setup-native-toolchain
 
       - name: Run Scala Native tests
-        run: sbt test-native-3
+        uses: ./.github/actions/sbt-guarded
+        with:
+          command: sbt test-native-3
 
   # ─── Native FFI IT tests ────────────────────────────────────────────
   #
