@@ -45,14 +45,60 @@ object GdxAiPolicy {
       |    }
       |  }""".stripMargin
 
+  /** the behaviour-tree tasks (every one a user may extend at their own blackboard type) and the path-finding queue, which the hand port declares over any type */
+  private val UnboundTypes: Set[String] =
+    Set(
+      "BehaviorTree",
+      "BranchTask",
+      "Decorator",
+      "LeafTask",
+      "LoopDecorator",
+      "SingleRunningChildBranch",
+      "Task",
+      "branch.DynamicGuardSelector",
+      "branch.Parallel",
+      "branch.RandomSelector",
+      "branch.RandomSequence",
+      "branch.Selector",
+      "branch.Sequence",
+      "decorator.AlwaysFail",
+      "decorator.AlwaysSucceed",
+      "decorator.Include",
+      "decorator.Invert",
+      "decorator.Random",
+      "decorator.Repeat",
+      "decorator.SemaphoreGuard",
+      "decorator.UntilFail",
+      "decorator.UntilSuccess",
+      "leaf.Failure",
+      "leaf.Success",
+      "leaf.Wait"
+    ).map(c => s"com.badlogic.gdx.ai.btree.$c") + "com.badlogic.gdx.ai.pfa.PathFinderQueue"
+
+  /** the library's own constructible tasks, each answering `newInstance()` itself as in the hand port */
+  private def ConcreteTasks: List[String] = (UnboundTypes -- AbstractTasks).toList.sorted
+
+  /** the tasks no table entry can construct, and the queue, which is no task */
+  private val AbstractTasks: Set[String] =
+    Set("BranchTask", "Decorator", "LeafTask", "LoopDecorator", "SingleRunningChildBranch", "Task").map(c => s"com.badlogic.gdx.ai.btree.$c") +
+      "com.badlogic.gdx.ai.pfa.PathFinderQueue"
+
   private val ClockReadersOutsideContext = Set(
     "com.badlogic.gdx.ai.btree.leaf.Wait",
-    "com.badlogic.gdx.ai.steer.behaviors.Wander",
     "com.badlogic.gdx.ai.steer.behaviors.Jump",
-    "com.badlogic.gdx.ai.steer.proximities.RadiusProximity",
-    "com.badlogic.gdx.ai.steer.proximities.FieldOfViewProximity",
     // a `Schedulable`'s `run`: the queue reads the clock it was given at construction (its body below)
-    "com.badlogic.gdx.ai.pfa.PathFinderQueue#run"
+    "com.badlogic.gdx.ai.pfa.PathFinderQueue#run",
+    // an interruptible search keeps java's signature, as in the hand port: a user's path finder implements it
+    "com.badlogic.gdx.ai.pfa.PathFinder#search",
+    "com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder#search",
+    "com.badlogic.gdx.ai.pfa.HierarchicalPathFinder#search"
+  )
+
+  /** the steering behaviour and the two proximities take the clock on their constructor, as in the hand port (`Wander(owner)(using Timepiece)`) */
+  private val ClockOnConstructor = Set(
+    "com.badlogic.gdx.ai.steer.behaviors.Wander",
+    "com.badlogic.gdx.ai.steer.proximities.RadiusProximity",
+    "com.badlogic.gdx.ai.steer.proximities.FieldOfViewProximity"
   )
 
   def core(coreManifest: PortManifest, sgeRoot: Path, reportRoots: List[Path], reference: Option[Path] = None): PortManifest =
@@ -67,12 +113,26 @@ object GdxAiPolicy {
         // `GdxAI`'s replacement, and the parser's reflection-free field and task table
         inject = List(sgeRoot.resolve("sge-port/overrides-ext/gdxai")),
         surface = List(
+          // a behaviour tree's blackboard and a path-finding queue's node are any type, as in the hand port (`Task[Int]`,
+          // `PathFinderQueue[Int]`): java's implicit `<: Object` bound goes, and with it every bound these reach
+          new balticporter.transform.ElementWitnessTransform(dropBound = UnboundTypes),
           // the parser's three `reflect.Field` signatures name the injected `TaskField`, which carries a field's coercion and store
           new balticporter.transform.TypeRedirectTransform(
             redirects = Map("com.badlogic.gdx.utils.reflect.Field" -> "com.badlogic.gdx.ai.btree.utils.TaskField"),
             scopes = Map("com.badlogic.gdx.utils.reflect.Field" -> Ai)
           ),
           new balticporter.transform.MethodBodyTransform(ReflectionBodies),
+          // a library's default resolver asks the installed file system when a tree is RESOLVED, as the hand port's does: java
+          // asked at construction, which this port's `GdxAI` cannot answer until a file system is installed
+          new balticporter.transform.CallSiteSubstitutionTransform(
+            List(
+              balticporter.transform.CallSiteSubstitutionTransform.Entry(
+                "com.badlogic.gdx.ai.FileSystem#newResolver(FileType)",
+                "(new sge.assets.loaders.FileHandleResolver {{ override def resolve(fileName: java.lang.String): sge.files.FileHandle = {recv}.newResolver({arg0}).resolve(fileName) }})",
+                balticporter.tir.RuleScope.Only(Set("com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary"))
+              )
+            )
+          ),
           // a telegram's extra info is any value, as in the hand port: a scala value need not be an `Object`
           new balticporter.transform.TypeRedirectTransform(
             redirects = Map("java.lang.Object" -> "scala.Any"),
@@ -103,6 +163,8 @@ object GdxAiPolicy {
               )
             )
           ),
+          // `cloneTask` asks the hand port's `newInstance()` for the fresh task, AFTER the registry minted the table it defaults to
+          new balticporter.transform.MethodBodyTransform(CloneBodies, group = "clone"),
           // `GdxAI.getTimepiece()` is the AI clock every caller reads; the hand port threads it as `(using Timepiece)`
           new balticporter.transform.GlobalsToImplicitsTransform(
             holders = List(
@@ -114,15 +176,22 @@ object GdxAiPolicy {
                 // a behaviour-tree task's `run`, a steering behaviour's `calculateSteering` and a schedulable's `run` keep
                 // java's signatures: these classes read the clock `getTimepiece` answers when no context is given
                 scope = balticporter.tir.RuleScope.Everywhere(ClockReadersOutsideContext),
-                boundary = balticporter.transform.ContextBoundary.ResidualGlobal
+                boundary = balticporter.transform.ContextBoundary.ResidualGlobal,
+                attachClass = ClockOnConstructor
               )
             )
           ),
           // the reference's constructor parameter names and underscore fields
-          new balticporter.transform.MemberRenameTransform(derive = true),
+          new balticporter.transform.MemberRenameTransform(
+            // a formation pattern takes its slot count through the hand port's setter-only property
+            renames = Map("com.badlogic.gdx.ai.fma.FormationPattern#setNumberOfSlots" -> "numberOfSlots_="),
+            derive = true
+          ),
+          // the reference's access: its public members, and `copyTo` subclass-only as a user's task overrides it
+          new balticporter.transform.VisibilityTransform(derive = true, narrow = Set("com.badlogic.gdx.ai.btree.Task#copyTo")),
           // the hand port's `Parallel(policy, orchestrator)` with no children, which java spells with an empty `Array`
           new balticporter.transform.AddMembersTransform(
-            Map(
+            (List(
               "com.badlogic.gdx.ai.btree.branch.Parallel" -> List(
                 balticporter.transform.AddMembersTransform.MemberSpec(
                   "this",
@@ -132,6 +201,40 @@ object GdxAiPolicy {
                   Some("the hand port's policy-and-orchestrator constructor, children empty as java's three-argument one is given")
                 )
               ),
+              "com.badlogic.gdx.ai.pfa.HierarchicalPathFinder" -> List(
+                balticporter.transform.AddMembersTransform.MemberSpec(
+                  "bpInstalledClock",
+                  0,
+                  "private inline given bpInstalledClock: sge.ai.Timepiece = sge.ai.GdxAI.getTimepiece()",
+                  balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.ai.pfa.HierarchicalPathFinder#bpInstalledClock"),
+                  Some(
+                    "the interruptible search keeps java's signature, so the level searches it drives read the installed clock where java read it"
+                  )
+                )
+              ),
+              "com.badlogic.gdx.ai.btree.Task" -> List(
+                balticporter.transform.AddMembersTransform.MemberSpec(
+                  "newInstance",
+                  0,
+                  "def newInstance(): sge.ai.btree.Task[E] = throw new sge.ai.btree.TaskCloneException(\"a task cloned without a cloner overrides newInstance(): \" + this.getClass().getName())",
+                  balticporter.tir.Reason.Configured("add-members", "com.badlogic.gdx.ai.btree.Task#newInstance"),
+                  Some(
+                    "the hand port's fresh-instance hook every task overrides: no platform but the JVM can construct a runtime class reflectively"
+                  )
+                )
+              )
+            ) ++ ConcreteTasks.map { c =>
+              val emitted = c.replace("com.badlogic.gdx", "sge")
+              c -> List(
+                balticporter.transform.AddMembersTransform.MemberSpec(
+                  "newInstance",
+                  0,
+                  s"override def newInstance(): sge.ai.btree.Task[E] = new $emitted[E]()",
+                  balticporter.tir.Reason.Configured("add-members", s"$c#newInstance"),
+                  Some("the hand port's own fresh instance of this task, which cloneTask fills")
+                )
+              )
+            } ++ List(
               "com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser" -> List(
                 balticporter.transform.AddMembersTransform.MemberSpec(
                   "this",
@@ -190,7 +293,7 @@ object GdxAiPolicy {
                   Some("the hand port's timepiece accessor")
                 )
               )
-            )
+            )).groupMapReduce(_._1)(_._2)(_ ++ _)
           ),
           new balticporter.transform.BeanPropertyTransform(scope = Ai, derive = true),
           new balticporter.transform.NullaryArityTransform(scope = Ai, derive = true),
@@ -198,13 +301,33 @@ object GdxAiPolicy {
           // LAST, deliberately: reads what the BASE actually emitted
           balticporter.transform.PortMapTransform.forBasesIn(reportRoots, "sge-l0")
         ),
-        parity = reference.map(r => ParityRef(roots = List(r)))
+        parity = reference.map(r => ParityRef(roots = List(r))),
+        frozenDerivedPolicy = Some(sgeRoot.resolve("sge-port/ai-derived-policy.tsv")).filter(p => java.nio.file.Files.exists(p))
       )
     )
 
   /** The members that asked the JVM a run-time question the base no longer answers; each body is java's own control flow with the question asked of `TaskRegistry`. Keys are upstream names, bodies the
     * port's final spelling.
     */
+  /** `cloneTask`'s fresh task, java's `ClassReflection.newInstance(getClass())`, is asked of `newInstance()`, which the hand port lets a task override */
+  private val CloneBodies: Map[String, String] = Map(
+    "com.badlogic.gdx.ai.btree.Task#cloneTask()" ->
+      """{
+        |    if (Task.TASK_CLONER != null) {
+        |      try {
+        |        return Task.TASK_CLONER.cloneTask(this)
+        |      } catch {
+        |        case t: java.lang.Throwable => {
+        |          throw new sge.ai.btree.TaskCloneException(t)
+        |        }
+        |      }
+        |    } else ()
+        |    val clone: Task[E] = this.copyTo(this.newInstance())
+        |    clone.guard$field = lowlevel.Nullable(if (this.guard$field.isEmpty) null.asInstanceOf[Task[E]] else this.guard$field.get.cloneTask())
+        |    clone
+        |  }""".stripMargin
+  )
+
   private val ReflectionBodies: Map[String, String] = Map(
     // the callback's `Object` slot takes a telegram's extra info, which this port types `Any` (a class file's slot no phase moves)
     "com.badlogic.gdx.ai.msg.MessageDispatcher#scanQueue(PendingMessageCallback)" ->

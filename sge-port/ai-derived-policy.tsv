@@ -1,0 +1,863 @@
+#family	upstream	reference	target
+FieldName	com.badlogic.gdx.ai.fma.patterns.DefensiveCircleFormationPattern#numberOfSlots:field	var _numberOfSlots	_numberOfSlots
+KeepName	com.badlogic.gdx.ai.btree.BehaviorTree#getChild	def getChild	
+KeepName	com.badlogic.gdx.ai.btree.BehaviorTree#getChildCount	def getChildCount	
+KeepName	com.badlogic.gdx.ai.btree.BehaviorTree#getObject	def getObject	
+KeepName	com.badlogic.gdx.ai.btree.BehaviorTree#setObject	def setObject	
+KeepName	com.badlogic.gdx.ai.btree.BranchTask#getChild	def getChild	
+KeepName	com.badlogic.gdx.ai.btree.BranchTask#getChildCount	def getChildCount	
+KeepName	com.badlogic.gdx.ai.btree.Decorator#getChild	def getChild	
+KeepName	com.badlogic.gdx.ai.btree.Decorator#getChildCount	def getChildCount	
+KeepName	com.badlogic.gdx.ai.btree.LeafTask#getChild	def getChild	
+KeepName	com.badlogic.gdx.ai.btree.LeafTask#getChildCount	def getChildCount	
+KeepName	com.badlogic.gdx.ai.btree.Task#getChild	def getChild	
+KeepName	com.badlogic.gdx.ai.btree.Task#getChildCount	def getChildCount	
+KeepName	com.badlogic.gdx.ai.btree.Task#getObject	def getObject	
+KeepName	com.badlogic.gdx.ai.btree.Task#getStatus	def getStatus	
+KeepName	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser$DefaultBehaviorTreeReader#getCurrentTask	def getCurrentTask	
+KeepName	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser$DefaultBehaviorTreeReader#getParser	def getParser	
+KeepName	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser$DefaultBehaviorTreeReader#setParser	def setParser	
+KeepName	com.badlogic.gdx.ai.fsm.DefaultStateMachine#getCurrentState	def getCurrentState	
+KeepName	com.badlogic.gdx.ai.fsm.DefaultStateMachine#getGlobalState	def getGlobalState	
+KeepName	com.badlogic.gdx.ai.fsm.DefaultStateMachine#getPreviousState	def getPreviousState	
+KeepName	com.badlogic.gdx.ai.fsm.DefaultStateMachine#isInState	def isInState	
+KeepName	com.badlogic.gdx.ai.fsm.DefaultStateMachine#setInitialState	def setInitialState	
+KeepName	com.badlogic.gdx.ai.fsm.StackStateMachine#getCurrentState	def getCurrentState	
+KeepName	com.badlogic.gdx.ai.fsm.StackStateMachine#getPreviousState	def getPreviousState	
+KeepName	com.badlogic.gdx.ai.fsm.StackStateMachine#setInitialState	def setInitialState	
+KeepName	com.badlogic.gdx.ai.fsm.StateMachine#getCurrentState	def getCurrentState	
+KeepName	com.badlogic.gdx.ai.fsm.StateMachine#getGlobalState	def getGlobalState	
+KeepName	com.badlogic.gdx.ai.fsm.StateMachine#getPreviousState	def getPreviousState	
+KeepName	com.badlogic.gdx.ai.fsm.StateMachine#isInState	def isInState	
+KeepName	com.badlogic.gdx.ai.fsm.StateMachine#setGlobalState	def setGlobalState	
+KeepName	com.badlogic.gdx.ai.fsm.StateMachine#setInitialState	def setInitialState	
+KeepName	com.badlogic.gdx.ai.pfa.Connection#getCost	def getCost	
+KeepName	com.badlogic.gdx.ai.pfa.Connection#getFromNode	def getFromNode	
+KeepName	com.badlogic.gdx.ai.pfa.Connection#getToNode	def getToNode	
+KeepName	com.badlogic.gdx.ai.pfa.DefaultConnection#getCost	def getCost	
+KeepName	com.badlogic.gdx.ai.pfa.DefaultConnection#getFromNode	def getFromNode	
+KeepName	com.badlogic.gdx.ai.pfa.DefaultConnection#getToNode	def getToNode	
+KeepName	com.badlogic.gdx.ai.pfa.DefaultGraphPath#getCount	def getCount	
+KeepName	com.badlogic.gdx.ai.pfa.Graph#getConnections	def getConnections	
+KeepName	com.badlogic.gdx.ai.pfa.GraphPath#getCount	def getCount	
+KeepName	com.badlogic.gdx.ai.pfa.HierarchicalGraph#getLevelCount	def getLevelCount	
+KeepName	com.badlogic.gdx.ai.pfa.HierarchicalGraph#setLevel	def setLevel	
+KeepName	com.badlogic.gdx.ai.pfa.SmoothableGraphPath#getNodePosition	def getNodePosition	
+KeepName	com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder#getNodeRecord	def getNodeRecord	
+KeepName	com.badlogic.gdx.ai.pfa.indexed.IndexedGraph#getIndex	def getIndex	
+KeepName	com.badlogic.gdx.ai.pfa.indexed.IndexedGraph#getNodeCount	def getNodeCount	
+KeepName	com.badlogic.gdx.ai.pfa.indexed.IndexedHierarchicalGraph#getLevelCount	def getLevelCount	
+KeepName	com.badlogic.gdx.ai.steer.SteeringAcceleration#isZero	def isZero	
+KeepName	com.badlogic.gdx.ai.steer.SteeringAcceleration#setZero	def setZero	
+KeepName	com.badlogic.gdx.ai.steer.SteeringBehavior#getActualLimiter	def getActualLimiter	
+KeepName	com.badlogic.gdx.ai.steer.behaviors.Evade#getActualMaxLinearAcceleration	def getActualMaxLinearAcceleration	
+KeepName	com.badlogic.gdx.ai.steer.behaviors.FollowPath#getInternalTargetPosition	def getInternalTargetPosition	
+KeepName	com.badlogic.gdx.ai.steer.behaviors.Hide#getHidingPosition	def getHidingPosition	
+KeepName	com.badlogic.gdx.ai.steer.behaviors.Interpose#getInternalTargetPosition	def getInternalTargetPosition	
+KeepName	com.badlogic.gdx.ai.steer.behaviors.Jump#setTakeoffTolerance	def setTakeoffTolerance	
+KeepName	com.badlogic.gdx.ai.steer.behaviors.Jump$GravityComponentHandler#getComponent	def getComponent	
+KeepName	com.badlogic.gdx.ai.steer.behaviors.Jump$GravityComponentHandler#setComponent	def setComponent	
+KeepName	com.badlogic.gdx.ai.steer.behaviors.Pursue#getActualMaxLinearAcceleration	def getActualMaxLinearAcceleration	
+KeepName	com.badlogic.gdx.ai.steer.behaviors.Wander#getInternalTargetPosition	def getInternalTargetPosition	
+KeepName	com.badlogic.gdx.ai.steer.behaviors.Wander#getWanderCenter	def getWanderCenter	
+KeepName	com.badlogic.gdx.ai.steer.utils.Path#isOpen	def isOpen	
+KeepName	com.badlogic.gdx.ai.steer.utils.paths.LinePath#getSegments	def getSegments	
+KeepName	com.badlogic.gdx.ai.utils.CircularBuffer#isEmpty	def isEmpty	
+KeepName	com.badlogic.gdx.ai.utils.CircularBuffer#isFull	def isFull	
+KeepName	com.badlogic.gdx.ai.utils.NonBlockingSemaphoreRepository#getSemaphore	def getSemaphore	
+KeepName	com.badlogic.gdx.ai.utils.NonBlockingSemaphoreRepository#setFactory	def setFactory	
+KeepParens	com.badlogic.gdx.ai.btree.LeafTask#execute	def execute(): Task.Status	
+KeepParens	com.badlogic.gdx.ai.btree.LoopDecorator#condition	def condition(): Boolean	
+KeepParens	com.badlogic.gdx.ai.btree.SingleRunningChildBranch#createRandomChildren	def createRandomChildren(): Array[Task[$0]]	
+KeepParens	com.badlogic.gdx.ai.btree.Task#cloneTask	def cloneTask(): Task[$0]	
+KeepParens	com.badlogic.gdx.ai.btree.decorator.Include#cloneTask	def cloneTask(): Task[$0]	
+KeepParens	com.badlogic.gdx.ai.btree.decorator.Repeat#condition	def condition(): Boolean	
+KeepParens	com.badlogic.gdx.ai.btree.leaf.Failure#execute	def execute(): Task.Status	
+KeepParens	com.badlogic.gdx.ai.btree.leaf.Success#execute	def execute(): Task.Status	
+KeepParens	com.badlogic.gdx.ai.btree.leaf.Wait#execute	def execute(): Task.Status	
+KeepParens	com.badlogic.gdx.ai.fsm.DefaultStateMachine#revertToPreviousState	def revertToPreviousState(): Boolean	
+KeepParens	com.badlogic.gdx.ai.fsm.StackStateMachine#revertToPreviousState	def revertToPreviousState(): Boolean	
+KeepParens	com.badlogic.gdx.ai.fsm.StateMachine#revertToPreviousState	def revertToPreviousState(): Boolean	
+KeepParens	com.badlogic.gdx.ai.msg.PriorityQueue#peek	def peek(): Nullable[$0]	
+KeepParens	com.badlogic.gdx.ai.msg.PriorityQueue#poll	def poll(): Nullable[$0]	
+KeepParens	com.badlogic.gdx.ai.msg.Telegram#hashCode	def hashCode(): Int	
+KeepParens	com.badlogic.gdx.ai.steer.SteerableAdapter#newLocation	def newLocation(): Location[$0]	
+KeepParens	com.badlogic.gdx.ai.steer.SteeringAcceleration#calculateMagnitude	def calculateMagnitude(): Float	
+KeepParens	com.badlogic.gdx.ai.steer.SteeringAcceleration#calculateSquareMagnitude	def calculateSquareMagnitude(): Float	
+KeepParens	com.badlogic.gdx.ai.steer.SteeringAcceleration#setZero	def setZero(): SteeringAcceleration[$0]	
+KeepParens	com.badlogic.gdx.ai.steer.SteeringBehavior#getActualLimiter	def getActualLimiter(): Limiter	
+KeepParens	com.badlogic.gdx.ai.steer.behaviors.Evade#getActualMaxLinearAcceleration	def getActualMaxLinearAcceleration(): Float	
+KeepParens	com.badlogic.gdx.ai.steer.behaviors.Pursue#getActualMaxLinearAcceleration	def getActualMaxLinearAcceleration(): Float	
+KeepParens	com.badlogic.gdx.ai.steer.utils.Path#createParam	def createParam(): $1	
+KeepParens	com.badlogic.gdx.ai.steer.utils.RayConfiguration#updateRays	def updateRays(): Array[Ray[$0]]	
+KeepParens	com.badlogic.gdx.ai.steer.utils.paths.LinePath#createParam	def createParam(): LinePath.LinePathParam	
+KeepParens	com.badlogic.gdx.ai.steer.utils.rays.CentralRayWithWhiskersConfiguration#updateRays	def updateRays(): Array[Ray[$0]]	
+KeepParens	com.badlogic.gdx.ai.steer.utils.rays.ParallelSideRayConfiguration#updateRays	def updateRays(): Array[Ray[$0]]	
+KeepParens	com.badlogic.gdx.ai.steer.utils.rays.SingleRayConfiguration#updateRays	def updateRays(): Array[Ray[$0]]	
+KeepParens	com.badlogic.gdx.ai.utils.CircularBuffer#read	def read(): Nullable[$0]	
+KeepParens	com.badlogic.gdx.ai.utils.Location#newLocation	def newLocation(): Location[$0]	
+KeepParens	com.badlogic.gdx.ai.utils.NonBlockingSemaphore#acquire()	def acquire(): Boolean	
+KeepParens	com.badlogic.gdx.ai.utils.NonBlockingSemaphore#release()	def release(): Boolean	
+KeepParens	com.badlogic.gdx.ai.utils.random.ConstantDoubleDistribution#nextDouble	def nextDouble(): Double	
+KeepParens	com.badlogic.gdx.ai.utils.random.ConstantFloatDistribution#nextFloat	def nextFloat(): Float	
+KeepParens	com.badlogic.gdx.ai.utils.random.ConstantIntegerDistribution#nextInt	def nextInt(): Int	
+KeepParens	com.badlogic.gdx.ai.utils.random.ConstantLongDistribution#nextLong	def nextLong(): Long	
+KeepParens	com.badlogic.gdx.ai.utils.random.Distribution#nextDouble	def nextDouble(): Double	
+KeepParens	com.badlogic.gdx.ai.utils.random.Distribution#nextFloat	def nextFloat(): Float	
+KeepParens	com.badlogic.gdx.ai.utils.random.Distribution#nextInt	def nextInt(): Int	
+KeepParens	com.badlogic.gdx.ai.utils.random.Distribution#nextLong	def nextLong(): Long	
+KeepParens	com.badlogic.gdx.ai.utils.random.DoubleDistribution#nextFloat	def nextFloat(): Float	
+KeepParens	com.badlogic.gdx.ai.utils.random.DoubleDistribution#nextInt	def nextInt(): Int	
+KeepParens	com.badlogic.gdx.ai.utils.random.DoubleDistribution#nextLong	def nextLong(): Long	
+KeepParens	com.badlogic.gdx.ai.utils.random.FloatDistribution#nextDouble	def nextDouble(): Double	
+KeepParens	com.badlogic.gdx.ai.utils.random.FloatDistribution#nextInt	def nextInt(): Int	
+KeepParens	com.badlogic.gdx.ai.utils.random.FloatDistribution#nextLong	def nextLong(): Long	
+KeepParens	com.badlogic.gdx.ai.utils.random.GaussianDoubleDistribution#nextDouble	def nextDouble(): Double	
+KeepParens	com.badlogic.gdx.ai.utils.random.GaussianFloatDistribution#nextFloat	def nextFloat(): Float	
+KeepParens	com.badlogic.gdx.ai.utils.random.IntegerDistribution#nextDouble	def nextDouble(): Double	
+KeepParens	com.badlogic.gdx.ai.utils.random.IntegerDistribution#nextFloat	def nextFloat(): Float	
+KeepParens	com.badlogic.gdx.ai.utils.random.IntegerDistribution#nextLong	def nextLong(): Long	
+KeepParens	com.badlogic.gdx.ai.utils.random.LongDistribution#nextDouble	def nextDouble(): Double	
+KeepParens	com.badlogic.gdx.ai.utils.random.LongDistribution#nextFloat	def nextFloat(): Float	
+KeepParens	com.badlogic.gdx.ai.utils.random.LongDistribution#nextInt	def nextInt(): Int	
+KeepParens	com.badlogic.gdx.ai.utils.random.TriangularDoubleDistribution#nextDouble	def nextDouble(): Double	
+KeepParens	com.badlogic.gdx.ai.utils.random.TriangularFloatDistribution#nextFloat	def nextFloat(): Float	
+KeepParens	com.badlogic.gdx.ai.utils.random.TriangularIntegerDistribution#nextInt	def nextInt(): Int	
+KeepParens	com.badlogic.gdx.ai.utils.random.TriangularLongDistribution#nextLong	def nextLong(): Long	
+KeepParens	com.badlogic.gdx.ai.utils.random.UniformDoubleDistribution#nextDouble	def nextDouble(): Double	
+KeepParens	com.badlogic.gdx.ai.utils.random.UniformFloatDistribution#nextFloat	def nextFloat(): Float	
+KeepParens	com.badlogic.gdx.ai.utils.random.UniformIntegerDistribution#nextInt	def nextInt(): Int	
+KeepParens	com.badlogic.gdx.ai.utils.random.UniformLongDistribution#nextLong	def nextLong(): Long	
+NullableMember	com.badlogic.gdx.ai.btree.BehaviorTree#<init>(Task)#rootTask	Nullable[Task[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.BehaviorTree#<init>(Task,E)#object	Nullable[$0]	
+NullableMember	com.badlogic.gdx.ai.btree.BehaviorTree#<init>(Task,E)#rootTask	Nullable[Task[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.Decorator#<init>(Task)#child	Nullable[Task[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.Decorator#child:field	Nullable[Task[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.LoopDecorator#<init>(Task)#child	Nullable[Task[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.SingleRunningChildBranch#randomChildren:field	Nullable[Array[Task[$0]]]	
+NullableMember	com.badlogic.gdx.ai.btree.SingleRunningChildBranch#runningChild:field	Nullable[Task[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.Task#control:field	Nullable[Task[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.Task#getGuard	Nullable[Task[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.Task#guard:field	Nullable[Task[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.Task#setGuard#guard	Nullable[Task[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.Task#tree:field	Nullable[BehaviorTree[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.branch.DynamicGuardSelector#runningChild:field	Nullable[Task[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.branch.Parallel$Policy#onChildFail	Nullable[Boolean]	
+NullableMember	com.badlogic.gdx.ai.btree.branch.Parallel$Policy#onChildSuccess	Nullable[Boolean]	
+NullableMember	com.badlogic.gdx.ai.btree.decorator.AlwaysFail#<init>(Task)#task	Nullable[Task[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.decorator.AlwaysSucceed#<init>(Task)#task	Nullable[Task[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.decorator.Include#<init>(String)#subtree	Nullable[String]	
+NullableMember	com.badlogic.gdx.ai.btree.decorator.Include#<init>(String,boolean)#subtree	Nullable[String]	
+NullableMember	com.badlogic.gdx.ai.btree.decorator.Include#subtree:field	Nullable[String]	
+NullableMember	com.badlogic.gdx.ai.btree.decorator.Invert#<init>(Task)#task	Nullable[Task[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.decorator.Random#<init>(FloatDistribution,Task)#task	Nullable[Task[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.decorator.Repeat#<init>(IntegerDistribution,Task)#child	Nullable[Task[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.decorator.SemaphoreGuard#<init>(String)#name	Nullable[String]	
+NullableMember	com.badlogic.gdx.ai.btree.decorator.SemaphoreGuard#<init>(String,Task)#name	Nullable[String]	
+NullableMember	com.badlogic.gdx.ai.btree.decorator.SemaphoreGuard#<init>(String,Task)#task	Nullable[Task[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.decorator.SemaphoreGuard#<init>(Task)#task	Nullable[String]	
+NullableMember	com.badlogic.gdx.ai.btree.decorator.SemaphoreGuard#name:field	Nullable[String]	
+NullableMember	com.badlogic.gdx.ai.btree.decorator.UntilFail#<init>(Task)#task	Nullable[Task[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.decorator.UntilSuccess#<init>(Task)#task	Nullable[Task[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary#createBehaviorTree(String,T)#blackboard	Nullable[$0]	
+NullableMember	com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibraryManager#createBehaviorTree(String,T)#blackboard	Nullable[$0]	
+NullableMember	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser#<init>(DistributionAdapters,int,DefaultBehaviorTreeReader)#reader	Nullable[BehaviorTreeParser.DefaultBehaviorTreeReader[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser#createBehaviorTree#object	Nullable[$0]	
+NullableMember	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser#parse(FileHandle,E)#object	Nullable[$0]	
+NullableMember	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser#parse(InputStream,E)#object	Nullable[$0]	
+NullableMember	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser#parse(Reader,E)#object	Nullable[$0]	
+NullableMember	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser#parse(String,E)#object	Nullable[$0]	
+NullableMember	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser$DefaultBehaviorTreeReader#btParser:field	Nullable[BehaviorTreeParser[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser$DefaultBehaviorTreeReader#currentTree:field	Nullable[Subtree[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser$DefaultBehaviorTreeReader#getPrevTask	Nullable[StackedTask[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser$DefaultBehaviorTreeReader#guardChain:field	Nullable[StackedTask[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser$DefaultBehaviorTreeReader#prevTask:field	Nullable[StackedTask[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser$DefaultBehaviorTreeReader#root:field	Nullable[Task[$0]]	
+NullableMember	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser$DefaultBehaviorTreeReader#subtreeName:field	Nullable[String]	
+NullableMember	com.badlogic.gdx.ai.btree.utils.PooledBehaviorTreeLibrary#createBehaviorTree#blackboard	Nullable[$0]	
+NullableMember	com.badlogic.gdx.ai.fma.Formation#<init>(Location,FormationPattern,SlotAssignmentStrategy,FormationMotionModerator)#motionModerator	Nullable[FormationMotionModerator[$0]]	
+NullableMember	com.badlogic.gdx.ai.fma.Formation#getMotionModerator	Nullable[FormationMotionModerator[$0]]	
+NullableMember	com.badlogic.gdx.ai.fma.Formation#motionModerator:field	Nullable[FormationMotionModerator[$0]]	
+NullableMember	com.badlogic.gdx.ai.fma.Formation#setMotionModerator#motionModerator	Nullable[FormationMotionModerator[$0]]	
+NullableMember	com.badlogic.gdx.ai.fsm.DefaultStateMachine#<init>(E,S)#initialState	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.DefaultStateMachine#<init>(E,S,S)#globalState	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.DefaultStateMachine#<init>(E,S,S)#initialState	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.DefaultStateMachine#currentState:field	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.DefaultStateMachine#getCurrentState	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.DefaultStateMachine#getGlobalState	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.DefaultStateMachine#getPreviousState	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.DefaultStateMachine#globalState:field	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.DefaultStateMachine#previousState:field	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.DefaultStateMachine#setGlobalState#state	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.DefaultStateMachine#setInitialState#state	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.StackStateMachine#<init>(E,S)#initialState	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.StackStateMachine#<init>(E,S,S)#globalState	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.StackStateMachine#<init>(E,S,S)#initialState	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.StackStateMachine#getCurrentState	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.StackStateMachine#getPreviousState	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.StackStateMachine#setInitialState#state	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.StateMachine#getCurrentState	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.StateMachine#getGlobalState	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.StateMachine#getPreviousState	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.StateMachine#setGlobalState#state	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.fsm.StateMachine#setInitialState#state	Nullable[$1]	
+NullableMember	com.badlogic.gdx.ai.msg.MessageDispatcher#dispatchMessage(Telegraph,Telegraph,int,Object)#extraInfo	Nullable[Telegraph]	
+NullableMember	com.badlogic.gdx.ai.msg.MessageDispatcher#dispatchMessage(Telegraph,Telegraph,int,Object,boolean)#extraInfo	Nullable[Telegraph]	
+NullableMember	com.badlogic.gdx.ai.msg.MessageDispatcher#dispatchMessage(Telegraph,int,Object)#extraInfo	Nullable[Telegraph]	
+NullableMember	com.badlogic.gdx.ai.msg.MessageDispatcher#dispatchMessage(Telegraph,int,Object,boolean)#extraInfo	Nullable[Telegraph]	
+NullableMember	com.badlogic.gdx.ai.msg.MessageDispatcher#dispatchMessage(float,Telegraph,Telegraph,int)#receiver	Nullable[Telegraph]	
+NullableMember	com.badlogic.gdx.ai.msg.MessageDispatcher#dispatchMessage(float,Telegraph,Telegraph,int,Object)#extraInfo	Nullable[Any]	
+NullableMember	com.badlogic.gdx.ai.msg.MessageDispatcher#dispatchMessage(float,Telegraph,Telegraph,int,Object)#receiver	Nullable[Telegraph]	
+NullableMember	com.badlogic.gdx.ai.msg.MessageDispatcher#dispatchMessage(float,Telegraph,Telegraph,int,Object,boolean)#extraInfo	Nullable[Any]	
+NullableMember	com.badlogic.gdx.ai.msg.MessageDispatcher#dispatchMessage(float,Telegraph,Telegraph,int,Object,boolean)#receiver	Nullable[Telegraph]	
+NullableMember	com.badlogic.gdx.ai.msg.MessageDispatcher#dispatchMessage(float,Telegraph,Telegraph,int,boolean)#receiver	Nullable[Telegraph]	
+NullableMember	com.badlogic.gdx.ai.msg.MessageDispatcher#dispatchMessage(float,Telegraph,int,Object)#extraInfo	Nullable[Telegraph]	
+NullableMember	com.badlogic.gdx.ai.msg.MessageDispatcher#dispatchMessage(float,Telegraph,int,Object,boolean)#extraInfo	Nullable[Telegraph]	
+NullableMember	com.badlogic.gdx.ai.msg.MessageDispatcher#dispatchMessage(float,int,Object)#extraInfo	Nullable[Telegraph]	
+NullableMember	com.badlogic.gdx.ai.msg.PriorityQueue#get	Nullable[$0]	
+NullableMember	com.badlogic.gdx.ai.msg.PriorityQueue#peek	Nullable[$0]	
+NullableMember	com.badlogic.gdx.ai.msg.PriorityQueue#poll	Nullable[$0]	
+NullableMember	com.badlogic.gdx.ai.msg.Telegram#extraInfo:field	Nullable[Any]	
+NullableMember	com.badlogic.gdx.ai.msg.Telegram#receiver:field	Nullable[Telegraph]	
+NullableMember	com.badlogic.gdx.ai.msg.Telegram#sender:field	Nullable[Telegraph]	
+NullableMember	com.badlogic.gdx.ai.msg.TelegramProvider#provideMessageInfo	Nullable[Any]	
+NullableMember	com.badlogic.gdx.ai.pfa.PathFinderRequest#client:field	Nullable[Telegraph]	
+NullableMember	com.badlogic.gdx.ai.pfa.PathFinderRequest#dispatcher:field	Nullable[MessageDispatcher]	
+NullableMember	com.badlogic.gdx.ai.pfa.PathFinderRequestControl#server:field	Nullable[Telegraph]	
+NullableMember	com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder#metrics:field	Nullable[IndexedAStarPathFinder.Metrics]	
+NullableMember	com.badlogic.gdx.ai.steer.SteeringBehavior#<init>(Steerable,Limiter)#limiter	Nullable[Limiter]	
+NullableMember	com.badlogic.gdx.ai.steer.SteeringBehavior#<init>(Steerable,Limiter,boolean)#limiter	Nullable[Limiter]	
+NullableMember	com.badlogic.gdx.ai.steer.SteeringBehavior#getLimiter	Nullable[Limiter]	
+NullableMember	com.badlogic.gdx.ai.steer.SteeringBehavior#limiter:field	Nullable[Limiter]	
+NullableMember	com.badlogic.gdx.ai.steer.SteeringBehavior#setLimiter#limiter	Nullable[Limiter]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Arrive#<init>(Steerable,Location)#target	Nullable[Location[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Arrive#getTarget	Nullable[Location[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Arrive#setTarget#target	Nullable[Location[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Arrive#target:field	Nullable[Location[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Evade#<init>(Steerable,Steerable)#target	Nullable[Steerable[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Evade#<init>(Steerable,Steerable,float)#target	Nullable[Steerable[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Face#<init>(Steerable,Location)#target	Nullable[Location[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Flee#<init>(Steerable,Location)#target	Nullable[Location[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.FollowFlowField#<init>(Steerable,FlowField)#flowField	Nullable[FollowFlowField.FlowField[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.FollowFlowField#<init>(Steerable,FlowField,float)#flowField	Nullable[FollowFlowField.FlowField[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.FollowFlowField#flowField:field	Nullable[FollowFlowField.FlowField[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.FollowFlowField#getFlowField	Nullable[FollowFlowField.FlowField[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.FollowFlowField#setFlowField#flowField	Nullable[FollowFlowField.FlowField[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Hide#<init>(Steerable,Location)#target	Nullable[Location[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Hide#<init>(Steerable,Location,Proximity)#proximity	Nullable[Proximity[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Hide#<init>(Steerable,Location,Proximity)#target	Nullable[Location[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Hide#getProximity	Nullable[Proximity[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Hide#proximity:field	Nullable[Proximity[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Hide#setProximity#proximity	Nullable[Proximity[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.MatchVelocity#<init>(Steerable,Steerable)#target	Nullable[Steerable[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.MatchVelocity#<init>(Steerable,Steerable,float)#target	Nullable[Steerable[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.MatchVelocity#getTarget	Nullable[Steerable[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.MatchVelocity#setTarget#target	Nullable[Steerable[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.MatchVelocity#target:field	Nullable[Steerable[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Pursue#<init>(Steerable,Steerable)#target	Nullable[Steerable[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Pursue#<init>(Steerable,Steerable,float)#target	Nullable[Steerable[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Pursue#getTarget	Nullable[Steerable[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Pursue#setTarget#target	Nullable[Steerable[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Pursue#target:field	Nullable[Steerable[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#<init>(Steerable,RayConfiguration)#rayConfiguration	Nullable[RayConfiguration[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#<init>(Steerable,RayConfiguration,RaycastCollisionDetector)#rayConfiguration	Nullable[RayConfiguration[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#<init>(Steerable,RayConfiguration,RaycastCollisionDetector)#raycastCollisionDetector	Nullable[RaycastCollisionDetector[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#<init>(Steerable,RayConfiguration,RaycastCollisionDetector,float)#rayConfiguration	Nullable[RayConfiguration[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#<init>(Steerable,RayConfiguration,RaycastCollisionDetector,float)#raycastCollisionDetector	Nullable[RaycastCollisionDetector[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#getRayConfiguration	Nullable[RayConfiguration[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#getRaycastCollisionDetector	Nullable[RaycastCollisionDetector[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#rayConfiguration:field	Nullable[RayConfiguration[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#raycastCollisionDetector:field	Nullable[RaycastCollisionDetector[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#setRayConfiguration#rayConfiguration	Nullable[RayConfiguration[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#setRaycastCollisionDetector#raycastCollisionDetector	Nullable[RaycastCollisionDetector[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.ReachOrientation#<init>(Steerable,Location)#target	Nullable[Location[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.ReachOrientation#getTarget	Nullable[Location[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.ReachOrientation#setTarget#target	Nullable[Location[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.ReachOrientation#target:field	Nullable[Location[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Seek#<init>(Steerable,Location)#target	Nullable[Location[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Seek#getTarget	Nullable[Location[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Seek#setTarget#target	Nullable[Location[$0]]	
+NullableMember	com.badlogic.gdx.ai.steer.behaviors.Seek#target:field	Nullable[Location[$0]]	
+NullableMember	com.badlogic.gdx.ai.utils.CircularBuffer#read	Nullable[$0]	
+ParamName	com.badlogic.gdx.ai.btree.BehaviorTree#<init>(Task,E)#object	obj	obj
+ParamName	com.badlogic.gdx.ai.btree.LoopDecorator#<init>(Task)#child	initialChild	initialChild
+ParamName	com.badlogic.gdx.ai.btree.decorator.AlwaysFail#<init>(Task)#task	child	child
+ParamName	com.badlogic.gdx.ai.btree.decorator.AlwaysSucceed#<init>(Task)#task	child	child
+ParamName	com.badlogic.gdx.ai.btree.decorator.Include#<init>(String,boolean)#lazy	isLazy	isLazy
+ParamName	com.badlogic.gdx.ai.btree.decorator.Invert#<init>(Task)#task	child	child
+ParamName	com.badlogic.gdx.ai.btree.decorator.Random#<init>(FloatDistribution)#success	successDistribution	successDistribution
+ParamName	com.badlogic.gdx.ai.btree.decorator.Random#<init>(FloatDistribution,Task)#success	successDistribution	successDistribution
+ParamName	com.badlogic.gdx.ai.btree.decorator.Random#<init>(FloatDistribution,Task)#task	child	child
+ParamName	com.badlogic.gdx.ai.btree.decorator.SemaphoreGuard#<init>(String,Task)#task	child	child
+ParamName	com.badlogic.gdx.ai.btree.decorator.UntilFail#<init>(Task)#task	child	child
+ParamName	com.badlogic.gdx.ai.btree.decorator.UntilSuccess#<init>(Task)#task	child	child
+ParamName	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser#<init>(DistributionAdapters,int,DefaultBehaviorTreeReader)#reader	btReaderOpt	btReaderOpt
+ParamName	com.badlogic.gdx.ai.btree.utils.DistributionAdapters$Adapter#<init>#type	distributionType	distributionType
+ParamName	com.badlogic.gdx.ai.btree.utils.DistributionAdapters$DistributionFormatException#<init>(String)#s	message	message
+ParamName	com.badlogic.gdx.ai.fsm.DefaultStateMachine#<init>(E,S,S)#globalState	_globalState	_globalState
+ParamName	com.badlogic.gdx.ai.fsm.StackStateMachine#<init>(E,S,S)#globalState	_globalState	_globalState
+ParamName	com.badlogic.gdx.ai.steer.limiters.AngularAccelerationLimiter#<init>#maxAngularAcceleration	_maxAngularAcceleration	_maxAngularAcceleration
+ParamName	com.badlogic.gdx.ai.steer.limiters.AngularLimiter#<init>#maxAngularAcceleration	_maxAngularAcceleration	_maxAngularAcceleration
+ParamName	com.badlogic.gdx.ai.steer.limiters.AngularLimiter#<init>#maxAngularSpeed	_maxAngularSpeed	_maxAngularSpeed
+ParamName	com.badlogic.gdx.ai.steer.limiters.AngularSpeedLimiter#<init>#maxAngularSpeed	_maxAngularSpeed	_maxAngularSpeed
+ParamName	com.badlogic.gdx.ai.steer.limiters.FullLimiter#<init>#maxAngularAcceleration	_maxAngularAcceleration	_maxAngularAcceleration
+ParamName	com.badlogic.gdx.ai.steer.limiters.FullLimiter#<init>#maxAngularSpeed	_maxAngularSpeed	_maxAngularSpeed
+ParamName	com.badlogic.gdx.ai.steer.limiters.FullLimiter#<init>#maxLinearAcceleration	_maxLinearAcceleration	_maxLinearAcceleration
+ParamName	com.badlogic.gdx.ai.steer.limiters.FullLimiter#<init>#maxLinearSpeed	_maxLinearSpeed	_maxLinearSpeed
+ParamName	com.badlogic.gdx.ai.steer.limiters.LinearAccelerationLimiter#<init>#maxLinearAcceleration	_maxLinearAcceleration	_maxLinearAcceleration
+ParamName	com.badlogic.gdx.ai.steer.limiters.LinearLimiter#<init>#maxLinearAcceleration	_maxLinearAcceleration	_maxLinearAcceleration
+ParamName	com.badlogic.gdx.ai.steer.limiters.LinearLimiter#<init>#maxLinearSpeed	_maxLinearSpeed	_maxLinearSpeed
+ParamName	com.badlogic.gdx.ai.steer.limiters.LinearSpeedLimiter#<init>#maxLinearSpeed	_maxLinearSpeed	_maxLinearSpeed
+ParamName	com.badlogic.gdx.ai.steer.proximities.FieldOfViewProximity#<init>#angle	angle0	angle0
+ParamName	com.badlogic.gdx.ai.steer.proximities.ProximityBase#<init>#owner	_owner	_owner
+Parenless	com.badlogic.gdx.ai.DefaultTimepiece#getDeltaTime	def deltaTime: Float	
+Parenless	com.badlogic.gdx.ai.DefaultTimepiece#getTime	def time: Float	
+Parenless	com.badlogic.gdx.ai.Timepiece#getDeltaTime	def deltaTime: Float	
+Parenless	com.badlogic.gdx.ai.Timepiece#getTime	def time: Float	
+Parenless	com.badlogic.gdx.ai.btree.BehaviorTree#getChildCount	def getChildCount: Int	
+Parenless	com.badlogic.gdx.ai.btree.BehaviorTree#getObject	def getObject: $0	
+Parenless	com.badlogic.gdx.ai.btree.BranchTask#getChildCount	def getChildCount: Int	
+Parenless	com.badlogic.gdx.ai.btree.Decorator#getChildCount	def getChildCount: Int	
+Parenless	com.badlogic.gdx.ai.btree.LeafTask#getChildCount	def getChildCount: Int	
+Parenless	com.badlogic.gdx.ai.btree.Task#getChildCount	def getChildCount: Int	
+Parenless	com.badlogic.gdx.ai.btree.Task#getObject	def getObject: $0	
+Parenless	com.badlogic.gdx.ai.btree.Task#getStatus	def getStatus: Task.Status	
+Parenless	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser$DefaultBehaviorTreeReader#getCurrentTask	def getCurrentTask: StackedTask[$0]	
+Parenless	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser$DefaultBehaviorTreeReader#getParser	def getParser: BehaviorTreeParser[$0]	
+Parenless	com.badlogic.gdx.ai.fma.Formation#getSlotAssignmentCount	def slotAssignmentCount: Int	
+Parenless	com.badlogic.gdx.ai.fma.FormationMember#getTargetLocation	def targetLocation: Location[$0]	
+Parenless	com.badlogic.gdx.ai.fsm.DefaultStateMachine#getCurrentState	def getCurrentState: Nullable[$1]	
+Parenless	com.badlogic.gdx.ai.fsm.DefaultStateMachine#getGlobalState	def getGlobalState: Nullable[$1]	
+Parenless	com.badlogic.gdx.ai.fsm.DefaultStateMachine#getPreviousState	def getPreviousState: Nullable[$1]	
+Parenless	com.badlogic.gdx.ai.fsm.StackStateMachine#getCurrentState	def getCurrentState: Nullable[$1]	
+Parenless	com.badlogic.gdx.ai.fsm.StackStateMachine#getPreviousState	def getPreviousState: Nullable[$1]	
+Parenless	com.badlogic.gdx.ai.fsm.StateMachine#getCurrentState	def getCurrentState: Nullable[$1]	
+Parenless	com.badlogic.gdx.ai.fsm.StateMachine#getGlobalState	def getGlobalState: Nullable[$1]	
+Parenless	com.badlogic.gdx.ai.fsm.StateMachine#getPreviousState	def getPreviousState: Nullable[$1]	
+Parenless	com.badlogic.gdx.ai.msg.PriorityQueue#size	def size: Int	
+Parenless	com.badlogic.gdx.ai.pfa.Connection#getCost	def getCost: Float	
+Parenless	com.badlogic.gdx.ai.pfa.Connection#getFromNode	def getFromNode: $0	
+Parenless	com.badlogic.gdx.ai.pfa.Connection#getToNode	def getToNode: $0	
+Parenless	com.badlogic.gdx.ai.pfa.DefaultConnection#getCost	def getCost: Float	
+Parenless	com.badlogic.gdx.ai.pfa.DefaultConnection#getFromNode	def getFromNode: $0	
+Parenless	com.badlogic.gdx.ai.pfa.DefaultConnection#getToNode	def getToNode: $0	
+Parenless	com.badlogic.gdx.ai.pfa.DefaultGraphPath#getCount	def getCount: Int	
+Parenless	com.badlogic.gdx.ai.pfa.DefaultGraphPath#iterator	def iterator: Iterator[$0]	
+Parenless	com.badlogic.gdx.ai.pfa.GraphPath#getCount	def getCount: Int	
+Parenless	com.badlogic.gdx.ai.pfa.HierarchicalGraph#getLevelCount	def getLevelCount: Int	
+Parenless	com.badlogic.gdx.ai.pfa.PathFinderQueue#size	def size: Int	
+Parenless	com.badlogic.gdx.ai.pfa.indexed.IndexedGraph#getNodeCount	def getNodeCount: Int	
+Parenless	com.badlogic.gdx.ai.pfa.indexed.IndexedHierarchicalGraph#getLevelCount	def getLevelCount: Int	
+Parenless	com.badlogic.gdx.ai.steer.Limiter#getMaxAngularAcceleration	def maxAngularAcceleration: Float	
+Parenless	com.badlogic.gdx.ai.steer.Limiter#getMaxAngularSpeed	def maxAngularSpeed: Float	
+Parenless	com.badlogic.gdx.ai.steer.Limiter#getMaxLinearAcceleration	def maxLinearAcceleration: Float	
+Parenless	com.badlogic.gdx.ai.steer.Limiter#getMaxLinearSpeed	def maxLinearSpeed: Float	
+Parenless	com.badlogic.gdx.ai.steer.Limiter#getZeroLinearSpeedThreshold	def zeroLinearSpeedThreshold: Float	
+Parenless	com.badlogic.gdx.ai.steer.Proximity#getOwner	def owner: Steerable[$0]	
+Parenless	com.badlogic.gdx.ai.steer.Steerable#getAngularVelocity	def angularVelocity: Float	
+Parenless	com.badlogic.gdx.ai.steer.Steerable#getBoundingRadius	def boundingRadius: Float	
+Parenless	com.badlogic.gdx.ai.steer.Steerable#getLinearVelocity	def linearVelocity: $0	
+Parenless	com.badlogic.gdx.ai.steer.Steerable#isTagged	def tagged: Boolean	
+Parenless	com.badlogic.gdx.ai.steer.SteerableAdapter#getAngularVelocity	def angularVelocity: Float	
+Parenless	com.badlogic.gdx.ai.steer.SteerableAdapter#getBoundingRadius	def boundingRadius: Float	
+Parenless	com.badlogic.gdx.ai.steer.SteerableAdapter#getLinearVelocity	def linearVelocity: $0	
+Parenless	com.badlogic.gdx.ai.steer.SteerableAdapter#getMaxAngularAcceleration	def maxAngularAcceleration: Float	
+Parenless	com.badlogic.gdx.ai.steer.SteerableAdapter#getMaxAngularSpeed	def maxAngularSpeed: Float	
+Parenless	com.badlogic.gdx.ai.steer.SteerableAdapter#getMaxLinearAcceleration	def maxLinearAcceleration: Float	
+Parenless	com.badlogic.gdx.ai.steer.SteerableAdapter#getMaxLinearSpeed	def maxLinearSpeed: Float	
+Parenless	com.badlogic.gdx.ai.steer.SteerableAdapter#getOrientation	def orientation: Float	
+Parenless	com.badlogic.gdx.ai.steer.SteerableAdapter#getPosition	def position: $0	
+Parenless	com.badlogic.gdx.ai.steer.SteerableAdapter#getZeroLinearSpeedThreshold	def zeroLinearSpeedThreshold: Float	
+Parenless	com.badlogic.gdx.ai.steer.SteerableAdapter#isTagged	def tagged: Boolean	
+Parenless	com.badlogic.gdx.ai.steer.SteeringAcceleration#isZero	def isZero: Boolean	
+Parenless	com.badlogic.gdx.ai.steer.behaviors.FollowPath#getInternalTargetPosition	def getInternalTargetPosition: $0	
+Parenless	com.badlogic.gdx.ai.steer.behaviors.Interpose#getInternalTargetPosition	def getInternalTargetPosition: $0	
+Parenless	com.badlogic.gdx.ai.steer.behaviors.Wander#getInternalTargetPosition	def getInternalTargetPosition: $0	
+Parenless	com.badlogic.gdx.ai.steer.behaviors.Wander#getWanderCenter	def getWanderCenter: $0	
+Parenless	com.badlogic.gdx.ai.steer.limiters.AngularAccelerationLimiter#getMaxAngularAcceleration	def maxAngularAcceleration: Float	
+Parenless	com.badlogic.gdx.ai.steer.limiters.AngularLimiter#getMaxAngularAcceleration	def maxAngularAcceleration: Float	
+Parenless	com.badlogic.gdx.ai.steer.limiters.AngularLimiter#getMaxAngularSpeed	def maxAngularSpeed: Float	
+Parenless	com.badlogic.gdx.ai.steer.limiters.AngularSpeedLimiter#getMaxAngularSpeed	def maxAngularSpeed: Float	
+Parenless	com.badlogic.gdx.ai.steer.limiters.FullLimiter#getMaxAngularAcceleration	def maxAngularAcceleration: Float	
+Parenless	com.badlogic.gdx.ai.steer.limiters.FullLimiter#getMaxAngularSpeed	def maxAngularSpeed: Float	
+Parenless	com.badlogic.gdx.ai.steer.limiters.FullLimiter#getMaxLinearAcceleration	def maxLinearAcceleration: Float	
+Parenless	com.badlogic.gdx.ai.steer.limiters.FullLimiter#getMaxLinearSpeed	def maxLinearSpeed: Float	
+Parenless	com.badlogic.gdx.ai.steer.limiters.FullLimiter#getZeroLinearSpeedThreshold	def zeroLinearSpeedThreshold: Float	
+Parenless	com.badlogic.gdx.ai.steer.limiters.LinearAccelerationLimiter#getMaxLinearAcceleration	def maxLinearAcceleration: Float	
+Parenless	com.badlogic.gdx.ai.steer.limiters.LinearLimiter#getMaxLinearAcceleration	def maxLinearAcceleration: Float	
+Parenless	com.badlogic.gdx.ai.steer.limiters.LinearLimiter#getMaxLinearSpeed	def maxLinearSpeed: Float	
+Parenless	com.badlogic.gdx.ai.steer.limiters.LinearSpeedLimiter#getMaxLinearSpeed	def maxLinearSpeed: Float	
+Parenless	com.badlogic.gdx.ai.steer.limiters.NullLimiter#getMaxAngularAcceleration	def maxAngularAcceleration: Float	
+Parenless	com.badlogic.gdx.ai.steer.limiters.NullLimiter#getMaxAngularSpeed	def maxAngularSpeed: Float	
+Parenless	com.badlogic.gdx.ai.steer.limiters.NullLimiter#getMaxLinearAcceleration	def maxLinearAcceleration: Float	
+Parenless	com.badlogic.gdx.ai.steer.limiters.NullLimiter#getMaxLinearSpeed	def maxLinearSpeed: Float	
+Parenless	com.badlogic.gdx.ai.steer.limiters.NullLimiter#getZeroLinearSpeedThreshold	def zeroLinearSpeedThreshold: Float	
+Parenless	com.badlogic.gdx.ai.steer.proximities.FieldOfViewProximity#getAngle	def angle: Float	
+Parenless	com.badlogic.gdx.ai.steer.proximities.ProximityBase#getOwner	def owner: Steerable[$0]	
+Parenless	com.badlogic.gdx.ai.steer.utils.Path#getEndPoint	def endPoint: $0	
+Parenless	com.badlogic.gdx.ai.steer.utils.Path#getLength	def length: Float	
+Parenless	com.badlogic.gdx.ai.steer.utils.Path#getStartPoint	def startPoint: $0	
+Parenless	com.badlogic.gdx.ai.steer.utils.Path#isOpen	def isOpen: Boolean	
+Parenless	com.badlogic.gdx.ai.steer.utils.Path$PathParam#getDistance	def distance: Float	
+Parenless	com.badlogic.gdx.ai.steer.utils.paths.LinePath#getEndPoint	def endPoint: $0	
+Parenless	com.badlogic.gdx.ai.steer.utils.paths.LinePath#getLength	def length: Float	
+Parenless	com.badlogic.gdx.ai.steer.utils.paths.LinePath#getSegments	def getSegments: DynamicArray[LinePath.Segment[$0]]	
+Parenless	com.badlogic.gdx.ai.steer.utils.paths.LinePath#getStartPoint	def startPoint: $0	
+Parenless	com.badlogic.gdx.ai.steer.utils.paths.LinePath$LinePathParam#getDistance	def distance: Float	
+Parenless	com.badlogic.gdx.ai.utils.CircularBuffer#isEmpty	def isEmpty: Boolean	
+Parenless	com.badlogic.gdx.ai.utils.CircularBuffer#isFull	def isFull: Boolean	
+Parenless	com.badlogic.gdx.ai.utils.CircularBuffer#size	def size: Int	
+Parenless	com.badlogic.gdx.ai.utils.Location#getOrientation	def orientation: Float	
+Parenless	com.badlogic.gdx.ai.utils.Location#getPosition	def position: $0	
+Property	com.badlogic.gdx.ai.DefaultTimepiece#getDeltaTime	var deltaTime	deltaTime
+Property	com.badlogic.gdx.ai.DefaultTimepiece#getTime	var time	time
+Property	com.badlogic.gdx.ai.Timepiece#getDeltaTime	var deltaTime	deltaTime
+Property	com.badlogic.gdx.ai.Timepiece#getTime	var time	time
+Property	com.badlogic.gdx.ai.btree.Task#getGuard	var guard	guard
+Property	com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibraryManager#getInstance	var instance	instance
+Property	com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibraryManager#getLibrary	var library	library
+Property	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser$DefaultBehaviorTreeReader#getPrevTask	var prevTask	prevTask
+Property	com.badlogic.gdx.ai.fma.Formation#getMotionModerator	(var motionModerator)	motionModerator
+Property	com.badlogic.gdx.ai.fma.Formation#getPattern	(var pattern)	pattern
+Property	com.badlogic.gdx.ai.fma.Formation#getSlotAssignmentCount	var slotAssignmentCount	slotAssignmentCount
+Property	com.badlogic.gdx.ai.fma.Formation#getSlotAssignmentStrategy	(var slotAssignmentStrategy)	slotAssignmentStrategy
+Property	com.badlogic.gdx.ai.fma.FormationMember#getTargetLocation	var targetLocation	targetLocation
+Property	com.badlogic.gdx.ai.fsm.DefaultStateMachine#getOwner	(var owner)	owner
+Property	com.badlogic.gdx.ai.msg.MessageDispatcher#isDebugEnabled	var debugEnabled	debugEnabled
+Property	com.badlogic.gdx.ai.msg.PriorityQueue#getUniqueness	var uniqueness	uniqueness
+Property	com.badlogic.gdx.ai.msg.Telegram#getTimestamp	var timestamp	timestamp
+Property	com.badlogic.gdx.ai.steer.GroupBehavior#getProximity	(var proximity)	proximity
+Property	com.badlogic.gdx.ai.steer.Limiter#getMaxAngularAcceleration	var maxAngularAcceleration	maxAngularAcceleration
+Property	com.badlogic.gdx.ai.steer.Limiter#getMaxAngularSpeed	var maxAngularSpeed	maxAngularSpeed
+Property	com.badlogic.gdx.ai.steer.Limiter#getMaxLinearAcceleration	var maxLinearAcceleration	maxLinearAcceleration
+Property	com.badlogic.gdx.ai.steer.Limiter#getMaxLinearSpeed	var maxLinearSpeed	maxLinearSpeed
+Property	com.badlogic.gdx.ai.steer.Limiter#getZeroLinearSpeedThreshold	var zeroLinearSpeedThreshold	zeroLinearSpeedThreshold
+Property	com.badlogic.gdx.ai.steer.Proximity#getOwner	var owner	owner
+Property	com.badlogic.gdx.ai.steer.Steerable#getAngularVelocity	var angularVelocity	angularVelocity
+Property	com.badlogic.gdx.ai.steer.Steerable#getBoundingRadius	var boundingRadius	boundingRadius
+Property	com.badlogic.gdx.ai.steer.Steerable#getLinearVelocity	var linearVelocity	linearVelocity
+Property	com.badlogic.gdx.ai.steer.Steerable#isTagged	var tagged	tagged
+Property	com.badlogic.gdx.ai.steer.SteerableAdapter#getAngularVelocity	var angularVelocity	angularVelocity
+Property	com.badlogic.gdx.ai.steer.SteerableAdapter#getBoundingRadius	var boundingRadius	boundingRadius
+Property	com.badlogic.gdx.ai.steer.SteerableAdapter#getLinearVelocity	var linearVelocity	linearVelocity
+Property	com.badlogic.gdx.ai.steer.SteerableAdapter#getMaxAngularAcceleration	var maxAngularAcceleration	maxAngularAcceleration
+Property	com.badlogic.gdx.ai.steer.SteerableAdapter#getMaxAngularSpeed	var maxAngularSpeed	maxAngularSpeed
+Property	com.badlogic.gdx.ai.steer.SteerableAdapter#getMaxLinearAcceleration	var maxLinearAcceleration	maxLinearAcceleration
+Property	com.badlogic.gdx.ai.steer.SteerableAdapter#getMaxLinearSpeed	var maxLinearSpeed	maxLinearSpeed
+Property	com.badlogic.gdx.ai.steer.SteerableAdapter#getOrientation	var orientation	orientation
+Property	com.badlogic.gdx.ai.steer.SteerableAdapter#getPosition	var position	position
+Property	com.badlogic.gdx.ai.steer.SteerableAdapter#getZeroLinearSpeedThreshold	var zeroLinearSpeedThreshold	zeroLinearSpeedThreshold
+Property	com.badlogic.gdx.ai.steer.SteerableAdapter#isTagged	var tagged	tagged
+Property	com.badlogic.gdx.ai.steer.SteeringBehavior#getLimiter	(var limiter)	limiter
+Property	com.badlogic.gdx.ai.steer.SteeringBehavior#getOwner	(var owner)	owner
+Property	com.badlogic.gdx.ai.steer.SteeringBehavior#isEnabled	(var enabled)	enabled
+Property	com.badlogic.gdx.ai.steer.behaviors.Arrive#getArrivalTolerance	var arrivalTolerance	arrivalTolerance
+Property	com.badlogic.gdx.ai.steer.behaviors.Arrive#getDecelerationRadius	var decelerationRadius	decelerationRadius
+Property	com.badlogic.gdx.ai.steer.behaviors.Arrive#getTarget	(var target)	target
+Property	com.badlogic.gdx.ai.steer.behaviors.Arrive#getTimeToTarget	var timeToTarget	timeToTarget
+Property	com.badlogic.gdx.ai.steer.behaviors.BlendedSteering$BehaviorAndWeight#getBehavior	(var behavior)	behavior
+Property	com.badlogic.gdx.ai.steer.behaviors.BlendedSteering$BehaviorAndWeight#getWeight	(var weight)	weight
+Property	com.badlogic.gdx.ai.steer.behaviors.FollowFlowField#getFlowField	(var flowField)	flowField
+Property	com.badlogic.gdx.ai.steer.behaviors.FollowFlowField#getPredictionTime	(var predictionTime)	predictionTime
+Property	com.badlogic.gdx.ai.steer.behaviors.FollowPath#getPath	(var path)	path
+Property	com.badlogic.gdx.ai.steer.behaviors.FollowPath#getPathOffset	(var pathOffset)	pathOffset
+Property	com.badlogic.gdx.ai.steer.behaviors.FollowPath#getPathParam	var pathParam	pathParam
+Property	com.badlogic.gdx.ai.steer.behaviors.FollowPath#getPredictionTime	(var predictionTime)	predictionTime
+Property	com.badlogic.gdx.ai.steer.behaviors.FollowPath#isArriveEnabled	var arriveEnabled	arriveEnabled
+Property	com.badlogic.gdx.ai.steer.behaviors.Hide#getDistanceFromBoundary	var distanceFromBoundary	distanceFromBoundary
+Property	com.badlogic.gdx.ai.steer.behaviors.Hide#getProximity	(var proximity)	proximity
+Property	com.badlogic.gdx.ai.steer.behaviors.Interpose#getAgentA	(var agentA)	agentA
+Property	com.badlogic.gdx.ai.steer.behaviors.Interpose#getAgentB	(var agentB)	agentB
+Property	com.badlogic.gdx.ai.steer.behaviors.Interpose#getInterpositionRatio	(var interpositionRatio)	interpositionRatio
+Property	com.badlogic.gdx.ai.steer.behaviors.Jump#getGravity	(var gravity)	gravity
+Property	com.badlogic.gdx.ai.steer.behaviors.Jump#getJumpDescriptor	(var jumpDescriptor)	jumpDescriptor
+Property	com.badlogic.gdx.ai.steer.behaviors.Jump#getMaxVerticalVelocity	var maxVerticalVelocity	maxVerticalVelocity
+Property	com.badlogic.gdx.ai.steer.behaviors.Jump#getTakeoffPositionTolerance	var takeoffPositionTolerance	takeoffPositionTolerance
+Property	com.badlogic.gdx.ai.steer.behaviors.Jump#getTakeoffVelocityTolerance	var takeoffVelocityTolerance	takeoffVelocityTolerance
+Property	com.badlogic.gdx.ai.steer.behaviors.MatchVelocity#getTarget	(var target)	target
+Property	com.badlogic.gdx.ai.steer.behaviors.MatchVelocity#getTimeToTarget	(var timeToTarget)	timeToTarget
+Property	com.badlogic.gdx.ai.steer.behaviors.PrioritySteering#getEpsilon	(var epsilon)	epsilon
+Property	com.badlogic.gdx.ai.steer.behaviors.PrioritySteering#getSelectedBehaviorIndex	var selectedBehaviorIndex	selectedBehaviorIndex
+Property	com.badlogic.gdx.ai.steer.behaviors.Pursue#getMaxPredictionTime	(var maxPredictionTime)	maxPredictionTime
+Property	com.badlogic.gdx.ai.steer.behaviors.Pursue#getTarget	(var target)	target
+Property	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#getDistanceFromBoundary	(var distanceFromBoundary)	distanceFromBoundary
+Property	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#getRayConfiguration	(var rayConfiguration)	rayConfiguration
+Property	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#getRaycastCollisionDetector	(var raycastCollisionDetector)	raycastCollisionDetector
+Property	com.badlogic.gdx.ai.steer.behaviors.ReachOrientation#getAlignTolerance	var alignTolerance	alignTolerance
+Property	com.badlogic.gdx.ai.steer.behaviors.ReachOrientation#getDecelerationRadius	var decelerationRadius	decelerationRadius
+Property	com.badlogic.gdx.ai.steer.behaviors.ReachOrientation#getTarget	(var target)	target
+Property	com.badlogic.gdx.ai.steer.behaviors.ReachOrientation#getTimeToTarget	var timeToTarget	timeToTarget
+Property	com.badlogic.gdx.ai.steer.behaviors.Seek#getTarget	(var target)	target
+Property	com.badlogic.gdx.ai.steer.behaviors.Separation#getDecayCoefficient	var decayCoefficient	decayCoefficient
+Property	com.badlogic.gdx.ai.steer.behaviors.Wander#getWanderOffset	var wanderOffset	wanderOffset
+Property	com.badlogic.gdx.ai.steer.behaviors.Wander#getWanderOrientation	var wanderOrientation	wanderOrientation
+Property	com.badlogic.gdx.ai.steer.behaviors.Wander#getWanderRadius	var wanderRadius	wanderRadius
+Property	com.badlogic.gdx.ai.steer.behaviors.Wander#getWanderRate	var wanderRate	wanderRate
+Property	com.badlogic.gdx.ai.steer.behaviors.Wander#isFaceEnabled	var faceEnabled	faceEnabled
+Property	com.badlogic.gdx.ai.steer.limiters.AngularAccelerationLimiter#getMaxAngularAcceleration	var maxAngularAcceleration	maxAngularAcceleration
+Property	com.badlogic.gdx.ai.steer.limiters.AngularLimiter#getMaxAngularAcceleration	var maxAngularAcceleration	maxAngularAcceleration
+Property	com.badlogic.gdx.ai.steer.limiters.AngularLimiter#getMaxAngularSpeed	var maxAngularSpeed	maxAngularSpeed
+Property	com.badlogic.gdx.ai.steer.limiters.AngularSpeedLimiter#getMaxAngularSpeed	var maxAngularSpeed	maxAngularSpeed
+Property	com.badlogic.gdx.ai.steer.limiters.FullLimiter#getMaxAngularAcceleration	var maxAngularAcceleration	maxAngularAcceleration
+Property	com.badlogic.gdx.ai.steer.limiters.FullLimiter#getMaxAngularSpeed	var maxAngularSpeed	maxAngularSpeed
+Property	com.badlogic.gdx.ai.steer.limiters.FullLimiter#getMaxLinearAcceleration	var maxLinearAcceleration	maxLinearAcceleration
+Property	com.badlogic.gdx.ai.steer.limiters.FullLimiter#getMaxLinearSpeed	var maxLinearSpeed	maxLinearSpeed
+Property	com.badlogic.gdx.ai.steer.limiters.FullLimiter#getZeroLinearSpeedThreshold	var zeroLinearSpeedThreshold	zeroLinearSpeedThreshold
+Property	com.badlogic.gdx.ai.steer.limiters.LinearAccelerationLimiter#getMaxLinearAcceleration	var maxLinearAcceleration	maxLinearAcceleration
+Property	com.badlogic.gdx.ai.steer.limiters.LinearLimiter#getMaxLinearAcceleration	var maxLinearAcceleration	maxLinearAcceleration
+Property	com.badlogic.gdx.ai.steer.limiters.LinearLimiter#getMaxLinearSpeed	var maxLinearSpeed	maxLinearSpeed
+Property	com.badlogic.gdx.ai.steer.limiters.LinearSpeedLimiter#getMaxLinearSpeed	var maxLinearSpeed	maxLinearSpeed
+Property	com.badlogic.gdx.ai.steer.limiters.NullLimiter#getMaxAngularAcceleration	var maxAngularAcceleration	maxAngularAcceleration
+Property	com.badlogic.gdx.ai.steer.limiters.NullLimiter#getMaxAngularSpeed	var maxAngularSpeed	maxAngularSpeed
+Property	com.badlogic.gdx.ai.steer.limiters.NullLimiter#getMaxLinearAcceleration	var maxLinearAcceleration	maxLinearAcceleration
+Property	com.badlogic.gdx.ai.steer.limiters.NullLimiter#getMaxLinearSpeed	var maxLinearSpeed	maxLinearSpeed
+Property	com.badlogic.gdx.ai.steer.limiters.NullLimiter#getZeroLinearSpeedThreshold	var zeroLinearSpeedThreshold	zeroLinearSpeedThreshold
+Property	com.badlogic.gdx.ai.steer.proximities.FieldOfViewProximity#getAngle	var angle	angle
+Property	com.badlogic.gdx.ai.steer.proximities.FieldOfViewProximity#getRadius	(var radius)	radius
+Property	com.badlogic.gdx.ai.steer.proximities.ProximityBase#getAgents	(var agents)	agents
+Property	com.badlogic.gdx.ai.steer.proximities.ProximityBase#getOwner	var owner	owner
+Property	com.badlogic.gdx.ai.steer.proximities.RadiusProximity#getRadius	(var radius)	radius
+Property	com.badlogic.gdx.ai.steer.utils.Path#getEndPoint	var endPoint	endPoint
+Property	com.badlogic.gdx.ai.steer.utils.Path#getLength	var length	length
+Property	com.badlogic.gdx.ai.steer.utils.Path#getStartPoint	var startPoint	startPoint
+Property	com.badlogic.gdx.ai.steer.utils.Path$PathParam#getDistance	var distance	distance
+Property	com.badlogic.gdx.ai.steer.utils.paths.LinePath#getEndPoint	var endPoint	endPoint
+Property	com.badlogic.gdx.ai.steer.utils.paths.LinePath#getLength	var length	length
+Property	com.badlogic.gdx.ai.steer.utils.paths.LinePath#getStartPoint	var startPoint	startPoint
+Property	com.badlogic.gdx.ai.steer.utils.paths.LinePath$LinePathParam#getDistance	var distance	distance
+Property	com.badlogic.gdx.ai.steer.utils.paths.LinePath$LinePathParam#getSegmentIndex	var segmentIndex	segmentIndex
+Property	com.badlogic.gdx.ai.steer.utils.paths.LinePath$Segment#getBegin	var begin	begin
+Property	com.badlogic.gdx.ai.steer.utils.paths.LinePath$Segment#getCumulativeLength	var cumulativeLength	cumulativeLength
+Property	com.badlogic.gdx.ai.steer.utils.paths.LinePath$Segment#getEnd	var end	end
+Property	com.badlogic.gdx.ai.steer.utils.paths.LinePath$Segment#getLength	var length	length
+Property	com.badlogic.gdx.ai.steer.utils.rays.CentralRayWithWhiskersConfiguration#getRayLength	(var rayLength)	rayLength
+Property	com.badlogic.gdx.ai.steer.utils.rays.CentralRayWithWhiskersConfiguration#getWhiskerAngle	(var whiskerAngle)	whiskerAngle
+Property	com.badlogic.gdx.ai.steer.utils.rays.CentralRayWithWhiskersConfiguration#getWhiskerLength	(var whiskerLength)	whiskerLength
+Property	com.badlogic.gdx.ai.steer.utils.rays.ParallelSideRayConfiguration#getLength	(var length)	length
+Property	com.badlogic.gdx.ai.steer.utils.rays.ParallelSideRayConfiguration#getSideOffset	(var sideOffset)	sideOffset
+Property	com.badlogic.gdx.ai.steer.utils.rays.RayConfigurationBase#getOwner	(var owner)	owner
+Property	com.badlogic.gdx.ai.steer.utils.rays.RayConfigurationBase#getRays	var rays	rays
+Property	com.badlogic.gdx.ai.steer.utils.rays.SingleRayConfiguration#getLength	(var length)	length
+Property	com.badlogic.gdx.ai.utils.CircularBuffer#isResizable	(var resizable)	resizable
+Property	com.badlogic.gdx.ai.utils.Location#getOrientation	var orientation	orientation
+Property	com.badlogic.gdx.ai.utils.Location#getPosition	var position	position
+Property	com.badlogic.gdx.ai.utils.random.ConstantDoubleDistribution#getValue	var value	value
+Property	com.badlogic.gdx.ai.utils.random.ConstantFloatDistribution#getValue	var value	value
+Property	com.badlogic.gdx.ai.utils.random.ConstantIntegerDistribution#getValue	var value	value
+Property	com.badlogic.gdx.ai.utils.random.ConstantLongDistribution#getValue	var value	value
+Property	com.badlogic.gdx.ai.utils.random.GaussianDoubleDistribution#getMean	var mean	mean
+Property	com.badlogic.gdx.ai.utils.random.GaussianDoubleDistribution#getStandardDeviation	var standardDeviation	standardDeviation
+Property	com.badlogic.gdx.ai.utils.random.GaussianFloatDistribution#getMean	var mean	mean
+Property	com.badlogic.gdx.ai.utils.random.GaussianFloatDistribution#getStandardDeviation	var standardDeviation	standardDeviation
+Property	com.badlogic.gdx.ai.utils.random.TriangularDoubleDistribution#getHigh	var high	high
+Property	com.badlogic.gdx.ai.utils.random.TriangularDoubleDistribution#getLow	var low	low
+Property	com.badlogic.gdx.ai.utils.random.TriangularDoubleDistribution#getMode	var mode	mode
+Property	com.badlogic.gdx.ai.utils.random.TriangularFloatDistribution#getHigh	var high	high
+Property	com.badlogic.gdx.ai.utils.random.TriangularFloatDistribution#getLow	var low	low
+Property	com.badlogic.gdx.ai.utils.random.TriangularFloatDistribution#getMode	var mode	mode
+Property	com.badlogic.gdx.ai.utils.random.TriangularIntegerDistribution#getHigh	var high	high
+Property	com.badlogic.gdx.ai.utils.random.TriangularIntegerDistribution#getLow	var low	low
+Property	com.badlogic.gdx.ai.utils.random.TriangularIntegerDistribution#getMode	var mode	mode
+Property	com.badlogic.gdx.ai.utils.random.TriangularLongDistribution#getHigh	var high	high
+Property	com.badlogic.gdx.ai.utils.random.TriangularLongDistribution#getLow	var low	low
+Property	com.badlogic.gdx.ai.utils.random.TriangularLongDistribution#getMode	var mode	mode
+Property	com.badlogic.gdx.ai.utils.random.UniformDoubleDistribution#getHigh	var high	high
+Property	com.badlogic.gdx.ai.utils.random.UniformDoubleDistribution#getLow	var low	low
+Property	com.badlogic.gdx.ai.utils.random.UniformFloatDistribution#getHigh	var high	high
+Property	com.badlogic.gdx.ai.utils.random.UniformFloatDistribution#getLow	var low	low
+Property	com.badlogic.gdx.ai.utils.random.UniformIntegerDistribution#getHigh	var high	high
+Property	com.badlogic.gdx.ai.utils.random.UniformIntegerDistribution#getLow	var low	low
+Property	com.badlogic.gdx.ai.utils.random.UniformLongDistribution#getHigh	var high	high
+Property	com.badlogic.gdx.ai.utils.random.UniformLongDistribution#getLow	var low	low
+PropertySetter	com.badlogic.gdx.ai.btree.Task#setGuard	var guard	guard
+PropertySetter	com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibraryManager#setLibrary	var library	library
+PropertySetter	com.badlogic.gdx.ai.fma.Formation#setMotionModerator	(var motionModerator)	motionModerator
+PropertySetter	com.badlogic.gdx.ai.fma.Formation#setPattern	(var pattern)	pattern
+PropertySetter	com.badlogic.gdx.ai.fma.Formation#setSlotAssignmentStrategy	(var slotAssignmentStrategy)	slotAssignmentStrategy
+PropertySetter	com.badlogic.gdx.ai.fma.FormationPattern#setNumberOfSlots	var numberOfSlots	numberOfSlots
+PropertySetter	com.badlogic.gdx.ai.fma.patterns.DefensiveCircleFormationPattern#setNumberOfSlots	var numberOfSlots	numberOfSlots
+PropertySetter	com.badlogic.gdx.ai.fsm.DefaultStateMachine#setOwner	(var owner)	owner
+PropertySetter	com.badlogic.gdx.ai.msg.MessageDispatcher#setDebugEnabled	var debugEnabled	debugEnabled
+PropertySetter	com.badlogic.gdx.ai.msg.PriorityQueue#setUniqueness	var uniqueness	uniqueness
+PropertySetter	com.badlogic.gdx.ai.msg.Telegram#setTimestamp	var timestamp	timestamp
+PropertySetter	com.badlogic.gdx.ai.steer.GroupBehavior#setProximity	(var proximity)	proximity
+PropertySetter	com.badlogic.gdx.ai.steer.Limiter#setMaxAngularAcceleration	var maxAngularAcceleration	maxAngularAcceleration
+PropertySetter	com.badlogic.gdx.ai.steer.Limiter#setMaxAngularSpeed	var maxAngularSpeed	maxAngularSpeed
+PropertySetter	com.badlogic.gdx.ai.steer.Limiter#setMaxLinearAcceleration	var maxLinearAcceleration	maxLinearAcceleration
+PropertySetter	com.badlogic.gdx.ai.steer.Limiter#setMaxLinearSpeed	var maxLinearSpeed	maxLinearSpeed
+PropertySetter	com.badlogic.gdx.ai.steer.Limiter#setZeroLinearSpeedThreshold	var zeroLinearSpeedThreshold	zeroLinearSpeedThreshold
+PropertySetter	com.badlogic.gdx.ai.steer.Proximity#setOwner	var owner	owner
+PropertySetter	com.badlogic.gdx.ai.steer.Steerable#setTagged	var tagged	tagged
+PropertySetter	com.badlogic.gdx.ai.steer.SteerableAdapter#setMaxAngularAcceleration	var maxAngularAcceleration	maxAngularAcceleration
+PropertySetter	com.badlogic.gdx.ai.steer.SteerableAdapter#setMaxAngularSpeed	var maxAngularSpeed	maxAngularSpeed
+PropertySetter	com.badlogic.gdx.ai.steer.SteerableAdapter#setMaxLinearAcceleration	var maxLinearAcceleration	maxLinearAcceleration
+PropertySetter	com.badlogic.gdx.ai.steer.SteerableAdapter#setMaxLinearSpeed	var maxLinearSpeed	maxLinearSpeed
+PropertySetter	com.badlogic.gdx.ai.steer.SteerableAdapter#setOrientation	var orientation	orientation
+PropertySetter	com.badlogic.gdx.ai.steer.SteerableAdapter#setTagged	var tagged	tagged
+PropertySetter	com.badlogic.gdx.ai.steer.SteerableAdapter#setZeroLinearSpeedThreshold	var zeroLinearSpeedThreshold	zeroLinearSpeedThreshold
+PropertySetter	com.badlogic.gdx.ai.steer.SteeringBehavior#setEnabled	(var enabled)	enabled
+PropertySetter	com.badlogic.gdx.ai.steer.SteeringBehavior#setLimiter	(var limiter)	limiter
+PropertySetter	com.badlogic.gdx.ai.steer.SteeringBehavior#setOwner	(var owner)	owner
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Arrive#setArrivalTolerance	var arrivalTolerance	arrivalTolerance
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Arrive#setDecelerationRadius	var decelerationRadius	decelerationRadius
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Arrive#setTarget	(var target)	target
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Arrive#setTimeToTarget	var timeToTarget	timeToTarget
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.BlendedSteering$BehaviorAndWeight#setBehavior	(var behavior)	behavior
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.BlendedSteering$BehaviorAndWeight#setWeight	(var weight)	weight
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.FollowFlowField#setFlowField	(var flowField)	flowField
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.FollowFlowField#setPredictionTime	(var predictionTime)	predictionTime
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.FollowPath#setArriveEnabled	var arriveEnabled	arriveEnabled
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.FollowPath#setPath	(var path)	path
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.FollowPath#setPathOffset	(var pathOffset)	pathOffset
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.FollowPath#setPredictionTime	(var predictionTime)	predictionTime
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Hide#setDistanceFromBoundary	var distanceFromBoundary	distanceFromBoundary
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Hide#setProximity	(var proximity)	proximity
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Interpose#setAgentA	(var agentA)	agentA
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Interpose#setAgentB	(var agentB)	agentB
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Interpose#setInterpositionRatio	(var interpositionRatio)	interpositionRatio
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Jump#setGravity	(var gravity)	gravity
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Jump#setMaxVerticalVelocity	var maxVerticalVelocity	maxVerticalVelocity
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Jump#setTakeoffPositionTolerance	var takeoffPositionTolerance	takeoffPositionTolerance
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Jump#setTakeoffVelocityTolerance	var takeoffVelocityTolerance	takeoffVelocityTolerance
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.MatchVelocity#setTarget	(var target)	target
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.MatchVelocity#setTimeToTarget	(var timeToTarget)	timeToTarget
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.PrioritySteering#setEpsilon	(var epsilon)	epsilon
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Pursue#setMaxPredictionTime	(var maxPredictionTime)	maxPredictionTime
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Pursue#setTarget	(var target)	target
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#setDistanceFromBoundary	(var distanceFromBoundary)	distanceFromBoundary
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#setRayConfiguration	(var rayConfiguration)	rayConfiguration
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#setRaycastCollisionDetector	(var raycastCollisionDetector)	raycastCollisionDetector
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.ReachOrientation#setAlignTolerance	var alignTolerance	alignTolerance
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.ReachOrientation#setDecelerationRadius	var decelerationRadius	decelerationRadius
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.ReachOrientation#setTarget	(var target)	target
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.ReachOrientation#setTimeToTarget	var timeToTarget	timeToTarget
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Seek#setTarget	(var target)	target
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Separation#setDecayCoefficient	var decayCoefficient	decayCoefficient
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Wander#setFaceEnabled	var faceEnabled	faceEnabled
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Wander#setWanderOffset	var wanderOffset	wanderOffset
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Wander#setWanderOrientation	var wanderOrientation	wanderOrientation
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Wander#setWanderRadius	var wanderRadius	wanderRadius
+PropertySetter	com.badlogic.gdx.ai.steer.behaviors.Wander#setWanderRate	var wanderRate	wanderRate
+PropertySetter	com.badlogic.gdx.ai.steer.limiters.AngularAccelerationLimiter#setMaxAngularAcceleration	var maxAngularAcceleration	maxAngularAcceleration
+PropertySetter	com.badlogic.gdx.ai.steer.limiters.AngularLimiter#setMaxAngularAcceleration	var maxAngularAcceleration	maxAngularAcceleration
+PropertySetter	com.badlogic.gdx.ai.steer.limiters.AngularLimiter#setMaxAngularSpeed	var maxAngularSpeed	maxAngularSpeed
+PropertySetter	com.badlogic.gdx.ai.steer.limiters.AngularSpeedLimiter#setMaxAngularSpeed	var maxAngularSpeed	maxAngularSpeed
+PropertySetter	com.badlogic.gdx.ai.steer.limiters.FullLimiter#setMaxAngularAcceleration	var maxAngularAcceleration	maxAngularAcceleration
+PropertySetter	com.badlogic.gdx.ai.steer.limiters.FullLimiter#setMaxAngularSpeed	var maxAngularSpeed	maxAngularSpeed
+PropertySetter	com.badlogic.gdx.ai.steer.limiters.FullLimiter#setMaxLinearAcceleration	var maxLinearAcceleration	maxLinearAcceleration
+PropertySetter	com.badlogic.gdx.ai.steer.limiters.FullLimiter#setMaxLinearSpeed	var maxLinearSpeed	maxLinearSpeed
+PropertySetter	com.badlogic.gdx.ai.steer.limiters.FullLimiter#setZeroLinearSpeedThreshold	var zeroLinearSpeedThreshold	zeroLinearSpeedThreshold
+PropertySetter	com.badlogic.gdx.ai.steer.limiters.LinearAccelerationLimiter#setMaxLinearAcceleration	var maxLinearAcceleration	maxLinearAcceleration
+PropertySetter	com.badlogic.gdx.ai.steer.limiters.LinearLimiter#setMaxLinearAcceleration	var maxLinearAcceleration	maxLinearAcceleration
+PropertySetter	com.badlogic.gdx.ai.steer.limiters.LinearLimiter#setMaxLinearSpeed	var maxLinearSpeed	maxLinearSpeed
+PropertySetter	com.badlogic.gdx.ai.steer.limiters.LinearSpeedLimiter#setMaxLinearSpeed	var maxLinearSpeed	maxLinearSpeed
+PropertySetter	com.badlogic.gdx.ai.steer.limiters.NullLimiter#setMaxAngularAcceleration	var maxAngularAcceleration	maxAngularAcceleration
+PropertySetter	com.badlogic.gdx.ai.steer.limiters.NullLimiter#setMaxAngularSpeed	var maxAngularSpeed	maxAngularSpeed
+PropertySetter	com.badlogic.gdx.ai.steer.limiters.NullLimiter#setMaxLinearAcceleration	var maxLinearAcceleration	maxLinearAcceleration
+PropertySetter	com.badlogic.gdx.ai.steer.limiters.NullLimiter#setMaxLinearSpeed	var maxLinearSpeed	maxLinearSpeed
+PropertySetter	com.badlogic.gdx.ai.steer.limiters.NullLimiter#setZeroLinearSpeedThreshold	var zeroLinearSpeedThreshold	zeroLinearSpeedThreshold
+PropertySetter	com.badlogic.gdx.ai.steer.proximities.FieldOfViewProximity#setAngle	var angle	angle
+PropertySetter	com.badlogic.gdx.ai.steer.proximities.FieldOfViewProximity#setRadius	(var radius)	radius
+PropertySetter	com.badlogic.gdx.ai.steer.proximities.ProximityBase#setAgents	(var agents)	agents
+PropertySetter	com.badlogic.gdx.ai.steer.proximities.ProximityBase#setOwner	var owner	owner
+PropertySetter	com.badlogic.gdx.ai.steer.proximities.RadiusProximity#setRadius	(var radius)	radius
+PropertySetter	com.badlogic.gdx.ai.steer.utils.Path$PathParam#setDistance	var distance	distance
+PropertySetter	com.badlogic.gdx.ai.steer.utils.paths.LinePath$LinePathParam#setDistance	var distance	distance
+PropertySetter	com.badlogic.gdx.ai.steer.utils.rays.CentralRayWithWhiskersConfiguration#setRayLength	(var rayLength)	rayLength
+PropertySetter	com.badlogic.gdx.ai.steer.utils.rays.CentralRayWithWhiskersConfiguration#setWhiskerAngle	(var whiskerAngle)	whiskerAngle
+PropertySetter	com.badlogic.gdx.ai.steer.utils.rays.CentralRayWithWhiskersConfiguration#setWhiskerLength	(var whiskerLength)	whiskerLength
+PropertySetter	com.badlogic.gdx.ai.steer.utils.rays.ParallelSideRayConfiguration#setLength	(var length)	length
+PropertySetter	com.badlogic.gdx.ai.steer.utils.rays.ParallelSideRayConfiguration#setSideOffset	(var sideOffset)	sideOffset
+PropertySetter	com.badlogic.gdx.ai.steer.utils.rays.RayConfigurationBase#setOwner	(var owner)	owner
+PropertySetter	com.badlogic.gdx.ai.steer.utils.rays.RayConfigurationBase#setRays	var rays	rays
+PropertySetter	com.badlogic.gdx.ai.steer.utils.rays.SingleRayConfiguration#setLength	(var length)	length
+PropertySetter	com.badlogic.gdx.ai.utils.CircularBuffer#setResizable	(var resizable)	resizable
+PropertySetter	com.badlogic.gdx.ai.utils.Location#setOrientation	var orientation	orientation
+Protected	com.badlogic.gdx.ai.btree.BehaviorTree#addChildToTask	protected addChildToTask	
+Protected	com.badlogic.gdx.ai.btree.BehaviorTree#copyTo	protected copyTo	
+Protected	com.badlogic.gdx.ai.btree.BranchTask#addChildToTask	protected addChildToTask	
+Protected	com.badlogic.gdx.ai.btree.BranchTask#children:field	protected children	
+Protected	com.badlogic.gdx.ai.btree.BranchTask#copyTo	protected copyTo	
+Protected	com.badlogic.gdx.ai.btree.Decorator#addChildToTask	protected addChildToTask	
+Protected	com.badlogic.gdx.ai.btree.Decorator#child:field	protected child	
+Protected	com.badlogic.gdx.ai.btree.Decorator#copyTo	protected copyTo	
+Protected	com.badlogic.gdx.ai.btree.LeafTask#addChildToTask	protected addChildToTask	
+Protected	com.badlogic.gdx.ai.btree.LoopDecorator#loop:field	protected loop	
+Protected	com.badlogic.gdx.ai.btree.SingleRunningChildBranch#copyTo	protected copyTo	
+Protected	com.badlogic.gdx.ai.btree.SingleRunningChildBranch#createRandomChildren	protected createRandomChildren	
+Protected	com.badlogic.gdx.ai.btree.SingleRunningChildBranch#currentChildIndex:field	protected currentChildIndex	
+Protected	com.badlogic.gdx.ai.btree.SingleRunningChildBranch#randomChildren:field	protected randomChildren	
+Protected	com.badlogic.gdx.ai.btree.SingleRunningChildBranch#runningChild:field	protected runningChild	
+Protected	com.badlogic.gdx.ai.btree.Task#addChildToTask	protected addChildToTask	
+Protected	com.badlogic.gdx.ai.btree.Task#control:field	protected control	
+Protected	com.badlogic.gdx.ai.btree.Task#copyTo	protected copyTo	
+Protected	com.badlogic.gdx.ai.btree.Task#tree:field	protected tree	
+Protected	com.badlogic.gdx.ai.btree.branch.DynamicGuardSelector#copyTo	protected copyTo	
+Protected	com.badlogic.gdx.ai.btree.branch.DynamicGuardSelector#runningChild:field	protected runningChild	
+Protected	com.badlogic.gdx.ai.btree.branch.Parallel#copyTo	protected copyTo	
+Protected	com.badlogic.gdx.ai.btree.decorator.Include#copyTo	protected copyTo	
+Protected	com.badlogic.gdx.ai.btree.decorator.Random#copyTo	protected copyTo	
+Protected	com.badlogic.gdx.ai.btree.decorator.Repeat#copyTo	protected copyTo	
+Protected	com.badlogic.gdx.ai.btree.decorator.SemaphoreGuard#copyTo	protected copyTo	
+Protected	com.badlogic.gdx.ai.btree.leaf.Failure#copyTo	protected copyTo	
+Protected	com.badlogic.gdx.ai.btree.leaf.Success#copyTo	protected copyTo	
+Protected	com.badlogic.gdx.ai.btree.leaf.Wait#copyTo	protected copyTo	
+Protected	com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary#parser:field	protected parser	
+Protected	com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary#repository:field	protected repository	
+Protected	com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary#resolver:field	protected resolver	
+Protected	com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary#retrieveArchetypeTree	protected retrieveArchetypeTree	
+Protected	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser#createBehaviorTree	protected createBehaviorTree	
+Protected	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser$DefaultBehaviorTreeReader#attribute	protected attribute	
+Protected	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser$DefaultBehaviorTreeReader#endLine	protected endLine	
+Protected	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser$DefaultBehaviorTreeReader#endStatement	protected endStatement	
+Protected	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser$DefaultBehaviorTreeReader#startLine	protected startLine	
+Protected	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser$DefaultBehaviorTreeReader#startStatement	protected startStatement	
+Protected	com.badlogic.gdx.ai.btree.utils.BehaviorTreeReader#attribute	protected attribute	
+Protected	com.badlogic.gdx.ai.btree.utils.BehaviorTreeReader#comment	protected comment	
+Protected	com.badlogic.gdx.ai.btree.utils.BehaviorTreeReader#debug:field	protected debug	
+Protected	com.badlogic.gdx.ai.btree.utils.BehaviorTreeReader#endLine	protected endLine	
+Protected	com.badlogic.gdx.ai.btree.utils.BehaviorTreeReader#endStatement	protected endStatement	
+Protected	com.badlogic.gdx.ai.btree.utils.BehaviorTreeReader#lineNumber:field	protected lineNumber	
+Protected	com.badlogic.gdx.ai.btree.utils.BehaviorTreeReader#startLine	protected startLine	
+Protected	com.badlogic.gdx.ai.btree.utils.BehaviorTreeReader#startStatement	protected startStatement	
+Protected	com.badlogic.gdx.ai.btree.utils.PooledBehaviorTreeLibrary#newBehaviorTree	protected newBehaviorTree	
+Protected	com.badlogic.gdx.ai.fma.SoftRoleSlotAssignmentStrategy#costThreshold:field	protected costThreshold	
+Protected	com.badlogic.gdx.ai.fma.SoftRoleSlotAssignmentStrategy#slotCostProvider:field	protected slotCostProvider	
+Protected	com.badlogic.gdx.ai.fsm.DefaultStateMachine#currentState:field	protected currentState	
+Protected	com.badlogic.gdx.ai.fsm.DefaultStateMachine#globalState:field	protected globalState	
+Protected	com.badlogic.gdx.ai.fsm.DefaultStateMachine#previousState:field	protected previousState	
+Protected	com.badlogic.gdx.ai.pfa.DefaultConnection#fromNode:field	protected fromNode	
+Protected	com.badlogic.gdx.ai.pfa.DefaultConnection#toNode:field	protected toNode	
+Protected	com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder#addToOpenList	protected addToOpenList	
+Protected	com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder#generateConnectionPath	protected generateConnectionPath	
+Protected	com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder#generateNodePath	protected generateNodePath	
+Protected	com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder#getNodeRecord	protected getNodeRecord	
+Protected	com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder#initSearch	protected initSearch	
+Protected	com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder#visitChildren	protected visitChildren	
+Protected	com.badlogic.gdx.ai.pfa.indexed.IndexedHierarchicalGraph#level:field	protected level	
+Protected	com.badlogic.gdx.ai.pfa.indexed.IndexedHierarchicalGraph#levelCount:field	protected levelCount	
+Protected	com.badlogic.gdx.ai.sched.LoadBalancingScheduler#frame:field	protected frame	
+Protected	com.badlogic.gdx.ai.sched.PriorityScheduler#frame:field	protected frame	
+Protected	com.badlogic.gdx.ai.sched.SchedulerBase#calculatePhase	protected calculatePhase	
+Protected	com.badlogic.gdx.ai.sched.SchedulerBase#dryRunFrames:field	protected dryRunFrames	
+Protected	com.badlogic.gdx.ai.sched.SchedulerBase#phaseCounters:field	protected phaseCounters	
+Protected	com.badlogic.gdx.ai.sched.SchedulerBase#runList:field	protected runList	
+Protected	com.badlogic.gdx.ai.sched.SchedulerBase#schedulableRecords:field	protected schedulableRecords	
+Protected	com.badlogic.gdx.ai.steer.SteeringBehavior#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.steer.SteeringBehavior#getActualLimiter	protected getActualLimiter	
+Protected	com.badlogic.gdx.ai.steer.SteeringBehavior#newVector	protected newVector	
+Protected	com.badlogic.gdx.ai.steer.behaviors.Alignment#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.steer.behaviors.Arrive#arrive	protected arrive	
+Protected	com.badlogic.gdx.ai.steer.behaviors.Arrive#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.steer.behaviors.BlendedSteering#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.steer.behaviors.Cohesion#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.steer.behaviors.CollisionAvoidance#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.steer.behaviors.Evade#getActualMaxLinearAcceleration	protected getActualMaxLinearAcceleration	
+Protected	com.badlogic.gdx.ai.steer.behaviors.Face#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.steer.behaviors.Face#face	protected face	
+Protected	com.badlogic.gdx.ai.steer.behaviors.Flee#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.steer.behaviors.FollowFlowField#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.steer.behaviors.FollowPath#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.steer.behaviors.Hide#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.steer.behaviors.Hide#getHidingPosition	protected getHidingPosition	
+Protected	com.badlogic.gdx.ai.steer.behaviors.Interpose#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.steer.behaviors.LookWhereYouAreGoing#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.steer.behaviors.MatchVelocity#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.steer.behaviors.PrioritySteering#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.steer.behaviors.Pursue#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.steer.behaviors.Pursue#getActualMaxLinearAcceleration	protected getActualMaxLinearAcceleration	
+Protected	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.steer.behaviors.ReachOrientation#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.steer.behaviors.ReachOrientation#reachOrientation	protected reachOrientation	
+Protected	com.badlogic.gdx.ai.steer.behaviors.Seek#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.steer.behaviors.Separation#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.steer.behaviors.Wander#calculateRealSteering	protected calculateRealSteering	
+Protected	com.badlogic.gdx.ai.utils.CircularBuffer#resize	protected resize	
+Public	com.badlogic.gdx.ai.btree.Task#guard:field	public guard	
+Public	com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibraryManager#library:field	public library	
+Public	com.badlogic.gdx.ai.btree.utils.BehaviorTreeParser#printTree	public printTree	
+Public	com.badlogic.gdx.ai.btree.utils.BehaviorTreeReader#reportsComments:field	public reportsComments	
+Public	com.badlogic.gdx.ai.btree.utils.DistributionAdapters$Adapter#category:field	public category	
+Public	com.badlogic.gdx.ai.fma.Formation#anchor:field	public anchor	
+Public	com.badlogic.gdx.ai.fma.Formation#motionModerator:field	public motionModerator	
+Public	com.badlogic.gdx.ai.fma.Formation#pattern:field	public pattern	
+Public	com.badlogic.gdx.ai.fma.Formation#slotAssignmentStrategy:field	public slotAssignmentStrategy	
+Public	com.badlogic.gdx.ai.fma.Formation#slotAssignments:field	public slotAssignments	
+Public	com.badlogic.gdx.ai.fma.patterns.DefensiveCircleFormationPattern#memberRadius:field	public memberRadius	
+Public	com.badlogic.gdx.ai.fsm.DefaultStateMachine#owner:field	public owner	
+Public	com.badlogic.gdx.ai.pfa.HierarchicalPathFinder#graph:field	public graph	
+Public	com.badlogic.gdx.ai.pfa.HierarchicalPathFinder#levelPathFinder:field	public levelPathFinder	
+Public	com.badlogic.gdx.ai.pfa.PathFinderRequestControl#lastTime:field	public lastTime	
+Public	com.badlogic.gdx.ai.pfa.PathFinderRequestControl#pathFinder:field	public pathFinder	
+Public	com.badlogic.gdx.ai.pfa.PathFinderRequestControl#server:field	public server	
+Public	com.badlogic.gdx.ai.pfa.PathFinderRequestControl#timeToRun:field	public timeToRun	
+Public	com.badlogic.gdx.ai.pfa.PathFinderRequestControl#timeTolerance:field	public timeTolerance	
+Public	com.badlogic.gdx.ai.pfa.PathSmoother#raycastCollisionDetector:field	public raycastCollisionDetector	
+Public	com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder#graph:field	public graph	
+Public	com.badlogic.gdx.ai.steer.GroupBehavior#proximity:field	public proximity	
+Public	com.badlogic.gdx.ai.steer.SteeringBehavior#enabled:field	public enabled	
+Public	com.badlogic.gdx.ai.steer.SteeringBehavior#limiter:field	public limiter	
+Public	com.badlogic.gdx.ai.steer.SteeringBehavior#owner:field	public owner	
+Public	com.badlogic.gdx.ai.steer.behaviors.Arrive#arrivalTolerance:field	public arrivalTolerance	
+Public	com.badlogic.gdx.ai.steer.behaviors.Arrive#decelerationRadius:field	public decelerationRadius	
+Public	com.badlogic.gdx.ai.steer.behaviors.Arrive#target:field	public target	
+Public	com.badlogic.gdx.ai.steer.behaviors.Arrive#timeToTarget:field	public timeToTarget	
+Public	com.badlogic.gdx.ai.steer.behaviors.BlendedSteering#list:field	public list	
+Public	com.badlogic.gdx.ai.steer.behaviors.BlendedSteering$BehaviorAndWeight#behavior:field	public behavior	
+Public	com.badlogic.gdx.ai.steer.behaviors.BlendedSteering$BehaviorAndWeight#weight:field	public weight	
+Public	com.badlogic.gdx.ai.steer.behaviors.FollowFlowField#flowField:field	public flowField	
+Public	com.badlogic.gdx.ai.steer.behaviors.FollowFlowField#predictionTime:field	public predictionTime	
+Public	com.badlogic.gdx.ai.steer.behaviors.FollowPath#arriveEnabled:field	public arriveEnabled	
+Public	com.badlogic.gdx.ai.steer.behaviors.FollowPath#path:field	public path	
+Public	com.badlogic.gdx.ai.steer.behaviors.FollowPath#pathOffset:field	public pathOffset	
+Public	com.badlogic.gdx.ai.steer.behaviors.FollowPath#pathParam:field	public pathParam	
+Public	com.badlogic.gdx.ai.steer.behaviors.FollowPath#predictionTime:field	public predictionTime	
+Public	com.badlogic.gdx.ai.steer.behaviors.Hide#distanceFromBoundary:field	public distanceFromBoundary	
+Public	com.badlogic.gdx.ai.steer.behaviors.Hide#proximity:field	public proximity	
+Public	com.badlogic.gdx.ai.steer.behaviors.Interpose#agentA:field	public agentA	
+Public	com.badlogic.gdx.ai.steer.behaviors.Interpose#agentB:field	public agentB	
+Public	com.badlogic.gdx.ai.steer.behaviors.Interpose#interpositionRatio:field	public interpositionRatio	
+Public	com.badlogic.gdx.ai.steer.behaviors.Jump#airborneTime:field	public airborneTime	
+Public	com.badlogic.gdx.ai.steer.behaviors.Jump#callback:field	public callback	
+Public	com.badlogic.gdx.ai.steer.behaviors.Jump#gravity:field	public gravity	
+Public	com.badlogic.gdx.ai.steer.behaviors.Jump#gravityComponentHandler:field	public gravityComponentHandler	
+Public	com.badlogic.gdx.ai.steer.behaviors.Jump#jumpDescriptor:field	public jumpDescriptor	
+Public	com.badlogic.gdx.ai.steer.behaviors.Jump#maxVerticalVelocity:field	public maxVerticalVelocity	
+Public	com.badlogic.gdx.ai.steer.behaviors.Jump#takeoffPositionTolerance:field	public takeoffPositionTolerance	
+Public	com.badlogic.gdx.ai.steer.behaviors.Jump#takeoffVelocityTolerance:field	public takeoffVelocityTolerance	
+Public	com.badlogic.gdx.ai.steer.behaviors.MatchVelocity#target:field	public target	
+Public	com.badlogic.gdx.ai.steer.behaviors.MatchVelocity#timeToTarget:field	public timeToTarget	
+Public	com.badlogic.gdx.ai.steer.behaviors.PrioritySteering#behaviors:field	public behaviors	
+Public	com.badlogic.gdx.ai.steer.behaviors.PrioritySteering#epsilon:field	public epsilon	
+Public	com.badlogic.gdx.ai.steer.behaviors.PrioritySteering#selectedBehaviorIndex:field	public selectedBehaviorIndex	
+Public	com.badlogic.gdx.ai.steer.behaviors.Pursue#maxPredictionTime:field	public maxPredictionTime	
+Public	com.badlogic.gdx.ai.steer.behaviors.Pursue#target:field	public target	
+Public	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#distanceFromBoundary:field	public distanceFromBoundary	
+Public	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#rayConfiguration:field	public rayConfiguration	
+Public	com.badlogic.gdx.ai.steer.behaviors.RaycastObstacleAvoidance#raycastCollisionDetector:field	public raycastCollisionDetector	
+Public	com.badlogic.gdx.ai.steer.behaviors.ReachOrientation#alignTolerance:field	public alignTolerance	
+Public	com.badlogic.gdx.ai.steer.behaviors.ReachOrientation#decelerationRadius:field	public decelerationRadius	
+Public	com.badlogic.gdx.ai.steer.behaviors.ReachOrientation#target:field	public target	
+Public	com.badlogic.gdx.ai.steer.behaviors.ReachOrientation#timeToTarget:field	public timeToTarget	
+Public	com.badlogic.gdx.ai.steer.behaviors.Seek#target:field	public target	
+Public	com.badlogic.gdx.ai.steer.behaviors.Separation#decayCoefficient:field	public decayCoefficient	
+Public	com.badlogic.gdx.ai.steer.behaviors.Wander#faceEnabled:field	public faceEnabled	
+Public	com.badlogic.gdx.ai.steer.behaviors.Wander#lastTime:field	public lastTime	
+Public	com.badlogic.gdx.ai.steer.behaviors.Wander#wanderOffset:field	public wanderOffset	
+Public	com.badlogic.gdx.ai.steer.behaviors.Wander#wanderOrientation:field	public wanderOrientation	
+Public	com.badlogic.gdx.ai.steer.behaviors.Wander#wanderRadius:field	public wanderRadius	
+Public	com.badlogic.gdx.ai.steer.behaviors.Wander#wanderRate:field	public wanderRate	
+Public	com.badlogic.gdx.ai.steer.proximities.FieldOfViewProximity#radius:field	public radius	
+Public	com.badlogic.gdx.ai.steer.proximities.ProximityBase#agents:field	public agents	
+Public	com.badlogic.gdx.ai.steer.proximities.RadiusProximity#radius:field	public radius	
+Public	com.badlogic.gdx.ai.steer.utils.paths.LinePath$LinePathParam#segmentIndex:field	public segmentIndex	
+Public	com.badlogic.gdx.ai.steer.utils.paths.LinePath$Segment#<init>	public <init>	
+Public	com.badlogic.gdx.ai.steer.utils.paths.LinePath$Segment#begin:field	public begin	
+Public	com.badlogic.gdx.ai.steer.utils.paths.LinePath$Segment#cumulativeLength:field	public cumulativeLength	
+Public	com.badlogic.gdx.ai.steer.utils.paths.LinePath$Segment#end:field	public end	
+Public	com.badlogic.gdx.ai.steer.utils.paths.LinePath$Segment#length:field	public length	
+Public	com.badlogic.gdx.ai.steer.utils.rays.RayConfigurationBase#owner:field	public owner	
+Public	com.badlogic.gdx.ai.steer.utils.rays.RayConfigurationBase#rays:field	public rays	
+Public	com.badlogic.gdx.ai.utils.SimpleNonBlockingSemaphore#maxResources:field	public maxResources	
+Public	com.badlogic.gdx.ai.utils.SimpleNonBlockingSemaphore#name:field	public name	
+Rename	com.badlogic.gdx.ai.fma.Formation#getSlotAssignmentAt	def slotAssignmentAt	slotAssignmentAt
