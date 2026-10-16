@@ -84,7 +84,6 @@ object GdxAiPolicy {
       "com.badlogic.gdx.ai.pfa.PathFinderQueue"
 
   private val ClockReadersOutsideContext = Set(
-    "com.badlogic.gdx.ai.btree.leaf.Wait",
     "com.badlogic.gdx.ai.steer.behaviors.Jump",
     // a `Schedulable`'s `run`: the queue reads the clock it was given at construction (its body below)
     "com.badlogic.gdx.ai.pfa.PathFinderQueue#run",
@@ -94,8 +93,9 @@ object GdxAiPolicy {
     "com.badlogic.gdx.ai.pfa.HierarchicalPathFinder#search"
   )
 
-  /** the steering behaviour and the two proximities take the clock on their constructor, as in the hand port (`Wander(owner)(using Timepiece)`) */
+  /** the wait task, the steering behaviour and the two proximities take the clock on their constructor, as in the hand port (`Wander(owner)(using Timepiece)`) */
   private val ClockOnConstructor = Set(
+    "com.badlogic.gdx.ai.btree.leaf.Wait",
     "com.badlogic.gdx.ai.steer.behaviors.Wander",
     "com.badlogic.gdx.ai.steer.proximities.RadiusProximity",
     "com.badlogic.gdx.ai.steer.proximities.FieldOfViewProximity"

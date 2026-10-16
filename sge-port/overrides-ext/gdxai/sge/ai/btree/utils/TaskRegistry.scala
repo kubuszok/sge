@@ -205,7 +205,8 @@ object TaskRegistry {
     )
     both("leaf.Success", () => new sge.ai.btree.leaf.Success[java.lang.Object]())
     both("leaf.Failure", () => new sge.ai.btree.leaf.Failure[java.lang.Object]())
-    both("leaf.Wait", () => new sge.ai.btree.leaf.Wait[java.lang.Object]())
+    // the parser has no clock of its own: a parsed wait task takes the installed one when it is built
+    both("leaf.Wait", () => new sge.ai.btree.leaf.Wait[java.lang.Object]()(using sge.ai.GdxAI.getTimepiece()))
 
     // ---- the eight @TaskAttribute fields ----
     // Wait: @TaskAttribute(required = true) public FloatDistribution seconds;
