@@ -51,13 +51,13 @@ runs:
         generators=$(for f in project/BalticPorterExtGen.scala project/BalticPorterEcsGen.scala build.sbt; do git rev-parse "HEAD:$f"; done | sha256sum | cut -c1-16)
         echo "tree=$policy-$provided-$base-$extensions-$generators" >> "$GITHUB_OUTPUT"
       env:
-        EXTENSION_SUBMODULES: original-src/ashley original-src/noise4j original-src/anim8-gdx original-src/jbump original-src/guacamole original-src/gdx-vfx original-src/libgdx-screenmanager original-src/colorful-gdx original-src/vis-ui original-src/gdx-ai
+        EXTENSION_SUBMODULES: original-src/ashley original-src/noise4j original-src/anim8-gdx original-src/jbump original-src/guacamole original-src/gdx-vfx original-src/libgdx-screenmanager original-src/colorful-gdx original-src/vis-ui original-src/gdx-ai original-src/regexodus original-src/textratypist
 
     # Init the generated extensions' submodules alongside libgdx
     - name: Checkout the extension submodules
       if: inputs.mode == 'generate'
       shell: bash
-      run: git submodule update --init --depth=1 original-src/ashley original-src/noise4j original-src/anim8-gdx original-src/jbump original-src/guacamole original-src/gdx-vfx original-src/libgdx-screenmanager original-src/colorful-gdx original-src/vis-ui original-src/gdx-ai
+      run: git submodule update --init --depth=1 original-src/ashley original-src/noise4j original-src/anim8-gdx original-src/jbump original-src/guacamole original-src/gdx-vfx original-src/libgdx-screenmanager original-src/colorful-gdx original-src/vis-ui original-src/gdx-ai original-src/regexodus original-src/textratypist
 
     # The generator runs inside the shared action, which does not retry a download cut off mid-body:
     # load the meta-build (the engine and the pinned snapshot plugins) here first, through the guard
@@ -99,6 +99,8 @@ runs:
           target/balticporter-sge-colorful
           target/balticporter-sge-visui
           target/balticporter-sge-ai
+          target/balticporter-sge-regexodus
+          target/balticporter-sge-textra
           target/balticporter-reports
         key: ${{ steps.port.outputs.key }}-ecs
         fail-on-cache-miss: ${{ inputs.mode == 'restore' }}
@@ -120,6 +122,8 @@ runs:
           target/balticporter-sge-colorful
           target/balticporter-sge-visui
           target/balticporter-sge-ai
+          target/balticporter-sge-regexodus
+          target/balticporter-sge-textra
           target/balticporter-reports
         key: ${{ steps.port.outputs.key }}-ecs
         enableCrossOsArchive: true
