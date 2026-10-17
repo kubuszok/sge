@@ -18,15 +18,10 @@ sge-extension/ecs/src/main/scala/sge/ecs/FamilyManager.scala	shortcuts	ECS defer
 sge-extension/ecs/src/main/scala/sge/ecs/Engine.scala	shortcuts	Throws if pooled entity is reused after free; null-cast for cleanup-on-removal handler	2026-04-08	dev
 sge-extension/jbump/src/main/scala/sge/jbump/World.scala	shortcuts	filter() Java interop: getOrElse(null.asInstanceOf[Item[?]])	2026-04-08	dev
 sge-extension/anim8/src/test/scala/sge/anim8/ChunkBufferSuite.scala	shortcuts	Test fixture catch-Throwable for negative test case	2026-04-08	dev
-sge-extension/textra/src/main/scala/sge/textra/utils/LZBCompression.scala	shortcuts	var done = false: pre-boundary refactor pattern, working LZB decoder	2026-04-08	dev
-sge-extension/textra/src/main/scala/sge/textra/BitmapFontSupport.scala	shortcuts	var done = false: pre-boundary refactor pattern	2026-04-08	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/scene/SceneManager.scala	shortcuts	var result null-cast pattern for unique-light filter; line 321 TODO tracked as partial-port debt	2026-04-08	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/utils/MaterialConverter.scala	shortcuts	'Conversion approximation' describes the algorithm being implemented (Blender FBX export plugin)	2026-04-08	dev
 sge-extension/controllers/src/main/scalanative/sge/controllers/GlfwControllerNative.scala	shortcuts	Doc comment about replacing the JVM stub at static-init time	2026-04-08	dev
-sge-extension/textra/src/main/scala/sge/textra/utils/ColorUtils.scala	shortcuts	Doc comments from original Java source: 'placeholder' describes the color value 256 used by ColorLookup for 'no color found', not a TODO	2026-04-11	dev
-sge-extension/textra/src/main/scala/sge/textra/TextraLabel.scala	shortcuts	Catches UnsupportedOperationException|ClassCastException for TransformDrawable fallback, faithful port of Java original	2026-04-11	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/utils/IBLBuilder.scala	shortcuts	Pre-existing XXX patch markers from original gdx-gltf port — light direction fix comments	2026-04-18	dev
-sge-extension/textra/src/main/scala/sge/textra/LzmaUtils.scala	shortcuts	LZMA SDK algorithm port: null-casts at Java stream/array interop boundaries, flag-break-var for loop control in compression algorithm	2026-04-19	dev
 sge/src/main/scala/sge/Graphics.scala	shortcuts	Doc comment 'best-effort attempt' describes vSync behavior, not a TODO	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/Attributes.scala	shortcuts	FIXME comments preserved from original LibGDX source (upstream issue #4186)	2026-04-19	dev
 sge/src/main/scala/sge/math/BSpline.scala	shortcuts	TODO comment from original Java source (BSpline.java:296)	2026-04-19	dev
@@ -41,14 +36,11 @@ sge/src/main/scala/sge/scenes/scene2d/Actor.scala	shortcuts	Line 50 'Deferred re
 sge/src/main/scala/sge/utils/TimSort.scala	shortcuts	pending-comment: 'pending runs' is algorithmic terminology in TimSort, not a TODO marker; null-cast: clearing references after sort (a=null, c=null, tmp[i]=null) is performance optimization for GC, matching original Java source	2026-04-19	dev
 sge/src/main/scala/sge/Graphics.scala	verify	Doc comment 'best-effort attempt' describes vSync behavior, original LibGDX Javadoc	2026-04-19	dev
 sge/src/main/scala/sge/Net.scala	verify	Doc comment 'best effort' describes browser URI launch behavior, original LibGDX Javadoc	2026-04-19	dev
-sge-extension/textra/src/main/scala/sge/textra/Font.scala	shortcuts	Java interop: getOrElse(null) for shader reference comparison (ne/eq)	2026-04-19	dev
-sge-extension/textra/src/main/scala/sge/textra/BitmapFontSupport.scala	shortcuts	UBJSON font loading needs a UBJsonReader->Json AST bridge SGE lacks (ISS-617); LZMA half wired by ISS-514 (56566c3d); remaining hit is pre-existing flag-break-var line 424 (LZB loop)	2026-04-19	dev
 sge/src/main/scala/sge/utils/I18nBundle.scala	shortcuts	scala-unimpl: '???' appears as string literal in missing-key fallback ('???key???'), matching LibGDX original exactly; placeholder-comment: 'placeholder' is Scaladoc describing the debug(placeholder) method parameter	2026-04-19	dev
 sge/src/main/scala/sge/graphics/Mesh.scala	shortcuts	TODO at line 398 preserved from original Mesh.java:382; null-casts at lines 1096-1179 are local-var initialization in copy() method matching Java original pattern (assigned-before-use, null-checked)	2026-04-19	dev
 sge/src/main/scala/sge/maps/tiled/BaseTiledMapLoader.scala	shortcuts	return-comment@91: comment describing color conversion, not a return statement	2026-04-19	dev
 sge-extension/ecs/src/main/scala/sge/ecs/ComponentOperationHandler.scala	shortcuts	deferred-comment false positive: scaladoc uses word 'deferred' to describe batched operations	2026-04-19	dev
 sge/src/main/scala/sge/graphics/glutils/ShaderProgram.scala	verify	not-yet-comment at lines 210,225 are cache sentinel value documentation (// -2 == not yet cached), not TODO markers	2026-04-19	dev
-sge-extension/textra/src/main/scala/sge/textra/TextraField.scala	shortcuts	Deferred comment documents EmojiProcessor integration is pending	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/shaders/DefaultShader.scala	shortcuts	FIXME/TODO comments preserved from original LibGDX source (DefaultShader.java)	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/Model.scala	shortcuts	FIXME comments preserved from original LibGDX source (Model.java)	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/particles/ParticleShader.scala	shortcuts	FIXME comment and approximation-comment preserved from original LibGDX source (ParticleShader.java)	2026-04-19	dev
@@ -61,7 +53,6 @@ sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	shortcuts	TODO commen
 sge/src/main/scala/sge/scenes/scene2d/actions/RepeatAction.scala	shortcuts	var finished: Boolean is the FinishableAction trait state flag, not a flag-break-var pattern	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/shaders/DepthShader.scala	shortcuts	TODO comment preserved from original LibGDX source (DepthShader.java)	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/utils/MeshPartBuilder.scala	shortcuts	TODO comment preserved from original LibGDX source (MeshPartBuilder.java)	2026-04-19	dev
-sge-extension/textra/src/main/scala/sge/textra/TextraLabel.scala	shortcuts	Catch clause for UnsupportedOperationException from external drawable.draw() - not a stub	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/decals/SimpleOrthoGroupStrategy.scala	shortcuts	FIXME comment preserved from original LibGDX source (SimpleOrthoGroupStrategy.java)	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/Shader.scala	shortcuts	TODO comment preserved from original LibGDX source (Shader.java)	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/utils/TextureDescriptor.scala	shortcuts	TODO comment preserved from original LibGDX source (TextureDescriptor.java)	2026-04-19	dev
@@ -78,15 +69,12 @@ sge/src/main/scala/sge/graphics/g3d/particles/ParallelArray.scala	shortcuts	FIXM
 sge/src/main/scala/sge/graphics/g3d/model/NodeAnimation.scala	shortcuts	for-now comment preserved from original LibGDX source (NodeAnimation.java)	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/decals/Decal.scala	shortcuts	TODO comment preserved from original LibGDX source (Decal.java)	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g3d/particles/ParticleEffectCodecs.scala	shortcuts	SGE-original: UnsupportedOperationException for unknown type dispatch in JSON codecs + for-now comment	2026-04-19	dev
-sge-extension/textra/src/main/scala/sge/textra/TypingLabel.scala	shortcuts	Catch clause for UnsupportedOperationException from external drawable.draw() - not a stub	2026-04-19	dev
 sge/src/main/scala/sge/graphics/g2d/TextureAtlas.scala	shortcuts	not-yet-comment at line 503: 'not yet loaded' describes texture lifecycle state from original TextureAtlas.java Javadoc	2026-04-19	dev
 sge/src/main/scala/sge/utils/TextFormatter.scala	shortcuts	placeholder-comment and simplified-comment: Scaladoc describing the {0}/{1} placeholder syntax and 'simplified form' format mode, matching original TextFormatter.java Javadoc	2026-04-19	dev
-sge-extension/textra/src/main/scala/sge/textra/LzmaUtils.scala	shortcuts	Java interop: null-casts for LZMA stream initialization in try/finally resource cleanup pattern	2026-04-19	dev
 sge/src/main/scala/sge/scenes/scene2d/utils/ScissorStack.scala	shortcuts	Line 36 'minimal area of overlap' is the original LibGDX Javadoc describing scissor rectangle merge semantics	2026-04-19	dev
 sge/src/main/scala/sge/utils/Nullable.scala	shortcuts	null-cast: Nullable.orNull is the intended Java interop escape hatch — null.asInstanceOf[A] is the entire purpose of this method, already @deprecated with interop-only guidance	2026-04-19	dev
 sge/src/main/scala/sge/files/FileHandles.scala	shortcuts	FileHandleStream by design throws UnsupportedOperationException for unsupported file operations, matching original Java source FileHandleStream.java	2026-04-19	dev
 sge/src/main/scala/sge/scenes/scene2d/utils/TiledDrawable.scala	shortcuts	Line 69 UnsupportedOperationException is the original LibGDX behavior: TiledDrawable.draw with transform params is not supported	2026-04-19	dev
-sge-extension/textra/src/main/scala/sge/textra/utils/LZBCompression.scala	shortcuts	flag-break-var pattern for flush loop; already addressed in prior cleanup pass	2026-04-19	dev
 sge/src/main/scala/sge/math/BSpline.scala	verify	TODO comment from original Java source (BSpline.java:296)	2026-04-19	dev
 sge/src/main/scala/sge/math/Bezier.scala	verify	TODO comments from original Java source (Bezier.java:187,201)	2026-04-19	dev
 sge/src/main/scala/sge/math/Quaternion.scala	verify	TODO comment from original Java source (Quaternion.java:232)	2026-04-19	dev
@@ -96,7 +84,6 @@ sge/src/main/scala/sge/files/FileHandles.scala	verify	FileHandleStream by design
 sge/src/main/scala/sge/math/Ellipse.scala	verify	approximation-comment hits are original Javadoc comments describing Ramanujan circumference approximation	2026-04-19	dev
 sge/src/main/scala/sge/maps/tiled/TideMapLoader.scala	verify	todo@297: original Java source comment 'TODO: Reuse existing animated tiles' (TideMapLoader.java:260); todo@20: test TODO	2026-04-19	dev
 sge/src/main/scala/sge/scenes/scene2d/utils/Selection.scala	shortcuts	Line 244 'best effort' is original LibGDX Javadoc describing lastSelected behavior, not a TODO	2026-04-19	dev
-sge-extension/textra/src/main/scala/sge/textra/utils/ColorUtils.scala	shortcuts	False positive: 'placeholder' appears in Scaladoc describing a sentinel int value 256, not stub code	2026-04-19	dev
 sge/src/main/scala/sge/input/NativeInputConfiguration.scala	shortcuts	Doc comment '@param placeholder' describes the placeholder parameter, original LibGDX Javadoc	2026-04-19	dev
 sge/src/main/scala/sge/scenes/scene2d/ui/Value.scala	shortcuts	Line 22 'Value placeholder' is the original LibGDX Javadoc class description, not a TODO	2026-04-19	dev
 sge/src/main/scala/sge/scenes/scene2d/ui/Container.scala	shortcuts	Lines 228,237,246 UnsupportedOperationException is original LibGDX design: Container only supports single child via setActor	2026-04-19	dev
@@ -237,13 +224,6 @@ sge-extension/graphs/src/main/scala/sge/graphs/UndirectedGraph.scala	shortcuts	n
 sge-extension/graphs/src/main/scala/sge/graphs/DirectedGraph.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
 sge-extension/graphs/src/main/scala/sge/graphs/Node.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
 sge-extension/jbump/src/main/scala/sge/jbump/World.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
-sge-extension/textra/src/main/scala/sge/textra/BitmapFontSupport.scala	shortcuts	not-yet-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
-sge-extension/textra/src/main/scala/sge/textra/utils/LZBCompression.scala	shortcuts	flag-break-var: Scala 3 boundary/break replacement pattern	2026-04-29	dev
-sge-extension/textra/src/main/scala/sge/textra/utils/ColorUtils.scala	shortcuts	placeholder-comment: Documentation pattern, not a code shortcut	2026-04-29	dev
-sge-extension/textra/src/main/scala/sge/textra/TextraLabel.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
-sge-extension/textra/src/main/scala/sge/textra/TypingLabel.scala	shortcuts	unsupported-op: Trait contract method throws by design	2026-04-29	dev
-sge-extension/textra/src/main/scala/sge/textra/LzmaUtils.scala	shortcuts	null-cast: Java interop boundary or data structure sentinel	2026-04-29	dev
-sge-extension/textra/src/main/scala/sge/textra/Font.scala	shortcuts	get-or-else-null: Null boundary utility for Java interop	2026-04-29	dev
 sge/src/test/scalajvm/sge/graphics/g2d/SpriteCacheRedSuite.scala	shortcuts	ISS-493 red-suite fixture: dummy TextureData.consumePixmap must throw if ever consumed (Custom-type texture data, never rendered); audited in fix/ISS-493-spritecache	2026-06-10	dev
 sge/src/test/scalanative/sge/graphics/g2d/SpriteCacheRedSuite.scala	shortcuts	ISS-493 red-suite fixture: dummy TextureData.consumePixmap must throw if ever consumed; native copy	2026-06-10	dev
 sge/src/test/scalajvm/sge/graphics/g2d/SpriteCacheRedefineRedSuite.scala	shortcuts	ISS-493 bounce red-suite fixture: same dummy TextureData pattern; audited	2026-06-10	dev
@@ -287,7 +267,6 @@ sge-extension/gltf/src/main/scala/sge/gltf/scene3d/animation/AnimationController
 sge-extension/textra/src/test/scalajvm/sge/textra/HeadlessTextraSge.scala	shortcuts	Shared headless textra test fixture (wave-E territory R): 18 intentional fail-loudly UnsupportedOperationException members — NullLimiter-class exemption, wave-E audit PASS.	2026-07-17	dev
 sge/src/test/scalajvm/sge/audio/MiniaudioEngineInstanceRegistryIss810RedSuite.scala	shortcuts	Frozen red suite (wave-E territory S): 1 fixture stub hit — reviewed in wave-E audit (PASS).	2026-07-17	dev
 sge/src/test/scala/sge/graphics/g3d/particles/ParticleEffectCodecsSerializationErrorIss814RedSuite.scala	shortcuts	Frozen red suite (wave-E territory S): 9 prose hits quoting the raw-UOE defect it pins — reviewed in wave-E audit (PASS).	2026-07-17	dev
-sge-extension/textra/src/main/scala/sge/textra/Font.scala	shortcuts	applyScale carries upstream's commented-out alternative body verbatim (Font.java:8219) — preserved per no-comment-removal rule (ISS-816, wave-E audit PASS); scanner counts it as a hit.	2026-07-17	dev
 sge/src/main/scala/sge/graphics/g3d/particles/ParticleEffectCodecs.scala	shortcuts	Line ~1993 'construction is deferred to the loader' is a legitimate design comment (deferred-comment false positive) — flagged by wave-E auditor S; the file's real UOE debt was fixed in ISS-814 (10 hits -> 1).	2026-07-17	dev
 sge-extension/ecs/src/test/scalajvm/sge/ecs/EngineCreateComponentReflectionRedSuite.scala	shortcuts	Frozen red suite (wave-G G6): scaladoc prose quoting the upstream reflective mechanism trips the scanner (+2 soft hits) — reviewed in G6 audit (PASS). Precedent: wave-E/F frozen-red-suite rows.	2026-07-18	dev
 sge-port/overrides/reflection/sge/utils/LegacyJson.scala	shortcuts	unsupported-op: the reflection step's stand-in for libGDX's reflective Json refuses every reflective read/write path by design (no reflection on JS/Native); the configuration and explicit write path are real; one refusal site, counted	2026-09-22	dev
