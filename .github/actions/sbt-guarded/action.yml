@@ -16,11 +16,15 @@ inputs:
   sentinel:
     description: path of a file the run writes on clean completion (empty = not checked)
     default: ""
+  working-directory:
+    description: directory the command runs in (a separate sbt build such as `demos`)
+    default: "."
 
 runs:
   using: composite
   steps:
     - shell: bash
+      working-directory: ${{ inputs.working-directory }}
       env:
         GUARDED_COMMAND: ${{ inputs.command }}
         GUARDED_REQUIRE: ${{ inputs.require }}
