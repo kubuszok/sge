@@ -11,6 +11,172 @@ object TextraPolicy {
 
   private val Textra = balticporter.tir.RuleScope.Only(Set("com.github.tommyettinger.textra"))
 
+  private val T = "com.github.tommyettinger.textra"
+
+  private def added(owner: String, name: String, arity: Int, source: String, why: String, static: Boolean = false) =
+    owner -> balticporter.transform.AddMembersTransform.MemberSpec(
+      name,
+      arity,
+      source,
+      balticporter.tir.Reason.Configured("add-members", s"$owner#$name/$arity"),
+      Some(why),
+      static
+    )
+
+  /** The hand port's API beside java's: the accessors it kept under java's names next to the property they read, the constructors and overloads it added, and its spelling of a replacer. */
+  private val HandPortMembers: Map[String, List[balticporter.transform.AddMembersTransform.MemberSpec]] = List(
+    added(
+      s"$T.Font$$GlyphRegion",
+      "this",
+      3,
+      "def this(offsetX: scala.Float, offsetY: scala.Float, xAdvance: scala.Float) = {\n    this()\n    this.offsetX = offsetX\n    this.offsetY = offsetY\n    this.xAdvance = xAdvance\n  }",
+      "the hand port's glyph with no texture region, given its offsets and advance"
+    ),
+    added(
+      s"$T.Font",
+      "getDistanceField",
+      0,
+      "def getDistanceField: sge.textra.Font.DistanceFieldType = this.distanceField",
+      "the hand port keeps java's accessor beside the property"
+    ),
+    added(
+      s"$T.TextraLabel",
+      "getFont",
+      0,
+      "def getFont: sge.textra.Font = this.font",
+      "the hand port keeps java's font accessor beside the property"
+    ),
+    added(
+      s"$T.TextraLabel",
+      "getWidth",
+      0,
+      "def getWidth: scala.Float = this.width",
+      "the hand port keeps java's width accessor beside the property"
+    ),
+    added(
+      s"$T.TextraLabel",
+      "getHeight",
+      0,
+      "def getHeight: scala.Float = this.height",
+      "the hand port keeps java's height accessor beside the property"
+    ),
+    added(
+      s"$T.TextraTooltip",
+      "getContainer",
+      0,
+      "def getContainer: sge.scenes.scene2d.ui.Container[sge.textra.TextraLabel] = this.container",
+      "the hand port keeps java's container accessor"
+    ),
+    added(
+      s"$T.TextraTooltip",
+      "getActor",
+      0,
+      "def getActor: sge.textra.TextraLabel = this.container.actor.get",
+      "the hand port keeps java's actor accessor; the label is installed by every constructor"
+    ),
+    added(
+      s"$T.TypingTooltip",
+      "getContainer",
+      0,
+      "def getContainer: sge.scenes.scene2d.ui.Container[sge.textra.TypingLabel] = this.container",
+      "the hand port keeps java's container accessor"
+    ),
+    added(
+      s"$T.TypingTooltip",
+      "getActor",
+      0,
+      "def getActor: sge.textra.TypingLabel = this.container.actor.get",
+      "the hand port keeps java's actor accessor; the label is installed by every constructor"
+    ),
+    added(
+      s"$T.TextraDialog",
+      "getContentTable",
+      0,
+      "def getContentTable: sge.scenes.scene2d.ui.Table = this.contentTable",
+      "the hand port keeps java's accessor beside the property"
+    ),
+    added(
+      s"$T.TextraDialog",
+      "getButtonTable",
+      0,
+      "def getButtonTable: sge.scenes.scene2d.ui.Table = this.buttonTable",
+      "the hand port keeps java's accessor beside the property"
+    ),
+    added(
+      s"$T.TypingDialog",
+      "getContentTable",
+      0,
+      "def getContentTable: sge.scenes.scene2d.ui.Table = this.contentTable",
+      "the hand port keeps java's accessor beside the property"
+    ),
+    added(
+      s"$T.TypingDialog",
+      "getButtonTable",
+      0,
+      "def getButtonTable: sge.scenes.scene2d.ui.Table = this.buttonTable",
+      "the hand port keeps java's accessor beside the property"
+    ),
+    added(
+      s"$T.TextraField",
+      "getText",
+      0,
+      "def getText: java.lang.String = this.text",
+      "the hand port keeps java's accessor beside the property"
+    ),
+    added(
+      s"$T.TextraField",
+      "getMessageText",
+      0,
+      "def getMessageText: lowlevel.Nullable[java.lang.String] = this.messageText",
+      "the hand port keeps java's accessor beside the property"
+    ),
+    added(
+      s"$T.TextraField",
+      "getClipboard",
+      0,
+      "def getClipboard: lowlevel.Nullable[sge.utils.Clipboard] = this.clipboard",
+      "the hand port reads the field's clipboard through java's accessor name"
+    ),
+    added(
+      s"$T.utils.CaseInsensitiveIntMap",
+      "size",
+      0,
+      "def size: scala.Int = this._size",
+      "the hand port's entry count beside the public field"
+    ),
+    added(
+      s"$T.Line",
+      "appendTo",
+      1,
+      "def appendTo(sb: scala.collection.mutable.StringBuilder): scala.collection.mutable.StringBuilder = {\n    this.appendTo(sb.underlying)\n    sb\n  }",
+      "the hand port appends to a scala builder; java's own appending, onto the builder it wraps"
+    ),
+    added(
+      s"$T.utils.StringUtils",
+      "appendUnsignedHex",
+      2,
+      "def appendUnsignedHex(sb: scala.collection.mutable.StringBuilder, number: scala.Int): scala.collection.mutable.StringBuilder = {\n    appendUnsignedHex(sb.underlying, number)\n    sb\n  }",
+      "the hand port appends to a scala builder; java's own appending, onto the builder it wraps",
+      static = true
+    ),
+    added(
+      s"$T.utils.StringUtils",
+      "appendUnsignedHex",
+      2,
+      "def appendUnsignedHex(sb: scala.collection.mutable.StringBuilder, number: scala.Long): scala.collection.mutable.StringBuilder = {\n    appendUnsignedHex(sb.underlying, number)\n    sb\n  }",
+      "the hand port appends to a scala builder; java's own appending, onto the builder it wraps",
+      static = true
+    ),
+    added(
+      s"$T.EmojiProcessor",
+      "replaceEmoji",
+      2,
+      "def replaceEmoji(text: java.lang.String, font: sge.textra.Font): java.lang.String = getReplacer(font).replace(text)",
+      "the hand port's one call over java's replacer: every emoji the font can show becomes its private-use char",
+      static = true
+    )
+  ).groupMap(_._1)(_._2)
+
   /** @param regexodusManifest
     *   the RegExodus port's manifest (a base of its own)
     * @param coreManifest
@@ -23,6 +189,8 @@ object TextraPolicy {
           name = "sge-textra",
           governs = Set("com.github.tommyettinger.textra"),
           packageRenames = Map("com.github.tommyettinger.textra" -> "sge.textra"),
+          // the hand port keeps the LZMA codec beside the fonts that read it
+          typeRenames = Map(s"$T.utils.LzmaUtils" -> s"$T.LzmaUtils"),
           // `FWSkin` re-runs libGDX's reflective `Json` skin loader and writes `Skin`'s atlas; sge's `Skin` reads its JSON with its own
           // reader and keeps the atlas private, so the hand port's replacement (a second pass after `Skin.load`) stands in its place
           dropTypes = Set("com.github.tommyettinger.textra.FWSkin"),
@@ -55,7 +223,10 @@ object TextraPolicy {
                 balticporter.transform.ContextHolderExtension(
                   holder = "com.badlogic.gdx.Gdx",
                   retain = Map("com.github.tommyettinger.textra.TextraLabel" -> "sgeContext"),
-                  selfSupplied = Map("com.github.tommyettinger.textra.effects.LinkEffect" -> "this.label.sgeContext")
+                  selfSupplied = Map("com.github.tommyettinger.textra.effects.LinkEffect" -> "this.label.sgeContext"),
+                  // the hand port builds a `Font` (and a family of them) with no context: only the constructors that load
+                  // files and the members that read the screen take it
+                  attachMethod = Set(s"$T.Font")
                 )
               )
             ),
@@ -66,6 +237,12 @@ object TextraPolicy {
                 lowlevel.port.LlsPolicy.Witness
               )
             ),
+            // java's `Layout#lines()` is the hand port's `lineCount`, which leaves `lines` to the line array; java's `TextraLabel#layout`
+            // field is the hand port's `baseLayout`, apart from the widget's `layout()`
+            new balticporter.transform.MemberRenameTransform(
+              renames = Map(s"$T.Layout#lines()" -> "lineCount", s"$T.TextraLabel#layout:field" -> "baseLayout")
+            ),
+            new balticporter.transform.AddMembersTransform(HandPortMembers),
             new balticporter.transform.BeanPropertyTransform(scope = Textra, derive = true),
             new balticporter.transform.NullaryArityTransform(scope = Textra, derive = true),
             new balticporter.transform.NullabilityTransform(scope = Textra, deriveMembers = true),
