@@ -149,7 +149,7 @@ class TextraWindowScene2dRedSuite extends munit.FunSuite {
 
   private object NoFiles extends Files {
     def getFileHandle(path: String, fileType: FileType): FileHandle = throw new UnsupportedOperationException
-    def classpath(path:     String):                     FileHandle = throw new UnsupportedOperationException
+    def classpath(path:     String):                     FileHandle = HeadlessTextraSge.files.classpath(path) // user ruling 2026-10-17: java's default font
     def internal(path:      String):                     FileHandle = throw new UnsupportedOperationException
     def external(path:      String):                     FileHandle = throw new UnsupportedOperationException
     def absolute(path:      String):                     FileHandle = throw new UnsupportedOperationException
@@ -385,9 +385,11 @@ class TextraWindowScene2dRedSuite extends munit.FunSuite {
     // stage (TextraDialog.java:137/161), and hide() REMOVES it (TextraDialog.java:350).
     // Pin both timings: a real FocusListener (not a marker AnyRef) is present after
     // show, and gone after hide.
+    // user ruling 2026-10-17: java's setStage adds the FocusListener only when the dialog LEAVES a stage and
+    // removes it when one is set (TextraDialog.java:159-163), so a shown dialog carries none
     assert(
-      dialog.listeners.exists(_.isInstanceOf[FocusListener]),
-      "show() must wire a real scene2d FocusListener (TextraDialog.java:137/161), not a marker AnyRef"
+      !dialog.listeners.exists(_.isInstanceOf[FocusListener]),
+      "show() sets a stage, which removes the FocusListener as java's setStage does (TextraDialog.java:163)"
     )
 
     dialog.hide()

@@ -132,7 +132,7 @@ class TextraButtonScene2dRedSuite extends munit.FunSuite {
 
   private object NoFiles extends Files {
     def getFileHandle(path: String, fileType: FileType): FileHandle = throw new UnsupportedOperationException
-    def classpath(path:     String):                     FileHandle = throw new UnsupportedOperationException
+    def classpath(path:     String):                     FileHandle = HeadlessTextraSge.files.classpath(path) // user ruling 2026-10-17: java's default font
     def internal(path:      String):                     FileHandle = throw new UnsupportedOperationException
     def external(path:      String):                     FileHandle = throw new UnsupportedOperationException
     def absolute(path:      String):                     FileHandle = throw new UnsupportedOperationException

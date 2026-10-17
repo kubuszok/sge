@@ -84,7 +84,7 @@ class TextraMarkupLinkSuite extends munit.FunSuite {
 
   private object NoFiles extends Files {
     def getFileHandle(path: String, fileType: FileType): FileHandle = throw new UnsupportedOperationException
-    def classpath(path:     String):                     FileHandle = throw new UnsupportedOperationException
+    def classpath(path:     String):                     FileHandle = HeadlessTextraSge.files.classpath(path) // user ruling 2026-10-17: java's default font
     def internal(path:      String):                     FileHandle = throw new UnsupportedOperationException
     def external(path:      String):                     FileHandle = throw new UnsupportedOperationException
     def absolute(path:      String):                     FileHandle = throw new UnsupportedOperationException
@@ -100,7 +100,7 @@ class TextraMarkupLinkSuite extends munit.FunSuite {
 
   /** A Font whose mapping covers the link-text chars, so markup layout produces real glyphs for the link span. */
   private def plainFont(chars: String): Font = {
-    val font = new Font()
+    val font = new Font()(using HeadlessTextraSge.make()) // user ruling 2026-10-17: java's `Font()` loads the default font
     font.mapping.put(' '.toInt, new Font.GlyphRegion(0f, 0f, 8f))
     chars.foreach(c => font.mapping.put(c.toInt, new Font.GlyphRegion(0f, 0f, 8f)))
     font

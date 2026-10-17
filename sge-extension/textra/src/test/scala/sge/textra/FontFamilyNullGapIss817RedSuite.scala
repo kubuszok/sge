@@ -44,6 +44,9 @@ package textra
 
 class FontFamilyNullGapIss817RedSuite extends munit.FunSuite {
 
+  // user ruling 2026-10-17: java's `Font()` loads the default font through the application context
+  private given Sge = HeadlessTextraSge.make()
+
   private def named(n: String): Font = {
     val f = new Font()
     f.name = n

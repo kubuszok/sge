@@ -3,6 +3,10 @@ package textra
 
 class FontSuite extends munit.FunSuite {
 
+  // user ruling 2026-10-17: java's `Font()` loads the default font and java's distance-field methods read the screen,
+  // both through the application context
+  private given Sge = HeadlessTextraSge.make()
+
   test("GlyphRegion extends TextureRegion") {
     val gr = new Font.GlyphRegion(1.5f, 2.5f, 10f)
     assertEquals(gr.offsetX, 1.5f)
@@ -40,11 +44,12 @@ class FontSuite extends munit.FunSuite {
     assertEquals(font.name, "Unnamed Font")
     assertEqualsFloat(font.scaleX, 1f, 0.001f)
     assertEqualsFloat(font.scaleY, 1f, 0.001f)
-    assertEqualsFloat(font.cellWidth, 1f, 0.001f)
-    assertEqualsFloat(font.cellHeight, 1f, 0.001f)
+    // user ruling 2026-10-17: java's `Font()` is libGDX's default font, lsans-15: its widest advance and its line height
+    assertEqualsFloat(font.cellWidth, 15f, 0.001f)
+    assertEqualsFloat(font.cellHeight, 18f, 0.001f)
     assertEquals(font.isMono, false)
     assertEquals(font.getDistanceField, Font.DistanceFieldType.STANDARD)
-    assertEquals(font.parents.isEmpty, true)
+    assertEquals(font.parents.isEmpty, false) // user ruling 2026-10-17: the default font's page is its parent region
   }
 
   test("Font scale methods") {
@@ -90,7 +95,7 @@ class FontSuite extends munit.FunSuite {
     assertEqualsFloat(copy.cellWidth, 16f, 0.001f)
     assertEquals(copy.isMono, true)
     // Copy should have the same mapping entries
-    assert(copy.mapping.contains('A'.toInt))
+    assert(copy.mapping.containsKey('A'.toInt)) // user ruling 2026-10-17: the generated Font#mapping is sge's IntMap
   }
 
   test("Font DistanceFieldType enum values") {
@@ -127,7 +132,7 @@ class FontSuite extends munit.FunSuite {
     font.mapping.put(' '.toInt, new Font.GlyphRegion(0f, 0f, 8f))
     val result = font.addSpacingGlyph('\t', 32f)
     assert(result eq font)
-    assert(font.mapping.contains('\t'.toInt))
+    assert(font.mapping.containsKey('\t'.toInt)) // user ruling 2026-10-17: the generated Font#mapping is sge's IntMap
     assertEqualsFloat(font.mapping('\t'.toInt).xAdvance, 32f, 0.001f)
   }
 

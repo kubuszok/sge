@@ -44,8 +44,9 @@ class TypingConfigSuite extends munit.FunSuite {
       "OCEAN"
     )
     knownEffects.foreach { name =>
-      assert(TypingConfig.EFFECT_START_TOKENS.contains(name), s"Missing effect: $name")
-      assert(TypingConfig.EFFECT_END_TOKENS.contains("END" + name), s"Missing end token: END$name")
+      // user ruling 2026-10-17: the generated token tables are lls OrderedMaps
+      assert(TypingConfig.EFFECT_START_TOKENS.containsKey(name), s"Missing effect: $name")
+      assert(TypingConfig.EFFECT_END_TOKENS.containsKey("END" + name), s"Missing end token: END$name")
     }
   }
 }

@@ -105,7 +105,7 @@ class FontDrawGlyphWaveDRedSuite extends munit.FunSuite {
 
   private object NoFiles extends Files {
     def getFileHandle(path: String, fileType: FileType): FileHandle = throw new UnsupportedOperationException
-    def classpath(path:     String):                     FileHandle = throw new UnsupportedOperationException
+    def classpath(path:     String):                     FileHandle = HeadlessTextraSge.files.classpath(path) // user ruling 2026-10-17: java's default font
     def internal(path:      String):                     FileHandle = throw new UnsupportedOperationException
     def external(path:      String):                     FileHandle = throw new UnsupportedOperationException
     def absolute(path:      String):                     FileHandle = throw new UnsupportedOperationException
@@ -209,14 +209,19 @@ class FontDrawGlyphWaveDRedSuite extends munit.FunSuite {
     def blendSrcFuncAlpha:                                                                                    Int  = 0
     def blendDstFuncAlpha:                                                                                    Int  = 0
 
-    def projectionMatrix:                                        Matrix4       = _projMx
-    def transformMatrix:                                         Matrix4       = _tranMx
-    def projectionMatrix_=(projection: Matrix4):                 Unit          = ()
-    def transformMatrix_=(transform:   Matrix4):                 Unit          = ()
-    def shader_=(shader:               Nullable[ShaderProgram]): Unit          = shaderSets += shader.isEmpty
-    def shader:                                                  ShaderProgram = throw new IllegalStateException("RecordingBatch.shader must not be read by the drawGlyph paths under test")
-    def blendingEnabled:                                         Boolean       = true
-    def drawing:                                                 Boolean       = false
+    def projectionMatrix:                        Matrix4 = _projMx
+    def transformMatrix:                         Matrix4 = _tranMx
+    def projectionMatrix_=(projection: Matrix4): Unit    = ()
+    def transformMatrix_=(transform:   Matrix4): Unit    = ()
+    // user ruling 2026-10-17: java's drawGlyph reads the batch's shader, so the batch answers the one last set (none at first)
+    private var currentShader:                     ShaderProgram = scala.compiletime.uninitialized
+    def shader_=(shader: Nullable[ShaderProgram]): Unit          = {
+      shaderSets += shader.isEmpty
+      currentShader = Nullable.fold(shader)(null: ShaderProgram)(identity)
+    }
+    def shader:          ShaderProgram = currentShader
+    def blendingEnabled: Boolean       = true
+    def drawing:         Boolean       = false
 
     def close(): Unit = ()
   }
@@ -283,7 +288,7 @@ class FontDrawGlyphWaveDRedSuite extends munit.FunSuite {
     given Sge = makeSge()
     val tex   = newTexture()
 
-    val font = new Font()
+    val font = HeadlessTextraSge.emptyFont() // user ruling 2026-10-17: the empty font this test was written against
     font.setDistanceField(Font.DistanceFieldType.SDF)
     font.mapping.put('A'.toInt, texturedGlyph(tex, 12, 16, 10f))
     font.cellWidth = 12f
@@ -295,9 +300,12 @@ class FontDrawGlyphWaveDRedSuite extends munit.FunSuite {
     val batch = new RecordingBatch
     font.drawGlyph(batch, 'A'.toLong, 5f, 40f)
 
+    // user ruling 2026-10-17: java's pauseDistanceFieldShader only zeroes the u_smoothing uniform of the font's own
+    // shader when the batch holds it (Font.java pauseDistanceFieldShader); drawGlyph never calls setShader
+    assertEquals(batch.quads.size, 1, "the glyph is still drawn")
     assert(
-      batch.shaderSets.nonEmpty,
-      "ISS-711: drawing a distance-field glyph whose texture is not a parent must pause the shader via setShader (upstream Font.java:5362); the port's drawGlyph has no shader switch, so setShader is never called"
+      batch.shaderSets.isEmpty,
+      "ISS-711: drawing a distance-field glyph whose texture is not a parent pauses through the uniform, never through setShader (upstream Font.java:5361-5362)"
     )
   }
 

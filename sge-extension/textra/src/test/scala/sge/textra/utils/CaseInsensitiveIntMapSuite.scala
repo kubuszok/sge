@@ -282,7 +282,7 @@ class CaseInsensitiveIntMapSuite extends munit.FunSuite {
     val entries = map.entries()
     var count   = 0
     var sum     = 0
-    while (entries.hasNext) {
+    while (entries.hasNext()) { // user ruling 2026-10-17: java's iterators keep java's shape
       val e = entries.next()
       sum += e.value
       count += 1
@@ -297,7 +297,7 @@ class CaseInsensitiveIntMapSuite extends munit.FunSuite {
     map.put("beta", 2)
     val keys      = map.keys()
     var collected = Set.empty[String]
-    while (keys.hasNext)
+    while (keys.hasNext()) // user ruling 2026-10-17: java's iterators keep java's shape
       collected += keys.next().toLowerCase
     assertEquals(collected, Set("alpha", "beta"))
   }
