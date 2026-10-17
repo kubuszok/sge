@@ -273,8 +273,9 @@ class LayoutLineSuite extends munit.FunSuite {
     original.justification = Justify.SPACES_ON_ALL_LINES
     original.lines(0).glyphs += 'X'.toLong
     original.lines(0).size(50f, 12f)
-    original.offsets += 1f += 2f
-    original.sizing += 3f += 4f
+    // user ruling 2026-10-17: the generated float arrays are lls DynamicArray, whose += does not chain
+    original.offsets += 1f; original.offsets += 2f
+    original.sizing += 3f; original.sizing += 4f
     original.rotations += 5f
     original.advances += 6f
 
@@ -317,8 +318,9 @@ class LayoutLineSuite extends munit.FunSuite {
     for (_ <- 0 until 10) {
       layout.advances += 1f
       layout.rotations += 2f
-      layout.sizing += 3f += 3f
-      layout.offsets += 4f += 4f
+      // user ruling 2026-10-17: the generated float arrays are lls DynamicArray, whose += does not chain
+      layout.sizing += 3f; layout.sizing += 3f
+      layout.offsets += 4f; layout.offsets += 4f
     }
     assertEquals(layout.advances.size, 10)
     layout.truncateExtra(5)
@@ -330,7 +332,7 @@ class LayoutLineSuite extends munit.FunSuite {
 
   test("truncateExtra with larger limit is a no-op") {
     val layout = new Layout()
-    layout.advances += 1f += 2f
+    layout.advances += 1f; layout.advances += 2f // user ruling 2026-10-17: lls DynamicArray's += does not chain
     layout.truncateExtra(100)
     assertEquals(layout.advances.size, 2)
   }

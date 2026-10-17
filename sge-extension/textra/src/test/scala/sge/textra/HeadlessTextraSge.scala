@@ -66,16 +66,20 @@ object HeadlessTextraSge {
 
   private object NoFiles extends Files {
     def getFileHandle(path: String, fileType: FileType): FileHandle = throw new UnsupportedOperationException
-    def classpath(path:     String):                     FileHandle = throw new UnsupportedOperationException
-    def internal(path:      String):                     FileHandle = throw new UnsupportedOperationException
-    def external(path:      String):                     FileHandle = throw new UnsupportedOperationException
-    def absolute(path:      String):                     FileHandle = throw new UnsupportedOperationException
-    def local(path:         String):                     FileHandle = throw new UnsupportedOperationException
-    def externalStoragePath:                             String     = ""
-    def isExternalStorageAvailable:                      Boolean    = false
-    def localStoragePath:                                String     = ""
-    def isLocalStorageAvailable:                         Boolean    = false
+    // user ruling 2026-10-17: java's `Font()` loads libGDX's default font off the classpath
+    def classpath(path: String):    FileHandle = HeadlessTextraClasspath.classpath(path)
+    def internal(path:  String):    FileHandle = throw new UnsupportedOperationException
+    def external(path:  String):    FileHandle = throw new UnsupportedOperationException
+    def absolute(path:  String):    FileHandle = throw new UnsupportedOperationException
+    def local(path:     String):    FileHandle = throw new UnsupportedOperationException
+    def externalStoragePath:        String     = ""
+    def isExternalStorageAvailable: Boolean    = false
+    def localStoragePath:           String     = ""
+    def isLocalStorageAvailable:    Boolean    = false
   }
+
+  /** The headless files, which answer only classpath reads (libGDX's default font). user ruling 2026-10-17: every textra suite reads them here */
+  def files: Files = NoFiles
 
   /** Builds a headless Sge (NoopGraphics + NoopGL20). */
   def make(bbWidth: Int = 960, bbHeight: Int = 540): Sge =
@@ -105,6 +109,24 @@ object HeadlessTextraSge {
   }
 
   def newTexture()(using Sge): Texture = new Texture(new DummyTextureData(64, 64))
+
+  /** user ruling 2026-10-17: the font the geometry suites were written against — no file, a space glyph only, zero descent, the given cell — built through java's own `Font(BitmapFont)` over a
+    * programmatic BitmapFont whose one page is a texture no test glyph uses.
+    */
+  def emptyFont(cellWidth: Float = 12f, cellHeight: Float = 16f)(using Sge): Font = {
+    val data = new sge.graphics.g2d.BitmapFontData()
+    data.lineHeight = cellHeight
+    val regions = lowlevel.util.DynamicArray[TextureRegion]()
+    regions.add(new TextureRegion(newTexture()))
+    val bitmapFont = new sge.graphics.g2d.BitmapFont(data, Nullable(regions), false)
+    val space      = new sge.graphics.g2d.BitmapFont.Glyph()
+    space.id = ' '.toInt
+    space.xadvance = cellWidth.toInt
+    data.setGlyph(' '.toInt, space)
+    val font = new Font(bitmapFont)
+    font.descent = 0f // java's Font(BitmapFont) derives -0.2 of the line height
+    font
+  }
 
   /** A single recorded quad: which texture it targeted and a copy of the 20 vertex floats. */
   final case class Quad(texture: Texture, verts: Array[Float])
@@ -169,14 +191,16 @@ object HeadlessTextraSge {
     def blendSrcFuncAlpha:                                                                                    Int  = 0
     def blendDstFuncAlpha:                                                                                    Int  = 0
 
-    def projectionMatrix:                                        Matrix4       = _projMx
-    def transformMatrix:                                         Matrix4       = _tranMx
-    def projectionMatrix_=(projection: Matrix4):                 Unit          = ()
-    def transformMatrix_=(transform:   Matrix4):                 Unit          = ()
-    def shader_=(shader:               Nullable[ShaderProgram]): Unit          = ()
-    def shader:                                                  ShaderProgram = throw new IllegalStateException("RecordingBatch.shader must not be read by the drawGlyph paths under test")
-    def blendingEnabled:                                         Boolean       = true
-    def drawing:                                                 Boolean       = false
+    def projectionMatrix:                        Matrix4 = _projMx
+    def transformMatrix:                         Matrix4 = _tranMx
+    def projectionMatrix_=(projection: Matrix4): Unit    = ()
+    def transformMatrix_=(transform:   Matrix4): Unit    = ()
+    // user ruling 2026-10-17: java's drawGlyph reads the batch's shader, so the batch answers the one last set (none at first)
+    private var currentShader:                     ShaderProgram = scala.compiletime.uninitialized
+    def shader_=(shader: Nullable[ShaderProgram]): Unit          = currentShader = Nullable.fold(shader)(null: ShaderProgram)(identity)
+    def shader:                                    ShaderProgram = currentShader
+    def blendingEnabled:                           Boolean       = true
+    def drawing:                                   Boolean       = false
 
     def close(): Unit = ()
   }

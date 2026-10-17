@@ -48,7 +48,7 @@ class FontFamilyIntegerPositionBindingIss835RedSuite extends munit.FunSuite {
   private val Sentinel = 512f
 
   /** A Font whose handleIntegerPosition ignores its argument and returns a fixed sentinel, so we can observe which font instance drawGlyph binds its position writes to. */
-  final private class SentinelFont extends Font {
+  final private class SentinelFont(using Sge) extends Font { // user ruling 2026-10-17: java's `Font()` takes the context
     override protected def handleIntegerPosition(x: Float): Float = Sentinel
   }
 

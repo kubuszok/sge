@@ -4,20 +4,21 @@ package utils
 
 class PaletteSuite extends munit.FunSuite {
 
+  // user ruling 2026-10-17: the generated Palette.NAMED is sge's ObjectIntMap and NAMES an lls DynamicArray
   test("named colors RED, GREEN, BLUE, WHITE, BLACK exist") {
-    assert(Palette.NAMED.contains("RED"), "RED missing")
-    assert(Palette.NAMED.contains("GREEN"), "GREEN missing")
-    assert(Palette.NAMED.contains("BLUE"), "BLUE missing")
-    assert(Palette.NAMED.contains("WHITE"), "WHITE missing")
-    assert(Palette.NAMED.contains("BLACK"), "BLACK missing")
+    assert(Palette.NAMED.containsKey("RED"), "RED missing")
+    assert(Palette.NAMED.containsKey("GREEN"), "GREEN missing")
+    assert(Palette.NAMED.containsKey("BLUE"), "BLUE missing")
+    assert(Palette.NAMED.containsKey("WHITE"), "WHITE missing")
+    assert(Palette.NAMED.containsKey("BLACK"), "BLACK missing")
   }
 
   test("lowercase color names exist") {
-    assert(Palette.NAMED.contains("red"), "red missing")
-    assert(Palette.NAMED.contains("green"), "green missing")
-    assert(Palette.NAMED.contains("blue"), "blue missing")
-    assert(Palette.NAMED.contains("white"), "white missing")
-    assert(Palette.NAMED.contains("black"), "black missing")
+    assert(Palette.NAMED.containsKey("red"), "red missing")
+    assert(Palette.NAMED.containsKey("green"), "green missing")
+    assert(Palette.NAMED.containsKey("blue"), "blue missing")
+    assert(Palette.NAMED.containsKey("white"), "white missing")
+    assert(Palette.NAMED.containsKey("black"), "black missing")
   }
 
   test("color values match expected RGBA8888") {
@@ -35,7 +36,7 @@ class PaletteSuite extends munit.FunSuite {
   }
 
   test("NAMES is sorted alphabetically") {
-    val names  = Palette.NAMES.toSeq
+    val names  = (0 until Palette.NAMES.size).map(i => Palette.NAMES(i)) // user ruling 2026-10-17: lls DynamicArray
     val sorted = names.sorted
     assertEquals(names, sorted)
   }

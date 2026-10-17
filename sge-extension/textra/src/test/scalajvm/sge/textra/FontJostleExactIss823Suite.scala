@@ -53,7 +53,7 @@ class FontJostleExactIss823Suite extends munit.FunSuite {
 
   private def configuredFont()(using Sge): (Font, sge.graphics.Texture) = {
     val tex  = HeadlessTextraSge.newTexture()
-    val font = new Font()
+    val font = HeadlessTextraSge.emptyFont() // user ruling 2026-10-17: the empty font this test was written against
     font.mapping.put('A'.toInt, HeadlessTextraSge.texturedGlyph(tex, 12, 16, 10f))
     font.cellWidth = 12f
     font.cellHeight = 16f

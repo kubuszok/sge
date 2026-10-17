@@ -198,7 +198,8 @@ class TextraLzmaFontRedSuite extends munit.FunSuite {
 
   private def assertFixtureFontLoaded(font: Font): Unit = {
     assertEquals(font.name, "LzmaFixture")
-    assert(font.mapping.contains('A'.toInt), "glyph 'A' (unicode 65) from the fixture must be mapped")
+    // user ruling 2026-10-17: the generated Font#mapping is sge's IntMap
+    assert(font.mapping.containsKey('A'.toInt), "glyph 'A' (unicode 65) from the fixture must be mapped")
     // advance 0.5 * atlas size 32 + widthAdjust 0 = 16
     assertEqualsFloat(font.mapping('A'.toInt).xAdvance, 16f, 0.001f, "glyph 'A' must keep its JSON metrics (advance 0.5 * size 32)")
   }

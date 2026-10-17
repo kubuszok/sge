@@ -45,7 +45,7 @@ class FontOutlineIntegerPositionIss723RedSuite extends munit.FunSuite {
     given Sge = HeadlessTextraSge.make()
     val tex   = HeadlessTextraSge.newTexture()
 
-    val font = new Font()
+    val font = HeadlessTextraSge.emptyFont() // user ruling 2026-10-17: the empty font this test was written against
     font.cellWidth = 12f
     font.cellHeight = 16f // xOutline = yOutline = outlineStrength * 16 / 32 = 0.5
     font.originalCellHeight = 16f
@@ -58,16 +58,19 @@ class FontOutlineIntegerPositionIss723RedSuite extends munit.FunSuite {
     // 8 outline copies (3x3 grid minus the centre) + 1 main glyph quad.
     assertEquals(batch.quads.size, 9, "BLACK_OUTLINE draws 8 outline copies plus the main glyph quad")
 
-    val posIdx = List(0, 1, 5, 6, 10, 11, 15, 16)
-    batch.quads.zipWithIndex.foreach { case (quad, q) =>
-      posIdx.foreach { i =>
-        val v = quad.verts(i)
-        assertEquals(
-          v,
-          Math.round(v).toFloat,
-          s"ISS-723(3): quad $q position vertex $i must be a whole number under integer positions (upstream wraps outline writes in handleIntegerPosition, Font.java:5659-5660); the port's setQuadVertices leaves the +-0.5 outline offsets unrounded"
-        )
-      }
+    // user ruling 2026-10-17: java's handleIntegerPosition returns its input (Font.java:5254-5256, the round
+    // commented out), so the outline copies keep their +-0.5 offsets from the main glyph, unrounded
+    val main    = batch.quads.last.verts
+    val offsets = batch.quads.init.map { quad =>
+      val dx = List(0, 5, 10, 15).map(i => quad.verts(i) - main(i)).distinct
+      val dy = List(1, 6, 11, 16).map(i => quad.verts(i) - main(i)).distinct
+      assertEquals(dx.size, 1, s"an outline copy is the main quad translated as a whole on x: $dx")
+      assertEquals(dy.size, 1, s"an outline copy is the main quad translated as a whole on y: $dy")
+      (dx.head, dy.head)
     }
+    val half = Set(-0.5f, 0f, 0.5f)
+    assert(offsets.forall((dx, dy) => half(dx) && half(dy)), s"ISS-723(3): outline offsets stay at java's unrounded +-0.5: $offsets")
+    assertEquals(offsets.distinct.size, 8, s"the eight outline copies sit at the eight distinct +-0.5 offsets: $offsets")
+    assert(!offsets.contains((0f, 0f)), s"no outline copy sits on the main glyph: $offsets")
   }
 }

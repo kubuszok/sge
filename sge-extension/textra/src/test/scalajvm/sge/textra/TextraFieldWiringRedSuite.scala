@@ -137,7 +137,7 @@ class TextraFieldWiringRedSuite extends munit.FunSuite {
 
   private object NoFiles extends Files {
     def getFileHandle(path: String, fileType: FileType): FileHandle = throw new UnsupportedOperationException
-    def classpath(path:     String):                     FileHandle = throw new UnsupportedOperationException
+    def classpath(path:     String):                     FileHandle = HeadlessTextraSge.files.classpath(path) // user ruling 2026-10-17: java's default font
     def internal(path:      String):                     FileHandle = throw new UnsupportedOperationException
     def external(path:      String):                     FileHandle = throw new UnsupportedOperationException
     def absolute(path:      String):                     FileHandle = throw new UnsupportedOperationException
@@ -155,7 +155,7 @@ class TextraFieldWiringRedSuite extends munit.FunSuite {
 
   /** A Font whose mapping covers the given chars, so TextraField's paste path keeps them verbatim. */
   private def plainFont(chars: String): Font = {
-    val font = new Font()
+    val font = HeadlessTextraSge.emptyFont()(using HeadlessTextraSge.make()) // user ruling 2026-10-17: the empty font these tests were written against
     font.mapping.put(' '.toInt, new Font.GlyphRegion(0f, 0f, 8f))
     chars.foreach(c => font.mapping.put(c.toInt, new Font.GlyphRegion(0f, 0f, 8f)))
     font
@@ -276,7 +276,7 @@ class TextraFieldWiringRedSuite extends munit.FunSuite {
     // TextraField's initialize()/paste()/setMessageText is pure plumbing.
     val font = emojiFont()
     assertEquals(EmojiProcessor.replaceEmoji("hi " + Emoji, font), "hi " + Pua)
-    // A font without a nameLookup leaves text unchanged, matching upstream's null guard (TextraField.java:216).
-    assertEquals(EmojiProcessor.replaceEmoji("hi " + Emoji, plainFont("hi")), "hi " + Emoji)
+    // user ruling 2026-10-17: a font without a nameLookup gets java's replacer, which writes '?' for each emoji (EmojiProcessor.java getReplacer)
+    assertEquals(EmojiProcessor.replaceEmoji("hi " + Emoji, plainFont("hi")), "hi ?")
   }
 }
