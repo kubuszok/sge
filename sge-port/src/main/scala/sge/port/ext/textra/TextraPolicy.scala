@@ -242,6 +242,8 @@ object TextraPolicy {
             new balticporter.transform.MemberRenameTransform(
               renames = Map(s"$T.Layout#lines()" -> "lineCount", s"$T.TextraLabel#layout:field" -> "baseLayout")
             ),
+            // the reference's access: its public members, and its subclass-only `protected` members a user's subclass overrides
+            new balticporter.transform.VisibilityTransform(derive = true, deriveNarrow = true),
             new balticporter.transform.AddMembersTransform(HandPortMembers),
             new balticporter.transform.BeanPropertyTransform(scope = Textra, derive = true),
             new balticporter.transform.NullaryArityTransform(scope = Textra, derive = true),

@@ -111,7 +111,7 @@ def dropClean(cmd: String): String = cmd.stripPrefix("clean ; ")
 lazy val sgeCommandAliases: Seq[Def.Setting[State => State]] =
   // generatePort: run the Baltic Porter generation (shared tree, every platform row, resources) and
   // nothing else — what the CI `generate` job runs before publishing target/balticporter-sge.
-  addCommandAlias("generatePort", "sge/Compile/managedSources ; sge/Compile/managedResources ; sge-ecs/Compile/managedSources ; sge-ecs/Test/managedSources ; sge-noise/Compile/managedSources ; sge-anim8/Compile/managedSources ; sge-jbump/Compile/managedSources ; sge-screens/Compile/managedSources ; sge-vfx/Compile/managedSources ; sge-tools/Compile/managedSources ; sge-colorful/Compile/managedSources ; sge-visui/Compile/managedSources ; sge-ai/Compile/managedSources") ++
+  addCommandAlias("generatePort", "sge/Compile/managedSources ; sge/Compile/managedResources ; sge-ecs/Compile/managedSources ; sge-ecs/Test/managedSources ; sge-noise/Compile/managedSources ; sge-anim8/Compile/managedSources ; sge-jbump/Compile/managedSources ; sge-screens/Compile/managedSources ; sge-vfx/Compile/managedSources ; sge-tools/Compile/managedSources ; sge-colorful/Compile/managedSources ; sge-visui/Compile/managedSources ; sge-ai/Compile/managedSources ; sge-textra/Compile/managedSources") ++
   // verifyLocal: the gate before a push — every platform's tests, then record the verified commit
   // (target/local-verification; the push hook of the balticporter Claude Code plugin reads it).
   addCommandAlias("verifyLocal", "scalafmtCheckAll ; scalafmtSbtCheck ; ci-jvm-3 ; test-js-3 ; test-native-3 ; markVerified") ++
@@ -292,6 +292,16 @@ def balticPorterExtSettings(ext: BalticPorterExtGen.Ext): Seq[Setting[?]] = Seq(
   }.taskValue,
   Test / managedSourceDirectories += (ThisBuild / baseDirectory).value / "target" / s"balticporter-${ext.module}" / "src_managed" / "test" / "scala",
   // uncached: sbt 2 keys a cached task by its code, and every extension shares this line
+  scalacOptions += Def.uncached(s"-Wconf:src=target/balticporter-${ext.module}/.*:s")
+)
+
+// Baltic Porter: a base port generated into a dependent's module for its main sources only — its own upstream suite
+// runs in its `sge-<id>-gen` project
+def balticPorterExtMainSettings(ext: BalticPorterExtGen.Ext): Seq[Setting[?]] = Seq(
+  Compile / sourceGenerators += Def.task {
+    BalticPorterExtGen.generate(ext, (ThisBuild / baseDirectory).value, streams.value.log)
+  }.taskValue,
+  Compile / managedSourceDirectories += (ThisBuild / baseDirectory).value / "target" / s"balticporter-${ext.module}" / "src_managed" / "main" / "scala",
   scalacOptions += Def.uncached(s"-Wconf:src=target/balticporter-${ext.module}/.*:s")
 )
 
@@ -1017,10 +1027,27 @@ val `sge-screens` = (projectMatrix in file("sge-extension/screens"))
 
 val `sge-textra` = (projectMatrix in file("sge-extension/textra"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(Versions.scala3))
-  .someVariations(Versions.scalas, Versions.platforms)((commonSettings("sge-extension/textra") ++ dev.only1VersionInIDE ++ Seq(jvmPlatformApiClasspath)) *)
+  .someVariations(Versions.scalas, Versions.platforms)((commonSettings("sge-extension/textra") ++ dev.only1VersionInIDE ++ Seq(
+    // java's `Font()` reads libGDX's default font off the classpath and decodes its page, so the native
+    // test binary links sge's native ops and embeds exactly those two resources (as sge-test/regression)
+    nativeProviderSettings,
+    MatrixAction.ForPlatforms(VirtualAxis.native).Configure(_.settings(
+      libraryDependencies += "com.kubuszok" % "sn-provider-sge" % Versions.nativeComponents,
+      nativeConfig ~= (_.withEmbedResources(true)
+        .withResourceIncludePatterns(Seq("**lsans-15.fnt", "**lsans-15.png")))
+    )),
+    jvmPlatformApiClasspath,
+    uncachedNativeToolchainSettings // ISS-792: LAST, so nothing re-caches nativeConfig
+  )) *)
   .settings(publishSettings)
   .settings(mimaSettings)
   .settings(name := "sge-extension-textra")
+  // RegExodus, TextraTypist's regex engine, generated into this module first (a base of its own)
+  .settings(balticPorterExtMainSettings(BalticPorterExtGen.Regexodus) *)
+  .settings(balticPorterExtSettings(BalticPorterExtGen.Textra) *)
+  // textratypist's Parser keeps its token matchers in statics, as java does, so suites that lay out labels
+  // concurrently share one matcher's state; the JVM suites run one at a time (JS/Native are single-threaded)
+  .settings(Test / parallelExecution := false)
   .dependsOn(sge)
 
 val `sge-tools` = (projectMatrix in file("sge-extension/tools"))
@@ -1127,7 +1154,7 @@ val `sge-visui` = (projectMatrix in file("sge-extension/visui"))
   .settings(balticPorterExtSettings(BalticPorterExtGen.Visui) *)
   .dependsOn(sge)
 
-// Baltic Porter: the generated gltf and textra trees, each compiled alone (see balticPorterGenProjectSettings)
+// Baltic Porter: the generated gltf tree compiled alone, and RegExodus with its upstream suite (see balticPorterGenProjectSettings)
 def balticPorterGenProject(pm: ProjectMatrix, ext: BalticPorterExtGen.Ext, platforms: List[VirtualAxis.PlatformAxis] = List(VirtualAxis.jvm), extra: Seq[MatrixAction.Act] = Nil): ProjectMatrix =
   pm.defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(Versions.scala3))
     .someVariations(Versions.scalas, platforms)((commonSettings(s"sge-extension/${ext.id}/generated") ++ Seq(jvmPlatformApiClasspath) ++ extra) *)
@@ -1148,8 +1175,6 @@ val `sge-regexodus-gen` = balticPorterGenProject(
     }.taskValue,
     Test / managedSourceDirectories += (ThisBuild / baseDirectory).value / "target" / "balticporter-sge-regexodus" / "src_managed" / "test" / "scala"
   )
-val `sge-textra-gen` = balticPorterGenProject(projectMatrix in file("sge-extension/textra/generated"), BalticPorterExtGen.Textra)
-  .dependsOn(sge, `sge-regexodus-gen`)
 
 // ── Android smoke test APK ────────────────────────────────────────────
 //
