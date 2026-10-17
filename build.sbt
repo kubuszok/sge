@@ -652,6 +652,11 @@ val `sge-ai` = (projectMatrix in file("sge-extension/ai"))
   .settings(mimaSettings)
   .settings(name := "sge-extension-ai")
   .settings(balticPorterExtSettings(BalticPorterExtGen.Ai) *)
+  // gdx-ai's DistributionAdapters walks one static ObjectMap in every BehaviorTreeParser's
+  // constructor, and libGDX's reused iterator throws "#iterator() cannot be used nested" when two
+  // JVM suites build parsers at once. Run the suites sequentially, as the ecs, visui and gltf
+  // extensions do for their own globals. JS/Native are single-threaded.
+  .settings(Test / parallelExecution := false)
   .dependsOn(sge)
 
 val `sge-anim8` = (projectMatrix in file("sge-extension/anim8"))
