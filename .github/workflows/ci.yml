@@ -210,7 +210,8 @@ jobs:
   generate:
     name: Generate port (Baltic Porter)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # An engine bump regenerates core and every extension cold: ~30 min with gdx-ai, more as textra and gltf join.
+    timeout-minutes: 60
     outputs:
       key: ${{ steps.port.outputs.key }}
     steps:
