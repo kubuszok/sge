@@ -50,12 +50,19 @@ jobs:
           version: ${{ inputs.sge-version }}
           platforms: jvm js
 
+      # every sbt step below runs through the guard, which retries a dependency download cut off mid-body
       - name: Link the regression app for the browser bootstrap test
-        run: sbt 'regressionTestJS/fastLinkJS'
+        uses: ./.github/actions/sbt-guarded
+        with:
+          command: sbt 'regressionTestJS/fastLinkJS'
+          require: ""
 
       - name: Link the demos for the browser smoke tests
-        working-directory: demos
-        run: sbt 'pongJS/fastLinkJS; spaceShooterJS/fastLinkJS; curvePlaygroundJS/fastLinkJS; viewportGalleryJS/fastLinkJS; shaderLabJS/fastLinkJS; tileWorldJS/fastLinkJS; hexTacticsJS/fastLinkJS; netChatJS/fastLinkJS; viewer3dJS/fastLinkJS; particleShowJS/fastLinkJS'
+        uses: ./.github/actions/sbt-guarded
+        with:
+          working-directory: demos
+          command: sbt 'pongJS/fastLinkJS; spaceShooterJS/fastLinkJS; curvePlaygroundJS/fastLinkJS; viewportGalleryJS/fastLinkJS; shaderLabJS/fastLinkJS; tileWorldJS/fastLinkJS; hexTacticsJS/fastLinkJS; netChatJS/fastLinkJS; viewer3dJS/fastLinkJS; particleShowJS/fastLinkJS'
+          require: ""
 
       # Real browser-packaging coverage: unlike the fastLinkJS demos above (dev build, synthetic
       # HTML, no embedded assets), sgePackageBrowser runs fullLinkJS AND the embedded-resources
@@ -63,16 +70,19 @@ jobs:
       # HTTP. Retried: fullLinkJS + plugin resolution occasionally hits a transient launcher /
       # coursier flake (an empty 0.7s exit 1); a genuine failure still fails all three attempts.
       - name: Package AssetShowcase for the browser (fullLinkJS + embedded resources)
-        working-directory: demos
-        run: |
-          for attempt in 1 2 3; do
-            echo "::group::assetShowcaseJS/sgePackageBrowser (attempt $attempt)"
-            if sbt 'assetShowcaseJS/sgePackageBrowser'; then
-              echo "::endgroup::"; echo "packaged on attempt $attempt"; exit 0
-            fi
-            echo "::endgroup::"; echo "attempt $attempt failed"; sleep 5
-          done
-          echo "sgePackageBrowser failed after 3 attempts"; exit 1
+        uses: ./.github/actions/sbt-guarded
+        with:
+          working-directory: demos
+          require: ""
+          command: |
+            for attempt in 1 2 3; do
+              echo "::group::assetShowcaseJS/sgePackageBrowser (attempt $attempt)"
+              if sbt 'assetShowcaseJS/sgePackageBrowser'; then
+                echo "::endgroup::"; echo "packaged on attempt $attempt"; exit 0
+              fi
+              echo "::endgroup::"; echo "attempt $attempt failed"; sleep 5
+            done
+            echo "sgePackageBrowser failed after 3 attempts"; exit 1
 
       - name: Install Playwright
         run: npx --yes playwright install --with-deps chromium
@@ -109,8 +119,11 @@ jobs:
           platforms: jvm js
 
       - name: Link the Pong JS demo
-        working-directory: demos
-        run: sbt 'pongJS/fastLinkJS'
+        uses: ./.github/actions/sbt-guarded
+        with:
+          working-directory: demos
+          command: sbt 'pongJS/fastLinkJS'
+          require: ""
 
   # ─── Demo compile all (JVM + JS + Native) ──────────────────────
   demo-compile-all:
@@ -136,32 +149,38 @@ jobs:
           version: ${{ inputs.sge-version }}
 
       - name: Compile all demos (JVM + JS + Native)
-        working-directory: demos
-        run: sbt compile
+        uses: ./.github/actions/sbt-guarded
+        with:
+          working-directory: demos
+          command: sbt compile
+          require: ""
 
       # This step intermittently exited 1 in under a second with ZERO sbt output (a thin-client /
       # lingering-server flake), reading as a false red. A nonzero exit WITHOUT any sbt output is
       # that signature: stop the server and retry once. A real link failure prints output and
       # fails immediately.
       - name: Verify all demos link for Scala Native
-        working-directory: demos
-        run: |
-          set -o pipefail
-          run_links() {
-            sbt 'pongNative/nativeLink; spaceShooterNative/nativeLink; curvePlaygroundNative/nativeLink; viewportGalleryNative/nativeLink; shaderLabNative/nativeLink; tileWorldNative/nativeLink; hexTacticsNative/nativeLink; viewer3dNative/nativeLink; particleShowNative/nativeLink; netChatNative/nativeLink; assetShowcaseNative/nativeLink' 2>&1 | tee /tmp/demo-native-link.log
-          }
-          if run_links; then
-            exit 0
-          fi
-          if grep -qE '\[error\]|\[info\]' /tmp/demo-native-link.log; then
-            echo "real sbt failure (output present) — not the silent-death flake"
-            exit 1
-          fi
-          echo "silent-death signature (exit!=0, no sbt output) — stopping the server and retrying once"
-          sbt shutdown || true
-          rm -f project/target/active.json
-          sleep 5
-          run_links
+        uses: ./.github/actions/sbt-guarded
+        with:
+          working-directory: demos
+          require: ""
+          command: |
+            set -o pipefail
+            run_links() {
+              sbt 'pongNative/nativeLink; spaceShooterNative/nativeLink; curvePlaygroundNative/nativeLink; viewportGalleryNative/nativeLink; shaderLabNative/nativeLink; tileWorldNative/nativeLink; hexTacticsNative/nativeLink; viewer3dNative/nativeLink; particleShowNative/nativeLink; netChatNative/nativeLink; assetShowcaseNative/nativeLink' 2>&1 | tee /tmp/demo-native-link.log
+            }
+            if run_links; then
+              exit 0
+            fi
+            if grep -qE '\[error\]|\[info\]' /tmp/demo-native-link.log; then
+              echo "real sbt failure (output present) — not the silent-death flake"
+              exit 1
+            fi
+            echo "silent-death signature (exit!=0, no sbt output) — stopping the server and retrying once"
+            sbt shutdown || true
+            rm -f project/target/active.json
+            sleep 5
+            run_links
 
   # ─── Verify release packaging ──────────────────────────────────
   verify-release:
@@ -199,10 +218,16 @@ jobs:
           extensions: "false"
 
       - name: Build the Pong JVM release
-        working-directory: demos
-        run: sbt 'pong/releasePackage'
+        uses: ./.github/actions/sbt-guarded
+        with:
+          working-directory: demos
+          command: sbt 'pong/releasePackage'
+          require: ""
 
       - name: Link the Pong Native release
         if: matrix.native
-        working-directory: demos
-        run: sbt 'pongNative/nativeLink'
+        uses: ./.github/actions/sbt-guarded
+        with:
+          working-directory: demos
+          command: sbt 'pongNative/nativeLink'
+          require: ""
