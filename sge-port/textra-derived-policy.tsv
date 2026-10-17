@@ -1,0 +1,1380 @@
+#family	upstream	reference	target
+FieldName	com.github.tommyettinger.textra.TextraListBox#style:field	var _style	_style
+FieldName	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#drawing:field	var _drawing	_drawing
+FieldName	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap#keyTable:field	var _keyTable	_keyTable
+FieldName	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap#size:field	var _size	_size
+FieldName	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap#valueTable:field	var _valueTable	_valueTable
+FieldName	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap$MapIterator#hasNext:field	var _hasNext	_hasNext
+KeepName	com.github.tommyettinger.textra.ColorLookup#getRgba(String)	def getRgba	
+KeepName	com.github.tommyettinger.textra.ColorLookup#getRgba(String,int,int)	def getRgba	
+KeepName	com.github.tommyettinger.textra.Effect#isFinished	def isFinished	
+KeepName	com.github.tommyettinger.textra.Font#getBoldStrength	def getBoldStrength	
+KeepName	com.github.tommyettinger.textra.Font#getBoxDrawingBreadth	def getBoxDrawingBreadth	
+KeepName	com.github.tommyettinger.textra.Font#getCrispness	def getCrispness	
+KeepName	com.github.tommyettinger.textra.Font#getDescent	def getDescent	
+KeepName	com.github.tommyettinger.textra.Font#getFancyLineX	def getFancyLineX	
+KeepName	com.github.tommyettinger.textra.Font#getFancyLineY	def getFancyLineY	
+KeepName	com.github.tommyettinger.textra.Font#getInlineImageOffsetX	def getInlineImageOffsetX	
+KeepName	com.github.tommyettinger.textra.Font#getInlineImageOffsetY	def getInlineImageOffsetY	
+KeepName	com.github.tommyettinger.textra.Font#getInlineImageStretch	def getInlineImageStretch	
+KeepName	com.github.tommyettinger.textra.Font#getInlineImageXAdvance	def getInlineImageXAdvance	
+KeepName	com.github.tommyettinger.textra.Font#getJsonExtension	def getJsonExtension	
+KeepName	com.github.tommyettinger.textra.Font#getObliqueStrength	def getObliqueStrength	
+KeepName	com.github.tommyettinger.textra.Font#getOutlineStrength	def getOutlineStrength	
+KeepName	com.github.tommyettinger.textra.Font#getStoredState	def getStoredState	
+KeepName	com.github.tommyettinger.textra.Font#getStrikethroughX	def getStrikethroughX	
+KeepName	com.github.tommyettinger.textra.Font#getStrikethroughY	def getStrikethroughY	
+KeepName	com.github.tommyettinger.textra.Font#getUnderlineX	def getUnderlineX	
+KeepName	com.github.tommyettinger.textra.Font#getUnderlineY	def getUnderlineY	
+KeepName	com.github.tommyettinger.textra.Font#setCrispness	def setCrispness	
+KeepName	com.github.tommyettinger.textra.Font#setFancyLinePosition	def setFancyLinePosition	
+KeepName	com.github.tommyettinger.textra.Font#setInlineImageMetrics(float,float,float)	def setInlineImageMetrics	
+KeepName	com.github.tommyettinger.textra.Font#setInlineImageMetrics(float,float,float,float)	def setInlineImageMetrics	
+KeepName	com.github.tommyettinger.textra.Font#setLineMetrics	def setLineMetrics	
+KeepName	com.github.tommyettinger.textra.Font#setPaddingForBitmapFont	def setPaddingForBitmapFont	
+KeepName	com.github.tommyettinger.textra.Font#setStrikethroughMetrics	def setStrikethroughMetrics	
+KeepName	com.github.tommyettinger.textra.Font#setStrikethroughPosition	def setStrikethroughPosition	
+KeepName	com.github.tommyettinger.textra.Font#setTextureFilter()	def setTextureFilter	
+KeepName	com.github.tommyettinger.textra.Font#setTextureFilter(TextureFilter,TextureFilter)	def setTextureFilter	
+KeepName	com.github.tommyettinger.textra.Font#setUnderlineMetrics	def setUnderlineMetrics	
+KeepName	com.github.tommyettinger.textra.Font#setUnderlinePosition	def setUnderlinePosition	
+KeepName	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#setRegion(Texture)	def setRegion	
+KeepName	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#setRegion(TextureRegion)	def setRegion	
+KeepName	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#setRegion(TextureRegion,int,int,int,int)	def setRegion	
+KeepName	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#setRegion(float,float,float,float)	def setRegion	
+KeepName	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#setRegion(int,int,int,int)	def setRegion	
+KeepName	com.github.tommyettinger.textra.Font$TexturelessRegion#setRegion(Texture)	def setRegion	
+KeepName	com.github.tommyettinger.textra.Font$TexturelessRegion#setRegion(TextureRegion)	def setRegion	
+KeepName	com.github.tommyettinger.textra.Font$TexturelessRegion#setRegion(TextureRegion,int,int,int,int)	def setRegion	
+KeepName	com.github.tommyettinger.textra.Font$TexturelessRegion#setRegion(float,float,float,float)	def setRegion	
+KeepName	com.github.tommyettinger.textra.Font$TexturelessRegion#setRegion(int,int,int,int)	def setRegion	
+KeepName	com.github.tommyettinger.textra.ImageTextraButton#getFontColor	def getFontColor	
+KeepName	com.github.tommyettinger.textra.ImageTextraButton#getImage	def getImage	
+KeepName	com.github.tommyettinger.textra.ImageTextraButton#getImageCell	def getImageCell	
+KeepName	com.github.tommyettinger.textra.ImageTextraButton#getImageDrawable	def getImageDrawable	
+KeepName	com.github.tommyettinger.textra.ImageTextraButton#getLabel	def getLabel	
+KeepName	com.github.tommyettinger.textra.ImageTextraButton#getLabelCell	def getLabelCell	
+KeepName	com.github.tommyettinger.textra.ImageTextraButton#getStyle	def getStyle	
+KeepName	com.github.tommyettinger.textra.ImageTextraButton#getText	def getText	
+KeepName	com.github.tommyettinger.textra.ImageTextraButton#setLabel	def setLabel	
+KeepName	com.github.tommyettinger.textra.ImageTextraButton#setStyle(ButtonStyle)	def setStyle	
+KeepName	com.github.tommyettinger.textra.ImageTextraButton#setStyle(ButtonStyle,Font)	def setStyle	
+KeepName	com.github.tommyettinger.textra.ImageTextraButton#setStyle(ButtonStyle,boolean)	def setStyle	
+KeepName	com.github.tommyettinger.textra.ImageTextraButton#setText	def setText	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getAStarry()	def getAStarry	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getAStarry(DistanceFieldType)	def getAStarry	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getAStarryMSDF	def getAStarryMSDF	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getAStarryTall()	def getAStarryTall	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getAStarryTall(DistanceFieldType)	def getAStarryTall	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getAbyssinicaSIL()	def getAbyssinicaSIL	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getAbyssinicaSIL(DistanceFieldType)	def getAbyssinicaSIL	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getAll	def getAll	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getAllMSDF	def getAllMSDF	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getAllSDF	def getAllSDF	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getAllStandard	def getAllStandard	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getAsul()	def getAsul	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getAsul(DistanceFieldType)	def getAsul	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getAubrey()	def getAubrey	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getAubrey(DistanceFieldType)	def getAubrey	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getBirdlandAeroplane()	def getBirdlandAeroplane	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getBirdlandAeroplane(DistanceFieldType)	def getBirdlandAeroplane	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getBitmapFont	def getBitmapFont	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getBitter()	def getBitter	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getBitter(DistanceFieldType)	def getBitter	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getBonheurRoyale()	def getBonheurRoyale	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getBonheurRoyale(DistanceFieldType)	def getBonheurRoyale	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getCanada()	def getCanada	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getCanada(DistanceFieldType)	def getCanada	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getCascadiaMono()	def getCascadiaMono	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getCascadiaMono(DistanceFieldType)	def getCascadiaMono	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getCascadiaMonoMSDF	def getCascadiaMonoMSDF	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getCaveat()	def getCaveat	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getCaveat(DistanceFieldType)	def getCaveat	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getChangaOne()	def getChangaOne	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getChangaOne(DistanceFieldType)	def getChangaOne	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getComicMono()	def getComicMono	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getComicMono(DistanceFieldType)	def getComicMono	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getComputerSaysNo()	def getComputerSaysNo	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getComputerSaysNo(DistanceFieldType)	def getComputerSaysNo	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getCordata16x26	def getCordata16x26	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getCozette	def getCozette	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getCreteRound()	def getCreteRound	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getCreteRound(DistanceFieldType)	def getCreteRound	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDINish()	def getDINish	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDINish(DistanceFieldType)	def getDINish	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDINishCondensed()	def getDINishCondensed	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDINishCondensed(DistanceFieldType)	def getDINishCondensed	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDINishCondensedHeavy()	def getDINishCondensedHeavy	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDINishCondensedHeavy(DistanceFieldType)	def getDINishCondensedHeavy	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDINishCondensedLight()	def getDINishCondensedLight	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDINishCondensedLight(DistanceFieldType)	def getDINishCondensedLight	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDINishExpanded()	def getDINishExpanded	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDINishExpanded(DistanceFieldType)	def getDINishExpanded	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDINishExpandedHeavy()	def getDINishExpandedHeavy	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDINishExpandedHeavy(DistanceFieldType)	def getDINishExpandedHeavy	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDINishExpandedLight()	def getDINishExpandedLight	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDINishExpandedLight(DistanceFieldType)	def getDINishExpandedLight	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDINishHeavy()	def getDINishHeavy	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDINishHeavy(DistanceFieldType)	def getDINishHeavy	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDINishLight()	def getDINishLight	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDINishLight(DistanceFieldType)	def getDINishLight	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDejaVuSans()	def getDejaVuSans	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDejaVuSans(DistanceFieldType)	def getDejaVuSans	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDejaVuSansCondensed()	def getDejaVuSansCondensed	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDejaVuSansCondensed(DistanceFieldType)	def getDejaVuSansCondensed	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDejaVuSansMono()	def getDejaVuSansMono	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDejaVuSansMono(DistanceFieldType)	def getDejaVuSansMono	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDejaVuSerif()	def getDejaVuSerif	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDejaVuSerif(DistanceFieldType)	def getDejaVuSerif	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDejaVuSerifCondensed()	def getDejaVuSerifCondensed	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getDejaVuSerifCondensed(DistanceFieldType)	def getDejaVuSerifCondensed	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getFamily	def getFamily	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getFont(String)	def getFont	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getFont(String,DistanceFieldType)	def getFont	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getGameIconsFont	def getGameIconsFont	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getGentium()	def getGentium	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getGentium(DistanceFieldType)	def getGentium	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getGentiumMSDF	def getGentiumMSDF	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getGentiumSDF	def getGentiumSDF	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getGentiumUnItalic()	def getGentiumUnItalic	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getGentiumUnItalic(DistanceFieldType)	def getGentiumUnItalic	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getGlacialIndifference()	def getGlacialIndifference	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getGlacialIndifference(DistanceFieldType)	def getGlacialIndifference	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getGoNotoUniversal()	def getGoNotoUniversal	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getGoNotoUniversal(DistanceFieldType)	def getGoNotoUniversal	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getGoNotoUniversalSDF	def getGoNotoUniversalSDF	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getGrenze()	def getGrenze	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getGrenze(DistanceFieldType)	def getGrenze	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getHanazono	def getHanazono	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getIBM8x16	def getIBM8x16	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getIBM8x16Sad	def getIBM8x16Sad	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getInconsolata()	def getInconsolata	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getInconsolata(DistanceFieldType)	def getInconsolata	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getInconsolataMSDF	def getInconsolataMSDF	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getIosevka()	def getIosevka	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getIosevka(DistanceFieldType)	def getIosevka	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getIosevkaMSDF	def getIosevkaMSDF	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getIosevkaSDF	def getIosevkaSDF	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getIosevkaSlab()	def getIosevkaSlab	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getIosevkaSlab(DistanceFieldType)	def getIosevkaSlab	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getIosevkaSlabMSDF	def getIosevkaSlabMSDF	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getIosevkaSlabSDF	def getIosevkaSlabSDF	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getKingthingsFoundation()	def getKingthingsFoundation	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getKingthingsFoundation(DistanceFieldType)	def getKingthingsFoundation	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getKingthingsPetrock()	def getKingthingsPetrock	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getKingthingsPetrock(DistanceFieldType)	def getKingthingsPetrock	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getLanaPixel	def getLanaPixel	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getLeagueGothic()	def getLeagueGothic	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getLeagueGothic(DistanceFieldType)	def getLeagueGothic	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getLibertinusSerif()	def getLibertinusSerif	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getLibertinusSerif(DistanceFieldType)	def getLibertinusSerif	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getLibertinusSerifSemibold()	def getLibertinusSerifSemibold	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getLibertinusSerifSemibold(DistanceFieldType)	def getLibertinusSerifSemibold	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getMaShanZheng()	def getMaShanZheng	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getMaShanZheng(DistanceFieldType)	def getMaShanZheng	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getMapleMono()	def getMapleMono	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getMapleMono(DistanceFieldType)	def getMapleMono	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getMonogram	def getMonogram	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getMonogramFamily	def getMonogramFamily	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getMonogramItalic	def getMonogramItalic	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getMoonDance()	def getMoonDance	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getMoonDance(DistanceFieldType)	def getMoonDance	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getMsdfShader	def getMsdfShader	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getNowAlt()	def getNowAlt	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getNowAlt(DistanceFieldType)	def getNowAlt	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getNugothic()	def getNugothic	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getNugothic(DistanceFieldType)	def getNugothic	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getOpenSans()	def getOpenSans	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getOpenSans(DistanceFieldType)	def getOpenSans	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getOstrichBlack()	def getOstrichBlack	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getOstrichBlack(DistanceFieldType)	def getOstrichBlack	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getOverlock()	def getOverlock	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getOverlock(DistanceFieldType)	def getOverlock	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getOverlockUnItalic()	def getOverlockUnItalic	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getOverlockUnItalic(DistanceFieldType)	def getOverlockUnItalic	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getOxanium()	def getOxanium	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getOxanium(DistanceFieldType)	def getOxanium	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getPangolin()	def getPangolin	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getPangolin(DistanceFieldType)	def getPangolin	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getProtestRevolution()	def getProtestRevolution	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getProtestRevolution(DistanceFieldType)	def getProtestRevolution	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getQuanPixel	def getQuanPixel	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getRobotoCondensed()	def getRobotoCondensed	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getRobotoCondensed(DistanceFieldType)	def getRobotoCondensed	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getSancreek()	def getSancreek	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getSancreek(DistanceFieldType)	def getSancreek	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getSdfOutlineShader	def getSdfOutlineShader	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getSdfShader	def getSdfShader	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getSelawik()	def getSelawik	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getSelawik(DistanceFieldType)	def getSelawik	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getSelawikBold()	def getSelawikBold	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getSelawikBold(DistanceFieldType)	def getSelawikBold	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getSourGummy()	def getSourGummy	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getSourGummy(DistanceFieldType)	def getSourGummy	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getSpecialElite()	def getSpecialElite	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getSpecialElite(DistanceFieldType)	def getSpecialElite	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getStandardFamily	def getStandardFamily	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getStandardShader	def getStandardShader	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getTangerine()	def getTangerine	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getTangerine(DistanceFieldType)	def getTangerine	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getTangerineSDF	def getTangerineSDF	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getTillana()	def getTillana	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getTillana(DistanceFieldType)	def getTillana	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getYanoneKaffeesatz()	def getYanoneKaffeesatz	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getYanoneKaffeesatz(DistanceFieldType)	def getYanoneKaffeesatz	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getYanoneKaffeesatzMSDF	def getYanoneKaffeesatzMSDF	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getYataghan()	def getYataghan	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getYataghan(DistanceFieldType)	def getYataghan	
+KeepName	com.github.tommyettinger.textra.KnownFonts#getYataghanMSDF	def getYataghanMSDF	
+KeepName	com.github.tommyettinger.textra.KnownFonts#setAssetPrefix	def setAssetPrefix	
+KeepName	com.github.tommyettinger.textra.Layout#getBaseColor	def getBaseColor	
+KeepName	com.github.tommyettinger.textra.Layout#getHeight	def getHeight	
+KeepName	com.github.tommyettinger.textra.Layout#getLine	def getLine	
+KeepName	com.github.tommyettinger.textra.Layout#getMaxLines	def getMaxLines	
+KeepName	com.github.tommyettinger.textra.Layout#getTargetWidth	def getTargetWidth	
+KeepName	com.github.tommyettinger.textra.Layout#getWidth	def getWidth	
+KeepName	com.github.tommyettinger.textra.TextraArea#getPrefHeight	def getPrefHeight	
+KeepName	com.github.tommyettinger.textra.TextraArea#getTextY	def getTextY	
+KeepName	com.github.tommyettinger.textra.TextraButton#getFontColor	def getFontColor	
+KeepName	com.github.tommyettinger.textra.TextraButton#getStyle	def getStyle	
+KeepName	com.github.tommyettinger.textra.TextraButton#getText	def getText	
+KeepName	com.github.tommyettinger.textra.TextraButton#getTextraLabel	def getTextraLabel	
+KeepName	com.github.tommyettinger.textra.TextraButton#getTextraLabelCell	def getTextraLabelCell	
+KeepName	com.github.tommyettinger.textra.TextraButton#setStyle(ButtonStyle)	def setStyle	
+KeepName	com.github.tommyettinger.textra.TextraButton#setStyle(ButtonStyle,Font)	def setStyle	
+KeepName	com.github.tommyettinger.textra.TextraButton#setStyle(ButtonStyle,boolean)	def setStyle	
+KeepName	com.github.tommyettinger.textra.TextraButton#setText	def setText	
+KeepName	com.github.tommyettinger.textra.TextraButton#setTextraLabel	def setTextraLabel	
+KeepName	com.github.tommyettinger.textra.TextraCheckBox#getImage	def getImage	
+KeepName	com.github.tommyettinger.textra.TextraCheckBox#getImageCell	def getImageCell	
+KeepName	com.github.tommyettinger.textra.TextraCheckBox#getStyle	def getStyle	
+KeepName	com.github.tommyettinger.textra.TextraCheckBox#setStyle(ButtonStyle)	def setStyle	
+KeepName	com.github.tommyettinger.textra.TextraCheckBox#setStyle(ButtonStyle,Font)	def setStyle	
+KeepName	com.github.tommyettinger.textra.TextraCheckBox#setStyle(ButtonStyle,boolean)	def setStyle	
+KeepName	com.github.tommyettinger.textra.TextraDialog#setObject	def setObject	
+KeepName	com.github.tommyettinger.textra.TextraDialog#setStage	def setStage	
+KeepName	com.github.tommyettinger.textra.TextraField#getAlignment	def getAlignment	
+KeepName	com.github.tommyettinger.textra.TextraField#getBackgroundDrawable	def getBackgroundDrawable	
+KeepName	com.github.tommyettinger.textra.TextraField#getBlinkTime	def getBlinkTime	
+KeepName	com.github.tommyettinger.textra.TextraField#getCursorPosition	def getCursorPosition	
+KeepName	com.github.tommyettinger.textra.TextraField#getDefaultInputListener	def getDefaultInputListener	
+KeepName	com.github.tommyettinger.textra.TextraField#getMaxLength	def getMaxLength	
+KeepName	com.github.tommyettinger.textra.TextraField#getOnscreenKeyboard	def getOnscreenKeyboard	
+KeepName	com.github.tommyettinger.textra.TextraField#getPasswordCharacter	def getPasswordCharacter	
+KeepName	com.github.tommyettinger.textra.TextraField#getPrefHeight	def getPrefHeight	
+KeepName	com.github.tommyettinger.textra.TextraField#getPrefWidth	def getPrefWidth	
+KeepName	com.github.tommyettinger.textra.TextraField#getProgrammaticChangeEvents	def getProgrammaticChangeEvents	
+KeepName	com.github.tommyettinger.textra.TextraField#getSelection	def getSelection	
+KeepName	com.github.tommyettinger.textra.TextraField#getSelectionEnd	def getSelectionEnd	
+KeepName	com.github.tommyettinger.textra.TextraField#getSelectionStart	def getSelectionStart	
+KeepName	com.github.tommyettinger.textra.TextraField#getTextFieldFilter	def getTextFieldFilter	
+KeepName	com.github.tommyettinger.textra.TextraField#getTextY	def getTextY	
+KeepName	com.github.tommyettinger.textra.TextraField#isCursorBlinking	def isCursorBlinking	
+KeepName	com.github.tommyettinger.textra.TextraField#isDisabled	def isDisabled	
+KeepName	com.github.tommyettinger.textra.TextraField#isPasswordMode	def isPasswordMode	
+KeepName	com.github.tommyettinger.textra.TextraField#isSpaceCharacter(char)	def isSpaceCharacter	
+KeepName	com.github.tommyettinger.textra.TextraField#isSpaceCharacter(long)	def isSpaceCharacter	
+KeepName	com.github.tommyettinger.textra.TextraField#isWordCharacter(char)	def isWordCharacter	
+KeepName	com.github.tommyettinger.textra.TextraField#isWordCharacter(long)	def isWordCharacter	
+KeepName	com.github.tommyettinger.textra.TextraField#setAlignment	def setAlignment	
+KeepName	com.github.tommyettinger.textra.TextraField#setCursorBlinking	def setCursorBlinking	
+KeepName	com.github.tommyettinger.textra.TextraField#setCursorPosition	def setCursorPosition	
+KeepName	com.github.tommyettinger.textra.TextraField#setOnscreenKeyboard	def setOnscreenKeyboard	
+KeepName	com.github.tommyettinger.textra.TextraField#setParent	def setParent	
+KeepName	com.github.tommyettinger.textra.TextraField#setSelection	def setSelection	
+KeepName	com.github.tommyettinger.textra.TextraField#setStage	def setStage	
+KeepName	com.github.tommyettinger.textra.TextraField#setTextFieldFilter	def setTextFieldFilter	
+KeepName	com.github.tommyettinger.textra.TextraField#setTextFieldListener	def setTextFieldListener	
+KeepName	com.github.tommyettinger.textra.TextraField$TextFieldClickListener#setCursorPosition	def setCursorPosition	
+KeepName	com.github.tommyettinger.textra.TextraLabel#getAdvances	def getAdvances	
+KeepName	com.github.tommyettinger.textra.TextraLabel#getAlignment	def getAlignment	
+KeepName	com.github.tommyettinger.textra.TextraLabel#getEllipsis	def getEllipsis	
+KeepName	com.github.tommyettinger.textra.TextraLabel#getGlyph	def getGlyph	
+KeepName	com.github.tommyettinger.textra.TextraLabel#getLineHeight	def getLineHeight	
+KeepName	com.github.tommyettinger.textra.TextraLabel#getMaxLines	def getMaxLines	
+KeepName	com.github.tommyettinger.textra.TextraLabel#getOffsets	def getOffsets	
+KeepName	com.github.tommyettinger.textra.TextraLabel#getPrefHeight	def getPrefHeight	
+KeepName	com.github.tommyettinger.textra.TextraLabel#getPrefWidth	def getPrefWidth	
+KeepName	com.github.tommyettinger.textra.TextraLabel#getRotations	def getRotations	
+KeepName	com.github.tommyettinger.textra.TextraLabel#getSizing	def getSizing	
+KeepName	com.github.tommyettinger.textra.TextraLabel#isWrap	def isWrap	
+KeepName	com.github.tommyettinger.textra.TextraLabel#setAlignment	def setAlignment	
+KeepName	com.github.tommyettinger.textra.TextraLabel#setEllipsis	def setEllipsis	
+KeepName	com.github.tommyettinger.textra.TextraLabel#setFont(Font,boolean)	def setFont	
+KeepName	com.github.tommyettinger.textra.TextraLabel#setHeight	def setHeight	
+KeepName	com.github.tommyettinger.textra.TextraLabel#setMaxLines	def setMaxLines	
+KeepName	com.github.tommyettinger.textra.TextraLabel#setSize	def setSize	
+KeepName	com.github.tommyettinger.textra.TextraLabel#setSuperHeight	def setSuperHeight	
+KeepName	com.github.tommyettinger.textra.TextraLabel#setSuperWidth	def setSuperWidth	
+KeepName	com.github.tommyettinger.textra.TextraLabel#setText	def setText	
+KeepName	com.github.tommyettinger.textra.TextraLabel#setWidth	def setWidth	
+KeepName	com.github.tommyettinger.textra.TextraListBox#getAlignment	def getAlignment	
+KeepName	com.github.tommyettinger.textra.TextraListBox#getCullingArea	def getCullingArea	
+KeepName	com.github.tommyettinger.textra.TextraListBox#getCumulativeHeight	def getCumulativeHeight	
+KeepName	com.github.tommyettinger.textra.TextraListBox#getItemAt	def getItemAt	
+KeepName	com.github.tommyettinger.textra.TextraListBox#getItemIndexAt	def getItemIndexAt	
+KeepName	com.github.tommyettinger.textra.TextraListBox#getItems	def getItems	
+KeepName	com.github.tommyettinger.textra.TextraListBox#getKeyListener	def getKeyListener	
+KeepName	com.github.tommyettinger.textra.TextraListBox#getOverItem	def getOverItem	
+KeepName	com.github.tommyettinger.textra.TextraListBox#getPrefHeight	def getPrefHeight	
+KeepName	com.github.tommyettinger.textra.TextraListBox#getPrefWidth	def getPrefWidth	
+KeepName	com.github.tommyettinger.textra.TextraListBox#getPressedItem	def getPressedItem	
+KeepName	com.github.tommyettinger.textra.TextraListBox#getSelected	def getSelected	
+KeepName	com.github.tommyettinger.textra.TextraListBox#getSelectedIndex	def getSelectedIndex	
+KeepName	com.github.tommyettinger.textra.TextraListBox#getSelection	def getSelection	
+KeepName	com.github.tommyettinger.textra.TextraListBox#getStyle	def getStyle	
+KeepName	com.github.tommyettinger.textra.TextraListBox#getTypeToSelect	def getTypeToSelect	
+KeepName	com.github.tommyettinger.textra.TextraListBox#setAlignment	def setAlignment	
+KeepName	com.github.tommyettinger.textra.TextraListBox#setCullingArea	def setCullingArea	
+KeepName	com.github.tommyettinger.textra.TextraListBox#setSelected	def setSelected	
+KeepName	com.github.tommyettinger.textra.TextraListBox#setSelectedIndex	def setSelectedIndex	
+KeepName	com.github.tommyettinger.textra.TextraListBox#setSelection	def setSelection	
+KeepName	com.github.tommyettinger.textra.TextraListBox#setStyle	def setStyle	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#getBackgroundDrawable	def getBackgroundDrawable	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#getClickListener	def getClickListener	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#getFontColor	def getFontColor	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#getItems	def getItems	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#getList	def getList	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#getMaxListCount	def getMaxListCount	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#getMaxPrefWidth	def getMaxPrefWidth	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#getPrefHeight	def getPrefHeight	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#getPrefWidth	def getPrefWidth	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#getSelected	def getSelected	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#getSelectedIndex	def getSelectedIndex	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#getSelectedPrefWidth	def getSelectedPrefWidth	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#getSelection	def getSelection	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#getStyle	def getStyle	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#isDisabled	def isDisabled	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#isOver	def isOver	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#setAlignment	def setAlignment	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#setItemTexts	def setItemTexts	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#setMaxListCount	def setMaxListCount	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#setScrollingDisabled	def setScrollingDisabled	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#setSelected	def setSelected	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#setSelectedIndex	def setSelectedIndex	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#setStage	def setStage	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox#setStyle	def setStyle	
+KeepName	com.github.tommyettinger.textra.TextraSelectBox$SelectBoxScrollPane#setStage	def setStage	
+KeepName	com.github.tommyettinger.textra.TextraTooltip#setStyle(TextTooltipStyle)	def setStyle	
+KeepName	com.github.tommyettinger.textra.TextraTooltip#setStyle(TextTooltipStyle,Font)	def setStyle	
+KeepName	com.github.tommyettinger.textra.TextraWindow#getPrefWidth	def getPrefWidth	
+KeepName	com.github.tommyettinger.textra.TextraWindow#getResizeBorder	def getResizeBorder	
+KeepName	com.github.tommyettinger.textra.TextraWindow#getStyle	def getStyle	
+KeepName	com.github.tommyettinger.textra.TextraWindow#isDragging	def isDragging	
+KeepName	com.github.tommyettinger.textra.TextraWindow#isModal	def isModal	
+KeepName	com.github.tommyettinger.textra.TextraWindow#isMovable	def isMovable	
+KeepName	com.github.tommyettinger.textra.TextraWindow#isResizable	def isResizable	
+KeepName	com.github.tommyettinger.textra.TextraWindow#setKeepWithinStage	def setKeepWithinStage	
+KeepName	com.github.tommyettinger.textra.TextraWindow#setModal	def setModal	
+KeepName	com.github.tommyettinger.textra.TextraWindow#setMovable	def setMovable	
+KeepName	com.github.tommyettinger.textra.TextraWindow#setResizable	def setResizable	
+KeepName	com.github.tommyettinger.textra.TextraWindow#setResizeBorder	def setResizeBorder	
+KeepName	com.github.tommyettinger.textra.TextraWindow#setStyle(WindowStyle)	def setStyle	
+KeepName	com.github.tommyettinger.textra.TextraWindow#setStyle(WindowStyle,Font)	def setStyle	
+KeepName	com.github.tommyettinger.textra.TextraWindow#setStyle(WindowStyle,boolean)	def setStyle	
+KeepName	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getMaxTextureUnits	def getMaxTextureUnits	
+KeepName	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#setBlendFunction	def setBlendFunction	
+KeepName	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#setBlendFunctionSeparate	def setBlendFunctionSeparate	
+KeepName	com.github.tommyettinger.textra.TypingCheckBox#getImage	def getImage	
+KeepName	com.github.tommyettinger.textra.TypingCheckBox#getImageCell	def getImageCell	
+KeepName	com.github.tommyettinger.textra.TypingCheckBox#getStyle	def getStyle	
+KeepName	com.github.tommyettinger.textra.TypingCheckBox#setStyle(ButtonStyle)	def setStyle	
+KeepName	com.github.tommyettinger.textra.TypingCheckBox#setStyle(ButtonStyle,Font)	def setStyle	
+KeepName	com.github.tommyettinger.textra.TypingCheckBox#setStyle(ButtonStyle,boolean)	def setStyle	
+KeepName	com.github.tommyettinger.textra.TypingConfig#getDefaultInitialText	def getDefaultInitialText	
+KeepName	com.github.tommyettinger.textra.TypingConfig#setDefaultInitialText	def setDefaultInitialText	
+KeepName	com.github.tommyettinger.textra.TypingDialog#setObject	def setObject	
+KeepName	com.github.tommyettinger.textra.TypingDialog#setStage	def setStage	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getAdvances	def getAdvances	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getClearColor	def getClearColor	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getCumulativeLineHeight	def getCumulativeLineHeight	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getDefaultToken	def getDefaultToken	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getEllipsis	def getEllipsis	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getFromIntermediate	def getFromIntermediate	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getInLayout	def getInLayout	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getInWorkingLayout	def getInWorkingLayout	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getIntermediateText	def getIntermediateText	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getLineHeight	def getLineHeight	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getLineInLayout	def getLineInLayout	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getLineIndexInLayout	def getLineIndexInLayout	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getMaxLines	def getMaxLines	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getOffsets	def getOffsets	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getOriginalText	def getOriginalText	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getPrefHeight	def getPrefHeight	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getPrefWidth	def getPrefWidth	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getRotations	def getRotations	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getSelectedText	def getSelectedText	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getSizing	def getSizing	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getTextSpeed	def getTextSpeed	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getTypingListener	def getTypingListener	
+KeepName	com.github.tommyettinger.textra.TypingLabel#getVariables	def getVariables	
+KeepName	com.github.tommyettinger.textra.TypingLabel#isPaused	def isPaused	
+KeepName	com.github.tommyettinger.textra.TypingLabel#isSelectable	def isSelectable	
+KeepName	com.github.tommyettinger.textra.TypingLabel#isSkipping	def isSkipping	
+KeepName	com.github.tommyettinger.textra.TypingLabel#setDefaultToken	def setDefaultToken	
+KeepName	com.github.tommyettinger.textra.TypingLabel#setEllipsis	def setEllipsis	
+KeepName	com.github.tommyettinger.textra.TypingLabel#setHeight	def setHeight	
+KeepName	com.github.tommyettinger.textra.TypingLabel#setInLayout	def setInLayout	
+KeepName	com.github.tommyettinger.textra.TypingLabel#setInWorkingLayout	def setInWorkingLayout	
+KeepName	com.github.tommyettinger.textra.TypingLabel#setIntermediateText	def setIntermediateText	
+KeepName	com.github.tommyettinger.textra.TypingLabel#setMaxLines	def setMaxLines	
+KeepName	com.github.tommyettinger.textra.TypingLabel#setSize	def setSize	
+KeepName	com.github.tommyettinger.textra.TypingLabel#setText(String)	def setText	
+KeepName	com.github.tommyettinger.textra.TypingLabel#setText(String,boolean)	def setText	
+KeepName	com.github.tommyettinger.textra.TypingLabel#setText(String,boolean,boolean)	def setText	
+KeepName	com.github.tommyettinger.textra.TypingLabel#setTextSpeed	def setTextSpeed	
+KeepName	com.github.tommyettinger.textra.TypingLabel#setTypingListener	def setTypingListener	
+KeepName	com.github.tommyettinger.textra.TypingLabel#setVariable	def setVariable	
+KeepName	com.github.tommyettinger.textra.TypingLabel#setVariables(Map)	def setVariables	
+KeepName	com.github.tommyettinger.textra.TypingLabel#setVariables(ObjectMap)	def setVariables	
+KeepName	com.github.tommyettinger.textra.TypingLabel#setWidth	def setWidth	
+KeepName	com.github.tommyettinger.textra.TypingTooltip#setStyle(TextTooltipStyle)	def setStyle	
+KeepName	com.github.tommyettinger.textra.TypingTooltip#setStyle(TextTooltipStyle,Font)	def setStyle	
+KeepName	com.github.tommyettinger.textra.utils.BlockUtils#isBlockGlyph	def isBlockGlyph	
+KeepName	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap#getAndIncrement	def getAndIncrement	
+KeepName	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap#isEmpty	def isEmpty	
+KeepName	com.github.tommyettinger.textra.utils.StringUtils#isLowerCase	def isLowerCase	
+KeepName	com.github.tommyettinger.textra.utils.StringUtils#isUpperCase	def isUpperCase	
+KeepParens	com.github.tommyettinger.textra.Effect#calculateFadeout	def calculateFadeout(): Float	
+KeepParens	com.github.tommyettinger.textra.Font#setTextureFilter()	def setTextureFilter(): Font	
+KeepParens	com.github.tommyettinger.textra.ImageTextraButton#newImage	def newImage(): Image	
+KeepParens	com.github.tommyettinger.textra.Layout#clear	def clear(): Layout	
+KeepParens	com.github.tommyettinger.textra.Layout#pushLine	def pushLine(): Nullable[Line]	
+KeepParens	com.github.tommyettinger.textra.Layout#pushLineBare	def pushLineBare(): Nullable[Line]	
+KeepParens	com.github.tommyettinger.textra.TextraCheckBox#newImage	def newImage(): Nullable[AnyRef]	
+KeepParens	com.github.tommyettinger.textra.TextraField#createInputListener	def createInputListener(): TextFieldClickListener	
+KeepParens	com.github.tommyettinger.textra.TextraField#wordUnderCursor	def wordUnderCursor(): Long	
+KeepParens	com.github.tommyettinger.textra.TextraLabel#skipToTheEnd	def skipToTheEnd(): TextraLabel	
+KeepParens	com.github.tommyettinger.textra.TextraSelectBox#newScrollPane	def newScrollPane(): TextraSelectBox.SelectBoxScrollPane	
+KeepParens	com.github.tommyettinger.textra.TextraSelectBox$SelectBoxScrollPane#newList	def newList(): TextraListBox	
+KeepParens	com.github.tommyettinger.textra.TypingCheckBox#newImage	def newImage(): Nullable[AnyRef]	
+KeepParens	com.github.tommyettinger.textra.TypingLabel#copySelectedText	def copySelectedText(): Boolean	
+KeepParens	com.github.tommyettinger.textra.TypingLabel#getSelectedText	def getSelectedText(): String	
+KeepParens	com.github.tommyettinger.textra.TypingLabel#length	def length(): Int	
+KeepParens	com.github.tommyettinger.textra.TypingLabel#skipToTheEnd()	def skipToTheEnd(): TextraLabel	
+KeepParens	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap#entries	def entries(): CaseInsensitiveIntMap.Entries	
+KeepParens	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap#hashCode	def hashCode(): Int	
+KeepParens	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap#iterator	def iterator(): CaseInsensitiveIntMap.Entries	
+KeepParens	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap#keys	def keys(): CaseInsensitiveIntMap.Keys	
+KeepParens	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap#toString()	def toString(): String	
+KeepParens	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap#values	def values(): CaseInsensitiveIntMap.Values	
+KeepParens	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap$Entries#next	def next(): Entry	
+KeepParens	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap$Keys#next	def next(): String	
+KeepParens	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap$Keys#toArray()	def toArray(): DynamicArray[String]	
+KeepParens	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap$Values#next	def next(): Int	
+KeepParens	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap$Values#toArray()	def toArray(): DynamicArray[Int]	
+NullableMember	com.github.tommyettinger.textra.BitmapFontSupport$JsonFontData#<init>(FileHandle,String)#imagePath	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.BitmapFontSupport$JsonFontData#<init>(FileHandle,String,boolean)#imagePath	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.BitmapFontSupport$JsonFontData#<init>(FileHandle,String,boolean)#jsonFont	Nullable[FileHandle]	
+NullableMember	com.github.tommyettinger.textra.BitmapFontSupport$JsonFontData#path:field	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.Effect#name:field	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.Font#family:field	Nullable[FontFamily]	
+NullableMember	com.github.tommyettinger.textra.Font#getFamily	Nullable[FontFamily]	
+NullableMember	com.github.tommyettinger.textra.Font#kerning:field	Nullable[HashMap[Int, Float]]	
+NullableMember	com.github.tommyettinger.textra.Font#nameLookup:field	Nullable[CaseInsensitiveIntMap]	
+NullableMember	com.github.tommyettinger.textra.Font#namesByCharCode:field	Nullable[HashMap[Int, String]]	
+NullableMember	com.github.tommyettinger.textra.Font#shader:field	Nullable[sge.graphics.glutils.ShaderProgram]	
+NullableMember	com.github.tommyettinger.textra.ImageTextraButton#<init>(String,ImageTextButtonStyle)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.ImageTextraButton#<init>(String,ImageTextButtonStyle,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.ImageTextraButton#<init>(String,Skin)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.ImageTextraButton#<init>(String,Skin,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.ImageTextraButton#<init>(String,Skin,String)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.ImageTextraButton#<init>(String,Skin,String,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.ImageTextraButton#getFontColor	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.ImageTextraButton#getImageDrawable	Nullable[Drawable]	
+NullableMember	com.github.tommyettinger.textra.ImageTypingButton#<init>(String,ImageTextButtonStyle)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.ImageTypingButton#<init>(String,ImageTextButtonStyle,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.ImageTypingButton#<init>(String,Skin)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.ImageTypingButton#<init>(String,Skin,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.ImageTypingButton#<init>(String,Skin,String)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.InternalToken#fromName	Nullable[InternalToken]	
+NullableMember	com.github.tommyettinger.textra.KnownFonts#getMsdfShader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.textra.KnownFonts#getSdfOutlineShader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.textra.KnownFonts#getSdfShader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.textra.KnownFonts#getStandardShader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.textra.KnownFonts#initialize(String,String,String,String,String,String,String,String)#msdfFragment	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.KnownFonts#initialize(String,String,String,String,String,String,String,String)#msdfVertex	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.KnownFonts#initialize(String,String,String,String,String,String,String,String)#sdfFragment	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.KnownFonts#initialize(String,String,String,String,String,String,String,String)#sdfOutlineFragment	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.KnownFonts#initialize(String,String,String,String,String,String,String,String)#sdfOutlineVertex	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.KnownFonts#initialize(String,String,String,String,String,String,String,String)#sdfVertex	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.KnownFonts#initialize(String,String,String,String,String,String,String,String)#standardFragment	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.KnownFonts#initialize(String,String,String,String,String,String,String,String)#standardVertex	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.Layout#ellipsis:field	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.Layout#font:field	Nullable[Font]	
+NullableMember	com.github.tommyettinger.textra.Layout#getEllipsis	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.Layout#getFont	Nullable[Font]	
+NullableMember	com.github.tommyettinger.textra.Layout#getLine	Nullable[Line]	
+NullableMember	com.github.tommyettinger.textra.Layout#insertLine	Nullable[Line]	
+NullableMember	com.github.tommyettinger.textra.Layout#pushLine	Nullable[Line]	
+NullableMember	com.github.tommyettinger.textra.Layout#pushLineBare	Nullable[Line]	
+NullableMember	com.github.tommyettinger.textra.Layout#setEllipsis#ellipsis	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.Styles$CheckBoxStyle#<init>(Drawable,Drawable,BitmapFont,Color)#checkboxOff	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$CheckBoxStyle#<init>(Drawable,Drawable,BitmapFont,Color)#checkboxOn	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$CheckBoxStyle#<init>(Drawable,Drawable,BitmapFont,Color)#font	Nullable[Font]	
+NullableMember	com.github.tommyettinger.textra.Styles$CheckBoxStyle#<init>(Drawable,Drawable,BitmapFont,Color)#fontColor	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$CheckBoxStyle#<init>(Drawable,Drawable,Font,Color)#checkboxOff	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$CheckBoxStyle#<init>(Drawable,Drawable,Font,Color)#checkboxOn	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$CheckBoxStyle#<init>(Drawable,Drawable,Font,Color)#font	Nullable[Font]	
+NullableMember	com.github.tommyettinger.textra.Styles$CheckBoxStyle#<init>(Drawable,Drawable,Font,Color)#fontColor	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$CheckBoxStyle#checkboxOff:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$CheckBoxStyle#checkboxOffDisabled:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$CheckBoxStyle#checkboxOn:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$CheckBoxStyle#checkboxOnDisabled:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$CheckBoxStyle#checkboxOnOver:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$CheckBoxStyle#checkboxOver:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ImageTextButtonStyle#<init>(Drawable,Drawable,Drawable,BitmapFont)#checked	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ImageTextButtonStyle#<init>(Drawable,Drawable,Drawable,BitmapFont)#down	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ImageTextButtonStyle#<init>(Drawable,Drawable,Drawable,BitmapFont)#font	Nullable[Font]	
+NullableMember	com.github.tommyettinger.textra.Styles$ImageTextButtonStyle#<init>(Drawable,Drawable,Drawable,BitmapFont)#up	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ImageTextButtonStyle#<init>(Drawable,Drawable,Drawable,Font)#checked	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ImageTextButtonStyle#<init>(Drawable,Drawable,Drawable,Font)#down	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ImageTextButtonStyle#<init>(Drawable,Drawable,Drawable,Font)#font	Nullable[Font]	
+NullableMember	com.github.tommyettinger.textra.Styles$ImageTextButtonStyle#<init>(Drawable,Drawable,Drawable,Font)#up	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ImageTextButtonStyle#imageChecked:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ImageTextButtonStyle#imageCheckedDown:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ImageTextButtonStyle#imageCheckedOver:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ImageTextButtonStyle#imageDisabled:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ImageTextButtonStyle#imageDown:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ImageTextButtonStyle#imageOver:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ImageTextButtonStyle#imageUp:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$LabelStyle#<init>(BitmapFont,Color)#fontColor	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$LabelStyle#<init>(Font,Color)#fontColor	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$LabelStyle#<init>(Font,Color,Drawable)#background	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$LabelStyle#<init>(Font,Color,Drawable)#fontColor	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$LabelStyle#background:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$LabelStyle#font:field	Nullable[Font]	
+NullableMember	com.github.tommyettinger.textra.Styles$LabelStyle#fontColor:field	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$ListStyle#<init>(BitmapFont,Color,Color,Drawable)#selection	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ListStyle#<init>(Font,Color,Color,Drawable)#selection	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ListStyle#<init>(Font,Color,Color,Drawable,Drawable,Drawable,Drawable)#background	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ListStyle#<init>(Font,Color,Color,Drawable,Drawable,Drawable,Drawable)#down	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ListStyle#<init>(Font,Color,Color,Drawable,Drawable,Drawable,Drawable)#over	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ListStyle#<init>(Font,Color,Color,Drawable,Drawable,Drawable,Drawable)#selection	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ListStyle#background:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ListStyle#down:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ListStyle#font:field	Nullable[Font]	
+NullableMember	com.github.tommyettinger.textra.Styles$ListStyle#over:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$ListStyle#selection:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$SelectBoxStyle#<init>(BitmapFont,Color,Drawable,ScrollPaneStyle,ListStyle)#background	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$SelectBoxStyle#<init>(BitmapFont,Color,Drawable,ScrollPaneStyle,ListStyle)#scrollStyle	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$SelectBoxStyle#<init>(Font,Color,Drawable,ScrollPaneStyle,ListStyle)#background	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$SelectBoxStyle#<init>(Font,Color,Drawable,ScrollPaneStyle,ListStyle)#scrollStyle	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$SelectBoxStyle#background:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$SelectBoxStyle#backgroundDisabled:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$SelectBoxStyle#backgroundOpen:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$SelectBoxStyle#backgroundOver:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$SelectBoxStyle#disabledFontColor:field	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$SelectBoxStyle#font:field	Nullable[Font]	
+NullableMember	com.github.tommyettinger.textra.Styles$SelectBoxStyle#listStyle:field	Nullable[ListStyle]	
+NullableMember	com.github.tommyettinger.textra.Styles$SelectBoxStyle#overFontColor:field	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$SelectBoxStyle#scrollStyle:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextButtonStyle#<init>(Drawable,Drawable,Drawable,BitmapFont)#checked	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextButtonStyle#<init>(Drawable,Drawable,Drawable,BitmapFont)#down	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextButtonStyle#<init>(Drawable,Drawable,Drawable,BitmapFont)#font	Nullable[Font]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextButtonStyle#<init>(Drawable,Drawable,Drawable,BitmapFont)#up	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextButtonStyle#<init>(Drawable,Drawable,Drawable,Font)#checked	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextButtonStyle#<init>(Drawable,Drawable,Drawable,Font)#down	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextButtonStyle#<init>(Drawable,Drawable,Drawable,Font)#font	Nullable[Font]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextButtonStyle#<init>(Drawable,Drawable,Drawable,Font)#up	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextButtonStyle#checkedDownFontColor:field	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextButtonStyle#checkedFocusedFontColor:field	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextButtonStyle#checkedFontColor:field	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextButtonStyle#checkedOverFontColor:field	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextButtonStyle#disabledFontColor:field	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextButtonStyle#downFontColor:field	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextButtonStyle#focusedFontColor:field	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextButtonStyle#font:field	Nullable[Font]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextButtonStyle#fontColor:field	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextButtonStyle#overFontColor:field	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextFieldStyle#<init>(BitmapFont,Color,Drawable,Drawable,Drawable)#background	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextFieldStyle#<init>(BitmapFont,Color,Drawable,Drawable,Drawable)#cursor	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextFieldStyle#<init>(BitmapFont,Color,Drawable,Drawable,Drawable)#selection	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextFieldStyle#<init>(Font,Color,Drawable,Drawable,Drawable)#background	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextFieldStyle#<init>(Font,Color,Drawable,Drawable,Drawable)#cursor	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextFieldStyle#<init>(Font,Color,Drawable,Drawable,Drawable)#selection	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextFieldStyle#background:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextFieldStyle#cursor:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextFieldStyle#disabledBackground:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextFieldStyle#disabledFontColor:field	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextFieldStyle#focusedBackground:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextFieldStyle#focusedFontColor:field	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextFieldStyle#font:field	Nullable[Font]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextFieldStyle#fontColor:field	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextFieldStyle#messageFontColor:field	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextFieldStyle#selection:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextTooltipStyle#<init>(LabelStyle,Drawable)#background	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextTooltipStyle#background:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$TextTooltipStyle#label:field	Nullable[LabelStyle]	
+NullableMember	com.github.tommyettinger.textra.Styles$WindowStyle#<init>(BitmapFont,Color,Drawable)#background	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$WindowStyle#<init>(Font,Color,Drawable)#background	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$WindowStyle#<init>(Font,Color,Drawable,Drawable)#background	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$WindowStyle#<init>(Font,Color,Drawable,Drawable)#stageBackground	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$WindowStyle#background:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$WindowStyle#stageBackground:field	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.Styles$WindowStyle#titleFont:field	Nullable[Font]	
+NullableMember	com.github.tommyettinger.textra.Styles$WindowStyle#titleFontColor:field	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.TextraArea#<init>(String,Skin)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraArea#<init>(String,Skin,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraArea#<init>(String,Skin,String)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraArea#<init>(String,TextFieldStyle)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraArea#<init>(String,TextFieldStyle,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraArea#getTextY#background	Nullable[Drawable]	
+NullableMember	com.github.tommyettinger.textra.TextraButton#<init>(String,Skin)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraButton#<init>(String,Skin,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraButton#<init>(String,Skin,String)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraButton#<init>(String,Skin,String,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraButton#<init>(String,TextButtonStyle)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraButton#<init>(String,TextButtonStyle,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraButton#getFontColor	Nullable[Color]	
+NullableMember	com.github.tommyettinger.textra.TextraButton#setText#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraCheckBox#<init>(String,CheckBoxStyle)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraCheckBox#<init>(String,CheckBoxStyle,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraCheckBox#<init>(String,Skin)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraCheckBox#<init>(String,Skin,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraCheckBox#<init>(String,Skin,String)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraCheckBox#getImage	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.TextraCheckBox#getImageCell	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.TextraCheckBox#newImage	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#button(Button,Object)#object	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#button(String)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#button(String,Object)#object	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#button(String,Object)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#button(String,Object,TextButtonStyle)#object	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#button(String,Object,TextButtonStyle)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#hide(Action)#action	Nullable[Action]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#key#object	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#previousKeyboardFocus:field	Nullable[Actor]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#previousScrollFocus:field	Nullable[Actor]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#result#object	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#setObject#object	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#setStage#stage	Nullable[Stage]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#show(Stage,Action)#action	Nullable[Action]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#text(String)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#text(String,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#text(String,Font,Color)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#text(String,LabelStyle)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#typing(String)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#typing(String,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#typing(String,Font,Color)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraDialog#typing(String,LabelStyle)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraField#<init>(String,Skin)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraField#<init>(String,Skin,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraField#<init>(String,Skin,String)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraField#<init>(String,TextFieldStyle)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraField#<init>(String,TextFieldStyle,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraField#appendText#str	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraField#clipboard:field	Nullable[Clipboard]	
+NullableMember	com.github.tommyettinger.textra.TextraField#filter:field	Nullable[TextFieldFilter]	
+NullableMember	com.github.tommyettinger.textra.TextraField#getBackgroundDrawable	Nullable[Drawable]	
+NullableMember	com.github.tommyettinger.textra.TextraField#getDefaultInputListener	Nullable[TextFieldClickListener]	
+NullableMember	com.github.tommyettinger.textra.TextraField#getMessageText	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraField#getOnscreenKeyboard	Nullable[OnscreenKeyboard]	
+NullableMember	com.github.tommyettinger.textra.TextraField#getStyle	Nullable[Styles.TextFieldStyle]	
+NullableMember	com.github.tommyettinger.textra.TextraField#getTextFieldFilter	Nullable[TextFieldFilter]	
+NullableMember	com.github.tommyettinger.textra.TextraField#getTextY#background	Nullable[Drawable]	
+NullableMember	com.github.tommyettinger.textra.TextraField#inputListener:field	Nullable[TextFieldClickListener]	
+NullableMember	com.github.tommyettinger.textra.TextraField#keyboard:field	Nullable[OnscreenKeyboard]	
+NullableMember	com.github.tommyettinger.textra.TextraField#listener:field	Nullable[TextFieldListener]	
+NullableMember	com.github.tommyettinger.textra.TextraField#messageText:field	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraField#paste#content	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraField#setMessageText#messageText	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraField#setParent#parent	Nullable[Group]	
+NullableMember	com.github.tommyettinger.textra.TextraField#setStage#stage	Nullable[Stage]	
+NullableMember	com.github.tommyettinger.textra.TextraField#setText#str	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraField#setTextFieldFilter#filter	Nullable[TextFieldFilter]	
+NullableMember	com.github.tommyettinger.textra.TextraField#setTextFieldListener#listener	Nullable[TextFieldListener]	
+NullableMember	com.github.tommyettinger.textra.TextraField#style:field	Nullable[Styles.TextFieldStyle]	
+NullableMember	com.github.tommyettinger.textra.TextraLabel#getEllipsis	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraLabel#setEllipsis#ellipsis	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraLabel#style:field	Nullable[Styles.LabelStyle]	
+NullableMember	com.github.tommyettinger.textra.TextraListBox#drawSelection#drawable	Nullable[Drawable]	
+NullableMember	com.github.tommyettinger.textra.TextraListBox#getCullingArea	Nullable[Rectangle]	
+NullableMember	com.github.tommyettinger.textra.TextraListBox#getItemAt	Nullable[TextraLabel]	
+NullableMember	com.github.tommyettinger.textra.TextraListBox#getOverItem	Nullable[TextraLabel]	
+NullableMember	com.github.tommyettinger.textra.TextraListBox#getPressedItem	Nullable[TextraLabel]	
+NullableMember	com.github.tommyettinger.textra.TextraListBox#getSelected	Nullable[TextraLabel]	
+NullableMember	com.github.tommyettinger.textra.TextraListBox#setCullingArea#cullingArea	Nullable[Rectangle]	
+NullableMember	com.github.tommyettinger.textra.TextraListBox#setSelected#item	Nullable[TextraLabel]	
+NullableMember	com.github.tommyettinger.textra.TextraSelectBox#getBackgroundDrawable	Nullable[Drawable]	
+NullableMember	com.github.tommyettinger.textra.TextraSelectBox#getSelected	Nullable[TextraLabel]	
+NullableMember	com.github.tommyettinger.textra.TextraSelectBox#setSelected#item	Nullable[TextraLabel]	
+NullableMember	com.github.tommyettinger.textra.TextraSelectBox#setStage#stage	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.TextraSelectBox$SelectBoxScrollPane#setStage#stage	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.TextraTooltip#<init>(String,Skin)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraTooltip#<init>(String,Skin,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraTooltip#<init>(String,Skin,String)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraTooltip#<init>(String,Skin,String,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraTooltip#<init>(String,TextTooltipStyle)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraTooltip#<init>(String,TextTooltipStyle,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraTooltip#<init>(String,TooltipManager,Skin)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraTooltip#<init>(String,TooltipManager,Skin,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraTooltip#<init>(String,TooltipManager,Skin,String)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraTooltip#<init>(String,TooltipManager,Skin,String,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraTooltip#<init>(String,TooltipManager,TextTooltipStyle)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraTooltip#<init>(String,TooltipManager,TextTooltipStyle,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TextraWindow#hit	Nullable[Actor]	
+NullableMember	com.github.tommyettinger.textra.TextureArrayCpuPolygonSpriteBatch#<init>(int,ShaderProgram)#defaultShader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#<init>(int,ShaderProgram)#defaultShader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#<init>(int,int,ShaderProgram)#defaultShader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#setShader#shader	Nullable[ShaderProgram]	
+NullableMember	com.github.tommyettinger.textra.TokenEntry#<init>#stringValue	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TokenEntry#effect:field	Nullable[Effect]	
+NullableMember	com.github.tommyettinger.textra.TokenEntry#stringValue:field	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingAdapter#replaceVariable	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingButton#<init>(String,Skin)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingButton#<init>(String,Skin,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingButton#<init>(String,Skin,String)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingButton#<init>(String,TextButtonStyle)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingButton#<init>(String,TextButtonStyle,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingCheckBox#<init>(String,CheckBoxStyle)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingCheckBox#<init>(String,CheckBoxStyle,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingCheckBox#<init>(String,Skin)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingCheckBox#<init>(String,Skin,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingCheckBox#<init>(String,Skin,String)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingCheckBox#getImage	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.TypingCheckBox#getImageCell	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.TypingCheckBox#newImage	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#button(Button,Object)#object	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#button(String)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#button(String,Object)#object	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#button(String,Object)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#button(String,Object,TextButtonStyle)#object	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#button(String,Object,TextButtonStyle)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#hide(Action)#action	Nullable[Action]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#key#object	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#previousKeyboardFocus:field	Nullable[Actor]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#previousScrollFocus:field	Nullable[Actor]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#result#object	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#setObject#object	Nullable[AnyRef]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#setStage#stage	Nullable[Stage]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#show(Stage,Action)#action	Nullable[Action]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#text(String)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#text(String,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#text(String,Font,Color)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#text(String,LabelStyle)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#typing(String)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#typing(String,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#typing(String,Font,Color)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingDialog#typing(String,LabelStyle)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingLabel#getEllipsis	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingLabel#getLineInLayout	Nullable[Line]	
+NullableMember	com.github.tommyettinger.textra.TypingLabel#getTypingListener	Nullable[TypingListener]	
+NullableMember	com.github.tommyettinger.textra.TypingLabel#selectionDrawable:field	Nullable[Drawable]	
+NullableMember	com.github.tommyettinger.textra.TypingLabel#setEllipsis#ellipsis	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingLabel#setTypingListener#listener	Nullable[TypingListener]	
+NullableMember	com.github.tommyettinger.textra.TypingListener#replaceVariable	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingTooltip#<init>(String,Skin)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingTooltip#<init>(String,Skin,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingTooltip#<init>(String,Skin,String)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingTooltip#<init>(String,Skin,String,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingTooltip#<init>(String,TextTooltipStyle)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingTooltip#<init>(String,TextTooltipStyle,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingTooltip#<init>(String,TooltipManager,Skin)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingTooltip#<init>(String,TooltipManager,Skin,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingTooltip#<init>(String,TooltipManager,Skin,String)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingTooltip#<init>(String,TooltipManager,Skin,String,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingTooltip#<init>(String,TooltipManager,TextTooltipStyle)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingTooltip#<init>(String,TooltipManager,TextTooltipStyle,Font)#text	Nullable[String]	
+NullableMember	com.github.tommyettinger.textra.TypingTooltip#enter#fromActor	Nullable[Actor]	
+OpaqueSlot	com.github.tommyettinger.textra.Font#drawGlyphs(Batch,Layout,float,float,int)#align	sge.utils.Align	sge.utils.Align
+OpaqueSlot	com.github.tommyettinger.textra.Font#drawGlyphs(Batch,Layout,float,float,int,float,float,float)#align	sge.utils.Align	sge.utils.Align
+OpaqueSlot	com.github.tommyettinger.textra.TextraDialog#key#keycode	Key	sge.Input.Key
+OpaqueSlot	com.github.tommyettinger.textra.TextraLabel#align	Align	sge.utils.Align
+OpaqueSlot	com.github.tommyettinger.textra.TextraLabel#getAlignment	Align	sge.utils.Align
+OpaqueSlot	com.github.tommyettinger.textra.TextraLabel#setAlignment#alignment	Align	sge.utils.Align
+OpaqueSlot	com.github.tommyettinger.textra.TextraWindow$InternalListener#keyDown#keycode	Key	sge.Input.Key
+OpaqueSlot	com.github.tommyettinger.textra.TextraWindow$InternalListener#keyUp#keycode	Key	sge.Input.Key
+OpaqueSlot	com.github.tommyettinger.textra.TextraWindow$InternalListener#touchDown#button	Button	sge.Input.Button
+OpaqueSlot	com.github.tommyettinger.textra.TextraWindow$InternalListener#touchUp#button	Button	sge.Input.Button
+OpaqueSlot	com.github.tommyettinger.textra.TypingDialog#key#keycode	Key	sge.Input.Key
+OpaqueSlot	com.github.tommyettinger.textra.TypingLabel#act#delta	Seconds	sge.utils.Seconds
+ParamName	com.github.tommyettinger.textra.BitmapFontSupport$JsonFontData#<init>(FileHandle,String,boolean)#imagePath	path	path
+ParamName	com.github.tommyettinger.textra.Font#<init>(FileHandle,Array,DistanceFieldType,float,float,float,float,boolean)#heightAdjust	hAdj	hAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(FileHandle,Array,DistanceFieldType,float,float,float,float,boolean)#widthAdjust	wAdj	wAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(FileHandle,Array,DistanceFieldType,float,float,float,float,boolean)#xAdjust	xAdj	xAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(FileHandle,Array,DistanceFieldType,float,float,float,float,boolean)#yAdjust	yAdj	yAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(FileHandle,DistanceFieldType,float,float,float,float,boolean)#heightAdjust	hAdj	hAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(FileHandle,DistanceFieldType,float,float,float,float,boolean)#widthAdjust	wAdj	wAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(FileHandle,DistanceFieldType,float,float,float,float,boolean)#xAdjust	xAdj	xAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(FileHandle,DistanceFieldType,float,float,float,float,boolean)#yAdjust	yAdj	yAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(FileHandle,TextureRegion,DistanceFieldType,float,float,float,float,boolean)#heightAdjust	hAdj	hAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(FileHandle,TextureRegion,DistanceFieldType,float,float,float,float,boolean)#widthAdjust	wAdj	wAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(FileHandle,TextureRegion,DistanceFieldType,float,float,float,float,boolean)#xAdjust	xAdj	xAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(FileHandle,TextureRegion,DistanceFieldType,float,float,float,float,boolean)#yAdjust	yAdj	yAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(FileHandle,TextureRegion,float,float,float,float,boolean,boolean)#heightAdjust	hAdj	hAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(FileHandle,TextureRegion,float,float,float,float,boolean,boolean)#widthAdjust	wAdj	wAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(FileHandle,TextureRegion,float,float,float,float,boolean,boolean)#xAdjust	xAdj	xAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(FileHandle,TextureRegion,float,float,float,float,boolean,boolean)#yAdjust	yAdj	yAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(Font)#toCopy	other	other
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,Array,DistanceFieldType,float,float,float,float)#heightAdjust	hAdj	hAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,Array,DistanceFieldType,float,float,float,float)#widthAdjust	wAdj	wAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,Array,DistanceFieldType,float,float,float,float)#xAdjust	xAdj	xAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,Array,DistanceFieldType,float,float,float,float)#yAdjust	yAdj	yAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,Array,DistanceFieldType,float,float,float,float,boolean)#heightAdjust	hAdj	hAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,Array,DistanceFieldType,float,float,float,float,boolean)#widthAdjust	wAdj	wAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,Array,DistanceFieldType,float,float,float,float,boolean)#xAdjust	xAdj	xAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,Array,DistanceFieldType,float,float,float,float,boolean)#yAdjust	yAdj	yAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,Array,float,float,float,float)#heightAdjust	hAdj	hAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,Array,float,float,float,float)#widthAdjust	wAdj	wAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,Array,float,float,float,float)#xAdjust	xAdj	xAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,Array,float,float,float,float)#yAdjust	yAdj	yAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,DistanceFieldType,float,float,float,float)#heightAdjust	hAdj	hAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,DistanceFieldType,float,float,float,float)#widthAdjust	wAdj	wAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,DistanceFieldType,float,float,float,float)#xAdjust	xAdj	xAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,DistanceFieldType,float,float,float,float)#yAdjust	yAdj	yAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,DistanceFieldType,float,float,float,float,boolean)#heightAdjust	hAdj	hAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,DistanceFieldType,float,float,float,float,boolean)#widthAdjust	wAdj	wAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,DistanceFieldType,float,float,float,float,boolean)#xAdjust	xAdj	xAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,DistanceFieldType,float,float,float,float,boolean)#yAdjust	yAdj	yAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,String,DistanceFieldType,float,float,float,float)#heightAdjust	hAdj	hAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,String,DistanceFieldType,float,float,float,float)#widthAdjust	wAdj	wAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,String,DistanceFieldType,float,float,float,float)#xAdjust	xAdj	xAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,String,DistanceFieldType,float,float,float,float)#yAdjust	yAdj	yAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,String,DistanceFieldType,float,float,float,float,boolean)#heightAdjust	hAdj	hAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,String,DistanceFieldType,float,float,float,float,boolean)#widthAdjust	wAdj	wAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,String,DistanceFieldType,float,float,float,float,boolean)#xAdjust	xAdj	xAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,String,DistanceFieldType,float,float,float,float,boolean)#yAdjust	yAdj	yAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,String,float,float,float,float)#heightAdjust	hAdj	hAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,String,float,float,float,float)#widthAdjust	wAdj	wAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,String,float,float,float,float)#xAdjust	xAdj	xAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,String,float,float,float,float)#yAdjust	yAdj	yAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,TextureRegion,DistanceFieldType,float,float,float,float)#heightAdjust	hAdj	hAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,TextureRegion,DistanceFieldType,float,float,float,float)#widthAdjust	wAdj	wAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,TextureRegion,DistanceFieldType,float,float,float,float)#xAdjust	xAdj	xAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,TextureRegion,DistanceFieldType,float,float,float,float)#yAdjust	yAdj	yAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,TextureRegion,DistanceFieldType,float,float,float,float,boolean)#heightAdjust	hAdj	hAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,TextureRegion,DistanceFieldType,float,float,float,float,boolean)#widthAdjust	wAdj	wAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,TextureRegion,DistanceFieldType,float,float,float,float,boolean)#xAdjust	xAdj	xAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,TextureRegion,DistanceFieldType,float,float,float,float,boolean)#yAdjust	yAdj	yAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,TextureRegion,float,float,float,float)#heightAdjust	hAdj	hAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,TextureRegion,float,float,float,float)#widthAdjust	wAdj	wAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,TextureRegion,float,float,float,float)#xAdjust	xAdj	xAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,TextureRegion,float,float,float,float)#yAdjust	yAdj	yAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,TextureRegion,float,float,float,float,boolean,boolean)#heightAdjust	hAdj	hAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,TextureRegion,float,float,float,float,boolean,boolean)#widthAdjust	wAdj	wAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,TextureRegion,float,float,float,float,boolean,boolean)#xAdjust	xAdj	xAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,TextureRegion,float,float,float,float,boolean,boolean)#yAdjust	yAdj	yAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,float,float,float,float)#heightAdjust	hAdj	hAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,float,float,float,float)#widthAdjust	wAdj	wAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,float,float,float,float)#xAdjust	xAdj	xAdj
+ParamName	com.github.tommyettinger.textra.Font#<init>(String,float,float,float,float)#yAdjust	yAdj	yAdj
+ParamName	com.github.tommyettinger.textra.TextraArea#<init>(String,Skin)#text	initialText	initialText
+ParamName	com.github.tommyettinger.textra.TextraArea#<init>(String,Skin,Font)#text	initialText	initialText
+ParamName	com.github.tommyettinger.textra.TextraArea#<init>(String,Skin,String)#text	initialText	initialText
+ParamName	com.github.tommyettinger.textra.TextraArea#<init>(String,TextFieldStyle)#style	areaStyle	areaStyle
+ParamName	com.github.tommyettinger.textra.TextraArea#<init>(String,TextFieldStyle)#text	initialText	initialText
+ParamName	com.github.tommyettinger.textra.TextraArea#<init>(String,TextFieldStyle,Font)#style	areaStyle	areaStyle
+ParamName	com.github.tommyettinger.textra.TextraArea#<init>(String,TextFieldStyle,Font)#text	initialText	initialText
+ParamName	com.github.tommyettinger.textra.TextraDialog#<init>(String,WindowStyle)#windowStyle	style	style
+ParamName	com.github.tommyettinger.textra.TextraDialog#<init>(String,WindowStyle,Font)#windowStyle	style	style
+ParamName	com.github.tommyettinger.textra.TypingDialog#<init>(String,WindowStyle)#windowStyle	style	style
+ParamName	com.github.tommyettinger.textra.TypingDialog#<init>(String,WindowStyle,Font)#windowStyle	style	style
+Parenless	com.github.tommyettinger.textra.Effect#isFinished	def isFinished: Boolean	
+Parenless	com.github.tommyettinger.textra.Font#debugString	def debugString: String	
+Parenless	com.github.tommyettinger.textra.Font#getBoldStrength	def getBoldStrength: Float	
+Parenless	com.github.tommyettinger.textra.Font#getBoxDrawingBreadth	def getBoxDrawingBreadth: Float	
+Parenless	com.github.tommyettinger.textra.Font#getColorLookup	def getColorLookup: ColorLookup	
+Parenless	com.github.tommyettinger.textra.Font#getCrispness	def getCrispness: Float	
+Parenless	com.github.tommyettinger.textra.Font#getDescent	def getDescent: Float	
+Parenless	com.github.tommyettinger.textra.Font#getDistanceField	def getDistanceField: DistanceFieldType	
+Parenless	com.github.tommyettinger.textra.Font#getFamily	def getFamily: Nullable[FontFamily]	
+Parenless	com.github.tommyettinger.textra.Font#getFancyLineX	def getFancyLineX: Float	
+Parenless	com.github.tommyettinger.textra.Font#getFancyLineY	def getFancyLineY: Float	
+Parenless	com.github.tommyettinger.textra.Font#getInlineImageOffsetX	def getInlineImageOffsetX: Float	
+Parenless	com.github.tommyettinger.textra.Font#getInlineImageOffsetY	def getInlineImageOffsetY: Float	
+Parenless	com.github.tommyettinger.textra.Font#getInlineImageStretch	def getInlineImageStretch: Float	
+Parenless	com.github.tommyettinger.textra.Font#getInlineImageXAdvance	def getInlineImageXAdvance: Float	
+Parenless	com.github.tommyettinger.textra.Font#getName	def getName: String	
+Parenless	com.github.tommyettinger.textra.Font#getObliqueStrength	def getObliqueStrength: Float	
+Parenless	com.github.tommyettinger.textra.Font#getOutlineStrength	def getOutlineStrength: Float	
+Parenless	com.github.tommyettinger.textra.Font#getStrikethroughX	def getStrikethroughX: Float	
+Parenless	com.github.tommyettinger.textra.Font#getStrikethroughY	def getStrikethroughY: Float	
+Parenless	com.github.tommyettinger.textra.Font#getUnderlineX	def getUnderlineX: Float	
+Parenless	com.github.tommyettinger.textra.Font#getUnderlineY	def getUnderlineY: Float	
+Parenless	com.github.tommyettinger.textra.Font#toString	def toString: String	
+Parenless	com.github.tommyettinger.textra.Font$GlyphRegion#getMaxDimension	def maxDimension: Float	
+Parenless	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#getRegionHeight	def regionHeight: Int	
+Parenless	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#getRegionWidth	def regionWidth: Int	
+Parenless	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#getRegionX	def regionX: Int	
+Parenless	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#getRegionY	def regionY: Int	
+Parenless	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#isFlipX	def flipX: Boolean	
+Parenless	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#isFlipY	def flipY: Boolean	
+Parenless	com.github.tommyettinger.textra.Font$TexturelessRegion#getRegionHeight	def regionHeight: Int	
+Parenless	com.github.tommyettinger.textra.Font$TexturelessRegion#getRegionWidth	def regionWidth: Int	
+Parenless	com.github.tommyettinger.textra.Font$TexturelessRegion#getRegionX	def regionX: Int	
+Parenless	com.github.tommyettinger.textra.Font$TexturelessRegion#getRegionY	def regionY: Int	
+Parenless	com.github.tommyettinger.textra.Font$TexturelessRegion#isFlipX	def flipX: Boolean	
+Parenless	com.github.tommyettinger.textra.Font$TexturelessRegion#isFlipY	def flipY: Boolean	
+Parenless	com.github.tommyettinger.textra.ImageTextraButton#getFontColor	def getFontColor: Nullable[Color]	
+Parenless	com.github.tommyettinger.textra.ImageTextraButton#getImage	def getImage: Image	
+Parenless	com.github.tommyettinger.textra.ImageTextraButton#getImageCell	def getImageCell: Cell[Image]	
+Parenless	com.github.tommyettinger.textra.ImageTextraButton#getImageDrawable	def getImageDrawable: Nullable[Drawable]	
+Parenless	com.github.tommyettinger.textra.ImageTextraButton#getLabel	def getLabel: TextraLabel	
+Parenless	com.github.tommyettinger.textra.ImageTextraButton#getLabelCell	def getLabelCell: Cell[TextraLabel]	
+Parenless	com.github.tommyettinger.textra.ImageTextraButton#getStyle	def getStyle: Styles.ImageTextButtonStyle	
+Parenless	com.github.tommyettinger.textra.ImageTextraButton#getText	def getText: String	
+Parenless	com.github.tommyettinger.textra.ImageTextraButton#toString	def toString: String	
+Parenless	com.github.tommyettinger.textra.InternalToken#toString	def toString: String	
+Parenless	com.github.tommyettinger.textra.KnownFonts#getMsdfShader	def getMsdfShader: Nullable[ShaderProgram]	
+Parenless	com.github.tommyettinger.textra.KnownFonts#getSdfOutlineShader	def getSdfOutlineShader: Nullable[ShaderProgram]	
+Parenless	com.github.tommyettinger.textra.KnownFonts#getSdfShader	def getSdfShader: Nullable[ShaderProgram]	
+Parenless	com.github.tommyettinger.textra.KnownFonts#getStandardShader	def getStandardShader: Nullable[ShaderProgram]	
+Parenless	com.github.tommyettinger.textra.Layout#countGlyphs	def countGlyphs: Int	
+Parenless	com.github.tommyettinger.textra.Layout#getBaseColor	def getBaseColor: Float	
+Parenless	com.github.tommyettinger.textra.Layout#getEllipsis	def getEllipsis: Nullable[String]	
+Parenless	com.github.tommyettinger.textra.Layout#getFont	def getFont: Nullable[Font]	
+Parenless	com.github.tommyettinger.textra.Layout#getHeight	def getHeight: Float	
+Parenless	com.github.tommyettinger.textra.Layout#getJustification	def getJustification: Justify	
+Parenless	com.github.tommyettinger.textra.Layout#getMaxLines	def getMaxLines: Int	
+Parenless	com.github.tommyettinger.textra.Layout#getTargetWidth	def getTargetWidth: Float	
+Parenless	com.github.tommyettinger.textra.Layout#getWidth	def getWidth: Float	
+Parenless	com.github.tommyettinger.textra.Layout#lines	def lineCount: Int	
+Parenless	com.github.tommyettinger.textra.Layout#peekLine	def peekLine: Line	
+Parenless	com.github.tommyettinger.textra.Layout#toString	def toString: String	
+Parenless	com.github.tommyettinger.textra.Line#toString	def toString: String	
+Parenless	com.github.tommyettinger.textra.TextraArea#getPrefHeight	def getPrefHeight: Float	
+Parenless	com.github.tommyettinger.textra.TextraButton#getFontColor	def getFontColor: Nullable[Color]	
+Parenless	com.github.tommyettinger.textra.TextraButton#getStyle	def getStyle: Styles.TextButtonStyle	
+Parenless	com.github.tommyettinger.textra.TextraButton#getText	def getText: String	
+Parenless	com.github.tommyettinger.textra.TextraButton#getTextraLabel	def getTextraLabel: TextraLabel	
+Parenless	com.github.tommyettinger.textra.TextraButton#getTextraLabelCell	def getTextraLabelCell: Cell[TextraLabel]	
+Parenless	com.github.tommyettinger.textra.TextraButton#toString	def toString: String	
+Parenless	com.github.tommyettinger.textra.TextraCheckBox#getImage	def getImage: Nullable[AnyRef]	
+Parenless	com.github.tommyettinger.textra.TextraCheckBox#getImageCell	def getImageCell: Nullable[AnyRef]	
+Parenless	com.github.tommyettinger.textra.TextraCheckBox#getStyle	def getStyle: Styles.CheckBoxStyle	
+Parenless	com.github.tommyettinger.textra.TextraDialog#getButtonTable	def getButtonTable: Table	
+Parenless	com.github.tommyettinger.textra.TextraDialog#getContentTable	def getContentTable: Table	
+Parenless	com.github.tommyettinger.textra.TextraField#getAlignment	def getAlignment: Int	
+Parenless	com.github.tommyettinger.textra.TextraField#getBackgroundDrawable	def getBackgroundDrawable: Nullable[Drawable]	
+Parenless	com.github.tommyettinger.textra.TextraField#getBlinkTime	def getBlinkTime: Float	
+Parenless	com.github.tommyettinger.textra.TextraField#getCursorPosition	def getCursorPosition: Int	
+Parenless	com.github.tommyettinger.textra.TextraField#getDefaultInputListener	def getDefaultInputListener: Nullable[TextFieldClickListener]	
+Parenless	com.github.tommyettinger.textra.TextraField#getMaxLength	def getMaxLength: Int	
+Parenless	com.github.tommyettinger.textra.TextraField#getMessageText	def getMessageText: Nullable[String]	
+Parenless	com.github.tommyettinger.textra.TextraField#getOnscreenKeyboard	def getOnscreenKeyboard: Nullable[OnscreenKeyboard]	
+Parenless	com.github.tommyettinger.textra.TextraField#getPasswordCharacter	def getPasswordCharacter: Char	
+Parenless	com.github.tommyettinger.textra.TextraField#getPrefHeight	def getPrefHeight: Float	
+Parenless	com.github.tommyettinger.textra.TextraField#getPrefWidth	def getPrefWidth: Float	
+Parenless	com.github.tommyettinger.textra.TextraField#getProgrammaticChangeEvents	def getProgrammaticChangeEvents: Boolean	
+Parenless	com.github.tommyettinger.textra.TextraField#getSelection	def getSelection: String	
+Parenless	com.github.tommyettinger.textra.TextraField#getSelectionEnd	def getSelectionEnd: Int	
+Parenless	com.github.tommyettinger.textra.TextraField#getSelectionStart	def getSelectionStart: Int	
+Parenless	com.github.tommyettinger.textra.TextraField#getStyle	def getStyle: Nullable[Styles.TextFieldStyle]	
+Parenless	com.github.tommyettinger.textra.TextraField#getText	def getText: String	
+Parenless	com.github.tommyettinger.textra.TextraField#getTextFieldFilter	def getTextFieldFilter: Nullable[TextFieldFilter]	
+Parenless	com.github.tommyettinger.textra.TextraField#isCursorBlinking	def isCursorBlinking: Boolean	
+Parenless	com.github.tommyettinger.textra.TextraField#isDisabled	def isDisabled: Boolean	
+Parenless	com.github.tommyettinger.textra.TextraField#isPasswordMode	def isPasswordMode: Boolean	
+Parenless	com.github.tommyettinger.textra.TextraLabel#getAdvances	def getAdvances: FloatArrayHelper	
+Parenless	com.github.tommyettinger.textra.TextraLabel#getAlignment	def getAlignment: Align	
+Parenless	com.github.tommyettinger.textra.TextraLabel#getDefaultToken	def getDefaultToken: String	
+Parenless	com.github.tommyettinger.textra.TextraLabel#getEllipsis	def getEllipsis: Nullable[String]	
+Parenless	com.github.tommyettinger.textra.TextraLabel#getFont	def getFont: Font	
+Parenless	com.github.tommyettinger.textra.TextraLabel#getMaxLines	def getMaxLines: Int	
+Parenless	com.github.tommyettinger.textra.TextraLabel#getOffsets	def getOffsets: FloatArrayHelper	
+Parenless	com.github.tommyettinger.textra.TextraLabel#getPrefHeight	def getPrefHeight: Float	
+Parenless	com.github.tommyettinger.textra.TextraLabel#getPrefWidth	def getPrefWidth: Float	
+Parenless	com.github.tommyettinger.textra.TextraLabel#getRotations	def getRotations: FloatArrayHelper	
+Parenless	com.github.tommyettinger.textra.TextraLabel#getSizing	def getSizing: FloatArrayHelper	
+Parenless	com.github.tommyettinger.textra.TextraLabel#isWrap	def isWrap: Boolean	
+Parenless	com.github.tommyettinger.textra.TextraLabel#toString	def toString: String	
+Parenless	com.github.tommyettinger.textra.TextraListBox#getAlignment	def getAlignment: Int	
+Parenless	com.github.tommyettinger.textra.TextraListBox#getCullingArea	def getCullingArea: Nullable[Rectangle]	
+Parenless	com.github.tommyettinger.textra.TextraListBox#getItems	def getItems: ArrayBuffer[TextraLabel]	
+Parenless	com.github.tommyettinger.textra.TextraListBox#getKeyListener	def getKeyListener: InputListener	
+Parenless	com.github.tommyettinger.textra.TextraListBox#getOverItem	def getOverItem: Nullable[TextraLabel]	
+Parenless	com.github.tommyettinger.textra.TextraListBox#getPrefHeight	def getPrefHeight: Float	
+Parenless	com.github.tommyettinger.textra.TextraListBox#getPrefWidth	def getPrefWidth: Float	
+Parenless	com.github.tommyettinger.textra.TextraListBox#getPressedItem	def getPressedItem: Nullable[TextraLabel]	
+Parenless	com.github.tommyettinger.textra.TextraListBox#getSelected	def getSelected: Nullable[TextraLabel]	
+Parenless	com.github.tommyettinger.textra.TextraListBox#getSelectedIndex	def getSelectedIndex: Int	
+Parenless	com.github.tommyettinger.textra.TextraListBox#getSelection	def getSelection: TextraListBox	
+Parenless	com.github.tommyettinger.textra.TextraListBox#getStyle	def getStyle: Styles.ListStyle	
+Parenless	com.github.tommyettinger.textra.TextraListBox#getTypeToSelect	def getTypeToSelect: Boolean	
+Parenless	com.github.tommyettinger.textra.TextraSelectBox#getBackgroundDrawable	def getBackgroundDrawable: Nullable[Drawable]	
+Parenless	com.github.tommyettinger.textra.TextraSelectBox#getClickListener	def getClickListener: TextraSelectBox.ClickListenerState	
+Parenless	com.github.tommyettinger.textra.TextraSelectBox#getFontColor	def getFontColor: Color	
+Parenless	com.github.tommyettinger.textra.TextraSelectBox#getItems	def getItems: ArrayBuffer[TextraLabel]	
+Parenless	com.github.tommyettinger.textra.TextraSelectBox#getList	def getList: TextraListBox	
+Parenless	com.github.tommyettinger.textra.TextraSelectBox#getMaxListCount	def getMaxListCount: Int	
+Parenless	com.github.tommyettinger.textra.TextraSelectBox#getMaxPrefWidth	def getMaxPrefWidth: Float	
+Parenless	com.github.tommyettinger.textra.TextraSelectBox#getPrefHeight	def getPrefHeight: Float	
+Parenless	com.github.tommyettinger.textra.TextraSelectBox#getPrefWidth	def getPrefWidth: Float	
+Parenless	com.github.tommyettinger.textra.TextraSelectBox#getScrollPane	def getScrollPane: TextraSelectBox.SelectBoxScrollPane	
+Parenless	com.github.tommyettinger.textra.TextraSelectBox#getSelected	def getSelected: Nullable[TextraLabel]	
+Parenless	com.github.tommyettinger.textra.TextraSelectBox#getSelectedIndex	def getSelectedIndex: Int	
+Parenless	com.github.tommyettinger.textra.TextraSelectBox#getSelectedPrefWidth	def getSelectedPrefWidth: Boolean	
+Parenless	com.github.tommyettinger.textra.TextraSelectBox#getSelection	def getSelection: TextraSelectBox.SelectionAccessor	
+Parenless	com.github.tommyettinger.textra.TextraSelectBox#getStyle	def getStyle: Styles.SelectBoxStyle	
+Parenless	com.github.tommyettinger.textra.TextraSelectBox#isDisabled	def isDisabled: Boolean	
+Parenless	com.github.tommyettinger.textra.TextraSelectBox#isOver	def isOver: Boolean	
+Parenless	com.github.tommyettinger.textra.TextraSelectBox$SelectBoxScrollPane#getList	def getList: TextraListBox	
+Parenless	com.github.tommyettinger.textra.TextraSelectBox$SelectBoxScrollPane#getSelectBox	def getSelectBox: TextraSelectBox	
+Parenless	com.github.tommyettinger.textra.TextraWindow#getPrefWidth	def getPrefWidth: Float	
+Parenless	com.github.tommyettinger.textra.TextraWindow#getResizeBorder	def getResizeBorder: Int	
+Parenless	com.github.tommyettinger.textra.TextraWindow#getStyle	def getStyle: Styles.WindowStyle	
+Parenless	com.github.tommyettinger.textra.TextraWindow#getTitleLabel	def getTitleLabel: TextraLabel	
+Parenless	com.github.tommyettinger.textra.TextraWindow#getTitleTable	def getTitleTable: Table	
+Parenless	com.github.tommyettinger.textra.TextraWindow#isDragging	def isDragging: Boolean	
+Parenless	com.github.tommyettinger.textra.TextraWindow#isModal	def isModal: Boolean	
+Parenless	com.github.tommyettinger.textra.TextraWindow#isMovable	def isMovable: Boolean	
+Parenless	com.github.tommyettinger.textra.TextraWindow#isResizable	def isResizable: Boolean	
+Parenless	com.github.tommyettinger.textra.TextureArrayCpuPolygonSpriteBatch#getTransformMatrix	def transformMatrix: Matrix4	
+Parenless	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getBlendDstFunc	def blendDstFunc: Int	
+Parenless	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getBlendDstFuncAlpha	def blendDstFuncAlpha: Int	
+Parenless	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getBlendSrcFunc	def blendSrcFunc: Int	
+Parenless	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getBlendSrcFuncAlpha	def blendSrcFuncAlpha: Int	
+Parenless	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getPackedColor	def packedColor: Float	
+Parenless	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getProjectionMatrix	def projectionMatrix: Matrix4	
+Parenless	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getShader	def shader: ShaderProgram	
+Parenless	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getTextureLFUCapacity	def textureLFUCapacity: Int	
+Parenless	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getTextureLFUSize	def textureLFUSize: Int	
+Parenless	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getTextureLFUSwaps	def textureLFUSwaps: Int	
+Parenless	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getTransformMatrix	def transformMatrix: Matrix4	
+Parenless	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#isBlendingEnabled	def blendingEnabled: Boolean	
+Parenless	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#isDrawing	def drawing: Boolean	
+Parenless	com.github.tommyettinger.textra.TypingCheckBox#getImage	def getImage: Nullable[AnyRef]	
+Parenless	com.github.tommyettinger.textra.TypingCheckBox#getImageCell	def getImageCell: Nullable[AnyRef]	
+Parenless	com.github.tommyettinger.textra.TypingCheckBox#getStyle	def getStyle: Styles.CheckBoxStyle	
+Parenless	com.github.tommyettinger.textra.TypingConfig#getDefaultInitialText	def getDefaultInitialText: String	
+Parenless	com.github.tommyettinger.textra.TypingDialog#getButtonTable	def getButtonTable: Table	
+Parenless	com.github.tommyettinger.textra.TypingDialog#getContentTable	def getContentTable: Table	
+Parenless	com.github.tommyettinger.textra.TypingLabel#getAdvances	def getAdvances: FloatArrayHelper	
+Parenless	com.github.tommyettinger.textra.TypingLabel#getClearColor	def getClearColor: Color	
+Parenless	com.github.tommyettinger.textra.TypingLabel#getDefaultToken	def getDefaultToken: String	
+Parenless	com.github.tommyettinger.textra.TypingLabel#getEllipsis	def getEllipsis: Nullable[String]	
+Parenless	com.github.tommyettinger.textra.TypingLabel#getIntermediateText	def getIntermediateText: StringBuilder	
+Parenless	com.github.tommyettinger.textra.TypingLabel#getMaxLines	def getMaxLines: Int	
+Parenless	com.github.tommyettinger.textra.TypingLabel#getOffsets	def getOffsets: FloatArrayHelper	
+Parenless	com.github.tommyettinger.textra.TypingLabel#getOriginalText	def getOriginalText: StringBuilder	
+Parenless	com.github.tommyettinger.textra.TypingLabel#getPrefHeight	def getPrefHeight: Float	
+Parenless	com.github.tommyettinger.textra.TypingLabel#getPrefWidth	def getPrefWidth: Float	
+Parenless	com.github.tommyettinger.textra.TypingLabel#getRotations	def getRotations: FloatArrayHelper	
+Parenless	com.github.tommyettinger.textra.TypingLabel#getSizing	def getSizing: FloatArrayHelper	
+Parenless	com.github.tommyettinger.textra.TypingLabel#getTextSpeed	def getTextSpeed: Float	
+Parenless	com.github.tommyettinger.textra.TypingLabel#getTypingListener	def getTypingListener: Nullable[TypingListener]	
+Parenless	com.github.tommyettinger.textra.TypingLabel#getVariables	def getVariables: scala.collection.mutable.HashMap[String, String]	
+Parenless	com.github.tommyettinger.textra.TypingLabel#getWorkingLayout	def getWorkingLayout: Layout	
+Parenless	com.github.tommyettinger.textra.TypingLabel#hasEnded	def hasEnded: Boolean	
+Parenless	com.github.tommyettinger.textra.TypingLabel#hasSelection	def hasSelection: Boolean	
+Parenless	com.github.tommyettinger.textra.TypingLabel#isPaused	def isPaused: Boolean	
+Parenless	com.github.tommyettinger.textra.TypingLabel#isSelectable	def isSelectable: Boolean	
+Parenless	com.github.tommyettinger.textra.TypingLabel#isSkipping	def isSkipping: Boolean	
+Parenless	com.github.tommyettinger.textra.TypingLabel#toString	def toString: String	
+Parenless	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap#isEmpty	def isEmpty: Boolean	
+Parenless	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap#notEmpty	def notEmpty: Boolean	
+Parenless	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap$Entries#hasNext	def hasNext: Boolean	
+Parenless	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap$Entry#toString	def toString: String	
+Parenless	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap$Keys#hasNext	def hasNext: Boolean	
+Parenless	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap$Values#hasNext	def hasNext: Boolean	
+Property	com.github.tommyettinger.textra.Font$GlyphRegion#getMaxDimension	var maxDimension	maxDimension
+Property	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#getRegionHeight	var regionHeight	regionHeight
+Property	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#getRegionWidth	var regionWidth	regionWidth
+Property	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#getRegionX	var regionX	regionX
+Property	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#getRegionY	var regionY	regionY
+Property	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#isFlipX	var flipX	flipX
+Property	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#isFlipY	var flipY	flipY
+Property	com.github.tommyettinger.textra.Font$TexturelessRegion#getRegionHeight	var regionHeight	regionHeight
+Property	com.github.tommyettinger.textra.Font$TexturelessRegion#getRegionWidth	var regionWidth	regionWidth
+Property	com.github.tommyettinger.textra.Font$TexturelessRegion#getRegionX	var regionX	regionX
+Property	com.github.tommyettinger.textra.Font$TexturelessRegion#getRegionY	var regionY	regionY
+Property	com.github.tommyettinger.textra.Font$TexturelessRegion#isFlipX	var flipX	flipX
+Property	com.github.tommyettinger.textra.Font$TexturelessRegion#isFlipY	var flipY	flipY
+Property	com.github.tommyettinger.textra.TextureArrayCpuPolygonSpriteBatch#getTransformMatrix	var transformMatrix	transformMatrix
+Property	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getBlendDstFunc	var blendDstFunc	blendDstFunc
+Property	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getBlendDstFuncAlpha	var blendDstFuncAlpha	blendDstFuncAlpha
+Property	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getBlendSrcFunc	var blendSrcFunc	blendSrcFunc
+Property	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getBlendSrcFuncAlpha	var blendSrcFuncAlpha	blendSrcFuncAlpha
+Property	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getPackedColor	var packedColor	packedColor
+Property	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getProjectionMatrix	var projectionMatrix	projectionMatrix
+Property	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getShader	var shader	shader
+Property	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getTextureLFUCapacity	var textureLFUCapacity	textureLFUCapacity
+Property	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getTextureLFUSize	var textureLFUSize	textureLFUSize
+Property	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getTextureLFUSwaps	var textureLFUSwaps	textureLFUSwaps
+Property	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#getTransformMatrix	var transformMatrix	transformMatrix
+Property	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#isBlendingEnabled	var blendingEnabled	blendingEnabled
+Property	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#isDrawing	var drawing	drawing
+PropertySetter	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#setRegionHeight	var regionHeight	regionHeight
+PropertySetter	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#setRegionWidth	var regionWidth	regionWidth
+PropertySetter	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#setRegionX	var regionX	regionX
+PropertySetter	com.github.tommyettinger.textra.Font$TexturelessAtlasRegion#setRegionY	var regionY	regionY
+PropertySetter	com.github.tommyettinger.textra.Font$TexturelessRegion#setRegionHeight	var regionHeight	regionHeight
+PropertySetter	com.github.tommyettinger.textra.Font$TexturelessRegion#setRegionWidth	var regionWidth	regionWidth
+PropertySetter	com.github.tommyettinger.textra.Font$TexturelessRegion#setRegionX	var regionX	regionX
+PropertySetter	com.github.tommyettinger.textra.Font$TexturelessRegion#setRegionY	var regionY	regionY
+PropertySetter	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#setProjectionMatrix	var projectionMatrix	projectionMatrix
+PropertySetter	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#setShader	var shader	shader
+PropertySetter	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#setTransformMatrix	var transformMatrix	transformMatrix
+Protected	com.github.tommyettinger.textra.Effect#calculateFadeout	protected calculateFadeout	
+Protected	com.github.tommyettinger.textra.Effect#calculateProgress(float)	protected calculateProgress	
+Protected	com.github.tommyettinger.textra.Effect#calculateProgress(float,float)	protected calculateProgress	
+Protected	com.github.tommyettinger.textra.Effect#calculateProgress(float,float,boolean)	protected calculateProgress	
+Protected	com.github.tommyettinger.textra.Effect#label:field	protected label	
+Protected	com.github.tommyettinger.textra.Effect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.Effect#paramAsBoolean	protected paramAsBoolean	
+Protected	com.github.tommyettinger.textra.Effect#paramAsColor	protected paramAsColor	
+Protected	com.github.tommyettinger.textra.Effect#paramAsFloat	protected paramAsFloat	
+Protected	com.github.tommyettinger.textra.Effect#totalTime:field	protected totalTime	
+Protected	com.github.tommyettinger.textra.Font#breakChars:field	protected breakChars	
+Protected	com.github.tommyettinger.textra.Font#distanceField:field	protected distanceField	
+Protected	com.github.tommyettinger.textra.Font#drawBlockSequence(Batch,float[],TextureRegion,float,float,float,float,float,float)	protected drawBlockSequence	
+Protected	com.github.tommyettinger.textra.Font#drawBlockSequence(Batch,float[],TextureRegion,float,float,float,float,float,float,float)	protected drawBlockSequence	
+Protected	com.github.tommyettinger.textra.Font#drawFancyLine	protected drawFancyLine	
+Protected	com.github.tommyettinger.textra.Font#drawVertices	protected drawVertices	
+Protected	com.github.tommyettinger.textra.Font#glyphBuffer:field	protected glyphBuffer	
+Protected	com.github.tommyettinger.textra.Font#handleEllipsis	protected handleEllipsis	
+Protected	com.github.tommyettinger.textra.Font#handleIntegerPosition	protected handleIntegerPosition	
+Protected	com.github.tommyettinger.textra.Font#historyBuffer:field	protected historyBuffer	
+Protected	com.github.tommyettinger.textra.Font#labeledStates:field	protected labeledStates	
+Protected	com.github.tommyettinger.textra.Font#loadSad	protected loadSad	
+Protected	com.github.tommyettinger.textra.Font#storedStates:field	protected storedStates	
+Protected	com.github.tommyettinger.textra.Font#tempLayout:field	protected tempLayout	
+Protected	com.github.tommyettinger.textra.Font#vertices:field	protected vertices	
+Protected	com.github.tommyettinger.textra.ImageTextraButton#getFontColor	protected getFontColor	
+Protected	com.github.tommyettinger.textra.ImageTextraButton#getImageDrawable	protected getImageDrawable	
+Protected	com.github.tommyettinger.textra.ImageTextraButton#newImage	protected newImage	
+Protected	com.github.tommyettinger.textra.ImageTextraButton#newLabel(String,Font,Color)	protected newLabel	
+Protected	com.github.tommyettinger.textra.ImageTextraButton#newLabel(String,LabelStyle)	protected newLabel	
+Protected	com.github.tommyettinger.textra.ImageTextraButton#updateImage	protected updateImage	
+Protected	com.github.tommyettinger.textra.ImageTypingButton#newLabel(String,Font,Color)	protected newLabel	
+Protected	com.github.tommyettinger.textra.ImageTypingButton#newLabel(String,LabelStyle)	protected newLabel	
+Protected	com.github.tommyettinger.textra.TextraArea#drawCursor	protected drawCursor	
+Protected	com.github.tommyettinger.textra.TextraArea#getTextY	protected getTextY	
+Protected	com.github.tommyettinger.textra.TextraArea#moveCursorVertically	protected moveCursorVertically	
+Protected	com.github.tommyettinger.textra.TextraButton#getFontColor	protected getFontColor	
+Protected	com.github.tommyettinger.textra.TextraButton#newLabel(String,Font,Color)	protected newLabel	
+Protected	com.github.tommyettinger.textra.TextraButton#newLabel(String,LabelStyle)	protected newLabel	
+Protected	com.github.tommyettinger.textra.TextraCheckBox#newImage	protected newImage	
+Protected	com.github.tommyettinger.textra.TextraDialog#ignoreTouchDown:field	protected ignoreTouchDown	
+Protected	com.github.tommyettinger.textra.TextraDialog#newLabel(String,Font,Color)	protected newLabel	
+Protected	com.github.tommyettinger.textra.TextraDialog#newLabel(String,LabelStyle)	protected newLabel	
+Protected	com.github.tommyettinger.textra.TextraDialog#newTypingLabel(String,Font,Color)	protected newTypingLabel	
+Protected	com.github.tommyettinger.textra.TextraDialog#newTypingLabel(String,LabelStyle)	protected newTypingLabel	
+Protected	com.github.tommyettinger.textra.TextraDialog#result	protected result	
+Protected	com.github.tommyettinger.textra.TextraField#blinkEnabled:field	protected blinkEnabled	
+Protected	com.github.tommyettinger.textra.TextraField#blinkTime:field	protected blinkTime	
+Protected	com.github.tommyettinger.textra.TextraField#calculateOffsets	protected calculateOffsets	
+Protected	com.github.tommyettinger.textra.TextraField#clipboard:field	protected clipboard	
+Protected	com.github.tommyettinger.textra.TextraField#continueCursor	protected continueCursor	
+Protected	com.github.tommyettinger.textra.TextraField#createInputListener	protected createInputListener	
+Protected	com.github.tommyettinger.textra.TextraField#cursor:field	protected cursor	
+Protected	com.github.tommyettinger.textra.TextraField#cursorOn:field	protected cursorOn	
+Protected	com.github.tommyettinger.textra.TextraField#cut(boolean)	protected cut	
+Protected	com.github.tommyettinger.textra.TextraField#delete	protected delete	
+Protected	com.github.tommyettinger.textra.TextraField#disabled:field	protected disabled	
+Protected	com.github.tommyettinger.textra.TextraField#drawCursor	protected drawCursor	
+Protected	com.github.tommyettinger.textra.TextraField#emojiReplacer:field	protected emojiReplacer	
+Protected	com.github.tommyettinger.textra.TextraField#filter:field	protected filter	
+Protected	com.github.tommyettinger.textra.TextraField#focusTraversal:field	protected focusTraversal	
+Protected	com.github.tommyettinger.textra.TextraField#focused:field	protected focused	
+Protected	com.github.tommyettinger.textra.TextraField#fontOffset:field	protected fontOffset	
+Protected	com.github.tommyettinger.textra.TextraField#getBackgroundDrawable	protected getBackgroundDrawable	
+Protected	com.github.tommyettinger.textra.TextraField#getTextY	protected getTextY	
+Protected	com.github.tommyettinger.textra.TextraField#glyphPositions:field	protected glyphPositions	
+Protected	com.github.tommyettinger.textra.TextraField#initialize	protected initialize	
+Protected	com.github.tommyettinger.textra.TextraField#inputListener:field	protected inputListener	
+Protected	com.github.tommyettinger.textra.TextraField#insert(int,CharSequence)	protected insert	
+Protected	com.github.tommyettinger.textra.TextraField#insert(int,CharSequence,String)	protected insert	
+Protected	com.github.tommyettinger.textra.TextraField#isSpaceCharacter(char)	protected isSpaceCharacter	
+Protected	com.github.tommyettinger.textra.TextraField#isSpaceCharacter(long)	protected isSpaceCharacter	
+Protected	com.github.tommyettinger.textra.TextraField#isWordCharacter(char)	protected isWordCharacter	
+Protected	com.github.tommyettinger.textra.TextraField#isWordCharacter(long)	protected isWordCharacter	
+Protected	com.github.tommyettinger.textra.TextraField#keyRepeatTask:field	protected keyRepeatTask	
+Protected	com.github.tommyettinger.textra.TextraField#keyboard:field	protected keyboard	
+Protected	com.github.tommyettinger.textra.TextraField#label:field	protected label	
+Protected	com.github.tommyettinger.textra.TextraField#lastChangeTime:field	protected lastChangeTime	
+Protected	com.github.tommyettinger.textra.TextraField#listener:field	protected listener	
+Protected	com.github.tommyettinger.textra.TextraField#maxLength:field	protected maxLength	
+Protected	com.github.tommyettinger.textra.TextraField#messageText:field	protected messageText	
+Protected	com.github.tommyettinger.textra.TextraField#moveCursor	protected moveCursor	
+Protected	com.github.tommyettinger.textra.TextraField#moveCursorVertically	protected moveCursorVertically	
+Protected	com.github.tommyettinger.textra.TextraField#onlyFontChars:field	protected onlyFontChars	
+Protected	com.github.tommyettinger.textra.TextraField#passwordCharacter:field	protected passwordCharacter	
+Protected	com.github.tommyettinger.textra.TextraField#passwordMode:field	protected passwordMode	
+Protected	com.github.tommyettinger.textra.TextraField#paste	protected paste	
+Protected	com.github.tommyettinger.textra.TextraField#positionChanged	protected positionChanged	
+Protected	com.github.tommyettinger.textra.TextraField#programmaticChangeEvents:field	protected programmaticChangeEvents	
+Protected	com.github.tommyettinger.textra.TextraField#renderOffset:field	protected renderOffset	
+Protected	com.github.tommyettinger.textra.TextraField#setParent	protected setParent	
+Protected	com.github.tommyettinger.textra.TextraField#setStage	protected setStage	
+Protected	com.github.tommyettinger.textra.TextraField#showingMessage:field	protected showingMessage	
+Protected	com.github.tommyettinger.textra.TextraField#sizeChanged	protected sizeChanged	
+Protected	com.github.tommyettinger.textra.TextraField#style:field	protected style	
+Protected	com.github.tommyettinger.textra.TextraField#text:field	protected text	
+Protected	com.github.tommyettinger.textra.TextraField#textHAlign:field	protected textHAlign	
+Protected	com.github.tommyettinger.textra.TextraField#textOffset:field	protected textOffset	
+Protected	com.github.tommyettinger.textra.TextraField#undoText:field	protected undoText	
+Protected	com.github.tommyettinger.textra.TextraField#visibleTextEnd:field	protected visibleTextEnd	
+Protected	com.github.tommyettinger.textra.TextraField#visibleTextStart:field	protected visibleTextStart	
+Protected	com.github.tommyettinger.textra.TextraField#wordUnderCursor	protected wordUnderCursor	
+Protected	com.github.tommyettinger.textra.TextraField#writeEnters:field	protected writeEnters	
+Protected	com.github.tommyettinger.textra.TextraField$TextFieldClickListener#checkFocusTraversal	protected checkFocusTraversal	
+Protected	com.github.tommyettinger.textra.TextraField$TextFieldClickListener#goEnd	protected goEnd	
+Protected	com.github.tommyettinger.textra.TextraField$TextFieldClickListener#goHome	protected goHome	
+Protected	com.github.tommyettinger.textra.TextraField$TextFieldClickListener#scheduleKeyRepeatTask	protected scheduleKeyRepeatTask	
+Protected	com.github.tommyettinger.textra.TextraField$TextFieldClickListener#setCursorPosition	protected setCursorPosition	
+Protected	com.github.tommyettinger.textra.TextraLabel#defaultToken:field	protected defaultToken	
+Protected	com.github.tommyettinger.textra.TextraLabel#font:field	protected font	
+Protected	com.github.tommyettinger.textra.TextraLabel#prefSizeInvalid:field	protected prefSizeInvalid	
+Protected	com.github.tommyettinger.textra.TextraListBox#drawBackground	protected drawBackground	
+Protected	com.github.tommyettinger.textra.TextraListBox#drawSelection	protected drawSelection	
+Protected	com.github.tommyettinger.textra.TextraListBox#items:field	protected items	
+Protected	com.github.tommyettinger.textra.TextraListBox#style:field	protected style	
+Protected	com.github.tommyettinger.textra.TextraSelectBox#drawItem	protected drawItem	
+Protected	com.github.tommyettinger.textra.TextraSelectBox#getBackgroundDrawable	protected getBackgroundDrawable	
+Protected	com.github.tommyettinger.textra.TextraSelectBox#getFontColor	protected getFontColor	
+Protected	com.github.tommyettinger.textra.TextraSelectBox#newLabel	protected newLabel	
+Protected	com.github.tommyettinger.textra.TextraSelectBox#newScrollPane	protected newScrollPane	
+Protected	com.github.tommyettinger.textra.TextraSelectBox#onHide	protected onHide	
+Protected	com.github.tommyettinger.textra.TextraSelectBox#onShow	protected onShow	
+Protected	com.github.tommyettinger.textra.TextraSelectBox#setStage	protected setStage	
+Protected	com.github.tommyettinger.textra.TextraSelectBox#toString	protected toString	
+Protected	com.github.tommyettinger.textra.TextraSelectBox$SelectBoxScrollPane#newList	protected newList	
+Protected	com.github.tommyettinger.textra.TextraSelectBox$SelectBoxScrollPane#setStage	protected setStage	
+Protected	com.github.tommyettinger.textra.TextraTooltip#newLabel(String,Font)	protected newLabel	
+Protected	com.github.tommyettinger.textra.TextraTooltip#newLabel(String,Font,Color)	protected newLabel	
+Protected	com.github.tommyettinger.textra.TextraTooltip#newLabel(String,LabelStyle)	protected newLabel	
+Protected	com.github.tommyettinger.textra.TextraTooltip#newLabel(String,LabelStyle,Font)	protected newLabel	
+Protected	com.github.tommyettinger.textra.TextraWindow#dragging:field	protected dragging	
+Protected	com.github.tommyettinger.textra.TextraWindow#drawStageBackground	protected drawStageBackground	
+Protected	com.github.tommyettinger.textra.TextraWindow#edge:field	protected edge	
+Protected	com.github.tommyettinger.textra.TextraWindow#font:field	protected font	
+Protected	com.github.tommyettinger.textra.TextraWindow#newLabel(String,Font,Color)	protected newLabel	
+Protected	com.github.tommyettinger.textra.TextraWindow#newLabel(String,LabelStyle)	protected newLabel	
+Protected	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#activateTexture	protected activateTexture	
+Protected	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#colorPacked:field	protected colorPacked	
+Protected	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#setupMatrices	protected setupMatrices	
+Protected	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#switchTexture	protected switchTexture	
+Protected	com.github.tommyettinger.textra.TypingButton#newLabel(String,Font,Color)	protected newLabel	
+Protected	com.github.tommyettinger.textra.TypingButton#newLabel(String,LabelStyle)	protected newLabel	
+Protected	com.github.tommyettinger.textra.TypingCheckBox#newImage	protected newImage	
+Protected	com.github.tommyettinger.textra.TypingDialog#ignoreTouchDown:field	protected ignoreTouchDown	
+Protected	com.github.tommyettinger.textra.TypingDialog#newLabel(String,Font,Color)	protected newLabel	
+Protected	com.github.tommyettinger.textra.TypingDialog#newLabel(String,LabelStyle)	protected newLabel	
+Protected	com.github.tommyettinger.textra.TypingDialog#newTypingLabel(String,Font,Color)	protected newTypingLabel	
+Protected	com.github.tommyettinger.textra.TypingDialog#newTypingLabel(String,LabelStyle)	protected newTypingLabel	
+Protected	com.github.tommyettinger.textra.TypingDialog#result	protected result	
+Protected	com.github.tommyettinger.textra.TypingLabel#activeEffects:field	protected activeEffects	
+Protected	com.github.tommyettinger.textra.TypingLabel#defaultJustify:field	protected defaultJustify	
+Protected	com.github.tommyettinger.textra.TypingLabel#dragging:field	protected dragging	
+Protected	com.github.tommyettinger.textra.TypingLabel#restoreOriginalText	protected restoreOriginalText	
+Protected	com.github.tommyettinger.textra.TypingLabel#saveOriginalText	protected saveOriginalText	
+Protected	com.github.tommyettinger.textra.TypingLabel#subAct	protected subAct	
+Protected	com.github.tommyettinger.textra.TypingSelectBox#newLabel	protected newLabel	
+Protected	com.github.tommyettinger.textra.TypingTooltip#newLabel(String,Font)	protected newLabel	
+Protected	com.github.tommyettinger.textra.TypingTooltip#newLabel(String,Font,Color)	protected newLabel	
+Protected	com.github.tommyettinger.textra.TypingTooltip#newLabel(String,LabelStyle)	protected newLabel	
+Protected	com.github.tommyettinger.textra.TypingTooltip#newLabel(String,LabelStyle,Font)	protected newLabel	
+Protected	com.github.tommyettinger.textra.TypingWindow#newLabel(String,Font,Color)	protected newLabel	
+Protected	com.github.tommyettinger.textra.TypingWindow#newLabel(String,LabelStyle)	protected newLabel	
+Protected	com.github.tommyettinger.textra.effects.AttentionEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.BlinkEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.CannonEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.CarouselEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.CrowdEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.EaseEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.EmergeEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.FadeEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.GradientEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.HangEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.HeartbeatEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.HighlightEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.InstantEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.JoltEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.JumpEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.LinkEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.MeetEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.OceanEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.PinchEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.RainbowEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.RotateEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.ScaleEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.ShakeEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.ShootEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.ShrinkEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.SickEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.SlamEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.SlideEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.SlipEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.SpinEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.SpiralEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.SputterEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.SquashEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.StylistEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.ThinkingEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.ThrobEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.TriggerEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.WaveEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.WindEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.effects.ZipperEffect#onApply	protected onApply	
+Protected	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap#place	protected place	
+Protected	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap#putResize	protected putResize	
+Public	com.github.tommyettinger.textra.FWSkinLoader#newSkin	public newSkin	
+Public	com.github.tommyettinger.textra.InternalToken#category:field	public category	
+Public	com.github.tommyettinger.textra.InternalToken#fromName	public fromName	
+Public	com.github.tommyettinger.textra.Layout#atLimit:field	public atLimit	
+Public	com.github.tommyettinger.textra.Layout#baseColor:field	public baseColor	
+Public	com.github.tommyettinger.textra.Layout#ellipsis:field	public ellipsis	
+Public	com.github.tommyettinger.textra.Layout#font:field	public font	
+Public	com.github.tommyettinger.textra.Layout#justification:field	public justification	
+Public	com.github.tommyettinger.textra.Layout#lines:field	public lines	
+Public	com.github.tommyettinger.textra.Layout#maxLines:field	public maxLines	
+Public	com.github.tommyettinger.textra.Layout#targetWidth:field	public targetWidth	
+Public	com.github.tommyettinger.textra.TextraDialog#buttonTable:field	public buttonTable	
+Public	com.github.tommyettinger.textra.TextraDialog#cancelHide:field	public cancelHide	
+Public	com.github.tommyettinger.textra.TextraDialog#contentTable:field	public contentTable	
+Public	com.github.tommyettinger.textra.TextraDialog#focusListener:field	public focusListener	
+Public	com.github.tommyettinger.textra.TextraDialog#previousKeyboardFocus:field	public previousKeyboardFocus	
+Public	com.github.tommyettinger.textra.TextraDialog#previousScrollFocus:field	public previousScrollFocus	
+Public	com.github.tommyettinger.textra.TextraDialog#values:field	public values	
+Public	com.github.tommyettinger.textra.TextraField#<init>()	public <init>	
+Public	com.github.tommyettinger.textra.TextraField#changeText(String,String)	public changeText	
+Public	com.github.tommyettinger.textra.TextraField#changeText(int,CharSequence)	public changeText	
+Public	com.github.tommyettinger.textra.TextraField#withinMaxLength	public withinMaxLength	
+Public	com.github.tommyettinger.textra.TextraField$KeyRepeatTask#<init>	public <init>	
+Public	com.github.tommyettinger.textra.TextraField$KeyRepeatTask#keycode:field	public keycode	
+Public	com.github.tommyettinger.textra.TextraSelectBox#disabled:field	public disabled	
+Public	com.github.tommyettinger.textra.TextraSelectBox#items:field	public items	
+Public	com.github.tommyettinger.textra.TextraSelectBox#scrollPane:field	public scrollPane	
+Public	com.github.tommyettinger.textra.TextraSelectBox#selectedPrefWidth:field	public selectedPrefWidth	
+Public	com.github.tommyettinger.textra.TextraSelectBox$SelectBoxScrollPane#list:field	public list	
+Public	com.github.tommyettinger.textra.TextraSelectBox$SelectBoxScrollPane#maxListCount:field	public maxListCount	
+Public	com.github.tommyettinger.textra.TextraSelectBox$SelectBoxScrollPane#selectBox:field	public selectBox	
+Public	com.github.tommyettinger.textra.TextraWindow#drawBackground	public drawBackground	
+Public	com.github.tommyettinger.textra.TextraWindow#drawTitleTable:field	public drawTitleTable	
+Public	com.github.tommyettinger.textra.TextraWindow#titleLabel:field	public titleLabel	
+Public	com.github.tommyettinger.textra.TextraWindow#titleTable:field	public titleTable	
+Public	com.github.tommyettinger.textra.TextraWindow$InternalListener#<init>	public <init>	
+Public	com.github.tommyettinger.textra.TextraWindow$InternalListener#lastX:field	public lastX	
+Public	com.github.tommyettinger.textra.TextraWindow$InternalListener#lastY:field	public lastY	
+Public	com.github.tommyettinger.textra.TextraWindow$InternalListener#startX:field	public startX	
+Public	com.github.tommyettinger.textra.TextraWindow$InternalListener#startY:field	public startY	
+Public	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#SPRITE_SIZE:field	public SPRITE_SIZE	
+Public	com.github.tommyettinger.textra.TextureArrayPolygonSpriteBatch#VERTEX_SIZE:field	public VERTEX_SIZE	
+Public	com.github.tommyettinger.textra.TokenEntry#<init>	public <init>	
+Public	com.github.tommyettinger.textra.TokenEntry#category:field	public category	
+Public	com.github.tommyettinger.textra.TokenEntry#effect:field	public effect	
+Public	com.github.tommyettinger.textra.TokenEntry#endIndex:field	public endIndex	
+Public	com.github.tommyettinger.textra.TokenEntry#floatValue:field	public floatValue	
+Public	com.github.tommyettinger.textra.TokenEntry#index:field	public index	
+Public	com.github.tommyettinger.textra.TokenEntry#stringValue:field	public stringValue	
+Public	com.github.tommyettinger.textra.TokenEntry#token:field	public token	
+Public	com.github.tommyettinger.textra.TypingConfig#EFFECT_END_TOKENS:field	public EFFECT_END_TOKENS	
+Public	com.github.tommyettinger.textra.TypingConfig#EFFECT_START_TOKENS:field	public EFFECT_START_TOKENS	
+Public	com.github.tommyettinger.textra.TypingConfig#dirtyEffectMaps:field	public dirtyEffectMaps	
+Public	com.github.tommyettinger.textra.TypingDialog#buttonTable:field	public buttonTable	
+Public	com.github.tommyettinger.textra.TypingDialog#cancelHide:field	public cancelHide	
+Public	com.github.tommyettinger.textra.TypingDialog#contentTable:field	public contentTable	
+Public	com.github.tommyettinger.textra.TypingDialog#focusListener:field	public focusListener	
+Public	com.github.tommyettinger.textra.TypingDialog#previousKeyboardFocus:field	public previousKeyboardFocus	
+Public	com.github.tommyettinger.textra.TypingDialog#previousScrollFocus:field	public previousScrollFocus	
+Public	com.github.tommyettinger.textra.TypingDialog#values:field	public values	
+Public	com.github.tommyettinger.textra.TypingLabel#tokenEntries:field	public tokenEntries	
+Public	com.github.tommyettinger.textra.TypingLabel#workingLayout:field	public workingLayout	
+Public	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap#loadFactor:field	public loadFactor	
+Public	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap$MapIterator#currentIndex:field	public currentIndex	
+Public	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap$MapIterator#findNextIndex	public findNextIndex	
+Public	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap$MapIterator#map:field	public map	
+Public	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap$MapIterator#nextIndex:field	public nextIndex	
+Public	com.github.tommyettinger.textra.utils.CaseInsensitiveIntMap$MapIterator#valid:field	public valid	
