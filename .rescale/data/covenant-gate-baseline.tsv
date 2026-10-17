@@ -36,13 +36,6 @@ sge-extension/graphs/src/main/scala/sge/graphs/algorithms/DepthFirstSearch.scala
 sge-extension/graphs/src/main/scala/sge/graphs/algorithms/SearchStep.scala	shortcut-drift	1
 sge-extension/graphs/src/main/scala/sge/graphs/internal/BinaryHeap.scala	shortcut-drift	4
 sge-extension/graphs/src/main/scala/sge/graphs/internal/NodeMap.scala	shortcut-drift	20
-sge-extension/textra/src/main/scala/sge/textra/BitmapFontSupport.scala	shortcut-drift	1
-sge-extension/textra/src/main/scala/sge/textra/Font.scala	shortcut-drift	3
-sge-extension/textra/src/main/scala/sge/textra/LzmaUtils.scala	shortcut-drift	25
-sge-extension/textra/src/main/scala/sge/textra/TextraLabel.scala	shortcut-drift	1
-sge-extension/textra/src/main/scala/sge/textra/TypingLabel.scala	shortcut-drift	1
-sge-extension/textra/src/main/scala/sge/textra/utils/ColorUtils.scala	shortcut-drift	3
-sge-extension/textra/src/main/scala/sge/textra/utils/LZBCompression.scala	shortcut-drift	1
 sge-extension/visui/src/main/scala/sge/visui/VisUISkinReaders.scala	missing-header	1
 sge-jvm-platform/api/src/main/scala/sge/platform/android/AndroidConfigOps.scala	missing-header	1
 sge-jvm-platform/api/src/main/scala/sge/platform/android/AndroidEventListenerOps.scala	missing-header	1
