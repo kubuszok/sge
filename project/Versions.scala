@@ -15,7 +15,7 @@ object Versions {
   val gears            = "0.3.1"
   val kindlings        = "0.3.3"
   val lls              = "0.3.0-58-g4b7e9d4-SNAPSHOT"
-  val scribe           = "3.19.0"
+  val scribe           = "3.19.1"
   val scalajsDom       = "2.8.1"
   val scalaSaxParser   = "0.1.1"
   val scalaJavaTime    = "2.7.0"
