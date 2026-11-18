@@ -120,7 +120,7 @@ lazy val root = (project in file("."))
     },
     // Plugin dependencies — these are available to projects that enable SgePlugin.
     // sbt-projectmatrix is merged into sbt 2.0 (no longer added separately).
-    addSbtPlugin("org.scala-js"     % "sbt-scalajs"        % "1.22.0"),
+    addSbtPlugin("org.scala-js"     % "sbt-scalajs"        % "1.23.0"),
     addSbtPlugin("org.scala-native" % "sbt-scala-native"   % "0.5.12"),
     addSbtPlugin("org.scalameta"    % "sbt-scalafmt"       % "2.5.6"),
     // multiarch-scala — provides Platform, NativeProviderPlugin, ZigCross, JvmPackaging
