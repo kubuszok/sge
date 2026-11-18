@@ -640,7 +640,7 @@ jobs:
             sbt 'sge-android-smoke/androidSign'
             echo "=== .apk files produced ==="; find "$(pwd)" -name '*.apk' 2>/dev/null; find "$HOME" -name 'app-debug.apk' 2>/dev/null | head
             bash -ec 'sbt "sge-it-android/testFull" 2>&1 | tee /tmp/android-it.log; exit ${PIPESTATUS[0]}'
-            grep -qE 'Passed: Total [1-9]' /tmp/android-it.log || { echo '::error::munit summary missing - the forked test JVM died uncleanly (crash), not a clean fail'; exit 1; }
+            grep -qE '[Pp]assed: [Tt]otal [1-9]' /tmp/android-it.log || { echo '::error::munit summary missing - the forked test JVM died uncleanly (crash), not a clean fail'; exit 1; }
             ! grep -qE '==> X ' /tmp/android-it.log || { echo '::error::munit failure marker present in output (failures cannot hide behind exit 0)'; exit 1; }
 
   # ─── Demos, for commits release.yml publishes no snapshot for ───────

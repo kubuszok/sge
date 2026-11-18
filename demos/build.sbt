@@ -14,7 +14,6 @@ ThisBuild / resolvers ++= Seq(
   Resolver.defaultLocal,
   "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots"
 )
-ThisBuild / updateOptions := updateOptions.value.withCachedResolution(false)
 
 // ── Azul Zulu JDK 25 URLs for distribution packaging ─────────────
 
