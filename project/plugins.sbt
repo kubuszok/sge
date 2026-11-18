@@ -6,7 +6,7 @@ addRemoteCachePlugin
 
 // kubuszok plugin (bundles: sbt-git, sbt-scalafmt, sbt-scoverage, sbt-scalajs, sbt-scala-native, sbt-commandmatrix, sbt-pgp, and more)
 // sbt-projectmatrix is merged into sbt 2.0 (no longer added separately).
-addSbtPlugin("com.kubuszok" % "sbt-kubuszok" % "0.2.3")
+addSbtPlugin("com.kubuszok" % "sbt-kubuszok" % "0.2.4")
 // multiarch-scala (Platform, NativeProviderPlugin, ZigCross, JvmPackaging)
 addSbtPlugin("com.kubuszok" % "sbt-multiarch-scala" % "0.4.0-20-ga3e0f08-SNAPSHOT")
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
