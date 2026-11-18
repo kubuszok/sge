@@ -11,11 +11,6 @@ on:
   pull_request:
     branches: [master]
 
-# Cancel in-progress runs for the same branch/tag
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   # ─── Release gate (ISS-695) ─────────────────────────────────────────
   #
