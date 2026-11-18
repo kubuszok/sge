@@ -7,7 +7,7 @@ addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.6")
 // and defines the `ci-release` command + the Sonatype `publishTo` wiring keyed
 // off `projectType`. Adding it here gives sge-build the identical release path so
 // the documented plugin (docs/getting-started.md) resolves from Maven Central.
-addSbtPlugin("com.kubuszok" % "sbt-kubuszok" % "0.2.3")
+addSbtPlugin("com.kubuszok" % "sbt-kubuszok" % "0.2.4")
 // Mirror the root meta-build: force a single scala-xml suffix so sbt-scalafmt's
 // 2.13 transitive (scalafmt-dynamic -> coursier_2.13 -> scala-xml_2.13) does not
 // trip sbt 2.0's conflicting-cross-version-suffix guard against the _3 build sbt
