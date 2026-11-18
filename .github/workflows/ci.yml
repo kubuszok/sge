@@ -193,7 +193,7 @@ jobs:
 
       - name: Run sge-build unit tests
         working-directory: sge-build
-        run: sbt test
+        run: sbt testFull
 
       - name: Run sge-build scripted tests
         working-directory: sge-build

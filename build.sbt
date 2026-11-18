@@ -312,7 +312,6 @@ def balticPorterGenProjectSettings(ext: BalticPorterExtGen.Ext): Seq[Setting[?]]
   Compile / unmanagedSourceDirectories := Nil,
   Test / unmanagedSourceDirectories := Nil,
   maxErrors := 100000,
-  publish / skip := true,
   scalacOptions += Def.uncached(s"-Wconf:src=target/balticporter-${ext.module}/.*:s"),
   scalacOptions += Def.uncached(s"-Xmacro-settings:balticporter.nonce=${System.nanoTime}")
 )
@@ -1512,8 +1511,7 @@ val `sge-gauntlet` = (projectMatrix in file("sge-test/gauntlet"))
     MatrixAction.ForAll.Configure(_.settings(SgePlugin.relaxedSettings *)),
     MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(Seq(
       // Versions.nativeComponents is a SNAPSHOT — the provider JAR carrying the
-      // desktop native libs lives on Maven Central Snapshots (mirror sge-it-desktop).
-      resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
+      // desktop native libs lives on Maven Central Snapshots (resolver added by sbt-kubuszok).
       // ISS-796 bounce: provider JARs are NOT reliably transitive across project
       // dependencies (see the sge-gltf ISS-533 note) — the physics-step and
       // freetype-glyph probes need their native providers wired explicitly on this
@@ -1567,7 +1565,6 @@ val `sge-it-desktop` = (projectMatrix in file("sge-test/it-desktop"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(Versions.scala3))
   .someVariations(Versions.scalas, List(VirtualAxis.jvm))((commonSettings("sge-test/it-desktop") ++ dev.only1VersionInIDE ++ Seq(
     MatrixAction.ForPlatforms(VirtualAxis.jvm).Configure(_.settings(Seq(
-      resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
       libraryDependencies += "com.outr" %% "scribe" % Versions.scribe,
       Compile / unmanagedClasspath ++= Def.uncached {
         val conv        = fileConverter.value
@@ -1627,8 +1624,7 @@ val `sge-it-jvm-platform` = (projectMatrix in file("sge-test/it-jvm-platform"))
   .settings(mimaSettings)
   .settings(
     // Versions.nativeComponents is a SNAPSHOT — the provider JAR carrying
-    // libsge_native_ops lives on Maven Central Snapshots (mirror sge-it-desktop).
-    resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
+    // libsge_native_ops lives on Maven Central Snapshots (resolver added by sbt-kubuszok).
     libraryDependencies += "com.kubuszok" %% "multiarch-panama-jdk" % Versions.multiarch,
     // multiarch.core.NativeLibLoader (the provider-JAR loader used below) lives
     // in multiarch-core, which is not transitive from multiarch-panama-jdk on
