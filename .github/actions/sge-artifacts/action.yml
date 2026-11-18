@@ -32,15 +32,18 @@ runs:
         printf '%s' "$SGE_VERSION" > demos/.sge-version
         base=https://central.sonatype.com/repository/maven-snapshots/com/kubuszok
         for artifact in sge_3 sge_sjs1_3 sge_native0.5_3 sge-build_sbt2_3; do
-          # the pom, not the version's maven-metadata.xml: the snapshot repository serves the latter
-          # for some artifacts only
+          # Either file proves the snapshot is published: sbt 2.0 wrote a plain -SNAPSHOT.pom (with
+          # maven-metadata.xml served for some artifacts only), while sbt 2.1 writes timestamped
+          # files only, so there the version's maven-metadata.xml is the one to look for.
           url="$base/$artifact/$SGE_VERSION/$artifact-$SGE_VERSION.pom"
+          metadata="$base/$artifact/$SGE_VERSION/maven-metadata.xml"
           for attempt in $(seq 1 40); do
             code=$(curl -s -o /dev/null -w '%{http_code}' "$url" || true)
+            [ "$code" = "200" ] || code=$(curl -s -o /dev/null -w '%{http_code}' "$metadata" || true)
             if [ "$code" = "200" ]; then echo "$artifact $SGE_VERSION is published"; continue 2; fi
             echo "waiting for $artifact $SGE_VERSION (HTTP $code, attempt $attempt/40)"; sleep 15
           done
-          echo "::error::$artifact $SGE_VERSION never appeared at $url"; exit 1
+          echo "::error::$artifact $SGE_VERSION never appeared at $url or $metadata"; exit 1
         done
 
     - name: Publish sge locally
