@@ -12,7 +12,7 @@ inputs:
     required: true
   require:
     description: extended regex that must match at least one output line (empty = not checked)
-    default: "Passed: Total [1-9]"
+    default: "[Pp]assed: [Tt]otal [1-9]"
   sentinel:
     description: path of a file the run writes on clean completion (empty = not checked)
     default: ""
@@ -46,7 +46,7 @@ runs:
           code=${PIPESTATUS[0]}
           set -e
           if [ "$code" -eq 0 ] || [ "$attempt" -ge 3 ] || ! grep -qE "$download" "$log" ||
-             grep -qE '==> X |Failed: Total|Failed tests:' "$log"; then
+             grep -qE '==> X |[Ff]ailed: [Tt]otal|Failed tests:' "$log"; then
             break
           fi
           echo "dependency download failed, retrying (attempt $((attempt + 1)) of 3)"
