@@ -21,7 +21,7 @@ ThisBuild / libraryDependencySchemes += "com.kubuszok" %% "balticporter-engine" 
 // sbt-2.0 meta-build runs on Scala 3, so pin the 2.13 artifact explicitly
 // (JVM-only library; binary-compatible on a Scala 3 classpath). Mark it
 // intransitive — its scalajs-js-envs / scalajs-env-nodejs / scalajs-logging
-// deps are already provided as _3 by sbt-scalajs 1.22, and pulling their _2.13
+// deps are already provided as _3 by sbt-scalajs 1.23, and pulling their _2.13
 // variants triggers a conflicting-cross-version-suffix error.
 libraryDependencies += ("org.scala-js" % "scalajs-env-jsdom-nodejs_2.13" % "1.1.1").intransitive()
 
