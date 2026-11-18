@@ -68,13 +68,16 @@ lazy val al = new Aliases(
     `sge-it-android`,
     `sge-it-native-ffi`
   )
-)
+) {
+  // The blocking `docs` CI job runs doc-<platform>-3 (below) separately, so ci-<platform>-3 does not run Scaladoc too.
+  override protected def docInCi: Boolean = false
 
-// The platform × Scala-binary combinations this build cross-publishes. The
-// former `al.usefulTasks(...)` helper registered ci-*/test-*/publishLocal-*
-// command aliases per combination as a side effect; on the sbt-2.0 axis that
-// helper is gone, so we register the same aliases explicitly via
-// addCommandAlias. Scala 3.8.x → binary "3"; platforms JVM/JS/Native.
+  override def ci(platform: String, scalaBinary: String): String = dropClean(dropCoverage(super.ci(platform, scalaBinary)))
+}
+
+// The platform × Scala-binary combinations this build cross-publishes, for the project-specific
+// publishLocal-*/doc-*/testCompile-* aliases (ci-*/test-* come from `al.commandAliases()`).
+// Scala 3.8.x → binary "3"; platforms JVM/JS/Native.
 lazy val sgeAliasCombinations: Seq[(String, String)] =
   Versions.platforms.collect {
     case VirtualAxis.jvm    => "JVM"
@@ -82,16 +85,9 @@ lazy val sgeAliasCombinations: Seq[(String, String)] =
     case VirtualAxis.native => "Native"
   }.map(p => (p, "3"))
 
-// Mirrors the (protected) Aliases.aliasName: e.g. ("ci", "JVM", "3") -> "ci-jvm-3".
+// Mirrors the (protected) Aliases.aliasName: e.g. ("doc", "JVM", "3") -> "doc-jvm-3".
 def sgeAliasName(prefix: String, platform: String, scalaBin: String): String =
   s"$prefix-${platform.toLowerCase}-${scalaBin.replace('.', '_')}"
-
-// sbt 2.0 changed `test` to an INCREMENTAL/cached task — on a fresh CI checkout
-// `<id>/test` runs 0 suites (silent false-green). The Aliases helper still emits
-// `<id>/test`, so rewrite the task to `<id>/testFull` (the non-incremental form)
-// in the ci-*/test-* aliases. Only the `/test` task suffix is rewritten; `/compile`,
-// `coverage`, `clean` etc. are untouched (no project id ends in a bare `/test`).
-def testFullify(cmd: String): String = cmd.replace("/test", "/testFull")
 
 // scoverage produces NO usable aggregate report on Scala 3.8.x under sbt 2.0 AND
 // its per-test measurement files race under parallel execution, intermittently
@@ -108,17 +104,17 @@ def dropCoverage(cmd: String): String =
 // runner starts from an empty target/, so the step buys nothing there; locally run `clean` yourself.
 def dropClean(cmd: String): String = cmd.stripPrefix("clean ; ")
 
-lazy val sgeCommandAliases: Seq[Def.Setting[State => State]] =
+lazy val sgeCommandAliases: Seq[Def.Setting[?]] =
   // generatePort: run the Baltic Porter generation (shared tree, every platform row, resources) and
   // nothing else — what the CI `generate` job runs before publishing target/balticporter-sge.
   addCommandAlias("generatePort", "sge/Compile/managedSources ; sge/Compile/managedResources ; sge-ecs/Compile/managedSources ; sge-ecs/Test/managedSources ; sge-noise/Compile/managedSources ; sge-anim8/Compile/managedSources ; sge-jbump/Compile/managedSources ; sge-screens/Compile/managedSources ; sge-vfx/Compile/managedSources ; sge-tools/Compile/managedSources ; sge-colorful/Compile/managedSources ; sge-visui/Compile/managedSources ; sge-ai/Compile/managedSources ; sge-textra/Compile/managedSources") ++
   // verifyLocal: the gate before a push — every platform's tests, then record the verified commit
   // (target/local-verification; the push hook of the balticporter Claude Code plugin reads it).
   addCommandAlias("verifyLocal", "scalafmtCheckAll ; scalafmtSbtCheck ; ci-jvm-3 ; test-js-3 ; test-native-3 ; markVerified") ++
+  // ci-<platform>-3 (without clean/coverage, see `al` above) and test-<platform>-3, running `testFull`.
+  al.commandAliases() ++
   sgeAliasCombinations.flatMap { case (platform, scalaBin) =>
-    addCommandAlias(sgeAliasName("ci", platform, scalaBin), dropClean(dropCoverage(testFullify(al.ci(platform, scalaBin))))) ++
-      addCommandAlias(sgeAliasName("test", platform, scalaBin), testFullify(al.test(platform, scalaBin))) ++
-      addCommandAlias(sgeAliasName("publishLocal", platform, scalaBin), al.publishLocal(platform, scalaBin).mkString(" ; ")) ++
+    addCommandAlias(sgeAliasName("publishLocal", platform, scalaBin), al.publishLocal(platform, scalaBin).mkString(" ; ")) ++
       // doc-<platform>-3: scaladoc for exactly the PUBLISHED modules (derived
       // from the publishLocal command list). Used by the blocking `docs` CI job
       // (ISS-753) — root `doc` would also aggregate test/IT modules, whose
@@ -1791,10 +1787,8 @@ lazy val root = (project in file("."))
   .aggregate(`sge-it-native-ffi`.projectRefs *)
   .settings(
     name := "sge-root"
-    // sbt-welcome (logo / usefulTasks) has no sbt-2.0 build and is no longer
-    // bundled by sbt-kubuszok on the sbt-2.0 axis. The command aliases the old
-    // `al.usefulTasks(...)` registered (ci-*, test-*, publishLocal-*) are now
-    // registered explicitly via addCommandAlias (see sgeCommandAliases below).
+    // ci-*/test-* come from `al.commandAliases()`, project-specific aliases are added
+    // in sgeCommandAliases (see above).
   )
   .settings(noPublishSettings)
   .settings(mimaSettings)
