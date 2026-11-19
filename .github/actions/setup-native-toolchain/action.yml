@@ -25,7 +25,9 @@ runs:
       shell: pwsh
       run: |
         $ErrorActionPreference = "Stop"
-        choco install llvm --yes
+        # upgrade, not install: the image preinstalls an LLVM that its own MSVC headers may reject
+        # (STL1000 "expected Clang 22 or newer" with clang 20.1.8), and `install` keeps it.
+        choco upgrade llvm --yes
         $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
         Import-Module "$vs\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
         Enter-VsDevShell -VsInstallPath $vs -DevCmdArguments "-arch=x64" -SkipAutomaticLocation
