@@ -674,8 +674,9 @@ object BufferUtils {
         dup.position(0)
         bb.asDoubleBuffer().put(dup)
         bb
-      case _ =>
-        throw new RuntimeException("Can't get ByteBuffer from a " + buf.getClass.getName + " instance")
+      // java.nio.Buffer is sealed (JDK 25) and every permitted subclass is matched above: only null
+      // reaches here, where java's `buf.getClass()` throws the same exception
+      case null => throw new NullPointerException("Can't get ByteBuffer from a null buffer")
     }
 
   private def positionInBytes(dst: Buffer): Int =
@@ -687,7 +688,7 @@ object BufferUtils {
       case _: LongBuffer   => dst.position() << 3
       case _: FloatBuffer  => dst.position() << 2
       case _: DoubleBuffer => dst.position() << 3
-      case _ => throw new RuntimeException("Can't copy to a " + dst.getClass.getName + " instance")
+      case null => throw new NullPointerException("Can't copy to a null buffer") // Buffer is sealed: only null is left
     }
 
   private def bytesToElements(dst: Buffer, bytes: Int): Int =
@@ -699,7 +700,7 @@ object BufferUtils {
       case _: LongBuffer   => bytes >>> 3
       case _: FloatBuffer  => bytes >>> 2
       case _: DoubleBuffer => bytes >>> 3
-      case _ => throw new RuntimeException("Can't copy to a " + dst.getClass.getName + " instance")
+      case null => throw new NullPointerException("Can't copy to a null buffer") // Buffer is sealed: only null is left
     }
 
   private def elementsToBytes(dst: Buffer, elements: Int): Int =
@@ -711,7 +712,7 @@ object BufferUtils {
       case _: LongBuffer   => elements << 3
       case _: FloatBuffer  => elements << 2
       case _: DoubleBuffer => elements << 3
-      case _ => throw new RuntimeException("Can't copy to a " + dst.getClass.getName + " instance")
+      case null => throw new NullPointerException("Can't copy to a null buffer") // Buffer is sealed: only null is left
     }
 
   def newFloatBuffer(numFloats: Int): FloatBuffer = {

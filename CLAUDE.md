@@ -7,7 +7,7 @@ converted, 0 not started, 66 skipped (stdlib replacements), 0 deferred.
 
 ## Build Rules
 
-- Scala **3.8.4**, compiler flags: `-deprecation -feature -no-indent -Werror`
+- Scala **3.9.0**, compiler flags: `-deprecation -feature -no-indent -Werror`
 - **Linter flags**: `-Wimplausible-patterns -Wrecurse-with-default -Wenum-comment-discard -Wunused:imports,privates,locals,patvars,nowarn`
 - **Braces required** (`-no-indent`): `{}` for all `trait`, `class`, `enum`, method defs
 - **Split packages**: `package sge` / `package graphics` / `package g2d` (never flat)
