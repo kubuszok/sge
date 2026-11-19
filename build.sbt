@@ -387,6 +387,10 @@ val sge: sbt.ProjectMatrix = (projectMatrix in file("sge"))
           val conv = fileConverter.value
           (Test / fullClasspath).value.filterNot(e => conv.toPath(e.data).getFileName.toString == "android.jar")
         },
+        // every suite's meshes register under SgeTestFixture's one NoopApplication in Mesh.meshes,
+        // libGDX's unsynchronized managed-mesh registry, so suites in one fork run one at a time
+        // (sbt 2 runs a fork's suites on parallel threads by default; JUnit ran them serially).
+        Test / parallelExecution := false,
         // libGDX's Timer thread is process-global, so the suites that touch it cannot overlap: each
         // runs in a forked JVM of its own (JUnit ran libGDX's test classes one at a time).
         Test / testGrouping := Def.uncached {
