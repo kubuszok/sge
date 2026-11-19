@@ -52,7 +52,7 @@ Execute ONE iteration of the plan §5 protocol:
       verification is a false positive (root cause of ISS-583/585/591,
       found by the ISS-515 red3 reproducer). If it cannot make the test fail, the issue may be stale —
       adjudicate, do not fix anyway.
-   b. IMPLEMENTER — `re-scale:port-implementer` for port issues, otherwise a
+   b. IMPLEMENTER — `re-scale-porting:port-implementer` for port issues, otherwise a
       general agent following `.claude/skills/fix-issue/SKILL.md`. ALWAYS
       **`model: "opus"`** (Opus 4.8; the override beats agent-definition
       defaults). Give it: issue id + full description, red-sha + test name,
@@ -66,7 +66,7 @@ Execute ONE iteration of the plan §5 protocol:
       does not exist), `re-scale enforce shortcuts --file` on changed files,
       `/ratchet-check`, and confirm the issue is still open — an implementer
       that resolved it gets the whole delivery rejected unreviewed.
-   d. AUDITOR — `re-scale:port-auditor` for port issues, otherwise a general
+   d. AUDITOR — `re-scale-porting:port-auditor` for port issues, otherwise a general
       agent following `.claude/skills/verify-issue/SKILL.md`. ALWAYS
       **`model: "opus"`** (Opus 4.8, standing in while Fable 5 is
       unavailable). The Agent tool only accepts the aliases sonnet/opus/haiku/

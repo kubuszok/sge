@@ -24,8 +24,9 @@ and find the id. Read the matching section of
    every branch, every edge case; no ad-hoc patches, no workarounds. If you
    believe the finding is a false positive, STOP and report evidence instead
    of "fixing" around it.
-3. **Fix.** Follow `/re-scale:guide-conversion`, `/re-scale:guide-nullable`,
-   `/re-scale:guide-control-flow`. Braces, no `return`, no `null`,
+3. **Fix.** Follow `/re-scale-porting:re-scale-porting-guide-conversion`,
+   `/re-scale-porting:re-scale-porting-guide-nullable`,
+   `/re-scale-porting:re-scale-porting-guide-control-flow`. Braces, no `return`, no `null`,
    `Nullable[A]`, final case classes, `(using Sge)` propagation, preserve all
    original comments.
 4. **Prove.** The red test now passes. For dead-parameter issues (options

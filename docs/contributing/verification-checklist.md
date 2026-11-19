@@ -58,5 +58,6 @@ Use this checklist when verifying an AI-converted file. Track status via
 ## Status Progression
 
 After verification, update status via `re-scale db audit set <file> pass`.
-See `/audit-file` and `/audit-package` skills for the full audit workflow,
+See the `/re-scale-porting:re-scale-porting-audit-file` and
+`/re-scale-porting:re-scale-porting-audit-package` skills for the full audit workflow,
 including covenant header baking.

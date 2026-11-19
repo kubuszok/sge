@@ -110,20 +110,21 @@ Rules:
 - Before any push: commit, then `sbt --client verifyLocal` (JVM, Scala.js and Scala Native tests; it
   records the verified commit in `target/local-verification`). A hook refuses the push otherwise.
 - The procedures — tracing a generated defect to the rule that produced it, bumping the engine pin,
-  driving sbt 2, what CI does with the generated tree — are skills of the `balticporter` Claude Code
-  plugin this repository enables (`.claude/settings.json`): `generated-code`, `root-cause-port`,
-  `consumer-ci`, `sbt2-client`, `cross-platform-port`.
+  driving sbt 2, what CI does with the generated tree — are skills of the `baltic-porter` Claude Code
+  plugin (kubuszok/agent-skills) this repository enables (`.claude/settings.json`):
+  `baltic-porter-generated-code`, `baltic-porter-root-cause-port`, `baltic-porter-consumer-ci`,
+  `baltic-porter-sbt2-client`, `baltic-porter-cross-platform-port`.
 
 ## CLI Toolkit: `re-scale`
 
 **Use `re-scale` commands for all development tasks.** The PreToolUse hook
-delegates to `re-scale hook`, which validates every Bash command — if
-denied, use the suggested alternative.
+(the `baltic-porter` plugin's guard) refuses a few commands — if denied,
+use the suggested alternative.
 
 Source repo: <https://github.com/kubuszok/re-scale>. Installed
-automatically by the re-scale plugin's SessionStart hook — it clones
-the pinned version to `~/.local/share/re-scale/<VERSION>/`, builds
-the Scala Native binary, and adds `bin/` to PATH for the session.
+automatically by the `re-scale-porting` plugin's SessionStart hook — it
+installs the pinned version with Coursier into
+`~/.local/share/re-scale/<VERSION>/bin` and adds it to PATH for the session.
 
 | Command | Purpose |
 |---------|---------|
@@ -172,10 +173,11 @@ for the rationale.
 
 ## Bash Restrictions
 
-**The re-scale plugin's PreToolUse hook validates ALL Bash commands.**
-Only `re-scale`, `sbt --client`, `git`, `cargo`, `npm`, `npx`, and
-`scala-cli` are allowed directly. All other commands are denied or
-redirected to dedicated tools:
+These are conventions; the `re-scale-hooks` plugin that would enforce them
+is not enabled here, because its default rules deny `git rebase`, `rm` and
+pipes the rebase-only workflow needs. Only `re-scale`, `sbt --client`,
+`git`, `cargo`, `npm`, `npx`, and `scala-cli` are used directly. All other
+commands are avoided or replaced by dedicated tools:
 
 - **Denied**: `python`/`python3`, `kill`/`pkill`, `rm -rf`, `sbt` (without `--client`)
 - **Redirected to tools**: `grep`→Grep, `find`/`ls`→Glob, `cat`/`head`/`tail`→Read, `sed`/`awk`→Edit
@@ -202,12 +204,12 @@ with information that isn't needed for the current task.
 
 | Context | Skill to load |
 |---------|---------------|
-| Converting a Java file to Scala | `/re-scale:guide-conversion` |
-| Code style, license headers, formatting | `/re-scale:guide-code-style` |
-| Replacing return/break/continue | `/re-scale:guide-control-flow` |
-| Nullable patterns, null safety | `/re-scale:guide-nullable` |
+| Converting a Java file to Scala | `/re-scale-porting:re-scale-porting-guide-conversion` |
+| Code style, license headers, formatting | `/re-scale-porting:re-scale-porting-guide-code-style` |
+| Replacing return/break/continue | `/re-scale-porting:re-scale-porting-guide-control-flow` |
+| Nullable patterns, null safety | `/re-scale-porting:re-scale-porting-guide-nullable` |
 | LibGDX→SGE class/package renames | `/guide-type-mappings` |
-| Post-conversion verification | `/re-scale:guide-verification` |
+| Post-conversion verification | `/re-scale-porting:re-scale-porting-guide-verification` |
 | Platform-specific code (JVM/JS/Native) | `/arch-platforms` |
 | FFI issues, native code bugs | `/arch-ffi` |
 | sbt build config, projectMatrix | `/arch-build` or `/arch-cross-platform` |
@@ -217,11 +219,11 @@ with information that isn't needed for the current task.
 | Packaging, distribution, releases | `/arch-packaging` |
 | Opaque types, API improvements | `/guide-improvements` |
 | Types from `lowlevel.*` (MkArray, Nullable, ArrayView, DynamicArray, collections) | `/guide-lls-types` |
-| Auditing a file | `/re-scale:audit-file <path>` |
-| Auditing a package | `/audit-package <pkg>` |
-| Finding code issues | `/re-scale:find-issues` |
-| Fixing enforcement gaps | `/re-scale:gap-fix <path>` |
-| Migration progress | `/re-scale:check-progress` |
+| Auditing a file | `/re-scale-porting:re-scale-porting-audit-file <path>` |
+| Auditing a package | `/re-scale-porting:re-scale-porting-audit-package <pkg>` |
+| Finding code issues | `/re-scale-porting:re-scale-porting-find-issues` |
+| Fixing enforcement gaps | `/re-scale-porting:re-scale-porting-gap-fix <path>` |
+| Migration progress | `/re-scale-porting:re-scale-porting-check-progress` |
 
 ## Conversion Guides
 
@@ -241,7 +243,7 @@ Path mapping: `com/badlogic/gdx/<path>.java` → `sge/src/main/scala/sge/<path>.
 Per-file audit trail comparing every SGE Scala file against its LibGDX Java source.
 Each audited file gets a `Migration notes:` block in its header comment.
 
-- **Skills**: `/re-scale:audit-file <path>`, `/audit-package <pkg>`, `/re-scale:audit-status [pkg]`
+- **Skills**: `/re-scale-porting:re-scale-porting-audit-file <path>`, `/re-scale-porting:re-scale-porting-audit-package <pkg>`, `/re-scale-porting:re-scale-porting-audit-status [pkg]`
 - **Database**: `re-scale db audit stats`, `re-scale db audit list --package <pkg>`
 - **Statuses**: `pass`, `minor_issues`, `major_issues`, `not_ported`
 - **In-file notes**: `Renames`, `Merged with`, `Convention`, `Idiom`, `TODOs`, `Audited` date
@@ -276,7 +278,7 @@ Covenant header format (added inside the existing file header comment block):
  * Covenant-verified: 2026-04-08
 ```
 
-`/audit-file` and `/verify-file` bake the covenant header automatically when
+`/re-scale-porting:re-scale-porting-audit-file` and `/re-scale-porting:re-scale-porting-verify-file` bake the covenant header automatically when
 a file is audited as `pass`. CI runs `re-scale enforce verify --all` as a
 gate.
 

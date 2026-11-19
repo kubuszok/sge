@@ -6,12 +6,13 @@
     "allow": ["Bash", "mcp__metals__*", "WebFetch", "WebSearch"]
   },
   "extraKnownMarketplaces": {
-    "kubuszok": { "source": { "source": "github", "repo": "kubuszok/agent-skills" } },
-    "balticporter": { "source": { "source": "github", "repo": "kubuszok/balticporter" } }
+    "kubuszok": { "source": { "source": "github", "repo": "kubuszok/agent-skills" } }
   },
   "enabledPlugins": {
     "sbt-kubuszok@kubuszok": true,
-    "balticporter@balticporter": true
+    "baltic-porter@kubuszok": true,
+    "re-scale-porting@kubuszok": true,
+    "multiarch-scala@kubuszok": true
   },
   "enabledMcpjsonServers": ["metals"],
   "enableAllProjectMcpServers": true,
