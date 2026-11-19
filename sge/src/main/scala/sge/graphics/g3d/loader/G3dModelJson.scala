@@ -22,6 +22,8 @@ package loader
 
 import sge.utils.{ JsonCodec, UBJsonCodec, fieldName }
 import sge.utils.given
+// the UBJSON derivation reads only its own rename annotation, never jsoniter's
+import hearth.kindlings.ubjsonderivation.annotations.fieldName as ubjsonFieldName
 
 /** JSON DTO case classes for the .g3dj 3D model format (LibGDX G3D).
   *
@@ -44,9 +46,9 @@ final case class G3dMeshJson(
 )
 
 final case class G3dMeshPartJson(
-  id:                     String,
-  @fieldName("type") tpe: String,
-  indices:                List[Short]
+  id:                                              String,
+  @fieldName("type") @ubjsonFieldName("type") tpe: String,
+  indices:                                         List[Short]
 )
 
 final case class G3dMaterialJson(
@@ -62,11 +64,11 @@ final case class G3dMaterialJson(
 )
 
 final case class G3dTextureJson(
-  id:                     String,
-  filename:               String,
-  uvTranslation:          Option[List[Float]] = None,
-  uvScaling:              Option[List[Float]] = None,
-  @fieldName("type") tpe: String
+  id:                                              String,
+  filename:                                        String,
+  uvTranslation:                                   Option[List[Float]] = None,
+  uvScaling:                                       Option[List[Float]] = None,
+  @fieldName("type") @ubjsonFieldName("type") tpe: String
 )
 
 final case class G3dNodeJson(

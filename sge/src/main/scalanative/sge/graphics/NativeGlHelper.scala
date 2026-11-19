@@ -74,7 +74,7 @@ private[graphics] object NativeGlHelper {
     case _: IntBuffer    => 4
     case _: LongBuffer   => 8
     case _: DoubleBuffer => 8
-    case _ => 1
+    case null => 1 // java.nio.Buffer is sealed (JDK 25): every subclass is matched above
   }
 
   /** Get a native pointer to the buffer's current position.

@@ -387,6 +387,10 @@ val sge: sbt.ProjectMatrix = (projectMatrix in file("sge"))
           val conv = fileConverter.value
           (Test / fullClasspath).value.filterNot(e => conv.toPath(e.data).getFileName.toString == "android.jar")
         },
+        // every suite's meshes register under SgeTestFixture's one NoopApplication in Mesh.meshes,
+        // libGDX's unsynchronized managed-mesh registry, so suites in one fork run one at a time
+        // (sbt 2 runs a fork's suites on parallel threads by default; JUnit ran them serially).
+        Test / parallelExecution := false,
         // libGDX's Timer thread is process-global, so the suites that touch it cannot overlap: each
         // runs in a forked JVM of its own (JUnit ran libGDX's test classes one at a time).
         Test / testGrouping := Def.uncached {
@@ -1297,7 +1301,7 @@ val `sge-android-robolectric` = (projectMatrix in file("sge-test/android-robolec
     testOptions += Tests.Argument(TestFramework("com.novocode.junit.JUnitFramework"), "-a", "-v"),
 
     libraryDependencies ++= Seq(
-      "org.robolectric" % "robolectric"              % "4.17"                     % Test,
+      "org.robolectric" % "robolectric"              % "4.18"                     % Test,
       // Provided (not Test): the android.* framework jar must be on the COMPILE
       // classpath so the impl sources type-check, and on the test classpath at
       // runtime. Provided keeps it off any published artifact (this module is
@@ -1309,7 +1313,7 @@ val `sge-android-robolectric` = (projectMatrix in file("sge-test/android-robolec
       // signatures while type-checking the impl sources, so `sandbox` must be on
       // the COMPILE classpath too — robolectric itself is Test-scoped and would
       // otherwise leave sandbox off compile.
-      "org.robolectric" % "sandbox"                  % "4.17"                     % Provided,
+      "org.robolectric" % "sandbox"                  % "4.18"                     % Provided,
       "com.github.sbt"  % "junit-interface"          % "0.13.3"                     % Test,
       "junit"           % "junit"                    % "4.13.2"                     % Test,
       // Mockito injects the exact caught exception types into MediaPlayer seams at
@@ -1669,7 +1673,7 @@ val `sge-it-browser` = (projectMatrix in file("sge-test/it-browser"))
   .settings(mimaSettings)
   .settings(
     Test / baseDirectory := (ThisBuild / baseDirectory).value,
-    libraryDependencies += "com.microsoft.playwright" % "playwright" % "1.64.0" % Test,
+    libraryDependencies += "com.microsoft.playwright" % "playwright" % "1.65.0" % Test,
     Test / resourceGenerators += Def.task {
       Def.uncached {
         val _ = (sge.js(Versions.scala3) / Compile / fullClasspath).value

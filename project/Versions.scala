@@ -13,14 +13,14 @@ object Versions {
 
   // Dependencies
   val gears            = "0.3.1"
-  val kindlings        = "0.3.3"
+  val kindlings        = "0.3.4"
   val lls              = "0.3.0-58-g4b7e9d4-SNAPSHOT"
   val scribe           = "3.19.1"
   val scalajsDom       = "2.8.1"
   val scalaSaxParser   = "0.1.1"
-  val scalaJavaTime    = "2.7.0"
-  val scalaJavaLocales = "1.5.4"
-  val sttp             = "4.0.27"
+  val scalaJavaTime    = "2.8.0"
+  val scalaJavaLocales = "1.6.0"
+  val sttp             = "4.1.3"
   val xml              = "2.5.0"
 
   // Tests
