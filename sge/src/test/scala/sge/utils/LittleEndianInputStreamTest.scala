@@ -20,7 +20,7 @@ class LittleEndianInputStreamTest extends munit.FunSuite {
   test("readByte returns correct value") {
     val in = makeLittleEndianStream(Array[Byte](42, -1, 0, 127))
     assertEquals(in.readByte(), 42.toByte)
-    assertEquals(in.readByte(), -1.toByte)
+    assertEquals(in.readByte(), (-1).toByte)
     assertEquals(in.readByte(), 0.toByte)
     assertEquals(in.readByte(), 127.toByte)
   }
@@ -37,7 +37,7 @@ class LittleEndianInputStreamTest extends munit.FunSuite {
   // ---- readUnsignedByte ----
 
   test("readUnsignedByte returns value in 0..255") {
-    val in = makeLittleEndianStream(Array[Byte](0, 127, -128.toByte, -1.toByte))
+    val in = makeLittleEndianStream(Array[Byte](0, 127, (-128).toByte, (-1).toByte))
     assertEquals(in.readUnsignedByte(), 0)
     assertEquals(in.readUnsignedByte(), 127)
     assertEquals(in.readUnsignedByte(), 128)
@@ -56,7 +56,7 @@ class LittleEndianInputStreamTest extends munit.FunSuite {
   test("readShort negative value") {
     // Value -1 = 0xFFFF -> bytes: 0xFF, 0xFF
     val in = makeLittleEndianStream(Array[Byte](0xff.toByte, 0xff.toByte))
-    assertEquals(in.readShort(), -1.toShort)
+    assertEquals(in.readShort(), (-1).toShort)
   }
 
   test("readShort zero") {
